@@ -14,7 +14,7 @@ namespace Rs.TexturAtlasCompiler
         public string Hash;
         public List<Mesh> Meshs;
         public List<Material> Mat;
-        public TextureAndDistansMap TextureAndDistansMap;
+        public List<PropatyAndTextureAndDistans> TextureAndDistansMap;
         //public string TexturePath = null;
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
@@ -34,8 +34,9 @@ namespace Rs.TexturAtlasCompiler
             ClearAssets<Material>();
             foreach (var mat in mats)
             {
-                mat.mainTexture = TextureAndDistansMap.texture2D;
+                //mat.mainTexture = TextureAndDistansMap.texture2D;
                 AssetDatabase.AddObjectToAsset(mat, this);
+                //Debug.Log(mat.shader.name);
             }
             AssetDatabase.ImportAsset(ThisPath);
             Mat = mats;
@@ -53,8 +54,11 @@ namespace Rs.TexturAtlasCompiler
         }
         public void DeletTexture()
         {
-            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TextureAndDistansMap.texture2D));
-            TextureAndDistansMap = null;
+            foreach (var TexAndDist in TextureAndDistansMap)
+            {
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TexAndDist.TextureAndDistansMap.Texture2D));
+            }
+            TextureAndDistansMap.Clear();
             /*
             if (!string.IsNullOrEmpty(TexturePath))
             {
@@ -62,15 +66,15 @@ namespace Rs.TexturAtlasCompiler
             }*/
         }
 
-        public void SetTexture(TextureAndDistansMap Souse)
+        public void SetTexture(PropatyAndTextureAndDistans Souse)
         {
-            TextureAndDistansMap = Souse;
+            TextureAndDistansMap.Add(Souse);
             var FilePath = ThisPath.Replace(Path.GetExtension(ThisPath), "");
-            FilePath += "_GenereatAtlasTex" + ".png";
+            FilePath += Souse.PropertyName + "_GenereatAtlasTex" + ".png";
             //TexturePath = FilePath;
-            File.WriteAllBytes(FilePath, Souse.texture2D.EncodeToPNG());
+            File.WriteAllBytes(FilePath, Souse.TextureAndDistansMap.Texture2D.EncodeToPNG());
             AssetDatabase.ImportAsset(FilePath);
-            TextureAndDistansMap.texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
+            TextureAndDistansMap[TextureAndDistansMap.IndexOf(Souse)].TextureAndDistansMap.Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
         }
         public static CompileDataContenar CreateCompileDataContenar(string path)
         {

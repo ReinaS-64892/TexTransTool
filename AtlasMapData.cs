@@ -42,17 +42,17 @@ namespace Rs.TexturAtlasCompiler
     [Serializable]
     public class TextureAndDistansMap
     {
-        public Texture2D texture2D;
+        public Texture2D Texture2D;
         public float[,] DistansMap;
 
         public TextureAndDistansMap(Texture2D texture2D, float[,] distansMap)
         {
-            this.texture2D = texture2D;
+            this.Texture2D = texture2D;
             DistansMap = distansMap;
         }
         public TextureAndDistansMap(Texture2D texture2D, float DefoultDistans)
         {
-            this.texture2D = texture2D;
+            this.Texture2D = texture2D;
             DistansMap = new float[texture2D.width, texture2D.height];
             foreach (var index in Utils.Reange2d(new Vector2Int(texture2D.width, texture2D.height)))
             {
