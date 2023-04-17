@@ -18,20 +18,27 @@ namespace Rs.TexturAtlasCompiler
         //public string TexturePath = null;
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
-        public void SetMeshEditableClone(CompileData Souse)
+        public void SetMesh(CompileData Souse)
         {
             ClearAssets<Mesh>();
-            List<Mesh> ClonedMesh = new List<Mesh>();
             foreach (var mesh in Souse.meshes)
             {
-                var clonemesh = Instantiate<Mesh>(mesh);
-                AssetDatabase.AddObjectToAsset(clonemesh, this);
-                ClonedMesh.Add(clonemesh);
+                AssetDatabase.AddObjectToAsset(mesh, this);
             }
             AssetDatabase.ImportAsset(ThisPath);
-            Souse.meshes = ClonedMesh;
-            Meshs = ClonedMesh;
+            Meshs = Souse.meshes;
 
+        }
+        public void SetMaterial(List<Material> mats)
+        {
+            ClearAssets<Material>();
+            foreach (var mat in mats)
+            {
+                mat.mainTexture = TextureAndDistansMap.texture2D;
+                AssetDatabase.AddObjectToAsset(mat, this);
+            }
+            AssetDatabase.ImportAsset(ThisPath);
+            Mat = mats;
         }
 
         public void ClearAssets<T>() where T : UnityEngine.Object
@@ -72,20 +79,6 @@ namespace Rs.TexturAtlasCompiler
             return newI;
         }
 
-        public void SetMaterial(List<Material> mats)
-        {
-            ClearAssets<Material>();
-            var Clonemats = new List<Material>();
-            foreach (var mat in mats)
-            {
-                var Clonemat = Instantiate<Material>(mat);
-                Clonemat.mainTexture = TextureAndDistansMap.texture2D;
-                AssetDatabase.AddObjectToAsset(Clonemat, this);
-                Clonemats.Add(Clonemat);
-            }
-            AssetDatabase.ImportAsset(ThisPath);
-            Mat = Clonemats;
-        }
 
         public CompileDataContenar()
         {

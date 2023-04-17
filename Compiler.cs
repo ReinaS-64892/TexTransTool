@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Rs.TexturAtlasCompiler
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar("Assets/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
             if (!ForesdCompile && Data.Hash == Target.Contenar.Hash) return;
             Target.Contenar.Hash = Data.Hash;
-            Target.Contenar.SetMeshEditableClone(Data);
+            Target.Contenar.SetMesh(Data);
             Target.Contenar.DeletTexture();
             IslandPool IslandPool;
             switch (ClientSelect)
@@ -140,7 +141,7 @@ namespace Rs.TexturAtlasCompiler
 
             Target.Contenar.SetTexture(TargetTextureAndDistansMap);
             var mats = GetMaterials(Target);
-            Target.Contenar.SetMaterial(mats);
+            Target.Contenar.SetMaterial(mats.ConvertAll<Material>(i => UnityEngine.Object.Instantiate<Material>(i)));
 
 
 
@@ -198,7 +199,7 @@ namespace Rs.TexturAtlasCompiler
             }
             var Meshs = Target.AtlasTargetMeshs.ConvertAll<Mesh>(i => i.sharedMesh);
             Meshs.AddRange(Target.AtlasTargetStaticMeshs.ConvertAll<Mesh>(i => i.GetComponent<MeshFilter>().sharedMesh));
-            Data.meshes = Meshs;
+            Data.meshes = Meshs.ConvertAll<Mesh>(i => UnityEngine.Object.Instantiate<Mesh>(i));
             Data.AtlasTextureSize = Target.AtlasTextureSize;
             Data.Pading = Target.Pading;
             Data.PadingType = Target.PadingType;
@@ -248,7 +249,7 @@ namespace Rs.TexturAtlasCompiler
             Bytes.Concat<byte>(BitConverter.GetBytes(AtlasTextureSize.y));
             foreach (var tex in Textures)
             {
-                Bytes.Concat<byte>(tex.SouseTex.GetRawTextureData());
+                Bytes.Concat<byte>(File.ReadAllBytes(AssetDatabase.GetAssetPath(tex.SouseTex)));
             }
             var Md5Instans = MD5CryptoServiceProvider.Create();
             var Hascode = Md5Instans.ComputeHash(Bytes);
