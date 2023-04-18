@@ -6,34 +6,33 @@ namespace Rs.TexturAtlasCompiler
 {
 
     //[CreateAssetMenu(fileName = "AtlasMapObject", menuName = "RsProductEdit/AtlasMapObject", order = 0)]
-    public class AtlasMapData : ScriptableObject
+    [Serializable]
+    public class AtlasMapData //: ScriptableObject
     {
         public Vector2[,] Map;
         public float[,] DistansMap;
         public float DefaultPading;
         public Vector2Int MapSize;
 
-        public static AtlasMapData CreateAtlasMapData(Vector2[,] map, float[,] distansMap, float defaultPading, Vector2Int mapSize)
+        public AtlasMapData(Vector2[,] map, float[,] distansMap, float defaultPading, Vector2Int mapSize)
         {
-            var NewI = CreateInstance<AtlasMapData>();
-            NewI.Map = map;
-            NewI.DistansMap = distansMap;
-            NewI.DefaultPading = defaultPading;
-            NewI.MapSize = mapSize;
-            return NewI;
+            //var NewI = CreateInstance<AtlasMapData>();
+            Map = map;
+            DistansMap = distansMap;
+            DefaultPading = defaultPading;
+            MapSize = mapSize;
         }
-        public static AtlasMapData CreateAtlasMapData(float Pading, Vector2Int mapSize)
+        public AtlasMapData(float Pading, Vector2Int mapSize)
         {
-            var NewI = CreateInstance<AtlasMapData>();
-            NewI.Map = new Vector2[mapSize.x, mapSize.y];
-            NewI.DistansMap = new float[mapSize.x, mapSize.y];
-            NewI.DefaultPading = Pading;
+            //var NewI = CreateInstance<AtlasMapData>();
+            Map = new Vector2[mapSize.x, mapSize.y];
+            DistansMap = new float[mapSize.x, mapSize.y];
+            DefaultPading = Pading;
             foreach (var index in Utils.Reange2d(mapSize))
             {
-                NewI.DistansMap[index.x, index.y] = Pading;
+                DistansMap[index.x, index.y] = Pading;
             }
-            NewI.MapSize = mapSize;
-            return NewI;
+            MapSize = mapSize;
         }
         public AtlasMapData()
         {
