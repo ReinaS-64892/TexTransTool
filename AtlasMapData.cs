@@ -39,17 +39,17 @@ namespace Rs.TexturAtlasCompiler
         }
     }
     [Serializable]
-    public class TextureAndDistansMap
+    public class AtlasTexture
     {
         public Texture2D Texture2D;
         public float[,] DistansMap;
 
-        public TextureAndDistansMap(Texture2D texture2D, float[,] distansMap)
+        public AtlasTexture(Texture2D texture2D, float[,] distansMap)
         {
             this.Texture2D = texture2D;
             DistansMap = distansMap;
         }
-        public TextureAndDistansMap(Texture2D texture2D, float DefoultDistans)
+        public AtlasTexture(Texture2D texture2D, float DefoultDistans)
         {
             this.Texture2D = texture2D;
             DistansMap = new float[texture2D.width, texture2D.height];

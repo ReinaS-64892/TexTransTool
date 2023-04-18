@@ -22,6 +22,7 @@ namespace Rs.TexturAtlasCompiler
             var Data = GetCompileData(Target);
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar("Assets/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
             if (!ForesdCompile && Data.Hash == Target.Contenar.Hash) return;
+            var Contenar = Target.Contenar;
 
 
             IslandPool IslandPool;
@@ -82,24 +83,24 @@ namespace Rs.TexturAtlasCompiler
             var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, ComputeShaderPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             //var TargetTextureAndDistansMap = new TextureAndDistansMap(TargetTexture, Data.Pading);
-            var TargetTexAndDistansMaps = new List<PropatyAndTextureAndDistans>();
-            foreach (var textures in Data.Textures)
+            var TargetPorpAndAtlasTexs = new List<PropAndAtlasTex>();
+            foreach (var textures in Data.SouseTextures)
             {
-                TargetTexAndDistansMaps.Add(new PropatyAndTextureAndDistans(new TextureAndDistansMap(new Texture2D(Data.AtlasTextureSize.x, Data.AtlasTextureSize.y), Data.Pading), textures.PropertyName));
+                TargetPorpAndAtlasTexs.Add(new PropAndAtlasTex(new AtlasTexture(new Texture2D(Data.AtlasTextureSize.x, Data.AtlasTextureSize.y), Data.Pading), textures.PropertyName));
             }
 
 
-            foreach (var PorpAndTex in Data.Textures)
+            foreach (var PropAndSTex in Data.SouseTextures)
             {
                 int TexIndex = -1;
-                string PropertyName = PorpAndTex.PropertyName;
-                foreach (var SouseTxture in PorpAndTex.Textures)
+                string PropertyName = PropAndSTex.PropertyName;
+                var TargetTex = TargetPorpAndAtlasTexs.Find(i => i.PropertyName == PropertyName).AtlasTexture;
+                foreach (var SouseTxture in PropAndSTex.Texture2Ds)
                 {
                     TexIndex += 1;
-                    foreach (var meshIndex in PorpAndTex.MeshIndex[TexIndex])
+                    foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
                     {
                         var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        var TargetTex = TargetTexAndDistansMaps.Find(i => i.PropertyName == PropertyName).TextureAndDistansMap;
                         switch (ClientSelect)
                         {
                             case ExecuteClient.CPU:
@@ -123,20 +124,19 @@ namespace Rs.TexturAtlasCompiler
                 }
             }
 
-            Target.Contenar.Hash = Data.Hash;
-            Target.Contenar.SetMesh(Data);
-            Target.Contenar.DeletTexture();
-            foreach (var TexAndDist in TargetTexAndDistansMaps)
+            Contenar.Hash = Data.Hash;
+            Contenar.SetSubAsset<Mesh>(Data.meshes);
+            Contenar.Meshs = Data.meshes;
+            Contenar.DeletTexture();
+            foreach (var TexAndDist in TargetPorpAndAtlasTexs)
             {
-                Target.Contenar.SetTexture(TexAndDist);
+                Contenar.SetTexture((PropAndTexture)TexAndDist);
             }
-            var mats = GetMaterials(Target);
-            Target.Contenar.SetMaterial(mats.ConvertAll<Material>(i => UnityEngine.Object.Instantiate<Material>(i)));
+            //var mats = GetMaterials(Target);
+            //Contenar.SetMaterial(mats.ConvertAll<Material>(i => UnityEngine.Object.Instantiate<Material>(i)));
 
 
-
-
-
+            Target.AtlasCompilePostCallBack.Invoke(Contenar);
 
         }
         public static List<List<AtlasMapData>> GeneratAtlasMaps(List<Mesh> TargetMeshs, ExecuteClient clientSelect, string computeShaderPath, float Pading, Vector2Int AtlasTextureSize, PadingType padingType)
@@ -147,7 +147,7 @@ namespace Rs.TexturAtlasCompiler
                 List<AtlasMapData> SubMaps = new List<AtlasMapData>();
                 foreach (var SubMeshIndex in Enumerable.Range(0, Mesh.subMeshCount))
                 {
-                    var AtlasMapDataI = AtlasMapData.CreateAtlasMapData(Pading, AtlasTextureSize);
+                    var AtlasMapDataI = new AtlasMapData(Pading, AtlasTextureSize);
                     var triangles = AtlasMapper.ToList(Mesh.GetTriangles(SubMeshIndex));
                     var SouseUV = new List<Vector2>();
                     var TargetUV = new List<Vector2>();
@@ -179,25 +179,6 @@ namespace Rs.TexturAtlasCompiler
             }
             return Maps;
         }
-
-        public static List<Material> GetMaterials(AtlasSet Target)
-        {
-            List<Renderer> renderers = new List<Renderer>(Target.AtlasTargetMeshs);
-            renderers.AddRange(Target.AtlasTargetStaticMeshs);
-            List<Material> Mats = new List<Material>();
-            foreach (var Rendera in renderers)
-            {
-                foreach (var mat in Rendera.sharedMaterials)
-                {
-                    if (mat.mainTexture != null)
-                    {
-                        Mats.Add(mat);
-                    }
-                }
-            }
-
-            return Mats;
-        }
         public static CompileData GetCompileData(AtlasSet Target)
         {
 
@@ -224,7 +205,7 @@ namespace Rs.TexturAtlasCompiler
 
 
 
-        public static TextureAndDistansMap AtlasTextureCompile(Texture2D SouseTex, AtlasMapData AtralsMap, TextureAndDistansMap targetTex)
+        public static AtlasTexture AtlasTextureCompile(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
@@ -256,14 +237,18 @@ namespace Rs.TexturAtlasCompiler
                 {
                     SubMeshCount += 1;
                     var MeshIndex = new MeshIndex(MeshCount, SubMeshCount);
-                    var SupportShederI = sappotedListInstans.Find(i => mat.shader.name.Contains(i.SupprotShaderName));
+                    var SupportShederI = sappotedListInstans.Find(i =>
+                    {
+                        Debug.Log(i.SupprotShaderName + " / " + mat.shader.name + " " + mat.shader.name.Contains(i.SupprotShaderName));
+                        return mat.shader.name.Contains(i.SupprotShaderName);
+                    });
 
                     if (SupportShederI != null)
                     {
                         var textures = SupportShederI.GetPropertyAndTextures(mat);
                         foreach (var Texture in textures)
                         {
-                            if (Texture.Texture != null)
+                            if (Texture.Texture2D != null)
                             {
                                 Data.AddTexture(Texture, MeshIndex);
                             }
@@ -274,7 +259,7 @@ namespace Rs.TexturAtlasCompiler
                         var PropertyName = "_MainTex";
                         if (mat.GetTexture(PropertyName) is Texture2D texture2D)
                         {
-                            PropertyAndTextures DefoultTexAndprop = new PropertyAndTextures(PropertyName, texture2D);
+                            PropAndTexture DefoultTexAndprop = new PropAndTexture(PropertyName, texture2D);
                             Data.AddTexture(DefoultTexAndprop, MeshIndex);
                         }
 
@@ -290,7 +275,7 @@ namespace Rs.TexturAtlasCompiler
     }
     public class CompileData
     {
-        public List<TexturesAndMeshIndex> Textures = new List<TexturesAndMeshIndex>();
+        public List<PropAndSouseTexuters> SouseTextures = new List<PropAndSouseTexuters>();
         public List<Mesh> meshes = new List<Mesh>();
         public Vector2Int AtlasTextureSize;
         public float Pading;
@@ -303,9 +288,9 @@ namespace Rs.TexturAtlasCompiler
             Bytes.Concat<byte>(BitConverter.GetBytes((int)PadingType));
             Bytes.Concat<byte>(BitConverter.GetBytes(AtlasTextureSize.x));
             Bytes.Concat<byte>(BitConverter.GetBytes(AtlasTextureSize.y));
-            foreach (var texp in Textures)
+            foreach (var texp in SouseTextures)
             {
-                foreach (var tex in texp.Textures)
+                foreach (var tex in texp.Texture2Ds)
                 {
                     Bytes.Concat<byte>(File.ReadAllBytes(AssetDatabase.GetAssetPath(tex)));
                 }
@@ -315,26 +300,26 @@ namespace Rs.TexturAtlasCompiler
             Hash = BitConverter.ToString(Hascode);
         }
 
-        public void AddTexture(PropertyAndTextures AddPropAndtex, MeshIndex addIndex)
+        public void AddTexture(PropAndTexture AddPropAndtex, MeshIndex addIndex)
         {
-            var Texture = Textures.Find(i => i.PropertyName == AddPropAndtex.PropertyName);
+            var Texture = SouseTextures.Find(i => i.PropertyName == AddPropAndtex.PropertyName);
             if (Texture != null)
             {
-                if (!Texture.Textures.Any(i => i == AddPropAndtex.Texture))
+                if (!Texture.Texture2Ds.Any(i => i == AddPropAndtex.Texture2D))
                 {
-                    Texture.Textures.Add(AddPropAndtex.Texture);
+                    Texture.Texture2Ds.Add(AddPropAndtex.Texture2D);
                     Texture.MeshIndex.Add(new List<MeshIndex>() { addIndex });
                 }
                 else
                 {
-                    var TexIndex = Texture.Textures.IndexOf(AddPropAndtex.Texture);
+                    var TexIndex = Texture.Texture2Ds.IndexOf(AddPropAndtex.Texture2D);
                     Texture.MeshIndex[TexIndex].Add(addIndex);
                 }
 
             }
             else
             {
-                Textures.Add(new TexturesAndMeshIndex(AddPropAndtex, new List<List<MeshIndex>>() { new List<MeshIndex>() { addIndex } }));
+                SouseTextures.Add(new PropAndSouseTexuters(AddPropAndtex, new List<List<MeshIndex>>() { new List<MeshIndex>() { addIndex } }));
             }
         }
     }
@@ -343,18 +328,6 @@ namespace Rs.TexturAtlasCompiler
     {
         EvenlySpaced,
         DescendingOrder,
-    }
-    [Serializable]
-    public class PropertyAndTextures
-    {
-        public string PropertyName;
-        public Texture2D Texture;
-
-        public PropertyAndTextures(string propertyName, Texture2D textures)
-        {
-            PropertyName = propertyName;
-            Texture = textures;
-        }
     }
 
     public class MeshIndex
@@ -369,36 +342,54 @@ namespace Rs.TexturAtlasCompiler
         }
     }
 
-    public class TexturesAndMeshIndex
+    public class PropAndSouseTexuters
     {
         public string PropertyName;
-        public List<Texture2D> Textures;
+        public List<Texture2D> Texture2Ds;
         public List<List<MeshIndex>> MeshIndex;
 
-        public TexturesAndMeshIndex(string propertyName, List<Texture2D> textures, List<List<MeshIndex>> meshIndex)
+        public PropAndSouseTexuters(string propertyName, List<Texture2D> textures, List<List<MeshIndex>> meshIndex)
         {
             PropertyName = propertyName;
-            Textures = textures;
+            Texture2Ds = textures;
             MeshIndex = meshIndex;
         }
-        public TexturesAndMeshIndex(PropertyAndTextures textures, List<List<MeshIndex>> meshIndex)
+        public PropAndSouseTexuters(PropAndTexture textures, List<List<MeshIndex>> meshIndex)
         {
             PropertyName = textures.PropertyName;
-            Textures = new List<Texture2D>() { textures.Texture };
+            Texture2Ds = new List<Texture2D>() { textures.Texture2D };
             MeshIndex = meshIndex;
         }
 
     }
     [Serializable]
-    public class PropatyAndTextureAndDistans
+    public class PropAndTexture
     {
-        public TextureAndDistansMap TextureAndDistansMap;
         public string PropertyName;
+        public Texture2D Texture2D;
 
-        public PropatyAndTextureAndDistans(TextureAndDistansMap texture2D, string propertyName)
+        public PropAndTexture(string propertyName, Texture2D textures)
         {
-            TextureAndDistansMap = texture2D;
             PropertyName = propertyName;
+            Texture2D = textures;
+        }
+    }
+
+    [Serializable]
+    public class PropAndAtlasTex
+    {
+        public string PropertyName;
+        public AtlasTexture AtlasTexture;
+
+        public PropAndAtlasTex(AtlasTexture texture2D, string propertyName)
+        {
+            AtlasTexture = texture2D;
+            PropertyName = propertyName;
+        }
+
+        public static explicit operator PropAndTexture(PropAndAtlasTex s)
+        {
+            return new PropAndTexture(s.PropertyName, s.AtlasTexture.Texture2D);
         }
     }
 

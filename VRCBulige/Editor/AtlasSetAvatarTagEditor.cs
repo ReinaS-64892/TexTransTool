@@ -36,7 +36,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
 
             EditorGUILayout.BeginHorizontal();
 
-            EditorGUI.BeginDisabledGroup(IsAppry);
+            EditorGUI.BeginDisabledGroup(AtlasSetAvatarTag.AtlasSet.Contenar == null || IsAppry);
             if (GUILayout.Button("Appry"))
             {
                 Undo.RecordObject(AtlasSetAvatarTag, "AtlasAppry");

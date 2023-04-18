@@ -9,7 +9,7 @@ namespace Rs.TexturAtlasCompiler.ShaderSupport
     public interface IShaderSupport
     {
         string SupprotShaderName { get; }
-        List<PropertyAndTextures> GetPropertyAndTextures(Material material);
+        List<PropAndTexture> GetPropertyAndTextures(Material material);
 
 
     }

@@ -12,34 +12,23 @@ namespace Rs.TexturAtlasCompiler
     public class CompileDataContenar : ScriptableObject
     {
         public string Hash;
-        public List<Mesh> Meshs;
-        public List<Material> Mat;
-        public List<PropatyAndTextureAndDistans> TextureAndDistansMap;
+        public List<Mesh> Meshs = new List<Mesh>();
+        public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
+        public List<Material> GenereatMaterial = new List<Material>();
         //public string TexturePath = null;
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
-        public void SetMesh(CompileData Souse)
-        {
-            ClearAssets<Mesh>();
-            foreach (var mesh in Souse.meshes)
-            {
-                AssetDatabase.AddObjectToAsset(mesh, this);
-            }
-            AssetDatabase.ImportAsset(ThisPath);
-            Meshs = Souse.meshes;
 
-        }
-        public void SetMaterial(List<Material> mats)
+        public void SetSubAsset<T>(List<T> Assets) where T : UnityEngine.Object
         {
-            ClearAssets<Material>();
-            foreach (var mat in mats)
+            ClearAssets<T>();
+            foreach (var Asset in Assets)
             {
                 //mat.mainTexture = TextureAndDistansMap.texture2D;
-                AssetDatabase.AddObjectToAsset(mat, this);
+                AssetDatabase.AddObjectToAsset(Asset, this);
                 //Debug.Log(mat.shader.name);
             }
             AssetDatabase.ImportAsset(ThisPath);
-            Mat = mats;
         }
 
         public void ClearAssets<T>() where T : UnityEngine.Object
@@ -54,11 +43,11 @@ namespace Rs.TexturAtlasCompiler
         }
         public void DeletTexture()
         {
-            foreach (var TexAndDist in TextureAndDistansMap)
+            foreach (var TexAndDist in PropAndTextures)
             {
-                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TexAndDist.TextureAndDistansMap.Texture2D));
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TexAndDist.Texture2D));
             }
-            TextureAndDistansMap.Clear();
+            PropAndTextures.Clear();
             /*
             if (!string.IsNullOrEmpty(TexturePath))
             {
@@ -66,15 +55,15 @@ namespace Rs.TexturAtlasCompiler
             }*/
         }
 
-        public void SetTexture(PropatyAndTextureAndDistans Souse)
+        public void SetTexture(PropAndTexture Souse)
         {
-            TextureAndDistansMap.Add(Souse);
+            PropAndTextures.Add(Souse);
             var FilePath = ThisPath.Replace(Path.GetExtension(ThisPath), "");
             FilePath += Souse.PropertyName + "_GenereatAtlasTex" + ".png";
             //TexturePath = FilePath;
-            File.WriteAllBytes(FilePath, Souse.TextureAndDistansMap.Texture2D.EncodeToPNG());
+            File.WriteAllBytes(FilePath, Souse.Texture2D.EncodeToPNG());
             AssetDatabase.ImportAsset(FilePath);
-            TextureAndDistansMap[TextureAndDistansMap.IndexOf(Souse)].TextureAndDistansMap.Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
+            PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
         }
         public static CompileDataContenar CreateCompileDataContenar(string path)
         {
@@ -82,6 +71,53 @@ namespace Rs.TexturAtlasCompiler
             AssetDatabase.CreateAsset(newI, path);
             return newI;
         }
+
+        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial)
+        {
+            List<Material> NoDuplicationSousMatrial = new List<Material>();
+            List<Material> GeneratMats = new List<Material>();
+            List<Material> ResGenereatMats = new List<Material>();
+
+            foreach (var SMat in SouseMatrial)
+            {
+                if (!NoDuplicationSousMatrial.Contains(SMat))
+                {
+                    NoDuplicationSousMatrial.Add(SMat);
+
+                    var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
+
+                    PropToMaterialTexAppry(PropAndTextures, Gmat);
+
+                    GeneratMats.Add(Gmat);
+                    ResGenereatMats.Add(Gmat);
+                }
+                else
+                {
+                    var GmatIndex = NoDuplicationSousMatrial.IndexOf(SMat);
+                    var Gmat = GeneratMats[GmatIndex];
+
+                    ResGenereatMats.Add(Gmat);
+                }
+
+            }
+
+            SetSubAsset(GeneratMats);
+            GenereatMaterial = GeneratMats;
+            return ResGenereatMats;
+        }
+
+        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat)
+        {
+            foreach (var propAndTexture in PropAndTextures)
+            {
+                if (TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                {
+                    TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
+                }
+            }
+        }
+
+
 
 
         public CompileDataContenar()

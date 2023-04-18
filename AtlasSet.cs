@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Security;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,12 +21,13 @@ namespace Rs.TexturAtlasCompiler
         public IslandSortingType SortingType;
         public CompileDataContenar Contenar;
 
-        [SerializeField]bool _IsAppry;
+        [SerializeField] bool _IsAppry;
 
         public bool IsAppry => _IsAppry;
-        [SerializeField]List<Mesh> BackUpMeshs = new List<Mesh>();
-        [SerializeField]List<Mesh> BackUpStaticMeshs = new List<Mesh>();
-        [SerializeField]List<Material> BackUpMaterial = new List<Material>();
+        public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
+        [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
+        [SerializeField] List<Mesh> BackUpStaticMeshs = new List<Mesh>();
+        [SerializeField] List<Material> BackUpMaterial = new List<Material>();
         public void Appry()
         {
             if (Contenar == null) return;
@@ -89,47 +91,60 @@ namespace Rs.TexturAtlasCompiler
         {
             if (Contenar == null) return;
             if (_IsAppry == true) return;
+            
             BackUpMaterial.Clear();
-            int Count = -1;
-            List<Renderer> renderers = new List<Renderer>(AtlasTargetMeshs);
-            renderers.AddRange(AtlasTargetStaticMeshs);
-            foreach (var render in renderers)
-            {
-                var mats = render.sharedMaterials;
-                for (int i = 0; mats.Length > i; i += 1)
-                {
-                    if (mats[i].mainTexture != null)
-                    {
-                        Count += 1;
-                        BackUpMaterial.Add(mats[i]);
-                        mats[i] = Contenar.Mat[Count];
-                    }
-                }
-                render.sharedMaterials = mats;
-            }
+            BackUpMaterial = GetMaterials();
 
+            var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials());
+            SetMaterial(GetRenderers(), GeneratMats);
 
         }
         public void MaterialRevart()
         {
             if (_IsAppry == false) return;
 
+            Contenar.GenereatMaterial.Clear();
+            Contenar.ClearAssets<Material>();
+
+            SetMaterial(GetRenderers(), BackUpMaterial);
+        }
+
+        static void SetMaterial(List<Renderer> renderers, List<Material> SouseMats)
+        {
             int Count = -1;
-            List<Renderer> renderers = new List<Renderer>(AtlasTargetMeshs);
-            renderers.AddRange(AtlasTargetStaticMeshs);
             foreach (var render in renderers)
             {
-                var mats = render.sharedMaterials;
-                for (int i = 0; mats.Length > i; i += 1)
+                var Mats = render.sharedMaterials;
+                for (int i = 0; Mats.Length > i; i += 1)
                 {
-                    if (mats[i].mainTexture != null)
-                    {
-                        Count += 1;
-                        mats[i] = BackUpMaterial[Count];
-                    }
+                    Count += 1;
+                    Mats[i] = SouseMats[Count];
                 }
-                render.sharedMaterials = mats;
+                render.sharedMaterials = Mats;
             }
+        }
+
+        List<Material> GetMaterials()
+        {
+            var Renderers = GetRenderers();
+            List<Material> Mats = new List<Material>();
+
+            foreach (var Renderer in Renderers)
+            {
+                foreach (var Mat in Renderer.sharedMaterials)
+                {
+                    Mats.Add(Mat);
+                }
+            }
+
+            return Mats;
+
+        }
+        List<Renderer> GetRenderers()
+        {
+            List<Renderer> Renderers = new List<Renderer>(AtlasTargetMeshs);
+            Renderers.AddRange(AtlasTargetStaticMeshs);
+            return Renderers;
         }
 
 
