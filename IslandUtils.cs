@@ -301,7 +301,7 @@ namespace Rs.TexturAtlasCompiler
         }
         static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, int MapCount)
         {
-            Debug.Log(MapCount);
+            //Debug.Log(MapCount);
             var Islanads = IslandUtils.UVtoIsland(traiangles, UV);
             var IslandPoolList = new List<IslandPool.IslandAndIndex>();
             int IlandIndex = -1;

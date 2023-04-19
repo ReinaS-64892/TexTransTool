@@ -57,7 +57,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
 
             EditorGUI.BeginDisabledGroup(IsAppry);
             EditorGUILayout.EndHorizontal();
-            if (GUILayout.Button("TexturAtlasCompileFored!"))
+            if (GUILayout.Button("TexturAtlasCompile!"))
             {
                 if (!AtlasSetAvatarTag.AtlasSet.IsAppry)
                 {

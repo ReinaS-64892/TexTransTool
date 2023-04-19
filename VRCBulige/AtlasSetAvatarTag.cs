@@ -26,6 +26,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
         public enum ProcesEnum
         {
             SetTextureMaxSize,
+            SetNormalMapSetting,
         }
         public enum TargetSelect
         {
@@ -42,10 +43,15 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
                         ProsesTextureResize(Target);
                         break;
                     }
+                case ProcesEnum.SetNormalMapSetting:
+                    {
+                        ProsesSetNormalMapSetting(Target);
+                        break;
+                    }
             }
         }
 
-        void ProsesTextureResize(CompileDataContenar Target)
+        void ProsesTextureResize(CompileDataContenar Target)//TargetPropatyNamesをEditor側でList的に入力できるようにしてスペース区切りにして受け取るようにしたい
         {
             switch (Select)
             {
@@ -81,6 +87,18 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
                 var TargetTexPath = AssetDatabase.GetAssetPath(TargetTexture);
                 var TextureImporter = AssetImporter.GetAtPath(TargetTexPath) as TextureImporter;
                 TextureImporter.maxTextureSize = Size;
+                TextureImporter.SaveAndReimport();
+            }
+        }
+
+        void ProsesSetNormalMapSetting(CompileDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
+        {
+            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames);
+            if (TargetTex != null)
+            {
+                var TargetTexPath = AssetDatabase.GetAssetPath(TargetTex.Texture2D);
+                var TextureImporter = AssetImporter.GetAtPath(TargetTexPath) as TextureImporter;
+                TextureImporter.textureType = TextureImporterType.NormalMap;
                 TextureImporter.SaveAndReimport();
             }
         }

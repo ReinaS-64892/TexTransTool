@@ -1,10 +1,8 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel AtlasMapGeneratPadingEdgeBase
+﻿#pragma kernel AtlasMapGeneratPadingEdgeBase
 #pragma kernel AtlasMapGeneratPadingVartexBase
 
 #include "./AtlasMapperHelper.hlsl"
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
+
 uint Size;
 RWStructuredBuffer<float2> Traiangles;
 RWStructuredBuffer<float3> Result;

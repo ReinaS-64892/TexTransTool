@@ -105,17 +105,17 @@ namespace Rs.TexturAtlasCompiler
                         {
                             case ExecuteClient.CPU:
                                 {
-                                    AtlasTextureCompile(SouseTxture, AtlasMapData, TargetTex);
+                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
                                     break;
                                 }
                             case ExecuteClient.AsyncCPU:
                                 {//今はそれ用のコードがないのでCPU
-                                    AtlasTextureCompile(SouseTxture, AtlasMapData, TargetTex);
+                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
                                     break;
                                 }
                             case ExecuteClient.ComputeSheder:
                                 {//今はそれ用のコードがないのでCPU
-                                    AtlasTextureCompile(SouseTxture, AtlasMapData, TargetTex);
+                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
                                     break;
                                 }
                         }
@@ -205,10 +205,15 @@ namespace Rs.TexturAtlasCompiler
 
 
 
-        public static AtlasTexture AtlasTextureCompile(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
+        public static AtlasTexture AtlasTextureCompileUsedUnityGetPixsel(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
+
+            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+            //Debug.Log(SouseTexPath);
+            SouseTex = new Texture2D(2, 2);
+            SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
             foreach (var index in List)
             {
                 //Debug.Log(AtralsMap.DistansMap[index.x, index.y] + " " + AtralsMap.DefaultPading + " " + targetTex.DistansMap[index.x, index.y]);
@@ -218,6 +223,25 @@ namespace Rs.TexturAtlasCompiler
                     //Debug.Log(AtralsMap[index.x, index.y].Value.ToString() + "/" + new Vector2(AtralsMap[index.x, index.y].Value.x * SouseTex.width, AtralsMap[index.x, index.y].Value.y * SouseTex.height).ToString() + "/" + souspixselcloro.ToString());
                     targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
                     //                    Debug.Log("nya");
+                }
+            }
+            return targetTex;
+        }
+        public static AtlasTexture AtlasTextureCompileUsedSystemDrowing(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
+        {
+            if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+
+
+
+
+            var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
+            foreach (var index in List)
+            {
+                if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
+                {
+                    var souspixselcloro = SouseTex.GetPixelBilinear(AtralsMap.Map[index.x, index.y].x, AtralsMap.Map[index.x, index.y].y);
+                    targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+
                 }
             }
             return targetTex;
@@ -239,7 +263,7 @@ namespace Rs.TexturAtlasCompiler
                     var MeshIndex = new MeshIndex(MeshCount, SubMeshCount);
                     var SupportShederI = sappotedListInstans.Find(i =>
                     {
-                        Debug.Log(i.SupprotShaderName + " / " + mat.shader.name + " " + mat.shader.name.Contains(i.SupprotShaderName));
+                        //Debug.Log(i.SupprotShaderName + " / " + mat.shader.name + " " + mat.shader.name.Contains(i.SupprotShaderName));
                         return mat.shader.name.Contains(i.SupprotShaderName);
                     });
 

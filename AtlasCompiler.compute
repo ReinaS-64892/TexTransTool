@@ -1,0 +1,9 @@
+﻿#pragma kernel AtlasCompile
+
+
+RWTexture2D<float4> Result;
+
+[numthreads(32, 32, 1)]
+void AtlasCompile (uint3 id : SV_DispatchThreadID)
+{
+}
