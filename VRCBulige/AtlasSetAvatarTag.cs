@@ -13,17 +13,17 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
         public AtlasSet AtlasSet;
         public ExecuteClient ClientSelect;
 
-        public List<AtlasPostPrces> PostPrcess;
+        public List<AtlasPostPrcess> PostProcess;
     }
     [System.Serializable]
-    public class AtlasPostPrces
+    public class AtlasPostPrcess
     {
-        public ProcesEnum Proces;
+        public ProcessEnum Process;
         public TargetSelect Select;
-        public string TargetPropatyNames;
+        public List<string> TargetPropatyNames;
         public string ProsesValue;
 
-        public enum ProcesEnum
+        public enum ProcessEnum
         {
             SetTextureMaxSize,
             SetNormalMapSetting,
@@ -34,40 +34,43 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
             NonPropertys,
         }
 
-        public void Proses(CompileDataContenar Target)
+        public void Processing(CompileDataContenar Target)
         {
-            switch (Proces)
+            switch (Process)
             {
-                case ProcesEnum.SetTextureMaxSize:
+                case ProcessEnum.SetTextureMaxSize:
                     {
-                        ProsesTextureResize(Target);
+                        ProcessingTextureResize(Target);
                         break;
                     }
-                case ProcesEnum.SetNormalMapSetting:
+                case ProcessEnum.SetNormalMapSetting:
                     {
-                        ProsesSetNormalMapSetting(Target);
+                        ProcessingSetNormalMapSetting(Target);
                         break;
                     }
             }
         }
 
-        void ProsesTextureResize(CompileDataContenar Target)//TargetPropatyNamesをEditor側でList的に入力できるようにしてスペース区切りにして受け取るようにしたい
+        void ProcessingTextureResize(CompileDataContenar Target)//TargetPropatyNamesをEditor側でList的に入力できるようにしてスペース区切りにして受け取るようにしたい
         {
             switch (Select)
             {
                 case TargetSelect.Property:
                     {
-                        var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames);
-                        if (TargetTex != null && int.TryParse(ProsesValue, out var res))
+                        foreach (var PropName in TargetPropatyNames)
                         {
-                            AppryTextureSize(TargetTex.Texture2D, res);
+                            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == PropName);
+                            if (TargetTex != null && int.TryParse(ProsesValue, out var res))
+                            {
+                                AppryTextureSize(TargetTex.Texture2D, res);
+                            }
                         }
                         break;
                     }
                 case TargetSelect.NonPropertys:
                     {
                         var TargetList = new List<PropAndTexture>(Target.PropAndTextures);
-                        foreach (var PropName in TargetPropatyNames.Split(' '))
+                        foreach (var PropName in TargetPropatyNames)
                         {
                             TargetList.RemoveAll(i => i.PropertyName == PropName);
                         }
@@ -91,9 +94,9 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
             }
         }
 
-        void ProsesSetNormalMapSetting(CompileDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
+        void ProcessingSetNormalMapSetting(CompileDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
         {
-            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames);
+            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames[0]);
             if (TargetTex != null)
             {
                 var TargetTexPath = AssetDatabase.GetAssetPath(TargetTex.Texture2D);

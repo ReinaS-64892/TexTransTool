@@ -9,58 +9,14 @@ namespace Rs.TexturAtlasCompiler
 
     public static class IslandUtils
     {
-        /*
-                public static List<Island> IlandCla1(List<int[]> traiangle, List<Vector2> SourceUV)
-                {
-                    var sercheList = new List<int[]>(traiangle);
-                    var ailandChase = new List<int[]>();
-                    var ailandChasePosisonts = new List<Vector2>();
-                    var PostIland = new List<(List<int[]>, (Vector2, Vector2))>();
 
-                    bool Firest = true;
-                    while (sercheList.Count > 1)
-                    {
-                        if (Firest)
-                        {
-                            ailandChase.Add(sercheList[0]);
-                            ailandChasePosisonts.AddRange(sercheList[0].ToList().ConvertAll<Vector2>(i => SourceUV[i]));
-                            sercheList.RemoveAt(0);
-                            Firest = false;
-                        }
-                        List<int> Deletachase = new List<int>();
-                        int cout = 0;
-                        foreach (var serchitrainagke in sercheList)
-                        {
-                            var SertiPositons = serchitrainagke.ToList().ConvertAll<Vector2>(i => SourceUV[i]);
-                            bool Exit = false;
-                            foreach (var pos in SertiPositons)
-                            {
-                                if (ailandChasePosisonts.Any(i1 => i1 == pos))
-                                {
-                                    Exit = true;
-                                }
-                            }
-                            if (Exit)
-                            {
-                                ailandChase.Add(serchitrainagke);
-                                ailandChasePosisonts.AddRange(serchitrainagke.ToList().ConvertAll<Vector2>(i => SourceUV[i]));
-                                Deletachase.Add(cout);
-                            }
-                        }
+        public static IslandPool IslandPoolDescendingOrder(IslandPool TargetPool)
+        {
+            var MovedIslandPool = new IslandPool();
 
-                        Deletachase.Reverse();
-                        Deletachase.ForEach(i => sercheList.RemoveAt(i));
+            return MovedIslandPool;
+        }
 
-                        //PostIland.Add((new List<int[]>(ailandChase), BoxCal(ailandChasePosisonts))); #
-
-                        ailandChase.Clear();
-                        ailandChasePosisonts.Clear();
-
-
-                    }
-                    return PostIland;
-                }
-        */
         public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, int Repeat = 4)
         {
             var Islands = traiangles.ConvertAll<Island>(i => new Island(i));
