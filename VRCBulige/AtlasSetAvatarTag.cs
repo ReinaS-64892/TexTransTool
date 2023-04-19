@@ -25,7 +25,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
 
         public enum ProcesEnum
         {
-            TextureResize,
+            SetTextureMaxSize,
         }
         public enum TargetSelect
         {
@@ -37,7 +37,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
         {
             switch (Proces)
             {
-                case ProcesEnum.TextureResize:
+                case ProcesEnum.SetTextureMaxSize:
                     {
                         ProsesTextureResize(Target);
                         break;
