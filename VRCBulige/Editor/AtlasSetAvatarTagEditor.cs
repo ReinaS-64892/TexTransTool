@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 using Rs.TexturAtlasCompiler.VRCBulige;
 namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
 {
@@ -18,6 +19,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
             var PadingType = serialaizeatlaset.FindPropertyRelative("PadingType");
             var SortingType = serialaizeatlaset.FindPropertyRelative("SortingType");
             var Contenar = serialaizeatlaset.FindPropertyRelative("Contenar");
+            var PostPorsesars = serializedObject.FindProperty("PostPrcess");
 
             var AtlasSetAvatarTag = target as AtlasSetAvatarTag;
             var IsAppry = AtlasSetAvatarTag.AtlasSet.IsAppry;
@@ -31,6 +33,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
             EditorGUILayout.PropertyField(SortingType);
             EditorGUILayout.PropertyField(ClientSelect);
             EditorGUILayout.PropertyField(Contenar);
+            EditorGUILayout.PropertyField(PostPorsesars);
             EditorGUI.EndDisabledGroup();
 
 
@@ -59,6 +62,17 @@ namespace Rs.TexturAtlasCompiler.VRCBulige.Editor
                 if (!AtlasSetAvatarTag.AtlasSet.IsAppry)
                 {
                     Undo.RecordObject(AtlasSetAvatarTag, "AtlasCompile");
+                    if (AtlasSetAvatarTag.PostPrcess.Any())
+                    {
+                        foreach (var PostPrces in AtlasSetAvatarTag.PostPrcess)
+                        {
+                            AtlasSetAvatarTag.AtlasSet.AtlasCompilePostCallBack += (i) => PostPrces.Proses(i);
+                        }
+                    }
+                    else
+                    {
+                        AtlasSetAvatarTag.AtlasSet.AtlasCompilePostCallBack = (i) => { };
+                    }
                     Compiler.AtlasSetCompile(AtlasSetAvatarTag.AtlasSet, AtlasSetAvatarTag.ClientSelect, true);
                 }
             }
