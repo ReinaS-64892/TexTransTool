@@ -10,11 +10,54 @@ namespace Rs.TexturAtlasCompiler
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolDescendingOrder(IslandPool TargetPool)
+        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.95f)//NFDH
         {
-            var MovedIslandPool = new IslandPool();
+            var ClonedPool = new IslandPool(TargetPool);
+            var Islands = ClonedPool.IslandPoolList;
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.GetSize.y - l.island.GetSize.y) * 100));
+            bool Scouse = false;
+            while (!Scouse)
+            {
 
-            return MovedIslandPool;
+                Scouse = true;
+                var NawPos = new Vector2(IslanadsPading, IslanadsPading);
+                float FirstHeight = 0;
+                if (Islands.Any()) FirstHeight = Islands[0].island.GetSize.y;
+                var NawMaxHigt = IslanadsPading + FirstHeight;
+                Debug.Log(FirstHeight);
+                foreach (var island in Islands)
+                {
+                    var NawSize = island.island.GetSize;
+                    var NawMaxPos = NawPos + NawSize;
+                    var IsOutOfX = NawMaxPos.x > 1;
+                    var IsOutOfY = (NawMaxPos.y + IslanadsPading) > 1;
+
+
+                    if (IsOutOfX)
+                    {
+                        NawPos.y = NawMaxHigt;
+                        NawPos.x = IslanadsPading;
+
+                        NawMaxHigt += NawSize.y + IslanadsPading;
+
+                        if (IsOutOfY)
+                        {
+
+                            Scouse = false;
+
+                            Islands.ForEach(i => i.island.MaxIlandBox = i.island.MinIlandBox + (i.island.GetSize * ClorreScaile));
+                            break;
+                        }
+                    }
+                    island.island.MinIlandBox = NawPos;
+                    island.island.MaxIlandBox = NawPos + NawSize;
+
+                    NawPos.x += NawSize.x + IslanadsPading;
+
+
+                }
+            }
+            return ClonedPool;
         }
 
         public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, int Repeat = 4)
@@ -155,23 +198,7 @@ namespace Rs.TexturAtlasCompiler
 
             foreach (var Index in Enumerable.Range(0, Moved.IslandPoolList.Count))
             {
-                var MapIndex = Moved.IslandPoolList[Index].MapIndex;
-                var MovedIsland = Moved.IslandPoolList[Index];
-
-                var VertexIndex = MovedIsland.island.GetVertexIndex();
-                var NotMovedIsland = Original.IslandPoolList.Find(i => i.MapIndex == MovedIsland.MapIndex && i.IslandIndex == MovedIsland.IslandIndex);
-
-                float RelativeScaile = MovedIsland.island.GetSize.sqrMagnitude / NotMovedIsland.island.GetSize.sqrMagnitude;
-
-                foreach (var TrinagleIndex in VertexIndex)
-                {
-                    var VertPos = UVs[MapIndex][TrinagleIndex];
-                    var RelativeVertPos = VertPos - NotMovedIsland.island.MinIlandBox;
-                    RelativeVertPos *= RelativeScaile;
-                    var MovedVertPos = MovedIsland.island.MinIlandBox + RelativeVertPos;
-                    MovedUV[MapIndex][TrinagleIndex] = MovedVertPos;
-                    //Debug.Log("not " + notmoved.Item1 + "moved " + moved.Item1 + "f " + uvvart + "scaile " + movedscaile + "rera " + uvverrera + "e " + uvvermoved);
-                }
+                MoveUV(UVs, Original, Moved, MovedUV, Index);
             }
 
             return MovedUV;
@@ -180,7 +207,6 @@ namespace Rs.TexturAtlasCompiler
         {
             List<List<Vector2>> MovedUV = CloneUVs(UVs);
             List<ConfiguredTaskAwaitable> Tasks = new List<ConfiguredTaskAwaitable>();
-
             foreach (var Index in Enumerable.Range(0, Moved.IslandPoolList.Count))
             {
                 Tasks.Add(Task.Run(() => MoveUV(UVs, Original, Moved, MovedUV, Index)).ConfigureAwait(false));
@@ -202,6 +228,7 @@ namespace Rs.TexturAtlasCompiler
 
             var VertexIndex = MovedIsland.island.GetVertexIndex();
             var NotMovedIsland = Original.IslandPoolList.Find(i => i.MapIndex == MovedIsland.MapIndex && i.IslandIndex == MovedIsland.IslandIndex);
+
 
             float RelativeScaile = MovedIsland.island.GetSize.sqrMagnitude / NotMovedIsland.island.GetSize.sqrMagnitude;
 
@@ -306,6 +333,24 @@ namespace Rs.TexturAtlasCompiler
     public class IslandPool
     {
         public List<IslandAndIndex> IslandPoolList = new List<IslandAndIndex>();
+
+        public IslandPool(List<IslandAndIndex> List)
+        {
+            IslandPoolList = List;
+        }
+
+        public IslandPool()
+        {
+        }
+
+        public IslandPool(IslandPool targetPool)
+        {
+            foreach (var island in targetPool.IslandPoolList)
+            {
+                IslandPoolList.Add(new IslandAndIndex(island));
+            }
+        }
+
         public class IslandAndIndex
         {
             public IslandAndIndex(Island island, int mapIndex, int islandInx)
@@ -317,9 +362,9 @@ namespace Rs.TexturAtlasCompiler
 
             public IslandAndIndex(IslandAndIndex Souse)
             {
-                this.island = Souse.island;
+                this.island = new Island(Souse.island);
                 MapIndex = Souse.MapIndex;
-                IslandIndex = Souse.MapIndex;
+                IslandIndex = Souse.IslandIndex;
             }
 
             public Island island { get; set; }
@@ -392,6 +437,13 @@ namespace Rs.TexturAtlasCompiler
             var Box = AtlasMapper.BoxCal(VartPoss);
             MinIlandBox = Box.Item1;
             MaxIlandBox = Box.Item2;
+        }
+
+        public bool BoxInOut(Vector2 TargetPos)
+        {
+            var InOutX = MinIlandBox.x < TargetPos.x && TargetPos.x < MaxIlandBox.x;
+            var InOutY = MinIlandBox.y < TargetPos.y && TargetPos.y < MaxIlandBox.y;
+            return InOutX && InOutY;
         }
 
     }

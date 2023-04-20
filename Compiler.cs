@@ -49,11 +49,10 @@ namespace Rs.TexturAtlasCompiler
                         MovedPool = IslandUtils.IslandPoolEvenlySpaced(IslandPool);
                         break;
                     }
-                case IslandSortingType.DescendingOrder:
+                case IslandSortingType.NextFitDecreasingHeight:
                     {
-                        throw new NotImplementedException();
-                        //MovedPool = IslandUtils.IslandPoolEvenlySpaced(IslandPool);
-                        //break;
+                        MovedPool = IslandUtils.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        break;
                     }
                 default: throw new ArgumentException();
             }
@@ -351,7 +350,7 @@ namespace Rs.TexturAtlasCompiler
     public enum IslandSortingType
     {
         EvenlySpaced,
-        DescendingOrder,
+        NextFitDecreasingHeight,
     }
 
     public class MeshIndex
