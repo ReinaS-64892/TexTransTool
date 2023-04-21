@@ -10,10 +10,24 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
 {
     public class AtlasSetAvatarTag : MonoBehaviour, IEditorOnly
     {
-        public AtlasSet AtlasSet;
-        public ExecuteClient ClientSelect;
+        public AtlasSet AtlasSet = new AtlasSet()
+        {
+            SortingType = IslandSortingType.NextFitDecreasingHeight,
+        };
+        public ExecuteClient ClientSelect = ExecuteClient.ComputeSheder;
 
-        public List<AtlasPostPrcess> PostProcess;
+        public List<AtlasPostPrcess> PostProcess = new List<AtlasPostPrcess>()
+        {
+            new AtlasPostPrcess(){
+                Process = AtlasPostPrcess.ProcessEnum.SetTextureMaxSize,
+                Select = AtlasPostPrcess.TargetSelect.NonPropertys,
+                TargetPropatyNames = new List<string>{"_MainTex"}
+            },
+                        new AtlasPostPrcess(){
+                Process = AtlasPostPrcess.ProcessEnum.SetNormalMapSetting,
+                TargetPropatyNames = new List<string>{"_BumpMap"}
+            }
+        };
     }
     [System.Serializable]
     public class AtlasPostPrcess
