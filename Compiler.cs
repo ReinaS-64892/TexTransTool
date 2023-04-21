@@ -56,6 +56,7 @@ namespace Rs.TexturAtlasCompiler
                     }
                 default: throw new ArgumentException();
             }
+            
 
             List<List<Vector2>> MovedUVs;
             switch (ClientSelect)

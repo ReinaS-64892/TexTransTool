@@ -10,52 +10,55 @@ namespace Rs.TexturAtlasCompiler
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.95f)//NFDH
+        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f)//NFDH
         {
             var ClonedPool = new IslandPool(TargetPool);
             var Islands = ClonedPool.IslandPoolList;
             Islands.Sort((l, r) => Mathf.RoundToInt((r.island.GetSize.y - l.island.GetSize.y) * 100));
-            bool Scouse = false;
-            while (!Scouse)
+            bool Success = false;
+            float NawScaile = 1f;
+            while (!Success)
             {
 
-                Scouse = true;
+                Success = true;
                 var NawPos = new Vector2(IslanadsPading, IslanadsPading);
                 float FirstHeight = 0;
-                if (Islands.Any()) FirstHeight = Islands[0].island.GetSize.y;
-                var NawMaxHigt = IslanadsPading + FirstHeight;
-                Debug.Log(FirstHeight);
-                foreach (var island in Islands)
+                if (Islands.Any()) FirstHeight = Islands[0].island.GetSize.y * NawScaile;
+                var NawMaxHigt = IslanadsPading + FirstHeight + IslanadsPading;
+                //Debug.Log(FirstHeight);
+                foreach (var islandandIndex in Islands)
                 {
-                    var NawSize = island.island.GetSize;
+                    var NawSize = islandandIndex.island.GetSize;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = NawMaxPos.x > 1;
-                    var IsOutOfY = (NawMaxPos.y + IslanadsPading) > 1;
+                    var IsOutOfX = (NawMaxPos.x + IslanadsPading) > 1;
 
+                    //Debug.Log(NawPos.x + "/" + NawPos.y + "  " + NawMaxHigt + "  " + NawSize.x + "/" + NawSize.y + " " + NawMaxPos.x + "/" + NawMaxPos.y);
 
                     if (IsOutOfX)
                     {
                         NawPos.y = NawMaxHigt;
                         NawPos.x = IslanadsPading;
 
-                        NawMaxHigt += NawSize.y + IslanadsPading;
+                        NawMaxHigt += IslanadsPading + NawSize.y * NawScaile;
 
-                        if (IsOutOfY)
+                        if (NawMaxHigt > 1)
                         {
 
-                            Scouse = false;
+                            Success = false;
 
                             Islands.ForEach(i => i.island.MaxIlandBox = i.island.MinIlandBox + (i.island.GetSize * ClorreScaile));
+                            NawScaile *= ClorreScaile;
                             break;
                         }
                     }
-                    island.island.MinIlandBox = NawPos;
-                    island.island.MaxIlandBox = NawPos + NawSize;
+                    islandandIndex.island.MinIlandBox = NawPos;
+                    islandandIndex.island.MaxIlandBox = NawPos + NawSize;
 
-                    NawPos.x += NawSize.x + IslanadsPading;
-
-
+                    NawPos.x += IslanadsPading + NawSize.x * NawScaile;
+                    //高さの更新や現在の位置の移動の今の時のスケールをかけないとうまくいかない理由は何もわからない...
+                    //GetSize周りがなぜかうまくいっていないのだろうか...いろいろ試しても何もわからないので一回あきらめよう...
                 }
+                //Debug.Log("NYA! " + NawScaile);
             }
             return ClonedPool;
         }
@@ -245,10 +248,14 @@ namespace Rs.TexturAtlasCompiler
 
         public static IslandPool GeneretIslandPool(this CompileData Data)
         {
+            return GeneretIslandPool(Data.meshes);
+        }
+        public static IslandPool GeneretIslandPool(List<Mesh> Data)
+        {
             var IslandPool = new IslandPool();
 
             int MapCount = -1;
-            foreach (var data in Data.meshes)
+            foreach (var data in Data)
             {
                 MapCount += 1;
                 var UV = new List<Vector2>();
@@ -458,6 +465,41 @@ namespace Rs.TexturAtlasCompiler
                 int x = Mathf.RoundToInt(uvpos.x * TargetTextur.width);
                 int y = Mathf.RoundToInt(uvpos.y * TargetTextur.height);
                 TargetTextur.SetPixel(x, y, WriteColor);
+            }
+        }
+        public static void DrowIlandBox(IslandPool Pool, Texture2D TargetTextur, Color WriteColor)
+        {
+            foreach (var island in Pool.IslandPoolList)
+            {
+                var minpos = new Vector2Int(Mathf.RoundToInt(island.island.MinIlandBox.x * TargetTextur.width), Mathf.RoundToInt(island.island.MinIlandBox.y * TargetTextur.height));
+                var maxpos = new Vector2Int(Mathf.RoundToInt(island.island.MaxIlandBox.x * TargetTextur.width), Mathf.RoundToInt(island.island.MaxIlandBox.y * TargetTextur.height));
+                Vector2Int pos = minpos;
+                while (maxpos.x > pos.x)
+                {
+                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    pos.x += 1;
+                }
+                pos.x = minpos.x;
+                pos.y = maxpos.y;
+                while (maxpos.x > pos.x)
+                {
+                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    pos.x += 1;
+                }
+
+                pos = minpos;
+                while (maxpos.y > pos.y)
+                {
+                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    pos.y += 1;
+                }
+                pos.x = maxpos.x;
+                pos.y = minpos.y;
+                while (maxpos.y > pos.y)
+                {
+                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    pos.y += 1;
+                }
             }
         }
     }
