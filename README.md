@@ -3,4 +3,4 @@
 
 ## Feature
 ### AtlasSetAvatarTag
-指定したSkindMeshRenderer(MeshRenderer)に含まれるマテリアルのテクスチャをアトラス化することのできるコンポーネントです。
+指定したSkindMeshRenderer(MeshRenderer)に含まれるマテリアルのテクスチャをアトラス化することのできるコンポーネントです。[詳細はこちら](Manual/AtlasSetAvatarTag.md)
