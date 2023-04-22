@@ -5,7 +5,7 @@
 #### 始めに
 
 Rs/TexturAtlasCompiler/VRCBulige にある AtlasSetAvatarTag.cs から、
-またはインスペクターのコンポーネントを追加から、TexturAtlasCompiler/AtlasSetAvatarTag から
+またはインスペクターのコンポーネントを追加のTexturAtlasCompiler/AtlasSetAvatarTag から
 ゲームオブジェクトに追加できます。
 
 #### アトラス化の仕方
