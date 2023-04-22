@@ -11,7 +11,7 @@ namespace Rs.TexturAtlasCompiler
     [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject
     {
-        public string Hash;
+        public string Hash;//hashから自動でコンパイルするかどうか見るのではなく全部マニュアルでやってしまったほうが単純なのではないだろうか...
         public List<Mesh> Meshs = new List<Mesh>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
         public List<Material> GenereatMaterial = new List<Material>();
@@ -76,6 +76,7 @@ namespace Rs.TexturAtlasCompiler
         {
             List<Material> NoDuplicationSousMatrial = new List<Material>();
             List<Material> GeneratMats = new List<Material>();
+
             List<Material> ResGenereatMats = new List<Material>();
 
             foreach (var SMat in SouseMatrial)

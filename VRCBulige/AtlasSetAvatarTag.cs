@@ -8,6 +8,7 @@ using VRC.SDKBase;
 
 namespace Rs.TexturAtlasCompiler.VRCBulige
 {
+    [AddComponentMenu("TexturAtlasCompiler/AtlasSetAvatarTag")]
     public class AtlasSetAvatarTag : MonoBehaviour, IEditorOnly
     {
         public AtlasSet AtlasSet = new AtlasSet()
@@ -65,7 +66,7 @@ namespace Rs.TexturAtlasCompiler.VRCBulige
             }
         }
 
-        void ProcessingTextureResize(CompileDataContenar Target)//TargetPropatyNamesをEditor側でList的に入力できるようにしてスペース区切りにして受け取るようにしたい
+        void ProcessingTextureResize(CompileDataContenar Target)
         {
             switch (Select)
             {
