@@ -10,7 +10,7 @@ namespace Rs.TexturAtlasCompiler
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f, float UpClorreScaile = 1.01f, float MinHeight = 0.6f, int MaxLoopCount = 128)//NFDH
+        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f, float UpClorreScaile = 1.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
             var ClonedPool = new IslandPool(TargetPool);
             var Islands = ClonedPool.IslandPoolList;
@@ -32,7 +32,7 @@ namespace Rs.TexturAtlasCompiler
                 {
                     var NawSize = islandandIndex.island.GetSize;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x + IslanadsPading) > 1;
+                    var IsOutOfX = (NawMaxPos.x * NawScaile + IslanadsPading) > 1;
 
                     //Debug.Log(NawPos.x + "/" + NawPos.y + "  " + NawMaxHigt + "  " + NawSize.x + "/" + NawSize.y + " " + NawMaxPos.x + "/" + NawMaxPos.y);
 
