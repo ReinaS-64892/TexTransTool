@@ -32,7 +32,7 @@ namespace Rs.TexturAtlasCompiler
                 {
                     var NawSize = islandandIndex.island.GetSize;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x * NawScaile + IslanadsPading) > 1;
+                    var IsOutOfX = (NawMaxPos.x *  (NawScaile > 1 ? NawScaile : 1) + IslanadsPading) > 1;
 
                     //Debug.Log(NawPos.x + "/" + NawPos.y + "  " + NawMaxHigt + "  " + NawSize.x + "/" + NawSize.y + " " + NawMaxPos.x + "/" + NawMaxPos.y);
 
