@@ -10,16 +10,18 @@ namespace Rs.TexturAtlasCompiler
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f)//NFDH
+        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f, float UpClorreScaile = 1.01f, float MinHeight = 0.6f, int MaxLoopCount = 128)//NFDH
         {
             var ClonedPool = new IslandPool(TargetPool);
             var Islands = ClonedPool.IslandPoolList;
             Islands.Sort((l, r) => Mathf.RoundToInt((r.island.GetSize.y - l.island.GetSize.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
+            int loopCount = -1;
             while (!Success)
             {
-
+                loopCount += 1;
+                if (loopCount > MaxLoopCount) break;
                 Success = true;
                 var NawPos = new Vector2(IslanadsPading, IslanadsPading);
                 float FirstHeight = 0;
@@ -57,9 +59,16 @@ namespace Rs.TexturAtlasCompiler
                     NawPos.x += IslanadsPading + NawSize.x * NawScaile;
                     //高さの更新や現在の位置の移動の今の時のスケールをかけないとうまくいかない理由は何もわからない...
                     //GetSize周りがなぜかうまくいっていないのだろうか...いろいろ試しても何もわからないので一回あきらめよう...
+
                 }
-                //Debug.Log("NYA! " + NawScaile);
+                if (MinHeight > NawMaxHigt)
+                {
+                    Success = false;
+                    Islands.ForEach(i => i.island.MaxIlandBox = i.island.MinIlandBox + (i.island.GetSize * UpClorreScaile));
+                    NawScaile *= UpClorreScaile;
+                }
             }
+            Debug.Log(loopCount + " " + NawScaile + " " + Success);
             return ClonedPool;
         }
 
