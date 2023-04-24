@@ -1,11 +1,13 @@
 {
-    "name": "TexturAtlasCompilerVRCBrigeEditor",
+    "name": "rs64.texturatlascompiler.vrcbrige.editor",
     "references": [
         "GUID:9bc83561c99cfbe4ba0457cda3f96218",
         "GUID:bab8c7fad8b1d224281c1529b8b583dd",
         "GUID:3456780c4fb2d324ab9c633d6f1b0ddb"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

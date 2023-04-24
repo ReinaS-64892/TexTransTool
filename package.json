@@ -1,0 +1,13 @@
+{
+  "name": "rs64.textur-atlas-compiler",
+  "displayName": "TexturAtlasCompiler",
+  "version": "0.0.0",
+  "description": "Describe this Package",
+  "gitDependencies": {},
+  "vpmDependencies": {
+    "com.vrchat.avatars": "3.1.13"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {},
+  "localPath": "F:\\unityproject\\RsProductEdit\\Packages\\rs64.texturatlascompiler"
+}
