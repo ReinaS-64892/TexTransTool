@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using Rs.TexturAtlasCompiler.ShaderSupport;
 
 namespace Rs.TexturAtlasCompiler
 {
@@ -90,7 +91,7 @@ namespace Rs.TexturAtlasCompiler
                     PropToMaterialTexAppry(PropAndTextures, Gmat);
 
                     if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
-
+                    MaterialCustomSetting(Gmat);
 
                     GeneratMats.Add(Gmat);
                     ResGenereatMats.Add(Gmat);
@@ -119,6 +120,13 @@ namespace Rs.TexturAtlasCompiler
                     TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
                 }
             }
+        }
+
+        public static void MaterialCustomSetting(Material material)
+        {
+            var SuppotShder = ShaderSupportUtil.GetSupprotInstans().Find(i => material.shader.name.Contains(i.SupprotShaderName));
+            if (SuppotShder == null) return;
+            SuppotShder.GenereatMaterialCustomSetting(material);
         }
 
 

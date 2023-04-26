@@ -11,6 +11,13 @@ namespace Rs.TexturAtlasCompiler.ShaderSupport
     {
         public string SupprotShaderName => "lilToon";
 
+        public void GenereatMaterialCustomSetting(Material material)
+        {
+            var MainTex = material.GetTexture("_MainTex") as Texture2D;
+            material.SetTexture("_BaseMap", MainTex);
+            material.SetTexture("_BaseColorMap", MainTex);
+        }
+
         public List<PropAndTexture> GetPropertyAndTextures(Material material)
         {
             var PropertyAndTextures = new List<PropAndTexture>();

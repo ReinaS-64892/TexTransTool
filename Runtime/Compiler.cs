@@ -187,10 +187,8 @@ namespace Rs.TexturAtlasCompiler
             List<Renderer> renderers = new List<Renderer>(Target.AtlasTargetMeshs);
             renderers.AddRange(Target.AtlasTargetStaticMeshs);
 
-            var SappotedLists = Assembly.GetExecutingAssembly().GetTypes().Where(C => C.GetInterfaces().Any(I => I == typeof(IShaderSupport))).ToList();
-            List<IShaderSupport> SappotedListInstans = SappotedLists.ConvertAll<IShaderSupport>(I => Activator.CreateInstance(I) as IShaderSupport);
 
-            SetPropatyAndTexs(Data, renderers, SappotedListInstans);
+            SetPropatyAndTexs(Data, renderers, ShaderSupportUtil.GetSupprotInstans());
 
             var Meshs = Target.AtlasTargetMeshs.ConvertAll<Mesh>(i => i.sharedMesh);
             Meshs.AddRange(Target.AtlasTargetStaticMeshs.ConvertAll<Mesh>(i => i.GetComponent<MeshFilter>().sharedMesh));

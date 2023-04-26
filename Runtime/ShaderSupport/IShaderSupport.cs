@@ -11,6 +11,8 @@ namespace Rs.TexturAtlasCompiler.ShaderSupport
         string SupprotShaderName { get; }
         List<PropAndTexture> GetPropertyAndTextures(Material material);
 
+        void GenereatMaterialCustomSetting(Material material);
+
 
     }
 }
