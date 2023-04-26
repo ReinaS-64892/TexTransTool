@@ -21,6 +21,8 @@ namespace Rs.TexturAtlasCompiler
         public IslandSortingType SortingType;
         public CompileDataContenar Contenar;
 
+        public bool GeneratMatClearUnusedProperties = true;
+
         [SerializeField] bool _IsAppry;
 
         public bool IsAppry => _IsAppry;
@@ -91,11 +93,11 @@ namespace Rs.TexturAtlasCompiler
         {
             if (Contenar == null) return;
             if (_IsAppry == true) return;
-            
+
             BackUpMaterial.Clear();
             BackUpMaterial = GetMaterials();
 
-            var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials());
+            var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials(), GeneratMatClearUnusedProperties);
             SetMaterial(GetRenderers(), GeneratMats);
 
         }

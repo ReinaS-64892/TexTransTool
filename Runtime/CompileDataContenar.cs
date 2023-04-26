@@ -72,7 +72,7 @@ namespace Rs.TexturAtlasCompiler
             return newI;
         }
 
-        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial)
+        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties)
         {
             List<Material> NoDuplicationSousMatrial = new List<Material>();
             List<Material> GeneratMats = new List<Material>();
@@ -88,6 +88,8 @@ namespace Rs.TexturAtlasCompiler
                     var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
 
                     PropToMaterialTexAppry(PropAndTextures, Gmat);
+
+                    if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
 
                     GeneratMats.Add(Gmat);
                     ResGenereatMats.Add(Gmat);
@@ -114,6 +116,40 @@ namespace Rs.TexturAtlasCompiler
                 if (TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
                 {
                     TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
+                }
+            }
+        }
+
+
+        //MIT License
+        //Copyright (c) 2020-2021 lilxyzw
+        //https://github.com/lilxyzw/lilToon/blob/master/Assets/lilToon/Editor/lilMaterialUtils.cs
+        //https://light11.hatenadiary.com/entry/2018/12/04/224253
+        private static void RemoveUnusedProperties(Material material)
+        {
+            var so = new SerializedObject(material);
+            so.Update();
+            var savedProps = so.FindProperty("m_SavedProperties");
+
+            var texs = savedProps.FindPropertyRelative("m_TexEnvs");
+            DeleteUnused(ref texs, material);
+
+            var floats = savedProps.FindPropertyRelative("m_Floats");
+            DeleteUnused(ref floats, material);
+
+            var colors = savedProps.FindPropertyRelative("m_Colors");
+            DeleteUnused(ref colors, material);
+
+            so.ApplyModifiedProperties();
+        }
+
+        private static void DeleteUnused(ref SerializedProperty props, Material material)
+        {
+            for (int i = props.arraySize - 1; i >= 0; i--)
+            {
+                if (!material.HasProperty(props.GetArrayElementAtIndex(i).FindPropertyRelative("first").stringValue))
+                {
+                    props.DeleteArrayElementAtIndex(i);
                 }
             }
         }
