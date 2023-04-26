@@ -91,6 +91,7 @@ namespace Rs.TexturAtlasCompiler
 
                     if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
 
+
                     GeneratMats.Add(Gmat);
                     ResGenereatMats.Add(Gmat);
                 }
