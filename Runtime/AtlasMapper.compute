@@ -1,6 +1,7 @@
 ﻿#pragma kernel AtlasMapGeneratPadingEdgeBase
 #pragma kernel AtlasMapGeneratPadingVartexBase
 
+#include "./AtlasHelper.hlsl"
 #include "./AtlasMapperHelper.hlsl"
 
 uint Size;

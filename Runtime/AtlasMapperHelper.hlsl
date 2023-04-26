@@ -16,11 +16,6 @@ float2 FromBCS(float2 t1, float2 t2, float2 t3, float3 BCS)
     return RevPos2;
 }
 
-uint TwoDToOneDIndex(uint2 id, uint Size)
-{
-    return (id.y * Size) + id.x;
-}
-
 float IsInCal(float w, float u, float v)
 {
     return saturate(

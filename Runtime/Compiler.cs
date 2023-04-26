@@ -12,12 +12,16 @@ using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
 using Rs.TexturAtlasCompiler.ShaderSupport;
+using UnityEngine.Rendering;
 
 namespace Rs.TexturAtlasCompiler
 {
     public static class Compiler
     {
-        public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false, string ComputeShaderPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute")
+        public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false,
+        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute",
+        string AtlasCompilerPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasCompiler.compute"
+        )
         {
             var Data = GetCompileData(Target);
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar("Assets/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
@@ -56,7 +60,7 @@ namespace Rs.TexturAtlasCompiler
                     }
                 default: throw new ArgumentException();
             }
-            
+
 
             List<List<Vector2>> MovedUVs;
             switch (ClientSelect)
@@ -80,7 +84,7 @@ namespace Rs.TexturAtlasCompiler
             Data.SetUVs(MovedUVs);
             Data.SetUVs(NotMevedUVs, 1);
 
-            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, ComputeShaderPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
+            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, AtlasMapperPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             //var TargetTextureAndDistansMap = new TextureAndDistansMap(TargetTexture, Data.Pading);
             var TargetPorpAndAtlasTexs = new List<PropAndAtlasTex>();
@@ -114,8 +118,9 @@ namespace Rs.TexturAtlasCompiler
                                     break;
                                 }
                             case ExecuteClient.ComputeSheder:
-                                {//今はそれ用のコードがないのでCPU
-                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
+                                {
+                                    var CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(AtlasCompilerPath);
+                                    AtlasTextureCompileUsedComputeSheder(SouseTxture, AtlasMapData, TargetTex, CS);
                                     break;
                                 }
                         }
@@ -208,10 +213,8 @@ namespace Rs.TexturAtlasCompiler
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
 
-            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
             //Debug.Log(SouseTexPath);
-            SouseTex = new Texture2D(2, 2);
-            SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
+            NotFIlterTexture2D(ref SouseTex);
             foreach (var index in List)
             {
                 //Debug.Log(AtralsMap.DistansMap[index.x, index.y] + " " + AtralsMap.DefaultPading + " " + targetTex.DistansMap[index.x, index.y]);
@@ -225,27 +228,98 @@ namespace Rs.TexturAtlasCompiler
             }
             return targetTex;
         }
-        public static AtlasTexture AtlasTextureCompileUsedSystemDrowing(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
+        public static AtlasTexture AtlasTextureCompileUsedComputeSheder(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex, ComputeShader CS)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            NotFIlterTexture2D(ref SouseTex, true);
+            Vector2Int ThredGropSize = AtralsMap.MapSize / 32;
+            var KernelIndex = CS.FindKernel("AtlasCompile");
 
+            CS.SetTexture(KernelIndex, "Source", SouseTex);
 
-
-
-            var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
-            foreach (var index in List)
+            int BufferSize = AtralsMap.MapSize.x * AtralsMap.MapSize.y;
+            var AtlasMapBuffer = new ComputeBuffer(BufferSize, 12);
+            var AtlasMapList = new List<Vector3>();
+            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
             {
-                if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
-                {
-                    var souspixselcloro = SouseTex.GetPixelBilinear(AtralsMap.Map[index.x, index.y].x, AtralsMap.Map[index.x, index.y].y);
-                    targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                var Map = AtralsMap.Map[Index.x, Index.y];
+                var Distans = AtralsMap.DistansMap[Index.x, Index.y];
+                AtlasMapList.Add(new Vector3(Map.x, Map.y, Distans));
 
-                }
             }
+            AtlasMapBuffer.SetData<Vector3>(AtlasMapList);
+            CS.SetBuffer(KernelIndex, "AtlasMap", AtlasMapBuffer);
+
+            var TargetBuffer = new ComputeBuffer(BufferSize, 16);
+            var TargetTexColorArry = targetTex.Texture2D.GetPixels();
+            TargetBuffer.SetData(TargetTexColorArry);
+            CS.SetBuffer(KernelIndex, "Target", TargetBuffer);
+
+            /*
+            var TargetRT = new RenderTexture(targetTex.Texture2D.width, targetTex.Texture2D.height, 8, targetTex.Texture2D.graphicsFormat);
+            TargetRT.enableRandomWrite = true;
+            CS.SetTexture(KernelIndex, "Target", TargetRT);
+            */
+
+            var TargetDistansBuffer = new ComputeBuffer(BufferSize, 4);
+            var TargetDistansList = new List<float>();
+            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
+            {
+                TargetDistansList.Add(targetTex.DistansMap[Index.x, Index.y]);
+            }
+            TargetDistansBuffer.SetData<float>(TargetDistansList);
+            CS.SetBuffer(KernelIndex, "TargetDistansMap", TargetDistansBuffer);
+            CS.SetInt("Size", AtralsMap.MapSize.x);
+
+
+            CS.Dispatch(KernelIndex, ThredGropSize.x, ThredGropSize.y, 1);
+
+            TargetBuffer.GetData(TargetTexColorArry);
+            targetTex.Texture2D.SetPixels(TargetTexColorArry);
+            targetTex.Texture2D.Apply();
+            //RTから計算結果を引き戻すのはどれもなぜかうまくいかなかった...どうして？
+            //ReadBackは InvalidOperationException をはいてうまくいかないし WaitForCompletionを実行した後でも...
+            //ReadPixelsは真っ黒になる
+            /*
+            var ReadBackReq = AsyncGPUReadback.Request(TargetRT);
+            ReadBackReq.WaitForCompletion();
+            var buffer = ReadBackReq.GetData<Color>();
+            targetTex.Texture2D.SetPixelData(buffer, 0);
+            */
+            /*
+            var BackUP = RenderTexture.active;
+            RenderTexture.active = TargetRT;
+            targetTex.Texture2D.ReadPixels(new Rect(0, 0, TargetRT.width, TargetRT.height), 0, 0);
+            RenderTexture.active = BackUP;
+*/
+            targetTex.Texture2D.Apply();
+
+            var TargetDistansArry = TargetDistansList.ToArray();
+            TargetDistansBuffer.GetData(TargetDistansArry);
+            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
+            {
+                targetTex.DistansMap[Index.x, Index.y] = TargetDistansArry[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)];
+                //Debug.Log(TargetDistansArry[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)]);
+            }
+            AtlasMapBuffer.Release();
+            TargetDistansBuffer.Release();
+            TargetBuffer.Release();
             return targetTex;
         }
 
-
+        public static void NotFIlterTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
+        {
+            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+            if (ConvertToLiner)
+            {
+                SouseTex = new Texture2D(2, 2, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+            }
+            else
+            {
+                SouseTex = new Texture2D(2, 2);
+            }
+            SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
+        }
 
 
         static void SetPropatyAndTexs(CompileData Data, List<Renderer> renderers, List<IShaderSupport> sappotedListInstans)

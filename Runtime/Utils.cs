@@ -32,5 +32,10 @@ namespace Rs.TexturAtlasCompiler
             ForEach2D(Reange, (x, y) => List.Add(new Vector2Int(x, y)));
             return List;
         }
+
+        public static int TwoDToOneDIndex(Vector2Int TowDIndex, int Size)
+        {
+            return (TowDIndex.y * Size) + TowDIndex.x;
+        }
     }
 }
