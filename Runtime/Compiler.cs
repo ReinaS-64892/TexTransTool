@@ -17,7 +17,7 @@ namespace Rs.TexturAtlasCompiler
 {
     public static class Compiler
     {
-        public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false, string ComputeShaderPath = "Assets/Rs/TexturAtlasCompiler/AtlasMapper.compute")
+        public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false, string ComputeShaderPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute")
         {
             var Data = GetCompileData(Target);
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar("Assets/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
