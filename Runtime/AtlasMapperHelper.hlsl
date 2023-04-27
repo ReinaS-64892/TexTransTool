@@ -9,8 +9,7 @@ float2 NeaPointOnLine(float2 a, float2 b, float2 p)
 
 float2 FromBCS(float2 t1, float2 t2, float2 t3, float3 BCS)
 {
-    float2 RevPos2 = float2(0, 0);
-    RevPos2 += t1 * BCS.x;
+    float2 RevPos2 = t1 * BCS.x;
     RevPos2 += t2 * BCS.y;
     RevPos2 += t3 * BCS.z;
     return RevPos2;

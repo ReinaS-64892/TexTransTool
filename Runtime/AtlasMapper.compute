@@ -10,7 +10,7 @@ RWStructuredBuffer<float3> Result;
 
 [numthreads(32, 32, 1)] void AtlasMapGeneratPadingEdgeBase(uint3 id: SV_DispatchThreadID)
 {
-  float3 TargetPos = float3(id.x , id.y , 0);
+  float3 TargetPos = float3(id.x + 0.25 , id.y + 0.25 , 0);//0.25で望ましい見た目になるが...なぜ0.25なのかは謎、0.5だとずれる
   float4 ClossT = ClossTraiangle(AsFloat3(Traiangles[SelectTraiangle(id.z,0)]),AsFloat3(Traiangles[SelectTraiangle(id.z,1)]),AsFloat3(Traiangles[SelectTraiangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansEdgeBase(Traiangles[SelectTraiangle(id.z,0)],Traiangles[SelectTraiangle(id.z,1)],Traiangles[SelectTraiangle(id.z,2)],(float2)TargetPos);
@@ -26,7 +26,7 @@ RWStructuredBuffer<float3> Result;
 
 [numthreads(32, 32, 1)] void AtlasMapGeneratPadingVartexBase(uint3 id: SV_DispatchThreadID)
 {
-  float3 TargetPos = float3(id.x , id.y , 0);
+  float3 TargetPos = float3(id.x + 0.25 , id.y + 0.25  , 0);
   float4 ClossT = ClossTraiangle(AsFloat3(Traiangles[SelectTraiangle(id.z,0)]),AsFloat3(Traiangles[SelectTraiangle(id.z,1)]),AsFloat3(Traiangles[SelectTraiangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansVartBase(Traiangles[SelectTraiangle(id.z,0)],Traiangles[SelectTraiangle(id.z,1)],Traiangles[SelectTraiangle(id.z,2)],(float2)TargetPos);
