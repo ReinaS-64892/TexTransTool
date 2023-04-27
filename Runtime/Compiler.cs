@@ -105,25 +105,7 @@ namespace Rs.TexturAtlasCompiler
                     foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
                     {
                         var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        switch (ClientSelect)
-                        {
-                            case ExecuteClient.CPU:
-                                {
-                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
-                                    break;
-                                }
-                            case ExecuteClient.AsyncCPU:
-                                {//今はそれ用のコードがないのでCPU
-                                    AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
-                                    break;
-                                }
-                            case ExecuteClient.ComputeSheder:
-                                {
-                                    var CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(AtlasCompilerPath);
-                                    AtlasTextureCompileUsedComputeSheder(SouseTxture, AtlasMapData, TargetTex, CS);
-                                    break;
-                                }
-                        }
+                        AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
                     }
 
                 }
