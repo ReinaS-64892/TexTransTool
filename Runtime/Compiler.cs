@@ -19,7 +19,7 @@ namespace Rs.TexturAtlasCompiler
     public static class Compiler
     {
         public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false,
-        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute"
+        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/AtlasMapper.compute"
         )
         {
             var Data = GetCompileData(Target);
