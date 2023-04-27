@@ -19,8 +19,7 @@ namespace Rs.TexturAtlasCompiler
     public static class Compiler
     {
         public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false,
-        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute",
-        string AtlasCompilerPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasCompiler.compute"
+        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/AtlasMapper.compute"
         )
         {
             var Data = GetCompileData(Target);
@@ -28,7 +27,37 @@ namespace Rs.TexturAtlasCompiler
             if (!ForesdCompile && Data.Hash == Target.Contenar.Hash) return;
             var Contenar = Target.Contenar;
 
+            var IslandPool = CliantSelectToGenereatIslandPool(ClientSelect, Data);
 
+            var UVs = Data.GetUVs();
+            var MovedUVs = GenereatNewUVs(Target.SortingType, ClientSelect, IslandPool, UVs);
+
+            var NotMevedUVs = Data.GetUVs();
+            Data.SetUVs(MovedUVs, 0);
+            Data.SetUVs(NotMevedUVs, 1);
+
+            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, AtlasMapperPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
+
+            var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
+
+            AtlasTextureCompile(Data.SouseTextures, AtlasMapDatas, TargetPorpAndAtlasTexs);
+
+            Contenar.PutData(Data, TargetPorpAndAtlasTexs);
+
+            Target.AtlasCompilePostCallBack.Invoke(Contenar);
+        }
+
+        public static void PutData(this CompileDataContenar Contenar, CompileData Data, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
+        {
+            Contenar.Hash = Data.Hash;
+            Contenar.SetSubAsset<Mesh>(Data.meshes);
+            Contenar.Meshs = Data.meshes;
+            Contenar.DeletTexture();
+            Contenar.SetTextures(TargetPorpAndAtlasTexs.ConvertAll<PropAndTexture>(i => (PropAndTexture)i));
+        }
+
+        public static IslandPool CliantSelectToGenereatIslandPool(ExecuteClient ClientSelect, CompileData Data)
+        {
             IslandPool IslandPool;
             switch (ClientSelect)
             {
@@ -44,9 +73,35 @@ namespace Rs.TexturAtlasCompiler
                         break;
                     }
             }
-            var UVs = Data.GetUVs();
+
+            return IslandPool;
+        }
+
+        public static void AtlasTextureCompile(List<PropAndSouseTexuters> SouseList, List<List<AtlasMapData>> AtlasMapDatas, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
+        {
+            foreach (var PropAndSTex in SouseList)
+            {
+                int TexIndex = -1;
+                string PropertyName = PropAndSTex.PropertyName;
+                var TargetTex = TargetPorpAndAtlasTexs.Find(i => i.PropertyName == PropertyName).AtlasTexture;
+                foreach (var SouseTxture in PropAndSTex.Texture2Ds)
+                {
+                    TexIndex += 1;
+                    foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
+                    {
+                        var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
+                        AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
+                    }
+
+                }
+            }
+        }
+
+        public static List<List<Vector2>> GenereatNewUVs(IslandSortingType SortingType, ExecuteClient ClientSelect, IslandPool IslandPool, List<List<Vector2>> UVs)
+        {
+            List<List<Vector2>> MovedUVs;
             IslandPool MovedPool;
-            switch (Target.SortingType)
+            switch (SortingType)
             {
                 case IslandSortingType.EvenlySpaced:
                     {
@@ -60,9 +115,6 @@ namespace Rs.TexturAtlasCompiler
                     }
                 default: throw new ArgumentException();
             }
-
-
-            List<List<Vector2>> MovedUVs;
             switch (ClientSelect)
             {
                 case ExecuteClient.CPU:
@@ -80,52 +132,9 @@ namespace Rs.TexturAtlasCompiler
                     }
             }
 
-            var NotMevedUVs = Data.GetUVs();
-            Data.SetUVs(MovedUVs);
-            Data.SetUVs(NotMevedUVs, 1);
-
-            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, AtlasMapperPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
-
-            //var TargetTextureAndDistansMap = new TextureAndDistansMap(TargetTexture, Data.Pading);
-            var TargetPorpAndAtlasTexs = new List<PropAndAtlasTex>();
-            foreach (var textures in Data.SouseTextures)
-            {
-                TargetPorpAndAtlasTexs.Add(new PropAndAtlasTex(new AtlasTexture(new Texture2D(Data.AtlasTextureSize.x, Data.AtlasTextureSize.y), Data.Pading), textures.PropertyName));
-            }
-
-
-            foreach (var PropAndSTex in Data.SouseTextures)
-            {
-                int TexIndex = -1;
-                string PropertyName = PropAndSTex.PropertyName;
-                var TargetTex = TargetPorpAndAtlasTexs.Find(i => i.PropertyName == PropertyName).AtlasTexture;
-                foreach (var SouseTxture in PropAndSTex.Texture2Ds)
-                {
-                    TexIndex += 1;
-                    foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
-                    {
-                        var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        AtlasTextureCompileUsedUnityGetPixsel(SouseTxture, AtlasMapData, TargetTex);
-                    }
-
-                }
-            }
-
-            Contenar.Hash = Data.Hash;
-            Contenar.SetSubAsset<Mesh>(Data.meshes);
-            Contenar.Meshs = Data.meshes;
-            Contenar.DeletTexture();
-            foreach (var TexAndDist in TargetPorpAndAtlasTexs)
-            {
-                Contenar.SetTexture((PropAndTexture)TexAndDist);
-            }
-            //var mats = GetMaterials(Target);
-            //Contenar.SetMaterial(mats.ConvertAll<Material>(i => UnityEngine.Object.Instantiate<Material>(i)));
-
-
-            Target.AtlasCompilePostCallBack.Invoke(Contenar);
-
+            return MovedUVs;
         }
+
         public static List<List<AtlasMapData>> GeneratAtlasMaps(List<Mesh> TargetMeshs, ExecuteClient clientSelect, string computeShaderPath, float Pading, Vector2Int AtlasTextureSize, PadingType padingType)
         {
             List<List<AtlasMapData>> Maps = new List<List<AtlasMapData>>();
@@ -187,9 +196,6 @@ namespace Rs.TexturAtlasCompiler
             return Data;
         }
 
-
-
-
         public static AtlasTexture AtlasTextureCompileUsedUnityGetPixsel(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -210,6 +216,7 @@ namespace Rs.TexturAtlasCompiler
             }
             return targetTex;
         }
+
         public static AtlasTexture AtlasTextureCompileUsedComputeSheder(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex, ComputeShader CS)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -303,7 +310,6 @@ namespace Rs.TexturAtlasCompiler
             SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
         }
 
-
         static void SetPropatyAndTexs(CompileData Data, List<Renderer> renderers, List<IShaderSupport> sappotedListInstans)
         {
             int MeshCount = -1;
@@ -346,9 +352,6 @@ namespace Rs.TexturAtlasCompiler
                 }
             }
         }
-
-
-
 
     }
     public class CompileData
@@ -399,6 +402,16 @@ namespace Rs.TexturAtlasCompiler
             {
                 SouseTextures.Add(new PropAndSouseTexuters(AddPropAndtex, new List<List<MeshIndex>>() { new List<MeshIndex>() { addIndex } }));
             }
+        }
+
+        public List<PropAndAtlasTex> GeneretTargetEmptyTextures()
+        {
+            var TargetPorpAndAtlasTexs = new List<PropAndAtlasTex>();
+            foreach (var textures in this.SouseTextures)
+            {
+                TargetPorpAndAtlasTexs.Add(new PropAndAtlasTex(new AtlasTexture(new Texture2D(this.AtlasTextureSize.x, this.AtlasTextureSize.y), this.Pading), textures.PropertyName));
+            }
+            return TargetPorpAndAtlasTexs;
         }
     }
 
@@ -471,10 +484,6 @@ namespace Rs.TexturAtlasCompiler
         }
     }
 
-
-
 }
-
-
 
 #endif

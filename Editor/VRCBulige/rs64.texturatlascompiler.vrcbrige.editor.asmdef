@@ -1,5 +1,5 @@
 {
-    "name": "rs64.texturatlascompiler.vrcbrige.editor",
+    "name": "rs64.texturatlascompiler.Editor.vrcbrige",
     "references": [
         "GUID:9bc83561c99cfbe4ba0457cda3f96218",
         "GUID:bab8c7fad8b1d224281c1529b8b583dd",

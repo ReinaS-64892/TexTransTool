@@ -66,6 +66,13 @@ namespace Rs.TexturAtlasCompiler
             AssetDatabase.ImportAsset(FilePath);
             PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
         }
+        public void SetTextures(List<PropAndTexture> Souses)
+        {
+            foreach (var Souse in Souses)
+            {
+                SetTexture(Souse);
+            }
+        }
         public static CompileDataContenar CreateCompileDataContenar(string path)
         {
             var newI = CreateInstance<CompileDataContenar>();
