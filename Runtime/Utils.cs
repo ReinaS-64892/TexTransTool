@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 namespace Rs.TexturAtlasCompiler
 {
@@ -36,6 +37,22 @@ namespace Rs.TexturAtlasCompiler
         public static int TwoDToOneDIndex(Vector2Int TowDIndex, int Size)
         {
             return (TowDIndex.y * Size) + TowDIndex.x;
+        }
+        public static Texture2D CreateFillTexture(int Size, Color FillColor)
+        {
+            return CreateFillTexture(new Vector2Int(Size, Size), FillColor);
+        }
+        public static Texture2D CreateFillTexture(Vector2Int Size, Color FillColor)
+        {
+            var TestTex = new Texture2D(Size.x, Size.y);
+            List<Color> Colors = new List<Color>();
+            foreach (var count in Enumerable.Range(0, Size.x * Size.y))
+            {
+                Colors.Add(FillColor);
+            }
+            TestTex.SetPixels(Colors.ToArray());
+            TestTex.Apply();
+            return TestTex;
         }
     }
 }
