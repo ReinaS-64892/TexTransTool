@@ -7,7 +7,9 @@
         "VRC.SDKBase.Editor",
         "rs64.tex-trans-tool"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

@@ -6,13 +6,13 @@ using Rs64.TexTransTool.Editor;
 
 namespace Rs64.TexTransTool.TexturAtlas.Editor
 {
-    [CustomEditor(typeof(TexTransAtlasSet))]
+    [CustomEditor(typeof(AtlasSet), true)]
     public class TexTransAtlasSetEditor : UnityEditor.Editor
     {
         bool PostPrcessFoldout = true;
         public override void OnInspectorGUI()
         {
-            var serialaizeatlaset = serializedObject.FindProperty("AtlasSet");
+            var serialaizeatlaset = serializedObject.FindProperty("AtlasSetObject");
             var ClientSelect = serializedObject.FindProperty("ClientSelect");
             var SkindMesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetMeshs");
             var Staticmesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetStaticMeshs");
@@ -22,8 +22,8 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var SortingType = serialaizeatlaset.FindPropertyRelative("SortingType");
             var Contenar = serialaizeatlaset.FindPropertyRelative("Contenar");
 
-            var ThisTarget = target as TexTransAtlasSet;
-            var IsAppry = ThisTarget.AtlasSet.IsAppry;
+            var ThisTarget = target as AtlasSet;
+            var IsAppry = ThisTarget.AtlasSetObject.IsAppry;
 
             EditorGUI.BeginDisabledGroup(IsAppry);
             EditorGUILayout.PropertyField(SkindMesh);

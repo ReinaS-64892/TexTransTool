@@ -10,7 +10,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 {
     public static class TexturAtlasCompiler
     {
-        public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, string AtlasMapperPath = null)
+        public static void AtlasSetCompile(AtlasSetObject Target, ExecuteClient ClientSelect = ExecuteClient.CPU, string AtlasMapperPath = null)
         {
             if (AtlasMapperPath == null) AtlasMapperPath = TransMapper.AtlasMapperPath;
             var Data = GetCompileData(Target);
@@ -45,7 +45,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Contenar.DeletTexture();
             Contenar.SetTextures(TargetPorpAndAtlasTexs.ConvertAll<PropAndTexture>(i => (PropAndTexture)i));
         }
-        public static CompileData GetCompileData(AtlasSet Target)
+        public static CompileData GetCompileData(AtlasSetObject Target)
         {
             CompileData Data = new CompileData();
 

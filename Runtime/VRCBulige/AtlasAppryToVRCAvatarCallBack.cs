@@ -16,10 +16,10 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<TexTransAtlasSet>(true);
+            var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<AtlasSet>(true);
             foreach (var AtlasSetAvatarTag in AtlasSetAvatarTags)
             {
-                AtlasSetAvatarTag.AtlasSet.Appry();
+                AtlasSetAvatarTag.AtlasSetObject.Appry();
                 MonoBehaviour.DestroyImmediate(AtlasSetAvatarTag);
             }
             return true;

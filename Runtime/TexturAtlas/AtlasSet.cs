@@ -1,155 +1,150 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Security;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool;
-
+using System.Linq;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
-    [System.Serializable]
-    public class AtlasSet
+    [AddComponentMenu("TexTransTool/AtlasSet")]
+    public class AtlasSet : TextureTransformer
     {
-        public List<SkinnedMeshRenderer> AtlasTargetMeshs;
-        public List<MeshRenderer> AtlasTargetStaticMeshs;
-        public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
-        public float Pading = -10;
-        public PadingType PadingType;
-        public IslandSortingType SortingType;
-        public CompileDataContenar Contenar;
-
-        public bool GeneratMatClearUnusedProperties = true;
-
-        [SerializeField] bool _IsAppry;
-
-        public bool IsAppry => _IsAppry;
-        public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
-        [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
-        [SerializeField] List<Mesh> BackUpStaticMeshs = new List<Mesh>();
-        [SerializeField] List<Material> BackUpMaterial = new List<Material>();
-        public void Appry()
+        public AtlasSetObject AtlasSetObject = new AtlasSetObject()
         {
-            if (Contenar == null) return;
-            if (_IsAppry == true) return;
-            MeshAppry();
-            MaterialAppry();
+            SortingType = IslandSortingType.NextFitDecreasingHeight,
+        };
+        public ExecuteClient ClientSelect = ExecuteClient.ComputeSheder;
 
-            _IsAppry = true;
-        }
-        public void Revart()
+        public List<AtlasPostPrcess> PostProcess = new List<AtlasPostPrcess>()
         {
-            if (Contenar == null) return;
-            if (_IsAppry == false) return;
-            MeshRevart();
-            MaterialRevart();
-            _IsAppry = false;
-        }
-        public void MeshAppry()
-        {
-            if (Contenar == null) return;
-            if (_IsAppry == true) return;
-            BackUpMeshs.Clear();
-            BackUpStaticMeshs.Clear();
-
-            int count = -1;
-            foreach (var mesh in Contenar.Meshs)
-            {
-                count += 1;
-                //Debug.Log(AtlasTargetMeshs.Count);
-                if (count < AtlasTargetMeshs.Count)
-                {
-                    BackUpMeshs.Add(AtlasTargetMeshs[count].sharedMesh);
-                    AtlasTargetMeshs[count].sharedMesh = mesh;
-                }
-                else
-                {
-                    var target = AtlasTargetStaticMeshs[count - AtlasTargetMeshs.Count].GetComponent<MeshFilter>();
-                    BackUpStaticMeshs.Add(target.sharedMesh);
-                    target.sharedMesh = mesh;
-                }
-
+            new AtlasPostPrcess(){
+                Process = AtlasPostPrcess.ProcessEnum.SetTextureMaxSize,
+                Select = AtlasPostPrcess.TargetSelect.NonPropertys,
+                TargetPropatyNames = new List<string>{"_MainTex"}
+            },
+                        new AtlasPostPrcess(){
+                Process = AtlasPostPrcess.ProcessEnum.SetNormalMapSetting,
+                TargetPropatyNames = new List<string>{"_BumpMap"}
             }
-        }
-        public void MeshRevart()
+        };
+
+        public override bool IsAppry => AtlasSetObject.IsAppry;
+
+        public override bool IsPossibleAppry => AtlasSetObject.Contenar != null;
+
+        public override void Appry()
         {
-            if (_IsAppry == false) return;
-            int Count = -1;
-            foreach (var mesh in BackUpMeshs)
+            AtlasSetObject.Appry();
+        }
+        public override void Revart()
+        {
+            AtlasSetObject.Revart();
+        }
+        public override void Compile()
+        {
+            AtlasSetObject.AtlasCompilePostCallBack = (i) => { };
+            if (PostProcess.Any())
             {
-                Count += 1;
-                AtlasTargetMeshs[Count].sharedMesh = mesh;
-            }
-            Count = -1;
-            foreach (var mesh in BackUpStaticMeshs)
-            {
-                Count += 1;
-                AtlasTargetStaticMeshs[Count].GetComponent<MeshFilter>().sharedMesh = mesh;
-            }
-        }
-        public void MaterialAppry()
-        {
-            if (Contenar == null) return;
-            if (_IsAppry == true) return;
-
-            BackUpMaterial.Clear();
-            BackUpMaterial = GetMaterials();
-
-            var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials(), GeneratMatClearUnusedProperties);
-            SetMaterial(GetRenderers(), GeneratMats);
-
-        }
-        public void MaterialRevart()
-        {
-            if (_IsAppry == false) return;
-
-            Contenar.GenereatMaterial.Clear();
-            Contenar.ClearAssets<Material>();
-
-            SetMaterial(GetRenderers(), BackUpMaterial);
-        }
-
-        static void SetMaterial(List<Renderer> renderers, List<Material> SouseMats)
-        {
-            int Count = -1;
-            foreach (var render in renderers)
-            {
-                var Mats = render.sharedMaterials;
-                for (int i = 0; Mats.Length > i; i += 1)
+                foreach (var PostPrces in PostProcess)
                 {
-                    Count += 1;
-                    Mats[i] = SouseMats[Count];
-                }
-                render.sharedMaterials = Mats;
-            }
-        }
-
-        List<Material> GetMaterials()
-        {
-            var Renderers = GetRenderers();
-            List<Material> Mats = new List<Material>();
-
-            foreach (var Renderer in Renderers)
-            {
-                foreach (var Mat in Renderer.sharedMaterials)
-                {
-                    Mats.Add(Mat);
+                    AtlasSetObject.AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
                 }
             }
-
-            return Mats;
-
+            TexturAtlasCompiler.AtlasSetCompile(AtlasSetObject, ClientSelect);
         }
-        List<Renderer> GetRenderers()
-        {
-            List<Renderer> Renderers = new List<Renderer>(AtlasTargetMeshs);
-            Renderers.AddRange(AtlasTargetStaticMeshs);
-            return Renderers;
-        }
-
 
     }
+    [System.Serializable]
+    public class AtlasPostPrcess
+    {
+        public ProcessEnum Process;
+        public TargetSelect Select;
+        public List<string> TargetPropatyNames;
+        public string ProsesValue;
+
+        public enum ProcessEnum
+        {
+            SetTextureMaxSize,
+            SetNormalMapSetting,
+        }
+        public enum TargetSelect
+        {
+            Property,
+            NonPropertys,
+        }
+
+        public void Processing(CompileDataContenar Target)
+        {
+            switch (Process)
+            {
+                case ProcessEnum.SetTextureMaxSize:
+                    {
+                        ProcessingTextureResize(Target);
+                        break;
+                    }
+                case ProcessEnum.SetNormalMapSetting:
+                    {
+                        ProcessingSetNormalMapSetting(Target);
+                        break;
+                    }
+            }
+        }
+
+        void ProcessingTextureResize(CompileDataContenar Target)
+        {
+            switch (Select)
+            {
+                case TargetSelect.Property:
+                    {
+                        foreach (var PropName in TargetPropatyNames)
+                        {
+                            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == PropName);
+                            if (TargetTex != null && int.TryParse(ProsesValue, out var res))
+                            {
+                                AppryTextureSize(TargetTex.Texture2D, res);
+                            }
+                        }
+                        break;
+                    }
+                case TargetSelect.NonPropertys:
+                    {
+                        var TargetList = new List<PropAndTexture>(Target.PropAndTextures);
+                        foreach (var PropName in TargetPropatyNames)
+                        {
+                            TargetList.RemoveAll(i => i.PropertyName == PropName);
+                        }
+                        if (int.TryParse(ProsesValue, out var res))
+                        {
+                            foreach (var TargetTex in TargetList)
+                            {
+                                AppryTextureSize(TargetTex.Texture2D, res);
+                            }
+                        }
+                        break;
+                    }
+            }
+
+            void AppryTextureSize(Texture2D TargetTexture, int Size)
+            {
+                var TargetTexPath = AssetDatabase.GetAssetPath(TargetTexture);
+                var TextureImporter = AssetImporter.GetAtPath(TargetTexPath) as TextureImporter;
+                TextureImporter.maxTextureSize = Size;
+                TextureImporter.SaveAndReimport();
+            }
+        }
+
+        void ProcessingSetNormalMapSetting(CompileDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
+        {
+            var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames[0]);
+            if (TargetTex != null)
+            {
+                var TargetTexPath = AssetDatabase.GetAssetPath(TargetTex.Texture2D);
+                var TextureImporter = AssetImporter.GetAtPath(TargetTexPath) as TextureImporter;
+                TextureImporter.textureType = TextureImporterType.NormalMap;
+                TextureImporter.SaveAndReimport();
+            }
+        }
+    }
 }
+
 #endif

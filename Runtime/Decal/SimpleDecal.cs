@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Rs64.TexTransTool.Decal
 {
+    [AddComponentMenu("TexTransTool/SimpleDecal")]
     public class SimpleDecal : TextureTransformer
     {
         public Renderer TargetRenderer;

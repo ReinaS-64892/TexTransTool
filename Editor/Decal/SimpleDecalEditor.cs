@@ -8,7 +8,7 @@ using Rs64.TexTransTool.Editor;
 namespace Rs64.TexTransTool.Editor.Decal
 {
 
-    [CustomEditor(typeof(SimpleDecal))]
+    [CustomEditor(typeof(SimpleDecal), true)]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
