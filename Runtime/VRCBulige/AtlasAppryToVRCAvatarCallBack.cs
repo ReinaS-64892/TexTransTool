@@ -6,7 +6,7 @@ using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
 using System.Linq;
 
-namespace Rs.TexturAtlasCompiler.VRCBulige
+namespace Rs64.TexTransTool.VRCBulige
 {
     [InitializeOnLoad]
     public class AtlasAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback

@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-namespace Rs.TexturAtlasCompiler.Editor
+namespace Rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(TextureTransformer))]

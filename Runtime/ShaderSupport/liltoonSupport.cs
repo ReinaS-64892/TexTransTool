@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace Rs.TexturAtlasCompiler.ShaderSupport
+namespace Rs64.TexTransTool.ShaderSupport
 {
     public class liltoonSupport : IShaderSupport
     {

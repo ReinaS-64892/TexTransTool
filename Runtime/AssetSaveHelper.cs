@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     public static class AssetSaveHelper
     {

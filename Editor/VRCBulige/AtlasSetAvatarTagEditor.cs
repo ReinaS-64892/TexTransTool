@@ -2,8 +2,8 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using Rs.TexturAtlasCompiler.VRCBulige;
-namespace Rs.TexturAtlasCompiler.Editor.VRCBulige
+using Rs64.TexTransTool.VRCBulige;
+namespace Rs64.TexTransTool.Editor.VRCBulige
 {
     [CustomEditor(typeof(AtlasSetAvatarTag))]
     public class AtlasSetAvatarTagEditor : UnityEditor.Editor

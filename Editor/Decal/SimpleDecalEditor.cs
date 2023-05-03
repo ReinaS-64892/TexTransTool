@@ -2,10 +2,10 @@
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
-using Rs.TexturAtlasCompiler.Decal;
-using Rs.TexturAtlasCompiler.Editor;
+using Rs64.TexTransTool.Decal;
+using Rs64.TexTransTool.Editor;
 
-namespace Rs.TexturAtlasCompiler.Editor.Decal
+namespace Rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(SimpleDecal))]

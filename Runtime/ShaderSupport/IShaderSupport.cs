@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Rs.TexturAtlasCompiler.ShaderSupport
+namespace Rs64.TexTransTool.ShaderSupport
 {
     public interface IShaderSupport
     {
