@@ -5,7 +5,7 @@
         "VRC.SDK3A.Editor",
         "VRC.SDKBase",
         "VRC.SDKBase.Editor",
-        "rs64.textur-atlas-compiler"
+        "rs64.tex-trans-tool"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
