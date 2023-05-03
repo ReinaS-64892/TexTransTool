@@ -1,5 +1,5 @@
-# TexturAtlasCompiler
-このツールは非破壊的にテクスチャをアトラス化し、テクスチャの枚数を減らすことのできるツールです。
+# TexTransTool
+このツールは非破壊的にテクスチャの転写を行うためのツールです。
 
 ## Feature
 ### AtlasSetAvatarTag
