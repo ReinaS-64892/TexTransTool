@@ -45,7 +45,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                     ThisObject.DecalTexture = DecalTexEditValue;
                     ThisObject.ScaleAppry();
 
-                    if (ThisObject.Quad == null) ThisObject.DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
+                    if (ThisObject.DisplayDecalMat == null) ThisObject.DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
                     ThisObject.DisplayDecalMat.mainTexture = DecalTexEditValue;
                     if (ThisObject.Quad == null) ThisObject.Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
 

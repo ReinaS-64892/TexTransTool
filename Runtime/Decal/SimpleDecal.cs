@@ -93,7 +93,7 @@ namespace Rs64.TexTransTool.Decal
 
         public override bool IsPossibleAppry => CompiledTextures.Any();
 
-        public override bool IsPossibleCompile => TargetRenderer && DecalTexture != null;
+        public override bool IsPossibleCompile => TargetRenderer != null && DecalTexture != null;
 
         private void OnDrawGizmosSelected()
         {

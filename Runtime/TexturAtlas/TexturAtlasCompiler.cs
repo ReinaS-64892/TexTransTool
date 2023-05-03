@@ -14,7 +14,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             if (AtlasMapperPath == null) AtlasMapperPath = TransMapper.AtlasMapperPath;
             var Data = GetCompileData(Target);
-            if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar(AssetSaveHelper.SaveDirectory + "AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
+            if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar(AssetSaveHelper.SaveDirectory + "/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
 
             var Contenar = Target.Contenar;
 

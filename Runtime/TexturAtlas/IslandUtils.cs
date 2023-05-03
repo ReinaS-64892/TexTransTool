@@ -65,7 +65,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     NawScaile *= UpClorreScaile;
                 }
             }
-            Debug.Log(loopCount + " " + NawScaile + " " + Success);
+            //Debug.Log(loopCount + " " + NawScaile + " " + Success);
             return ClonedPool;
         }
 
