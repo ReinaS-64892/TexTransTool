@@ -19,9 +19,10 @@ namespace Rs.TexturAtlasCompiler
     public static class Compiler
     {
         public static void AtlasSetCompile(AtlasSet Target, ExecuteClient ClientSelect = ExecuteClient.CPU, bool ForesdCompile = false,
-        string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/AtlasMapper.compute"
+        string AtlasMapperPath = null
         )
         {
+            if (AtlasMapperPath == null) AtlasMapperPath = AtlasMapper.AtlasMapperPath;
             var Data = GetCompileData(Target);
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar("Assets/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
             if (!ForesdCompile && Data.Hash == Target.Contenar.Hash) return;
@@ -202,7 +203,7 @@ namespace Rs.TexturAtlasCompiler
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
 
             //Debug.Log(SouseTexPath);
-            NotFIlterTexture2D(ref SouseTex);
+            NotFIlterAndReadWritTexture2D(ref SouseTex);
             foreach (var index in List)
             {
                 //Debug.Log(AtralsMap.DistansMap[index.x, index.y] + " " + AtralsMap.DefaultPading + " " + targetTex.DistansMap[index.x, index.y]);
@@ -220,7 +221,7 @@ namespace Rs.TexturAtlasCompiler
         public static AtlasTexture AtlasTextureCompileUsedComputeSheder(Texture2D SouseTex, AtlasMapData AtralsMap, AtlasTexture targetTex, ComputeShader CS)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
-            NotFIlterTexture2D(ref SouseTex, true);
+            NotFIlterAndReadWritTexture2D(ref SouseTex, true);
             Vector2Int ThredGropSize = AtralsMap.MapSize / 32;
             var KernelIndex = CS.FindKernel("AtlasCompile");
 
@@ -296,7 +297,7 @@ namespace Rs.TexturAtlasCompiler
             return targetTex;
         }
 
-        public static void NotFIlterTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
+        public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
             if (ConvertToLiner)

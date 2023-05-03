@@ -1,7 +1,10 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
+
 namespace Rs.TexturAtlasCompiler
 {
 
@@ -60,7 +63,7 @@ namespace Rs.TexturAtlasCompiler
         }
     }
 
-    public struct TraiangleIndex
+    public struct TraiangleIndex : IEnumerable<int>
     {
         public int zero;
         public int one;
@@ -97,9 +100,23 @@ namespace Rs.TexturAtlasCompiler
             }
         }
 
+        public IEnumerator<int> GetEnumerator()
+        {
+            return ToList().GetEnumerator();
+        }
+
         public int[] ToArray()
         {
             return new int[3] { zero, one, two };
+        }
+        public List<int> ToList()
+        {
+            return new List<int> { zero, one, two };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ToList().GetEnumerator();
         }
     }
 }
