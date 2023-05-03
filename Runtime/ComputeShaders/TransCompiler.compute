@@ -1,17 +1,17 @@
-﻿#pragma kernel AtlasCompile
+﻿#pragma kernel TransCompile
 
-#include "./AtlasHelper.hlsl"
+#include "./TransHelper.hlsl"
 
 Texture2D<float4> Source;
 RWStructuredBuffer<float3> AtlasMap;
-//RWTexture2D<float4> Target;
+
 RWStructuredBuffer<float4> Target;
 RWStructuredBuffer<float> TargetDistansMap;
 uint Size;
 
 SamplerState samplerSource;
 
-[numthreads(32, 32, 1)] void AtlasCompile(uint3 id : SV_DispatchThreadID)
+[numthreads(32, 32, 1)] void TransCompile(uint3 id : SV_DispatchThreadID)
 {
     uint OneDIndex = TwoDToOneDIndex((uint2)id, Size);
 
@@ -21,7 +21,6 @@ SamplerState samplerSource;
 
     float4 SousePicColor = Source.SampleLevel(samplerSource, AtlasMapNawPixsel.xy, 0);
 
-    //Target[id.xy] = lerp(Target[id.xy], SousePicColor, IsWiret);
     Target[OneDIndex] = lerp(Target[OneDIndex], SousePicColor, IsWiret);
     TargetDistansMap[OneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
 }

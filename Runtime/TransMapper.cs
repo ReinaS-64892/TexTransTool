@@ -7,25 +7,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Runtime.CompilerServices;
+using System.Collections;
 
 namespace Rs64.TexTransTool
 {
-    public static class AtlasMapper
+    public static class TransMapper
     {
-        public const string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/AtlasMapper.compute";
-        public static List<TraiangleIndex> ToList(int[] triangleIndexs)
-        {
-            var TraianglesList = new List<TraiangleIndex>();
-            int count = 0;
-            while (triangleIndexs.Length > count)
-            {
-                TraianglesList.Add(new TraiangleIndex(triangleIndexs[count], triangleIndexs[count += 1], triangleIndexs[count += 1]));
-                count += 1;
-            }
-            return TraianglesList;
-        }
+        public const string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/TransMapper.compute";
 
-        public static async Task<AtlasMapData> AtlasMapGeneratAsync(AtlasMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
+
+        public static async Task<TransMapData> AtlasMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
 
@@ -49,7 +40,7 @@ namespace Rs64.TexTransTool
             return Map;
         }
 
-        public static AtlasMapData AtlasMapGenerat(AtlasMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
+        public static TransMapData AtlasMapGenerat(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
             foreach (var Index in Utils.Reange2d(Map.MapSize))
@@ -94,15 +85,6 @@ namespace Rs64.TexTransTool
                     var SourceUVTriangle = new List<Vector2> { SourceUV[TriangleToIndex[0]], SourceUV[TriangleToIndex[1]], SourceUV[TriangleToIndex[2]] };
                     SourceUVPosition = FromTBC(SourceUVTriangle, ToTBC(ClossT));
                 }
-                /*
-                                    Debug.Log("tInoutlog " + IsPointInsideTriangleDebagu(TargetUVTriangle, Targetpixself).x + "/" + IsPointInsideTriangleDebagu(TargetUVTriangle, Targetpixself).y + "/" + IsPointInsideTriangleDebagu(TargetUVTriangle, Targetpixself).z + "/" +
-                "sousepos " + FromTriangleBarycentricCoordinateConversion(SourceUVTriangle, ToTriangleBarycentricCoordinateConversion(TargetUVTriangle, TargetPixsel)).ToString() + "/" +
-                "traianglepos  " + ToTriangleBarycentricCoordinateConversion(TargetUVTriangle, TargetPixsel).ToString() + "/" +
-                "targetpos " + TargetPixsel + "/" +
-                "Trainagles" + TargetTexScaleTargetUV[TriangleToIndex[0]] + "/" + TargetTexScaleTargetUV[TriangleToIndex[1]] + "/" + TargetTexScaleTargetUV[TriangleToIndex[2]]
-
-                );
-                */
             }
             return (SourceUVPosition, Distans);
         }
@@ -113,38 +95,14 @@ namespace Rs64.TexTransTool
             var v = Vector3.Cross(Triangle[1] - Triangle[0], TargetPoint - Triangle[0]).z;
             var wuv = Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
             return new Vector4(w, u, v, wuv);
-            /*
-                      //Debug.Log(vartext[0].ToString() + "/" + vartext[1].ToString() + "/" + vartext[2].ToString() + "/" + targetpos.ToString() + "/" + (res1 && res2 && res3).ToString() + "/" + (!res1 && !res2 && !res3).ToString());
-                        if (w && u && v) return true;
-                        //if (!Isinverted && !Isinverted2 && !Isinverted3) return true;
-                        return false;
-            */
         }
 
         public static Vector3 ToTBC(Vector4 ClassT)
         {
-            /*
-                        var a = ((Triangle[1].y - Triangle[2].y) * (TargetPoint.x - Triangle[0].x) + (Triangle[2].x - Triangle[1].x) * (TargetPoint.y - Triangle[2].y))
-                                /
-                                ((Triangle[1].y - Triangle[2].y) * (Triangle[0].x - Triangle[2].x) + (Triangle[2].x - Triangle[1].x) * (Triangle[0].y - Triangle[2].y));
-                        var b = ((Triangle[2].y - Triangle[0].y) * (TargetPoint.x - Triangle[0].x) + (Triangle[0].x - Triangle[2].x) * (TargetPoint.y - Triangle[2].y))
-                                /
-                                ((Triangle[1].y - Triangle[2].y) * (Triangle[0].x - Triangle[2].x) + (Triangle[2].x - Triangle[1].x) * (Triangle[0].y - Triangle[2].y));
-                        var y = 1 - a - b;
-            */
             var a = ClassT.x / ClassT.w;
             var b = ClassT.y / ClassT.w;
             var c = ClassT.z / ClassT.w;
-            //Debug.Log(new Vector3(res1, res2, res3));
-            /*
-                        var a = Vector2.Distance(Triangle[0], TargetPoint);
-                        var b = Vector2.Distance(Triangle[1], TargetPoint);
-                        var y = Vector2.Distance(Triangle[2], TargetPoint);
-                        var normaraizescild = 1 / (a + b + y);
-                        a = 1 - (a * normaraizescild);
-                        b = 1 - (b * normaraizescild);
-                        y = 1 - (y * normaraizescild);
-            */
+
             return new Vector3(a, b, c);
         }
 
@@ -176,12 +134,6 @@ namespace Rs64.TexTransTool
             var u = Vector2.Distance(Triangle[1], TargetPoint);
             var v = Vector2.Distance(Triangle[2], TargetPoint);
             return new Vector3(w, u, v);
-            /*
-                      //Debug.Log(vartext[0].ToString() + "/" + vartext[1].ToString() + "/" + vartext[2].ToString() + "/" + targetpos.ToString() + "/" + (res1 && res2 && res3).ToString() + "/" + (!res1 && !res2 && !res3).ToString());
-                        if (w && u && v) return true;
-                        //if (!Isinverted && !Isinverted2 && !Isinverted3) return true;
-                        return false;
-            */
         }
 
         public static Vector2 NeaPointOnLine(Vector2 a, Vector2 b, Vector2 p)
@@ -207,21 +159,20 @@ namespace Rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static AtlasMapData UVMappingTableGeneratorComputeShederUsed(ComputeShader Shader, AtlasMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        public static TransMapData UVMappingTableGeneratorComputeShederUsed(ComputeShader Shader, TransMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             Vector2Int ThredGropSize = Map.MapSize / 32;
             int karnelindex = -1;
             switch (padingType)
             {
                 case PadingType.EdgeBase:
-                    karnelindex = Shader.FindKernel("AtlasMapGeneratPadingEdgeBase");
+                    karnelindex = Shader.FindKernel("TransMapGeneratPadingEdgeBase");
                     break;
                 case PadingType.VartexBase:
-                    karnelindex = Shader.FindKernel("AtlasMapGeneratPadingVartexBase");
+                    karnelindex = Shader.FindKernel("TransMapGeneratPadingVartexBase");
                     break;
             }
             var ResBuffer = new ComputeBuffer((Map.MapSize.x * Map.MapSize.y), 12);
-            //Debug.Log(Buffer.count + "/" + (TargetTexturesize.x * TargetTexturesize.y).ToString());
 
 
             var array = Utils.Reange2d(Map.MapSize).ConvertAll<Vector3>(i => new Vector3(0, 0, Map.DefaultPading));
@@ -239,31 +190,6 @@ namespace Rs64.TexTransTool
                 TriangleList.Add(SourceUV[TriangleToIndex[0]]);
                 TriangleList.Add(SourceUV[TriangleToIndex[1]]);
                 TriangleList.Add(SourceUV[TriangleToIndex[2]]);
-                /*
-                var TargetUVTriangle = new float[3 * 4];
-                TargetUVTriangle[0] = TargetTexScaleTargetUV[TriangleToIndex[0]].x;
-                TargetUVTriangle[1] = TargetTexScaleTargetUV[TriangleToIndex[0]].y;
-                TargetUVTriangle[4] = TargetTexScaleTargetUV[TriangleToIndex[1]].x;
-                TargetUVTriangle[5] = TargetTexScaleTargetUV[TriangleToIndex[1]].y;
-                TargetUVTriangle[8] = TargetTexScaleTargetUV[TriangleToIndex[2]].x;
-                TargetUVTriangle[9] = TargetTexScaleTargetUV[TriangleToIndex[2]].y;
-                var SouseUVTraiangle = new float[3 * 4];
-                SouseUVTraiangle[0] = SourceUV[TriangleToIndex[0]].x;
-                SouseUVTraiangle[1] = SourceUV[TriangleToIndex[0]].y;
-                SouseUVTraiangle[4] = SourceUV[TriangleToIndex[1]].x;
-                SouseUVTraiangle[5] = SourceUV[TriangleToIndex[1]].y;
-                SouseUVTraiangle[8] = SourceUV[TriangleToIndex[2]].x;
-                SouseUVTraiangle[9] = SourceUV[TriangleToIndex[2]].y;
-*/
-                /*
-                                                Debug.Log("target " + TargetTexScaleTargetUV[TriangleToIndex[0]].x + "/" + TargetTexScaleTargetUV[TriangleToIndex[0]].y + " " +
-                                                TargetTexScaleTargetUV[TriangleToIndex[1]].x + "/" + TargetTexScaleTargetUV[TriangleToIndex[1]].y + " " +
-                                                TargetTexScaleTargetUV[TriangleToIndex[2]].x + "/" + TargetTexScaleTargetUV[TriangleToIndex[2]].y
-                                                ); Debug.Log("Siouse " + SourceUV[TriangleToIndex[0]].x + "/" + SourceUV[TriangleToIndex[0]].y + " " +
-                                                SourceUV[TriangleToIndex[1]].x + "/" + SourceUV[TriangleToIndex[1]].y + " " +
-                                                SourceUV[TriangleToIndex[2]].x + "/" + SourceUV[TriangleToIndex[2]].y
-                                                );
-                */
             }
             TriBuffer.SetData<Vector2>(TriangleList);
             Shader.SetBuffer(karnelindex, "Traiangles", TriBuffer);
@@ -284,10 +210,6 @@ namespace Rs64.TexTransTool
                     Map.Map[Index.x, Index.y] = new Vector2(data.x, data.y);
                     Map.DistansMap[Index.x, Index.y] = data.z;
                 }
-                /*
-                                //Debug.Log("NYANYA " + "/" + cout + "/" + ((cout.y * TargetTexturesize.x) + cout.x) + "/" + data.x + "/" + data.y + "/" + data.z);
-                                //Debug.Log(data.x + "/" + data.y + "/" + data.z);
-                */
             }
 
 
@@ -336,6 +258,61 @@ namespace Rs64.TexTransTool
         ComputeSheder,
     }
 
+    public struct TraiangleIndex : IEnumerable<int>
+    {
+        public int zero;
+        public int one;
+        public int two;
 
+        public TraiangleIndex(int zero, int one, int two)
+        {
+            this.zero = zero;
+            this.one = one;
+            this.two = two;
+        }
+
+        public int this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0: { return zero; }
+                    case 1: { return one; }
+                    case 2: { return two; }
+                    default: throw new IndexOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0: { zero = value; break; }
+                    case 1: { one = value; break; }
+                    case 2: { two = value; break; }
+                    default: throw new IndexOutOfRangeException();
+                }
+            }
+        }
+
+        public IEnumerator<int> GetEnumerator()
+        {
+            return ToList().GetEnumerator();
+        }
+
+        public int[] ToArray()
+        {
+            return new int[3] { zero, one, two };
+        }
+        public List<int> ToList()
+        {
+            return new List<int> { zero, one, two };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ToList().GetEnumerator();
+        }
+    }
 }
 #endif

@@ -140,7 +140,7 @@ namespace Rs64.TexTransTool.Editor.VRCBulige
                     {
                         AtlasSetAvatarTag.AtlasSet.AtlasCompilePostCallBack = (i) => { };
                     }
-                    Compiler.AtlasSetCompile(AtlasSetAvatarTag.AtlasSet, AtlasSetAvatarTag.ClientSelect, true);
+                    Compiler.AtlasSetCompile(AtlasSetAvatarTag.AtlasSet, AtlasSetAvatarTag.ClientSelect);
                 }
             }
             EditorGUI.EndDisabledGroup();

@@ -27,14 +27,11 @@ namespace Rs64.TexTransTool
                 float FirstHeight = 0;
                 if (Islands.Any()) FirstHeight = Islands[0].island.GetSize.y * NawScaile;
                 var NawMaxHigt = IslanadsPading + FirstHeight + IslanadsPading;
-                //Debug.Log(FirstHeight);
                 foreach (var islandandIndex in Islands)
                 {
                     var NawSize = islandandIndex.island.GetSize;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x *  (NawScaile > 1 ? NawScaile : 1) + IslanadsPading) > 1;
-
-                    //Debug.Log(NawPos.x + "/" + NawPos.y + "  " + NawMaxHigt + "  " + NawSize.x + "/" + NawSize.y + " " + NawMaxPos.x + "/" + NawMaxPos.y);
+                    var IsOutOfX = (NawMaxPos.x * (NawScaile > 1 ? NawScaile : 1) + IslanadsPading) > 1;
 
                     if (IsOutOfX)
                     {
@@ -82,37 +79,6 @@ namespace Rs64.TexTransTool
                 RepCount += 1;
                 Islands = IslandCrawling(Islands, UV);
             }
-            /*
-                    foreach (var PostIland in IlandsPerad)
-                    {
-                        var PostIlandPoss = new List<Vector2>();
-                        foreach (var peatrainagel2 in PostIland)
-                        {
-                            PostIlandPoss.Add(SourceUV[peatrainagel2[0]]);
-                            PostIlandPoss.Add(SourceUV[peatrainagel2[1]]);
-                            PostIlandPoss.Add(SourceUV[peatrainagel2[2]]);
-                        }
-                        Texture2D UVPreView = new Texture2D(512, 512); List<Vector2> PureUV = new List<Vector2>(); DorwUV(PostIlandPoss, UVPreView, Color.green); string AssetPath = "Assets/test3" + Guid.NewGuid().ToString() + ".png"; File.WriteAllBytes(AssetPath, UVPreView.EncodeToPNG());
-                    }
-                    */
-            /*
-                        var Ilands = new List<Island>();
-                        int coutt = 0;
-                        foreach (var Iland in IslandPool)
-                        {
-                            var Positons = new List<Vector2>();
-                            foreach (var Indexs in Iland.trainagels)
-                            {
-                                Positons.Add(UV[Indexs[0]]);
-                                Positons.Add(UV[Indexs[1]]);
-                                Positons.Add(UV[Indexs[2]]);
-                            }
-                            //Ilands.Add((Iland, BoxCal(Positons))); #
-                            //Debug.Log(coutt.ToString() + " " + BoxCal(Positons).Item1.ToString() + " " + BoxCal(Positons).Item2.ToString());
-                            coutt += 1;
-                        }
-                        Debug.Log("IlandCout " + Ilands.Count.ToString());
-            */
             Islands.ForEach(i => i.BoxCurriculation(UV));
             return Islands;
         }
@@ -165,12 +131,12 @@ namespace Rs64.TexTransTool
         {
             var MovedIslandPool = new IslandPool();
             Vector2 MaxIslandSize = TargetPool.GetLargest().island.GetSize;
-            var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.IslandPoolList.Count));// Debug.Log("GridSize " + GridSize);
-            var CellSize = 1f / GridSize; //Debug.Log("CellSize " + CellSize);
+            var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.IslandPoolList.Count));
+            var CellSize = 1f / GridSize;
             int Count = 0;
             foreach (var CellIndex in Utils.Reange2d(new Vector2Int(GridSize, GridSize)))
             {
-                var CellPos = (Vector2)CellIndex / GridSize; //Debug.Log(maspos.x +" /"+ maspos.y);
+                var CellPos = (Vector2)CellIndex / GridSize;
                 int MapIndex;
                 int IslandIndex;
                 Island Island;
@@ -192,11 +158,10 @@ namespace Rs64.TexTransTool
                 var IslandMaxRanege = IslandBox.y < IslandBox.x ? IslandBox.x : IslandBox.y;
                 if (IslandMaxRanege > CellSize)
                 {
-                    IslandBox *= (CellSize / IslandMaxRanege);// Debug.Log("boxsize " + cout2 + "/" + IlandBox.x + "/" + IlandBox.y);
+                    IslandBox *= (CellSize / IslandMaxRanege);
                     IslandBox *= 0.95f;
                 }
-                Island.MaxIlandBox = CellPos + IslandBox;// Debug.Log("min " + Iland.Item2.Item2.Item1 + "max " + Iland.Item2.Item2.Item2 + "scile " + IlandBox + " " + (maspos + IlandBox).x + "/" + (maspos + IlandBox).y);
-
+                Island.MaxIlandBox = CellPos + IslandBox;
 
                 MovedIslandPool.IslandPoolList.Add(new IslandPool.IslandAndIndex(Island, MapIndex, IslandIndex));
                 Count += 1;
@@ -251,7 +216,6 @@ namespace Rs64.TexTransTool
                 RelativeVertPos *= RelativeScaile;
                 var MovedVertPos = MovedIsland.island.MinIlandBox + RelativeVertPos;
                 MovedUV[MapIndex][TrinagleIndex] = MovedVertPos;
-                //Debug.Log("not " + notmoved.Item1 + "moved " + moved.Item1 + "f " + uvvart + "scaile " + movedscaile + "rera " + uvverrera + "e " + uvvermoved);
             }
         }
 
@@ -269,7 +233,7 @@ namespace Rs64.TexTransTool
                 MapCount += 1;
                 var UV = new List<Vector2>();
                 data.GetUVs(0, UV);
-                var Triangle = AtlasMapper.ToList(data.triangles);
+                var Triangle = Utils.ToList(data.triangles);
                 IslandPool.IslandPoolList.AddRange(GeneretIslandAndIndex(UV, Triangle, MapCount));
             }
             return IslandPool;
@@ -287,7 +251,7 @@ namespace Rs64.TexTransTool
                 var mapcount = MapCount;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
                 var UV = new List<Vector2>();
                 data.GetUVs(0, UV);
-                var Triangle = AtlasMapper.ToList(data.triangles);
+                var Triangle = Utils.ToList(data.triangles);
                 Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UV, Triangle, mapcount)).ConfigureAwait(false));
             }
             foreach (var task in Tesks)
@@ -300,7 +264,6 @@ namespace Rs64.TexTransTool
         }
         static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, int MapCount)
         {
-            //Debug.Log(MapCount);
             var Islanads = IslandUtils.UVtoIsland(traiangles, UV);
             var IslandPoolList = new List<IslandPool.IslandAndIndex>();
             int IlandIndex = -1;
@@ -450,7 +413,7 @@ namespace Rs64.TexTransTool
         public void BoxCurriculation(List<Vector2> SouseUV)
         {
             var VartPoss = GetVertexPos(SouseUV);
-            var Box = AtlasMapper.BoxCal(VartPoss);
+            var Box = TransMapper.BoxCal(VartPoss);
             MinIlandBox = Box.Item1;
             MaxIlandBox = Box.Item2;
         }

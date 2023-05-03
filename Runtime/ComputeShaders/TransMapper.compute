@@ -1,0 +1,41 @@
+﻿#pragma kernel TransMapGeneratPadingEdgeBase
+#pragma kernel TransMapGeneratPadingVartexBase
+
+#include "./TransHelper.hlsl"
+#include "./TransMapperHelper.hlsl"
+
+uint Size;
+RWStructuredBuffer<float2> Traiangles;
+RWStructuredBuffer<float3> Result;
+
+[numthreads(32, 32, 1)] void TransMapGeneratPadingEdgeBase(uint3 id: SV_DispatchThreadID)
+{
+  float3 TargetPos = float3(id.x , id.y , 0);
+  float4 ClossT = ClossTraiangle(AsFloat3(Traiangles[SelectTraiangle(id.z,0)]),AsFloat3(Traiangles[SelectTraiangle(id.z,1)]),AsFloat3(Traiangles[SelectTraiangle(id.z,2)]),TargetPos);
+
+  float3 Distans = DistansEdgeBase(Traiangles[SelectTraiangle(id.z,0)],Traiangles[SelectTraiangle(id.z,1)],Traiangles[SelectTraiangle(id.z,2)],(float2)TargetPos);
+  float IsIn = IsInCal(ClossT.x,ClossT.y,ClossT.z);
+  float IsDistans = isDistansCla(Distans, IsIn);
+
+  float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)], Traiangles[SelectTraiangle(id.z,4)], Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
+  float3 RevPos3 = float3(saturate(RevPos2.x), saturate(RevPos2.y), IsDistans);
+
+  uint resindex = TwoDToOneDIndex((uint2)id,Size);
+  Result[resindex] = lerp(Result[resindex], RevPos3, step(Result[resindex].z, IsDistans));
+}
+
+[numthreads(32, 32, 1)] void TransMapGeneratPadingVartexBase(uint3 id: SV_DispatchThreadID)
+{
+  float3 TargetPos = float3(id.x , id.y , 0);
+  float4 ClossT = ClossTraiangle(AsFloat3(Traiangles[SelectTraiangle(id.z,0)]),AsFloat3(Traiangles[SelectTraiangle(id.z,1)]),AsFloat3(Traiangles[SelectTraiangle(id.z,2)]),TargetPos);
+
+  float3 Distans = DistansVartBase(Traiangles[SelectTraiangle(id.z,0)],Traiangles[SelectTraiangle(id.z,1)],Traiangles[SelectTraiangle(id.z,2)],(float2)TargetPos);
+  float IsIn = IsInCal(ClossT.x,ClossT.y,ClossT.z);
+  float IsDistans = isDistansCla(Distans, IsIn);
+
+  float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)],Traiangles[SelectTraiangle(id.z,4)],Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
+  float3 RevPos3 = float3(saturate(RevPos2.x), saturate(RevPos2.y), IsDistans);
+
+  uint resindex = TwoDToOneDIndex((uint2)id,Size);
+  Result[resindex] = lerp(Result[resindex], RevPos3, step(Result[resindex].z, IsDistans));
+}

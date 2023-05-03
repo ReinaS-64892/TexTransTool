@@ -10,7 +10,7 @@ namespace Rs64.TexTransTool.Decal
     {
         public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string AtlasMapperPath = null)
         {
-            if (AtlasMapperPath == null) AtlasMapperPath = AtlasMapper.AtlasMapperPath;
+            if (AtlasMapperPath == null) AtlasMapperPath = TransMapper.AtlasMapperPath;
             List<Texture2D> ResultTexutres = new List<Texture2D>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
@@ -35,10 +35,10 @@ namespace Rs64.TexTransTool.Decal
                 }
 
                 var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
-                var Map = new AtlasMapData(-1, TargetTexSize);
-                var TargetScaileTargetUV = AtlasMapper.UVtoTexScale(tUV, TargetTexSize);
-                Map = AtlasMapper.UVMappingTableGeneratorComputeShederUsed(CS, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-                var AtlasTex = new AtlasTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
+                var Map = new TransMapData(-1, TargetTexSize);
+                var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
+                Map = TransMapper.UVMappingTableGeneratorComputeShederUsed(CS, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
                 AtlasTex = Compiler.AtlasTextureCompileUsedUnityGetPixsel(SousTextures, Map, AtlasTex);
                 AtlasTex.Texture2D.Apply();
                 ResultTexutres.Add(AtlasTex.Texture2D);
@@ -95,7 +95,7 @@ namespace Rs64.TexTransTool.Decal
             List<List<TraiangleIndex>> TraingleIndexs = new List<List<TraiangleIndex>>();
             foreach (var Index in Enumerable.Range(0, Mesh.subMeshCount))
             {
-                List<TraiangleIndex> TraingleIndex = AtlasMapper.ToList(Mesh.GetTriangles(Index));
+                List<TraiangleIndex> TraingleIndex = Utils.ToList(Mesh.GetTriangles(Index));
                 TraingleIndexs.Add(TraingleIndex);
             }
             return (UV, TraingleIndexs);

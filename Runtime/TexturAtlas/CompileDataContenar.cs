@@ -12,11 +12,9 @@ namespace Rs64.TexTransTool
     [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject
     {
-        public string Hash;//hashから自動でコンパイルするかどうか見るのではなく全部マニュアルでやってしまったほうが単純なのではないだろうか...
         public List<Mesh> Meshs = new List<Mesh>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
         public List<Material> GenereatMaterial = new List<Material>();
-        //public string TexturePath = null;
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
 
@@ -25,9 +23,7 @@ namespace Rs64.TexTransTool
             ClearAssets<T>();
             foreach (var Asset in Assets)
             {
-                //mat.mainTexture = TextureAndDistansMap.texture2D;
                 AssetDatabase.AddObjectToAsset(Asset, this);
-                //Debug.Log(mat.shader.name);
             }
             AssetDatabase.ImportAsset(ThisPath);
         }
@@ -49,11 +45,6 @@ namespace Rs64.TexTransTool
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TexAndDist.Texture2D));
             }
             PropAndTextures.Clear();
-            /*
-            if (!string.IsNullOrEmpty(TexturePath))
-            {
-                AssetDatabase.DeleteAsset(TexturePath);
-            }*/
         }
 
         public void SetTexture(PropAndTexture Souse)
@@ -61,7 +52,7 @@ namespace Rs64.TexTransTool
             PropAndTextures.Add(Souse);
             var FilePath = ThisPath.Replace(Path.GetExtension(ThisPath), "");
             FilePath += Souse.PropertyName + "_GenereatAtlasTex" + ".png";
-            //TexturePath = FilePath;
+
             File.WriteAllBytes(FilePath, Souse.Texture2D.EncodeToPNG());
             AssetDatabase.ImportAsset(FilePath);
             PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
@@ -140,6 +131,7 @@ namespace Rs64.TexTransTool
         //MIT License
         //Copyright (c) 2020-2021 lilxyzw
         //https://github.com/lilxyzw/lilToon/blob/master/Assets/lilToon/Editor/lilMaterialUtils.cs
+        //
         //https://light11.hatenadiary.com/entry/2018/12/04/224253
         private static void RemoveUnusedProperties(Material material)
         {
@@ -170,14 +162,10 @@ namespace Rs64.TexTransTool
             }
         }
 
-
-
-
         public CompileDataContenar()
         {
 
         }
-
 
     }
 }

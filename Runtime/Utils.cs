@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -54,5 +55,17 @@ namespace Rs64.TexTransTool
             TestTex.Apply();
             return TestTex;
         }
+        public static List<TraiangleIndex> ToList(int[] triangleIndexs)
+        {
+            var TraianglesList = new List<TraiangleIndex>();
+            int count = 0;
+            while (triangleIndexs.Length > count)
+            {
+                TraianglesList.Add(new TraiangleIndex(triangleIndexs[count], triangleIndexs[count += 1], triangleIndexs[count += 1]));
+                count += 1;
+            }
+            return TraianglesList;
+        }
     }
+
 }

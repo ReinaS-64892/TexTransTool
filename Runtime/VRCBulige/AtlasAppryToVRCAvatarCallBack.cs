@@ -11,7 +11,7 @@ namespace Rs64.TexTransTool.VRCBulige
     [InitializeOnLoad]
     public class AtlasAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
-        public int callbackOrder => -9999;//この値についてはもうすこし考えるべきだが-30だとコンポーネントが消滅していた
+        public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが-30だとコンポーネントが消滅していた
 
         public void OnPostprocessAvatar()
         {
@@ -19,13 +19,9 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-           // PrefabUtility.SaveAsPrefabAsset(avatarGameObject,"Assets/test.prefab");
-           // Debug.Log(avatarGameObject.name);
             var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<AtlasSetAvatarTag>(true);
-           // Debug.Log(AtlasSetAvatarTags.Length);
             foreach (var AtlasSetAvatarTag in AtlasSetAvatarTags)
             {
-                //Debug.Log(AtlasSetAvatarTag.gameObject.name);
                 AtlasSetAvatarTag.AtlasSet.Appry();
                 MonoBehaviour.DestroyImmediate(AtlasSetAvatarTag);
             }
