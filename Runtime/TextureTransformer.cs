@@ -6,6 +6,7 @@ namespace Rs64.TexTransTool
     {
         public abstract bool IsAppry { get; }
         public abstract bool IsPossibleAppry { get; }
+        public abstract bool IsPossibleCompile { get; }
         public abstract void Compile();
         public abstract void Appry();
         public abstract void Revart();

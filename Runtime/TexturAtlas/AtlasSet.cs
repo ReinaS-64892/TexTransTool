@@ -32,6 +32,8 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleAppry => AtlasSetObject.Contenar != null;
 
+        public override bool IsPossibleCompile => AtlasSetObject.AtlasTargetMeshs.Any() || AtlasSetObject.AtlasTargetStaticMeshs.Any();
+
         public override void Appry()
         {
             AtlasSetObject.Appry();

@@ -36,11 +36,13 @@ namespace Rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
 
+            EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsAppry));
             if (GUILayout.Button("Compile"))
             {
                 Undo.RecordObject(Target, "TextureTransformer - Compile");
                 Target.Compile();
             }
+            EditorGUI.EndDisabledGroup();
         }
     }
 }

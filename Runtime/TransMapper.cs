@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool
 {
     public static class TransMapper
     {
-        public const string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/TransMapper.compute";
+        public const string AtlasMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
 
         public static async Task<TransMapData> AtlasMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)

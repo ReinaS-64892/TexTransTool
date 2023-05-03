@@ -55,6 +55,7 @@ namespace Rs64.TexTransTool.Decal
                         Mesh Mesh = new Mesh();
                         SMR.BakeMesh(Mesh);
                         Mesh.GetVertices(Vertices);
+                        Vertices = ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
@@ -65,7 +66,7 @@ namespace Rs64.TexTransTool.Decal
                     }
                 default:
                     {
-                        throw new System.ArgumentException("Rendererが対応したタイプではありません。");
+                        throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
                     }
             }
             return Vertices;
@@ -144,7 +145,6 @@ namespace Rs64.TexTransTool.Decal
                 foreach (var VIndex in Traiangle)
                 {
                     var Tvartex = Vartex[VIndex];
-                    //Debug.Log(Tvartex);
                     if (Tvartex.x < MaxRange && Tvartex.x > MinRange && Tvartex.y < MaxRange && Tvartex.y > MinRange) OutOfPrygon = true;
                 }
                 if (!OutOfPrygon) continue;
