@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rs.TexturAtlasCompiler.Decal
+namespace Rs64.TexTransTool.Decal
 {
     public class SimpleDecal : TextureTransformer
     {

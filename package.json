@@ -1,8 +1,8 @@
 {
-  "name": "rs64.textur-atlas-compiler",
-  "displayName": "TexturAtlasCompiler",
+  "name": "rs64.tex-trans-tool",
+  "displayName": "TexTransTool",
   "version": "0.0.0",
-  "description": "Describe this Package",
+  "description": "TextureTransforTool!",
   "gitDependencies": {},
   "vpmDependencies": {
     "com.vrchat.avatars": "3.1.13"

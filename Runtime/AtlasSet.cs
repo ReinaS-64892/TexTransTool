@@ -5,10 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Rs.TexturAtlasCompiler;
+using Rs64.TexTransTool;
 
 
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     [System.Serializable]
     public class AtlasSet

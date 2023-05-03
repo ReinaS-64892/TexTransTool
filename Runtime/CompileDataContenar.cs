@@ -5,9 +5,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using Rs.TexturAtlasCompiler.ShaderSupport;
+using Rs64.TexTransTool.ShaderSupport;
 
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject

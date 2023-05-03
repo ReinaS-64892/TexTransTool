@@ -11,10 +11,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
-using Rs.TexturAtlasCompiler.ShaderSupport;
+using Rs64.TexTransTool.ShaderSupport;
 using UnityEngine.Rendering;
 
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     public static class Compiler
     {

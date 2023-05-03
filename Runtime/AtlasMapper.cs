@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Runtime.CompilerServices;
 
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     public static class AtlasMapper
     {

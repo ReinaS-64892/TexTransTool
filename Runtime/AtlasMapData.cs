@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
 
     //[CreateAssetMenu(fileName = "AtlasMapObject", menuName = "RsProductEdit/AtlasMapObject", order = 0)]

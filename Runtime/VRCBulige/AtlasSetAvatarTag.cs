@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEditor;
 using VRC.SDKBase;
 
-namespace Rs.TexturAtlasCompiler.VRCBulige
+namespace Rs64.TexTransTool.VRCBulige
 {
     [AddComponentMenu("TexturAtlasCompiler/AtlasSetAvatarTag")]
     public class AtlasSetAvatarTag : MonoBehaviour, IEditorOnly

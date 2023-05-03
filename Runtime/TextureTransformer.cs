@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 using UnityEngine;
-namespace Rs.TexturAtlasCompiler
+namespace Rs64.TexTransTool
 {
     public abstract class TextureTransformer : MonoBehaviour
     {
