@@ -12,6 +12,7 @@ namespace Rs.TexturAtlasCompiler
 {
     public static class AtlasMapper
     {
+        public const string AtlasMapperPath = "Packages/rs64.textur-atlas-compiler/Runtime/ComputeShaders/AtlasMapper.compute";
         public static List<TraiangleIndex> ToList(int[] triangleIndexs)
         {
             var TraianglesList = new List<TraiangleIndex>();
@@ -65,7 +66,7 @@ namespace Rs.TexturAtlasCompiler
 
         public static (Vector2, float) UVMapingCalculat(List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PadingType padingType, float DefaultDistans)
         {
-            Vector2 Targetpixself = TargetPixsel ;// + new Vector2(0.5f, 0.5f);
+            Vector2 Targetpixself = TargetPixsel;// + new Vector2(0.5f, 0.5f);
             float Distans = DefaultDistans;
             Vector2 SourceUVPosition = default;
             foreach (var TriangleToIndex in TrianglesToIndex)
