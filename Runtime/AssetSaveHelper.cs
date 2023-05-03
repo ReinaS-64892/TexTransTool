@@ -9,7 +9,7 @@ namespace Rs64.TexTransTool
 {
     public static class AssetSaveHelper
     {
-        const string SaveDirectory = "Assets/TexTransToolGanareats";
+        public const string SaveDirectory = "Assets/TexTransToolGanareats";
         public static List<T> SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
             List<T> SavedTextures = new List<T>();

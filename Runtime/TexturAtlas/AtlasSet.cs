@@ -8,7 +8,7 @@ using UnityEditor;
 using Rs64.TexTransTool;
 
 
-namespace Rs64.TexTransTool
+namespace Rs64.TexTransTool.TexturAtlas
 {
     [System.Serializable]
     public class AtlasSet

@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Decal
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
                 Map = TransMapper.UVMappingTableGeneratorComputeShederUsed(CS, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
                 var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
-                AtlasTex = Compiler.AtlasTextureCompileUsedUnityGetPixsel(SousTextures, Map, AtlasTex);
+                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex);
                 AtlasTex.Texture2D.Apply();
                 ResultTexutres.Add(AtlasTex.Texture2D);
             }

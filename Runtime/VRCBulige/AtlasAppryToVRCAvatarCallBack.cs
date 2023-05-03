@@ -5,21 +5,18 @@ using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
 using System.Linq;
+using Rs64.TexTransTool.TexturAtlas;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
     [InitializeOnLoad]
     public class AtlasAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
-        public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが-30だとコンポーネントが消滅していた
-
-        public void OnPostprocessAvatar()
-        {
-        }
+        public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが -1024で IEditorOnlyは消滅するらしい。
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<AtlasSetAvatarTag>(true);
+            var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<TexTransAtlasSet>(true);
             foreach (var AtlasSetAvatarTag in AtlasSetAvatarTags)
             {
                 AtlasSetAvatarTag.AtlasSet.Appry();
@@ -28,6 +25,10 @@ namespace Rs64.TexTransTool.VRCBulige
             return true;
 
         }
+        public void OnPostprocessAvatar()
+        {
+        }
+
     }
 }
 #endif

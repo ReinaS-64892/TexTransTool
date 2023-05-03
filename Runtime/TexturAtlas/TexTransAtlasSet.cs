@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using VRC.SDKBase;
+using System.Linq;
 
-namespace Rs64.TexTransTool.VRCBulige
+namespace Rs64.TexTransTool.TexturAtlas
 {
-    [AddComponentMenu("TexturAtlasCompiler/AtlasSetAvatarTag")]
-    public class AtlasSetAvatarTag : MonoBehaviour, IEditorOnly
+    [AddComponentMenu("TexturAtlasCompiler/TexTransAtlasSet")]
+    public class TexTransAtlasSet : TextureTransformer
     {
         public AtlasSet AtlasSet = new AtlasSet()
         {
@@ -29,6 +30,32 @@ namespace Rs64.TexTransTool.VRCBulige
                 TargetPropatyNames = new List<string>{"_BumpMap"}
             }
         };
+
+        public override bool IsAppry => AtlasSet.IsAppry;
+
+        public override bool IsPossibleAppry => AtlasSet.Contenar != null;
+
+        public override void Appry()
+        {
+            AtlasSet.Appry();
+        }
+        public override void Revart()
+        {
+            AtlasSet.Revart();
+        }
+        public override void Compile()
+        {
+            AtlasSet.AtlasCompilePostCallBack = (i) => { };
+            if (PostProcess.Any())
+            {
+                foreach (var PostPrces in PostProcess)
+                {
+                    AtlasSet.AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
+                }
+            }
+            TexturAtlasCompiler.AtlasSetCompile(AtlasSet, ClientSelect);
+        }
+
     }
     [System.Serializable]
     public class AtlasPostPrcess

@@ -2,11 +2,12 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using Rs64.TexTransTool.VRCBulige;
-namespace Rs64.TexTransTool.Editor.VRCBulige
+using Rs64.TexTransTool.Editor;
+
+namespace Rs64.TexTransTool.TexturAtlas.Editor
 {
-    [CustomEditor(typeof(AtlasSetAvatarTag))]
-    public class AtlasSetAvatarTagEditor : UnityEditor.Editor
+    [CustomEditor(typeof(TexTransAtlasSet))]
+    public class TexTransAtlasSetEditor : UnityEditor.Editor
     {
         bool PostPrcessFoldout = true;
         public override void OnInspectorGUI()
@@ -21,8 +22,8 @@ namespace Rs64.TexTransTool.Editor.VRCBulige
             var SortingType = serialaizeatlaset.FindPropertyRelative("SortingType");
             var Contenar = serialaizeatlaset.FindPropertyRelative("Contenar");
 
-            var AtlasSetAvatarTag = target as AtlasSetAvatarTag;
-            var IsAppry = AtlasSetAvatarTag.AtlasSet.IsAppry;
+            var ThisTarget = target as TexTransAtlasSet;
+            var IsAppry = ThisTarget.AtlasSet.IsAppry;
 
             EditorGUI.BeginDisabledGroup(IsAppry);
             EditorGUILayout.PropertyField(SkindMesh);
@@ -99,51 +100,12 @@ namespace Rs64.TexTransTool.Editor.VRCBulige
                 EditorGUI.indentLevel -= 1;
             }
 
-
-
             EditorGUI.EndDisabledGroup();
 
+            TextureTransformerEditor.TextureTransformerEditorDrow(ThisTarget);
 
-            EditorGUILayout.BeginHorizontal();
 
-            EditorGUI.BeginDisabledGroup(AtlasSetAvatarTag.AtlasSet.Contenar == null || IsAppry);
-            if (GUILayout.Button("Appry"))
-            {
-                Undo.RecordObject(AtlasSetAvatarTag, "AtlasAppry");
-                AtlasSetAvatarTag.AtlasSet.Appry();
-            }
-            EditorGUI.EndDisabledGroup();
 
-            EditorGUI.BeginDisabledGroup(!IsAppry);
-            if (GUILayout.Button("Revart"))
-            {
-                Undo.RecordObject(AtlasSetAvatarTag, "AtlasRevart");
-                AtlasSetAvatarTag.AtlasSet.Revart();
-            }
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginDisabledGroup(IsAppry);
-            EditorGUILayout.EndHorizontal();
-            if (GUILayout.Button("TexturAtlasCompile!"))
-            {
-                if (!AtlasSetAvatarTag.AtlasSet.IsAppry)
-                {
-                    Undo.RecordObject(AtlasSetAvatarTag, "AtlasCompile");
-                    if (AtlasSetAvatarTag.PostProcess.Any())
-                    {
-                        foreach (var PostPrces in AtlasSetAvatarTag.PostProcess)
-                        {
-                            AtlasSetAvatarTag.AtlasSet.AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
-                        }
-                    }
-                    else
-                    {
-                        AtlasSetAvatarTag.AtlasSet.AtlasCompilePostCallBack = (i) => { };
-                    }
-                    Compiler.AtlasSetCompile(AtlasSetAvatarTag.AtlasSet, AtlasSetAvatarTag.ClientSelect);
-                }
-            }
-            EditorGUI.EndDisabledGroup();
 
             serializedObject.ApplyModifiedProperties();
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-namespace Rs64.TexTransTool
+namespace Rs64.TexTransTool.TexturAtlas
 {
 
     public static class IslandUtils
