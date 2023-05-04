@@ -10,9 +10,9 @@ namespace Rs64.TexTransTool.TexturAtlas
 {
     public static class TexturAtlasCompiler
     {
-        public static void AtlasSetCompile(AtlasSetObject Target, ExecuteClient ClientSelect = ExecuteClient.CPU, string AtlasMapperPath = null)
+        public static void AtlasSetCompile(AtlasSetObject Target, ExecuteClient ClientSelect = ExecuteClient.CPU, string TransMapperPath = null)
         {
-            if (AtlasMapperPath == null) AtlasMapperPath = TransMapper.AtlasMapperPath;
+            if (TransMapperPath == null) TransMapperPath = TransMapper.TransMapperPath;
             var Data = GetCompileData(Target);
             if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar(AssetSaveHelper.SaveDirectory + "/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
 
@@ -27,7 +27,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.SetUVs(MovedUVs, 0);
             Data.SetUVs(NotMevedUVs, 1);
 
-            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, AtlasMapperPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
+            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, TransMapperPath, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
@@ -161,18 +161,18 @@ namespace Rs64.TexTransTool.TexturAtlas
                     {
                         case ExecuteClient.CPU:
                             {
-                                SubMaps.Add(TransMapper.AtlasMapGenerat(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType));
+                                SubMaps.Add(TransMapper.TransMapGenerat(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType));
                                 break;
                             }
                         case ExecuteClient.AsyncCPU:
                             {
-                                SubMaps.Add(TransMapper.AtlasMapGeneratAsync(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType).Result);
+                                SubMaps.Add(TransMapper.TransMapGeneratAsync(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType).Result);
                                 break;
                             }
                         case ExecuteClient.ComputeSheder:
                             {
                                 var CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(computeShaderPath);
-                                SubMaps.Add(TransMapper.UVMappingTableGeneratorComputeShederUsed(CS, AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType));
+                                SubMaps.Add(TransMapper.TransMapGeneratUseComputeSheder(CS, AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType));
                                 break;
                             }
                     }

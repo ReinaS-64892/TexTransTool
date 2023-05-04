@@ -13,10 +13,10 @@ namespace Rs64.TexTransTool
 {
     public static class TransMapper
     {
-        public const string AtlasMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
+        public const string TransMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
 
-        public static async Task<TransMapData> AtlasMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
+        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
 
@@ -40,7 +40,7 @@ namespace Rs64.TexTransTool
             return Map;
         }
 
-        public static TransMapData AtlasMapGenerat(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
+        public static TransMapData TransMapGenerat(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
             foreach (var Index in Utils.Reange2d(Map.MapSize))
@@ -159,7 +159,7 @@ namespace Rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static TransMapData UVMappingTableGeneratorComputeShederUsed(ComputeShader Shader, TransMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             Vector2Int ThredGropSize = Map.MapSize / 32;
             int karnelindex = -1;

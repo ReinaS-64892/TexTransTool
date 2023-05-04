@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/SimpleDecal")]
+    //[AddComponentMenu("TexTransTool/SimpleDecal")]
     public class SimpleDecal : TextureTransformer
     {
         public Renderer TargetRenderer;
@@ -55,7 +55,7 @@ namespace Rs64.TexTransTool.Decal
                     var AddTex = CompiledTextures[Index];
                     Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
                     Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                    var PileTextere = TextureLayerUtil.PileTexture(BaseTex, AddTex, TextureLayerUtil.PileType.Normal).Result;
+                    var PileTextere = TextureLayerUtil.PileTextureUseComputeSheder(null, BaseTex, AddTex, TextureLayerUtil.PileType.Normal);
                     var SavedPiletexure = AssetSaveHelper.SaveAsset(PileTextere);
                     EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
                     NewPileTexteres[Index] = SavedPiletexure;

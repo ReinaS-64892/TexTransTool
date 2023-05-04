@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 namespace Rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/TexTransGroup")]
+    //[AddComponentMenu("TexTransTool/TexTransGroup")]
     public class TexTransGroup : TextureTransformer
     {
         public List<TextureTransformer> TextureTransformers = new List<TextureTransformer>();

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
-    [AddComponentMenu("TexTransTool/AtlasSet")]
+    //[AddComponentMenu("TexTransTool/AtlasSet")]
     public class AtlasSet : TextureTransformer
     {
         public AtlasSetObject AtlasSetObject = new AtlasSetObject()
