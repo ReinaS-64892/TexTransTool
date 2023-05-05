@@ -11,6 +11,7 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal), true)]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
+        bool FordiantAdvansd;
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
@@ -71,6 +72,16 @@ namespace Rs64.TexTransTool.Editor.Decal
                     Undo.RecordObject(ThisObject, "AppryScaile - MaxDistans");
                     ThisObject.MaxDistans = MaxDistansEditValue;
                     ThisObject.ScaleAppry();
+                }
+            }
+            {
+                FordiantAdvansd = EditorGUILayout.Foldout(FordiantAdvansd, "AdvansdOption");
+                if (FordiantAdvansd)
+                {
+                    var S_BlendType = This_S_Object.FindProperty("BlendType");
+                    var S_ClientSelect = This_S_Object.FindProperty("ClientSelect");
+                    EditorGUILayout.PropertyField(S_BlendType);
+                    EditorGUILayout.PropertyField(S_ClientSelect);
                 }
             }
 

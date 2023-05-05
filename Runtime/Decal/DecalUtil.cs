@@ -8,9 +8,8 @@ namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
-        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null)
+        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, ExecuteClient CliantSelect, string TargetProptyeName = "_MainTex", string TransMapperPath = null)
         {
-            if (TransMapperPath == null) TransMapperPath = TransMapper.TransMapperPath;
             List<Texture2D> ResultTexutres = new List<Texture2D>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
@@ -37,7 +36,7 @@ namespace Rs64.TexTransTool.Decal
                 var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
                 var Map = new TransMapData(-1, TargetTexSize);
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
-                Map = TransMapper.TransMapGeneratUseComputeSheder(CS, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
+                Map = CliantSelect.InTransMapGenerat(Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
                 var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
                 AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex);
                 AtlasTex.Texture2D.Apply();

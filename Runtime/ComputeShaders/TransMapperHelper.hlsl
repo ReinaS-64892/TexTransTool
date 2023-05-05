@@ -58,12 +58,6 @@ uint SelectTraiangle(uint id, uint ti)
     return ((id * 6) + ti);
 }
 
-float3 AsFloat3(float2 f)
-{
-    return float3(f.x, f.y, 0);
-}
-
-
 float MinVector(float3 Vector)
 {
     return min(Vector.x, min(Vector.y, Vector.z));

@@ -11,11 +11,14 @@ namespace Rs64.TexTransTool.Decal
     {
         public Renderer TargetRenderer;
         public Texture2D DecalTexture;
-        public float Scale;
-        public float MaxDistans;
+        public float Scale = 1;
+        public float MaxDistans = 1;
+
+        public ExecuteClient ClientSelect = ExecuteClient.ComputeSheder;
+        public BlendType BlendType = BlendType.Normal;
 
         [SerializeField] string TargetPropatyName = "_MainTex";
-        public void ScaleAppry()
+        public virtual void ScaleAppry()
         {
             if (DecalTexture != null)
             {
@@ -34,7 +37,7 @@ namespace Rs64.TexTransTool.Decal
 
         public override void Compile()
         {
-            var ResultTexutres = DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix);
+            var ResultTexutres = DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, ClientSelect);
             AssetSaveHelper.DeletAssets(CompiledTextures);
             CompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
         }
@@ -55,8 +58,8 @@ namespace Rs64.TexTransTool.Decal
                     var AddTex = CompiledTextures[Index];
                     Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
                     Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                    var PileTextere = TextureLayerUtil.PileTextureUseComputeSheder(null, BaseTex, AddTex, TextureLayerUtil.PileType.Normal);
-                    var SavedPiletexure = AssetSaveHelper.SaveAsset(PileTextere);
+                    Texture2D BlendTextere = ClientSelect.InBlendTexture(BaseTex, AddTex, BlendType);
+                    var SavedPiletexure = AssetSaveHelper.SaveAsset(BlendTextere);
                     EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
                     NewPileTexteres[Index] = SavedPiletexure;
                 }
@@ -68,6 +71,9 @@ namespace Rs64.TexTransTool.Decal
             EditMaterialsSave = EditMaterials;
             BackUpMaterials = Materials;
         }
+
+
+
         public override void Revart()
         {
             if (!_IsAppry) return;
@@ -95,7 +101,7 @@ namespace Rs64.TexTransTool.Decal
 
         public override bool IsPossibleCompile => TargetRenderer != null && DecalTexture != null;
 
-        private void OnDrawGizmosSelected()
+        protected virtual void OnDrawGizmosSelected()
         {
             Gizmos.color = GizmoColoro;
             var Matrix = transform.localToWorldMatrix;
