@@ -64,12 +64,6 @@ namespace Rs64.TexTransTool.TexturAtlas
                 SetTexture(Souse);
             }
         }
-        public static CompileDataContenar CreateCompileDataContenar(string path)
-        {
-            var newI = CreateInstance<CompileDataContenar>();
-            AssetDatabase.CreateAsset(newI, path);
-            return newI;
-        }
 
         public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties)
         {

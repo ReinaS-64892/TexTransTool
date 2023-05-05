@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public static void AtlasSetCompile(AtlasSetObject Target, ExecuteClient ClientSelect = ExecuteClient.AsyncCPU, ComputeShader TransMapperCS = null)
         {
             var Data = GetCompileData(Target);
-            if (Target.Contenar == null) { Target.Contenar = CompileDataContenar.CreateCompileDataContenar(AssetSaveHelper.SaveDirectory + "/AutoGenerateContenar" + Guid.NewGuid().ToString() + ".asset"); }
+            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<CompileDataContenar>(ScriptableObject.CreateInstance<CompileDataContenar>());}
 
             var Contenar = Target.Contenar;
 

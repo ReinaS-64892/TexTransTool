@@ -10,8 +10,13 @@ namespace Rs64.TexTransTool
     public static class AssetSaveHelper
     {
         public const string SaveDirectory = "Assets/TexTransToolGanareats";
+        public static void SaveDirectoryCheck()
+        {
+            if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
+        }
         public static List<T> SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
+            SaveDirectoryCheck();
             List<T> SavedTextures = new List<T>();
             foreach (var Target in Targets)
             {
@@ -22,8 +27,7 @@ namespace Rs64.TexTransTool
 
         public static T SaveAsset<T>(T Target) where T : UnityEngine.Object
         {
-            if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
-
+            SaveDirectoryCheck();
             if (Target == null)
             {
                 return null;
