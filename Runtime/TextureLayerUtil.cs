@@ -11,7 +11,7 @@ namespace Rs64.TexTransTool
     public enum BlendType
     {
         Normal,
-        mul,
+        Mul,
         Screen,
         Overlay,
         HardLight,
@@ -81,7 +81,7 @@ namespace Rs64.TexTransTool
                         }
                         break;
                     }
-                case BlendType.mul:
+                case BlendType.Mul:
                     {
                         foreach (var Index in indexEnumretor)
                         {
@@ -287,20 +287,8 @@ namespace Rs64.TexTransTool
             var AddPixels = Add.GetPixels();
             var ResultTexutres = new Texture2D(Base.width, Base.height);
             int KarnelId;
-            switch (PileType)
-            {
-                default:
-                case BlendType.Normal:
-                    {
-                        KarnelId = CS.FindKernel("Normal");
-                        break;
-                    }
-                case BlendType.mul:
-                    {
-                        KarnelId = CS.FindKernel("Mul");
-                        break;
-                    }
-            }
+
+            KarnelId = CS.FindKernel(PileType.ToString());
 
             CS.SetInt("Size", Base.width);
 
