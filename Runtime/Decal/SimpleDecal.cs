@@ -22,7 +22,7 @@ namespace Rs64.TexTransTool.Decal
         {
             if (DecalTexture != null)
             {
-                transform.localScale = new Vector3(Scale, Scale * (DecalTexture.width / DecalTexture.height), MaxDistans);
+                transform.localScale = new Vector3(Scale, Scale * ((float)DecalTexture.height / (float)DecalTexture.width), MaxDistans);
             }
             else
             {
