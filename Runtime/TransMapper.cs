@@ -15,8 +15,24 @@ namespace Rs64.TexTransTool
     {
         public const string TransMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
+        public static TransMapData InTransMapGenerat(this ExecuteClient CliantSelect, TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase, ComputeShader TransMapperCS = null)
+        {
+            switch (CliantSelect)
+            {
+                default:
+                case ExecuteClient.AsyncCPU:
+                    {
+                        return TransMapGeneratAsync(Map, triangles, TargetUV, SourceUV, padingType).Result;
+                    }
+                case ExecuteClient.ComputeSheder:
+                    {
+                        if (TransMapperCS == null) TransMapperCS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
+                        return TransMapGeneratUseComputeSheder(TransMapperCS, Map, triangles, TargetUV, SourceUV, padingType);
+                    }
+            }
+        }
 
-        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
+        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
 
@@ -253,9 +269,11 @@ namespace Rs64.TexTransTool
     }
     public enum ExecuteClient
     {
-        CPU,
         AsyncCPU,
         ComputeSheder,
+
+        [Obsolete]
+        CPU,
     }
 
     public struct TraiangleIndex : IEnumerable<int>
