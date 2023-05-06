@@ -17,75 +17,153 @@ namespace Rs64.TexTransTool.Editor.Decal
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
 
+            var S_Advansd = This_S_Object.FindProperty("AdvansdMode");
+            var AdvansdMode = S_Advansd.boolValue;
+
+
+            EditorGUI.BeginDisabledGroup(ThisObject.IsAppry);
+
+
+            var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderers");
+            if (!AdvansdMode)
             {
-                var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderer");
-                var TargetRendererValue = S_TargetRenderer.objectReferenceValue;
-                var TargetRendererEditValue = EditorGUILayout.ObjectField("TargetRenderer", TargetRendererValue, typeof(Renderer), true) as Renderer;
-                if (TargetRendererValue != TargetRendererEditValue)
+                S_TargetRenderer.arraySize = 1;
+                var S_TRArryElemt = S_TargetRenderer.GetArrayElementAtIndex(0);
+                var TRArryElemetValue = S_TRArryElemt.objectReferenceValue;
+                var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
+                if (TRArryElemetValue != TRArryElemetEditValue)
                 {
-                    Renderer FiltalingdRendarer;
-                    if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
-                    {
-                        FiltalingdRendarer = TargetRendererEditValue;
-                    }
-                    else
-                    {
-                        FiltalingdRendarer = null;
-                    }
-                    Undo.RecordObject(ThisObject, "Edit - TargetRenderer");
-                    ThisObject.TargetRenderer = FiltalingdRendarer;
+                    Renderer FiltalingdRendarer = RendererFiltaling(TRArryElemetEditValue);
+                    S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
                 }
             }
+            else
             {
-                var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-                var DecalTexValue = S_DecalTexture.objectReferenceValue;
-                var DecalTexEditValue = EditorGUILayout.ObjectField("DecalTexture", DecalTexValue, typeof(Texture2D), false) as Texture2D;
-                if (DecalTexValue != DecalTexEditValue)
+                EditorGUILayout.LabelField("TargetRenderer");
+                foreach (var Index in Enumerable.Range(0, S_TargetRenderer.arraySize))
                 {
-                    Undo.RecordObject(ThisObject, "AppryScaile - TextureAspect");
-                    ThisObject.DecalTexture = DecalTexEditValue;
+                    var S_TargetRendererValue = S_TargetRenderer.GetArrayElementAtIndex(Index);
+                    var TargetRendererValue = S_TargetRendererValue.objectReferenceValue;
+                    var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
+                    if (TargetRendererValue != TargetRendererEditValue)
+                    {
+                        Renderer FiltalingdRendarer = RendererFiltaling(TargetRendererEditValue);
+                        S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
+                    }
+                }
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("+")) S_TargetRenderer.arraySize += 1;
+                EditorGUI.BeginDisabledGroup(S_TargetRenderer.arraySize <= 1);
+                if (GUILayout.Button("-")) S_TargetRenderer.arraySize -= 1;
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.EndHorizontal();
+            }
+
+
+
+            var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
+            var DecalTexValue = S_DecalTexture.objectReferenceValue;
+            var DecalTexEditValue = EditorGUILayout.ObjectField("DecalTexture", DecalTexValue, typeof(Texture2D), false) as Texture2D;
+            if (DecalTexValue != DecalTexEditValue)
+            {
+                S_DecalTexture.objectReferenceValue = DecalTexEditValue;
+                This_S_Object.ApplyModifiedProperties();
+
+                Undo.RecordObject(ThisObject, "AppryScaile - TextureAspect");
+                ThisObject.ScaleAppry();
+
+                if (ThisObject.DisplayDecalMat == null) ThisObject.DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
+                ThisObject.DisplayDecalMat.mainTexture = DecalTexEditValue;
+                if (ThisObject.Quad == null) ThisObject.Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
+
+            }
+
+
+
+            var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
+            var S_Scale = This_S_Object.FindProperty("Scale");
+            if (!AdvansdMode || S_FixedAspect.boolValue)
+            {
+                var ScaleValue = S_Scale.vector2Value;
+                var ScaleEditValue = EditorGUILayout.FloatField("Scale", ScaleValue.x);
+                if (ScaleValue.x != ScaleEditValue)
+                {
+                    ScaleValue.x = ScaleEditValue;
+                    S_Scale.vector2Value = ScaleValue;
+                    This_S_Object.ApplyModifiedProperties();
+                    Undo.RecordObject(ThisObject, "ScaleAppry - ScaleEdit");
                     ThisObject.ScaleAppry();
-
-                    if (ThisObject.DisplayDecalMat == null) ThisObject.DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
-                    ThisObject.DisplayDecalMat.mainTexture = DecalTexEditValue;
-                    if (ThisObject.Quad == null) ThisObject.Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
-
                 }
             }
+            else
             {
-                var S_Scale = This_S_Object.FindProperty("Scale");
-                var ScaleValue = S_Scale.floatValue;
-                var ScaleEditValue = EditorGUILayout.FloatField("Scale", ScaleValue);
+                var ScaleValue = S_Scale.vector2Value;
+                var ScaleEditValue = EditorGUILayout.Vector2Field("Scale", ScaleValue);
                 if (ScaleValue != ScaleEditValue)
                 {
-                    Undo.RecordObject(ThisObject, "AppryScaile - Scale");
-                    ThisObject.Scale = ScaleEditValue;
+                    S_Scale.vector2Value = ScaleEditValue;
+                    This_S_Object.ApplyModifiedProperties();
+                    Undo.RecordObject(ThisObject, "ScaleAppry - ScaleEdit");
                     ThisObject.ScaleAppry();
                 }
             }
+
+
+
+            var S_MaxDistans = This_S_Object.FindProperty("MaxDistans");
+            var MaxDistansValue = S_MaxDistans.floatValue;
+            var MaxDistansEditValue = EditorGUILayout.FloatField("MaxDistans", MaxDistansValue);
+            if (MaxDistansValue != MaxDistansEditValue)
             {
-                var S_MaxDistans = This_S_Object.FindProperty("MaxDistans");
-                var MaxDistansValue = S_MaxDistans.floatValue;
-                var MaxDistansEditValue = EditorGUILayout.FloatField("MaxDistans", MaxDistansValue);
-                if (MaxDistansValue != MaxDistansEditValue)
-                {
-                    Undo.RecordObject(ThisObject, "AppryScaile - MaxDistans");
-                    ThisObject.MaxDistans = MaxDistansEditValue;
-                    ThisObject.ScaleAppry();
-                }
+                Undo.RecordObject(ThisObject, "AppryScaile - MaxDistans");
+                ThisObject.MaxDistans = MaxDistansEditValue;
+                ThisObject.ScaleAppry();
             }
+
+
+
+            if (AdvansdMode)
             {
-                FordiantAdvansd = EditorGUILayout.Foldout(FordiantAdvansd, "AdvansdOption");
-                if (FordiantAdvansd)
-                {
-                    var S_BlendType = This_S_Object.FindProperty("BlendType");
-                    EditorGUILayout.PropertyField(S_BlendType);
-                }
+
+                EditorGUILayout.PropertyField(S_FixedAspect);
+
+                var S_BlendType = This_S_Object.FindProperty("BlendType");
+                EditorGUILayout.PropertyField(S_BlendType);
+
+                var S_TargetPropatyNames = This_S_Object.FindProperty("TargetPropatyName");
+                EditorGUILayout.PropertyField(S_TargetPropatyNames);
+
             }
+            var EditAdvansdMode = EditorGUILayout.Toggle("AdvansdMode", AdvansdMode);
+            if (AdvansdMode != EditAdvansdMode)
+            {
+                S_Advansd.boolValue = EditAdvansdMode;
+                This_S_Object.FindProperty("TargetPropatyName").stringValue = "_MainTex";
+                S_FixedAspect.boolValue = true;
+                Undo.RecordObject(ThisObject, "CompileDataClear");
+                ThisObject.CompileDataClear();
+            }
+
+            EditorGUI.EndDisabledGroup();
 
             TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
+        }
+
+        private static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
+        {
+            Renderer FiltalingdRendarer;
+            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
+            {
+                FiltalingdRendarer = TargetRendererEditValue;
+            }
+            else
+            {
+                FiltalingdRendarer = null;
+            }
+
+            return FiltalingdRendarer;
         }
     }
 
