@@ -170,7 +170,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     Mesh.GetUVs(1, SouseUV);
                     Mesh.GetUVs(0, TargetUV);
                     var TargetTexScliUV = TransMapper.UVtoTexScale(TargetUV, AtlasTextureSize);
-                    clientSelect.InTransMapGenerat(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType, TransMapperCS);
+                    SubMaps.Add(clientSelect.InTransMapGenerat(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType, TransMapperCS));
                 }
                 Maps.Add(SubMaps);
             }
