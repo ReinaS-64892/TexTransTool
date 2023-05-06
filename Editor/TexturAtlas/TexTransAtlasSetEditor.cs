@@ -13,7 +13,6 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
         public override void OnInspectorGUI()
         {
             var serialaizeatlaset = serializedObject.FindProperty("AtlasSetObject");
-            var ClientSelect = serializedObject.FindProperty("ClientSelect");
             var SkindMesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetMeshs");
             var Staticmesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetStaticMeshs");
             var TextureSize = serialaizeatlaset.FindPropertyRelative("AtlasTextureSize");
@@ -32,7 +31,6 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             EditorGUILayout.PropertyField(Pading);
             EditorGUILayout.PropertyField(PadingType);
             EditorGUILayout.PropertyField(SortingType);
-            EditorGUILayout.PropertyField(ClientSelect);
             EditorGUILayout.PropertyField(Contenar);
 
             PostPrcessFoldout = EditorGUILayout.Foldout(PostPrcessFoldout, "PostProcess");

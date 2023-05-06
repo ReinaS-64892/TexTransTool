@@ -1,18 +1,12 @@
 ﻿#if UNITY_EDITOR
-using System.Reflection;
 using System.IO;
-using System.Text;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Security;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
-using Rs64.TexTransTool.ShaderSupport;
-using UnityEngine.Rendering;
+using System.Runtime.CompilerServices;
 
 namespace Rs64.TexTransTool
 {
@@ -25,7 +19,7 @@ namespace Rs64.TexTransTool
     public static class Compiler
     {
 
-
+        [Obsolete]
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -36,36 +30,124 @@ namespace Rs64.TexTransTool
             {
                 if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
                 {
-                    var SouseTexPos = AtralsMap.Map[index.x, index.y];
+                    Vector2 SouseTexPos = AtralsMap.Map[index.x, index.y];
+                    Vector2? TWMAppryTexPos = null;
                     switch (wrapMode)
                     {
                         default:
                         case TexWrapMode.NotWrap:
                             {
-                                if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) break;
-                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
-                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMAppryTexPos = null;
+                                else TWMAppryTexPos = SouseTexPos;
                                 break;
                             }
                         case TexWrapMode.Stretch:
                             {
                                 SouseTexPos.x = Mathf.Clamp01(SouseTexPos.x);
                                 SouseTexPos.y = Mathf.Clamp01(SouseTexPos.y);
-                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
-                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                TWMAppryTexPos = SouseTexPos;
                                 break;
                             }
                         case TexWrapMode.Loop:
                             {
-                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
-                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                TWMAppryTexPos = SouseTexPos;
                                 break;
                             }
                     }
+                    SetPixsl(SouseTex, targetTex, index, TWMAppryTexPos);
+                    targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
                 }
             }
             return targetTex;
+
         }
+        [Obsolete]
+        static void SetPixsl(Texture2D SouseTex, TransTargetTexture targetTex, Vector2Int index, Vector2? SouseTexPos)
+        {
+            if (!SouseTexPos.HasValue) return;
+            var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.Value.x, SouseTexPos.Value.y);
+            targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+        }
+        public static async Task<TransTargetTexture> TransCompileAsync(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
+        {
+            if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            var TexSize = new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height);
+            var List = Utils.Reange2d(TexSize);
+
+            NotFIlterAndReadWritTexture2D(ref SouseTex);
+            var SColors = Utils.OneDToTowD(SouseTex.GetPixels(), TexSize);
+            var TColors = Utils.OneDToTowD(targetTex.Texture2D.GetPixels(), TexSize);
+
+            ConfiguredTaskAwaitable[,] Tasks = new ConfiguredTaskAwaitable[TexSize.x, TexSize.y];
+
+            foreach (var index in List)
+            {
+                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index)).ConfigureAwait(false);
+            }
+            foreach (var task in Tasks)
+            {
+                await task;
+            }
+
+            var TOneDColors = Utils.TowDtoOneD(TColors);
+            targetTex.Texture2D.SetPixels(TOneDColors);
+
+            return targetTex;
+        }
+
+
+
+        static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index)
+        {
+            if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
+            {
+                Vector2 SouseTexPos = AtralsMap.Map[index.x, index.y];
+                Vector2? TWMAppryTexPos = null;
+                switch (wrapMode)
+                {
+                    default:
+                    case TexWrapMode.NotWrap:
+                        {
+                            if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMAppryTexPos = null;
+                            else TWMAppryTexPos = SouseTexPos;
+                            break;
+                        }
+                    case TexWrapMode.Stretch:
+                        {
+                            SouseTexPos.x = Mathf.Clamp01(SouseTexPos.x);
+                            SouseTexPos.y = Mathf.Clamp01(SouseTexPos.y);
+                            TWMAppryTexPos = SouseTexPos;
+                            break;
+                        }
+                    case TexWrapMode.Loop:
+                        {
+                            TWMAppryTexPos = SouseTexPos;
+                            break;
+                        }
+                }
+                SetPixsl(SColors, TColors, index, TWMAppryTexPos);
+                targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
+            }
+        }
+        static void SetPixsl(Color[,] SouseTexColors, Color[,] targetTexColors, Vector2Int index, Vector2? SouseTexPos)
+        {
+            if (!SouseTexPos.HasValue) return;
+            var souspixselcloro = GetColorBiliner(SouseTexColors, SouseTexPos.Value);
+            targetTexColors[index.x, index.y] = souspixselcloro;
+        }
+
+        public static Color GetColorBiliner(Color[,] Colors, Vector2 Pos)
+        {
+            var XC = Mathf.CeilToInt(Pos.x);
+            var XF = Mathf.FloorToInt(Pos.x);
+            var YC = Mathf.CeilToInt(Pos.y);
+            var YF = Mathf.FloorToInt(Pos.y);
+
+            var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x);
+            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x);
+            return Color.Lerp(DownColor, UpColor, Pos.y);
+        }
+
 
         public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, ComputeShader CS)
         {
