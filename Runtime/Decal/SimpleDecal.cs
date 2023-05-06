@@ -9,66 +9,93 @@ namespace Rs64.TexTransTool.Decal
     //[AddComponentMenu("TexTransTool/SimpleDecal")]
     public class SimpleDecal : TextureTransformer
     {
-        public Renderer TargetRenderer;
+        public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public Texture2D DecalTexture;
-        public float Scale = 1;
+        public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
 
+        public bool AdvansdMode;
         public BlendType BlendType = BlendType.Normal;
+        public bool FixedAspect = true;
 
-        [SerializeField] string TargetPropatyName = "_MainTex";
+        public string TargetPropatyName = "_MainTex";
         public virtual void ScaleAppry()
         {
-            if (DecalTexture != null)
+            if (DecalTexture != null && FixedAspect)
             {
-                transform.localScale = new Vector3(Scale, Scale * ((float)DecalTexture.height / (float)DecalTexture.width), MaxDistans);
+                transform.localScale = new Vector3(Scale.x, Scale.x * ((float)DecalTexture.height / (float)DecalTexture.width), MaxDistans);
             }
             else
             {
-                transform.localScale = new Vector3(Scale, Scale, MaxDistans);
+                transform.localScale = new Vector3(Scale.x, FixedAspect ? Scale.x : Scale.y, MaxDistans);
             }
         }
 
-        [SerializeField] List<Texture2D> CompiledTextures;
-        [SerializeField] Material[] BackUpMaterials;
-        [SerializeField] Material[] EditMaterialsSave;
-        [SerializeField] Texture2D[] PileTexteres;
-
+        [SerializeField] List<Texture2D> DecalCompiledTextures;
+        [SerializeField] List<Material> DecaleBlendMaterialsSave;
+        [SerializeField] List<Texture2D> DecaleBlendTexteres;
+        [SerializeField] List<Material> BackUpMaterials;
+        public void CompileDataClear()
+        {
+            AssetSaveHelper.DeletAssets(DecalCompiledTextures);
+            DecalCompiledTextures = new List<Texture2D> { null };
+        }
         public override void Compile()
         {
-            var ResultTexutres = DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix);
-            AssetSaveHelper.DeletAssets(CompiledTextures);
-            CompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
+            if (_IsAppry) return;
+            var ResultTexutres = new List<Texture2D>();
+            foreach (var TargetRenderer in TargetRenderers)
+            {
+                ResultTexutres.AddRange(DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, TargetPropatyName));
+            }
+            AssetSaveHelper.DeletAssets(DecalCompiledTextures);
+            DecalCompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
         }
         public override void Appry()
         {
             if (_IsAppry) return;
             _IsAppry = true;
-
-            var Materials = TargetRenderer.sharedMaterials;
-            var EditMaterials = new Material[Materials.Length];
-            var NewPileTexteres = new Texture2D[Materials.Length];
-
-            foreach (var Index in Enumerable.Range(0, Materials.Length))
+            var AllMaterials = new List<Material>();
+            var AllEditMaterials = new List<Material>();
+            var AllNewblendTexteres = new List<Texture2D>();
+            int MaterialIndexOffset = 0;
+            foreach (var TargetRenderer in TargetRenderers)
             {
-                var EditableMaterial = Instantiate(Materials[Index]);
-                if (CompiledTextures[Index] != null && EditableMaterial.GetTexture(TargetPropatyName) is Texture2D BaseTex)
+                var Materials = TargetRenderer.sharedMaterials;
+                var EditMaterials = new Material[Materials.Length];
+                var NewblendTexteres = new Texture2D[Materials.Length];
+
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
                 {
-                    var AddTex = CompiledTextures[Index];
-                    Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
-                    Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                    Texture2D BlendTextere = TextureLayerUtil.BlendTextureUseComputeSheder(null,BaseTex, AddTex, BlendType);
-                    var SavedPiletexure = AssetSaveHelper.SaveAsset(BlendTextere);
-                    EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
-                    NewPileTexteres[Index] = SavedPiletexure;
+                    var EditableMaterial = Instantiate(Materials[Index]);
+                    if (DecalCompiledTextures[MaterialIndexOffset + Index] != null && EditableMaterial.GetTexture(TargetPropatyName) is Texture2D BaseTex)
+                    {
+                        var AddTex = DecalCompiledTextures[MaterialIndexOffset + Index];
+                        Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
+                        Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
+                        Texture2D BlendTextere = TextureLayerUtil.BlendTextureUseComputeSheder(null, BaseTex, AddTex, BlendType);
+                        var SavedPiletexure = AssetSaveHelper.SaveAsset(BlendTextere);
+                        EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
+                        NewblendTexteres[Index] = SavedPiletexure;
+                    }
+                    EditMaterials[Index] = EditableMaterial;
                 }
-                EditMaterials[Index] = EditableMaterial;
+                MaterialIndexOffset += Materials.Length;
+                AllMaterials.AddRange(Materials);
+                AllEditMaterials.AddRange(EditMaterials);
+                AllNewblendTexteres.AddRange(AllNewblendTexteres);
             }
-            EditMaterials = AssetSaveHelper.SaveAssets(EditMaterials).ToArray();
-            PileTexteres = NewPileTexteres;
-            TargetRenderer.sharedMaterials = EditMaterials;
-            EditMaterialsSave = EditMaterials;
-            BackUpMaterials = Materials;
+            AllEditMaterials = AssetSaveHelper.SaveAssets(AllEditMaterials);
+            DecaleBlendTexteres = AllNewblendTexteres;
+            DecaleBlendMaterialsSave = AllEditMaterials;
+            BackUpMaterials = AllMaterials;
+
+            int IndexCount = 0;
+            foreach (var TargetRenderer in TargetRenderers)
+            {
+                TargetRenderer.sharedMaterials = AllEditMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
+                IndexCount += TargetRenderer.sharedMaterials.Length;
+            }
         }
 
 
@@ -78,12 +105,17 @@ namespace Rs64.TexTransTool.Decal
             if (!_IsAppry) return;
             _IsAppry = false;
 
-            TargetRenderer.sharedMaterials = BackUpMaterials;
-            AssetSaveHelper.DeletAssets(EditMaterialsSave);
-            AssetSaveHelper.DeletAssets(PileTexteres);
-            EditMaterialsSave = null;
+            int IndexCount = 0;
+            foreach (var TargetRenderer in TargetRenderers)
+            {
+                TargetRenderer.sharedMaterials = BackUpMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
+                IndexCount += TargetRenderer.sharedMaterials.Length;
+            }
+            AssetSaveHelper.DeletAssets(DecaleBlendMaterialsSave);
+            AssetSaveHelper.DeletAssets(DecaleBlendTexteres);
+            DecaleBlendMaterialsSave = null;
             BackUpMaterials = null;
-            PileTexteres = null;
+            DecaleBlendTexteres = null;
 
         }
 
@@ -96,9 +128,9 @@ namespace Rs64.TexTransTool.Decal
         [SerializeField] bool _IsAppry;
         public override bool IsAppry => _IsAppry;
 
-        public override bool IsPossibleAppry => CompiledTextures.Any();
+        public override bool IsPossibleAppry => DecalCompiledTextures.Any();
 
-        public override bool IsPossibleCompile => TargetRenderer != null && DecalTexture != null;
+        public override bool IsPossibleCompile => TargetRenderers[0] != null && DecalTexture != null;
 
         protected virtual void OnDrawGizmosSelected()
         {
