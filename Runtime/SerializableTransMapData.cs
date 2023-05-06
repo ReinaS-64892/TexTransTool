@@ -18,7 +18,7 @@ namespace Rs64.TexTransTool
             DefaultPading = S.DefaultPading;
             MapSize = S.MapSize;
         }
-        public TransMapData GetTransMapDataContainer()
+        public TransMapData GetTransMapData()
         {
             var TDM = new TransMapData();
             TDM.Map = Utils.OneDToTowD(OneDMap, MapSize);
