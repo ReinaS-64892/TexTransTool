@@ -89,7 +89,7 @@ namespace Rs64.TexTransTool
                 await task;
             }
 
-            var TOneDColors = Utils.TowDtoOneD(TColors);
+            var TOneDColors = Utils.TowDtoOneD(TColors, TexSize);
             targetTex.Texture2D.SetPixels(TOneDColors);
 
             return targetTex;
@@ -125,27 +125,28 @@ namespace Rs64.TexTransTool
                             break;
                         }
                 }
-                SetPixsl(SColors, TColors, index, TWMAppryTexPos);
+                SetPixsl(SColors, TColors, index, TWMAppryTexPos, new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
                 targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
             }
         }
-        static void SetPixsl(Color[,] SouseTexColors, Color[,] targetTexColors, Vector2Int index, Vector2? SouseTexPos)
+        static void SetPixsl(Color[,] SouseTexColors, Color[,] targetTexColors, Vector2Int index, Vector2? SouseTexPos, Vector2Int TexSize)
         {
             if (!SouseTexPos.HasValue) return;
-            var souspixselcloro = GetColorBiliner(SouseTexColors, SouseTexPos.Value);
+            var souspixselcloro = GetColorBiliner(SouseTexColors, TexSize, SouseTexPos.Value);
             targetTexColors[index.x, index.y] = souspixselcloro;
         }
 
-        public static Color GetColorBiliner(Color[,] Colors, Vector2 Pos)
+        public static Color GetColorBiliner(Color[,] Colors, Vector2Int TexSize, Vector2 Pos)
         {
+            Pos *= TexSize;
             var XC = Mathf.CeilToInt(Pos.x);
             var XF = Mathf.FloorToInt(Pos.x);
             var YC = Mathf.CeilToInt(Pos.y);
             var YF = Mathf.FloorToInt(Pos.y);
 
-            var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x);
-            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x);
-            return Color.Lerp(DownColor, UpColor, Pos.y);
+            var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x % 1);
+            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x % 1);
+            return Color.Lerp(DownColor, UpColor, Pos.y % 1);
         }
 
 

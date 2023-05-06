@@ -13,8 +13,8 @@ namespace Rs64.TexTransTool
 
         public SerializableTransMapData(TransMapData S)
         {
-            OneDMap = Utils.TowDtoOneD(S.Map);
-            OneDDistansMap = Utils.TowDtoOneD(S.DistansMap);
+            OneDMap = Utils.TowDtoOneD(S.Map, S.MapSize);
+            OneDDistansMap = Utils.TowDtoOneD(S.DistansMap, S.MapSize);
             DefaultPading = S.DefaultPading;
             MapSize = S.MapSize;
         }

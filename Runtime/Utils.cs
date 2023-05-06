@@ -71,14 +71,12 @@ namespace Rs64.TexTransTool
             return TraianglesList;
         }
 
-        public static T[] TowDtoOneD<T>(T[,] SouseArry)
+        public static T[] TowDtoOneD<T>(T[,] SouseArry, Vector2Int Size)
         {
-            T[] OneDArry = new T[SouseArry.Length];
-            int count = -1;
-            foreach (var value in SouseArry)
+            T[] OneDArry = new T[Size.x * Size.y];
+            foreach (var Index in Utils.Reange2d(Size))
             {
-                count += 1;
-                OneDArry[count] = value;
+                OneDArry[TwoDToOneDIndex(Index, Size.x)] = SouseArry[Index.x, Index.y];
             }
             return OneDArry;
         }
