@@ -16,11 +16,17 @@ using UnityEngine.Rendering;
 
 namespace Rs64.TexTransTool
 {
+    public enum TexWrapMode
+    {
+        NotWrap,
+        Stretch,
+        Loop,
+    }
     public static class Compiler
     {
 
 
-        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex)
+        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
@@ -30,8 +36,32 @@ namespace Rs64.TexTransTool
             {
                 if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
                 {
-                    var souspixselcloro = SouseTex.GetPixelBilinear(AtralsMap.Map[index.x, index.y].x, AtralsMap.Map[index.x, index.y].y);
-                    targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                    var SouseTexPos = AtralsMap.Map[index.x, index.y];
+                    switch (wrapMode)
+                    {
+                        default:
+                        case TexWrapMode.NotWrap:
+                            {
+                                if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) break;
+                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
+                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                break;
+                            }
+                        case TexWrapMode.Stretch:
+                            {
+                                SouseTexPos.x = Mathf.Clamp01(SouseTexPos.x);
+                                SouseTexPos.y = Mathf.Clamp01(SouseTexPos.y);
+                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
+                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                break;
+                            }
+                        case TexWrapMode.Loop:
+                            {
+                                var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.x, SouseTexPos.y);
+                                targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
+                                break;
+                            }
+                    }
                 }
             }
             return targetTex;
@@ -96,7 +126,7 @@ namespace Rs64.TexTransTool
         public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            if(string.IsNullOrEmpty(SouseTexPath))throw new ArgumentException("元となる画像のパスが存在しません。");
+            if (string.IsNullOrEmpty(SouseTexPath)) throw new ArgumentException("元となる画像のパスが存在しません。");
             if (ConvertToLiner)
             {
                 SouseTex = new Texture2D(2, 2, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);

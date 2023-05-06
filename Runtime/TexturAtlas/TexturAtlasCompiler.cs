@@ -26,7 +26,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.SetUVs(MovedUVs, 0);
             Data.SetUVs(NotMevedUVs, 1);
 
-            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes,TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
+            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
@@ -146,7 +146,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
                     {
                         var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        Compiler.TransCompileUseGetPixsel(SouseTxture, AtlasMapData, TargetTex);
+                        Compiler.TransCompileUseGetPixsel(SouseTxture, AtlasMapData, TargetTex, TexWrapMode.Stretch);
                     }
 
                 }
