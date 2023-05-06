@@ -59,7 +59,7 @@ namespace Rs64.TexTransTool.Decal
                     }
                 case MeshRenderer MR:
                     {
-                        MR.GetComponent<MeshFilter>().mesh.GetVertices(Vertices);
+                        MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
                         Vertices = ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
