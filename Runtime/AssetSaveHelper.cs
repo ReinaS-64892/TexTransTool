@@ -14,6 +14,10 @@ namespace Rs64.TexTransTool
         {
             if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
         }
+        public static string GeneretNewSavePath(string Name)
+        {
+            return SaveDirectory + "/" + Name + "_" + Guid.NewGuid().ToString();
+        }
         public static List<T> SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
             SaveDirectoryCheck();
@@ -32,7 +36,7 @@ namespace Rs64.TexTransTool
             {
                 return null;
             }
-            var SavePath = SaveDirectory + "/" + Target.name + "_" + Guid.NewGuid().ToString();
+            var SavePath = GeneretNewSavePath(Target.name);
             switch (Target)
             {
                 default:

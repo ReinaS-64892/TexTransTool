@@ -99,7 +99,7 @@ namespace Rs64.TexTransTool
                 if (Distans < Distansnew)
                 {
                     var SourceUVTriangle = new List<Vector2> { SourceUV[TriangleToIndex[0]], SourceUV[TriangleToIndex[1]], SourceUV[TriangleToIndex[2]] };
-                    SourceUVPosition = FromTBC(SourceUVTriangle, ToTBC(ClossT));
+                    SourceUVPosition = FromBCS(SourceUVTriangle, ToBCS(ClossT));
                 }
             }
             return (SourceUVPosition, Distans);
@@ -113,7 +113,7 @@ namespace Rs64.TexTransTool
             return new Vector4(w, u, v, wuv);
         }
 
-        public static Vector3 ToTBC(Vector4 ClassT)
+        public static Vector3 ToBCS(Vector4 ClassT)
         {
             var a = ClassT.x / ClassT.w;
             var b = ClassT.y / ClassT.w;
@@ -122,7 +122,7 @@ namespace Rs64.TexTransTool
             return new Vector3(a, b, c);
         }
 
-        public static Vector2 FromTBC(List<Vector2> Triangle, Vector3 SuorseTBC)
+        public static Vector2 FromBCS(List<Vector2> Triangle, Vector3 SuorseTBC)
         {
             var ConversionPos = Vector2.zero;
             ConversionPos += Triangle[0] * SuorseTBC.x;

@@ -39,6 +39,10 @@ namespace Rs64.TexTransTool
         {
             return (TowDIndex.y * Size) + TowDIndex.x;
         }
+        public static Vector2Int OneDToTwoDIndex(int TowDIndex, int withLengs)
+        {
+            return new Vector2Int(TowDIndex % withLengs, TowDIndex / withLengs);
+        }
         public static Texture2D CreateFillTexture(int Size, Color FillColor)
         {
             return CreateFillTexture(new Vector2Int(Size, Size), FillColor);
@@ -66,6 +70,30 @@ namespace Rs64.TexTransTool
             }
             return TraianglesList;
         }
-    }
 
+        public static T[] TowDtoOneD<T>(T[,] SouseArry)
+        {
+            T[] OneDArry = new T[SouseArry.Length];
+            int count = -1;
+            foreach (var value in SouseArry)
+            {
+                count += 1;
+                OneDArry[count] = value;
+            }
+            return OneDArry;
+        }
+        public static T[,] OneDToTowD<T>(T[] SouseArry, Vector2Int Size)
+        {
+            T[,] TowDArry = new T[Size.x, Size.y];
+            int count = -1;
+            foreach (var value in SouseArry)
+            {
+                count += 1;
+                var Index = OneDToTwoDIndex(count, Size.x);
+                TowDArry[Index.x, Index.y] = value;
+            }
+            return TowDArry;
+        }
+
+    }
 }
