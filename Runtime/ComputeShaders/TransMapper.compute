@@ -18,7 +18,7 @@ RWStructuredBuffer<float3> Result;
   float IsDistans = isDistansCla(Distans, IsIn);
 
   float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)], Traiangles[SelectTraiangle(id.z,4)], Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
-  float3 RevPos3 = float3(saturate(RevPos2.x), saturate(RevPos2.y), IsDistans);
+  float3 RevPos3 = float3(NaNCheck(RevPos2.x), NaNCheck(RevPos2.y), IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
   Result[resindex] = lerp(Result[resindex], RevPos3, step(Result[resindex].z, IsDistans));
@@ -34,7 +34,7 @@ RWStructuredBuffer<float3> Result;
   float IsDistans = isDistansCla(Distans, IsIn);
 
   float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)],Traiangles[SelectTraiangle(id.z,4)],Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
-  float3 RevPos3 = float3(saturate(RevPos2.x), saturate(RevPos2.y), IsDistans);
+  float3 RevPos3 = float3(NaNCheck(RevPos2.x), NaNCheck(RevPos2.y), IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
   Result[resindex] = lerp(Result[resindex], RevPos3, step(Result[resindex].z, IsDistans));
