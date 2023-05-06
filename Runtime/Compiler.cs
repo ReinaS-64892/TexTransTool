@@ -72,17 +72,18 @@ namespace Rs64.TexTransTool
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var TexSize = new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height);
+            var sTexSize = new Vector2Int(SouseTex.width, SouseTex.height);
             var List = Utils.Reange2d(TexSize);
 
             NotFIlterAndReadWritTexture2D(ref SouseTex);
-            var SColors = Utils.OneDToTowD(SouseTex.GetPixels(), TexSize);
+            var SColors = Utils.OneDToTowD(SouseTex.GetPixels(), sTexSize);
             var TColors = Utils.OneDToTowD(targetTex.Texture2D.GetPixels(), TexSize);
 
             ConfiguredTaskAwaitable[,] Tasks = new ConfiguredTaskAwaitable[TexSize.x, TexSize.y];
 
             foreach (var index in List)
             {
-                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index)).ConfigureAwait(false);
+                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index,sTexSize)).ConfigureAwait(false);
             }
             foreach (var task in Tasks)
             {
@@ -97,7 +98,7 @@ namespace Rs64.TexTransTool
 
 
 
-        static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index)
+        static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index,Vector2Int stexSize)
         {
             if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
             {
@@ -121,11 +122,13 @@ namespace Rs64.TexTransTool
                         }
                     case TexWrapMode.Loop:
                         {
+                            SouseTexPos.x %= 1.0f;
+                            SouseTexPos.y %= 1.0f;
                             TWMAppryTexPos = SouseTexPos;
                             break;
                         }
                 }
-                SetPixsl(SColors, TColors, index, TWMAppryTexPos, new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
+                SetPixsl(SColors, TColors, index, TWMAppryTexPos, stexSize);
                 targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
             }
         }
@@ -136,17 +139,18 @@ namespace Rs64.TexTransTool
             targetTexColors[index.x, index.y] = souspixselcloro;
         }
 
-        public static Color GetColorBiliner(Color[,] Colors, Vector2Int TexSize, Vector2 Pos)
+        public static Color GetColorBiliner(Color[,] Colors, Vector2Int sTexSize, Vector2 Pos)
         {
-            Pos *= TexSize;
+            sTexSize -= Vector2Int.one;
+            Pos *= sTexSize;
             var XC = Mathf.CeilToInt(Pos.x);
             var XF = Mathf.FloorToInt(Pos.x);
             var YC = Mathf.CeilToInt(Pos.y);
             var YF = Mathf.FloorToInt(Pos.y);
 
-            var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x % 1);
-            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x % 1);
-            return Color.Lerp(DownColor, UpColor, Pos.y % 1);
+            var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x - XF);
+            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x -XF);
+            return Color.Lerp(DownColor, UpColor, Pos.y -YF);
         }
 
 
