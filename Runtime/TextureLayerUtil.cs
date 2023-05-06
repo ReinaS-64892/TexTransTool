@@ -36,6 +36,7 @@ namespace Rs64.TexTransTool
     {
         public const string BlendTextureCSPaht = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/BlendTexture.compute";
 
+        [System.Obsolete]
         public static Texture2D InBlendTexture(this ExecuteClient ClientSelect, Texture2D BaseTex, Texture2D AddTex, BlendType BlendType, ComputeShader blendTextureCS = null)
         {
             Texture2D BlendTextere;

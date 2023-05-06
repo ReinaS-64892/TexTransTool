@@ -13,8 +13,6 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             SortingType = IslandSortingType.NextFitDecreasingHeight,
         };
-        public ExecuteClient ClientSelect = ExecuteClient.ComputeSheder;
-
         public List<AtlasPostPrcess> PostProcess = new List<AtlasPostPrcess>()
         {
             new AtlasPostPrcess(){
@@ -52,7 +50,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     AtlasSetObject.AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
                 }
             }
-            TexturAtlasCompiler.AtlasSetCompile(AtlasSetObject, ClientSelect);
+            TexturAtlasCompiler.AtlasSetCompile(AtlasSetObject);
         }
 
     }

@@ -14,7 +14,6 @@ namespace Rs64.TexTransTool.Decal
         public float Scale = 1;
         public float MaxDistans = 1;
 
-        public ExecuteClient ClientSelect = ExecuteClient.ComputeSheder;
         public BlendType BlendType = BlendType.Normal;
 
         [SerializeField] string TargetPropatyName = "_MainTex";
@@ -37,7 +36,7 @@ namespace Rs64.TexTransTool.Decal
 
         public override void Compile()
         {
-            var ResultTexutres = DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, ClientSelect);
+            var ResultTexutres = DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix);
             AssetSaveHelper.DeletAssets(CompiledTextures);
             CompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
         }
@@ -58,7 +57,7 @@ namespace Rs64.TexTransTool.Decal
                     var AddTex = CompiledTextures[Index];
                     Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
                     Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                    Texture2D BlendTextere = ClientSelect.InBlendTexture(BaseTex, AddTex, BlendType);
+                    Texture2D BlendTextere = TextureLayerUtil.BlendTextureUseComputeSheder(null,BaseTex, AddTex, BlendType);
                     var SavedPiletexure = AssetSaveHelper.SaveAsset(BlendTextere);
                     EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
                     NewPileTexteres[Index] = SavedPiletexure;

@@ -10,23 +10,23 @@ namespace Rs64.TexTransTool.TexturAtlas
 {
     public static class TexturAtlasCompiler
     {
-        public static void AtlasSetCompile(AtlasSetObject Target, ExecuteClient ClientSelect = ExecuteClient.AsyncCPU, ComputeShader TransMapperCS = null)
+        public static void AtlasSetCompile(AtlasSetObject Target, ComputeShader TransMapperCS = null)
         {
             var Data = GetCompileData(Target);
-            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<CompileDataContenar>(ScriptableObject.CreateInstance<CompileDataContenar>());}
+            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<CompileDataContenar>(ScriptableObject.CreateInstance<CompileDataContenar>()); }
 
             var Contenar = Target.Contenar;
 
             var IslandPool = Data.AsyncGeneretIslandPool().Result;
 
             var UVs = Data.GetUVs();
-            var MovedUVs = GenereatNewMovedUVs(Target.SortingType, ClientSelect, IslandPool, UVs);
+            var MovedUVs = GenereatNewMovedUVs(Target.SortingType, IslandPool, UVs);
 
             var NotMevedUVs = Data.GetUVs();
             Data.SetUVs(MovedUVs, 0);
             Data.SetUVs(NotMevedUVs, 1);
 
-            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes, ClientSelect, TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
+            var AtlasMapDatas = GeneratAtlasMaps(Data.meshes,TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
@@ -61,7 +61,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.PadingType = Target.PadingType;
             return Data;
         }
-        public static List<List<Vector2>> GenereatNewMovedUVs(IslandSortingType SortingType, ExecuteClient ClientSelect, IslandPool IslandPool, List<List<Vector2>> UVs)
+        public static List<List<Vector2>> GenereatNewMovedUVs(IslandSortingType SortingType, IslandPool IslandPool, List<List<Vector2>> UVs)
         {
             IslandPool MovedPool = GenereatMovedIlands(SortingType, IslandPool);
             return IslandUtils.UVsMoveAsync(UVs, IslandPool, MovedPool).Result;
@@ -155,7 +155,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
 
-        public static List<List<TransMapData>> GeneratAtlasMaps(List<Mesh> TargetMeshs, ExecuteClient clientSelect, ComputeShader TransMapperCS, float Pading, Vector2Int AtlasTextureSize, PadingType padingType)
+        public static List<List<TransMapData>> GeneratAtlasMaps(List<Mesh> TargetMeshs, ComputeShader TransMapperCS, float Pading, Vector2Int AtlasTextureSize, PadingType padingType)
         {
             List<List<TransMapData>> Maps = new List<List<TransMapData>>();
             foreach (var Mesh in TargetMeshs)
@@ -170,7 +170,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     Mesh.GetUVs(1, SouseUV);
                     Mesh.GetUVs(0, TargetUV);
                     var TargetTexScliUV = TransMapper.UVtoTexScale(TargetUV, AtlasTextureSize);
-                    SubMaps.Add(clientSelect.InTransMapGenerat(AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType, TransMapperCS));
+                    SubMaps.Add(TransMapper.TransMapGeneratUseComputeSheder(TransMapperCS, AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType));
                 }
                 Maps.Add(SubMaps);
             }

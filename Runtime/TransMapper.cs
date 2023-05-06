@@ -15,6 +15,7 @@ namespace Rs64.TexTransTool
     {
         public const string TransMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
+        [Obsolete]
         public static TransMapData InTransMapGenerat(this ExecuteClient CliantSelect, TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase, ComputeShader TransMapperCS = null)
         {
             switch (CliantSelect)
@@ -31,10 +32,9 @@ namespace Rs64.TexTransTool
                     }
             }
         }
-
-        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        [Obsolete]
+        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
-            var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
 
             ConfiguredTaskAwaitable<(Vector2, float)>[,] UVMappingTask = new ConfiguredTaskAwaitable<(Vector2, float)>[Map.MapSize.x, Map.MapSize.y];
 
@@ -52,10 +52,10 @@ namespace Rs64.TexTransTool
                     Map.DistansMap[index.x, index.y] = Result.Item2;
                 }
             }
-
+            //File.WriteAllText(AssetSaveHelper.GeneretNewSavePath("Test") + ".txt" ,JsonUtility.ToJson(new SerializableTransMapData(Map)));
             return Map;
         }
-
+        [Obsolete]
         public static TransMapData TransMapGenerat(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
         {
             var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
@@ -100,6 +100,7 @@ namespace Rs64.TexTransTool
                 {
                     var SourceUVTriangle = new List<Vector2> { SourceUV[TriangleToIndex[0]], SourceUV[TriangleToIndex[1]], SourceUV[TriangleToIndex[2]] };
                     SourceUVPosition = FromBCS(SourceUVTriangle, ToBCS(ClossT));
+                    Distans = Distansnew;
                 }
             }
             return (SourceUVPosition, Distans);
@@ -177,6 +178,7 @@ namespace Rs64.TexTransTool
 
         public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
+            if (Shader == null) Shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             Vector2Int ThredGropSize = Map.MapSize / 32;
             int karnelindex = -1;
             switch (padingType)
@@ -267,6 +269,7 @@ namespace Rs64.TexTransTool
         EdgeBase,
         VartexBase,
     }
+    [Obsolete]
     public enum ExecuteClient
     {
         AsyncCPU,
