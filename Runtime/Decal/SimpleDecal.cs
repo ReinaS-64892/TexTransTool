@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        [SerializeField] List<Texture2D> DecalCompiledTextures;
+        [SerializeField] List<Texture2D> DecalCompiledTextures = new List<Texture2D>();
         [SerializeField] List<Material> DecaleBlendMaterialsSave;
         [SerializeField] List<Texture2D> DecaleBlendTexteres;
         [SerializeField] List<Material> BackUpMaterials;
