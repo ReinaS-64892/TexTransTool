@@ -154,7 +154,6 @@ namespace Rs64.TexTransTool.Decal
 
         public void GizmInstans()
         {
-            Debug.Log("Instans!");
             DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
             DisplayDecalMat.mainTexture = DecalTexture;
             Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
