@@ -176,7 +176,6 @@ namespace Rs64.TexTransTool
 
 
             CS.SetInts("SourceTexSize", new int[2] { sTexSize.x, sTexSize.y });
-            Debug.Log(sTexSize + " " + SColors.Length);
 
 
             var AtlasMapBuffer = new ComputeBuffer(TColors.Length, 12);
