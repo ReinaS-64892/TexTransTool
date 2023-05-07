@@ -146,7 +146,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
                     {
                         var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        _ = Compiler.TransCompileAsync(SouseTxture, AtlasMapData, TargetTex, TexWrapMode.Stretch).Result;
+                        _ = Compiler.TransCompileUseComputeSheder(SouseTxture, AtlasMapData, TargetTex, TexWrapMode.Stretch, null);
                     }
 
                 }

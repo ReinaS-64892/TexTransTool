@@ -84,7 +84,7 @@ namespace Rs64.TexTransTool.Decal
                 MaterialIndexOffset += Materials.Length;
                 AllMaterials.AddRange(Materials);
                 AllEditMaterials.AddRange(EditMaterials);
-                AllNewblendTexteres.AddRange(AllNewblendTexteres);
+                AllNewblendTexteres.AddRange(NewblendTexteres);
             }
             AllEditMaterials = AssetSaveHelper.SaveAssets(AllEditMaterials);
             DecaleBlendTexteres = AllNewblendTexteres;

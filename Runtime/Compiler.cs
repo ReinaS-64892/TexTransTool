@@ -18,6 +18,7 @@ namespace Rs64.TexTransTool
     }
     public static class Compiler
     {
+        public const string TransCompilerPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
         [Obsolete]
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
@@ -83,7 +84,7 @@ namespace Rs64.TexTransTool
 
             foreach (var index in List)
             {
-                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index,sTexSize)).ConfigureAwait(false);
+                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index, sTexSize)).ConfigureAwait(false);
             }
             foreach (var task in Tasks)
             {
@@ -98,7 +99,7 @@ namespace Rs64.TexTransTool
 
 
 
-        static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index,Vector2Int stexSize)
+        static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index, Vector2Int stexSize)
         {
             if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
             {
@@ -149,64 +150,73 @@ namespace Rs64.TexTransTool
             var YF = Mathf.FloorToInt(Pos.y);
 
             var UpColor = Color.Lerp(Colors[XF, YC], Colors[XC, YC], Pos.x - XF);
-            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x -XF);
-            return Color.Lerp(DownColor, UpColor, Pos.y -YF);
+            var DownColor = Color.Lerp(Colors[XF, YF], Colors[XC, YF], Pos.x - XF);
+            return Color.Lerp(DownColor, UpColor, Pos.y - YF);
         }
 
 
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, ComputeShader CS)
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, ComputeShader CS)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
-            NotFIlterAndReadWritTexture2D(ref SouseTex, true);
+            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
+            var TexSize = new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height);
+            var sTexSize = new Vector2Int(SouseTex.width, SouseTex.height);
+
+            NotFIlterAndReadWritTexture2D(ref SouseTex);
+            var SColors = SouseTex.GetPixels();
+            var TColors = targetTex.Texture2D.GetPixels();
+
             Vector2Int ThredGropSize = AtralsMap.MapSize / 32;
-            var KernelIndex = CS.FindKernel("TransCompile");
+            var KernelIndex = CS.FindKernel(wrapMode.ToString());
 
-            CS.SetTexture(KernelIndex, "Source", SouseTex);
 
-            int BufferSize = AtralsMap.MapSize.x * AtralsMap.MapSize.y;
-            var AtlasMapBuffer = new ComputeBuffer(BufferSize, 12);
-            var AtlasMapList = new List<Vector3>();
+            var SouseTexCB = new ComputeBuffer(SColors.Length, 16);
+            SouseTexCB.SetData(SColors);
+            CS.SetBuffer(KernelIndex, "Source", SouseTexCB);
+
+
+            CS.SetInts("SourceTexSize", new int[2] { sTexSize.x, sTexSize.y });
+
+
+            var AtlasMapBuffer = new ComputeBuffer(TColors.Length, 12);
+            var AtlasMapList = new Vector3[AtralsMap.MapSize.x * AtralsMap.MapSize.y];
             foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
             {
                 var Map = AtralsMap.Map[Index.x, Index.y];
                 var Distans = AtralsMap.DistansMap[Index.x, Index.y];
-                AtlasMapList.Add(new Vector3(Map.x, Map.y, Distans));
-
+                AtlasMapList[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)] = new Vector3(Map.x, Map.y, Distans);
             }
-            AtlasMapBuffer.SetData<Vector3>(AtlasMapList);
+            AtlasMapBuffer.SetData(AtlasMapList);
             CS.SetBuffer(KernelIndex, "AtlasMap", AtlasMapBuffer);
 
-            var TargetBuffer = new ComputeBuffer(BufferSize, 16);
-            var TargetTexColorArry = targetTex.Texture2D.GetPixels();
-            TargetBuffer.SetData(TargetTexColorArry);
+
+            var TargetBuffer = new ComputeBuffer(TColors.Length, 16);
+            TargetBuffer.SetData(TColors);
             CS.SetBuffer(KernelIndex, "Target", TargetBuffer);
 
-            var TargetDistansBuffer = new ComputeBuffer(BufferSize, 4);
-            var TargetDistansList = new List<float>();
-            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
-            {
-                TargetDistansList.Add(targetTex.DistansMap[Index.x, Index.y]);
-            }
-            TargetDistansBuffer.SetData<float>(TargetDistansList);
+
+            var TargetDistansBuffer = new ComputeBuffer(TColors.Length, 4);
+            var TargetDistansList = Utils.TowDtoOneD(targetTex.DistansMap, TexSize);
+            TargetDistansBuffer.SetData(TargetDistansList);
             CS.SetBuffer(KernelIndex, "TargetDistansMap", TargetDistansBuffer);
-            CS.SetInt("Size", AtralsMap.MapSize.x);
+
+
+            CS.SetInts("TargetTexSize", new int[2] { TexSize.x, TexSize.y });
 
 
             CS.Dispatch(KernelIndex, ThredGropSize.x, ThredGropSize.y, 1);
 
-            TargetBuffer.GetData(TargetTexColorArry);
-            targetTex.Texture2D.SetPixels(TargetTexColorArry);
+            TargetBuffer.GetData(TColors);
+            targetTex.Texture2D.SetPixels(TColors);
             targetTex.Texture2D.Apply();
 
-            var TargetDistansArry = TargetDistansList.ToArray();
-            TargetDistansBuffer.GetData(TargetDistansArry);
-            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
-            {
-                targetTex.DistansMap[Index.x, Index.y] = TargetDistansArry[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)];
-            }
+            TargetDistansBuffer.GetData(TargetDistansList);
+            targetTex.DistansMap = Utils.OneDToTowD(TargetDistansList, TexSize);
+
             AtlasMapBuffer.Release();
             TargetDistansBuffer.Release();
             TargetBuffer.Release();
+            SouseTexCB.Release();
             return targetTex;
         }
 
