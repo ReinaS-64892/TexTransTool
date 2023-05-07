@@ -239,8 +239,15 @@ namespace Rs64.TexTransTool
         public static Vector2Int NativeSize(this Texture2D SouseTex)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            if (string.IsNullOrEmpty(SouseTexPath)) throw new ArgumentException("元となる画像のパスが存在しません。");
-            var map = new System.Drawing.Bitmap(SouseTexPath);
+            System.Drawing.Bitmap map;
+            if (string.IsNullOrEmpty(SouseTexPath))
+            {
+                map = new System.Drawing.Bitmap(new MemoryStream(SouseTex.EncodeToPNG()));
+            }
+            else
+            {
+                map = new System.Drawing.Bitmap(SouseTexPath);
+            }
             return new Vector2Int(map.Width, map.Height);
         }
 
