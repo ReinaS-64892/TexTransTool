@@ -262,6 +262,11 @@ namespace Rs64.TexTransTool
             return (min, max);
         }
 
+        public static bool IsInCal(float w, float u, float v)
+        {
+            return (w > 0) == (u > 0) == (v > 0);
+        }
+
     }
 
     public enum PadingType

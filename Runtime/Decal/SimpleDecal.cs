@@ -19,7 +19,7 @@ namespace Rs64.TexTransTool.Decal
         public BlendType BlendType = BlendType.Normal;
         public bool FixedAspect = true;
         public bool SideChek = true;
-        public PadingType PolygonCaling = PadingType.VartexBase;
+        public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
         public string TargetPropatyName = "_MainTex";
         public virtual void ScaleAppry()
         {
@@ -49,8 +49,22 @@ namespace Rs64.TexTransTool.Decal
             Filters.Add((i, i2) => DecalUtil.FarClip(i, i2, 1f, false));
             Filters.Add((i, i2) => DecalUtil.NerClip(i, i2, 0f, true));
             if (SideChek) Filters.Add(DecalUtil.SideChek);
-            if (PolygonCaling == PadingType.VartexBase) Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1, 0, true));
-            else Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true));
+            switch (PolygonCaling)
+            {
+                default:
+                case PolygonCaling.Vartex:
+                    {
+                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1, 0, true)); break;
+                    }
+                case PolygonCaling.Edge:
+                    {
+                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true)); break;
+                    }
+                case PolygonCaling.EdgeAndCenterRay:
+                    {
+                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeEdgeAndCenterRayCast(i, i2, 1, 0, true)); break;
+                    }
+            }
 
             return Filters;
         }

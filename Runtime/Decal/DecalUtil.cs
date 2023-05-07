@@ -9,7 +9,7 @@ namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
-        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null,List<Filtaring> TrainagleFilters = null)
+        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null, List<Filtaring> TrainagleFilters = null)
         {
             List<Texture2D> ResultTexutres = new List<Texture2D>();
 
@@ -32,7 +32,7 @@ namespace Rs64.TexTransTool.Decal
                     ResultTexutres.Add(null);
                     break;
                 }
-                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals,TrainagleFilters) : Traiangel;
+                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals, TrainagleFilters) : Traiangel;
 
                 if (FiltaringdTrainagle.Any() == false)
                 {
@@ -236,11 +236,31 @@ namespace Rs64.TexTransTool.Decal
                 var a = Vartex[TargetTri[Index.x]];
                 var b = Vartex[TargetTri[Index.y]];
                 var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPos2);
-                OutOfPrygon[Index.x] =!( NerPoint.x < MaxRange && NerPoint.x > MinRange && NerPoint.y < MaxRange && NerPoint.y > MinRange);
+                OutOfPrygon[Index.x] = !(NerPoint.x < MaxRange && NerPoint.x > MinRange && NerPoint.y < MaxRange && NerPoint.y > MinRange);
             }
             if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
             else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
         }
+        public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+        {
+            float CenterPos = (MaxRange + MinRange) / 2;
+            Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
+            if (!OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex))
+            {
+                return false;
+            }
+            else
+            {
+                var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPos2);
+                return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
+            }
+        }
+    }
+    public enum PolygonCaling
+    {
+        Vartex,
+        Edge,
+        EdgeAndCenterRay,
     }
 }
 #endif

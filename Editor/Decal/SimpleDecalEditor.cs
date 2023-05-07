@@ -145,7 +145,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                 Undo.RecordObject(ThisObject, "CompileDataClear");
                 ThisObject.CompileDataClear();
                 ThisObject.SideChek = true;
-                ThisObject.PolygonCaling = PadingType.VartexBase;
+                ThisObject.PolygonCaling = PolygonCaling.Vartex;
             }
 
             EditorGUI.EndDisabledGroup();
