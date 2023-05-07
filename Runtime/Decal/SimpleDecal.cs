@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 
 namespace Rs64.TexTransTool.Decal
 {
@@ -121,9 +122,9 @@ namespace Rs64.TexTransTool.Decal
 
 
 
-        public Material DisplayDecalMat;
+        [NonSerialized] public Material DisplayDecalMat;
         public Color GizmoColoro = new Color(0, 0, 0, 1);
-        public Mesh Quad;
+        [NonSerialized] public Mesh Quad;
 
         [SerializeField] bool _IsAppry;
         public override bool IsAppry => _IsAppry;
@@ -144,10 +145,20 @@ namespace Rs64.TexTransTool.Decal
 
             if (DecalTexture != null)
             {
+                if (DisplayDecalMat == null || Quad == null) GizmInstans();
                 DisplayDecalMat.SetPass(0);
                 Graphics.DrawMeshNow(Quad, Matrix);
             }
             Gizmos.DrawLine(CenterPos, CenterPos + new Vector3(0, 0, MaxDistans / 2));//前方向の表示
+        }
+
+        public void GizmInstans()
+        {
+            Debug.Log("Instans!");
+            DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
+            DisplayDecalMat.mainTexture = DecalTexture;
+            Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
+
         }
     }
 }
