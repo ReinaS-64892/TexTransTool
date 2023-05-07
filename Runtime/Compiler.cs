@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
 using System.Runtime.CompilerServices;
-
 namespace Rs64.TexTransTool
 {
     public enum TexWrapMode
@@ -159,10 +158,11 @@ namespace Rs64.TexTransTool
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
-            var TexSize = new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height);
-            var sTexSize = new Vector2Int(SouseTex.width, SouseTex.height);
+            var TexSize = targetTex.Texture2D.NativeSize();
+            var sTexSize = SouseTex.NativeSize();
 
             NotFIlterAndReadWritTexture2D(ref SouseTex);
+
             var SColors = SouseTex.GetPixels();
             var TColors = targetTex.Texture2D.GetPixels();
 
@@ -176,6 +176,7 @@ namespace Rs64.TexTransTool
 
 
             CS.SetInts("SourceTexSize", new int[2] { sTexSize.x, sTexSize.y });
+            Debug.Log(sTexSize + " " + SColors.Length);
 
 
             var AtlasMapBuffer = new ComputeBuffer(TColors.Length, 12);
@@ -233,6 +234,14 @@ namespace Rs64.TexTransTool
                 SouseTex = new Texture2D(2, 2);
             }
             SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
+        }
+
+        public static Vector2Int NativeSize(this Texture2D SouseTex)
+        {
+            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+            if (string.IsNullOrEmpty(SouseTexPath)) throw new ArgumentException("元となる画像のパスが存在しません。");
+            var map = new System.Drawing.Bitmap(SouseTexPath);
+            return new Vector2Int(map.Width, map.Height);
         }
 
 
