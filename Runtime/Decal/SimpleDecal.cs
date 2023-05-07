@@ -18,7 +18,8 @@ namespace Rs64.TexTransTool.Decal
         public bool AdvansdMode;
         public BlendType BlendType = BlendType.Normal;
         public bool FixedAspect = true;
-
+        public bool SideChek = true;
+        public PadingType PolygonCaling = PadingType.VartexBase;
         public string TargetPropatyName = "_MainTex";
         public virtual void ScaleAppry()
         {
@@ -41,13 +42,25 @@ namespace Rs64.TexTransTool.Decal
             AssetSaveHelper.DeletAssets(DecalCompiledTextures);
             DecalCompiledTextures = new List<Texture2D> { null };
         }
+        public List<DecalUtil.Filtaring> GetFiltarings()
+        {
+            List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
+
+            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2, 1f, false));
+            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2, 0f, true));
+            if (SideChek) Filters.Add(DecalUtil.SideChek);
+            if (PolygonCaling == PadingType.VartexBase) Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1, 0, true));
+            else Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true));
+
+            return Filters;
+        }
         public override void Compile()
         {
             if (_IsAppry) return;
             var ResultTexutres = new List<Texture2D>();
             foreach (var TargetRenderer in TargetRenderers)
             {
-                ResultTexutres.AddRange(DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, TargetPropatyName));
+                ResultTexutres.AddRange(DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, TargetPropatyName, TrainagleFilters: GetFiltarings()));
             }
             AssetSaveHelper.DeletAssets(DecalCompiledTextures);
             DecalCompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);

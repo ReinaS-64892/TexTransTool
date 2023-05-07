@@ -129,6 +129,12 @@ namespace Rs64.TexTransTool.Editor.Decal
                 var S_TargetPropatyNames = This_S_Object.FindProperty("TargetPropatyName");
                 EditorGUILayout.PropertyField(S_TargetPropatyNames);
 
+                var S_PolygonCaling = This_S_Object.FindProperty("PolygonCaling");
+                EditorGUILayout.PropertyField(S_PolygonCaling);
+
+                var S_SideChek = This_S_Object.FindProperty("SideChek");
+                EditorGUILayout.PropertyField(S_SideChek);
+
             }
             var EditAdvansdMode = EditorGUILayout.Toggle("AdvansdMode", AdvansdMode);
             if (AdvansdMode != EditAdvansdMode)
@@ -138,6 +144,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                 S_FixedAspect.boolValue = true;
                 Undo.RecordObject(ThisObject, "CompileDataClear");
                 ThisObject.CompileDataClear();
+                ThisObject.SideChek = true;
+                ThisObject.PolygonCaling = PadingType.VartexBase;
             }
 
             EditorGUI.EndDisabledGroup();

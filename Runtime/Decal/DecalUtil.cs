@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
-        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null)
+        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null,List<Filtaring> TrainagleFilters = null)
         {
             List<Texture2D> ResultTexutres = new List<Texture2D>();
 
@@ -26,8 +27,14 @@ namespace Rs64.TexTransTool.Decal
             {
                 SubMeshCount += 1;
                 var TargetTexture = Materials[SubMeshCount].GetTexture(TargetProptyeName) as Texture2D;
-                var FiltaringdTrainagle = FiltaringTraiangle(Traiangel, LoaclVarticals);
-                if (TargetTexture == null || FiltaringdTrainagle.Any() == false)
+                if (TargetTexture == null)
+                {
+                    ResultTexutres.Add(null);
+                    break;
+                }
+                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals,TrainagleFilters) : Traiangel;
+
+                if (FiltaringdTrainagle.Any() == false)
                 {
                     ResultTexutres.Add(null);
                     break;
@@ -110,7 +117,7 @@ namespace Rs64.TexTransTool.Decal
             }
             return ConvertVertices;
         }
-
+        [Obsolete]
         public static List<TraiangleIndex> FiltaringTraiangle(
             List<TraiangleIndex> Target, List<Vector3> Vartex,
             float StartDistans = 0, float MaxDistans = 1, float MinRange = 0, float MaxRange = 1, bool SideChek = true
@@ -152,6 +159,87 @@ namespace Rs64.TexTransTool.Decal
                 FiltalingTraingles.Add(Traiangle);
             }
             return FiltalingTraingles;
+        }
+
+        public delegate bool Filtaring(TraiangleIndex TargetTri, List<Vector3> Vartex);//対象の三角形を通せない場合True
+        public static List<TraiangleIndex> FiltaringTraiangle(List<TraiangleIndex> Target, List<Vector3> Vartex, List<Filtaring> Filtars)
+        {
+            var FiltalingTraingles = new List<TraiangleIndex>(Target.Count);
+            foreach (var Traiangle in Target)
+            {
+                bool Isfiltered = false;
+                foreach (var filtar in Filtars)
+                {
+                    if (filtar.Invoke(Traiangle, Vartex))
+                    {
+                        Isfiltered = true;
+                        break;
+                    }
+                }
+                if (!Isfiltered)
+                {
+                    FiltalingTraingles.Add(Traiangle);
+                }
+            }
+            return FiltalingTraingles;
+        }
+
+        public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex)
+        {
+            var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
+            var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
+            var TraiangleSide = Vector3.Cross(ba, ac).z;
+            return TraiangleSide < 0;
+        }
+        public static bool FarClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
+        {
+            if (IsAllVartex)
+            {
+                return Vartex[TargetTri[0]].z > Far && Vartex[TargetTri[1]].z > Far && Vartex[TargetTri[2]].z > Far;
+            }
+            else
+            {
+                return Vartex[TargetTri[0]].z > Far || Vartex[TargetTri[1]].z > Far || Vartex[TargetTri[2]].z > Far;
+            }
+        }
+        public static bool NerClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Nre, bool IsAllVartex)
+        {
+            if (IsAllVartex)
+            {
+                return Vartex[TargetTri[0]].z < Nre && Vartex[TargetTri[1]].z < Nre && Vartex[TargetTri[2]].z < Nre;
+            }
+            else
+            {
+                return Vartex[TargetTri[0]].z < Nre || Vartex[TargetTri[1]].z < Nre || Vartex[TargetTri[2]].z < Nre;
+            }
+        }
+        public static bool OutOfPorigonVartexBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+        {
+            bool[] OutOfPrygon = new bool[3] { false, false, false };
+            foreach (var Index in Enumerable.Range(0, 3))
+            {
+
+                var Tvartex = Vartex[TargetTri[Index]];
+                OutOfPrygon[Index] = !(Tvartex.x < MaxRange && Tvartex.x > MinRange && Tvartex.y < MaxRange && Tvartex.y > MinRange);
+            }
+            if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
+            else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
+        }
+        public static bool OutOfPorigonEdgeBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+        {
+            float CenterPos = (MaxRange + MinRange) / 2;
+            Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
+            bool[] OutOfPrygon = new bool[3] { false, false, false };
+            foreach (var Index in new Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) })
+            {
+
+                var a = Vartex[TargetTri[Index.x]];
+                var b = Vartex[TargetTri[Index.y]];
+                var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPos2);
+                OutOfPrygon[Index.x] =!( NerPoint.x < MaxRange && NerPoint.x > MinRange && NerPoint.y < MaxRange && NerPoint.y > MinRange);
+            }
+            if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
+            else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
         }
     }
 }
