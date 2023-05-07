@@ -1,26 +1,67 @@
-﻿#pragma kernel TransCompile
+﻿#pragma kernel NotWrap
+#pragma kernel Stretch
+#pragma kernel Loop
 
-#include "./TransHelper.hlsl"
+#include "./TransCompilerHelper.hlsl"
 
-Texture2D<float4> Source;
+RWStructuredBuffer<float4> Source;
+uint2 SourceTexSize;
+
 RWStructuredBuffer<float3> AtlasMap;
-
 RWStructuredBuffer<float4> Target;
 RWStructuredBuffer<float> TargetDistansMap;
-uint Size;
+uint2 TargetTexSize;
 
-SamplerState samplerSource;
+[numthreads(32, 32, 1)] void NotWrap(uint3 id
+                                     : SV_DispatchThreadID) {
+  uint TOneDIndex = TwoDToOneDIndex((uint2)id, TargetTexSize.x);
 
-[numthreads(32, 32, 1)] void TransCompile(uint3 id : SV_DispatchThreadID)
-{
-    uint OneDIndex = TwoDToOneDIndex((uint2)id, Size);
+  float3 AtlasMapNawPixsel = AtlasMap[TOneDIndex];
+  float TargetDistansNawPixsel = TargetDistansMap[TOneDIndex];
+  float IsWiret = 1 - step(AtlasMapNawPixsel.z, TargetDistansNawPixsel); // A > T
 
-    float3 AtlasMapNawPixsel = AtlasMap[OneDIndex];
-    float TargetDistansNawPixsel = TargetDistansMap[OneDIndex];
-    float IsWiret = 1 - step(AtlasMapNawPixsel.z, TargetDistansNawPixsel); // A > T
+  float IsOutPos = 1 - max(
+      max(1 - step(0, AtlasMapNawPixsel.x), 1 - step(AtlasMapNawPixsel.x, 1)),
+      max(1 - step(0, AtlasMapNawPixsel.y), 1 - step(AtlasMapNawPixsel.y, 1)));
+  float2 Pos = saturate(AtlasMapNawPixsel.xy);
 
-    float4 SousePicColor = Source.SampleLevel(samplerSource, AtlasMapNawPixsel.xy, 0);
+  float4 SousePicColor = lerp(
+        Target[TOneDIndex],
+        GetColorBiliner(Source, SourceTexSize, Pos),
+        IsOutPos);
 
-    Target[OneDIndex] = lerp(Target[OneDIndex], SousePicColor, IsWiret);
-    TargetDistansMap[OneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
+  Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
+  TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
+}
+
+[numthreads(32, 32, 1)] void Stretch(uint3 id
+                                     : SV_DispatchThreadID) {
+  uint TOneDIndex = TwoDToOneDIndex((uint2)id, TargetTexSize.x);
+
+  float3 AtlasMapNawPixsel = AtlasMap[TOneDIndex];
+  float TargetDistansNawPixsel = TargetDistansMap[TOneDIndex];
+  float IsWiret = 1 - step(AtlasMapNawPixsel.z, TargetDistansNawPixsel); // A > T
+
+  float2 Pos = saturate(AtlasMapNawPixsel.xy);
+
+  float4 SousePicColor = GetColorBiliner(Source, SourceTexSize, Pos);
+
+  Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
+  TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
+}
+
+[numthreads(32, 32, 1)] void Loop(uint3 id
+                                     : SV_DispatchThreadID) {
+  uint TOneDIndex = TwoDToOneDIndex((uint2)id, TargetTexSize.x);
+
+  float3 AtlasMapNawPixsel = AtlasMap[TOneDIndex];
+  float TargetDistansNawPixsel = TargetDistansMap[TOneDIndex];
+  float IsWiret = 1 - step(AtlasMapNawPixsel.z, TargetDistansNawPixsel); // A > T
+
+  float2 Pos = float2(AtlasMapNawPixsel.x % 1.0f, AtlasMapNawPixsel.y % 1.0f);
+
+  float4 SousePicColor = GetColorBiliner(Source, SourceTexSize, Pos);
+
+  Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
+  TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
 }
