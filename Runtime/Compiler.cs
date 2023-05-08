@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool
     {
         public const string TransCompilerPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
-        [Obsolete]
+
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -63,13 +63,14 @@ namespace Rs64.TexTransTool
             return targetTex;
 
         }
-        [Obsolete]
+
         static void SetPixsl(Texture2D SouseTex, TransTargetTexture targetTex, Vector2Int index, Vector2? SouseTexPos)
         {
             if (!SouseTexPos.HasValue) return;
             var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.Value.x, SouseTexPos.Value.y);
             targetTex.Texture2D.SetPixel(index.x, index.y, souspixselcloro);
         }
+        [Obsolete]
         public static async Task<TransTargetTexture> TransCompileAsync(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -99,7 +100,7 @@ namespace Rs64.TexTransTool
         }
 
 
-
+        [Obsolete]
         static void TransCompilePixsl(TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Color[,] SColors, Color[,] TColors, Vector2Int index, Vector2Int stexSize)
         {
             if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
@@ -134,6 +135,8 @@ namespace Rs64.TexTransTool
                 targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
             }
         }
+        [Obsolete]
+
         static void SetPixsl(Color[,] SouseTexColors, Color[,] targetTexColors, Vector2Int index, Vector2? SouseTexPos, Vector2Int TexSize)
         {
             if (!SouseTexPos.HasValue) return;
@@ -141,6 +144,7 @@ namespace Rs64.TexTransTool
             targetTexColors[index.x, index.y] = souspixselcloro;
         }
 
+        [Obsolete]
         public static Color GetColorBiliner(Color[,] Colors, Vector2Int sTexSize, Vector2 Pos)
         {
             sTexSize -= Vector2Int.one;
