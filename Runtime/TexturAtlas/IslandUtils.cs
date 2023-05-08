@@ -69,21 +69,21 @@ namespace Rs64.TexTransTool.TexturAtlas
             return ClonedPool;
         }
 
-        public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, int Repeat = 4)
+        public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV)
         {
             var Islands = traiangles.ConvertAll<Island>(i => new Island(i));
 
-            int RepCount = -1;
-            while (Repeat > RepCount)
+            bool Continue = true;
+            while (Continue)
             {
-                RepCount += 1;
-                Islands = IslandCrawling(Islands, UV);
+                Continue = false;
+                Islands = IslandCrawling(Islands, UV,ref Continue);
             }
             Islands.ForEach(i => i.BoxCurriculation(UV));
             return Islands;
         }
 
-        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV)
+        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
         {
 
             var CrawlingdIslandPool = new List<Island>();
@@ -121,6 +121,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 else
                 {
                     CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
+                    IsJoin = true;
                 }
 
             }
