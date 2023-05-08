@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
 using System.Runtime.CompilerServices;
+using System.Linq;
+
 namespace Rs64.TexTransTool
 {
     public enum TexWrapMode
@@ -153,12 +155,16 @@ namespace Rs64.TexTransTool
             return Color.Lerp(DownColor, UpColor, Pos.y - YF);
         }
 
-
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, ComputeShader CS)
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, ComputeShader CS)
         {
-            if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
-            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
+            return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { AtralsMaps }, targetTex, wrapMode, CS);
+        }
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, ComputeShader CS)
+        {
             var TexSize = targetTex.Texture2D.NativeSize();
+            if (AtralsMaps.Any(i => i.MapSize != TexSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
+
             var sTexSize = SouseTex.NativeSize();
 
             NotFIlterAndReadWritTexture2D(ref SouseTex);
@@ -166,7 +172,7 @@ namespace Rs64.TexTransTool
             var SColors = SouseTex.GetPixels();
             var TColors = targetTex.Texture2D.GetPixels();
 
-            Vector2Int ThredGropSize = AtralsMap.MapSize / 32;
+            Vector2Int ThredGropSize = TexSize / 32;
             var KernelIndex = CS.FindKernel(wrapMode.ToString());
 
 
@@ -179,16 +185,6 @@ namespace Rs64.TexTransTool
 
 
             var AtlasMapBuffer = new ComputeBuffer(TColors.Length, 12);
-            var AtlasMapList = new Vector3[AtralsMap.MapSize.x * AtralsMap.MapSize.y];
-            foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
-            {
-                var Map = AtralsMap.Map[Index.x, Index.y];
-                var Distans = AtralsMap.DistansMap[Index.x, Index.y];
-                AtlasMapList[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)] = new Vector3(Map.x, Map.y, Distans);
-            }
-            AtlasMapBuffer.SetData(AtlasMapList);
-            CS.SetBuffer(KernelIndex, "AtlasMap", AtlasMapBuffer);
-
 
             var TargetBuffer = new ComputeBuffer(TColors.Length, 16);
             TargetBuffer.SetData(TColors);
@@ -203,8 +199,21 @@ namespace Rs64.TexTransTool
 
             CS.SetInts("TargetTexSize", new int[2] { TexSize.x, TexSize.y });
 
+            foreach (var AtralsMap in AtralsMaps)
+            {
+                var AtlasMapList = new Vector3[AtralsMap.MapSize.x * AtralsMap.MapSize.y];
+                foreach (var Index in Utils.Reange2d(AtralsMap.MapSize))
+                {
+                    var Map = AtralsMap.Map[Index.x, Index.y];
+                    var Distans = AtralsMap.DistansMap[Index.x, Index.y];
+                    AtlasMapList[Utils.TwoDToOneDIndex(Index, AtralsMap.MapSize.x)] = new Vector3(Map.x, Map.y, Distans);
+                }
+                AtlasMapBuffer.SetData(AtlasMapList);
+                CS.SetBuffer(KernelIndex, "AtlasMap", AtlasMapBuffer);
 
-            CS.Dispatch(KernelIndex, ThredGropSize.x, ThredGropSize.y, 1);
+                CS.Dispatch(KernelIndex, ThredGropSize.x, ThredGropSize.y, 1);
+            }
+
 
             TargetBuffer.GetData(TColors);
             targetTex.Texture2D.SetPixels(TColors);

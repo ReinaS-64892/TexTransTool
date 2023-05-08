@@ -143,11 +143,12 @@ namespace Rs64.TexTransTool.TexturAtlas
                 foreach (var SouseTxture in PropAndSTex.Texture2Ds)
                 {
                     TexIndex += 1;
+                    var MapDatas = new List<TransMapData>();
                     foreach (var meshIndex in PropAndSTex.MeshIndex[TexIndex])
                     {
-                        var AtlasMapData = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
-                        _ = Compiler.TransCompileUseComputeSheder(SouseTxture, AtlasMapData, TargetTex, TexWrapMode.Stretch, null);
+                        MapDatas.Add(AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex]);
                     }
+                    _ = Compiler.TransCompileUseComputeSheder(SouseTxture, MapDatas, TargetTex, TexWrapMode.Stretch, null);
 
                 }
             }
