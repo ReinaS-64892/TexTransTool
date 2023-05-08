@@ -146,6 +146,14 @@ namespace Rs64.TexTransTool.Decal
             DecaleBlendTexteres = null;
 
         }
+        public void AdvansdModeReset()
+        {
+            TargetPropatyName = "_MainTex";
+            AdvansdMode = false;
+            CompileDataClear();
+            SideChek = true;
+            PolygonCaling = PolygonCaling.Vartex;
+        }
 
 
 

@@ -137,15 +137,18 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             }
             var EditAdvansdMode = EditorGUILayout.Toggle("AdvansdMode", AdvansdMode);
-            if (AdvansdMode != EditAdvansdMode)
+            if (AdvansdMode != EditAdvansdMode )
             {
-                S_Advansd.boolValue = EditAdvansdMode;
-                This_S_Object.FindProperty("TargetPropatyName").stringValue = "_MainTex";
-                S_FixedAspect.boolValue = true;
-                Undo.RecordObject(ThisObject, "CompileDataClear");
-                ThisObject.CompileDataClear();
-                ThisObject.SideChek = true;
-                ThisObject.PolygonCaling = PolygonCaling.Vartex;
+                if (!EditAdvansdMode)
+                {
+                    Undo.RecordObject(ThisObject, "EditAdvansdMode - False");
+                    ThisObject.AdvansdModeReset();
+                }
+                else
+                {
+                    Undo.RecordObject(ThisObject, "EditAdvansdMode - True");
+                    ThisObject.AdvansdMode = EditAdvansdMode;
+                }
             }
 
             EditorGUI.EndDisabledGroup();
