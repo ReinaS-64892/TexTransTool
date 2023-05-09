@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Rs64.TexTransTool;
+using System.Linq;
 
 
 namespace Rs64.TexTransTool.TexturAtlas
@@ -30,7 +31,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
         [SerializeField] List<Mesh> BackUpStaticMeshs = new List<Mesh>();
         [SerializeField] List<Material> BackUpMaterial = new List<Material>();
-        public void Appry()
+        public void Appry(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsAppry == true) return;
@@ -39,12 +40,12 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             _IsAppry = true;
         }
-        public void Revart()
+        public void Revart(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsAppry == false) return;
             MeshRevart();
-            MaterialRevart();
+            MaterialRevart(AvatarMaterialDomain);
             _IsAppry = false;
         }
         public void MeshAppry()
@@ -89,7 +90,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 AtlasTargetStaticMeshs[Count].GetComponent<MeshFilter>().sharedMesh = mesh;
             }
         }
-        public void MaterialAppry()
+        public void MaterialAppry(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsAppry == true) return;
@@ -98,21 +99,43 @@ namespace Rs64.TexTransTool.TexturAtlas
             BackUpMaterial = GetMaterials();
 
             var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials(), GeneratMatClearUnusedProperties);
-            SetMaterial(GetRenderers(), GeneratMats);
+            if (AvatarMaterialDomain == null)
+            {
+                SetMaterial(GetRenderers(), GeneratMats);
+            }
+            else
+            {
+                var DistMat = BackUpMaterial.Distinct().ToList();
+                var Chengmat = GeneratMats.Distinct().ToList();
+                AvatarMaterialDomain.SetMaterials(DistMat, Chengmat);
+
+            }
 
         }
-        public void MaterialRevart()
+        public void MaterialRevart(MaterialDomain AvatarMaterialDomain = null)
         {
             if (_IsAppry == false) return;
 
             Contenar.GenereatMaterial.Clear();
             Contenar.ClearAssets<Material>();
 
-            SetMaterial(GetRenderers(), BackUpMaterial);
+            if (AvatarMaterialDomain == null)
+            {
+                SetMaterial(GetRenderers(), BackUpMaterial);
+            }
+            else
+            {
+                var Chengmat = Contenar.GenereatMaterial.Distinct().ToList();
+                var DistMat = BackUpMaterial.Distinct().ToList();
+
+                AvatarMaterialDomain.SetMaterials(Chengmat, DistMat);
+
+            }
         }
 
         static void SetMaterial(List<Renderer> renderers, List<Material> SouseMats)
         {
+
             int Count = -1;
             foreach (var render in renderers)
             {

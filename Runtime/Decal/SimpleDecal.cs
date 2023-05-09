@@ -79,8 +79,9 @@ namespace Rs64.TexTransTool.Decal
             AssetSaveHelper.DeletAssets(DecalCompiledTextures);
             DecalCompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
         }
-        public override void Appry()
+        public override void Appry(MaterialDomain AvatarMaterialDomain = null)
         {
+            if (!IsPossibleAppry) return;
             if (_IsAppry) return;
             _IsAppry = true;
             var AllMaterials = new List<Material>();
@@ -118,26 +119,43 @@ namespace Rs64.TexTransTool.Decal
             DecaleBlendMaterialsSave = AllEditMaterials;
             BackUpMaterials = AllMaterials;
 
-            int IndexCount = 0;
-            foreach (var TargetRenderer in TargetRenderers)
+            if (AvatarMaterialDomain == null)
             {
-                TargetRenderer.sharedMaterials = AllEditMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
-                IndexCount += TargetRenderer.sharedMaterials.Length;
+                int IndexCount = 0;
+                foreach (var TargetRenderer in TargetRenderers)
+                {
+                    TargetRenderer.sharedMaterials = AllEditMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
+                    IndexCount += TargetRenderer.sharedMaterials.Length;
+                }
+            }
+            else
+            {
+                var Dist = BackUpMaterials.Distinct().ToList();
+                var Cheng = DecaleBlendMaterialsSave.Distinct().ToList();
+                AvatarMaterialDomain.SetMaterials(Dist, Cheng);
             }
         }
 
 
 
-        public override void Revart()
+        public override void Revart(MaterialDomain AvatarMaterialDomain = null)
         {
             if (!_IsAppry) return;
             _IsAppry = false;
-
-            int IndexCount = 0;
-            foreach (var TargetRenderer in TargetRenderers)
+            if (AvatarMaterialDomain == null)
             {
-                TargetRenderer.sharedMaterials = BackUpMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
-                IndexCount += TargetRenderer.sharedMaterials.Length;
+                int IndexCount = 0;
+                foreach (var TargetRenderer in TargetRenderers)
+                {
+                    TargetRenderer.sharedMaterials = BackUpMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
+                    IndexCount += TargetRenderer.sharedMaterials.Length;
+                }
+            }
+            else
+            {
+                var Cheng = DecaleBlendMaterialsSave.Distinct().ToList();
+                var BackUp = BackUpMaterials.Distinct().ToList();
+                AvatarMaterialDomain.SetMaterials(Cheng, BackUp);
             }
             AssetSaveHelper.DeletAssets(DecaleBlendMaterialsSave);
             AssetSaveHelper.DeletAssets(DecaleBlendTexteres);

@@ -32,13 +32,14 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleCompile => AtlasSetObject.AtlasTargetMeshs.Any() || AtlasSetObject.AtlasTargetStaticMeshs.Any();
 
-        public override void Appry()
+        public override void Appry(MaterialDomain AvatarMaterialDomain)
         {
-            AtlasSetObject.Appry();
+            if (!IsPossibleAppry) return;
+            AtlasSetObject.Appry(AvatarMaterialDomain);
         }
-        public override void Revart()
+        public override void Revart(MaterialDomain AvatarMaterialDomain)
         {
-            AtlasSetObject.Revart();
+            AtlasSetObject.Revart(AvatarMaterialDomain);
         }
         public override void Compile()
         {

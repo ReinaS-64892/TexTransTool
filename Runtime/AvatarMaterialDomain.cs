@@ -1,0 +1,75 @@
+#if UNITY_EDITOR
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Rs64.TexTransTool
+{
+    [RequireComponent(typeof(TexTransGroup))]
+    public class AvatarMaterialDomain : MonoBehaviour
+    {
+        public GameObject Avatar;
+        [SerializeField] public TexTransGroup TexTransGroup;
+        [SerializeField] MaterialDomain CacheDomain;
+
+        public virtual MaterialDomain GetDomain()
+        {
+            return new MaterialDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
+        }
+        private void Reset()
+        {
+            TexTransGroup = GetComponent<TexTransGroup>();
+        }
+        public void Appry()
+        {
+            if (TexTransGroup == null) Reset();
+            CacheDomain = GetDomain();
+            TexTransGroup.Appry(CacheDomain);
+        }
+
+        public void Revart()
+        {
+            if (TexTransGroup == null) Reset();
+            TexTransGroup.Revart(CacheDomain);
+            CacheDomain = null;
+        }
+    }
+    [System.Serializable]
+    public class MaterialDomain
+    {
+        public MaterialDomain(List<Renderer> Renderers)
+        {
+            _Renderers = Renderers;
+        }
+        [SerializeField] List<Renderer> _Renderers;
+        public void SetMaterial(Material Target, Material SetMat)
+        {
+            foreach (var Renderer in _Renderers)
+            {
+                var Materials = Renderer.sharedMaterials;
+                var IsEdit = false;
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
+                {
+                    if (Materials[Index] == Target)
+                    {
+                        Materials[Index] = SetMat;
+                        IsEdit = true;
+                    }
+                }
+                if (IsEdit)
+                {
+                    Renderer.sharedMaterials = Materials;
+                }
+            }
+        }
+
+        public void SetMaterials(List<Material> Target, List<Material> SetMat)
+        {
+            foreach (var index in Enumerable.Range(0, Target.Count))
+            {
+                SetMaterial(Target[index], SetMat[index]);
+            }
+        }
+    }
+}
+#endif

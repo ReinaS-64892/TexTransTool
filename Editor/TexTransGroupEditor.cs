@@ -1,5 +1,5 @@
-using UnityEngine;
 #if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 
 namespace Rs64.TexTransTool.Editor
@@ -9,8 +9,11 @@ namespace Rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
+            var thsitarget = target as TexTransGroup;
+            EditorGUI.BeginDisabledGroup(thsitarget.IsAppry);
             base.OnInspectorGUI();
-            TextureTransformerEditor.TextureTransformerEditorDrow(target as TexTransGroup);
+            EditorGUI.EndDisabledGroup();
+            TextureTransformerEditor.TextureTransformerEditorDrow(thsitarget);
         }
     }
 }
