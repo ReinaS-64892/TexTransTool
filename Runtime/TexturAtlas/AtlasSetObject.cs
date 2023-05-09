@@ -36,7 +36,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             if (Contenar == null) return;
             if (_IsAppry == true) return;
             MeshAppry();
-            MaterialAppry();
+            MaterialAppry(AvatarMaterialDomain);
 
             _IsAppry = true;
         }
