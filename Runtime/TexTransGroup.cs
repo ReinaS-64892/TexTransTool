@@ -14,17 +14,18 @@ namespace Rs64.TexTransTool
 
         public override bool IsPossibleCompile => PossibleCompileCheck();
 
-        public override void Appry()
+        public override void Appry(MaterialDomain AvatarMaterialDomain = null)
         {
+            if (!IsPossibleAppry) return;
             if (_IsAppry) return;
             _IsAppry = true;
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
-                tf.Appry();
+                tf.Appry(AvatarMaterialDomain);
             }
         }
-        public override void Revart()
+        public override void Revart(MaterialDomain AvatarMaterialDomain = null)
         {
             if (!_IsAppry) return;
             _IsAppry = false;
@@ -34,7 +35,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in Revarstfs)
             {
                 if (tf == null) continue;
-                tf.Revart();
+                tf.Revart(AvatarMaterialDomain);
             }
         }
         public override void Compile()

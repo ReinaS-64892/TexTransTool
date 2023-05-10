@@ -16,14 +16,14 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            var AtlasSetAvatarTags = avatarGameObject.GetComponentsInChildren<AtlasSet>(true);
-            foreach (var AtlasSetAvatarTag in AtlasSetAvatarTags)
-            {
-                AtlasSetAvatarTag.AtlasSetObject.Appry();
-                MonoBehaviour.DestroyImmediate(AtlasSetAvatarTag);
-            }
-            return true;
-
+                var AvatarBuildAppryHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildAppryHook>(true);
+                var MaterialDomain = new MaterialDomain(avatarGameObject.GetComponentsInChildren<Renderer>(true).ToList());
+                foreach (var ABAH in AvatarBuildAppryHooks)
+                {
+                    ABAH.TTGAvatarTag.Appry(MaterialDomain);
+                    MonoBehaviour.DestroyImmediate(ABAH);
+                }
+                return true;
         }
         public void OnPostprocessAvatar()
         {
