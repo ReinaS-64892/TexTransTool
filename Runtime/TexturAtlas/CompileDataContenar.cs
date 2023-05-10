@@ -12,8 +12,10 @@ namespace Rs64.TexTransTool.TexturAtlas
     [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject
     {
-        public List<Mesh> Meshs = new List<Mesh>();
+        public List<Mesh> DistMeshs = new List<Mesh>();
+        public List<Mesh> GenereatMeshs = new List<Mesh>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
+        public List<Material> DistMaterial = new List<Material>();
         public List<Material> GenereatMaterial = new List<Material>();
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);

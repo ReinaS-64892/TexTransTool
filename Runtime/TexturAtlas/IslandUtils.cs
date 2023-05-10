@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             while (Continue)
             {
                 Continue = false;
-                Islands = IslandCrawling(Islands, UV,ref Continue);
+                Islands = IslandCrawling(Islands, UV, ref Continue);
             }
             Islands.ForEach(i => i.BoxCurriculation(UV));
             return Islands;
@@ -219,11 +220,12 @@ namespace Rs64.TexTransTool.TexturAtlas
                 MovedUV[MapIndex][TrinagleIndex] = MovedVertPos;
             }
         }
-
-        public static IslandPool GeneretIslandPool(this CompileData Data)
+        [Obsolete]
+        public static IslandPool GeneretIslandPool(this AtlasCompileData Data)
         {
             return GeneretIslandPool(Data.meshes);
         }
+        [Obsolete]
         public static IslandPool GeneretIslandPool(List<Mesh> Data)
         {
             var IslandPool = new IslandPool();
@@ -240,20 +242,16 @@ namespace Rs64.TexTransTool.TexturAtlas
             return IslandPool;
         }
 
-        public static async Task<IslandPool> AsyncGeneretIslandPool(this CompileData Data)
+        public static async Task<IslandPool> AsyncGeneretIslandPool(List<Mesh> Data, List<List<Vector2>> UVs, List<MeshIndex> SelectUV)
         {
             var IslandPool = new IslandPool();
 
-            int MapCount = -1;
             List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>> Tesks = new List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>>();
-            foreach (var data in Data.meshes)
+            foreach (var index in SelectUV)
             {
-                MapCount += 1;
-                var mapcount = MapCount;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
-                var UV = new List<Vector2>();
-                data.GetUVs(0, UV);
-                var Triangle = Utils.ToList(data.triangles);
-                Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UV, Triangle, mapcount)).ConfigureAwait(false));
+                var mapcount = index.Index;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
+                var Triangle = Utils.ToList(Data[index.Index].GetTriangles(index.SubMeshIndex));
+                Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UVs[index.Index], Triangle, mapcount)).ConfigureAwait(false));
             }
             foreach (var task in Tesks)
             {
@@ -275,19 +273,19 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
             return IslandPoolList;
         }
-        public static List<List<Vector2>> GetUVs(this CompileData Data, int UVindex = 0)
+        public static List<List<Vector2>> GetUVs(this AtlasCompileData Data, int UVindex = 0)
         {
             var UVs = new List<List<Vector2>>();
 
             foreach (var Mesh in Data.meshes)
             {
-                var UV = new List<Vector2>();
-                Mesh.GetUVs(UVindex, UV);
-                UVs.Add(UV);
+                List<Vector2> uv = new List<Vector2>();
+                Mesh.GetUVs(UVindex, uv);
+                UVs.Add(uv);
             }
             return UVs;
         }
-        public static void SetUVs(this CompileData Data, List<List<Vector2>> UVs, int UVindex = 0)
+        public static void SetUVs(this AtlasCompileData Data, List<List<Vector2>> UVs, int UVindex = 0)
         {
             int Count = -1;
             foreach (var Mesh in Data.meshes)

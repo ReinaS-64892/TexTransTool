@@ -12,10 +12,11 @@ using System.Linq;
 namespace Rs64.TexTransTool.TexturAtlas
 {
     [System.Serializable]
+    [Obsolete]
     public class AtlasSetObject
     {
-        public List<SkinnedMeshRenderer> AtlasTargetMeshs;
-        public List<MeshRenderer> AtlasTargetStaticMeshs;
+        public List<SkinnedMeshRenderer> AtlasTargetMeshs = new List<SkinnedMeshRenderer>();
+        public List<MeshRenderer> AtlasTargetStaticMeshs = new List<MeshRenderer>();
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public float Pading = -10;
         public PadingType PadingType;
@@ -56,7 +57,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             BackUpStaticMeshs.Clear();
 
             int count = -1;
-            foreach (var mesh in Contenar.Meshs)
+            foreach (var mesh in Contenar.GenereatMeshs)
             {
                 count += 1;
                 //Debug.Log(AtlasTargetMeshs.Count);
@@ -96,18 +97,18 @@ namespace Rs64.TexTransTool.TexturAtlas
             if (_IsAppry == true) return;
 
             BackUpMaterial.Clear();
-            BackUpMaterial = GetMaterials();
+           // BackUpMaterial = GetMaterials();
 
-            var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials(), GeneratMatClearUnusedProperties);
+            //var GeneratMats = Contenar.GeneratCompileTexturedMaterial(GetMaterials(), GeneratMatClearUnusedProperties);
             if (AvatarMaterialDomain == null)
             {
-                SetMaterial(GetRenderers(), GeneratMats);
+                //SetMaterial(GetRenderers(), GeneratMats);
             }
             else
             {
-                var DistMat = BackUpMaterial.Distinct().ToList();
-                var Chengmat = GeneratMats.Distinct().ToList();
-                AvatarMaterialDomain.SetMaterials(DistMat, Chengmat);
+                //var DistMat = BackUpMaterial.Distinct().ToList();
+               // var Chengmat = GeneratMats.Distinct().ToList();
+                //AvatarMaterialDomain.SetMaterials(DistMat, Chengmat);
 
             }
 
@@ -121,7 +122,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             if (AvatarMaterialDomain == null)
             {
-                SetMaterial(GetRenderers(), BackUpMaterial);
+                //SetMaterial(GetRenderers(), BackUpMaterial);
             }
             else
             {
@@ -149,28 +150,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        List<Material> GetMaterials()
-        {
-            var Renderers = GetRenderers();
-            List<Material> Mats = new List<Material>();
 
-            foreach (var Renderer in Renderers)
-            {
-                foreach (var Mat in Renderer.sharedMaterials)
-                {
-                    Mats.Add(Mat);
-                }
-            }
-
-            return Mats;
-
-        }
-        List<Renderer> GetRenderers()
-        {
-            List<Renderer> Renderers = new List<Renderer>(AtlasTargetMeshs);
-            Renderers.AddRange(AtlasTargetStaticMeshs);
-            return Renderers;
-        }
 
 
     }
