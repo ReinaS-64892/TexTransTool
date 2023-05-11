@@ -133,7 +133,7 @@ namespace Rs64.TexTransTool
                     default:
                         continue;
                 }
-                Meshs.Add(mesh);
+                if(mesh != null)Meshs.Add(mesh);
             }
             return Meshs;
         }
