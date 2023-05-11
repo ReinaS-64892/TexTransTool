@@ -72,6 +72,14 @@ namespace Rs64.TexTransTool
                 SetMaterial(Target[index], SetMat[index]);
             }
         }
+        public void SetMaterials(List<Material> TargetMat, Material SetMat)
+        {
+            foreach (var Target in TargetMat)
+            {
+                SetMaterial(Target, SetMat);
+            }
+        }
+
         public void ResetMaterial()
         {
             Utils.SetMaterials(_Renderers, _initialMaterials);

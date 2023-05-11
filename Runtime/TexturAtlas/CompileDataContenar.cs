@@ -69,40 +69,38 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties)
         {
-            List<Material> NoDuplicationSousMatrial = new List<Material>();
             List<Material> GeneratMats = new List<Material>();
 
-            List<Material> ResGenereatMats = new List<Material>();
 
             foreach (var SMat in SouseMatrial)
             {
-                if (!NoDuplicationSousMatrial.Contains(SMat))
-                {
-                    NoDuplicationSousMatrial.Add(SMat);
 
-                    var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
+                var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
 
-                    PropToMaterialTexAppry(PropAndTextures, Gmat);
+                PropToMaterialTexAppry(PropAndTextures, Gmat);
 
-                    if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
-                    MaterialCustomSetting(Gmat);
+                if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+                MaterialCustomSetting(Gmat);
 
-                    GeneratMats.Add(Gmat);
-                    ResGenereatMats.Add(Gmat);
-                }
-                else
-                {
-                    var GmatIndex = NoDuplicationSousMatrial.IndexOf(SMat);
-                    var Gmat = GeneratMats[GmatIndex];
-
-                    ResGenereatMats.Add(Gmat);
-                }
+                GeneratMats.Add(Gmat);
 
             }
 
             SetSubAsset(GeneratMats);
+            DistMaterial = SouseMatrial;
             GenereatMaterial = GeneratMats;
-            return ResGenereatMats;
+            return GeneratMats;
+        }
+        public Material GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties)
+        {
+            var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
+
+            PropToMaterialTexAppry(PropAndTextures, Gmat);
+            if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+            MaterialCustomSetting(Gmat);
+
+            GenereatMaterial.Add(Gmat);
+            return Gmat;
         }
 
         public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat)

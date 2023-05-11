@@ -131,20 +131,41 @@ namespace Rs64.TexTransTool
                             break;
                         }
                     default:
-                        throw new InvalidCastException();
+                        break;
                 }
                 Meshs.Add(mesh);
             }
             return Meshs;
         }
-        public static List<Vector2> GetSubMeshUV(Mesh mesh, int UVchanel, int SubMeshIndex)
-        {
-            var UV = new List<Vector2>();
-            var SubMeshDescliptor = mesh.GetSubMesh(SubMeshIndex);
-            mesh.GetUVs(UVchanel, UV);
-            return UV.GetRange(SubMeshDescliptor.indexStart, SubMeshDescliptor.indexCount);
-        }
 
+        public static void SetMeshs(List<Renderer> renderers, List<Mesh> DistMesh, List<Mesh> SetMesh)
+        {
+            foreach (var Rendera in renderers)
+            {
+                switch (Rendera)
+                {
+                    case SkinnedMeshRenderer SMR:
+                        {
+                            if (DistMesh.Contains(SMR.sharedMesh))
+                            {
+                                SMR.sharedMesh = SetMesh[DistMesh.IndexOf(SMR.sharedMesh)];
+                            }
+                            break;
+                        }
+                    case MeshRenderer MR:
+                        {
+                            var MF = MR.GetComponent<MeshFilter>();
+                            if (DistMesh.Contains(MF.sharedMesh))
+                            {
+                                MF.sharedMesh = SetMesh[DistMesh.IndexOf(MF.sharedMesh)];
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
     }
 }
 #endif

@@ -46,12 +46,36 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleCompile => TargetRoot;
 
+        public MaterialDomain ChashMaterialDomain;
         public override void Appry(MaterialDomain AvatarMaterialDomain)
         {
             if (!IsPossibleAppry) return;
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); ChashMaterialDomain = AvatarMaterialDomain; }
+
+            var DistMats = GetSelectMats();
+            if (!ForsedMaterialMarge)
+            {
+                var GanaretaMat = Contenar.GeneratCompileTexturedMaterial(DistMats, true);
+
+                AvatarMaterialDomain.SetMaterials(DistMats, GanaretaMat);
+            }
+            else
+            {
+                Material RefMat;
+                if (UseRefarensMaterial && RefarensMaterial != null) RefMat = RefarensMaterial;
+                else RefMat = DistMats.First();
+                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true);
+
+                AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat);
+            }
+
+            Utils.SetMeshs(TargetRenderer, Contenar.DistMeshs, Contenar.GenereatMeshs);
         }
         public override void Revart(MaterialDomain AvatarMaterialDomain)
         {
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = ChashMaterialDomain; ChashMaterialDomain = null;}
+            AvatarMaterialDomain.ResetMaterial();
+            Utils.SetMeshs(TargetRenderer, Contenar.GenereatMeshs, Contenar.DistMeshs);
         }
         public override void Compile()
         {
@@ -104,8 +128,9 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public List<Material> GetSelectMats()
         {
-            return TargetMaterial.FindAll(I => I.IsSelect = true).ConvertAll<Material>(I => I.Mat);
+            return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<Material>(I => I.Mat);
         }
+
 
     }
     [System.Serializable]
