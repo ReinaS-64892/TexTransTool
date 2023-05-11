@@ -12,7 +12,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     public class AtlasSet : TextureTransformer
     {
         public GameObject TargetRoot;
-        public List<Renderer> TargetRenderer;
+        public List<Renderer> TargetRenderer;//MeshとMaterialの両方を持っているRenderer
         public List<MatSelect> TargetMaterial;
         public bool ForsedMaterialMarge = false;
         public bool UseRefarensMaterial = false;

@@ -145,7 +145,23 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 return;
             }
             var renderers = TargetRoot.GetComponentsInChildren<Renderer>();
-            var FilterRendres = renderers.Where(i => i is SkinnedMeshRenderer || i is MeshRenderer).ToArray();
+            var FilterRendres = renderers.Where(i =>
+            {
+                switch (i)
+                {
+                    case SkinnedMeshRenderer smr:
+                        {
+                            return smr.sharedMesh != null;
+                        }
+                    case MeshRenderer MR:
+                        {
+                            return MR.GetComponent<MeshFilter>().sharedMesh != null;
+                        }
+                    default:
+                        return false;
+                }
+            }
+            ).ToArray();
             int count = -1;
             TargetRenderer.arraySize = FilterRendres.Length;
             foreach (var Rendera in FilterRendres)
