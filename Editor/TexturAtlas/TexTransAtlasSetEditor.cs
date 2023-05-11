@@ -33,6 +33,13 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
 
             EditorGUI.BeginDisabledGroup(IsAppry);
             TextureTransformerEditor.objectReferenceEditActionAndPorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
+            if (TargetRoot.objectReferenceValue != null)
+            {
+                if (GUILayout.Button("ResearchRenderas"))
+                {
+                    SetTargetRoot(TargetRoot.objectReferenceValue as GameObject, TargetRenderer, TargetMaterial);
+                }
+            }
             MaterialSelectEditor(TargetMaterial);
 
             EditorGUILayout.PropertyField(ForsedMaterialMarge);
@@ -132,7 +139,11 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
 
         public static void SetTargetRoot(GameObject TargetRoot, SerializedProperty TargetRenderer, SerializedProperty TargetMats)
         {
-            if (TargetRoot == null) return;
+            if (TargetRoot == null)
+            {
+                TargetRenderer.arraySize = 0;
+                return;
+            }
             var renderers = TargetRoot.GetComponentsInChildren<Renderer>();
             var FilterRendres = renderers.Where(i => i is SkinnedMeshRenderer || i is MeshRenderer).ToArray();
             int count = -1;
