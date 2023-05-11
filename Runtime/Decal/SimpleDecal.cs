@@ -153,8 +153,8 @@ namespace Rs64.TexTransTool.Decal
             }
             else
             {
-                var Cheng = DecaleBlendMaterialsSave.Distinct().ToList();
-                var BackUp = BackUpMaterials.Distinct().ToList();
+                var Cheng = DecaleBlendMaterialsSave;
+                var BackUp = BackUpMaterials;
                 AvatarMaterialDomain.SetMaterials(Cheng, BackUp);
             }
             AssetSaveHelper.DeletAssets(DecaleBlendMaterialsSave);

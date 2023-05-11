@@ -16,6 +16,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<MatSelect> TargetMaterial;
         public bool ForsedMaterialMarge = false;
         public bool UseRefarensMaterial = false;
+        public bool FocuseSetTexture = false;
         public Material RefarensMaterial;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public float Pading = -10;
@@ -46,13 +47,17 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleCompile => TargetRoot;
 
-        public MaterialDomain ChashMaterialDomain;
+        public MaterialDomain BAckUpMaterialDomain;
         public override void Appry(MaterialDomain AvatarMaterialDomain)
         {
             if (!IsPossibleAppry) return;
-            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); ChashMaterialDomain = AvatarMaterialDomain; }
+            if (_IsAppry == true) return;
+            _IsAppry = true;
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
+            else { BAckUpMaterialDomain = AvatarMaterialDomain.GetBackUp(); }
 
             var DistMats = GetSelectMats();
+            Contenar.DistMaterial = DistMats;
             if (!ForsedMaterialMarge)
             {
                 var GanaretaMat = Contenar.GeneratCompileTexturedMaterial(DistMats, true);
@@ -64,7 +69,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 Material RefMat;
                 if (UseRefarensMaterial && RefarensMaterial != null) RefMat = RefarensMaterial;
                 else RefMat = DistMats.First();
-                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true);
+                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, FocuseSetTexture);
 
                 AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat);
             }
@@ -73,8 +78,12 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public override void Revart(MaterialDomain AvatarMaterialDomain)
         {
-            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = ChashMaterialDomain; ChashMaterialDomain = null;}
-            AvatarMaterialDomain.ResetMaterial();
+            if (!IsAppry) return;
+            _IsAppry = false;
+
+            BAckUpMaterialDomain.ResetMaterial();
+            BAckUpMaterialDomain = null;
+
             Utils.SetMeshs(TargetRenderer, Contenar.GenereatMeshs, Contenar.DistMeshs);
         }
         public override void Compile()

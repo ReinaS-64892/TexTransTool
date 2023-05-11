@@ -67,7 +67,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties)
+        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
         {
             List<Material> GeneratMats = new List<Material>();
 
@@ -77,7 +77,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
 
-                PropToMaterialTexAppry(PropAndTextures, Gmat);
+                PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
 
                 if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
                 MaterialCustomSetting(Gmat);
@@ -87,27 +87,28 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
             SetSubAsset(GeneratMats);
-            DistMaterial = SouseMatrial;
             GenereatMaterial = GeneratMats;
             return GeneratMats;
         }
-        public Material GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties)
+        public Material GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
         {
             var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
 
-            PropToMaterialTexAppry(PropAndTextures, Gmat);
+            PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
             if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
             MaterialCustomSetting(Gmat);
 
+            SetSubAsset(new List<Material>() { Gmat });
+            GenereatMaterial.Clear();
             GenereatMaterial.Add(Gmat);
             return Gmat;
         }
 
-        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat)
+        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)
         {
             foreach (var propAndTexture in PropAndTextures)
             {
-                if (TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                if (FocuseSetTexture || TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
                 {
                     TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
                 }

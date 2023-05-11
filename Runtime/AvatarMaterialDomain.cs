@@ -44,6 +44,10 @@ namespace Rs64.TexTransTool
         }
         [SerializeField] List<Renderer> _Renderers;
         [SerializeField] List<Material> _initialMaterials;
+        public MaterialDomain GetBackUp()
+        {
+            return new MaterialDomain(_Renderers);
+        }
         public void SetMaterial(Material Target, Material SetMat)
         {
             foreach (var Renderer in _Renderers)

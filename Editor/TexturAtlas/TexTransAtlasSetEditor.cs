@@ -20,6 +20,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var TargetMaterial = serializedObject.FindProperty("TargetMaterial");
             var ForsedMaterialMarge = serializedObject.FindProperty("ForsedMaterialMarge");
             var UseRefarensMaterial = serializedObject.FindProperty("UseRefarensMaterial");
+            var FocuseSetTexture = serializedObject.FindProperty("FocuseSetTexture");
             var RefarensMaterial = serializedObject.FindProperty("RefarensMaterial");
             var TextureSize = serializedObject.FindProperty("AtlasTextureSize");
             var Pading = serializedObject.FindProperty("Pading");
@@ -44,6 +45,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                     RefarensMaterial.objectReferenceValue = EditorGUI.ObjectField(EditorGUILayout.GetControlRect(), RefarensMaterial.objectReferenceValue, typeof(Material), true);
                 }
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.PropertyField(FocuseSetTexture);
             }
 
             EditorGUILayout.PropertyField(TextureSize);

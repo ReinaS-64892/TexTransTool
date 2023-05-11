@@ -16,7 +16,7 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-                var AvatarBuildAppryHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildAppryHook>(true);
+                var AvatarBuildAppryHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildAppryHook>();
                 var MaterialDomain = new MaterialDomain(avatarGameObject.GetComponentsInChildren<Renderer>(true).ToList());
                 foreach (var ABAH in AvatarBuildAppryHooks)
                 {
