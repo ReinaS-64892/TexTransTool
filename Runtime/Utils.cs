@@ -131,7 +131,7 @@ namespace Rs64.TexTransTool
                             break;
                         }
                     default:
-                        break;
+                        continue;
                 }
                 Meshs.Add(mesh);
             }
@@ -162,7 +162,7 @@ namespace Rs64.TexTransTool
                             break;
                         }
                     default:
-                        break;
+                        continue;
                 }
             }
         }
