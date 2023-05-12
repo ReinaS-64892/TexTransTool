@@ -103,15 +103,12 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                     var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
 
-                    foreach (var pos in IslandVartPos)
+
+                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
                     {
-                        if (CrawlingIslandVartPos.Contains(pos))
-                        {
-                            IlandJoinIndex = IlandCout;
-                            break;
-                        }
+                        IlandJoinIndex = IlandCout;
+                         break;
                     }
-                    if (IlandJoinIndex != -1) break;
 
                 }
 
