@@ -12,8 +12,10 @@ namespace Rs64.TexTransTool.TexturAtlas
     [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject
     {
-        public List<Mesh> Meshs = new List<Mesh>();
+        public List<Mesh> DistMeshs = new List<Mesh>();
+        public List<Mesh> GenereatMeshs = new List<Mesh>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
+        public List<Material> DistMaterial = new List<Material>();
         public List<Material> GenereatMaterial = new List<Material>();
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
@@ -65,49 +67,48 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties)
+        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
         {
-            List<Material> NoDuplicationSousMatrial = new List<Material>();
             List<Material> GeneratMats = new List<Material>();
 
-            List<Material> ResGenereatMats = new List<Material>();
 
             foreach (var SMat in SouseMatrial)
             {
-                if (!NoDuplicationSousMatrial.Contains(SMat))
-                {
-                    NoDuplicationSousMatrial.Add(SMat);
 
-                    var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
+                var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
 
-                    PropToMaterialTexAppry(PropAndTextures, Gmat);
+                PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
 
-                    if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
-                    MaterialCustomSetting(Gmat);
+                if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+                MaterialCustomSetting(Gmat);
 
-                    GeneratMats.Add(Gmat);
-                    ResGenereatMats.Add(Gmat);
-                }
-                else
-                {
-                    var GmatIndex = NoDuplicationSousMatrial.IndexOf(SMat);
-                    var Gmat = GeneratMats[GmatIndex];
-
-                    ResGenereatMats.Add(Gmat);
-                }
+                GeneratMats.Add(Gmat);
 
             }
 
             SetSubAsset(GeneratMats);
             GenereatMaterial = GeneratMats;
-            return ResGenereatMats;
+            return GeneratMats;
+        }
+        public Material GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
+        {
+            var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
+
+            PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
+            if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+            MaterialCustomSetting(Gmat);
+
+            SetSubAsset(new List<Material>() { Gmat });
+            GenereatMaterial.Clear();
+            GenereatMaterial.Add(Gmat);
+            return Gmat;
         }
 
-        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat)
+        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)
         {
             foreach (var propAndTexture in PropAndTextures)
             {
-                if (TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                if (FocuseSetTexture || TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
                 {
                     TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
                 }

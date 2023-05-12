@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using UnityEngine;
 using UnityEditor;
 namespace Rs64.TexTransTool.Editor
@@ -43,6 +44,16 @@ namespace Rs64.TexTransTool.Editor
                 Target.Compile();
             }
             EditorGUI.EndDisabledGroup();
+        }
+        public static void objectReferenceEditActionAndPorpty<T>(SerializedProperty Prop, Action<T> EditoCollBack) where T : UnityEngine.Object
+        {
+            var valu = Prop.objectReferenceValue as T;
+            var Editvalu = EditorGUILayout.ObjectField(Prop.name, valu, typeof(T), true) as T;
+            if (valu != Editvalu)
+            {
+                EditoCollBack.Invoke(Editvalu);
+                Prop.objectReferenceValue = Editvalu;
+            }
         }
     }
 }

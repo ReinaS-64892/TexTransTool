@@ -93,7 +93,79 @@ namespace Rs64.TexTransTool
             }
             return TowDArry;
         }
+        public static List<Material> GetMaterials(IEnumerable<Renderer> Rendres)
+        {
+            List<Material> MatS = new List<Material>();
+            foreach (var Rendera in Rendres)
+            {
+                MatS.AddRange(Rendera.sharedMaterials);
+            }
+            return MatS;
+        }
+        public static void SetMaterials(IEnumerable<Renderer> Rendres, List<Material> Mat)
+        {
+            int StartOffset = 0;
+            foreach (var Rendera in Rendres)
+            {
+                int TakeLengs = Rendera.sharedMaterials.Length;
+                Rendera.sharedMaterials = Mat.Skip(StartOffset).Take(TakeLengs).ToArray();
+                StartOffset += TakeLengs;
+            }
+        }
+        public static List<Mesh> GetMeshes(List<Renderer> renderers)
+        {
+            List<Mesh> Meshs = new List<Mesh>();
+            foreach (var Rendera in renderers)
+            {
+                Mesh mesh = null;
+                switch (Rendera)
+                {
+                    case SkinnedMeshRenderer SMR:
+                        {
+                            mesh = SMR.sharedMesh;
+                            break;
+                        }
+                    case MeshRenderer MR:
+                        {
+                            mesh = MR.GetComponent<MeshFilter>().sharedMesh;
+                            break;
+                        }
+                    default:
+                        continue;
+                }
+                if(mesh != null)Meshs.Add(mesh);
+            }
+            return Meshs;
+        }
 
+        public static void SetMeshs(List<Renderer> renderers, List<Mesh> DistMesh, List<Mesh> SetMesh)
+        {
+            foreach (var Rendera in renderers)
+            {
+                switch (Rendera)
+                {
+                    case SkinnedMeshRenderer SMR:
+                        {
+                            if (DistMesh.Contains(SMR.sharedMesh))
+                            {
+                                SMR.sharedMesh = SetMesh[DistMesh.IndexOf(SMR.sharedMesh)];
+                            }
+                            break;
+                        }
+                    case MeshRenderer MR:
+                        {
+                            var MF = MR.GetComponent<MeshFilter>();
+                            if (DistMesh.Contains(MF.sharedMesh))
+                            {
+                                MF.sharedMesh = SetMesh[DistMesh.IndexOf(MF.sharedMesh)];
+                            }
+                            break;
+                        }
+                    default:
+                        continue;
+                }
+            }
+        }
     }
 }
 #endif

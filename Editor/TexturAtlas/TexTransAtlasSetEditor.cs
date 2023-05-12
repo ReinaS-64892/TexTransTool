@@ -1,8 +1,10 @@
 ﻿#if UNITY_EDITOR
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using Rs64.TexTransTool.Editor;
+using System.Collections.Generic;
 
 namespace Rs64.TexTransTool.TexturAtlas.Editor
 {
@@ -12,21 +14,47 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
         bool PostPrcessFoldout = true;
         public override void OnInspectorGUI()
         {
-            var serialaizeatlaset = serializedObject.FindProperty("AtlasSetObject");
-            var SkindMesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetMeshs");
-            var Staticmesh = serialaizeatlaset.FindPropertyRelative("AtlasTargetStaticMeshs");
-            var TextureSize = serialaizeatlaset.FindPropertyRelative("AtlasTextureSize");
-            var Pading = serialaizeatlaset.FindPropertyRelative("Pading");
-            var PadingType = serialaizeatlaset.FindPropertyRelative("PadingType");
-            var SortingType = serialaizeatlaset.FindPropertyRelative("SortingType");
-            var Contenar = serialaizeatlaset.FindPropertyRelative("Contenar");
+            var TargetRoot = serializedObject.FindProperty("TargetRoot");
+            var SelectMats = serializedObject.FindProperty("SelectMats");
+            var TargetRenderer = serializedObject.FindProperty("TargetRenderer");
+            var TargetMaterial = serializedObject.FindProperty("TargetMaterial");
+            var ForsedMaterialMarge = serializedObject.FindProperty("ForsedMaterialMarge");
+            var UseRefarensMaterial = serializedObject.FindProperty("UseRefarensMaterial");
+            var FocuseSetTexture = serializedObject.FindProperty("FocuseSetTexture");
+            var RefarensMaterial = serializedObject.FindProperty("RefarensMaterial");
+            var TextureSize = serializedObject.FindProperty("AtlasTextureSize");
+            var Pading = serializedObject.FindProperty("Pading");
+            var PadingType = serializedObject.FindProperty("PadingType");
+            var SortingType = serializedObject.FindProperty("SortingType");
+            var Contenar = serializedObject.FindProperty("Contenar");
 
             var ThisTarget = target as AtlasSet;
-            var IsAppry = ThisTarget.AtlasSetObject.IsAppry;
+            var IsAppry = ThisTarget.IsAppry;
 
             EditorGUI.BeginDisabledGroup(IsAppry);
-            EditorGUILayout.PropertyField(SkindMesh);
-            EditorGUILayout.PropertyField(Staticmesh);
+            TextureTransformerEditor.objectReferenceEditActionAndPorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
+            if (TargetRoot.objectReferenceValue != null)
+            {
+                if (GUILayout.Button("ResearchRenderas"))
+                {
+                    SetTargetRoot(TargetRoot.objectReferenceValue as GameObject, TargetRenderer, TargetMaterial);
+                }
+            }
+            MaterialSelectEditor(TargetMaterial);
+
+            EditorGUILayout.PropertyField(ForsedMaterialMarge);
+            if (ForsedMaterialMarge.boolValue)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(UseRefarensMaterial);
+                if (UseRefarensMaterial.boolValue)
+                {
+                    RefarensMaterial.objectReferenceValue = EditorGUI.ObjectField(EditorGUILayout.GetControlRect(), RefarensMaterial.objectReferenceValue, typeof(Material), true);
+                }
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.PropertyField(FocuseSetTexture);
+            }
+
             EditorGUILayout.PropertyField(TextureSize);
             EditorGUILayout.PropertyField(Pading);
             EditorGUILayout.PropertyField(PadingType);
@@ -108,6 +136,68 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             serializedObject.ApplyModifiedProperties();
 
         }
+
+        public static void SetTargetRoot(GameObject TargetRoot, SerializedProperty TargetRenderer, SerializedProperty TargetMats)
+        {
+            if (TargetRoot == null)
+            {
+                TargetRenderer.arraySize = 0;
+                return;
+            }
+            var renderers = TargetRoot.GetComponentsInChildren<Renderer>();
+            var FilterRendres = renderers.Where(i =>
+            {
+                switch (i)
+                {
+                    case SkinnedMeshRenderer smr:
+                        {
+                            return smr.sharedMesh != null;
+                        }
+                    case MeshRenderer MR:
+                        {
+                            return MR.GetComponent<MeshFilter>().sharedMesh != null;
+                        }
+                    default:
+                        return false;
+                }
+            }
+            ).ToArray();
+            int count = -1;
+            TargetRenderer.arraySize = FilterRendres.Length;
+            foreach (var Rendera in FilterRendres)
+            {
+                count += 1;
+                TargetRenderer.GetArrayElementAtIndex(count).objectReferenceValue = Rendera;
+            }
+            var mats = Utils.GetMaterials(FilterRendres).Distinct().ToArray();
+            count = -1;
+            TargetMats.arraySize = mats.Length;
+            foreach (var mat in mats)
+            {
+                count += 1;
+                TargetMats.GetArrayElementAtIndex(count).FindPropertyRelative("Mat").objectReferenceValue = mat;
+            }
+
+        }
+
+        public static void MaterialSelectEditor(SerializedProperty TargetMaterial)
+        {
+            EditorGUI.indentLevel += 1;
+            GUILayout.Label("IsTarget");
+            foreach (var Index in Enumerable.Range(0, TargetMaterial.arraySize))
+            {
+                var MatSelect = TargetMaterial.GetArrayElementAtIndex(Index);
+                var SMat = MatSelect.FindPropertyRelative("Mat");
+                var SISelect = MatSelect.FindPropertyRelative("IsSelect");
+                EditorGUILayout.BeginHorizontal();
+                SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue);
+                EditorGUI.ObjectField(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(1000)), SMat.objectReferenceValue, typeof(Material), false);
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUI.indentLevel -= 1;
+
+        }
+
     }
 }
 #endif

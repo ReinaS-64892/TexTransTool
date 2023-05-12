@@ -3,16 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using System;
+using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
     //[AddComponentMenu("TexTransTool/AtlasSet")]
     public class AtlasSet : TextureTransformer
     {
-        public AtlasSetObject AtlasSetObject = new AtlasSetObject()
-        {
-            SortingType = IslandSortingType.NextFitDecreasingHeight,
-        };
+        public GameObject TargetRoot;
+        public List<Renderer> TargetRenderer;//MeshとMaterialの両方を持っているRenderer
+        public List<MatSelect> TargetMaterial;
+        public bool ForsedMaterialMarge = false;
+        public bool UseRefarensMaterial = false;
+        public bool FocuseSetTexture = false;
+        public Material RefarensMaterial;
+        public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
+        public float Pading = -10;
+        public PadingType PadingType;
+        public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeight;
+        public bool GeneratMatClearUnusedProperties = true;
+        [SerializeField] bool _IsAppry;
+        public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
+        public CompileDataContenar Contenar;
+        [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
+        [SerializeField] List<Material> BackUpMaterial = new List<Material>();
         public List<AtlasPostPrcess> PostProcess = new List<AtlasPostPrcess>()
         {
             new AtlasPostPrcess(){
@@ -26,33 +41,105 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         };
 
-        public override bool IsAppry => AtlasSetObject.IsAppry;
+        public override bool IsAppry => _IsAppry;
 
-        public override bool IsPossibleAppry => AtlasSetObject.Contenar != null;
+        public override bool IsPossibleAppry => Contenar != null;
 
-        public override bool IsPossibleCompile => AtlasSetObject.AtlasTargetMeshs.Any() || AtlasSetObject.AtlasTargetStaticMeshs.Any();
+        public override bool IsPossibleCompile => TargetRoot;
 
+        public MaterialDomain BAckUpMaterialDomain;
         public override void Appry(MaterialDomain AvatarMaterialDomain)
         {
             if (!IsPossibleAppry) return;
-            AtlasSetObject.Appry(AvatarMaterialDomain);
+            if (_IsAppry == true) return;
+            _IsAppry = true;
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
+            else { BAckUpMaterialDomain = AvatarMaterialDomain.GetBackUp(); }
+
+            var DistMats = GetSelectMats();
+            Contenar.DistMaterial = DistMats;
+            if (!ForsedMaterialMarge)
+            {
+                var GanaretaMat = Contenar.GeneratCompileTexturedMaterial(DistMats, true);
+
+                AvatarMaterialDomain.SetMaterials(DistMats, GanaretaMat);
+            }
+            else
+            {
+                Material RefMat;
+                if (UseRefarensMaterial && RefarensMaterial != null) RefMat = RefarensMaterial;
+                else RefMat = DistMats.First();
+                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, FocuseSetTexture);
+
+                AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat);
+            }
+
+            Utils.SetMeshs(TargetRenderer, Contenar.DistMeshs, Contenar.GenereatMeshs);
         }
         public override void Revart(MaterialDomain AvatarMaterialDomain)
         {
-            AtlasSetObject.Revart(AvatarMaterialDomain);
+            if (!IsAppry) return;
+            _IsAppry = false;
+
+            BAckUpMaterialDomain.ResetMaterial();
+            BAckUpMaterialDomain = null;
+
+            Utils.SetMeshs(TargetRenderer, Contenar.GenereatMeshs, Contenar.DistMeshs);
         }
         public override void Compile()
         {
-            AtlasSetObject.AtlasCompilePostCallBack = (i) => { };
+            AtlasCompilePostCallBack = (i) => { };
             if (PostProcess.Any())
             {
                 foreach (var PostPrces in PostProcess)
                 {
-                    AtlasSetObject.AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
+                    AtlasCompilePostCallBack += (i) => PostPrces.Processing(i);
                 }
             }
-            TexturAtlasCompiler.AtlasSetCompile(AtlasSetObject);
+            TexturAtlasCompiler.AtlasSetCompile(this);
         }
+
+        public AtlasCompileData GetCompileData()
+        {
+            AtlasCompileData Data = new AtlasCompileData();
+            var SelectMat = GetSelectMats();
+            Data.TargetMeshIndex = GetTargetMeshIndexs();
+            Data.SetPropatyAndTexs(TargetRenderer, SelectMat, ShaderSupportUtil.GetSupprotInstans());
+            Data.DistMesh = Utils.GetMeshes(TargetRenderer);
+            Data.meshes = Data.DistMesh.ConvertAll<Mesh>(i => UnityEngine.Object.Instantiate<Mesh>(i));
+            Data.AtlasTextureSize = AtlasTextureSize;
+            Data.Pading = Pading;
+            Data.PadingType = PadingType;
+            return Data;
+        }
+
+        public List<MeshIndex> GetTargetMeshIndexs()
+        {
+            var MeshIndexs = new List<MeshIndex>();
+            var SelectMat = GetSelectMats();
+            int MeshIndex = -1;
+            foreach (var Rendera in TargetRenderer)
+            {
+                MeshIndex += 1;
+                int SubMeshIndex = -1;
+                foreach (var Mat in Rendera.sharedMaterials)
+                {
+                    SubMeshIndex += 1;
+
+                    if (SelectMat.Contains(Mat))
+                    {
+                        MeshIndexs.Add(new MeshIndex(MeshIndex, SubMeshIndex));
+                    }
+                }
+            }
+            return MeshIndexs;
+        }
+
+        public List<Material> GetSelectMats()
+        {
+            return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<Material>(I => I.Mat);
+        }
+
 
     }
     [System.Serializable]
@@ -144,6 +231,18 @@ namespace Rs64.TexTransTool.TexturAtlas
                 TextureImporter.textureType = TextureImporterType.NormalMap;
                 TextureImporter.SaveAndReimport();
             }
+        }
+    }
+    [Serializable]
+    public class MatSelect
+    {
+        public Material Mat;
+        public bool IsSelect;
+
+        public MatSelect(Material mat, bool isSelect)
+        {
+            Mat = mat;
+            IsSelect = isSelect;
         }
     }
 }
