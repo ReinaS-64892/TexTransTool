@@ -246,7 +246,7 @@ namespace Rs64.TexTransTool
         public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            if (string.IsNullOrEmpty(SouseTexPath)) throw new ArgumentException("元となる画像のパスが存在しません。");
+            byte[] PngBytes = string.IsNullOrEmpty(SouseTexPath) ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
             if (ConvertToLiner)
             {
                 SouseTex = new Texture2D(2, 2, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
@@ -255,7 +255,7 @@ namespace Rs64.TexTransTool
             {
                 SouseTex = new Texture2D(2, 2);
             }
-            SouseTex.LoadImage(File.ReadAllBytes(SouseTexPath));
+            SouseTex.LoadImage(PngBytes);
         }
 
         public static Vector2Int NativeSize(this Texture2D SouseTex)
