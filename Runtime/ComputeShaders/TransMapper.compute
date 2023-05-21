@@ -18,11 +18,11 @@ RWStructuredBuffer<float3> Result;
   float IsDistans = isDistansCla(Distans, IsIn);
 
   float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)], Traiangles[SelectTraiangle(id.z,4)], Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
-  float3 RevPos3 = float3(NaNCheck(RevPos2.x), NaNCheck(RevPos2.y), IsDistans);
+  float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
   float3 NotEdit = Result[resindex];
-  Result[resindex] =  step(Result[resindex].z, IsDistans) ?  RevPos3 : NotEdit;
+  Result[resindex] =  NotEdit.z  < RevPos3.z ?  RevPos3 : NotEdit;
 }
 
 [numthreads(32, 32, 1)] void TransMapGeneratPadingVartexBase(uint3 id: SV_DispatchThreadID)
@@ -35,9 +35,9 @@ RWStructuredBuffer<float3> Result;
   float IsDistans = isDistansCla(Distans, IsIn);
 
   float2 RevPos2 = FromBCS(Traiangles[SelectTraiangle(id.z,3)],Traiangles[SelectTraiangle(id.z,4)],Traiangles[SelectTraiangle(id.z,5)],ToBCS(ClossT));
-  float3 RevPos3 = float3(NaNCheck(RevPos2.x), NaNCheck(RevPos2.y), IsDistans);
+  float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
   float3 NotEdit = Result[resindex];
-  Result[resindex] =  step(Result[resindex].z, IsDistans) ?  RevPos3 : NotEdit;
+  Result[resindex] =  NotEdit.z <  RevPos3.z ?  RevPos3 : NotEdit;
 }

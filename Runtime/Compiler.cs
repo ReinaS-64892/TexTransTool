@@ -22,7 +22,7 @@ namespace Rs64.TexTransTool
         public const string TransCompilerPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
 
-        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode)
+        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRenge = null)
         {
             if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
@@ -45,9 +45,10 @@ namespace Rs64.TexTransTool
                             }
                         case TexWrapMode.Stretch:
                             {
-                                SouseTexPos.x = Mathf.Clamp01(SouseTexPos.x);
-                                SouseTexPos.y = Mathf.Clamp01(SouseTexPos.y);
-                                TWMAppryTexPos = SouseTexPos;
+                                var StrechdPos = new Vector2();
+                                StrechdPos.x = Mathf.Clamp01(SouseTexPos.x);
+                                StrechdPos.y = Mathf.Clamp01(SouseTexPos.y);
+                                TWMAppryTexPos = StrechdPos;
                                 break;
                             }
                         case TexWrapMode.Loop:
@@ -55,6 +56,15 @@ namespace Rs64.TexTransTool
                                 TWMAppryTexPos = SouseTexPos;
                                 break;
                             }
+                    }
+                    if (OutRenge.HasValue)
+                    {
+                        var outReng = OutRenge.Value;
+                        var OutOfolag = false;
+                        if (!((outReng.x * -1) < SouseTexPos.x && SouseTexPos.x < (outReng.x + 1))) { OutOfolag = true; }
+                        if (!((outReng.y * -1) < SouseTexPos.y && SouseTexPos.y < (outReng.y + 1))) { OutOfolag = true; }
+
+                        if (OutOfolag) TWMAppryTexPos = null;
                     }
                     SetPixsl(SouseTex, targetTex, index, TWMAppryTexPos);
                     targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];

@@ -110,8 +110,12 @@ namespace Rs64.TexTransTool
             var w = Vector3.Cross(Triangle[2] - Triangle[1], TargetPoint - Triangle[1]).z;
             var u = Vector3.Cross(Triangle[0] - Triangle[2], TargetPoint - Triangle[2]).z;
             var v = Vector3.Cross(Triangle[1] - Triangle[0], TargetPoint - Triangle[0]).z;
-            var wuv = Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
+            var wuv = TraiangelArea(Triangle);
             return new Vector4(w, u, v, wuv);
+        }
+        public static float TraiangelArea(List<Vector2> Triangle)
+        {
+            return Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
         }
 
         public static Vector3 ToBCS(Vector4 ClassT)
@@ -161,6 +165,13 @@ namespace Rs64.TexTransTool
             float lp = Mathf.Clamp(Vector2.Dot(p - a, ab), 0, Leng);
             return a + (lp * ab);
         }
+        public static Vector2 NeaPoint(Vector2 a, Vector2 b, Vector2 p)
+        {
+            Vector2 ab = b - a;
+            ab.Normalize();
+            float lp = Vector2.Dot(p - a, ab);
+            return a + (lp * ab);
+        }
 
         public static Vector3 DistansEdgeBase(List<Vector2> Triangle, Vector2 TargetPoint)
         {
@@ -193,8 +204,8 @@ namespace Rs64.TexTransTool
             var ResBuffer = new ComputeBuffer((Map.MapSize.x * Map.MapSize.y), 12);
 
 
-            var array = Utils.Reange2d(Map.MapSize).ConvertAll<Vector3>(i => new Vector3(0, 0, Map.DefaultPading));
-            ResBuffer.SetData<Vector3>(array);
+            var array = Utils.TowDtoOneD(Map.GetMapAndDistansMap(), Map.MapSize);
+            ResBuffer.SetData(array);
             Shader.SetBuffer(karnelindex, "Result", ResBuffer);
 
 
@@ -264,7 +275,7 @@ namespace Rs64.TexTransTool
 
         public static bool IsInCal(float w, float u, float v)
         {
-            return (w > 0) == (u > 0) == (v > 0);
+            return ((w > 0) == (u > 0)) && ((u > 0) == (v > 0));
         }
 
     }
@@ -338,6 +349,11 @@ namespace Rs64.TexTransTool
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ToList().GetEnumerator();
+        }
+
+        public List<T> GetTraiangle<T>(List<T> List)
+        {
+            return new List<T> { List[zero], List[one], List[two] };
         }
     }
 }

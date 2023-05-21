@@ -36,6 +36,16 @@ namespace Rs64.TexTransTool
         public TransMapData()
         {
         }
+
+        public Vector3[,] GetMapAndDistansMap()
+        {
+            var MargeDmap = new Vector3[MapSize.x, MapSize.y];
+            foreach (var index in Utils.Reange2d(MapSize))
+            {
+                MargeDmap[index.x, index.y] = new Vector3(Map[index.x, index.y].x, Map[index.x, index.y].y, DistansMap[index.x, index.y]);
+            }
+            return MargeDmap;
+        }
     }
     [Serializable]
     public class TransTargetTexture

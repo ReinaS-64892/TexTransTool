@@ -24,7 +24,7 @@ namespace Rs64.TexTransTool
             List<T> SavedTextures = new List<T>();
             foreach (var Target in Targets)
             {
-                SavedTextures.Add(SaveAsset<T>(Target));
+                SavedTextures.Add(SaveAsset(Target));
             }
             return SavedTextures;
         }
@@ -59,7 +59,18 @@ namespace Rs64.TexTransTool
                     }
             }
             AssetDatabase.ImportAsset(SavePath);
-            return AssetDatabase.LoadAssetAtPath<T>(SavePath);
+            switch (Target)
+            {
+                default:
+                    {
+                        return Target;
+                    }
+                case Texture2D Tex2d:
+                    {
+                        return AssetDatabase.LoadAssetAtPath<Texture2D>(SavePath) as T;
+                    }
+
+            }
         }
 
         public static void DeletAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
@@ -78,6 +89,39 @@ namespace Rs64.TexTransTool
             }
         }
 
+        public static void SaveSubAsset<T>(UnityEngine.Object MainAsset, T SubAssets) where T : UnityEngine.Object
+        {
+            AssetDatabase.AddObjectToAsset(SubAssets, MainAsset);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(MainAsset));
+        }
+        public static void SaveSubAssets<T>(UnityEngine.Object MainAsset, IEnumerable<T> SubAssets) where T : UnityEngine.Object
+        {
+            foreach (var SubAsset in SubAssets)
+            {
+                SaveSubAsset(MainAsset, SubAsset);
+            }
+        }
+        public static void ClearSubAssets(UnityEngine.Object MainAsset)
+        {
+            foreach (var asset in AssetDatabase.LoadAllAssetRepresentationsAtPath(AssetDatabase.GetAssetPath(MainAsset)))
+            {
+                DeletSubAsset(asset);
+            }
+        }
+        public static void DeletSubAsset(UnityEngine.Object asset)
+        {
+            if (AssetDatabase.IsSubAsset(asset))
+            {
+                UnityEngine.Object.DestroyImmediate(asset, true);
+            }
+        }
+        public static void DeletSubAssets(IEnumerable<UnityEngine.Object> assets)
+        {
+            foreach (var asset in assets)
+            {
+                DeletSubAsset(asset);
+            }
+        }
     }
 }
 #endif

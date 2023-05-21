@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
+using Rs64.TexTransTool.TexturAtlas;
 namespace Rs64.TexTransTool
 {
     public enum BlendType
@@ -283,7 +284,8 @@ namespace Rs64.TexTransTool
         {
             if (Base.width != Add.width && Base.height != Add.height) throw new System.ArgumentException("Textureの解像度が同一ではありません。。");
             if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPaht);
-
+            Compiler.NotFIlterAndReadWritTexture2D(ref Base);
+            Compiler.NotFIlterAndReadWritTexture2D(ref Add);
             var BaesPixels = Base.GetPixels();
             var AddPixels = Add.GetPixels();
             var ResultTexutres = new Texture2D(Base.width, Base.height);
@@ -301,6 +303,51 @@ namespace Rs64.TexTransTool
             CS.SetBuffer(KarnelId, "AddTex", AddTexCB);
 
             CS.Dispatch(KarnelId, Base.width / 32, Base.height / 32, 1);
+
+            BaseTexCB.GetData(BaesPixels);
+
+            ResultTexutres.SetPixels(BaesPixels);
+            ResultTexutres.Apply();
+
+            BaseTexCB.Release();
+            AddTexCB.Release();
+
+            return ResultTexutres;
+        }
+
+        public static Texture2D BlendTexturesUseComputeSheder(ComputeShader CS, List<Texture2D> Textures, BlendType PileType)
+        {
+            if (!Textures.Any()) throw new System.ArgumentException("対象が存在しません");
+            var Size = Textures.First().NativeSize();
+            if (Textures.Any(i => i.NativeSize() != Size)) throw new System.ArgumentException("Textureの解像度が同一ではありません。");
+            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPaht);
+
+            var FirstTex = Textures.First();
+            Compiler.NotFIlterAndReadWritTexture2D(ref FirstTex);
+            var BaesPixels = FirstTex.GetPixels();
+            var ResultTexutres = new Texture2D(Size.x, Size.y);
+            int KarnelId;
+
+            KarnelId = CS.FindKernel(PileType.ToString());
+
+            CS.SetInt("Size", Size.x);
+
+            var BaseTexCB = new ComputeBuffer(BaesPixels.Length, 16);
+            var AddTexCB = new ComputeBuffer(BaesPixels.Length, 16);
+            BaseTexCB.SetData(BaesPixels);
+            CS.SetBuffer(KarnelId, "BaseTex", BaseTexCB);
+
+            foreach (var Index in Enumerable.Range(1, Textures.Count - 1))
+            {
+                var AddTex = Textures[Index];
+                Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
+                var AddPixels = AddTex.GetPixels();
+                AddTexCB.SetData(AddPixels);
+                CS.SetBuffer(KarnelId, "AddTex", AddTexCB);
+
+                CS.Dispatch(KarnelId, Size.x / 32, Size.y / 32, 1);
+
+            }
 
             BaseTexCB.GetData(BaesPixels);
 
