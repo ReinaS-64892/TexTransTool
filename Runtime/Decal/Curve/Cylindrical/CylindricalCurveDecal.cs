@@ -131,8 +131,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         {
             List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
 
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true));
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
 
 
             return Filters;
