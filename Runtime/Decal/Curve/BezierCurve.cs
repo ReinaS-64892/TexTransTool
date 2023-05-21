@@ -108,7 +108,8 @@ namespace Rs64.TexTransTool.Decal.Curve
             var Quads = new List<List<Vector3>>();
             var FromWight = StartWight;
             var FromPoint = GetPoint(FromWight);
-            var FromLook = Quaternion.FromToRotation(Vector3.up, GetPoint(FromWight + 0.01f) - FromPoint) * Quaternion.AngleAxis(GetRool(FromWight), Vector3.up);
+            var FromLook = Quaternion.FromToRotation(FromPoint, GetPoint(FromWight + 0.01f));
+            FromLook *= Quaternion.AngleAxis(GetRool(FromWight), Vector3.up);
             var FromEdge = (
                     FromPoint + FromLook * Vector3.left * (Size * 0.5f),
                     FromPoint + FromLook * Vector3.right * (Size * 0.5f)
@@ -117,7 +118,8 @@ namespace Rs64.TexTransTool.Decal.Curve
             foreach (var Index in Enumerable.Range(0, (int)Quad))
             {
                 Vector3 ToPoint; float ToWight; (ToPoint, ToWight) = GetOfLeng(FromWight, Size);
-                var ToLook = Quaternion.FromToRotation(Vector3.up, (ToPoint - FromPoint).normalized) * Quaternion.AngleAxis(GetRool(ToWight), Vector3.up);
+                var ToLook = Quaternion.FromToRotation(ToPoint, FromPoint);
+                ToLook *= Quaternion.AngleAxis(GetRool(ToWight), Vector3.up);
                 var ToEdge = (
                         ToPoint + ToLook * Vector3.left * (Size * 0.5f),
                         ToPoint + ToLook * Vector3.right * (Size * 0.5f)

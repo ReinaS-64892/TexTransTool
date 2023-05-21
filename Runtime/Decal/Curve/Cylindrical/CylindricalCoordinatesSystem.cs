@@ -63,7 +63,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
         public (List<Vector3>, List<Vector3>) VartexsConvertCCS(List<Vector3> Quad, List<Vector3> Varticals, bool IsAngeleOffset = true)
         {
-            var AngleOffset = IsAngeleOffset ? GetCCSPoint(Quad[0]).y : 0;
+            var AngleOffset = IsAngeleOffset ? GetCCSPoint(Quad[0]).y * -1 : 0;
             var LoaclVarticals = VartexsConvertCCS(Varticals, AngleOffset);
             var LoaclQuad = VartexsConvertCCS(Quad, AngleOffset);
             return (LoaclQuad, LoaclVarticals);

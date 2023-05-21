@@ -5,12 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+
 namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
         public delegate List<Vector3> ConvertSpase(List<Vector3> Varticals);
-        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, ConvertSpase ConvertSpase, string TargetProptyeName = "_MainTex", string TransMapperPath = null, List<Filtaring> TrainagleFilters = null)
+        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture(
+            Renderer TargetRenderer,
+            Texture2D SousTextures,
+            ConvertSpase ConvertSpase,
+            string TargetProptyeName = "_MainTex",
+            string TransMapperPath = null,
+            List<Filtaring> TrainagleFilters = null,
+            Vector2? TextureOutRenge = null,
+            float DefoaltPading = -1f
+        )
         {
             var ResultTexutres = new Dictionary<Material, List<Texture2D>>();
 
@@ -35,11 +45,11 @@ namespace Rs64.TexTransTool.Decal
 
 
                 var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
-                var Map = new TransMapData(-1, TargetTexSize);
+                var Map = new TransMapData(DefoaltPading, TargetTexSize);
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
-                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode.NotWrap);
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), DefoaltPading);
+                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode.Stretch, TextureOutRenge);
                 AtlasTex.Texture2D.Apply();
                 if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
                 else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }

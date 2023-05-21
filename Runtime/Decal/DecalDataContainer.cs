@@ -25,7 +25,6 @@ namespace Rs64.TexTransTool.Decal
             {
                 if (_DecaleBlendTexteres != null) AssetSaveHelper.DeletAssets(_DecaleBlendTexteres.ConvertAll(i => i.Texture));
                 _DecaleBlendTexteres = value;
-                MatAndTex.TextureSet(_DecaleBlendTexteres, AssetSaveHelper.SaveAssets(_DecaleBlendTexteres.ConvertAll(i => i.Texture)));
             }
             get => _DecaleBlendTexteres;
         }

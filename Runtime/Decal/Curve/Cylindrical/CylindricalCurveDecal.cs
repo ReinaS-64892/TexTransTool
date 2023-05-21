@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
@@ -30,6 +31,15 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             GizmosUtility.DrowGimzLine(Segments.ConvertAll(i => i.position));
             GizmosUtility.DrowGimzLine(BezierCurve.GetLine());
 
+
+            var bej = BezierCurve;
+            Quads.ForEach(i => i.ForEach(j =>
+            {
+                var ccsp = CylindricalCoordinatesSystem.GetCCSPoint(j);
+                var pos = CylindricalCoordinatesSystem.GetWorldPoint(new Vector3(ccsp.x, ccsp.y, 0));
+                Gizmos.DrawLine(j, pos);
+            }));
+
         }
 
         public override void Appry(MaterialDomain avatarMaterialDomain = null)
@@ -48,11 +58,12 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                 if (Mat.GetTexture(TargetPropatyName) is Texture2D OldTex)
                 {
                     var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, Tex, BlendType);
+                    var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
 
                     var NewMat = Instantiate<Material>(Mat);
-                    NewMat.SetTexture(TargetPropatyName, Newtex);
+                    NewMat.SetTexture(TargetPropatyName, SavedTex);
 
-                    GeneretaMatAndTex.Add(new MatAndTex(NewMat, Newtex));
+                    GeneretaMatAndTex.Add(new MatAndTex(NewMat, SavedTex));
                 }
             }
 
@@ -68,6 +79,9 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             if (_IsAppry) return;
             if (!IsPossibleCompile) return;
 
+            Vector2? TexRenage = null;
+            if (IsTextureStreach) TexRenage = TextureStreathRenge;
+
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
             foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size))
             {
@@ -75,7 +89,11 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                 {
                     DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer, DecalTexture,
                     I => ComvartSpace(Quad, I),
-                    TargetPropatyName));
+                    TargetPropatyName,
+                    TextureOutRenge: TexRenage,
+                    TrainagleFilters: GetFiltarings(),
+                    DefoaltPading: DefaultPading
+                    ));
                 }
             }
 
@@ -109,7 +127,16 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             return Utils.ZipListVector3(Normalaized, LoaclPases.Item2.ConvertAll(i => i.z));
         }
 
+        public List<DecalUtil.Filtaring> GetFiltarings()
+        {
+            List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
 
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true));
+
+
+            return Filters;
+        }
 
 
     }
