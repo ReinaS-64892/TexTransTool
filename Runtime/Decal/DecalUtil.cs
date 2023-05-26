@@ -19,6 +19,7 @@ namespace Rs64.TexTransTool.Decal
             string TransMapperPath = null,
             List<Filtaring> TrainagleFilters = null,
             Vector2? TextureOutRenge = null,
+            TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
             float DefoaltPading = -1f
         )
         {
@@ -49,14 +50,14 @@ namespace Rs64.TexTransTool.Decal
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
                 var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), DefoaltPading);
-                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode.Stretch, TextureOutRenge);
+                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
                 AtlasTex.Texture2D.Apply();
                 if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
                 else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }
             }
             return ResultTexutres;
         }
-
+        [Obsolete]
         public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null, List<Filtaring> TrainagleFilters = null)
         {
             List<Texture2D> ResultTexutres = new List<Texture2D>();
