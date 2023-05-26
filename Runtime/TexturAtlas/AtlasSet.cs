@@ -15,7 +15,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<MatSelect> TargetMaterial;
         public bool ForsedMaterialMarge = false;
         public bool UseRefarensMaterial = false;
-        public bool FocuseSetTexture = false;
+        public bool ForseSetTexture = false;
         public Material RefarensMaterial;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public float Pading = -10;
@@ -68,7 +68,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 Material RefMat;
                 if (UseRefarensMaterial && RefarensMaterial != null) RefMat = RefarensMaterial;
                 else RefMat = DistMats.First();
-                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, FocuseSetTexture);
+                var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, ForseSetTexture);
 
                 AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat);
             }
