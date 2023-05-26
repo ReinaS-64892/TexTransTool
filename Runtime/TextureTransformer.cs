@@ -4,6 +4,7 @@ namespace Rs64.TexTransTool
 {
     public abstract class TextureTransformer : MonoBehaviour
     {
+        public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract bool IsAppry { get; }
         public abstract bool IsPossibleAppry { get; }
         public abstract bool IsPossibleCompile { get; }

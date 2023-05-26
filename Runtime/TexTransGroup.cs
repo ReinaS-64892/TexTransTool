@@ -22,6 +22,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
+                if (tf.ThisEnable == false) continue;
                 tf.Appry(AvatarMaterialDomain);
             }
         }
@@ -35,6 +36,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in Revarstfs)
             {
                 if (tf == null) continue;
+                if (tf.ThisEnable == false) continue;
                 tf.Revart(AvatarMaterialDomain);
             }
         }
@@ -43,6 +45,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
+                if (tf.ThisEnable == false) continue;
                 tf.Compile();
                 tf.Appry();
             }
