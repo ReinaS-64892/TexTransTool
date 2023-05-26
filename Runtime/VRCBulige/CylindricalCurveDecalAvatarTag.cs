@@ -6,7 +6,7 @@ using Rs64.TexTransTool.Decal.Curve.Cylindrical;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/CylindricalCurveDecal")]
+    [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
 
     public class CylindricalCurveDecalAvatarTag : CylindricalCurveDecal, IEditorOnly
     {
