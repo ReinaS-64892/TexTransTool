@@ -5,7 +5,7 @@ using VRC.SDKBase;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarTag/TexTransGroup")]
+    [AddComponentMenu("TexTransTool/TexTransGroup")]
     public class TexTransGroupAvatarTag : TexTransGroup, IEditorOnly
     {
 

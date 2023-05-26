@@ -5,7 +5,7 @@ using VRC.SDKBase;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarTag/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroupAvatarTag))]
+    [AddComponentMenu("TexTransTool/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroupAvatarTag))]
     public class AvatarBuildAppryHook : MonoBehaviour, IEditorOnly
     {
         public TexTransGroupAvatarTag TTGAvatarTag;

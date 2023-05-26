@@ -8,7 +8,6 @@ using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
-    //[AddComponentMenu("TexTransTool/AtlasSet")]
     public class AtlasSet : TextureTransformer
     {
         public GameObject TargetRoot;

@@ -7,7 +7,6 @@ using UnityEditor;
 
 namespace Rs64.TexTransTool.Decal
 {
-    //[AddComponentMenu("TexTransTool/SimpleDecal")]
     public class SimpleDecal : AbstractDecal
     {
         public Vector2 Scale = Vector2.one;

@@ -5,7 +5,7 @@ using VRC.SDKBase;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarTag/AtlasSet")]
+    [AddComponentMenu("TexTransTool/AtlasSet")]
     public class AtlasSetAvatarTag : AtlasSet, IEditorOnly
     {
 

@@ -9,7 +9,6 @@ using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
-    [CreateAssetMenu(fileName = "CompileDataContenar", menuName = "Rs/CompileDataContenar")]
     public class CompileDataContenar : ScriptableObject
     {
         public List<Mesh> DistMeshs = new List<Mesh>();
