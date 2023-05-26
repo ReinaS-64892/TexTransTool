@@ -9,6 +9,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
     public class CylindricalCurveDecal : CurveDecal
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
+        public bool FiltedBackSide = true;
 
         public BezierCurve BezierCurve => new BezierCurve(Segments);
 
@@ -83,11 +84,25 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             if (IsTextureStreach) TexRenage = TextureStreathRenge;
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
+            int Count = 0;
             foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size))
             {
+                var TargetDecalTexture = DecalTexture;
+                if (UseFirstAndEnd)
+                {
+                    if (Count == 0)
+                    {
+                        TargetDecalTexture = FirstTexture;
+                    }
+                    else if (Count == LoopCount - 1)
+                    {
+                        TargetDecalTexture = EndTexture;
+                    }
+                }
+
                 foreach (var Renderer in TargetRenderers)
                 {
-                    DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer, DecalTexture,
+                    DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer, TargetDecalTexture,
                     I => ComvartSpace(Quad, I),
                     TargetPropatyName,
                     TextureOutRenge: TexRenage,
@@ -95,6 +110,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                     DefoaltPading: DefaultPading
                     ));
                 }
+                Count += 1;
             }
 
             var DictCompiledTexture = Utils.ZipToDictionaryOnList(DictCompiledTextures);
@@ -131,12 +147,17 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         {
             List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
 
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
-
+            if (FiltedBackSide)
+            {
+                Filters.Add((i, i2) => DecalUtil.SideChek(i, i2, true));
+                Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
+            }
+            else
+            {
+                Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
+            }
 
             return Filters;
         }
-
-
     }
 }
