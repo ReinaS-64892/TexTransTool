@@ -8,19 +8,14 @@ using UnityEditor;
 namespace Rs64.TexTransTool.Decal
 {
     //[AddComponentMenu("TexTransTool/SimpleDecal")]
-    public class SimpleDecal : TextureTransformer
+    public class SimpleDecal : AbstractDecal
     {
-        public List<Renderer> TargetRenderers = new List<Renderer> { null };
-        public Texture2D DecalTexture;
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
-
         public bool AdvansdMode;
-        public BlendType BlendType = BlendType.Normal;
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
-        public string TargetPropatyName = "_MainTex";
         public virtual void ScaleAppry()
         {
             if (DecalTexture != null && FixedAspect)
@@ -33,16 +28,7 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        [SerializeField] List<Texture2D> DecalCompiledTextures = new List<Texture2D>();
-        [SerializeField] List<Material> DecaleBlendMaterialsSave;
-        [SerializeField] List<Texture2D> DecaleBlendTexteres;
-        [SerializeField] List<Material> BackUpMaterials;
-        public void CompileDataClear()
-        {
-            AssetSaveHelper.DeletAssets(DecalCompiledTextures);
-            DecalCompiledTextures = new List<Texture2D> { null };
-        }
-        public List<DecalUtil.Filtaring> GetFiltarings()
+        public override List<DecalUtil.Filtaring> GetFiltarings()
         {
             List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
 
@@ -71,104 +57,27 @@ namespace Rs64.TexTransTool.Decal
         public override void Compile()
         {
             if (_IsAppry) return;
-            var ResultTexutres = new List<Texture2D>();
-            foreach (var TargetRenderer in TargetRenderers)
-            {
-                ResultTexutres.AddRange(DecalUtil.CreatDecalTexture(TargetRenderer, DecalTexture, transform.worldToLocalMatrix, TargetPropatyName, TrainagleFilters: GetFiltarings()));
-            }
-            AssetSaveHelper.DeletAssets(DecalCompiledTextures);
-            DecalCompiledTextures = AssetSaveHelper.SaveAssets(ResultTexutres);
-        }
-        public override void Appry(MaterialDomain AvatarMaterialDomain = null)
-        {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry) return;
-            _IsAppry = true;
-            var AllMaterials = new List<Material>();
-            var AllEditMaterials = new List<Material>();
-            var AllNewblendTexteres = new List<Texture2D>();
-            int MaterialIndexOffset = 0;
-            foreach (var TargetRenderer in TargetRenderers)
-            {
-                var Materials = TargetRenderer.sharedMaterials;
-                var EditMaterials = new Material[Materials.Length];
-                var NewblendTexteres = new Texture2D[Materials.Length];
+            if (!IsPossibleCompile) return;
 
-                foreach (var Index in Enumerable.Range(0, Materials.Length))
-                {
-                    var EditableMaterial = Instantiate(Materials[Index]);
-                    if (DecalCompiledTextures[MaterialIndexOffset + Index] != null && EditableMaterial.GetTexture(TargetPropatyName) is Texture2D BaseTex)
-                    {
-                        var AddTex = DecalCompiledTextures[MaterialIndexOffset + Index];
-                        Compiler.NotFIlterAndReadWritTexture2D(ref BaseTex);
-                        Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                        Texture2D BlendTextere = TextureLayerUtil.BlendTextureUseComputeSheder(null, BaseTex, AddTex, BlendType);
-                        var SavedPiletexure = AssetSaveHelper.SaveAsset(BlendTextere);
-                        EditableMaterial.SetTexture(TargetPropatyName, SavedPiletexure);
-                        NewblendTexteres[Index] = SavedPiletexure;
-                    }
-                    EditMaterials[Index] = EditableMaterial;
-                }
-                MaterialIndexOffset += Materials.Length;
-                AllMaterials.AddRange(Materials);
-                AllEditMaterials.AddRange(EditMaterials);
-                AllNewblendTexteres.AddRange(NewblendTexteres);
-            }
-            AllEditMaterials = AssetSaveHelper.SaveAssets(AllEditMaterials);
-            DecaleBlendTexteres = AllNewblendTexteres;
-            DecaleBlendMaterialsSave = AllEditMaterials;
-            BackUpMaterials = AllMaterials;
+            var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
 
-            if (AvatarMaterialDomain == null)
-            {
-                int IndexCount = 0;
-                foreach (var TargetRenderer in TargetRenderers)
-                {
-                    TargetRenderer.sharedMaterials = AllEditMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
-                    IndexCount += TargetRenderer.sharedMaterials.Length;
-                }
-            }
-            else
-            {
-                var Dist = BackUpMaterials.Distinct().ToList();
-                var Cheng = DecaleBlendMaterialsSave.Distinct().ToList();
-                AvatarMaterialDomain.SetMaterials(Dist, Cheng);
-            }
+            TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
+                                                i,
+                                                DecalTexture,
+                                                ComvartSpace,
+                                                TargetPropatyName,
+                                                TrainagleFilters: GetFiltarings())
+                                        ));
+
+            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
+            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
+            SetContainer(TextureList);
         }
 
-
-
-        public override void Revart(MaterialDomain AvatarMaterialDomain = null)
-        {
-            if (!_IsAppry) return;
-            _IsAppry = false;
-            if (AvatarMaterialDomain == null)
-            {
-                int IndexCount = 0;
-                foreach (var TargetRenderer in TargetRenderers)
-                {
-                    TargetRenderer.sharedMaterials = BackUpMaterials.Skip(IndexCount).Take(TargetRenderer.sharedMaterials.Length).ToArray();
-                    IndexCount += TargetRenderer.sharedMaterials.Length;
-                }
-            }
-            else
-            {
-                var Cheng = DecaleBlendMaterialsSave;
-                var BackUp = BackUpMaterials;
-                AvatarMaterialDomain.SetMaterials(Cheng, BackUp);
-            }
-            AssetSaveHelper.DeletAssets(DecaleBlendMaterialsSave);
-            AssetSaveHelper.DeletAssets(DecaleBlendTexteres);
-            DecaleBlendMaterialsSave = null;
-            BackUpMaterials = null;
-            DecaleBlendTexteres = null;
-
-        }
         public void AdvansdModeReset()
         {
             TargetPropatyName = "_MainTex";
             AdvansdMode = false;
-            CompileDataClear();
             SideChek = true;
             PolygonCaling = PolygonCaling.Vartex;
         }
@@ -178,13 +87,6 @@ namespace Rs64.TexTransTool.Decal
         [NonSerialized] public Material DisplayDecalMat;
         public Color GizmoColoro = new Color(0, 0, 0, 1);
         [NonSerialized] public Mesh Quad;
-
-        [SerializeField] bool _IsAppry;
-        public override bool IsAppry => _IsAppry;
-
-        public override bool IsPossibleAppry => DecalCompiledTextures.Any();
-
-        public override bool IsPossibleCompile => TargetRenderers[0] != null && DecalTexture != null;
 
         protected virtual void OnDrawGizmosSelected()
         {
