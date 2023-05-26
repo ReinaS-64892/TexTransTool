@@ -67,6 +67,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
+                if (tf.ThisEnable == false) continue;
                 if (!tf.IsPossibleAppry)
                 {
                     PossibleFlag = false;
@@ -80,6 +81,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
+                if (tf.ThisEnable == false) continue;
                 if (!tf.IsPossibleCompile)
                 {
                     PossibleFlag = false;
