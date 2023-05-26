@@ -133,7 +133,7 @@ namespace Rs64.TexTransTool
                     default:
                         continue;
                 }
-                if(mesh != null)Meshs.Add(mesh);
+                if (mesh != null) Meshs.Add(mesh);
             }
             return Meshs;
         }
@@ -164,6 +164,89 @@ namespace Rs64.TexTransTool
                     default:
                         continue;
                 }
+            }
+        }
+
+        public static List<Vector3> ZipListVector3(List<Vector2> XY, List<float> Z)
+        {
+            var Count = XY.Count;
+            if (Count != Z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
+
+            List<Vector3> Result = new List<Vector3>(Count);
+
+            foreach (var Index in Enumerable.Range(0, Count))
+            {
+                Result.Add(new Vector3(XY[Index].x, XY[Index].y, Z[Index]));
+            }
+
+            return Result;
+        }
+
+        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(Dictionary<T, List<T2>> Souse, Dictionary<T, List<T2>> Add)
+        {
+            var Result = new Dictionary<T, List<T2>>(Souse);
+            foreach (var Key in Add.Keys)
+            {
+                if (Result.ContainsKey(Key))
+                {
+                    Result[Key].AddRange(Add[Key]);
+                }
+                else
+                {
+                    Result.Add(Key, Add[Key]);
+                }
+            }
+            return Result;
+        }
+
+        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(List<Dictionary<T, List<T2>>> Target)
+        {
+            var Result = new Dictionary<T, List<T2>>();
+            foreach (var Add in Target)
+            {
+                foreach (var Key in Add.Keys)
+                {
+                    if (Result.ContainsKey(Key))
+                    {
+                        Result[Key].AddRange(Add[Key]);
+                    }
+                    else
+                    {
+                        Result.Add(Key, Add[Key]);
+                    }
+                }
+            }
+            return Result;
+        }
+
+    }
+    public static class GizmosUtility
+    {
+        public static void DrowGizmoQuad(List<List<Vector3>> Quads)
+        {
+            foreach (var Quad in Quads)
+            {
+                Gizmos.DrawLine(Quad[0], Quad[1]);
+                Gizmos.DrawLine(Quad[0], Quad[2]);
+                Gizmos.DrawLine(Quad[2], Quad[3]);
+                Gizmos.DrawLine(Quad[1], Quad[3]);
+            }
+        }
+
+        public static void DrowGimzLine(List<Vector3> Line)
+        {
+            var LineCount = Line.Count;
+            if (LineCount < 1) return;
+            int Count = 1;
+            while (LineCount > Count)
+            {
+
+                var FromPos = Line[Count - 1];
+                var ToPos = Line[Count];
+                Gizmos.DrawLine(FromPos, ToPos);
+
+                Count += 1;
+
             }
         }
     }

@@ -107,7 +107,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
                     {
                         IlandJoinIndex = IlandCout;
-                         break;
+                        break;
                     }
 
                 }
@@ -430,6 +430,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             foreach (var uvpos in UV)
             {
+                if (0 <= uvpos.x && uvpos.x <= 1 && 0 <= uvpos.y && uvpos.y <= 1) continue;
                 int x = Mathf.RoundToInt(uvpos.x * TargetTextur.width);
                 int y = Mathf.RoundToInt(uvpos.y * TargetTextur.height);
                 TargetTextur.SetPixel(x, y, WriteColor);

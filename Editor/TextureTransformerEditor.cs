@@ -15,6 +15,7 @@ namespace Rs64.TexTransTool.Editor
         }
         public static void TextureTransformerEditorDrow(TextureTransformer Target)
         {
+            if (Target == null) return;
             EditorGUI.BeginDisabledGroup(!Target.IsPossibleAppry);
             {
                 if (!Target.IsAppry)

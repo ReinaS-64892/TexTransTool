@@ -5,10 +5,58 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+
 namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
+        public delegate List<Vector3> ConvertSpase(List<Vector3> Varticals);
+        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture(
+            Renderer TargetRenderer,
+            Texture2D SousTextures,
+            ConvertSpase ConvertSpase,
+            string TargetProptyeName = "_MainTex",
+            string TransMapperPath = null,
+            List<Filtaring> TrainagleFilters = null,
+            Vector2? TextureOutRenge = null,
+            float DefoaltPading = -1f
+        )
+        {
+            var ResultTexutres = new Dictionary<Material, List<Texture2D>>();
+
+            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
+            List<Vector2> tUV; List<List<TraiangleIndex>> TraiangelsSubMesh; (tUV, TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+
+            var LoaclVarticals = ConvertSpase.Invoke(Vraticals);
+            var sUV = LoaclVarticals.ConvertAll<Vector2>(i => i);
+
+            var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
+            var Materials = TargetRenderer.sharedMaterials;
+
+            int SubMeshCount = -1;
+            foreach (var Traiangel in TraiangelsSubMesh)
+            {
+                SubMeshCount += 1;
+                var TargetMat = Materials[SubMeshCount];
+                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
+                if (TargetTexture == null) { break; }
+                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals, TrainagleFilters) : Traiangel;
+                if (FiltaringdTrainagle.Any() == false) { break; }
+
+
+                var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
+                var Map = new TransMapData(DefoaltPading, TargetTexSize);
+                var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
+                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), DefoaltPading);
+                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode.Stretch, TextureOutRenge);
+                AtlasTex.Texture2D.Apply();
+                if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
+                else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }
+            }
+            return ResultTexutres;
+        }
+
         public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null, List<Filtaring> TrainagleFilters = null)
         {
             List<Texture2D> ResultTexutres = new List<Texture2D>();
@@ -185,11 +233,14 @@ namespace Rs64.TexTransTool.Decal
         }
 
         public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex)
+        { return SideChek(TargetTri, Vartex, false); }
+        public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse)
         {
             var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
             var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
             var TraiangleSide = Vector3.Cross(ba, ac).z;
-            return TraiangleSide < 0;
+            if (!IsReverse) return TraiangleSide < 0;
+            else return TraiangleSide > 0;
         }
         public static bool FarClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
         {
@@ -254,6 +305,40 @@ namespace Rs64.TexTransTool.Decal
                 var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPos2);
                 return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
             }
+        }
+
+        public static Vector2 QuadNormaliz(List<Vector2> Quad, Vector2 TargetPos)
+        {
+            var OneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
+            var OneCross = Vector3.Cross(Quad[2] - Quad[0], TargetPos - Quad[0]).z > 0 ? -1 : 1;
+
+            var TwoNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[1], TargetPos);
+            var TwoCross = Vector3.Cross(Quad[1] - Quad[0], TargetPos - Quad[0]).z > 0 ? 1 : -1;
+
+            var ThreeNeaPoint = TransMapper.NeaPoint(Quad[1], Quad[3], TargetPos);
+            var ThreeCross = Vector3.Cross(Quad[3] - Quad[1], TargetPos - Quad[1]).z > 0 ? 1 : -1;
+
+            var ForNeaPoint = TransMapper.NeaPoint(Quad[2], Quad[3], TargetPos);
+            var ForCross = Vector3.Cross(Quad[3] - Quad[2], TargetPos - Quad[2]).z > 0 ? -1 : 1;
+
+            var OneDistans = Vector2.Distance(OneNeaPoint, TargetPos) * OneCross;
+            var TowDistans = Vector2.Distance(TwoNeaPoint, TargetPos) * TwoCross;
+            var ThreeDistnas = Vector2.Distance(ThreeNeaPoint, TargetPos) * ThreeCross;
+            var ForDistans = Vector2.Distance(ForNeaPoint, TargetPos) * ForCross;
+
+            var x = OneDistans / (OneDistans + ThreeDistnas);
+            var y = TowDistans / (TowDistans + ForDistans);
+
+            return new Vector2(x, y);
+        }
+        public static List<Vector2> QuadNormaliz(List<Vector2> Quad, List<Vector2> TargetPoss)
+        {
+            List<Vector2> NormalizedPos = new List<Vector2>(TargetPoss.Count);
+            foreach (var TargetPos in TargetPoss)
+            {
+                NormalizedPos.Add(QuadNormaliz(Quad, TargetPos));
+            }
+            return NormalizedPos;
         }
     }
     public enum PolygonCaling
