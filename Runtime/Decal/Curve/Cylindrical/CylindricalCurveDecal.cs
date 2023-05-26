@@ -82,8 +82,9 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                 Count += 1;
             }
 
-            var MatAndTexs = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
-            SetContainer(MatAndTexs);
+            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
+            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
+            SetContainer(TextureList);
         }
 
         private List<Vector3> ComvartSpace(List<Vector3> Quad, List<Vector3> Vartexs)

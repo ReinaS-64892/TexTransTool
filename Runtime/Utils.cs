@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Rs64.TexTransTool.Decal;
 using UnityEngine;
 namespace Rs64.TexTransTool
 {
@@ -215,6 +216,33 @@ namespace Rs64.TexTransTool
                         Result.Add(Key, Add[Key]);
                     }
                 }
+            }
+            return Result;
+        }
+
+        public static List<Texture2D> GeneratTexturesList(List<Material> SouseMaterials, Dictionary<Material, Texture2D> MatAndTexs)
+        {
+            List<Texture2D> Result = new List<Texture2D>();
+            foreach (var Mat in SouseMaterials)
+            {
+                if (MatAndTexs.ContainsKey(Mat))
+                {
+                    Result.Add(MatAndTexs[Mat]);
+                }
+                else
+                {
+                    Result.Add(null);
+                }
+            }
+            return Result;
+        }
+
+        public static Dictionary<T, T2> GeneretFromKvP<T, T2>(List<KeyValuePair<T, T2>> KvPList)
+        {
+            Dictionary<T, T2> Result = new Dictionary<T, T2>();
+            foreach (var KvP in KvPList)
+            {
+                Result.Add(KvP.Key, KvP.Value);
             }
             return Result;
         }

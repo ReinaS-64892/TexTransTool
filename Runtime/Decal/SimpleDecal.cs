@@ -69,8 +69,9 @@ namespace Rs64.TexTransTool.Decal
                                                 TrainagleFilters: GetFiltarings())
                                         ));
 
-            List<MatAndTex> MatAndTexs = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
-            SetContainer(MatAndTexs);
+            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
+            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
+            SetContainer(TextureList);
         }
 
         public void AdvansdModeReset()

@@ -31,25 +31,24 @@ namespace Rs64.TexTransTool.Decal
         public override bool IsPossibleAppry => Container != null;
         public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
 
-        public static List<MatAndTex> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType)
+        public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType)
         {
             var ResultTexutres = Utils.ZipToDictionaryOnList(DictCompiledTextures);
-            var MatAndTexs = new List<MatAndTex>();
+            var RetDict = new Dictionary<Material, Texture2D>();
             foreach (var kvp in ResultTexutres)
             {
                 var Mat = kvp.Key;
                 var Texs = kvp.Value;
                 var Tex = TextureLayerUtil.BlendTexturesUseComputeSheder(null, Texs, BlendType);
-                MatAndTexs.Add(new MatAndTex(Mat, Tex));
+                RetDict.Add(Mat, Tex);
             }
 
-            return MatAndTexs;
+            return RetDict;
         }
-        protected virtual void SetContainer(List<MatAndTex> MatAndTexs)
+        protected virtual void SetContainer(List<Texture2D> Texs)
         {
             if (Container == null) { Container = ScriptableObject.CreateInstance<DecalDataContainer>(); AssetSaveHelper.SaveAsset(Container); }
-            Container.DecalCompiledTextures = MatAndTexs;
-            Container.DistMaterials = MatAndTexs.ConvertAll<Material>(i => i.Material);
+            Container.DecalCompiledTextures = Texs;
         }
 
         public virtual List<DecalUtil.Filtaring> GetFiltarings() { return null; }
@@ -61,28 +60,34 @@ namespace Rs64.TexTransTool.Decal
             _IsAppry = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
 
-            var MatAndTexs = Container.DecalCompiledTextures;
-            var GeneretaMatAndTex = new List<MatAndTex>();
-            foreach (var MatAndTex in MatAndTexs)
+            var DistMaterials = Utils.GetMaterials(TargetRenderers);
+            var DecalTextures = Container.DecalCompiledTextures;
+            var PeadMaterial = new Dictionary<Material, Material>();
+            var GeneretaTex = new List<Texture2D>();
+            foreach (var Index in Enumerable.Range(0, DecalTextures.Count))
             {
-                var Mat = MatAndTex.Material;
-                var Tex = MatAndTex.Texture;
-                if (Mat.GetTexture(TargetPropatyName) is Texture2D OldTex)
+                var DistMat = DistMaterials[Index];
+                var DecalTex = DecalTextures[Index];
+
+                if (DistMat == null || DecalTex == null) continue;
+
+                if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex)
                 {
-                    var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, Tex, BlendType);
+                    var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, DecalTex, BlendType);
                     var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
 
-                    var NewMat = Instantiate<Material>(Mat);
+                    var NewMat = Instantiate<Material>(DistMat);
                     NewMat.SetTexture(TargetPropatyName, SavedTex);
 
-                    GeneretaMatAndTex.Add(new MatAndTex(NewMat, SavedTex));
+                    PeadMaterial.Add(DistMat, NewMat);
+                    GeneretaTex.Add(SavedTex);
                 }
             }
 
-            Container.DecaleBlendTexteres = GeneretaMatAndTex;
-            Container.GenereatMaterials = GeneretaMatAndTex.ConvertAll(i => i.Material);
+            Container.DecaleBlendTexteres = GeneretaTex;
+            Container.GenereatMaterials = MatPea.GeneratMatPeaList(PeadMaterial);
 
-            avatarMaterialDomain.SetMaterials(Container.DistMaterials, Container.GenereatMaterials);
+            avatarMaterialDomain.SetMaterials(PeadMaterial);
             _IsAppry = true;
         }
 
@@ -92,7 +97,8 @@ namespace Rs64.TexTransTool.Decal
             _IsAppry = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
 
-            avatarMaterialDomain.SetMaterials(Container.GenereatMaterials, Container.DistMaterials);
+            var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
+            avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
         }
 
         public virtual List<Vector3> ComvartSpace(List<Vector3> varticals)
