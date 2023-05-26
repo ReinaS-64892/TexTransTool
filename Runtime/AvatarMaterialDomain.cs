@@ -76,6 +76,17 @@ namespace Rs64.TexTransTool
                 SetMaterial(Target[index], SetMat[index]);
             }
         }
+        public void SetMaterials(IEnumerable<Material> Target, IEnumerable<Material> SetMat)
+        {
+            SetMaterials(Target.ToList(), SetMat.ToList());
+        }
+        public void SetMaterials(Dictionary<Material, Material> TargetAndSet)
+        {
+            foreach (var KVP in TargetAndSet)
+            {
+                SetMaterial(KVP.Key, KVP.Value);
+            }
+        }
         public void SetMaterials(List<Material> TargetMat, Material SetMat)
         {
             foreach (var Target in TargetMat)

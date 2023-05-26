@@ -43,38 +43,6 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
         }
 
-        public override void Appry(MaterialDomain avatarMaterialDomain = null)
-        {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry) return;
-            _IsAppry = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
-
-            var MatAndTexs = Container.DecalCompiledTextures;
-            var GeneretaMatAndTex = new List<MatAndTex>();
-            foreach (var MatAndTex in MatAndTexs)
-            {
-                var Mat = MatAndTex.Material;
-                var Tex = MatAndTex.Texture;
-                if (Mat.GetTexture(TargetPropatyName) is Texture2D OldTex)
-                {
-                    var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, Tex, BlendType);
-                    var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
-
-                    var NewMat = Instantiate<Material>(Mat);
-                    NewMat.SetTexture(TargetPropatyName, SavedTex);
-
-                    GeneretaMatAndTex.Add(new MatAndTex(NewMat, SavedTex));
-                }
-            }
-
-            Container.DecaleBlendTexteres = GeneretaMatAndTex;
-            Container.GenereatMaterials = GeneretaMatAndTex.ConvertAll(i => i.Material);
-
-            avatarMaterialDomain.SetMaterials(Container.DistMaterials, Container.GenereatMaterials);
-            _IsAppry = true;
-        }
-
         public override void Compile()
         {
             if (_IsAppry) return;
@@ -107,33 +75,16 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                     TargetPropatyName,
                     TextureOutRenge: TexRenage,
                     TrainagleFilters: GetFiltarings(),
-                    DefoaltPading: DefaultPading
+                    DefoaltPading: DefaultPading,
+                    TexWrapMode: TexWrapMode.Stretch
                     ));
                 }
                 Count += 1;
             }
 
-            var DictCompiledTexture = Utils.ZipToDictionaryOnList(DictCompiledTextures);
-            var MatAndTexs = new List<MatAndTex>();
-            foreach (var kvp in DictCompiledTexture)
-            {
-                var Mat = kvp.Key;
-                var Texs = kvp.Value;
-                var Tex = TextureLayerUtil.BlendTexturesUseComputeSheder(null, Texs, BlendType);
-                MatAndTexs.Add(new MatAndTex(Mat, Tex));
-            }
-            if (Container == null) { Container = ScriptableObject.CreateInstance<DecalDataContainer>(); AssetSaveHelper.SaveAsset(Container); }
-            Container.DecalCompiledTextures = MatAndTexs;
-            Container.DistMaterials = MatAndTexs.ConvertAll<Material>(i => i.Material);
-        }
-
-        public override void Revart(MaterialDomain avatarMaterialDomain = null)
-        {
-            if (!_IsAppry) return;
-            _IsAppry = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
-
-            avatarMaterialDomain.SetMaterials(Container.GenereatMaterials, Container.DistMaterials);
+            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
+            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
+            SetContainer(TextureList);
         }
 
         private List<Vector3> ComvartSpace(List<Vector3> Quad, List<Vector3> Vartexs)
@@ -143,7 +94,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             return Utils.ZipListVector3(Normalaized, LoaclPases.Item2.ConvertAll(i => i.z));
         }
 
-        public List<DecalUtil.Filtaring> GetFiltarings()
+        public override List<DecalUtil.Filtaring> GetFiltarings()
         {
             List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
 
