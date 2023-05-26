@@ -78,7 +78,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
             var LoaclVarticals = VartexsConvertCCS(Varticals, AngleOffset);
             var LoaclQuad = VartexsConvertCCS(Quad, AngleOffset);
-            LoaclQuad.ForEach(i => Debug.Log( i.x + " " + i.y + " " + i.z) );
+            //LoaclQuad.ForEach(i => Debug.Log( i.x + " " + i.y + " " + i.z) );
             return (LoaclQuad, LoaclVarticals);
         }
     }

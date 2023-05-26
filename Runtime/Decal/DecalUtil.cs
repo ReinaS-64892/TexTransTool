@@ -233,11 +233,14 @@ namespace Rs64.TexTransTool.Decal
         }
 
         public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex)
+        { return SideChek(TargetTri, Vartex, false); }
+        public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse)
         {
             var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
             var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
             var TraiangleSide = Vector3.Cross(ba, ac).z;
-            return TraiangleSide < 0;
+            if (!IsReverse) return TraiangleSide < 0;
+            else return TraiangleSide > 0;
         }
         public static bool FarClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
         {

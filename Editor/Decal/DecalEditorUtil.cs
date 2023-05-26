@@ -51,7 +51,7 @@ namespace Rs64.TexTransTool.Editor.Decal
         public static void DrowTextureFiled(SerializedProperty SerializedTexture, Action<Texture2D> CallBack)
         {
             var DecalTexValue = SerializedTexture.objectReferenceValue;
-            var DecalTexEditValue = EditorGUILayout.ObjectField("DecalTexture", DecalTexValue, typeof(Texture2D), false) as Texture2D;
+            var DecalTexEditValue = EditorGUILayout.ObjectField(SerializedTexture.displayName, DecalTexValue, typeof(Texture2D), false) as Texture2D;
             if (DecalTexValue != DecalTexEditValue)
             {
                 SerializedTexture.objectReferenceValue = DecalTexEditValue;

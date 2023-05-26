@@ -11,6 +11,13 @@ namespace Rs64.TexTransTool.Editor.Decal
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
+            DrowDecalEditor(This_S_Object);
+
+            This_S_Object.ApplyModifiedProperties();
+        }
+
+        public static void DrowDecalEditor(SerializedObject This_S_Object)
+        {
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
             DecalEditorUtili.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
@@ -20,11 +27,8 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
-
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
             EditorGUILayout.PropertyField(S_TargetPropatyName);
-
-            This_S_Object.ApplyModifiedProperties();
         }
     }
 }
