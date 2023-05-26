@@ -10,7 +10,7 @@ using Rs64.TexTransTool.TexturAtlas;
 namespace Rs64.TexTransTool.VRCBulige
 {
     [InitializeOnLoad]
-    public class AtlasAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
+    public class TTGAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
         public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが -1024で IEditorOnlyは消滅するらしい。
 
