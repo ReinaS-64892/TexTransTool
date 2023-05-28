@@ -2,6 +2,9 @@
 using System;
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Rs64.TexTransTool.Editor
 {
 
@@ -14,6 +17,11 @@ namespace Rs64.TexTransTool.Editor
             TextureTransformerEditorDrow(Target);
         }
         public static void TextureTransformerEditorDrow(TextureTransformer Target)
+        {
+            DrowAppryAndRevart(Target);
+            DrowCompile(Target);
+        }
+        public static void DrowAppryAndRevart(TextureTransformer Target)
         {
             if (Target == null) return;
             EditorGUI.BeginDisabledGroup(!Target.IsPossibleAppry);
@@ -37,7 +45,10 @@ namespace Rs64.TexTransTool.Editor
                 }
             }
             EditorGUI.EndDisabledGroup();
-
+        }
+        public static void DrowCompile(TextureTransformer Target)
+        {
+            if (Target == null) return;
             EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsAppry));
             if (GUILayout.Button("Compile"))
             {
@@ -46,16 +57,52 @@ namespace Rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
         }
-        public static void objectReferenceEditActionAndPorpty<T>(SerializedProperty Prop, Action<T> EditoCollBack) where T : UnityEngine.Object
+        public static void objectReferencePorpty<T>(SerializedProperty Prop, Action<T> EditCollBack) where T : UnityEngine.Object
         {
             var valu = Prop.objectReferenceValue as T;
             var Editvalu = EditorGUILayout.ObjectField(Prop.name, valu, typeof(T), true) as T;
             if (valu != Editvalu)
             {
-                EditoCollBack.Invoke(Editvalu);
+                EditCollBack.Invoke(Editvalu);
                 Prop.objectReferenceValue = Editvalu;
             }
         }
+        public delegate T Filter<T>(T Target);
+        public static void objectReferencePorpty<T>(SerializedProperty Prop, Filter<T> EditAndFilterCollBack) where T : UnityEngine.Object
+        {
+            var valu = Prop.objectReferenceValue as T;
+            var Editvalu = EditorGUILayout.ObjectField(Prop.name, valu, typeof(T), true) as T;
+            if (valu != Editvalu)
+            {
+                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Editvalu);
+            }
+        }
+        public static void objectReferencePorpty<T>(SerializedProperty Prop) where T : UnityEngine.Object
+        {
+            Prop.objectReferenceValue = EditorGUILayout.ObjectField(Prop.name, Prop.objectReferenceValue, typeof(T), true) as T;
+        }
+
+        public static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
+        {
+            Renderer FiltalingdRendarer;
+            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
+            {
+                FiltalingdRendarer = TargetRendererEditValue;
+            }
+            else
+            {
+                FiltalingdRendarer = null;
+            }
+
+            return FiltalingdRendarer;
+        }
+
+        public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
+        {
+
+            return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);
+        }
+
     }
 }
 #endif

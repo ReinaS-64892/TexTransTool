@@ -32,7 +32,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var IsAppry = ThisTarget.IsAppry;
 
             EditorGUI.BeginDisabledGroup(IsAppry);
-            TextureTransformerEditor.objectReferenceEditActionAndPorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
+            TextureTransformerEditor.objectReferencePorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
             if (TargetRoot.objectReferenceValue != null)
             {
                 if (GUILayout.Button("ResearchRenderas"))
@@ -145,23 +145,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 return;
             }
             var renderers = TargetRoot.GetComponentsInChildren<Renderer>();
-            var FilterRendres = renderers.Where(i =>
-            {
-                switch (i)
-                {
-                    case SkinnedMeshRenderer smr:
-                        {
-                            return smr.sharedMesh != null;
-                        }
-                    case MeshRenderer MR:
-                        {
-                            return MR.GetComponent<MeshFilter>().sharedMesh != null;
-                        }
-                    default:
-                        return false;
-                }
-            }
-            ).ToArray();
+            var FilterRendres = TextureTransformerEditor.RendererFiltaling(renderers).ToArray();
             int count = -1;
             TargetRenderer.arraySize = FilterRendres.Length;
             foreach (var Rendera in FilterRendres)
