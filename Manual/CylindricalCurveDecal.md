@@ -10,7 +10,7 @@ SimpleDecal の派生で、カーブ状にデカールを張ることができ�
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある CylindricalCurveDecal.cs から、
+TexTransTool/Runtime/Decal/Curve/Cylindrical にある CylindricalCurveDecal.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/Experimental/CylindricalCurveDecal から
 ゲームオブジェクトに追加できます。
 

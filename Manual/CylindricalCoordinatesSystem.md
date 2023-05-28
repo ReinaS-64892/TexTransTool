@@ -9,7 +9,7 @@
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある CylindricalCoordinatesSystemAvatarTag.cs から、
+TexTransTool/Runtime/Decal/Curve/Cylindrical にある CylindricalCoordinatesSystemAvatarTag.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/Experimental/CylindricalCoordinatesSystem から
 ゲームオブジェクトに追加できます。
 

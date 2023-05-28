@@ -8,7 +8,7 @@
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある SimpleDecalAvatarTag.cs から、
+TexTransTool/Runtime/Decal にある SimpleDecalAvatarTag.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/SimpleDecal から
 ゲームオブジェクトに追加できます。
 

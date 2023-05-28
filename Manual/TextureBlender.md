@@ -10,7 +10,7 @@
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある TextureBlender.cs から
+TexTransTool/Runtime にある TextureBlender.cs から
 またはインスペクターのコンポーネントを追加の TexTransTool/TextureBlender から、
 ゲームオブジェクトに追加できます。
 

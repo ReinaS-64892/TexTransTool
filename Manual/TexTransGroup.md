@@ -9,7 +9,7 @@ Appry したりすることができ、上から順に実行されていくた�
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある TexTransGroupAvatarTag.cs から、
+TexTransTool/Runtime にある TexTransGroupAvatarTag.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/TexTransGroup から
 ゲームオブジェクトに追加できます。
 
