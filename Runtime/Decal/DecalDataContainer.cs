@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,3 +33,4 @@ namespace Rs64.TexTransTool.Decal
 
 
 }
+#endif
