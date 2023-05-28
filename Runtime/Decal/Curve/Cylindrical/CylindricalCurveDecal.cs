@@ -1,12 +1,20 @@
+#if UNITY_EDITOR
 using System;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using static Rs64.TexTransTool.Decal.DecalUtil;
+#if VRC_BASE
+using VRC.SDKBase;
+#endif
 
 namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 {
+    [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
     public class CylindricalCurveDecal : CurveDecal
+#if VRC_BASE
+    , IEditorOnly
+#endif
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FiltedBackSide = true;
@@ -112,3 +120,4 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         }
     }
 }
+#endif

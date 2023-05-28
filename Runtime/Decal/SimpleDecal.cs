@@ -4,10 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-
+#if VRC_BASE
+using VRC.SDKBase;
+#endif
 namespace Rs64.TexTransTool.Decal
 {
+    [AddComponentMenu("TexTransTool/SimpleDecal")]
     public class SimpleDecal : AbstractDecal
+#if VRC_BASE
+    , IEditorOnly
+#endif
     {
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
