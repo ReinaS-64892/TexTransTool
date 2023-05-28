@@ -4,7 +4,7 @@
 
 VRChat のアバタービルド時のコールバックを受けるためにあるコンポーネントで、そのコールバックを受けたとき参照している TexTransGrop を Appry します。
 
-そして、Appry は[AvatarMaterialDmain](AvatarMaterialDmain.md)と同じものとなり、
+そして、Appry は[AvatarMaterialDmain](AvatarMaterialDmain.md)と同じものとなり、アバターとしての総マテリアル数が増加してしまうのを防ぐようになっています。
 
 非破壊的に適応するためにはそのアバターには一つは必須となります。（これが存在しない場合は適応されません。）
 
@@ -18,6 +18,6 @@ TexTransTool/Runtime/VRCBulige にある AvatarBuildAppryHook.cs から、
 
 ## プロパティ
 
-### TTGAvatarTag
+### TexTransGrop
 
 TexTransGrop の参照をセットできるプロパティです。
