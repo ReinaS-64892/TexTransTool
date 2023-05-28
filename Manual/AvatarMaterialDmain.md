@@ -8,8 +8,7 @@
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある AvatarMaterialDmain.cs から、
-またはインスペクターのコンポーネントを追加の TexTransTool/AvatarMaterialDmain から
+TexTransTool/Runtime にある AvatarMaterialDmain.cs から
 ゲームオブジェクトに追加できます。
 
 ### MaterialDomainUse - Appry
