@@ -16,9 +16,9 @@
 
 SimpleDecal や AtlasSet をまとめて Compile や Appry などを行うことのできるコンポーネントです。[詳細はこちら](Manual/TexTransGroup.md)
 
-### AvatarBuildAppryHook , AvatarMaterialDmain
+### AvatarBuildAppryHook
 
-SimpleDacal などを使用するときアバターの総マテリアル数が増えるのを防ぐことができ、TexTransGroup とセットで使用するコンポーネントです。詳細はこちら[AvatarBuildAppryHook](Manual/AvatarBuildAppryHook.md)、[AvatarMaterialDmain](Manual/AvatarMaterialDmain.md)
+TexTransGroupとセットで使用し、アバターをビルドするときにAppryし、非破壊的に変更を加えるためのコンポーネントです。[詳細はこちら](Manual/AvatarBuildAppryHook.md)
 
 ## Experimental Features
 

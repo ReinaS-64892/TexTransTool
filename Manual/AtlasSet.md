@@ -8,7 +8,7 @@
 
 ### 始めに
 
-TexTransTool/Runtime/VRCBulige にある AtlasSetAvatarTag.cs から、
+TexTransTool/Runtime/TexturAtlas にある AtlasSet.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/AtlasSet から
 ゲームオブジェクトに追加できます。
 
