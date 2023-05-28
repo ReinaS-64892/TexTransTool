@@ -44,14 +44,15 @@ namespace Rs64.TexTransTool.Editor
 
         public static int ArraySelector<T>(int Select, T[] Array) where T : UnityEngine.Object
         {
-            if(Array == null) return Select;
+            if (Array == null) return Select;
             int SelecCount = 0;
-            int NawSelect = Select;
+            int DistSelect = Select;
+            int NewSelect = Select;
             foreach (var ArryValue in Array)
             {
                 EditorGUILayout.BeginHorizontal();
 
-                if (EditorGUILayout.Toggle(SelecCount == Select, GUILayout.Width(20))) NawSelect = SelecCount;
+                if (EditorGUILayout.Toggle(SelecCount == Select, GUILayout.Width(20)) && DistSelect != SelecCount) NewSelect = SelecCount;
 
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.ObjectField(ArryValue, typeof(Material), true);
@@ -61,7 +62,7 @@ namespace Rs64.TexTransTool.Editor
 
                 SelecCount += 1;
             }
-            return NawSelect;
+            return NewSelect;
         }
     }
 }
