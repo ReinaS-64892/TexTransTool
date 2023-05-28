@@ -44,6 +44,7 @@ namespace Rs64.TexTransTool.Editor
 
         public static int ArraySelector<T>(int Select, T[] Array) where T : UnityEngine.Object
         {
+            if(Array == null) return Select;
             int SelecCount = 0;
             int NawSelect = Select;
             foreach (var ArryValue in Array)
