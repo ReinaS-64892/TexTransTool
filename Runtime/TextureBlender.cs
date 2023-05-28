@@ -7,6 +7,7 @@ using VRC.SDKBase;
 #endif
 namespace Rs64.TexTransTool
 {
+    [AddComponentMenu("TexTransTool/TextureBlender")]
     public class TextureBlender : TextureTransformer
 #if VRC_BASE
     , IEditorOnly
@@ -41,10 +42,19 @@ namespace Rs64.TexTransTool
 
             var DistMat = DistMaterials[MaterialSelect];
 
-            var OldTex = DistMat.GetTexture(TargetPropatyName) as Texture2D;
-            if (OldTex == null) return;
+            var DistTex = DistMat.GetTexture(TargetPropatyName) as Texture2D;
+            var AddTex = BlendTexture;
+            if (DistTex == null) return;
 
-            var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, BlendTexture, BlendType);
+            var DistSize = DistTex.NativeSize();
+            if (DistSize != AddTex.NativeSize())
+            {
+                Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
+                AddTex = TextureLayerUtil.ResizeTexture(AddTex, DistSize);
+            }
+
+
+            var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistTex, AddTex, BlendType);
             var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
 
             var NewMat = Instantiate<Material>(DistMat);
