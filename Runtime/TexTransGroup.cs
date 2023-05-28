@@ -1,9 +1,15 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
+#if VRC_BASE
+using VRC.SDKBase;
+#endif
 namespace Rs64.TexTransTool
 {
     public class TexTransGroup : TextureTransformer
+#if VRC_BASE
+    , IEditorOnly
+#endif
     {
         public List<TextureTransformer> TextureTransformers = new List<TextureTransformer>();
         [SerializeField, HideInInspector] bool _IsAppry;

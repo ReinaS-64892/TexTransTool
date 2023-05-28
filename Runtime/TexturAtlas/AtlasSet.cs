@@ -5,10 +5,16 @@ using UnityEditor;
 using System.Linq;
 using System;
 using Rs64.TexTransTool.ShaderSupport;
-
+#if VRC_BASE
+using VRC.SDKBase;
+#endif
 namespace Rs64.TexTransTool.TexturAtlas
 {
+    [AddComponentMenu("TexTransTool/AtlasSet")]
     public class AtlasSet : TextureTransformer
+#if VRC_BASE
+    , IEditorOnly
+#endif
     {
         public GameObject TargetRoot;
         public List<Renderer> TargetRenderer;//MeshとMaterialの両方を持っているRenderer
