@@ -261,6 +261,7 @@ namespace Rs64.TexTransTool
         public static Vector2Int NativeSize(this Texture2D SouseTex)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+#if !UNITY_ANDROID
             System.Drawing.Bitmap map;
             if (string.IsNullOrEmpty(SouseTexPath))
             {
@@ -271,6 +272,22 @@ namespace Rs64.TexTransTool
                 map = new System.Drawing.Bitmap(SouseTexPath);
             }
             return new Vector2Int(map.Width, map.Height);
+#else
+            using (var map = new AndroidJavaClass("android.graphics.BitmapFactory"))
+            {
+                byte[] PngByte;
+                if (string.IsNullOrEmpty(SouseTexPath))
+                {
+                    PngByte = SouseTex.EncodeToPNG();
+                }
+                else
+                {
+                    PngByte = File.ReadAllBytes(SouseTexPath);
+                }
+                var bitmap = map.CallStatic<AndroidJavaObject>("decodeByteArray", PngByte, 0, PngByte.Length);
+                return new Vector2Int(bitmap.Call<int>("getWidth"), bitmap.Call<int>("getHeight"));
+            }
+#endif
         }
 
 

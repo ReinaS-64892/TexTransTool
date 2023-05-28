@@ -21,7 +21,7 @@ TexTransTool/Runtime にある AvatarMaterialDmain.cs から
 
 アバターの範囲となる GameObject をセットできるプロパティです。
 
-各々の TextureTranformer がマテリアルを変更したときの影響範囲がこの GameObject の配下のレンダラーになります。
+MaterialDomainUse - Appry を使用した場合、各々の TextureTranformer がマテリアルを変更したときの影響範囲がこの GameObject の配下のレンダラーになります。
 
 ### TexTransGrop
 

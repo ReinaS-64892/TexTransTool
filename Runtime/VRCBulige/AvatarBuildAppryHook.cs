@@ -1,17 +1,17 @@
-#if UNITY_EDITOR
+#if (UNITY_EDITOR && VRC_BASE)
 using UnityEngine;
 using System.Collections.Generic;
 using VRC.SDKBase;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroupAvatarTag))]
+    [AddComponentMenu("TexTransTool/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroup))]
     public class AvatarBuildAppryHook : MonoBehaviour, IEditorOnly
     {
-        public TexTransGroupAvatarTag TTGAvatarTag;
+        public TexTransGroup TexTransGroup;
         private void Reset()
         {
-            TTGAvatarTag = GetComponent<TexTransGroupAvatarTag>();
+            TexTransGroup = GetComponent<TexTransGroup>();
         }
     }
 }

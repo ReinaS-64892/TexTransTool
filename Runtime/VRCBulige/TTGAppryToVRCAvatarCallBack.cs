@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if (UNITY_EDITOR && VRC_BASE)
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -20,7 +20,7 @@ namespace Rs64.TexTransTool.VRCBulige
                 var MaterialDomain = new MaterialDomain(avatarGameObject.GetComponentsInChildren<Renderer>(true).ToList());
                 foreach (var ABAH in AvatarBuildAppryHooks)
                 {
-                    ABAH.TTGAvatarTag.Appry(MaterialDomain);
+                    ABAH.TexTransGroup.Appry(MaterialDomain);
                     MonoBehaviour.DestroyImmediate(ABAH);
                 }
                 return true;
