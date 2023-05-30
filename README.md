@@ -12,6 +12,10 @@
 
 指定した GameObject とその子に含まれる Renderer のマテリアルのメインテクスチャをアトラス化することのできるコンポーネントです。[詳細はこちら](Manual/AtlasSet.md)
 
+### TextureBlender
+
+画像編集ツールのレイヤー機能のように画像を合成できるコンポーネントです。[詳細はこちら](Manual/TextureBlender.md)
+
 ### TexTransGroup
 
 SimpleDecal や AtlasSet をまとめて Compile や Appry などを行うことのできるコンポーネントです。[詳細はこちら](Manual/TexTransGroup.md)
