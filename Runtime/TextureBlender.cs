@@ -40,6 +40,8 @@ namespace Rs64.TexTransTool
             (Material, Material) PeadMaterial;
             Texture2D GeneretaTex;
 
+            if(DistMaterials.Length <= MaterialSelect) return;
+
             var DistMat = DistMaterials[MaterialSelect];
 
             var DistTex = DistMat.GetTexture(TargetPropatyName) as Texture2D;
