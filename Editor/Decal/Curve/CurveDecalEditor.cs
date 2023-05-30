@@ -34,16 +34,16 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
             if (isUseStartAndEnd)
             {
                 var S_Start = This_S_Object.FindProperty("FirstTexture");
-                DecalEditorUtili.DrowTextureFiled(S_Start, null);
+                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_Start);
             }
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            DecalEditorUtili.DrowTextureFiled(S_DecalTexture, null);
+            TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_DecalTexture);
 
             if (isUseStartAndEnd)
             {
                 var S_End = This_S_Object.FindProperty("EndTexture");
-                DecalEditorUtili.DrowTextureFiled(S_End, null);
+                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_End);
             }
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 

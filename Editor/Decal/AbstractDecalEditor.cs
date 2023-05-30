@@ -23,7 +23,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             DecalEditorUtili.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            DecalEditorUtili.DrowTextureFiled(S_DecalTexture, null);
+            TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_DecalTexture);
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
