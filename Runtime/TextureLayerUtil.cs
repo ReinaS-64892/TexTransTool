@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool.TexturAtlas;
 namespace Rs64.TexTransTool
 {
     public enum BlendType
@@ -623,6 +622,30 @@ namespace Rs64.TexTransTool
             Color.a = Mathf.Clamp01(Color.a);
         }
 
+        public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
+        {
+            var ResizedTexture = new Texture2D(Size.x, Size.y);
+
+            var Pixsels = new Color[Size.x * Size.y];
+
+            foreach (var Index in Enumerable.Range(0, Pixsels.Length))
+            {
+                Pixsels[Index] = GetColorOnTexture(Souse, Index, Size);
+            }
+
+            ResizedTexture.SetPixels(Pixsels);
+            ResizedTexture.Apply();
+
+
+
+            return ResizedTexture;
+        }
+
+        public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SorsSize)
+        {
+            var Pos = Utils.OneDToTwoDIndex(Index, SorsSize.x);
+            return Texture.GetPixelBilinear(Pos.x / (float)SorsSize.x, Pos.y / (float)SorsSize.y);
+        }
 
     }
 

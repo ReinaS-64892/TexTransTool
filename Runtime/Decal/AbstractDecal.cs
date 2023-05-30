@@ -88,7 +88,6 @@ namespace Rs64.TexTransTool.Decal
             Container.GenereatMaterials = MatPea.GeneratMatPeaList(PeadMaterial);
 
             avatarMaterialDomain.SetMaterials(PeadMaterial);
-            _IsAppry = true;
         }
 
         public override void Revart(MaterialDomain avatarMaterialDomain = null)
