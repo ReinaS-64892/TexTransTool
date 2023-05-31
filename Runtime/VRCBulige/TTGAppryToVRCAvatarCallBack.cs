@@ -1,4 +1,5 @@
 ﻿#if (UNITY_EDITOR && VRC_BASE)
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -16,14 +17,22 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
+            try
+            {
                 var AvatarBuildAppryHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildAppryHook>();
-                var MaterialDomain = new MaterialDomain(avatarGameObject.GetComponentsInChildren<Renderer>(true).ToList());
                 foreach (var ABAH in AvatarBuildAppryHooks)
                 {
-                    ABAH.TexTransGroup.Appry(MaterialDomain);
+                    ABAH.Appry(avatarGameObject);
                     MonoBehaviour.DestroyImmediate(ABAH);
                 }
+                foreach (var TT in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(TT); }
                 return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
         }
         public void OnPostprocessAvatar()
         {
