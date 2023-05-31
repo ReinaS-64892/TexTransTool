@@ -11,6 +11,8 @@ namespace Rs64.TexTransTool
         public GameObject Avatar;
         [SerializeField] public TexTransGroup TexTransGroup;
         [SerializeField] protected MaterialDomain CacheDomain;
+        [SerializeField] protected bool _IsAppry = false;
+        public bool IsAppry { get { return _IsAppry; } }
 
         public virtual MaterialDomain GetDomain()
         {
@@ -22,7 +24,7 @@ namespace Rs64.TexTransTool
         }
         public virtual void Appry()
         {
-            if (CacheDomain != null) return;
+            if (_IsAppry) return;
             if (TexTransGroup == null) Reset();
             if (Avatar == null) return;
             CacheDomain = GetDomain();
@@ -31,7 +33,7 @@ namespace Rs64.TexTransTool
 
         public virtual void Revart()
         {
-            if (CacheDomain == null) return;
+            if (!_IsAppry) return;
             if (TexTransGroup == null) Reset();
             TexTransGroup.Revart(CacheDomain);
             CacheDomain = null;
