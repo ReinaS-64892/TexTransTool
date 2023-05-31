@@ -7,7 +7,7 @@ namespace Rs64.TexTransTool.Editor
     using UnityEngine;
     using UnityEditor;
 
-    [CustomEditor(typeof(AvatarMaterialDomain))]
+    [CustomEditor(typeof(AvatarMaterialDomain), true)]
     public class AvatarMaterialDomainEditor : Editor
     {
         public override void OnInspectorGUI()

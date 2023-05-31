@@ -3,26 +3,51 @@ using UnityEngine;
 using System.Collections.Generic;
 using VRC.SDKBase;
 using System.Linq;
+using VRC.SDK3.Avatars.Components;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
     [AddComponentMenu("TexTransTool/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroup))]
-    public class AvatarBuildAppryHook : MonoBehaviour, IEditorOnly
+    public class AvatarBuildAppryHook : AvatarMaterialDomain, IEditorOnly
     {
-        public TexTransGroup TexTransGroup;
-        private void Reset()
+
+        public override void Appry()
         {
-            TexTransGroup = GetComponent<TexTransGroup>();
+            SetOrFindAvatar(null);
+            base.Appry();
+        }
+        public void Appry(GameObject avatar)
+        {
+            SetOrFindAvatar(avatar);
+            base.Appry();
+        }
+        public void SetOrFindAvatar(GameObject Setavatar)
+        {
+            if (Setavatar == null)
+            {
+                var VRCAvatar = FindAvatarInParents(transform);
+                if (VRCAvatar == null) return;
+                else Avatar = VRCAvatar.gameObject;
+            }
+            else
+            {
+                Avatar = Setavatar;
+            }
         }
 
-        public void Appry(GameObject Avatar)
+        //https://github.com/bdunderscore/modular-avatar/blob/5ad6b58c7ffb1f809ed1b585989b8cad65002563/Packages/nadena.dev.modular-avatar/Runtime/RuntimeUtil.cs
+        // Originally under MIT License
+        // Copyright (c) 2022 bd_
+        public static VRCAvatarDescriptor FindAvatarInParents(Transform target)
         {
-            if (TexTransGroup == null) Reset();
-            TexTransGroup.Appry(GetDomain(Avatar));
-        }
-        public virtual MaterialDomain GetDomain(GameObject Avatar)
-        {
-            return new MaterialDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
+            while (target != null)
+            {
+                var av = target.GetComponent<VRCAvatarDescriptor>();
+                if (av != null) return av;
+                target = target.parent;
+            }
+
+            return null;
         }
     }
 }

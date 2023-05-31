@@ -10,24 +10,24 @@ namespace Rs64.TexTransTool
     {
         public GameObject Avatar;
         [SerializeField] public TexTransGroup TexTransGroup;
-        [SerializeField] MaterialDomain CacheDomain;
+        [SerializeField] protected MaterialDomain CacheDomain;
 
         public virtual MaterialDomain GetDomain()
         {
             return new MaterialDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
         }
-        private void Reset()
+        protected void Reset()
         {
             TexTransGroup = GetComponent<TexTransGroup>();
         }
-        public void Appry()
+        public virtual void Appry()
         {
             if (TexTransGroup == null) Reset();
             CacheDomain = GetDomain();
             TexTransGroup.Appry(CacheDomain);
         }
 
-        public void Revart()
+        public virtual void Revart()
         {
             if (TexTransGroup == null) Reset();
             TexTransGroup.Revart(CacheDomain);
