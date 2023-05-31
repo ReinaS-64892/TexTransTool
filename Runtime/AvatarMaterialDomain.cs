@@ -23,6 +23,7 @@ namespace Rs64.TexTransTool
         public virtual void Appry()
         {
             if (TexTransGroup == null) Reset();
+            if(Avatar == null) return;
             CacheDomain = GetDomain();
             TexTransGroup.Appry(CacheDomain);
         }
