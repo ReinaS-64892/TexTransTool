@@ -47,20 +47,29 @@ namespace Rs64.TexTransTool
         }
         public override void Compile()
         {
-            foreach (var tf in TextureTransformers)
+            try
             {
-                if (tf == null) continue;
-                if (tf.ThisEnable == false) continue;
-                tf.Compile();
-                tf.Appry();
+                foreach (var tf in TextureTransformers)
+                {
+                    if (tf == null) continue;
+                    if (tf.ThisEnable == false) continue;
+                    tf.Compile();
+                    tf.Appry();
+                }
             }
-
-            var Revarstfs = new List<TextureTransformer>(TextureTransformers);
-            Revarstfs.Reverse();
-            foreach (var tf in Revarstfs)
+            catch (System.Exception e)
             {
-                if (tf == null) continue;
-                tf.Revart();
+                Debug.LogError(e);
+            }
+            finally
+            {
+                var Revarstfs = new List<TextureTransformer>(TextureTransformers);
+                Revarstfs.Reverse();
+                foreach (var tf in Revarstfs)
+                {
+                    if (tf == null) continue;
+                    tf.Revart();
+                }
             }
         }
 
