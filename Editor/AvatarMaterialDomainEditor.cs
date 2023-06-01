@@ -17,6 +17,16 @@ namespace Rs64.TexTransTool.Editor
 
             var thsitarget = target as AvatarMaterialDomain;
 
+            if (thsitarget.TexTransGroup == null)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                GUILayout.Button("TexTransGroup is null");
+                EditorGUI.EndDisabledGroup();
+
+                serializedObject.ApplyModifiedProperties();
+                return;
+            }
+
             EditorGUI.BeginDisabledGroup(!thsitarget.TexTransGroup.IsPossibleAppry);
             if (thsitarget.TexTransGroup.IsAppry == false)
             {
