@@ -78,8 +78,15 @@ namespace Rs64.TexTransTool.Decal
 
                     var NewMat = Instantiate<Material>(DistMat);
                     NewMat.SetTexture(TargetPropatyName, SavedTex);
-
-                    PeadMaterial.Add(DistMat, NewMat);
+                    
+                    if(PeadMaterial.ContainsKey(DistMat))
+                    {
+                        PeadMaterial[DistMat] = NewMat;
+                    }
+                    else
+                    {
+                        PeadMaterial.Add(DistMat, NewMat);
+                    }
                     GeneretaTex.Add(SavedTex);
                 }
             }
