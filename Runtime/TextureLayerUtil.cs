@@ -31,6 +31,7 @@ namespace Rs64.TexTransTool
         Saturation,
         Color,
         Luminosity,
+        AlphaLerp,
     }
     public static class TextureLayerUtil
     {
@@ -258,6 +259,15 @@ namespace Rs64.TexTransTool
                         foreach (var Index in indexEnumretor)
                         {
                             var PileTask = Task.Run<Color>(() => BlendColorLuminosity(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            PileTasks[Index] = PileTask;
+                        }
+                        break;
+                    }
+                case BlendType.AlphaLerp:
+                    {
+                        foreach (var Index in indexEnumretor)
+                        {
+                            var PileTask = Task.Run<Color>(() => BlendColorAlphaLerp(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
@@ -593,6 +603,13 @@ namespace Rs64.TexTransTool
             Color.RGBToHSV(Add, out var AddH, out var AddS, out var AddV);
             Color BlendColor = Color.HSVToRGB(BaseH, BaseS, AddV);
             var ResultColor = Color.Lerp(Base, BlendColor, Add.a);
+            ResultColor.a = FinalAlpha;
+            return ResultColor;
+        }
+        public static Color BlendColorAlphaLerp(Color Base, Color Add)
+        {
+            float FinalAlpha, AddRevAlpha; (FinalAlpha, AddRevAlpha) = FinalAlphaAndReversCal(Base.a, Add.a);
+            var ResultColor = Color.Lerp(Base, Add, Add.a / (Add.a + (AddRevAlpha * Base.a)));
             ResultColor.a = FinalAlpha;
             return ResultColor;
         }

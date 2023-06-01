@@ -19,6 +19,7 @@
 #pragma kernel Saturation
 #pragma kernel Color
 #pragma kernel Luminosity
+#pragma kernel AlphaLerp
 
 #include "./BlendTextureHelper.hlsl"
 #include "./TransHelper.hlsl"
@@ -332,5 +333,15 @@ RWStructuredBuffer<float4> AddTex;
   float4 BlendColor = AsFloat4(HSVtoRGB(float3(BaseHSV.x,BaseHSV.y,AddHSV.z)));
   float4 ResultColor = lerp(BaseColor, BlendColor, AddColor.w);
   ResultColor.w = FinalAlpha;
+  BaseTex[OneDIndex] = ResultColor;
+}
+[numthreads(32, 32, 1)] void AlphaLerp(uint3 id : SV_DispatchThreadID) {
+  uint OneDIndex = TwoDToOneDIndex((uint2)id, Size);
+  float4 BaseColor = BaseTex[OneDIndex];
+  float4 AddColor = AddTex[OneDIndex];
+
+  float2 Alpha = FinalAlphaAndReversCal(BaseColor.w, AddColor.w);
+  float4 ResultColor = lerp(BaseColor, AddColor, AddColor.w / (AddColor.w +( Alpha.y * BaseColor.w )));
+  ResultColor.w = Alpha.x;
   BaseTex[OneDIndex] = ResultColor;
 }
