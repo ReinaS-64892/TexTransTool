@@ -25,3 +25,5 @@ Appry でそれらすべてのプレビューができます。
 ### TextureTransformers
 
 TextureTransformer の配列で、ここにセットしたものが一斉の compile や Appry の対象となります。
+
+ただし、それらTextureTransformerのついたGameObjectが無効化されている場合、無視されます。
