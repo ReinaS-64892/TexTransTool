@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Decal
             {
                 var Mat = kvp.Key;
                 var Texs = kvp.Value;
-                var Tex = TextureLayerUtil.BlendTexturesUseComputeSheder(null, Texs, BlendType);
+                var Tex = Texs.Count == 1 ? Texs.FirstOrDefault() : TextureLayerUtil.BlendTexturesUseComputeSheder(null, Texs, BlendType);
                 RetDict.Add(Mat, Tex);
             }
 
@@ -78,8 +78,8 @@ namespace Rs64.TexTransTool.Decal
 
                     var NewMat = Instantiate<Material>(DistMat);
                     NewMat.SetTexture(TargetPropatyName, SavedTex);
-                    
-                    if(PeadMaterial.ContainsKey(DistMat))
+
+                    if (PeadMaterial.ContainsKey(DistMat))
                     {
                         PeadMaterial[DistMat] = NewMat;
                     }
