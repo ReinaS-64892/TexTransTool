@@ -14,7 +14,7 @@
     "versionDefines": [
         {
             "name": "com.vrchat.base",
-            "expression": "3.2.0",
+            "expression": "3.1.13",
             "define": "VRC_BASE"
         }
     ],
