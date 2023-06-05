@@ -24,7 +24,8 @@ namespace Rs64.TexTransTool
 
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRenge = null)
         {
-            if (targetTex.Texture2D.width != AtralsMap.MapSize.x && targetTex.Texture2D.height != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            var TargetTexSize = targetTex.Texture2D.NativeSize();
+            if (TargetTexSize.x != AtralsMap.MapSize.x && TargetTexSize.y != AtralsMap.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             var List = Utils.Reange2d(new Vector2Int(targetTex.Texture2D.width, targetTex.Texture2D.height));
 
             NotFIlterAndReadWritTexture2D(ref SouseTex);

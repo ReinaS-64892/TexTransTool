@@ -41,11 +41,11 @@ namespace Rs64.TexTransTool.Decal
                 var TargetMat = Materials[SubMeshCount];
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
                 if (TargetTexture == null) { break; }
+                var TargetTexSize = TargetTexture.NativeSize();
                 var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals, TrainagleFilters) : Traiangel;
                 if (FiltaringdTrainagle.Any() == false) { break; }
 
 
-                var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
