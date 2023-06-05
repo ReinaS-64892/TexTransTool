@@ -90,7 +90,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                 Count += 1;
             }
 
-            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.Normal);
+            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
             SetContainer(TextureList);
         }
