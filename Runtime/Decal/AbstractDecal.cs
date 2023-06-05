@@ -31,7 +31,7 @@ namespace Rs64.TexTransTool.Decal
         public override bool IsPossibleAppry => Container != null;
         public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
 
-        public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType)
+        public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType = BlendType.AlphaLerp)
         {
             var ResultTexutres = Utils.ZipToDictionaryOnList(DictCompiledTextures);
             var RetDict = new Dictionary<Material, Texture2D>();
