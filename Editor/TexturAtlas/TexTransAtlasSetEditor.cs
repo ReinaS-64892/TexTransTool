@@ -153,7 +153,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 count += 1;
                 TargetRenderer.GetArrayElementAtIndex(count).objectReferenceValue = Rendera;
             }
-            var mats = Utils.GetMaterials(FilterRendres).Distinct().ToArray();
+            var mats = Utils.GetMaterials(FilterRendres).Distinct().Where(i => i != null).ToArray();
             count = -1;
             TargetMats.arraySize = mats.Length;
             foreach (var mat in mats)
