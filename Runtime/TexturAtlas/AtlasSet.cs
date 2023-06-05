@@ -110,7 +110,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var SelectMat = GetSelectMats();
             Data.TargetMeshIndex = GetTargetMeshIndexs();
             Data.SetPropatyAndTexs(TargetRenderer, SelectMat, ShaderSupportUtil.GetSupprotInstans());
-            Data.DistMesh = Utils.GetMeshes(TargetRenderer);
+            Data.DistMesh = Utils.GetMeshes(TargetRenderer,true);
             Data.meshes = Data.DistMesh.ConvertAll<Mesh>(i => UnityEngine.Object.Instantiate<Mesh>(i));
             Data.AtlasTextureSize = AtlasTextureSize;
             Data.Pading = Pading;

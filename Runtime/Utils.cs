@@ -113,7 +113,7 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static List<Mesh> GetMeshes(List<Renderer> renderers)
+        public static List<Mesh> GetMeshes(List<Renderer> renderers,bool NullInsertion = false)
         {
             List<Mesh> Meshs = new List<Mesh>();
             foreach (var Rendera in renderers)
@@ -134,7 +134,7 @@ namespace Rs64.TexTransTool
                     default:
                         continue;
                 }
-                if (mesh != null) Meshs.Add(mesh);
+                if (mesh != null || NullInsertion) Meshs.Add(mesh);
             }
             return Meshs;
         }
