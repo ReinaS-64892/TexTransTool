@@ -176,7 +176,7 @@ namespace Rs64.TexTransTool.Editor.Decal
         private static void DrowRealTimePreviewEditor(SimpleDecal Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
+            EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile);
             {
                 if (!Target.IsRealTimePreview)
                 {
