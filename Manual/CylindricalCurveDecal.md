@@ -24,7 +24,7 @@ TexTransTool/Runtime/Decal/Curve/Cylindrical にある CylindricalCurveDecal.cs 
 - サイズとループカウントをお好みの値に設定
 - Compile ボタンを押し、カーブ状に貼り付けられたテクスチャを生成
 
-Appry ボタンを押すとそのカーブデカールをプレビューすることができます。
+Apply ボタンを押すとそのカーブデカールをプレビューすることができます。
 
 ## プロパティ
 

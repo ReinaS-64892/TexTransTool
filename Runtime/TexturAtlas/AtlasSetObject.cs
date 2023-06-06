@@ -25,34 +25,34 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public bool GeneratMatClearUnusedProperties = true;
 
-        [SerializeField] bool _IsAppry;
+        [SerializeField] bool _IsApply;
 
-        public bool IsAppry => _IsAppry;
+        public bool IsApply => _IsApply;
         public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
         [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
         [SerializeField] List<Mesh> BackUpStaticMeshs = new List<Mesh>();
         [SerializeField] List<Material> BackUpMaterial = new List<Material>();
-        public void Appry(MaterialDomain AvatarMaterialDomain = null)
+        public void Apply(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
-            if (_IsAppry == true) return;
-            MeshAppry();
-            MaterialAppry(AvatarMaterialDomain);
+            if (_IsApply == true) return;
+            MeshApply();
+            MaterialApply(AvatarMaterialDomain);
 
-            _IsAppry = true;
+            _IsApply = true;
         }
         public void Revart(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
-            if (_IsAppry == false) return;
+            if (_IsApply == false) return;
             MeshRevart();
             MaterialRevart(AvatarMaterialDomain);
-            _IsAppry = false;
+            _IsApply = false;
         }
-        public void MeshAppry()
+        public void MeshApply()
         {
             if (Contenar == null) return;
-            if (_IsAppry == true) return;
+            if (_IsApply == true) return;
             BackUpMeshs.Clear();
             BackUpStaticMeshs.Clear();
 
@@ -77,7 +77,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public void MeshRevart()
         {
-            if (_IsAppry == false) return;
+            if (_IsApply == false) return;
             int Count = -1;
             foreach (var mesh in BackUpMeshs)
             {
@@ -91,10 +91,10 @@ namespace Rs64.TexTransTool.TexturAtlas
                 AtlasTargetStaticMeshs[Count].GetComponent<MeshFilter>().sharedMesh = mesh;
             }
         }
-        public void MaterialAppry(MaterialDomain AvatarMaterialDomain = null)
+        public void MaterialApply(MaterialDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
-            if (_IsAppry == true) return;
+            if (_IsApply == true) return;
 
             BackUpMaterial.Clear();
            // BackUpMaterial = GetMaterials();
@@ -115,7 +115,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public void MaterialRevart(MaterialDomain AvatarMaterialDomain = null)
         {
-            if (_IsAppry == false) return;
+            if (_IsApply == false) return;
 
             Contenar.GenereatMaterial.Clear();
             Contenar.ClearAssets<Material>();

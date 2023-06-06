@@ -21,18 +21,18 @@ namespace Rs64.TexTransTool
 
         public TextureBlenderDataContainer Container;
 
-        [SerializeField] protected bool _IsAppry = false;
-        public override bool IsAppry => _IsAppry;
+        [SerializeField] protected bool _IsApply = false;
+        public override bool IsApply => _IsApply;
 
-        public override bool IsPossibleAppry => TargetRenderer != null && BlendTexture != null;
+        public override bool IsPossibleApply => TargetRenderer != null && BlendTexture != null;
 
-        public override bool IsPossibleCompile => IsPossibleAppry;
+        public override bool IsPossibleCompile => IsPossibleApply;
 
-        public override void Appry(MaterialDomain avatarMaterialDomain = null)
+        public override void Apply(MaterialDomain avatarMaterialDomain = null)
         {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry) return;
-            _IsAppry = true;
+            if (!IsPossibleApply) return;
+            if (_IsApply) return;
+            _IsApply = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(new List<Renderer> { TargetRenderer });
             ContainerCheck();
 
@@ -76,8 +76,8 @@ namespace Rs64.TexTransTool
 
         public override void Revart(MaterialDomain avatarMaterialDomain = null)
         {
-            if (!_IsAppry) return;
-            _IsAppry = false;
+            if (!_IsApply) return;
+            _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(new List<Renderer> { TargetRenderer });
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);

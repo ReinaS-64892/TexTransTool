@@ -53,7 +53,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
         public override void Compile()
         {
-            if (_IsAppry) return;
+            if (_IsApply) return;
             if (!IsPossibleCompile) return;
 
             Vector2? TexRenage = null;

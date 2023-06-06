@@ -7,19 +7,19 @@ using VRC.SDK3.Avatars.Components;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarBuildAppryHook"), RequireComponent(typeof(TexTransGroup))]
-    public class AvatarBuildAppryHook : AvatarMaterialDomain, IEditorOnly
+    [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(TexTransGroup))]
+    public class AvatarBuildApplyHook : AvatarMaterialDomain, IEditorOnly
     {
 
-        public override void Appry()
+        public override void Apply()
         {
             SetOrFindAvatar(null);
-            base.Appry();
+            base.Apply();
         }
-        public void Appry(GameObject avatar)
+        public void Apply(GameObject avatar)
         {
             SetOrFindAvatar(avatar);
-            base.Appry();
+            base.Apply();
         }
         public void SetOrFindAvatar(GameObject Setavatar)
         {

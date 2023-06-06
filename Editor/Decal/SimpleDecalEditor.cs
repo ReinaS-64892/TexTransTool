@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             var AdvansdMode = S_Advansd.boolValue;
 
 
-            EditorGUI.BeginDisabledGroup(ThisObject.IsAppry);
+            EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
 
 
             var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderers");
@@ -69,8 +69,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                 S_DecalTexture.objectReferenceValue = DecalTexEditValue;
                 This_S_Object.ApplyModifiedProperties();
 
-                Undo.RecordObject(ThisObject, "AppryScaile - TextureAspect");
-                ThisObject.ScaleAppry();
+                Undo.RecordObject(ThisObject, "ApplyScaile - TextureAspect");
+                ThisObject.ScaleApply();
                 ThisObject.GizmInstans();
             }
 
@@ -87,8 +87,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                     ScaleValue.x = ScaleEditValue;
                     S_Scale.vector2Value = ScaleValue;
                     This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleAppry - ScaleEdit");
-                    ThisObject.ScaleAppry();
+                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
+                    ThisObject.ScaleApply();
                 }
             }
             else
@@ -99,8 +99,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                 {
                     S_Scale.vector2Value = ScaleEditValue;
                     This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleAppry - ScaleEdit");
-                    ThisObject.ScaleAppry();
+                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
+                    ThisObject.ScaleApply();
                 }
             }
 
@@ -111,9 +111,9 @@ namespace Rs64.TexTransTool.Editor.Decal
             var MaxDistansEditValue = EditorGUILayout.FloatField("MaxDistans", MaxDistansValue);
             if (MaxDistansValue != MaxDistansEditValue)
             {
-                Undo.RecordObject(ThisObject, "AppryScaile - MaxDistans");
+                Undo.RecordObject(ThisObject, "ApplyScaile - MaxDistans");
                 ThisObject.MaxDistans = MaxDistansEditValue;
-                ThisObject.ScaleAppry();
+                ThisObject.ScaleApply();
             }
 
 

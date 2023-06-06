@@ -13,9 +13,9 @@
 TexTransTool/Runtime にある AvatarMaterialDmain.cs から
 ゲームオブジェクトに追加できます。
 
-### MaterialDomainUse - Appry
+### MaterialDomainUse - Apply
 
-このコンポーネントに表示されている、この Appry を使用すると、MaterialDmain を使用し、TextureTranformar がマテリアルを変更するとき、TextureTranformar が参照しているレンダラー以外のマテリアルも同時に変更されるようになります。
+このコンポーネントに表示されている、この Apply を使用すると、MaterialDmain を使用し、TextureTranformar がマテリアルを変更するとき、TextureTranformar が参照しているレンダラー以外のマテリアルも同時に変更されるようになります。
 
 ## プロパティ
 
@@ -23,7 +23,7 @@ TexTransTool/Runtime にある AvatarMaterialDmain.cs から
 
 アバターの範囲となる GameObject をセットできるプロパティです。
 
-MaterialDomainUse - Appry を使用した場合、各々の TextureTranformer がマテリアルを変更したときの影響範囲がこの GameObject の配下のレンダラーになります。
+MaterialDomainUse - Apply を使用した場合、各々の TextureTranformer がマテリアルを変更したときの影響範囲がこの GameObject の配下のレンダラーになります。
 
 ### TexTransGrop
 

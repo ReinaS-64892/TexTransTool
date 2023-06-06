@@ -28,7 +28,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public PadingType PadingType;
         public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeight;
         public bool GeneratMatClearUnusedProperties = true;
-        [SerializeField] bool _IsAppry;
+        [SerializeField] bool _IsApply;
         public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
         public CompileDataContenar Contenar;
         [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
@@ -46,18 +46,18 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         };
 
-        public override bool IsAppry => _IsAppry;
+        public override bool IsApply => _IsApply;
 
-        public override bool IsPossibleAppry => Contenar != null;
+        public override bool IsPossibleApply => Contenar != null;
 
         public override bool IsPossibleCompile => TargetRoot;
 
         public MaterialDomain BAckUpMaterialDomain;
-        public override void Appry(MaterialDomain AvatarMaterialDomain)
+        public override void Apply(MaterialDomain AvatarMaterialDomain)
         {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry == true) return;
-            _IsAppry = true;
+            if (!IsPossibleApply) return;
+            if (_IsApply == true) return;
+            _IsApply = true;
             if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
             else { BAckUpMaterialDomain = AvatarMaterialDomain.GetBackUp(); }
 
@@ -83,8 +83,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public override void Revart(MaterialDomain AvatarMaterialDomain)
         {
-            if (!IsAppry) return;
-            _IsAppry = false;
+            if (!IsApply) return;
+            _IsApply = false;
 
             BAckUpMaterialDomain.ResetMaterial();
             BAckUpMaterialDomain = null;
@@ -195,7 +195,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                             var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == PropName);
                             if (TargetTex != null && int.TryParse(ProsesValue, out var res))
                             {
-                                AppryTextureSize(TargetTex.Texture2D, res);
+                                ApplyTextureSize(TargetTex.Texture2D, res);
                             }
                         }
                         break;
@@ -211,14 +211,14 @@ namespace Rs64.TexTransTool.TexturAtlas
                         {
                             foreach (var TargetTex in TargetList)
                             {
-                                AppryTextureSize(TargetTex.Texture2D, res);
+                                ApplyTextureSize(TargetTex.Texture2D, res);
                             }
                         }
                         break;
                     }
             }
 
-            void AppryTextureSize(Texture2D TargetTexture, int Size)
+            void ApplyTextureSize(Texture2D TargetTexture, int Size)
             {
                 var TargetTexPath = AssetDatabase.GetAssetPath(TargetTexture);
                 var TextureImporter = AssetImporter.GetAtPath(TargetTexPath) as TextureImporter;

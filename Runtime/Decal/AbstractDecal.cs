@@ -26,9 +26,9 @@ namespace Rs64.TexTransTool.Decal
             return Souse.Select(i => i == null ? null : Instantiate<Material>(i)).ToArray();
         }
 
-        [SerializeField] protected bool _IsAppry = false;
-        public override bool IsAppry => _IsAppry;
-        public override bool IsPossibleAppry => Container != null;
+        [SerializeField] protected bool _IsApply = false;
+        public override bool IsApply => _IsApply;
+        public override bool IsPossibleApply => Container != null;
         public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
 
         public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType = BlendType.AlphaLerp)
@@ -53,11 +53,11 @@ namespace Rs64.TexTransTool.Decal
 
         public virtual List<DecalUtil.Filtaring> GetFiltarings() { return null; }
 
-        public override void Appry(MaterialDomain avatarMaterialDomain)
+        public override void Apply(MaterialDomain avatarMaterialDomain)
         {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry) return;
-            _IsAppry = true;
+            if (!IsPossibleApply) return;
+            if (_IsApply) return;
+            _IsApply = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
@@ -99,8 +99,8 @@ namespace Rs64.TexTransTool.Decal
 
         public override void Revart(MaterialDomain avatarMaterialDomain = null)
         {
-            if (!_IsAppry) return;
-            _IsAppry = false;
+            if (!_IsApply) return;
+            _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
