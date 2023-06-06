@@ -1,7 +1,7 @@
 {
   "name": "rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TextureTransforTool!",
   "gitDependencies": {},
   "vpmDependencies": {
