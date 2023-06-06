@@ -282,6 +282,15 @@ namespace Rs64.TexTransTool
 
             }
         }
+        public static List<Transform> GetChilds(this Transform Parent)
+        {
+            var List = new List<Transform>();
+            foreach (Transform child in Parent)
+            {
+                List.Add(child);
+            }
+            return List;
+        }
     }
 }
 #endif

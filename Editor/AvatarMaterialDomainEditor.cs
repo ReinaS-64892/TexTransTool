@@ -38,12 +38,14 @@ namespace Rs64.TexTransTool.Editor
             }
             else
             {
+                EditorGUI.BeginDisabledGroup(!thsitarget.IsSelfCallApply);
                 if (GUILayout.Button("Revart"))
                 {
                     Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Revart");
                     thsitarget.Revart();
 
                 }
+                EditorGUI.EndDisabledGroup();
             }
             EditorGUI.EndDisabledGroup();
 
