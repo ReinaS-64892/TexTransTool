@@ -113,30 +113,35 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static List<Mesh> GetMeshes(List<Renderer> renderers,bool NullInsertion = false)
+        public static List<Mesh> GetMeshes(List<Renderer> renderers, bool NullInsertion = false)
         {
             List<Mesh> Meshs = new List<Mesh>();
             foreach (var Rendera in renderers)
             {
-                Mesh mesh = null;
-                switch (Rendera)
-                {
-                    case SkinnedMeshRenderer SMR:
-                        {
-                            mesh = SMR.sharedMesh;
-                            break;
-                        }
-                    case MeshRenderer MR:
-                        {
-                            mesh = MR.GetComponent<MeshFilter>().sharedMesh;
-                            break;
-                        }
-                    default:
-                        continue;
-                }
+                var mesh = Rendera.GetMesh();
                 if (mesh != null || NullInsertion) Meshs.Add(mesh);
             }
             return Meshs;
+        }
+        public static Mesh GetMesh(this Renderer Target)
+        {
+            Mesh mesh = null;
+            switch (Target)
+            {
+                case SkinnedMeshRenderer SMR:
+                    {
+                        mesh = SMR.sharedMesh;
+                        break;
+                    }
+                case MeshRenderer MR:
+                    {
+                        mesh = MR.GetComponent<MeshFilter>().sharedMesh;
+                        break;
+                    }
+                default:
+                    break;
+            }
+            return mesh;
         }
 
         public static void SetMeshs(List<Renderer> renderers, List<Mesh> DistMesh, List<Mesh> SetMesh)

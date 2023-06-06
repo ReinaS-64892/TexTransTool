@@ -204,6 +204,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             int MeshCount = -1;
             foreach (var Rendera in renderers)
             {
+                if(Rendera.GetMesh() == null) continue;
                 MeshCount += 1;
                 int SubMeshCount = -1;
                 foreach (var mat in Rendera.sharedMaterials)
