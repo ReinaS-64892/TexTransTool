@@ -31,7 +31,7 @@ namespace Rs64.TexTransTool
             foreach (var tf in Targets)
             {
                 if (tf == null) continue;
-                Debug.Log(tf.gameObject.name);
+                //Debug.Log(tf.gameObject.name);
                 if (tf.ThisEnable == false) continue;
                 tf.Apply(AvatarMaterialDomain);
             }
