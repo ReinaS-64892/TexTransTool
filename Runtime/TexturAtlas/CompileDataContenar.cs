@@ -76,7 +76,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 var Gmat = UnityEngine.Object.Instantiate<Material>(SMat);
 
-                PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
+                PropToMaterialTexApply(PropAndTextures, Gmat, FocuseSetTexture);
 
                 if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
                 MaterialCustomSetting(Gmat);
@@ -93,7 +93,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
 
-            PropToMaterialTexAppry(PropAndTextures, Gmat, FocuseSetTexture);
+            PropToMaterialTexApply(PropAndTextures, Gmat, FocuseSetTexture);
             if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
             MaterialCustomSetting(Gmat);
 
@@ -103,7 +103,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             return Gmat;
         }
 
-        public static void PropToMaterialTexAppry(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)
+        public static void PropToMaterialTexApply(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)
         {
             foreach (var propAndTexture in PropAndTextures)
             {

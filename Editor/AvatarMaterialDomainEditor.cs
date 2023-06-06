@@ -27,13 +27,13 @@ namespace Rs64.TexTransTool.Editor
                 return;
             }
 
-            EditorGUI.BeginDisabledGroup(!thsitarget.TexTransGroup.IsPossibleAppry);
-            if (thsitarget.TexTransGroup.IsAppry == false)
+            EditorGUI.BeginDisabledGroup(!thsitarget.TexTransGroup.IsPossibleApply);
+            if (thsitarget.TexTransGroup.IsApply == false)
             {
-                if (GUILayout.Button("MaterialDomainUse - Appry"))
+                if (GUILayout.Button("MaterialDomainUse - Apply"))
                 {
-                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Appry");
-                    thsitarget.Appry();
+                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Apply");
+                    thsitarget.Apply();
                 }
             }
             else

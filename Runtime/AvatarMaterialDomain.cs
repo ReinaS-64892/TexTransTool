@@ -20,19 +20,19 @@ namespace Rs64.TexTransTool
         {
             TexTransGroup = GetComponent<TexTransGroup>();
         }
-        public virtual void Appry()
+        public virtual void Apply()
         {
             if (TexTransGroup == null) Reset();
-            if (TexTransGroup.IsAppry) return;
+            if (TexTransGroup.IsApply) return;
             if (Avatar == null) return;
             CacheDomain = GetDomain();
-            TexTransGroup.Appry(CacheDomain);
+            TexTransGroup.Apply(CacheDomain);
         }
 
         public virtual void Revart()
         {
             if (TexTransGroup == null) Reset();
-            if (!TexTransGroup.IsAppry) return;
+            if (!TexTransGroup.IsApply) return;
             TexTransGroup.Revart(CacheDomain);
             CacheDomain = null;
         }

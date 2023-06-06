@@ -38,7 +38,7 @@ namespace Rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(S_TargetPropatyName);
 
 
-            TextureTransformerEditor.DrowAppryAndRevart(Target);
+            TextureTransformerEditor.DrowApplyAndRevart(Target);
             This_S_Object.ApplyModifiedProperties();
         }
 

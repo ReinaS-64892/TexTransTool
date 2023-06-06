@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool.Decal
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
-        public virtual void ScaleAppry()
+        public virtual void ScaleApply()
         {
             if (DecalTexture != null && FixedAspect)
             {
@@ -61,7 +61,7 @@ namespace Rs64.TexTransTool.Decal
         }
         public override void Compile()
         {
-            if (_IsAppry) return;
+            if (_IsApply) return;
             if (!IsPossibleCompile) return;
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();

@@ -18,20 +18,20 @@ namespace Rs64.TexTransTool.Editor
         }
         public static void TextureTransformerEditorDrow(TextureTransformer Target)
         {
-            DrowAppryAndRevart(Target);
+            DrowApplyAndRevart(Target);
             DrowCompile(Target);
         }
-        public static void DrowAppryAndRevart(TextureTransformer Target)
+        public static void DrowApplyAndRevart(TextureTransformer Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleAppry);
+            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
             {
-                if (!Target.IsAppry)
+                if (!Target.IsApply)
                 {
-                    if (GUILayout.Button("Appry"))
+                    if (GUILayout.Button("Apply"))
                     {
-                        Undo.RecordObject(Target, "TextureTransformer - Appry");
-                        Target.Appry();
+                        Undo.RecordObject(Target, "TextureTransformer - Apply");
+                        Target.Apply();
                     }
                 }
                 else
@@ -49,7 +49,7 @@ namespace Rs64.TexTransTool.Editor
         public static void DrowCompile(TextureTransformer Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsAppry));
+            EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsApply));
             if (GUILayout.Button("Compile"))
             {
                 Undo.RecordObject(Target, "TextureTransformer - Compile");

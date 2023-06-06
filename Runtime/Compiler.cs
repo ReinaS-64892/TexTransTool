@@ -34,14 +34,14 @@ namespace Rs64.TexTransTool
                 if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
                 {
                     Vector2 SouseTexPos = AtralsMap.Map[index.x, index.y];
-                    Vector2? TWMAppryTexPos = null;
+                    Vector2? TWMApplyTexPos = null;
                     switch (wrapMode)
                     {
                         default:
                         case TexWrapMode.NotWrap:
                             {
-                                if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMAppryTexPos = null;
-                                else TWMAppryTexPos = SouseTexPos;
+                                if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMApplyTexPos = null;
+                                else TWMApplyTexPos = SouseTexPos;
                                 break;
                             }
                         case TexWrapMode.Stretch:
@@ -49,12 +49,12 @@ namespace Rs64.TexTransTool
                                 var StrechdPos = new Vector2();
                                 StrechdPos.x = Mathf.Clamp01(SouseTexPos.x);
                                 StrechdPos.y = Mathf.Clamp01(SouseTexPos.y);
-                                TWMAppryTexPos = StrechdPos;
+                                TWMApplyTexPos = StrechdPos;
                                 break;
                             }
                         case TexWrapMode.Loop:
                             {
-                                TWMAppryTexPos = SouseTexPos;
+                                TWMApplyTexPos = SouseTexPos;
                                 break;
                             }
                     }
@@ -65,9 +65,9 @@ namespace Rs64.TexTransTool
                         if (!((outReng.x * -1) < SouseTexPos.x && SouseTexPos.x < (outReng.x + 1))) { OutOfolag = true; }
                         if (!((outReng.y * -1) < SouseTexPos.y && SouseTexPos.y < (outReng.y + 1))) { OutOfolag = true; }
 
-                        if (OutOfolag) TWMAppryTexPos = null;
+                        if (OutOfolag) TWMApplyTexPos = null;
                     }
-                    SetPixsl(SouseTex, targetTex, index, TWMAppryTexPos);
+                    SetPixsl(SouseTex, targetTex, index, TWMApplyTexPos);
                     targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
                 }
             }
@@ -117,32 +117,32 @@ namespace Rs64.TexTransTool
             if (AtralsMap.DistansMap[index.x, index.y] > AtralsMap.DefaultPading && AtralsMap.DistansMap[index.x, index.y] > targetTex.DistansMap[index.x, index.y])
             {
                 Vector2 SouseTexPos = AtralsMap.Map[index.x, index.y];
-                Vector2? TWMAppryTexPos = null;
+                Vector2? TWMApplyTexPos = null;
                 switch (wrapMode)
                 {
                     default:
                     case TexWrapMode.NotWrap:
                         {
-                            if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMAppryTexPos = null;
-                            else TWMAppryTexPos = SouseTexPos;
+                            if (!(0 < SouseTexPos.x && SouseTexPos.x < 1) || !(0 < SouseTexPos.y && SouseTexPos.y < 1)) TWMApplyTexPos = null;
+                            else TWMApplyTexPos = SouseTexPos;
                             break;
                         }
                     case TexWrapMode.Stretch:
                         {
                             SouseTexPos.x = Mathf.Clamp01(SouseTexPos.x);
                             SouseTexPos.y = Mathf.Clamp01(SouseTexPos.y);
-                            TWMAppryTexPos = SouseTexPos;
+                            TWMApplyTexPos = SouseTexPos;
                             break;
                         }
                     case TexWrapMode.Loop:
                         {
                             SouseTexPos.x %= 1.0f;
                             SouseTexPos.y %= 1.0f;
-                            TWMAppryTexPos = SouseTexPos;
+                            TWMApplyTexPos = SouseTexPos;
                             break;
                         }
                 }
-                SetPixsl(SColors, TColors, index, TWMAppryTexPos, stexSize);
+                SetPixsl(SColors, TColors, index, TWMApplyTexPos, stexSize);
                 targetTex.DistansMap[index.x, index.y] = AtralsMap.DistansMap[index.x, index.y];
             }
         }

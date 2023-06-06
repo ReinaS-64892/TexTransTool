@@ -11,7 +11,7 @@ using Rs64.TexTransTool.TexturAtlas;
 namespace Rs64.TexTransTool.VRCBulige
 {
     [InitializeOnLoad]
-    public class TTGAppryToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
+    public class TTGApplyToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
         public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが -1024で IEditorOnlyは消滅するらしい。
 
@@ -19,10 +19,10 @@ namespace Rs64.TexTransTool.VRCBulige
         {
             try
             {
-                var AvatarBuildAppryHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildAppryHook>();
-                foreach (var ABAH in AvatarBuildAppryHooks)
+                var AvatarBuildApplyHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildApplyHook>();
+                foreach (var ABAH in AvatarBuildApplyHooks)
                 {
-                    ABAH.Appry(avatarGameObject);
+                    ABAH.Apply(avatarGameObject);
                     MonoBehaviour.DestroyImmediate(ABAH);
                 }
                 foreach (var TT in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(TT); }

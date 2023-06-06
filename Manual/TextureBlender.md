@@ -22,7 +22,7 @@ TexTransTool/Runtime にある TextureBlender.cs から
  - BlendTextureにブレンドしたいテクスチャーをセット
  - 必要に応じて[BlendType](BlendType.md)を設定。
 
-Appry ボタンを押すとそのテクスチャーをブレンドした結果をプレビューすることができます。
+Apply ボタンを押すとそのテクスチャーをブレンドした結果をプレビューすることができます。
 
 ## プロパティ
 

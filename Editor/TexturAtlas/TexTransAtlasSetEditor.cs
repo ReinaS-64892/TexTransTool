@@ -29,9 +29,9 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var Contenar = serializedObject.FindProperty("Contenar");
 
             var ThisTarget = target as AtlasSet;
-            var IsAppry = ThisTarget.IsAppry;
+            var IsApply = ThisTarget.IsApply;
 
-            EditorGUI.BeginDisabledGroup(IsAppry);
+            EditorGUI.BeginDisabledGroup(IsApply);
             TextureTransformerEditor.objectReferencePorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
             if (TargetRoot.objectReferenceValue != null)
             {

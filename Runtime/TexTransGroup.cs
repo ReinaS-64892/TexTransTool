@@ -12,29 +12,29 @@ namespace Rs64.TexTransTool
 #endif
     {
         public List<TextureTransformer> TextureTransformers = new List<TextureTransformer>();
-        [SerializeField, HideInInspector] bool _IsAppry;
-        public override bool IsAppry => _IsAppry;
+        [SerializeField, HideInInspector] bool _IsApply;
+        public override bool IsApply => _IsApply;
 
-        public override bool IsPossibleAppry => PossibleAppryCheck();
+        public override bool IsPossibleApply => PossibleApplyCheck();
 
         public override bool IsPossibleCompile => PossibleCompileCheck();
 
-        public override void Appry(MaterialDomain AvatarMaterialDomain = null)
+        public override void Apply(MaterialDomain AvatarMaterialDomain = null)
         {
-            if (!IsPossibleAppry) return;
-            if (_IsAppry) return;
-            _IsAppry = true;
+            if (!IsPossibleApply) return;
+            if (_IsApply) return;
+            _IsApply = true;
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
-                tf.Appry(AvatarMaterialDomain);
+                tf.Apply(AvatarMaterialDomain);
             }
         }
         public override void Revart(MaterialDomain AvatarMaterialDomain = null)
         {
-            if (!_IsAppry) return;
-            _IsAppry = false;
+            if (!_IsApply) return;
+            _IsApply = false;
 
             var Revarstfs = new List<TextureTransformer>(TextureTransformers);
             Revarstfs.Reverse();
@@ -54,7 +54,7 @@ namespace Rs64.TexTransTool
                     if (tf == null) continue;
                     if (tf.ThisEnable == false) continue;
                     tf.Compile();
-                    tf.Appry();
+                    tf.Apply();
                 }
             }
             catch (System.Exception e)
@@ -75,14 +75,14 @@ namespace Rs64.TexTransTool
 
 
 
-        bool PossibleAppryCheck()
+        bool PossibleApplyCheck()
         {
             bool PossibleFlag = true;
             foreach (var tf in TextureTransformers)
             {
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
-                if (!tf.IsPossibleAppry)
+                if (!tf.IsPossibleApply)
                 {
                     PossibleFlag = false;
                 }

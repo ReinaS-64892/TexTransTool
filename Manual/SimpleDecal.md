@@ -20,7 +20,7 @@ TexTransTool/Runtime/Decal にある SimpleDecalAvatarTag.cs から、
  - GameObjectの位置、Scale、MaxDistansなどを調整し
  - Compileボタンを押し、貼り付けられたテクスチャを生成
 
-Appry ボタンを押すとそのデカールをプレビューすることができます。
+Apply ボタンを押すとそのデカールをプレビューすることができます。
 
 ## プロパティ
 
