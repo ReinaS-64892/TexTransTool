@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Rs64.TexTransTool
 {
+    [AddComponentMenu("TexTransTool/TexTransGroup")]
     public class TexTransGroup : AbstractTexTransGroup
     {
         public List<TextureTransformer> TextureTransformers = new List<TextureTransformer>();
