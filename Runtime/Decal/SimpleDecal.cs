@@ -10,6 +10,7 @@ using VRC.SDKBase;
 namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/SimpleDecal")]
+    [ExecuteInEditMode]
     public class SimpleDecal : AbstractDecal
 #if VRC_BASE
     , IEditorOnly
@@ -118,6 +119,76 @@ namespace Rs64.TexTransTool.Decal
             DisplayDecalMat.mainTexture = DecalTexture;
             Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
 
+        }
+
+        [SerializeField] protected bool _IsRealTimePreview = false;
+        public bool IsRealTimePreview => _IsRealTimePreview;
+        public List<MatPea> PreViewMaterials = new List<MatPea>();
+
+        public void EnableRealTimePreview()
+        {
+            if (_IsRealTimePreview) return;
+            _IsRealTimePreview = true;
+
+            PreViewMaterials.Clear();
+
+            foreach (var Rendarer in TargetRenderers)
+            {
+                var Materials = Rendarer.sharedMaterials;
+                for (int i = 0; i < Materials.Length; i += 1)
+                {
+                    if (Materials[i].shader.name == "Hidden/RealTimeSimpleDecalPreview") continue;
+                    if (PreViewMaterials.Any(i2 => i2.Material == Materials[i]))
+                    {
+                        Materials[i] = PreViewMaterials.Find(i2 => i2.Material == Materials[i]).SecndMaterial;
+                    }
+                    else
+                    {
+                        var DistMat = Materials[i];
+                        var NewMat = Instantiate<Material>(Materials[i]);
+                        NewMat.shader = Shader.Find("Hidden/RealTimeSimpleDecalPreview");
+                        Materials[i] = NewMat;
+                        PreViewMaterials.Add(new MatPea(DistMat, NewMat));
+                    }
+                }
+                Rendarer.sharedMaterials = Materials;
+            }
+            AssetSaveHelper.SaveAssets(PreViewMaterials.Select(i => i.SecndMaterial));
+        }
+        public void DisableRealTimePreview()
+        {
+            if (!_IsRealTimePreview) return;
+            _IsRealTimePreview = false;
+
+            foreach (var Rendarer in TargetRenderers)
+            {
+                var Materials = Rendarer.sharedMaterials;
+                for (int i = 0; i < Materials.Length; i += 1)
+                {
+                    var DistMat = PreViewMaterials.Find(i2 => i2.SecndMaterial == Materials[i]).Material;
+                    if (DistMat != null) Materials[i] = DistMat;
+
+                }
+                Rendarer.sharedMaterials = Materials;
+            }
+            AssetSaveHelper.DeletAssets(PreViewMaterials.Select(i => i.SecndMaterial));
+            PreViewMaterials.Clear();
+
+        }
+
+        public void UpdateRealTimePreview()
+        {
+            var Matrix = transform.worldToLocalMatrix;
+            foreach (var MatPea in PreViewMaterials)
+            {
+                MatPea.SecndMaterial.SetMatrix("_WorldToDecal", Matrix);
+                MatPea.SecndMaterial.SetTexture("_DecalTex", DecalTexture);
+            }
+        }
+
+        private void Update()
+        {
+            UpdateRealTimePreview();
         }
     }
 }
