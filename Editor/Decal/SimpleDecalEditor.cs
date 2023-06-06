@@ -137,7 +137,7 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             }
             var EditAdvansdMode = EditorGUILayout.Toggle("AdvansdMode", AdvansdMode);
-            if (AdvansdMode != EditAdvansdMode )
+            if (AdvansdMode != EditAdvansdMode)
             {
                 if (!EditAdvansdMode)
                 {
@@ -152,7 +152,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             }
 
             EditorGUI.EndDisabledGroup();
-
+            DrowRealTimePreviewEditor(ThisObject);
             TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
@@ -171,6 +171,32 @@ namespace Rs64.TexTransTool.Editor.Decal
             }
 
             return FiltalingdRendarer;
+        }
+
+        private static void DrowRealTimePreviewEditor(SimpleDecal Target)
+        {
+            if (Target == null) return;
+            EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile);
+            {
+                if (!Target.IsRealTimePreview)
+                {
+                    if (GUILayout.Button("EnableRealTimePreview"))
+                    {
+                        Undo.RecordObject(Target, "SimpleDecal - EnableRealTimePreview");
+                        Target.EnableRealTimePreview();
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button("DisableRealTimePreview"))
+                    {
+                        Undo.RecordObject(Target, "SimpleDecal - DisableRealTimePreview");
+                        Target.DisableRealTimePreview();
+
+                    }
+                }
+            }
+            EditorGUI.EndDisabledGroup();
         }
     }
 
