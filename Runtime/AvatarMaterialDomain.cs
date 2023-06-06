@@ -5,20 +5,22 @@ using UnityEngine;
 
 namespace Rs64.TexTransTool
 {
-    [RequireComponent(typeof(TexTransGroup))]
+    [RequireComponent(typeof(AbstractTexTransGroup))]
     public class AvatarMaterialDomain : MonoBehaviour
     {
         public GameObject Avatar;
-        [SerializeField] public TexTransGroup TexTransGroup;
+        [SerializeField] public AbstractTexTransGroup TexTransGroup;
         [SerializeField] protected MaterialDomain CacheDomain;
 
+        [SerializeField, HideInInspector] bool _IsSelfCallApply;
+        public virtual bool IsSelfCallApply => _IsSelfCallApply;
         public virtual MaterialDomain GetDomain()
         {
             return new MaterialDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
         }
         protected void Reset()
         {
-            TexTransGroup = GetComponent<TexTransGroup>();
+            TexTransGroup = GetComponent<AbstractTexTransGroup>();
         }
         public virtual void Apply()
         {
@@ -26,13 +28,16 @@ namespace Rs64.TexTransTool
             if (TexTransGroup.IsApply) return;
             if (Avatar == null) return;
             CacheDomain = GetDomain();
+            _IsSelfCallApply = true;
             TexTransGroup.Apply(CacheDomain);
         }
 
         public virtual void Revart()
         {
+            if (_IsSelfCallApply == false) return;
             if (TexTransGroup == null) Reset();
             if (!TexTransGroup.IsApply) return;
+            _IsSelfCallApply = false;
             TexTransGroup.Revart(CacheDomain);
             CacheDomain = null;
         }
