@@ -19,9 +19,17 @@ namespace Rs64.TexTransTool.TexturAtlas
             var UVs = Data.GetUVs();
             var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex).Result;
 
+            var NotMovedIslandPool = new IslandPool(IslandPool);
+
+            foreach (var island in IslandPool.IslandPoolList)
+            {
+                var OffSetScaile = Data.Offsets[island.MapIndex];
+                island.island.Size = island.island.Size * OffSetScaile;
+            }
+
 
             var MovedPool = GenereatMovedIlands(Target.SortingType, IslandPool);
-            var MovedUVs = IslandUtils.UVsMoveAsync(UVs, IslandPool, MovedPool).Result;
+            var MovedUVs = IslandUtils.UVsMoveAsync(UVs, NotMovedIslandPool, MovedPool).Result;
 
             var NotMevedUVs = Data.GetUVs();
             Data.SetUVs(MovedUVs, 0);
@@ -162,6 +170,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<Mesh> DistMesh = new List<Mesh>();
         public List<Mesh> meshes = new List<Mesh>();
         public List<MeshIndex> TargetMeshIndex = new List<MeshIndex>();
+        public List<float> Offsets = new List<float>();
         public Vector2Int AtlasTextureSize;
         public float Pading;
         public PadingType PadingType;
@@ -204,7 +213,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             int MeshCount = -1;
             foreach (var Rendera in renderers)
             {
-                if(Rendera.GetMesh() == null) continue;
+                if (Rendera.GetMesh() == null) continue;
                 MeshCount += 1;
                 int SubMeshCount = -1;
                 foreach (var mat in Rendera.sharedMaterials)

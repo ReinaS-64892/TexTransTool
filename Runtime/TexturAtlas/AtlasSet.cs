@@ -18,7 +18,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public GameObject TargetRoot;
         public List<Renderer> TargetRenderer;//MeshとMaterialの両方を持っているRenderer
-        public List<MatSelect> TargetMaterial;
+        public List<MatSelectAndOffset> TargetMaterial;
         public bool ForsedMaterialMarge = false;
         public bool UseRefarensMaterial = false;
         public bool ForseSetTexture = false;
@@ -108,7 +108,9 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             AtlasCompileData Data = new AtlasCompileData();
             var SelectMat = GetSelectMats();
-            Data.TargetMeshIndex = GetTargetMeshIndexs();
+            var MeshIndexsAndOffsets = GetTargetMeshIndexsAndOffsets();
+            Data.TargetMeshIndex = MeshIndexsAndOffsets.Item1;
+            Data.Offsets = MeshIndexsAndOffsets.Item2;
             Data.SetPropatyAndTexs(TargetRenderer, SelectMat, ShaderSupportUtil.GetSupprotInstans());
             Data.DistMesh = Utils.GetMeshes(TargetRenderer);
             Data.meshes = Data.DistMesh.ConvertAll<Mesh>(i => UnityEngine.Object.Instantiate<Mesh>(i));
@@ -118,10 +120,12 @@ namespace Rs64.TexTransTool.TexturAtlas
             return Data;
         }
 
-        public List<MeshIndex> GetTargetMeshIndexs()
+        public (List<MeshIndex>, List<float>) GetTargetMeshIndexsAndOffsets()
         {
             var MeshIndexs = new List<MeshIndex>();
+            var OffsetIndexs = new List<float>();
             var SelectMat = GetSelectMats();
+            var MatScaileOffsets = GetSelectMatsOffset();
             int MeshIndex = -1;
             foreach (var Rendera in TargetRenderer)
             {
@@ -135,15 +139,20 @@ namespace Rs64.TexTransTool.TexturAtlas
                     if (SelectMat.Contains(Mat))
                     {
                         MeshIndexs.Add(new MeshIndex(MeshIndex, SubMeshIndex));
+                        OffsetIndexs.Add(MatScaileOffsets[SelectMat.IndexOf(Mat)]);
                     }
                 }
             }
-            return MeshIndexs;
+            return (MeshIndexs, OffsetIndexs);
         }
 
         public List<Material> GetSelectMats()
         {
             return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<Material>(I => I.Mat);
+        }
+        public List<float> GetSelectMatsOffset()
+        {
+            return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<float>(I => I.Offset);
         }
 
 
@@ -240,15 +249,17 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
     }
     [Serializable]
-    public class MatSelect
+    public class MatSelectAndOffset
     {
         public Material Mat;
-        public bool IsSelect;
+        public bool IsSelect = false;
+        public float Offset = 1;
 
-        public MatSelect(Material mat, bool isSelect)
+        public MatSelectAndOffset(Material mat, bool isSelect, float offset = 1)
         {
             Mat = mat;
             IsSelect = isSelect;
+            Offset = offset;
         }
     }
 }

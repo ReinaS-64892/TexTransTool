@@ -13,8 +13,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f, float UpClorreScaile = 1.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
-            var ClonedPool = new IslandPool(TargetPool);
-            var Islands = ClonedPool.IslandPoolList;
+            var Islands = TargetPool.IslandPoolList;
             Islands.Sort((l, r) => Mathf.RoundToInt((r.island.GetSize.y - l.island.GetSize.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
@@ -67,7 +66,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
             }
             //Debug.Log(loopCount + " " + NawScaile + " " + Success);
-            return ClonedPool;
+            return TargetPool;
         }
 
         public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV)
@@ -128,7 +127,6 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public static IslandPool IslandPoolEvenlySpaced(IslandPool TargetPool)
         {
-            var MovedIslandPool = new IslandPool();
             Vector2 MaxIslandSize = TargetPool.GetLargest().island.GetSize;
             var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.IslandPoolList.Count));
             var CellSize = 1f / GridSize;
@@ -142,7 +140,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 if (TargetPool.IslandPoolList.Count > Count)
                 {
                     var Target = TargetPool.IslandPoolList[Count];
-                    Island = new Island(Target.island);
+                    Island = Target.island;
                     MapIndex = Target.MapIndex;
                     IslandIndex = Target.IslandIndex;
                 }
@@ -162,10 +160,9 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
                 Island.MaxIlandBox = CellPos + IslandBox;
 
-                MovedIslandPool.IslandPoolList.Add(new IslandPool.IslandAndIndex(Island, MapIndex, IslandIndex));
                 Count += 1;
             }
-            return MovedIslandPool;
+            return TargetPool;
         }
 
         public static List<List<Vector2>> UVsMove(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved)
@@ -377,6 +374,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public Vector2 MinIlandBox;
         public Vector2 MaxIlandBox;
         public Vector2 GetSize { get => MaxIlandBox - MinIlandBox; }
+        public Vector2 Size { get => GetSize; set => MaxIlandBox = MinIlandBox + value; }
 
         public Island(Island Souse)
         {
