@@ -15,35 +15,43 @@ namespace Rs64.TexTransTool.TexturAtlas
             var Data = Target.GetCompileData();
             if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<CompileDataContenar>(ScriptableObject.CreateInstance<CompileDataContenar>()); }
 
+
             var Contenar = Target.Contenar;
             var UVs = Data.GetUVs();
             var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex).Result;
 
+
             var NotMovedIslandPool = new IslandPool(IslandPool);
 
-            foreach (var island in IslandPool.IslandPoolList)
+            foreach (var islandI in IslandPool.IslandPoolList)
             {
-                var OffSetScaile = Data.Offsets[island.MapIndex];
-                island.island.Size = island.island.Size * OffSetScaile;
+                var OffSetScaile = Data.Offsets[islandI.MapIndex];
+                var island = islandI.island;
+                island.Size *= OffSetScaile;
             }
 
+            GenereatMovedIlands(Target.SortingType, IslandPool);
 
-            var MovedPool = GenereatMovedIlands(Target.SortingType, IslandPool);
-            var MovedUVs = IslandUtils.UVsMoveAsync(UVs, NotMovedIslandPool, MovedPool).Result;
+            var MovedUVs = IslandUtils.UVsMoveAsync(UVs, NotMovedIslandPool, IslandPool).Result;
 
             var NotMevedUVs = Data.GetUVs();
             Data.SetUVs(MovedUVs, 0);
             Data.SetUVs(NotMevedUVs, 1);
 
+
             var AtlasMapDatas = GeneratAtlasMaps(Data.TargetMeshIndex, Data.meshes, TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
+
             AtlasTextureCompile(Data.SouseTextures, AtlasMapDatas, TargetPorpAndAtlasTexs);
+
 
             Contenar.PutData(Data, TargetPorpAndAtlasTexs);
 
+
             Target.AtlasCompilePostCallBack.Invoke(Contenar);
+
         }
 
         public static void PutData(this CompileDataContenar Contenar, AtlasCompileData Data, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
@@ -63,32 +71,23 @@ namespace Rs64.TexTransTool.TexturAtlas
             Contenar.DeletTexture();
             Contenar.SetTextures(TargetPorpAndAtlasTexs.ConvertAll<PropAndTexture>(i => (PropAndTexture)i));
         }
-        [Obsolete]
-        public static List<List<Vector2>> GenereatNewMovedUVs(IslandSortingType SortingType, IslandPool IslandPool, List<List<Vector2>> UVs)
-        {
-            IslandPool MovedPool = GenereatMovedIlands(SortingType, IslandPool);
-            return IslandUtils.UVsMoveAsync(UVs, IslandPool, MovedPool).Result;
-        }
 
-        private static IslandPool GenereatMovedIlands(IslandSortingType SortingType, IslandPool IslandPool)
+        private static void GenereatMovedIlands(IslandSortingType SortingType, IslandPool IslandPool)
         {
-            IslandPool MovedPool;
             switch (SortingType)
             {
                 case IslandSortingType.EvenlySpaced:
                     {
-                        MovedPool = IslandUtils.IslandPoolEvenlySpaced(IslandPool);
+                        IslandUtils.IslandPoolEvenlySpaced(IslandPool);
                         break;
                     }
                 case IslandSortingType.NextFitDecreasingHeight:
                     {
-                        MovedPool = IslandUtils.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        IslandUtils.IslandPoolNextFitDecreasingHeight(IslandPool);
                         break;
                     }
                 default: throw new ArgumentException();
             }
-
-            return MovedPool;
         }
 
         [Obsolete]

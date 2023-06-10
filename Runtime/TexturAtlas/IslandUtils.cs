@@ -11,62 +11,72 @@ namespace Rs64.TexTransTool.TexturAtlas
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.99f, float UpClorreScaile = 1.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.IslandPoolList;
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.GetSize.y - l.island.GetSize.y) * 100));
+            if (!Islands.Any()) return TargetPool;
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
             int loopCount = -1;
-            while (!Success)
+
+            while (!Success && MaxLoopCount > loopCount)
             {
                 loopCount += 1;
-                if (loopCount > MaxLoopCount) break;
                 Success = true;
+
                 var NawPos = new Vector2(IslanadsPading, IslanadsPading);
-                float FirstHeight = 0;
-                if (Islands.Any()) FirstHeight = Islands[0].island.GetSize.y * NawScaile;
-                var NawMaxHigt = IslanadsPading + FirstHeight + IslanadsPading;
+                float FirstHeight = Islands[0].island.Size.y;
+                var NawHeight = IslanadsPading + FirstHeight + IslanadsPading;
+
                 foreach (var islandandIndex in Islands)
                 {
-                    var NawSize = islandandIndex.island.GetSize;
+                    var Island = islandandIndex.island;
+                    var NawSize = Island.Size;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x * (NawScaile > 1 ? NawScaile : 1) + IslanadsPading) > 1;
+                    var IsOutOfX = (NawMaxPos.x + IslanadsPading) > 1;
 
                     if (IsOutOfX)
                     {
-                        NawPos.y = NawMaxHigt;
+                        NawPos.y = NawHeight;
                         NawPos.x = IslanadsPading;
 
-                        NawMaxHigt += IslanadsPading + NawSize.y * NawScaile;
+                        NawHeight += IslanadsPading + NawSize.y;
 
-                        if (NawMaxHigt > 1)
+                        if (NawHeight > 1)
                         {
 
                             Success = false;
 
-                            Islands.ForEach(i => i.island.MaxIlandBox = i.island.MinIlandBox + (i.island.GetSize * ClorreScaile));
-                            NawScaile *= ClorreScaile;
+                            ScaileAppry(1 - ClorreScaile);
                             break;
                         }
                     }
-                    islandandIndex.island.MinIlandBox = NawPos;
-                    islandandIndex.island.MaxIlandBox = NawPos + NawSize;
 
-                    NawPos.x += IslanadsPading + NawSize.x * NawScaile;
-                    //高さの更新や現在の位置の移動の今の時のスケールをかけないとうまくいかない理由は何もわからない...
-                    //GetSize周りがなぜかうまくいっていないのだろうか...いろいろ試しても何もわからないので一回あきらめよう...
+                    Island.Pivot = NawPos;
 
+                    NawPos.x += IslanadsPading + NawSize.x;
                 }
-                if (MinHeight > NawMaxHigt)
+
+                if (Success && MinHeight > NawHeight)
                 {
                     Success = false;
-                    Islands.ForEach(i => i.island.MaxIlandBox = i.island.MinIlandBox + (i.island.GetSize * UpClorreScaile));
-                    NawScaile *= UpClorreScaile;
+                    ScaileAppry(1 + ClorreScaile);
                 }
+
             }
-            //Debug.Log(loopCount + " " + NawScaile + " " + Success);
+
             return TargetPool;
+
+            void ScaileAppry(float Scaile)
+            {
+                foreach (var islandandIndex in Islands)
+                {
+                    var Island = islandandIndex.island;
+                    Island.Size *= Scaile;
+                }
+                NawScaile *= Scaile;
+            }
         }
 
         public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV)
@@ -127,7 +137,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public static IslandPool IslandPoolEvenlySpaced(IslandPool TargetPool)
         {
-            Vector2 MaxIslandSize = TargetPool.GetLargest().island.GetSize;
+            Vector2 MaxIslandSize = TargetPool.GetLargest().island.Size;
             var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.IslandPoolList.Count));
             var CellSize = 1f / GridSize;
             int Count = 0;
@@ -149,8 +159,8 @@ namespace Rs64.TexTransTool.TexturAtlas
                     break;
                 }
 
-                var IslandBox = Island.GetSize;
-                Island.MinIlandBox = CellPos;
+                var IslandBox = Island.Size;
+                Island.Pivot = CellPos;
 
                 var IslandMaxRanege = IslandBox.y < IslandBox.x ? IslandBox.x : IslandBox.y;
                 if (IslandMaxRanege > CellSize)
@@ -158,7 +168,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     IslandBox *= (CellSize / IslandMaxRanege);
                     IslandBox *= 0.95f;
                 }
-                Island.MaxIlandBox = CellPos + IslandBox;
+                Island.Size = IslandBox;
 
                 Count += 1;
             }
@@ -182,7 +192,8 @@ namespace Rs64.TexTransTool.TexturAtlas
             List<ConfiguredTaskAwaitable> Tasks = new List<ConfiguredTaskAwaitable>();
             foreach (var Index in Enumerable.Range(0, Moved.IslandPoolList.Count))
             {
-                Tasks.Add(Task.Run(() => MoveUV(UVs, Original, Moved, MovedUV, Index)).ConfigureAwait(false));
+                var Indexi = Index;
+                Tasks.Add(Task.Run(() => MoveUV(UVs, Original, Moved, MovedUV, Indexi)).ConfigureAwait(false));
             }
             foreach (var task in Tasks)
             {
@@ -197,20 +208,27 @@ namespace Rs64.TexTransTool.TexturAtlas
         static void MoveUV(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved, List<List<Vector2>> MovedUV, int Index)
         {
             var MapIndex = Moved.IslandPoolList[Index].MapIndex;
-            var MovedIsland = Moved.IslandPoolList[Index];
+            var MovedIslandI = Moved.IslandPoolList[Index];
 
-            var VertexIndex = MovedIsland.island.GetVertexIndex();
-            var NotMovedIsland = Original.IslandPoolList.Find(i => i.MapIndex == MovedIsland.MapIndex && i.IslandIndex == MovedIsland.IslandIndex);
+            var VertexIndex = MovedIslandI.island.GetVertexIndex();
+            var NotMovedIslandI = Original.IslandPoolList.Find(i => i.MapIndex == MovedIslandI.MapIndex && i.IslandIndex == MovedIslandI.IslandIndex);
 
+            var mIsland = MovedIslandI.island;
+            var nmIsland = NotMovedIslandI.island;
 
-            float RelativeScaile = MovedIsland.island.GetSize.sqrMagnitude / NotMovedIsland.island.GetSize.sqrMagnitude;
+            var mSize = mIsland.Size;
+            var nmSize = nmIsland.Size;
+            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
 
             foreach (var TrinagleIndex in VertexIndex)
             {
                 var VertPos = UVs[MapIndex][TrinagleIndex];
-                var RelativeVertPos = VertPos - NotMovedIsland.island.MinIlandBox;
-                RelativeVertPos *= RelativeScaile;
-                var MovedVertPos = MovedIsland.island.MinIlandBox + RelativeVertPos;
+                var RelativeVertPos = VertPos - nmIsland.Pivot;
+
+                RelativeVertPos.x *= RelativeScaile.x;
+                RelativeVertPos.y *= RelativeScaile.y;
+
+                var MovedVertPos = mIsland.Pivot + RelativeVertPos;
                 MovedUV[MapIndex][TrinagleIndex] = MovedVertPos;
             }
         }
@@ -349,12 +367,13 @@ namespace Rs64.TexTransTool.TexturAtlas
             int GetIndex = -1;
             int Count = -1;
             Vector2 Cash = new Vector2(0, 0);
-            foreach (var islandandi in IslandPoolList)
+            foreach (var islandandI in IslandPoolList)
             {
                 Count += 1;
-                if (Cash.sqrMagnitude < islandandi.island.GetSize.sqrMagnitude)
+                var Island = islandandI.island;
+                if (Cash.sqrMagnitude < Island.Size.sqrMagnitude)
                 {
-                    Cash = islandandi.island.GetSize;
+                    Cash = islandandI.island.Size;
                     GetIndex = Count;
                 }
             }
@@ -371,16 +390,16 @@ namespace Rs64.TexTransTool.TexturAtlas
     public class Island
     {
         public List<TraiangleIndex> trainagels = new List<TraiangleIndex>();
-        public Vector2 MinIlandBox;
-        public Vector2 MaxIlandBox;
-        public Vector2 GetSize { get => MaxIlandBox - MinIlandBox; }
-        public Vector2 Size { get => GetSize; set => MaxIlandBox = MinIlandBox + value; }
+        public Vector2 Pivot;
+        public Vector2 Size;
+
+        public Vector2 GetMaxPos => (Pivot + Size);
 
         public Island(Island Souse)
         {
             trainagels = new List<TraiangleIndex>(Souse.trainagels);
-            MinIlandBox = Souse.MinIlandBox;
-            MaxIlandBox = Souse.MaxIlandBox;
+            Pivot = Souse.Pivot;
+            Size = Souse.Size;
         }
         public Island(TraiangleIndex traiangleIndex)
         {
@@ -408,21 +427,20 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             var VartPoss = GetVertexPos(SouseUV);
             var Box = TransMapper.BoxCal(VartPoss);
-            MinIlandBox = Box.Item1;
-            MaxIlandBox = Box.Item2;
+            Pivot = Box.Item1;
+            Size = Box.Item2 - Box.Item1;
         }
 
         public bool BoxInOut(Vector2 TargetPos)
         {
-            var InOutX = MinIlandBox.x < TargetPos.x && TargetPos.x < MaxIlandBox.x;
-            var InOutY = MinIlandBox.y < TargetPos.y && TargetPos.y < MaxIlandBox.y;
-            return InOutX && InOutY;
+            var RelaTargetPos = TargetPos - Pivot;
+            return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
         }
 
     }
 
 
-    public static class IlandUtilsDebug
+    public static class IslandUtilsDebug
     {
         public static void DorwUV(List<Vector2> UV, Texture2D TargetTextur, Color WriteColor)
         {
@@ -438,8 +456,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             foreach (var island in Pool.IslandPoolList)
             {
-                var minpos = new Vector2Int(Mathf.RoundToInt(island.island.MinIlandBox.x * TargetTextur.width), Mathf.RoundToInt(island.island.MinIlandBox.y * TargetTextur.height));
-                var maxpos = new Vector2Int(Mathf.RoundToInt(island.island.MaxIlandBox.x * TargetTextur.width), Mathf.RoundToInt(island.island.MaxIlandBox.y * TargetTextur.height));
+                var minpos = new Vector2Int(Mathf.RoundToInt(island.island.Pivot.x * TargetTextur.width), Mathf.RoundToInt(island.island.Pivot.y * TargetTextur.height));
+                var maxpos = new Vector2Int(Mathf.RoundToInt(island.island.GetMaxPos.x * TargetTextur.width), Mathf.RoundToInt(island.island.GetMaxPos.y * TargetTextur.height));
                 Vector2Int pos = minpos;
                 while (maxpos.x > pos.x)
                 {

@@ -53,6 +53,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         public override bool IsPossibleCompile => TargetRoot;
 
         public MaterialDomain BAckUpMaterialDomain;
+
+        public bool CompileLook = false;
         public override void Apply(MaterialDomain AvatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
