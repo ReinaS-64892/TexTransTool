@@ -144,7 +144,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             foreach (var CellIndex in Utils.Reange2d(new Vector2Int(GridSize, GridSize)))
             {
                 var CellPos = (Vector2)CellIndex / GridSize;
-                int MapIndex;
+                MeshIndex MapIndex;
                 int IslandIndex;
                 Island Island;
                 if (TargetPool.IslandPoolList.Count > Count)
@@ -211,7 +211,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var MovedIslandI = Moved.IslandPoolList[Index];
 
             var VertexIndex = MovedIslandI.island.GetVertexIndex();
-            var NotMovedIslandI = Original.IslandPoolList.Find(i => i.MapIndex == MovedIslandI.MapIndex && i.IslandIndex == MovedIslandI.IslandIndex);
+            var NotMovedIslandI = Original.IslandPoolList.Find(i => i.MapIndex.Index == MovedIslandI.MapIndex.Index && i.IslandIndex == MovedIslandI.IslandIndex);
 
             var mIsland = MovedIslandI.island;
             var nmIsland = NotMovedIslandI.island;
@@ -222,36 +222,15 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             foreach (var TrinagleIndex in VertexIndex)
             {
-                var VertPos = UVs[MapIndex][TrinagleIndex];
+                var VertPos = UVs[MapIndex.Index][TrinagleIndex];
                 var RelativeVertPos = VertPos - nmIsland.Pivot;
 
                 RelativeVertPos.x *= RelativeScaile.x;
                 RelativeVertPos.y *= RelativeScaile.y;
 
                 var MovedVertPos = mIsland.Pivot + RelativeVertPos;
-                MovedUV[MapIndex][TrinagleIndex] = MovedVertPos;
+                MovedUV[MapIndex.Index][TrinagleIndex] = MovedVertPos;
             }
-        }
-        [Obsolete]
-        public static IslandPool GeneretIslandPool(this AtlasCompileData Data)
-        {
-            return GeneretIslandPool(Data.meshes);
-        }
-        [Obsolete]
-        public static IslandPool GeneretIslandPool(List<Mesh> Data)
-        {
-            var IslandPool = new IslandPool();
-
-            int MapCount = -1;
-            foreach (var data in Data)
-            {
-                MapCount += 1;
-                var UV = new List<Vector2>();
-                data.GetUVs(0, UV);
-                var Triangle = Utils.ToList(data.triangles);
-                IslandPool.IslandPoolList.AddRange(GeneretIslandAndIndex(UV, Triangle, MapCount));
-            }
-            return IslandPool;
         }
 
         public static async Task<IslandPool> AsyncGeneretIslandPool(List<Mesh> Data, List<List<Vector2>> UVs, List<MeshIndex> SelectUV)
@@ -261,7 +240,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>> Tesks = new List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>>();
             foreach (var index in SelectUV)
             {
-                var mapcount = index.Index;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
+                var mapcount = index;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
                 var Triangle = Utils.ToList(Data[index.Index].GetTriangles(index.SubMeshIndex));
                 Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UVs[index.Index], Triangle, mapcount)).ConfigureAwait(false));
             }
@@ -273,7 +252,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             return IslandPool;
 
         }
-        static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, int MapCount)
+        static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, MeshIndex MapCount)
         {
             var Islanads = IslandUtils.UVtoIsland(traiangles, UV);
             var IslandPoolList = new List<IslandPool.IslandAndIndex>();
@@ -343,7 +322,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public class IslandAndIndex
         {
-            public IslandAndIndex(Island island, int mapIndex, int islandInx)
+            public IslandAndIndex(Island island, MeshIndex mapIndex, int islandInx)
             {
                 this.island = new Island(island);
                 MapIndex = mapIndex;
@@ -358,7 +337,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
             public Island island { get; set; }
-            public int MapIndex { get; set; }
+            public MeshIndex MapIndex { get; set; }
             public int IslandIndex { get; set; }
         }
 

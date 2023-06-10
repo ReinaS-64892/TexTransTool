@@ -56,7 +56,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public static void PutData(this CompileDataContenar Contenar, AtlasCompileData Data, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
         {
-            var MeshIndexs = Data.TargetMeshIndex.Distinct(new MeshIndex.IndexEqualityl());
+            var MeshIndexs = Data.TargetMeshIndex.Distinct();
             var DistMesh = new List<Mesh>();
             var GenereatMesh = new List<Mesh>();
             foreach (var Index in MeshIndexs)
@@ -169,7 +169,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<Mesh> DistMesh = new List<Mesh>();
         public List<Mesh> meshes = new List<Mesh>();
         public List<MeshIndex> TargetMeshIndex = new List<MeshIndex>();
-        public List<float> Offsets = new List<float>();
+        public Dictionary<MeshIndex, float> Offsets = new Dictionary<MeshIndex, float>();
         public Vector2Int AtlasTextureSize;
         public float Pading;
         public PadingType PadingType;
@@ -265,7 +265,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         NextFitDecreasingHeight,
     }
 
-    public class MeshIndex
+    public struct MeshIndex
     {
         public int Index;
         public int SubMeshIndex;
@@ -276,18 +276,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             SubMeshIndex = subMeshIndex;
         }
 
-        public class IndexEqualityl : IEqualityComparer<MeshIndex>
-        {
-            public bool Equals(MeshIndex x, MeshIndex y)
-            {
-                return x.Index == y.Index;
-            }
 
-            public int GetHashCode(MeshIndex obj)
-            {
-                return obj.Index.GetHashCode();
-            }
-        }
     }
 
     public class PropAndSouseTexuters
