@@ -32,7 +32,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
         [SerializeField] List<Mesh> BackUpStaticMeshs = new List<Mesh>();
         [SerializeField] List<Material> BackUpMaterial = new List<Material>();
-        public void Apply(MaterialDomain AvatarMaterialDomain = null)
+        public void Apply(AvatarDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsApply == true) return;
@@ -41,7 +41,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             _IsApply = true;
         }
-        public void Revart(MaterialDomain AvatarMaterialDomain = null)
+        public void Revart(AvatarDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsApply == false) return;
@@ -91,7 +91,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 AtlasTargetStaticMeshs[Count].GetComponent<MeshFilter>().sharedMesh = mesh;
             }
         }
-        public void MaterialApply(MaterialDomain AvatarMaterialDomain = null)
+        public void MaterialApply(AvatarDomain AvatarMaterialDomain = null)
         {
             if (Contenar == null) return;
             if (_IsApply == true) return;
@@ -113,7 +113,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
         }
-        public void MaterialRevart(MaterialDomain AvatarMaterialDomain = null)
+        public void MaterialRevart(AvatarDomain AvatarMaterialDomain = null)
         {
             if (_IsApply == false) return;
 

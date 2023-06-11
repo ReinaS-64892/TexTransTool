@@ -6,17 +6,17 @@ using UnityEngine;
 namespace Rs64.TexTransTool
 {
     [RequireComponent(typeof(AbstractTexTransGroup))]
-    public class AvatarMaterialDomain : MonoBehaviour
+    public class AvatarDomainDefinition : MonoBehaviour
     {
         public GameObject Avatar;
         [SerializeField] public AbstractTexTransGroup TexTransGroup;
-        [SerializeField] protected MaterialDomain CacheDomain;
+        [SerializeField] protected AvatarDomain CacheDomain;
 
         [SerializeField, HideInInspector] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
-        public virtual MaterialDomain GetDomain()
+        public virtual AvatarDomain GetDomain()
         {
-            return new MaterialDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
+            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
         }
         protected void Reset()
         {
@@ -43,18 +43,18 @@ namespace Rs64.TexTransTool
         }
     }
     [System.Serializable]
-    public class MaterialDomain
+    public class AvatarDomain
     {
-        public MaterialDomain(List<Renderer> Renderers)
+        public AvatarDomain(List<Renderer> Renderers)
         {
             _Renderers = Renderers;
             _initialMaterials = Utils.GetMaterials(Renderers);
         }
         [SerializeField] List<Renderer> _Renderers;
         [SerializeField] List<Material> _initialMaterials;
-        public MaterialDomain GetBackUp()
+        public AvatarDomain GetBackUp()
         {
-            return new MaterialDomain(_Renderers);
+            return new AvatarDomain(_Renderers);
         }
         public void SetMaterial(Material Target, Material SetMat)
         {

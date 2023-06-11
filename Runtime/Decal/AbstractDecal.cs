@@ -53,12 +53,12 @@ namespace Rs64.TexTransTool.Decal
 
         public virtual List<DecalUtil.Filtaring> GetFiltarings() { return null; }
 
-        public override void Apply(MaterialDomain avatarMaterialDomain)
+        public override void Apply(AvatarDomain avatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
             var DecalTextures = Container.DecalCompiledTextures;
@@ -97,11 +97,11 @@ namespace Rs64.TexTransTool.Decal
             avatarMaterialDomain.SetMaterials(PeadMaterial);
         }
 
-        public override void Revart(MaterialDomain avatarMaterialDomain = null)
+        public override void Revart(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));

@@ -8,7 +8,7 @@ using VRC.SDK3.Avatars.Components;
 namespace Rs64.TexTransTool.VRCBulige
 {
     [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(AbstractTexTransGroup))]
-    public class AvatarBuildApplyHook : AvatarMaterialDomain, IEditorOnly
+    public class AvatarBuildApplyHook : AvatarDomainDefinition, IEditorOnly
     {
 
         public override void Apply()

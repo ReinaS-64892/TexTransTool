@@ -52,15 +52,15 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleCompile => TargetRoot;
 
-        public MaterialDomain BAckUpMaterialDomain;
+        public AvatarDomain BAckUpMaterialDomain;
 
         public bool CompileLook = false;
-        public override void Apply(MaterialDomain AvatarMaterialDomain)
+        public override void Apply(AvatarDomain AvatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
             if (_IsApply == true) return;
             _IsApply = true;
-            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new AvatarDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
             else { BAckUpMaterialDomain = AvatarMaterialDomain.GetBackUp(); }
 
             var DistMats = GetSelectMats();
@@ -83,7 +83,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             Utils.SetMeshs(TargetRenderer, Contenar.DistMeshs, Contenar.GenereatMeshs);
         }
-        public override void Revart(MaterialDomain AvatarMaterialDomain)
+        public override void Revart(AvatarDomain AvatarMaterialDomain)
         {
             if (!IsApply) return;
             _IsApply = false;

@@ -9,8 +9,8 @@ namespace Rs64.TexTransTool
         public abstract bool IsPossibleApply { get; }
         public abstract bool IsPossibleCompile { get; }
         public abstract void Compile();
-        public abstract void Apply(MaterialDomain avatarMaterialDomain = null);
-        public abstract void Revart(MaterialDomain avatarMaterialDomain = null);
+        public abstract void Apply(AvatarDomain avatarMaterialDomain = null);
+        public abstract void Revart(AvatarDomain avatarMaterialDomain = null);
     }
 }
 #endif
