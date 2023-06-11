@@ -80,6 +80,10 @@ namespace Rs64.TexTransTool
                 }
             }
         }
+        public void SetMaterial(MatPea Pea)
+        {
+            SetMaterial(Pea.Material, Pea.SecndMaterial);
+        }
 
         public void SetMaterials(List<Material> Target, List<Material> SetMat)
         {
@@ -104,6 +108,13 @@ namespace Rs64.TexTransTool
             foreach (var Target in TargetMat)
             {
                 SetMaterial(Target, SetMat);
+            }
+        }
+        public void SetMaterials(IEnumerable<MatPea> peas)
+        {
+            foreach (var pea in peas)
+            {
+                SetMaterial(pea);
             }
         }
 

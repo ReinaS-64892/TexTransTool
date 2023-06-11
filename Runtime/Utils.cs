@@ -146,6 +146,24 @@ namespace Rs64.TexTransTool
             }
             return mesh;
         }
+        public static void SetMesh(this Renderer Target, Mesh SetTarget)
+        {
+            switch (Target)
+            {
+                case SkinnedMeshRenderer SMR:
+                    {
+                        SMR.sharedMesh = SetTarget;
+                        break;
+                    }
+                case MeshRenderer MR:
+                    {
+                        MR.GetComponent<MeshFilter>().sharedMesh = SetTarget;
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
 
         public static void SetMeshs(List<Renderer> renderers, List<Mesh> DistMesh, List<Mesh> SetMesh)
         {
@@ -294,6 +312,20 @@ namespace Rs64.TexTransTool
             }
             return List;
         }
+
+        public static List<int> AllIndexOf(this List<Mesh> DistMesh, Mesh Mesh)
+        {
+            List<int> Indexs = new List<int>();
+            int I = 0;
+            foreach (var FindatMesh in DistMesh)
+            {
+                if (FindatMesh == Mesh) Indexs.Add(I);
+                I += 1;
+            }
+
+            return Indexs;
+        }
+
     }
 
     public class DebugTimer

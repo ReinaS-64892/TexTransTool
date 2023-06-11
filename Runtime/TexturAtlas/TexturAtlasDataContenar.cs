@@ -9,54 +9,48 @@ using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
-    public class CompileDataContenar : ScriptableObject
+    public class TexturAtlasDataContenar : TTDataContainer
     {
-        public List<Mesh> DistMeshs = new List<Mesh>();
-        public List<Mesh> GenereatMeshs = new List<Mesh>();
+        [SerializeField] List<Mesh> _DistMeshs = new List<Mesh>();
+        [SerializeField] List<Mesh> _GenereatMeshs = new List<Mesh>();
+
+
+        public List<Mesh> DistMeshs
+        {
+            set => _DistMeshs = value;
+            get => _DistMeshs;
+        }
+        public List<Mesh> GenereatMeshs
+        {
+            set
+            {
+                if (_GenereatMeshs != null) AssetSaveHelper.DeletSubAssets(_GenereatMeshs);
+                _GenereatMeshs = value;
+                AssetSaveHelper.SaveSubAssets(this, _GenereatMeshs);
+            }
+            get => _GenereatMeshs;
+        }
+        public List<int[]> DistMeshsSloats = new List<int[]>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
-        public List<Material> DistMaterial = new List<Material>();
-        public List<Material> GenereatMaterial = new List<Material>();
 
         private string ThisPath => AssetDatabase.GetAssetPath(this);
 
         public void SetSubAsset<T>(List<T> Assets) where T : UnityEngine.Object
         {
-            ClearAssets<T>();
-            foreach (var Asset in Assets)
-            {
-                AssetDatabase.AddObjectToAsset(Asset, this);
-            }
-            AssetDatabase.ImportAsset(ThisPath);
+            AssetSaveHelper.SaveSubAssets(this, Assets);
         }
 
-        public void ClearAssets<T>() where T : UnityEngine.Object
-        {
-            foreach (var asset in AssetDatabase.LoadAllAssetRepresentationsAtPath(ThisPath))
-            {
-                if (asset is T assett && AssetDatabase.IsSubAsset(asset))
-                {
-                    DestroyImmediate(assett, true);
-                }
-            }
-        }
+
         public void DeletTexture()
         {
-            foreach (var TexAndDist in PropAndTextures)
-            {
-                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(TexAndDist.Texture2D));
-            }
+            AssetSaveHelper.DeletAssets(PropAndTextures.ConvertAll(x => x.Texture2D));
             PropAndTextures.Clear();
         }
 
         public void SetTexture(PropAndTexture Souse)
         {
             PropAndTextures.Add(Souse);
-            var FilePath = ThisPath.Replace(Path.GetExtension(ThisPath), "");
-            FilePath += Souse.PropertyName + "_GenereatAtlasTex" + ".png";
-
-            File.WriteAllBytes(FilePath, Souse.Texture2D.EncodeToPNG());
-            AssetDatabase.ImportAsset(FilePath);
-            PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetDatabase.LoadAssetAtPath<Texture2D>(FilePath);
+            PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetSaveHelper.SaveAsset(Souse.Texture2D);
         }
         public void SetTextures(List<PropAndTexture> Souses)
         {
@@ -66,9 +60,9 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public List<Material> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
+        public List<MatPea> GeneratCompileTexturedMaterial(List<Material> SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
         {
-            List<Material> GeneratMats = new List<Material>();
+            List<MatPea> GeneratMats = new List<MatPea>();
 
 
             foreach (var SMat in SouseMatrial)
@@ -81,15 +75,14 @@ namespace Rs64.TexTransTool.TexturAtlas
                 if (IsClearUnusedProperties) MaterialUtil.RemoveUnusedProperties(Gmat);
                 MaterialCustomSetting(Gmat);
 
-                GeneratMats.Add(Gmat);
+                GeneratMats.Add(new MatPea(SMat, Gmat));
 
             }
 
-            SetSubAsset(GeneratMats);
-            GenereatMaterial = GeneratMats;
+            GenereatMaterials = GeneratMats;
             return GeneratMats;
         }
-        public Material GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
+        public MatPea GeneratCompileTexturedMaterial(Material SouseMatrial, bool IsClearUnusedProperties, bool FocuseSetTexture = false)
         {
             var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
 
@@ -98,9 +91,12 @@ namespace Rs64.TexTransTool.TexturAtlas
             MaterialCustomSetting(Gmat);
 
             SetSubAsset(new List<Material>() { Gmat });
-            GenereatMaterial.Clear();
-            GenereatMaterial.Add(Gmat);
-            return Gmat;
+            var Gmats = GenereatMaterials;
+            Gmats.Clear();
+            var Mapepa = new MatPea(SouseMatrial, Gmat);
+            Gmats.Add(Mapepa);
+            GenereatMaterials = Gmats;
+            return Mapepa;
         }
 
         public static void PropToMaterialTexApply(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)
@@ -121,7 +117,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             SuppotShder.GenereatMaterialCustomSetting(material);
         }
 
-        public CompileDataContenar()
+        public TexturAtlasDataContenar()
         {
 
         }
