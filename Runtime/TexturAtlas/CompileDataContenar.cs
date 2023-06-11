@@ -78,7 +78,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 PropToMaterialTexApply(PropAndTextures, Gmat, FocuseSetTexture);
 
-                if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+                if (IsClearUnusedProperties) MaterialUtil.RemoveUnusedProperties(Gmat);
                 MaterialCustomSetting(Gmat);
 
                 GeneratMats.Add(Gmat);
@@ -94,7 +94,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var Gmat = UnityEngine.Object.Instantiate<Material>(SouseMatrial);
 
             PropToMaterialTexApply(PropAndTextures, Gmat, FocuseSetTexture);
-            if (IsClearUnusedProperties) RemoveUnusedProperties(Gmat);
+            if (IsClearUnusedProperties) MaterialUtil.RemoveUnusedProperties(Gmat);
             MaterialCustomSetting(Gmat);
 
             SetSubAsset(new List<Material>() { Gmat });
@@ -119,41 +119,6 @@ namespace Rs64.TexTransTool.TexturAtlas
             var SuppotShder = ShaderSupportUtil.GetSupprotInstans().Find(i => material.shader.name.Contains(i.SupprotShaderName));
             if (SuppotShder == null) return;
             SuppotShder.GenereatMaterialCustomSetting(material);
-        }
-
-
-        //MIT License
-        //Copyright (c) 2020-2021 lilxyzw
-        //https://github.com/lilxyzw/lilToon/blob/master/Assets/lilToon/Editor/lilMaterialUtils.cs
-        //
-        //https://light11.hatenadiary.com/entry/2018/12/04/224253
-        private static void RemoveUnusedProperties(Material material)
-        {
-            var so = new SerializedObject(material);
-            so.Update();
-            var savedProps = so.FindProperty("m_SavedProperties");
-
-            var texs = savedProps.FindPropertyRelative("m_TexEnvs");
-            DeleteUnused(ref texs, material);
-
-            var floats = savedProps.FindPropertyRelative("m_Floats");
-            DeleteUnused(ref floats, material);
-
-            var colors = savedProps.FindPropertyRelative("m_Colors");
-            DeleteUnused(ref colors, material);
-
-            so.ApplyModifiedProperties();
-        }
-
-        private static void DeleteUnused(ref SerializedProperty props, Material material)
-        {
-            for (int i = props.arraySize - 1; i >= 0; i--)
-            {
-                if (!material.HasProperty(props.GetArrayElementAtIndex(i).FindPropertyRelative("first").stringValue))
-                {
-                    props.DeleteArrayElementAtIndex(i);
-                }
-            }
         }
 
         public CompileDataContenar()

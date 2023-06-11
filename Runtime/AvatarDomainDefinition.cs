@@ -56,6 +56,10 @@ namespace Rs64.TexTransTool
         {
             return new AvatarDomain(_Renderers);
         }
+        private List<Material> _GetMaterials()
+        {
+            return Utils.GetMaterials(_Renderers).Distinct().Where(I => I != null).ToList();
+        }
         public void SetMaterial(Material Target, Material SetMat)
         {
             foreach (var Renderer in _Renderers)
@@ -106,6 +110,66 @@ namespace Rs64.TexTransTool
         public void ResetMaterial()
         {
             Utils.SetMaterials(_Renderers, _initialMaterials);
+        }
+        /// <summary>
+        /// ドメイン内のすべてのマテリアルのtextureをtargetからsetTexに変更する
+        /// </summary>
+        /// <param name="Target">差し替え元</param>
+        /// <param name="SetTex">差し替え先</param>
+        /// <returns>どこにも保存されていない変更したマテリアルの配列</returns>
+        public Dictionary<Material, Material> SetTexture(Texture2D Target, Texture2D SetTex)
+        {
+            var Mats = _GetMaterials();
+            Dictionary<Material, Material> TargetAndSet = new Dictionary<Material, Material>();
+            foreach (var Mat in Mats)
+            {
+                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
+
+                if (Textures.ContainsValue(Target))
+                {
+                    var NewMat = UnityEngine.Object.Instantiate<Material>(Mat);
+
+                    foreach (var KVP in Textures)
+                    {
+                        if (KVP.Value == Target)
+                        {
+                            NewMat.SetTexture(KVP.Key, SetTex);
+                        }
+                    }
+
+                    TargetAndSet.Add(Mat, NewMat);
+                }
+            }
+
+            SetMaterials(TargetAndSet);
+
+            return TargetAndSet;
+        }
+        /// <summary>
+        /// ドメイン内のすべてのマテリアルのtextureをKeyからValueに変更する
+        /// </summary>
+        /// <param name="TargetAndSet"></param>
+        /// <returns>どこにも保存されていない変更したマテリアルの辞書</returns>
+        public Dictionary<Material, Material> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
+        {
+            Dictionary<Material, Material> KeyAndNotSavedMat = new Dictionary<Material, Material>();
+            foreach (var KVP in TargetAndSet)
+            {
+                var NotSavedMat = SetTexture(KVP.Key, KVP.Value);
+
+                foreach (var MatPar in NotSavedMat)
+                {
+                    if (KeyAndNotSavedMat.ContainsKey(MatPar.Key) == false)
+                    {
+                        KeyAndNotSavedMat.Add(MatPar.Key, MatPar.Value);
+                    }
+                    else
+                    {
+                        KeyAndNotSavedMat[MatPar.Key] = MatPar.Value;
+                    }
+                }
+            }
+            return KeyAndNotSavedMat;
         }
     }
 }
