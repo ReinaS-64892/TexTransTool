@@ -7,26 +7,8 @@ namespace Rs64.TexTransTool
 {
     public class TTDataContainer : ScriptableObject
     {
-        [SerializeField] List<Mesh> _DistMeshs = new List<Mesh>();
-        [SerializeField] List<Mesh> _GenereatMeshs = new List<Mesh>();
-
         [SerializeField] List<MatPea> _GenereatMatPears = new List<MatPea>();
 
-        public List<Mesh> DistMeshs
-        {
-            set => _DistMeshs = value;
-            get => _DistMeshs;
-        }
-        public List<Mesh> GenereatMeshs
-        {
-            set
-            {
-                if (_GenereatMeshs != null) AssetSaveHelper.DeletSubAssets(_GenereatMeshs);
-                _GenereatMeshs = value;
-                AssetSaveHelper.SaveSubAssets(this, _GenereatMeshs);
-            }
-            get => _GenereatMeshs;
-        }
         public List<MatPea> GenereatMaterials
         {
             set

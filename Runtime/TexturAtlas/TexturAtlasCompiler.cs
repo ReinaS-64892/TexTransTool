@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public static void AtlasSetCompile(AtlasSet Target, ComputeShader TransMapperCS = null)
         {
             var Data = Target.GetCompileData();
-            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<CompileDataContenar>(ScriptableObject.CreateInstance<CompileDataContenar>()); }
+            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<TexturAtlasDataContenar>(ScriptableObject.CreateInstance<TexturAtlasDataContenar>()); }
 
 
             var Contenar = Target.Contenar;
@@ -23,12 +23,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             var NotMovedIslandPool = new IslandPool(IslandPool);
 
-            foreach (var islandI in IslandPool.IslandPoolList)
-            {
-                var OffSetScaile = Data.Offsets[islandI.MapIndex];
-                var island = islandI.island;
-                island.Size *= OffSetScaile;
-            }
+            OffSetApply(Data.Offsets, IslandPool);
 
             GenereatMovedIlands(Target.SortingType, IslandPool);
 
@@ -54,9 +49,19 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         }
 
-        public static void PutData(this CompileDataContenar Contenar, AtlasCompileData Data, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
+        private static void OffSetApply(Dictionary<MeshIndex,float> Offsets, IslandPool IslandPool)
         {
-            var MeshIndexs = Data.TargetMeshIndex.Distinct();
+            foreach (var islandI in IslandPool.IslandPoolList)
+            {
+                var OffSetScaile = Offsets[islandI.MapIndex];
+                var island = islandI.island;
+                island.Size *= OffSetScaile;
+            }
+        }
+
+        public static void PutData(this TexturAtlasDataContenar Contenar, AtlasCompileData Data, List<PropAndAtlasTex> TargetPorpAndAtlasTexs)
+        {
+            var MeshIndexs = Data.TargetMeshIndex.Distinct(new MeshIndex.IndexEqualityl());
             var DistMesh = new List<Mesh>();
             var GenereatMesh = new List<Mesh>();
             foreach (var Index in MeshIndexs)
@@ -66,7 +71,6 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
             Contenar.DistMeshs = DistMesh;
-            Contenar.SetSubAsset<Mesh>(GenereatMesh);
             Contenar.GenereatMeshs = GenereatMesh;
             Contenar.DeletTexture();
             Contenar.SetTextures(TargetPorpAndAtlasTexs.ConvertAll<PropAndTexture>(i => (PropAndTexture)i));
@@ -127,6 +131,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     {
                         if (!(AtlasMapDatas.Length > meshIndex.Index && AtlasMapDatas[meshIndex.Index].Length > meshIndex.SubMeshIndex)) continue;
                         var TransMap = AtlasMapDatas[meshIndex.Index][meshIndex.SubMeshIndex];
+                        if (TransMap == null) continue;
                         _ = Compiler.TransCompileUseGetPixsel(SouseTxture, TransMap, TargetTex, TexWrapMode.Stretch);
                     }
 
@@ -276,7 +281,18 @@ namespace Rs64.TexTransTool.TexturAtlas
             SubMeshIndex = subMeshIndex;
         }
 
+        public class IndexEqualityl : IEqualityComparer<MeshIndex>
+        {
+            public bool Equals(MeshIndex x, MeshIndex y)
+            {
+                return x.Index == y.Index;
+            }
 
+            public int GetHashCode(MeshIndex obj)
+            {
+                return obj.Index.GetHashCode();
+            }
+        }
     }
 
     public class PropAndSouseTexuters

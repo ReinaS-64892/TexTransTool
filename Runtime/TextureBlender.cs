@@ -28,12 +28,12 @@ namespace Rs64.TexTransTool
 
         public override bool IsPossibleCompile => IsPossibleApply;
 
-        public override void Apply(MaterialDomain avatarMaterialDomain = null)
+        public override void Apply(AvatarDomain avatarMaterialDomain = null)
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(new List<Renderer> { TargetRenderer });
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
             ContainerCheck();
 
             var DistMaterials = TargetRenderer.sharedMaterials;
@@ -74,11 +74,11 @@ namespace Rs64.TexTransTool
 
         public override void Compile() { }
 
-        public override void Revart(MaterialDomain avatarMaterialDomain = null)
+        public override void Revart(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(new List<Renderer> { TargetRenderer });
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));

@@ -29,8 +29,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeight;
         public bool GeneratMatClearUnusedProperties = true;
         [SerializeField] bool _IsApply;
-        public Action<CompileDataContenar> AtlasCompilePostCallBack = (i) => { };
-        public CompileDataContenar Contenar;
+        public Action<TexturAtlasDataContenar> AtlasCompilePostCallBack = (i) => { };
+        public TexturAtlasDataContenar Contenar;
         [SerializeField] List<Mesh> BackUpMeshs = new List<Mesh>();
         [SerializeField] List<Material> BackUpMaterial = new List<Material>();
         public List<AtlasPostPrcess> PostProcess = new List<AtlasPostPrcess>()
@@ -52,24 +52,28 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public override bool IsPossibleCompile => TargetRoot;
 
-        public MaterialDomain BAckUpMaterialDomain;
+        public AvatarDomain BAckUpMaterialDomain;
 
         public bool CompileLook = false;
-        public override void Apply(MaterialDomain AvatarMaterialDomain)
+        public override void Apply(AvatarDomain AvatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
             if (_IsApply == true) return;
             _IsApply = true;
-            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new MaterialDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
+            if (AvatarMaterialDomain == null) { AvatarMaterialDomain = new AvatarDomain(TargetRenderer); BAckUpMaterialDomain = AvatarMaterialDomain; }
             else { BAckUpMaterialDomain = AvatarMaterialDomain.GetBackUp(); }
 
+
+            var DistMesh = Contenar.DistMeshs;
+            var GenereatMesh = Contenar.GenereatMeshs;
+            MatNameSelectMeshSet(DistMesh, GenereatMesh);
+
             var DistMats = GetSelectMats();
-            Contenar.DistMaterial = DistMats;
             if (!ForsedMaterialMarge)
             {
                 var GanaretaMat = Contenar.GeneratCompileTexturedMaterial(DistMats, true);
 
-                AvatarMaterialDomain.SetMaterials(DistMats, GanaretaMat);
+                AvatarMaterialDomain.SetMaterials(GanaretaMat);
             }
             else
             {
@@ -78,12 +82,42 @@ namespace Rs64.TexTransTool.TexturAtlas
                 else RefMat = DistMats.First();
                 var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, ForseSetTexture);
 
-                AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat);
+                AvatarMaterialDomain.SetMaterial(GenereatMat);
             }
-
-            Utils.SetMeshs(TargetRenderer, Contenar.DistMeshs, Contenar.GenereatMeshs);
         }
-        public override void Revart(MaterialDomain AvatarMaterialDomain)
+
+        private void MatNameSelectMeshSet(List<Mesh> DistMesh, List<Mesh> GenereatMesh)
+        {
+            foreach (var Rendare in TargetRenderer)
+            {
+                var Mesh = Rendare.GetMesh();
+                if (Mesh == null) continue;
+                var MeshContinsCount = DistMesh.Count(i => i == Mesh);
+
+                if (MeshContinsCount <= 0) continue;
+                if (MeshContinsCount == 1) { Rendare.SetMesh(GenereatMesh[DistMesh.IndexOf(Mesh)]); continue; }
+                if (MeshContinsCount >= 1)
+                {
+                    var Indexs = DistMesh.AllIndexOf(Mesh);
+
+                    var SelectMeshs = Indexs.ConvertAll<Mesh>(i => GenereatMesh[i]);
+                    var Matselects = SelectMeshs.ConvertAll<List<string>>(i => i.name.Replace(Mesh.name, "").Replace("(Clone)", "").Remove(0, 1).Split(' ').ToList());
+
+                    var ThisMatselect = Rendare.sharedMaterials.ToList().ConvertAll<string>(i => i.name.Replace(" ", ""));
+                    var SelectIndex = Matselects.FindIndex(i => i.SequenceEqual(ThisMatselect));
+
+
+
+                    if (SelectIndex >= 0) Rendare.SetMesh(SelectMeshs[SelectIndex]);
+                    else Rendare.SetMesh(SelectMeshs[0]);
+
+                    continue;
+                }
+            }
+        }
+
+
+        public override void Revart(AvatarDomain AvatarMaterialDomain)
         {
             if (!IsApply) return;
             _IsApply = false;
@@ -111,7 +145,8 @@ namespace Rs64.TexTransTool.TexturAtlas
             AtlasCompileData Data = new AtlasCompileData();
             var SelectMat = GetSelectMats();
             var TargetRendererNullMeshDeletes = TargetRenderer.Where(i => i.GetMesh() != null).ToList();
-            var ItiDict = ConvertSlotIndexAndFiltaling(GetIndexAndSlot(TargetRendererNullMeshDeletes), SelectMat);
+            var ItMDict = GetIndexAndSlot(TargetRendererNullMeshDeletes);
+            var ItiDict = ConvertSlotIndexAndFiltaling(ItMDict, SelectMat);
             Data.TargetMeshIndex = ItiDict.Keys.ToList();
             Data.Offsets = GetOffsetDict(ItiDict, SelectMat);
             Data.SetPropatyAndTexs(TargetRenderer, SelectMat, ShaderSupportUtil.GetSupprotInstans());
@@ -120,8 +155,47 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.AtlasTextureSize = AtlasTextureSize;
             Data.Pading = Pading;
             Data.PadingType = PadingType;
+
+
+            var MeshIndexs = Data.TargetMeshIndex;
+
+            var RemoveTargetIndex = MatIdWriteInMeshNameAndGetIdenticalDelettarget(ItMDict, ItiDict, MeshIndexs, Data.DistMesh, Data.meshes);
+            RemoveTargetIndex.ForEach(Index => MeshIndexs.RemoveAll(i => i.Index == Index));
+
+            Data.TargetMeshIndex = MeshIndexs;
+
+
             return Data;
         }
+
+        private static List<int> MatIdWriteInMeshNameAndGetIdenticalDelettarget(Dictionary<MeshIndex, Material> ItMDict, Dictionary<MeshIndex, int> ItiDict, List<MeshIndex> MeshIndexs, List<Mesh> DMeshs, List<Mesh> TMeshs)
+        {
+            var DeleteIndex = new List<int>();
+            var Dplecatase = DMeshs.GroupBy(i => i).Where(i => i.Count() > 1).Select(i => i.Key).ToList();
+            foreach (var dpleMesh in Dplecatase)
+            {
+                var Indexs = DMeshs.AllIndexOf(dpleMesh);
+
+                var MatIDhash = new HashSet<string>();
+                foreach (var Index in Indexs)
+                {
+                    var MatID = String.Join(" ", ItiDict.Where(i => i.Key.Index == Index).ToList().ConvertAll(i => ItMDict[i.Key].name.Replace(" ", "")));
+                    TMeshs[Index].name += " " + MatID;
+
+                    if (!MatIDhash.Contains(MatID))
+                    {
+                        MatIDhash.Add(MatID);
+                    }
+                    else
+                    {
+                        DeleteIndex.Add(Index);
+                    }
+                }
+
+            }
+            return DeleteIndex;
+        }
+
         private Dictionary<MeshIndex, int> ConvertSlotIndexAndFiltaling(Dictionary<MeshIndex, Material> IndexAndSlot, List<Material> SelectMats)
         {
             var FiltedDict = new Dictionary<MeshIndex, int>();
@@ -177,7 +251,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             var FiltedSelectMats = TargetMaterial.Where(i => i.IsSelect == true).ToList();
             var MaxTexPicelCount = 0;
-            if(!FiltedSelectMats.Any()) return;
+            if (!FiltedSelectMats.Any()) return;
             foreach (var mat in FiltedSelectMats)
             {
                 var MatTex = mat.Mat.mainTexture;
@@ -210,7 +284,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             NonPropertys,
         }
 
-        public void Processing(CompileDataContenar Target)
+        public void Processing(TexturAtlasDataContenar Target)
         {
             switch (Process)
             {
@@ -227,7 +301,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        void ProcessingTextureResize(CompileDataContenar Target)
+        void ProcessingTextureResize(TexturAtlasDataContenar Target)
         {
             switch (Select)
             {
@@ -270,7 +344,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        void ProcessingSetNormalMapSetting(CompileDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
+        void ProcessingSetNormalMapSetting(TexturAtlasDataContenar Target)//これらはあまり多数に対して使用することはないであろうから多数の設定はできないようにする。EditorがわでTargetPropatyNamesをリスト的表示はしないようにする
         {
             var TargetTex = Target.PropAndTextures.Find(i => i.PropertyName == TargetPropatyNames[0]);
             if (TargetTex != null)
@@ -296,6 +370,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Offset = offset;
         }
     }
+
 }
 
 #endif

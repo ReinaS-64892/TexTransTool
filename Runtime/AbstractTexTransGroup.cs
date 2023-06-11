@@ -23,7 +23,7 @@ namespace Rs64.TexTransTool
 
         public override bool IsPossibleCompile => PossibleCompileCheck();
 
-        public override void Apply(MaterialDomain AvatarMaterialDomain = null)
+        public override void Apply(AvatarDomain AvatarMaterialDomain = null)
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
@@ -48,7 +48,7 @@ namespace Rs64.TexTransTool
             _IsSelfCallApply = false;
             Revart();
         }
-        public override void Revart(MaterialDomain AvatarMaterialDomain = null)
+        public override void Revart(AvatarDomain AvatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;

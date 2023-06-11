@@ -7,15 +7,15 @@ namespace Rs64.TexTransTool.Editor
     using UnityEngine;
     using UnityEditor;
 
-    [CustomEditor(typeof(AvatarMaterialDomain), true)]
-    public class AvatarMaterialDomainEditor : Editor
+    [CustomEditor(typeof(AvatarDomainDefinition), true)]
+    public class AvatarDomainDefinitionEditor : Editor
     {
         public override void OnInspectorGUI()
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TexTransGroup"));
 
-            var thsitarget = target as AvatarMaterialDomain;
+            var thsitarget = target as AvatarDomainDefinition;
 
             if (thsitarget.TexTransGroup == null)
             {

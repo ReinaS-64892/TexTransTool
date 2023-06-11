@@ -53,17 +53,16 @@ namespace Rs64.TexTransTool.Decal
 
         public virtual List<DecalUtil.Filtaring> GetFiltarings() { return null; }
 
-        public override void Apply(MaterialDomain avatarMaterialDomain)
+        public override void Apply(AvatarDomain avatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
             var DecalTextures = Container.DecalCompiledTextures;
-            var PeadMaterial = new Dictionary<Material, Material>();
-            var GeneretaTex = new List<Texture2D>();
+            var DistAndGeneretaTex = new Dictionary<Texture2D, Texture2D>();
             foreach (var Index in Enumerable.Range(0, DecalTextures.Count))
             {
                 var DistMat = DistMaterials[Index];
@@ -73,35 +72,32 @@ namespace Rs64.TexTransTool.Decal
 
                 if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex)
                 {
-                    var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, DecalTex, BlendType);
-                    var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
-
-                    var NewMat = Instantiate<Material>(DistMat);
-                    NewMat.SetTexture(TargetPropatyName, SavedTex);
-
-                    if (PeadMaterial.ContainsKey(DistMat))
+                    if (DistAndGeneretaTex.ContainsKey(OldTex))
                     {
-                        PeadMaterial[DistMat] = NewMat;
+                        var MoreBlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistAndGeneretaTex[OldTex], DecalTex, BlendType);
+                        var SavedTex = AssetSaveHelper.SaveAsset(MoreBlendsTex);
+                        DistAndGeneretaTex[OldTex] = SavedTex;
                     }
                     else
                     {
-                        PeadMaterial.Add(DistMat, NewMat);
+                        var BlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, DecalTex, BlendType);
+                        var SavedTex = AssetSaveHelper.SaveAsset(BlendsTex);
+                        DistAndGeneretaTex.Add(OldTex, SavedTex);
                     }
-                    GeneretaTex.Add(SavedTex);
                 }
             }
 
-            Container.DecaleBlendTexteres = GeneretaTex;
-            Container.GenereatMaterials = MatPea.GeneratMatPeaList(PeadMaterial);
+            Container.DecaleBlendTexteres = DistAndGeneretaTex.Values.ToList();
 
-            avatarMaterialDomain.SetMaterials(PeadMaterial);
+            var NotSavedMats = avatarMaterialDomain.SetTexture(DistAndGeneretaTex);
+            Container.GenereatMaterials = MatPea.GeneratMatPeaList(NotSavedMats);
         }
 
-        public override void Revart(MaterialDomain avatarMaterialDomain = null)
+        public override void Revart(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new MaterialDomain(TargetRenderers);
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
