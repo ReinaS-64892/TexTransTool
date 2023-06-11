@@ -39,6 +39,12 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 {
                     SetTargetRoot(TargetRoot.objectReferenceValue as GameObject, TargetRenderer, TargetMaterial);
                 }
+
+                if (GUILayout.Button("Automatic OffSet Setting"))
+                {
+                    Undo.RecordObject(ThisTarget, "Automatic OffSet Setting");
+                    ThisTarget.AutomaticOffSetSetting();
+                }
             }
             MaterialSelectEditor(TargetMaterial);
 
@@ -167,14 +173,19 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
         public static void MaterialSelectEditor(SerializedProperty TargetMaterial)
         {
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("IsTarget");
+            GUILayout.Label("IsTarget  (Offset)  Material");
             foreach (var Index in Enumerable.Range(0, TargetMaterial.arraySize))
             {
                 var MatSelect = TargetMaterial.GetArrayElementAtIndex(Index);
                 var SMat = MatSelect.FindPropertyRelative("Mat");
                 var SISelect = MatSelect.FindPropertyRelative("IsSelect");
+                var SOffset = MatSelect.FindPropertyRelative("Offset");
                 EditorGUILayout.BeginHorizontal();
-                SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue);
+                SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue, GUILayout.MaxWidth(100));
+                if (SISelect.boolValue)
+                {
+                    SOffset.floatValue = EditorGUILayout.FloatField(SOffset.floatValue, new GUILayoutOption[] { GUILayout.MaxWidth(100) });
+                }
                 EditorGUI.ObjectField(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(1000)), SMat.objectReferenceValue, typeof(Material), false);
                 EditorGUILayout.EndHorizontal();
             }

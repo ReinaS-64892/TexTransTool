@@ -18,7 +18,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public GameObject TargetRoot;
         public List<Renderer> TargetRenderer;//MeshとMaterialの両方を持っているRenderer
-        public List<MatSelect> TargetMaterial;
+        public List<MatSelectAndOffset> TargetMaterial;
         public bool ForsedMaterialMarge = false;
         public bool UseRefarensMaterial = false;
         public bool ForseSetTexture = false;
@@ -53,6 +53,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         public override bool IsPossibleCompile => TargetRoot;
 
         public MaterialDomain BAckUpMaterialDomain;
+
+        public bool CompileLook = false;
         public override void Apply(MaterialDomain AvatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
@@ -108,7 +110,10 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             AtlasCompileData Data = new AtlasCompileData();
             var SelectMat = GetSelectMats();
-            Data.TargetMeshIndex = GetTargetMeshIndexs();
+            var TargetRendererNullMeshDeletes = TargetRenderer.Where(i => i.GetMesh() != null).ToList();
+            var ItiDict = ConvertSlotIndexAndFiltaling(GetIndexAndSlot(TargetRendererNullMeshDeletes), SelectMat);
+            Data.TargetMeshIndex = ItiDict.Keys.ToList();
+            Data.Offsets = GetOffsetDict(ItiDict, SelectMat);
             Data.SetPropatyAndTexs(TargetRenderer, SelectMat, ShaderSupportUtil.GetSupprotInstans());
             Data.DistMesh = Utils.GetMeshes(TargetRenderer);
             Data.meshes = Data.DistMesh.ConvertAll<Mesh>(i => UnityEngine.Object.Instantiate<Mesh>(i));
@@ -117,36 +122,74 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.PadingType = PadingType;
             return Data;
         }
-
-        public List<MeshIndex> GetTargetMeshIndexs()
+        private Dictionary<MeshIndex, int> ConvertSlotIndexAndFiltaling(Dictionary<MeshIndex, Material> IndexAndSlot, List<Material> SelectMats)
         {
-            var MeshIndexs = new List<MeshIndex>();
-            var SelectMat = GetSelectMats();
-            int MeshIndex = -1;
-            foreach (var Rendera in TargetRenderer)
+            var FiltedDict = new Dictionary<MeshIndex, int>();
+
+            foreach (var kvp in IndexAndSlot)
             {
-                if (Rendera.GetMesh() == null) continue;
+                if (SelectMats.Contains(kvp.Value))
+                {
+                    FiltedDict.Add(kvp.Key, SelectMats.IndexOf(kvp.Value));
+                }
+            }
+
+            return FiltedDict;
+        }
+
+        private Dictionary<MeshIndex, Material> GetIndexAndSlot(IEnumerable<Renderer> Renderers)
+        {
+            var IndexAndSlot = new Dictionary<MeshIndex, Material>();
+            int MeshIndex = -1;
+            foreach (var Rendera in Renderers)
+            {
                 MeshIndex += 1;
                 int SubMeshIndex = -1;
                 foreach (var Mat in Rendera.sharedMaterials)
                 {
                     SubMeshIndex += 1;
 
-                    if (SelectMat.Contains(Mat))
-                    {
-                        MeshIndexs.Add(new MeshIndex(MeshIndex, SubMeshIndex));
-                    }
+                    IndexAndSlot.Add(new MeshIndex(MeshIndex, SubMeshIndex), Mat);
                 }
             }
-            return MeshIndexs;
+            return IndexAndSlot;
         }
-
         public List<Material> GetSelectMats()
         {
             return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<Material>(I => I.Mat);
         }
+        public List<float> GetSelectMatsOffset()
+        {
+            return TargetMaterial.FindAll(I => I.IsSelect == true).ConvertAll<float>(I => I.Offset);
+        }
+        public Dictionary<MeshIndex, float> GetOffsetDict(Dictionary<MeshIndex, int> ItIDict, List<Material> Mats)
+        {
+            var OffsetDict = new Dictionary<MeshIndex, float>();
+            var OffSets = GetSelectMatsOffset();
+            foreach (var kvp in ItIDict)
+            {
+                OffsetDict.Add(kvp.Key, OffSets[kvp.Value]);
+            }
+            return OffsetDict;
+        }
 
+        public void AutomaticOffSetSetting()
+        {
+            var FiltedSelectMats = TargetMaterial.Where(i => i.IsSelect == true).ToList();
+            var MaxTexPicelCount = 0;
+            if(!FiltedSelectMats.Any()) return;
+            foreach (var mat in FiltedSelectMats)
+            {
+                var MatTex = mat.Mat.mainTexture;
+                MaxTexPicelCount = Mathf.Max(MaxTexPicelCount, MatTex.width * MatTex.height);
+            }
 
+            foreach (var mat in FiltedSelectMats)
+            {
+                var MatTex = mat.Mat.mainTexture;
+                mat.Offset = (float)(MatTex.width * MatTex.height) / (float)MaxTexPicelCount;
+            }
+        }
     }
     [System.Serializable]
     public class AtlasPostPrcess
@@ -240,15 +283,17 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
     }
     [Serializable]
-    public class MatSelect
+    public class MatSelectAndOffset
     {
         public Material Mat;
-        public bool IsSelect;
+        public bool IsSelect = false;
+        public float Offset = 1;
 
-        public MatSelect(Material mat, bool isSelect)
+        public MatSelectAndOffset(Material mat, bool isSelect, float offset = 1)
         {
             Mat = mat;
             IsSelect = isSelect;
+            Offset = offset;
         }
     }
 }

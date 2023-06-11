@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Diagnostics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -290,6 +291,43 @@ namespace Rs64.TexTransTool
                 List.Add(child);
             }
             return List;
+        }
+    }
+
+    public class DebugTimer
+    {
+        Stopwatch _Stopwatch;
+        Stopwatch _StepStopwatch;
+
+        public DebugTimer()
+        {
+            _Stopwatch = new Stopwatch();
+            _StepStopwatch = new Stopwatch();
+            _Stopwatch.Start();
+            _StepStopwatch.Start();
+        }
+
+        public void Log()
+        {
+            _StepStopwatch.Stop();
+            _Stopwatch.Stop();
+
+            ELtoLog(_StepStopwatch.Elapsed);
+
+            _StepStopwatch.Restart();
+            _Stopwatch.Start();
+        }
+
+        public void EndLog()
+        {
+            Log();
+            _Stopwatch.Stop();
+            ELtoLog(_Stopwatch.Elapsed);
+        }
+
+        void ELtoLog(TimeSpan el)
+        {
+            UnityEngine.Debug.Log($"{el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
         }
     }
 }
