@@ -173,7 +173,23 @@ namespace Rs64.TexTransTool.TexturAtlas
             return OffsetDict;
         }
 
+        public void AutomaticOffSetSetting()
+        {
+            var FiltedSelectMats = TargetMaterial.Where(i => i.IsSelect == true).ToList();
+            var MaxTexPicelCount = 0;
+            if(!FiltedSelectMats.Any()) return;
+            foreach (var mat in FiltedSelectMats)
+            {
+                var MatTex = mat.Mat.mainTexture;
+                MaxTexPicelCount = Mathf.Max(MaxTexPicelCount, MatTex.width * MatTex.height);
+            }
 
+            foreach (var mat in FiltedSelectMats)
+            {
+                var MatTex = mat.Mat.mainTexture;
+                mat.Offset = (float)(MatTex.width * MatTex.height) / (float)MaxTexPicelCount;
+            }
+        }
     }
     [System.Serializable]
     public class AtlasPostPrcess

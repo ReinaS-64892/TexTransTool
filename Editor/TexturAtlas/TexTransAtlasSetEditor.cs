@@ -39,6 +39,12 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 {
                     SetTargetRoot(TargetRoot.objectReferenceValue as GameObject, TargetRenderer, TargetMaterial);
                 }
+
+                if (GUILayout.Button("Automatic OffSet Setting"))
+                {
+                    Undo.RecordObject(ThisTarget, "Automatic OffSet Setting");
+                    ThisTarget.AutomaticOffSetSetting();
+                }
             }
             MaterialSelectEditor(TargetMaterial);
 
@@ -175,7 +181,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 var SISelect = MatSelect.FindPropertyRelative("IsSelect");
                 var SOffset = MatSelect.FindPropertyRelative("Offset");
                 EditorGUILayout.BeginHorizontal();
-                SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue,GUILayout.MaxWidth(100) );
+                SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue, GUILayout.MaxWidth(100));
                 if (SISelect.boolValue)
                 {
                     SOffset.floatValue = EditorGUILayout.FloatField(SOffset.floatValue, new GUILayoutOption[] { GUILayout.MaxWidth(100) });
