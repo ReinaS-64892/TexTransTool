@@ -14,9 +14,9 @@ namespace Rs64.TexTransTool
     {
         public abstract IEnumerable<TextureTransformer> Targets { get; }
 
-        [SerializeField, HideInInspector] bool _IsApply;
+        [SerializeField] bool _IsApply;
         public override bool IsApply => _IsApply;
-        [SerializeField, HideInInspector] bool _IsSelfCallApply;
+        [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
 
         public override bool IsPossibleApply => PossibleApplyCheck();
