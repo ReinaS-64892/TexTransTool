@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.Linq;
 using System;
 using System.IO;
 using System.Collections;
@@ -120,6 +121,29 @@ namespace Rs64.TexTransTool
             foreach (var asset in assets)
             {
                 DeletSubAsset(asset);
+            }
+        }
+
+        public static List<T> LoadAssets<T>() where T : UnityEngine.Object
+        {
+            List<T> LoadedAssets = new List<T>();
+            foreach (var path in Directory.GetFiles(SaveDirectory))
+            {
+                if (AssetDatabase.LoadAssetAtPath(path, typeof(T)) is T tinstans)
+                {
+                    LoadedAssets.Add(tinstans);
+                }
+            }
+            return LoadedAssets;
+        }
+        public static void SaveUnsavedAssets<T>(IEnumerable<T> assets) where T : UnityEngine.Object
+        {
+            foreach (var asset in assets)
+            {
+                if (string.IsNullOrEmpty(AssetDatabase.GetAssetPath(asset)))
+                {
+                    SaveAsset(asset);
+                }
             }
         }
     }

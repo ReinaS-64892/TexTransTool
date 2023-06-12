@@ -93,16 +93,15 @@ namespace Rs64.TexTransTool
             var SColors = Utils.OneDToTowD(SouseTex.GetPixels(), sTexSize);
             var TColors = Utils.OneDToTowD(targetTex.Texture2D.GetPixels(), TexSize);
 
-            ConfiguredTaskAwaitable[,] Tasks = new ConfiguredTaskAwaitable[TexSize.x, TexSize.y];
+            Task[] Tasks = new Task[TexSize.x * TexSize.y];
 
+            int i = 0;
             foreach (var index in List)
             {
-                Tasks[index.x, index.y] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index, sTexSize)).ConfigureAwait(false);
+                Tasks[i] = Task.Run(() => TransCompilePixsl(AtralsMap, targetTex, wrapMode, SColors, TColors, index, sTexSize));
+                i += 1;
             }
-            foreach (var task in Tasks)
-            {
-                await task;
-            }
+            await Task.WhenAll(Tasks).ConfigureAwait(false);
 
             var TOneDColors = Utils.TowDtoOneD(TColors, TexSize);
             targetTex.Texture2D.SetPixels(TOneDColors);

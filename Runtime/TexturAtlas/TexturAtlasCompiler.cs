@@ -12,13 +12,18 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public static void AtlasSetCompile(AtlasSet Target, ComputeShader TransMapperCS = null)
         {
-            var Data = Target.GetCompileData();
-            if (Target.Contenar == null) { Target.Contenar = AssetSaveHelper.SaveAsset<TexturAtlasDataContenar>(ScriptableObject.CreateInstance<TexturAtlasDataContenar>()); }
 
+            var Data = Target.GetCompileData();
+            if (Target.Contenar == null) { var NCI = ScriptableObject.CreateInstance<TexturAtlasDataContenar>(); NCI.name = "TexturAtlasDataContenar"; Target.Contenar = AssetSaveHelper.SaveAsset<TexturAtlasDataContenar>(NCI); }
 
             var Contenar = Target.Contenar;
             var UVs = Data.GetUVs();
-            var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex).Result;
+
+
+            var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+            var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
+            var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex, CacheIslands).Result;
+            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i => { var NI = ScriptableObject.CreateInstance<IslandCache>(); NI.CacheObject = i; NI.name = "IslandCache"; return NI; }));
 
 
             var NotMovedIslandPool = new IslandPool(IslandPool);
@@ -36,6 +41,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             var AtlasMapDatas = GeneratAtlasMaps(Data.TargetMeshIndex, Data.meshes, TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
 
+
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
 
@@ -49,7 +55,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         }
 
-        private static void OffSetApply(Dictionary<MeshIndex,float> Offsets, IslandPool IslandPool)
+        private static void OffSetApply(Dictionary<MeshIndex, float> Offsets, IslandPool IslandPool)
         {
             foreach (var islandI in IslandPool.IslandPoolList)
             {

@@ -341,27 +341,27 @@ namespace Rs64.TexTransTool
             _StepStopwatch.Start();
         }
 
-        public void Log()
+        public void Log(string messeg = "")
         {
             _StepStopwatch.Stop();
             _Stopwatch.Stop();
 
-            ELtoLog(_StepStopwatch.Elapsed);
+            ELtoLog(_StepStopwatch.Elapsed, messeg);
 
             _StepStopwatch.Restart();
             _Stopwatch.Start();
         }
 
-        public void EndLog()
+        public void EndLog(string messeg = "")
         {
-            Log();
+            Log(messeg);
             _Stopwatch.Stop();
-            ELtoLog(_Stopwatch.Elapsed);
+            ELtoLog(_Stopwatch.Elapsed, messeg);
         }
 
-        void ELtoLog(TimeSpan el)
+        public static void ELtoLog(TimeSpan el, string messeg = "")
         {
-            UnityEngine.Debug.Log($"{el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
+            UnityEngine.Debug.Log($"{messeg} {el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
         }
     }
     public static class MaterialUtil
