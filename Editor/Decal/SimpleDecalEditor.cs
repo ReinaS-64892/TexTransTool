@@ -153,7 +153,9 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
             DrowRealTimePreviewEditor(ThisObject);
+            EditorGUI.BeginDisabledGroup(ThisObject.IsRealTimePreview);
             TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
+            EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
         }
@@ -176,15 +178,16 @@ namespace Rs64.TexTransTool.Editor.Decal
         private static void DrowRealTimePreviewEditor(SimpleDecal Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile);
             {
                 if (!Target.IsRealTimePreview)
                 {
+                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile);
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
                         Undo.RecordObject(Target, "SimpleDecal - EnableRealTimePreview");
                         Target.EnableRealTimePreview();
                     }
+                    EditorGUI.EndDisabledGroup();
                 }
                 else
                 {
@@ -196,7 +199,6 @@ namespace Rs64.TexTransTool.Editor.Decal
                     }
                 }
             }
-            EditorGUI.EndDisabledGroup();
         }
     }
 
