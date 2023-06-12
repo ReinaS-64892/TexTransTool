@@ -181,7 +181,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             {
                 if (!Target.IsRealTimePreview)
                 {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile);
+                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile || Target.IsApply);
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
                         Undo.RecordObject(Target, "SimpleDecal - EnableRealTimePreview");
