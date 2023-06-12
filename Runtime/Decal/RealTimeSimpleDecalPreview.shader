@@ -15,6 +15,7 @@ Shader "Hidden/RealTimeSimpleDecalPreview"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp
 
             #include "UnityCG.cginc"
             #include "../ComputeShaders/BlendTextureHelper.hlsl"
@@ -63,7 +64,54 @@ Shader "Hidden/RealTimeSimpleDecalPreview"
                 float2 decalUvPos = float2(DecalMatrixpos.x + 0.5 ,DecalMatrixpos.y + 0.5);
                 float4 DecalColor = tex2D(_DecalTex ,decalUvPos);
 
-                float4 BlendColor = ColorBlendNormal(col ,DecalColor);//ここshaderkeywordなんかで変えれるようにしたいけど何もわからないのでいったん断念.
+                float4 BlendColor;
+
+                #ifdef Normal
+                 BlendColor = ColorBlendNormal(col ,DecalColor);
+                #elif Mul
+                 BlendColor = ColorBlendMul(col ,DecalColor);
+                #elif Screen
+                 BlendColor = ColorBlendScreen(col ,DecalColor);
+                #elif Overlay
+                 BlendColor = ColorBlendOverlay(col ,DecalColor);
+                #elif HardLight
+                 BlendColor = ColorBlendHardLight(col ,DecalColor);
+                #elif SoftLight
+                 BlendColor = ColorBlendSoftLight(col ,DecalColor);
+                #elif ColorDodge
+                 BlendColor = ColorBlendColorDodge(col ,DecalColor);
+                #elif ColorBurn
+                 BlendColor = ColorBlendColorBurn(col ,DecalColor);
+                #elif LinearBurn
+                 BlendColor = ColorBlendLinearBurn(col ,DecalColor);
+                #elif VividLight
+                 BlendColor = ColorBlendVividLight(col ,DecalColor);
+                #elif LinearLight
+                 BlendColor = ColorBlendLinearLight(col ,DecalColor);
+                #elif Divide
+                 BlendColor = ColorBlendDivide(col ,DecalColor);
+                #elif Addition
+                 BlendColor = ColorBlendAddition(col ,DecalColor);
+                #elif Subtract
+                 BlendColor = ColorBlendSubtract(col ,DecalColor);
+                #elif Difference
+                 BlendColor = ColorBlendDifference(col ,DecalColor);
+                #elif DarkenOnly
+                 BlendColor = ColorBlendDarkenOnly(col ,DecalColor);
+                #elif LightenOnly
+                 BlendColor = ColorBlendLightenOnly(col ,DecalColor);
+                #elif Hue
+                 BlendColor = ColorBlendHue(col ,DecalColor);
+                #elif Saturation
+                 BlendColor = ColorBlendSaturation(col ,DecalColor);
+                #elif Color
+                 BlendColor = ColorBlendColor(col ,DecalColor);
+                #elif Luminosity
+                 BlendColor = ColorBlendLuminosity(col ,DecalColor);
+                #elif AlphaLerp
+                 BlendColor = ColorBlendAlphaLerp(col ,DecalColor);
+                #endif
+
 
                 return lerp(BlendColor, col, decalflag);
             }

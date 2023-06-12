@@ -172,6 +172,7 @@ namespace Rs64.TexTransTool.Decal
 
                 }
                 Rendarer.sharedMaterials = Materials;
+
             }
             AssetSaveHelper.DeletAssets(PreViewMaterials.Select(i => i.SecndMaterial));
             PreViewMaterials.Clear();
@@ -185,6 +186,12 @@ namespace Rs64.TexTransTool.Decal
             {
                 MatPea.SecndMaterial.SetMatrix("_WorldToDecal", Matrix);
                 MatPea.SecndMaterial.SetTexture("_DecalTex", DecalTexture);
+
+                if (MatPea.SecndMaterial.IsKeywordEnabled(BlendType.ToString()) == false)
+                {
+                    MatPea.SecndMaterial.shaderKeywords = new string[] { BlendType.ToString() };
+
+                }
             }
         }
 
