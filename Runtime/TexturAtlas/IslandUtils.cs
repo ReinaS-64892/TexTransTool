@@ -79,8 +79,21 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV)
+        public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
         {
+            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
+            if (Caches != null)
+            {
+                foreach (var Cache in Caches)
+                {
+                    if (Cache.Hash.SequenceEqual(NawHash))
+                    {
+                        //Debug.Log("Use Cache!");
+                        return Cache.Islands;
+                    }
+                }
+            }
+
             var Islands = traiangles.ConvertAll<Island>(i => new Island(i));
 
             bool Continue = true;
@@ -90,6 +103,14 @@ namespace Rs64.TexTransTool.TexturAtlas
                 Islands = IslandCrawling(Islands, UV, ref Continue);
             }
             Islands.ForEach(i => i.BoxCurriculation(UV));
+
+            if (Caches != null)
+            {
+                var NewCache = new IslandCacheObject(NawHash, Islands);
+
+                Caches.Add(NewCache);
+            }
+
             return Islands;
         }
 
@@ -233,28 +254,26 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public static async Task<IslandPool> AsyncGeneretIslandPool(List<Mesh> Data, List<List<Vector2>> UVs, List<MeshIndex> SelectUV)
+        public static async Task<IslandPool> AsyncGeneretIslandPool(List<Mesh> Data, List<List<Vector2>> UVs, List<MeshIndex> SelectUVIndex, List<IslandCacheObject> Caches = null)
         {
             var IslandPool = new IslandPool();
 
-            List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>> Tesks = new List<ConfiguredTaskAwaitable<List<IslandPool.IslandAndIndex>>>();
-            foreach (var index in SelectUV)
+            List<Task<List<IslandPool.IslandAndIndex>>> Tesks = new List<Task<List<IslandPool.IslandAndIndex>>>();
+            foreach (var index in SelectUVIndex)
             {
-                var mapcount = index;//Asyncな奴に投げている関係かこうしないとばぐるたぶん
+                var _index = index;//Asyncな奴に投げるため一時変数に代入しないとなぜか壊れる.
                 var Triangle = Utils.ToList(Data[index.Index].GetTriangles(index.SubMeshIndex));
-                Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UVs[index.Index], Triangle, mapcount)).ConfigureAwait(false));
+                Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UVs[index.Index], Triangle, _index, Caches)));
             }
-            foreach (var task in Tesks)
-            {
-                IslandPool.IslandPoolList.AddRange(await task);
-            }
+
+            var Islands = await Task.WhenAll(Tesks).ConfigureAwait(false);
+            IslandPool.IslandPoolList = Islands.SelectMany(i => i).ToList();
 
             return IslandPool;
-
         }
-        static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, MeshIndex MapCount)
+        static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, MeshIndex MapCount, List<IslandCacheObject> Caches = null)
         {
-            var Islanads = IslandUtils.UVtoIsland(traiangles, UV);
+            var Islanads = IslandUtils.UVtoIsland(traiangles, UV, Caches);
             var IslandPoolList = new List<IslandPool.IslandAndIndex>();
             int IlandIndex = -1;
             foreach (var Islnad in Islanads)
@@ -366,6 +385,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
     }
+    [Serializable]
     public class Island
     {
         public List<TraiangleIndex> trainagels = new List<TraiangleIndex>();

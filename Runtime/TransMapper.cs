@@ -294,7 +294,7 @@ namespace Rs64.TexTransTool
         [Obsolete]
         CPU,
     }
-
+    [Serializable]
     public struct TraiangleIndex : IEnumerable<int>
     {
         public int zero;

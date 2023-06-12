@@ -50,6 +50,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public void SetTexture(PropAndTexture Souse)
         {
             PropAndTextures.Add(Souse);
+            Souse.Texture2D.name = "AtlasTexture"+ Souse.PropertyName;
             PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetSaveHelper.SaveAsset(Souse.Texture2D);
         }
         public void SetTextures(List<PropAndTexture> Souses)
