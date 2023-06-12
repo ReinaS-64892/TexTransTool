@@ -47,7 +47,7 @@ namespace Rs64.TexTransTool.Decal
         }
         protected virtual void SetContainer(List<Texture2D> Texs)
         {
-            if (Container == null) { Container = ScriptableObject.CreateInstance<DecalDataContainer>(); AssetSaveHelper.SaveAsset(Container); }
+            if (Container == null) { Container = ScriptableObject.CreateInstance<DecalDataContainer>(); Container.name = "DecalDataContainer"; AssetSaveHelper.SaveAsset(Container); }
             Container.DecalCompiledTextures = Texs;
         }
 
@@ -72,15 +72,18 @@ namespace Rs64.TexTransTool.Decal
 
                 if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex)
                 {
+                    var TexName = $"DecalBlendTexture {DistMat.name}";
                     if (DistAndGeneretaTex.ContainsKey(OldTex))
                     {
                         var MoreBlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistAndGeneretaTex[OldTex], DecalTex, BlendType);
+                        MoreBlendsTex.name = TexName;
                         var SavedTex = AssetSaveHelper.SaveAsset(MoreBlendsTex);
                         DistAndGeneretaTex[OldTex] = SavedTex;
                     }
                     else
                     {
                         var BlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, DecalTex, BlendType);
+                        BlendsTex.name = TexName;
                         var SavedTex = AssetSaveHelper.SaveAsset(BlendsTex);
                         DistAndGeneretaTex.Add(OldTex, SavedTex);
                     }

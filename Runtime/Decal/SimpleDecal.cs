@@ -77,6 +77,7 @@ namespace Rs64.TexTransTool.Decal
 
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.AlphaLerp);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
+            TextureList.ForEach(Tex => Tex.name = "DecalTexture");
             SetContainer(TextureList);
         }
 
@@ -128,7 +129,7 @@ namespace Rs64.TexTransTool.Decal
         public void EnableRealTimePreview()
         {
             if (_IsRealTimePreview) return;
-            if(!IsPossibleCompile)return;
+            if (!IsPossibleCompile) return;
             _IsRealTimePreview = true;
 
             PreViewMaterials.Clear();
