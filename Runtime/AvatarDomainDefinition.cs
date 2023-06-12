@@ -12,7 +12,7 @@ namespace Rs64.TexTransTool
         [SerializeField] public AbstractTexTransGroup TexTransGroup;
         [SerializeField] protected AvatarDomain CacheDomain;
 
-        [SerializeField, HideInInspector] bool _IsSelfCallApply;
+        [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
         public virtual AvatarDomain GetDomain()
         {
