@@ -77,7 +77,7 @@ namespace Rs64.TexTransTool.Decal
 
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.AlphaLerp);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => Tex.name = "DecalTexture");
+            TextureList.ForEach(Tex => {if (Tex != null) Tex.name = "DecalTexture";});
             SetContainer(TextureList);
         }
 
