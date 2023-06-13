@@ -49,9 +49,18 @@ Shader "Hidden/RealTimeSimpleDecalPreview"
 
             uniform float4x4 _WorldToDecal;
 
+            float4 LiniearToGamma(float4 col)
+            {
+                return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), col.a);
+            }
+            float4 GammaToLinier(float4 col)
+            {
+                return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), col.a);
+            }
+
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 col = tex2D(_MainTex, i.uv);
+                float4 col = LiniearToGamma(tex2D(_MainTex, i.uv));
 
                 float decalflag = 0;
                 float3 DecalMatrixpos = mul(_WorldToDecal ,i.worldPos).xyz;
@@ -62,7 +71,7 @@ Shader "Hidden/RealTimeSimpleDecalPreview"
                 decalflag = max(decalflag, step(DecalMatrixpos.z, 0 ));
 
                 float2 decalUvPos = float2(DecalMatrixpos.x + 0.5 ,DecalMatrixpos.y + 0.5);
-                float4 DecalColor = tex2D(_DecalTex ,decalUvPos);
+                float4 DecalColor = LiniearToGamma(tex2D(_DecalTex ,decalUvPos));
 
                 float4 BlendColor;
 
@@ -113,7 +122,7 @@ Shader "Hidden/RealTimeSimpleDecalPreview"
                 #endif
 
 
-                return lerp(BlendColor, col, decalflag);
+                return GammaToLinier(lerp(BlendColor, col, decalflag));
             }
             ENDHLSL
         }
