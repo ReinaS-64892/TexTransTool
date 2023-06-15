@@ -356,7 +356,7 @@ namespace Rs64.TexTransTool
         {
             Log(messeg);
             _Stopwatch.Stop();
-            ELtoLog(_Stopwatch.Elapsed, messeg);
+            ELtoLog(_Stopwatch.Elapsed, "Total");
         }
 
         public static void ELtoLog(TimeSpan el, string messeg = "")
