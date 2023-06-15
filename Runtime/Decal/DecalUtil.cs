@@ -49,7 +49,7 @@ namespace Rs64.TexTransTool.Decal
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), DefoaltPading);
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
                 AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
                 AtlasTex.Texture2D.Apply();
                 if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
@@ -57,49 +57,7 @@ namespace Rs64.TexTransTool.Decal
             }
             return ResultTexutres;
         }
-        [Obsolete]
-        public static List<Texture2D> CreatDecalTexture(Renderer TargetRenderer, Texture2D SousTextures, Matrix4x4 SouseMatrix, string TargetProptyeName = "_MainTex", string TransMapperPath = null, List<Filtaring> TrainagleFilters = null)
-        {
-            List<Texture2D> ResultTexutres = new List<Texture2D>();
 
-            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
-            List<Vector2> tUV; List<List<TraiangleIndex>> TraiangelsSubMesh; (tUV, TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
-
-            var LoaclVarticals = ConvartVerticesInMatlix(SouseMatrix, Vraticals, new Vector3(0.5f, 0.5f, 0));
-            var sUV = LoaclVarticals.ConvertAll<Vector2>(i => i);
-
-            var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
-            var Materials = TargetRenderer.sharedMaterials;
-
-            int SubMeshCount = -1;
-            foreach (var Traiangel in TraiangelsSubMesh)
-            {
-                SubMeshCount += 1;
-                var TargetTexture = Materials[SubMeshCount].GetTexture(TargetProptyeName) as Texture2D;
-                if (TargetTexture == null)
-                {
-                    ResultTexutres.Add(null);
-                    break;
-                }
-                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals, TrainagleFilters) : Traiangel;
-
-                if (FiltaringdTrainagle.Any() == false)
-                {
-                    ResultTexutres.Add(null);
-                    break;
-                }
-
-                var TargetTexSize = new Vector2Int(TargetTexture.width, TargetTexture.height);
-                var Map = new TransMapData(-1, TargetTexSize);
-                var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
-                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(new Vector2Int(TargetTexture.width, TargetTexture.height), new Color(0, 0, 0, 0)), -1);
-                AtlasTex = Compiler.TransCompileUseGetPixsel(SousTextures, Map, AtlasTex, TexWrapMode.NotWrap);
-                AtlasTex.Texture2D.Apply();
-                ResultTexutres.Add(AtlasTex.Texture2D);
-            }
-            return ResultTexutres;
-        }
         public static List<Vector3> GetWorldSpeasVertices(Renderer Target)
         {
             List<Vector3> Vertices = new List<Vector3>();
