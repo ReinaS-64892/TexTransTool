@@ -44,9 +44,9 @@ namespace Rs64.TexTransTool
         {
             return (TowDIndex.y * Size) + TowDIndex.x;
         }
-        public static Vector2Int OneDToTwoDIndex(int TowDIndex, int withLengs)
+        public static Vector2Int ConvertIndex2D(int Index1D, int withLengs)
         {
-            return new Vector2Int(TowDIndex % withLengs, TowDIndex / withLengs);
+            return new Vector2Int(Index1D % withLengs, Index1D / withLengs);
         }
         public static Texture2D CreateFillTexture(int Size, Color FillColor)
         {
@@ -92,7 +92,7 @@ namespace Rs64.TexTransTool
             foreach (var value in SouseArry)
             {
                 count += 1;
-                var Index = OneDToTwoDIndex(count, Size.x);
+                var Index = ConvertIndex2D(count, Size.x);
                 TowDArry[Index.x, Index.y] = value;
             }
             return TowDArry;
@@ -356,7 +356,7 @@ namespace Rs64.TexTransTool
         {
             Log(messeg);
             _Stopwatch.Stop();
-            ELtoLog(_Stopwatch.Elapsed, messeg);
+            ELtoLog(_Stopwatch.Elapsed, "Total");
         }
 
         public static void ELtoLog(TimeSpan el, string messeg = "")

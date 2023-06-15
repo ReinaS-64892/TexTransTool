@@ -19,7 +19,6 @@ namespace Rs64.TexTransTool.TexturAtlas
             var Contenar = Target.Contenar;
             var UVs = Data.GetUVs();
 
-
             var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
             var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
             var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex, CacheIslands).Result;
@@ -34,13 +33,13 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             var MovedUVs = IslandUtils.UVsMoveAsync(UVs, NotMovedIslandPool, IslandPool).Result;
 
+
             var NotMevedUVs = Data.GetUVs();
             Data.SetUVs(MovedUVs, 0);
             Data.SetUVs(NotMevedUVs, 1);
 
 
             var AtlasMapDatas = GeneratAtlasMaps(Data.TargetMeshIndex, Data.meshes, TransMapperCS, Data.Pading, Data.AtlasTextureSize, Data.PadingType);
-
 
             var TargetPorpAndAtlasTexs = Data.GeneretTargetEmptyTextures();
 
@@ -212,7 +211,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var TargetPorpAndAtlasTexs = new List<PropAndAtlasTex>();
             foreach (var textures in this.SouseTextures)
             {
-                TargetPorpAndAtlasTexs.Add(new PropAndAtlasTex(new TransTargetTexture(new Texture2D(this.AtlasTextureSize.x, this.AtlasTextureSize.y), this.Pading), textures.PropertyName));
+                TargetPorpAndAtlasTexs.Add(new PropAndAtlasTex(new TransTargetTexture(new Texture2D(this.AtlasTextureSize.x, this.AtlasTextureSize.y), new TowDMap<float>(this.Pading, AtlasTextureSize)), textures.PropertyName));
             }
             return TargetPorpAndAtlasTexs;
         }

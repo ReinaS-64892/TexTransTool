@@ -15,62 +15,6 @@ namespace Rs64.TexTransTool
     {
         public const string TransMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
-        [Obsolete]
-        public static TransMapData InTransMapGenerat(this ExecuteClient CliantSelect, TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase, ComputeShader TransMapperCS = null)
-        {
-            switch (CliantSelect)
-            {
-                default:
-                case ExecuteClient.AsyncCPU:
-                    {
-                        return TransMapGeneratAsync(Map, triangles, TargetUV, SourceUV, padingType).Result;
-                    }
-                case ExecuteClient.ComputeSheder:
-                    {
-                        if (TransMapperCS == null) TransMapperCS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
-                        return TransMapGeneratUseComputeSheder(TransMapperCS, Map, triangles, TargetUV, SourceUV, padingType);
-                    }
-            }
-        }
-        [Obsolete]
-        public static async Task<TransMapData> TransMapGeneratAsync(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
-        {
-
-            ConfiguredTaskAwaitable<(Vector2, float)>[,] UVMappingTask = new ConfiguredTaskAwaitable<(Vector2, float)>[Map.MapSize.x, Map.MapSize.y];
-
-            foreach (var index in Utils.Reange2d(Map.MapSize))
-            {
-                UVMappingTask[index.x, index.y] = Task.Run<(Vector2, float)>(() => UVMapingCalculat(triangles, TargetTexScaleTargetUV, SourceUV, new Vector2Int(index.x, index.y), padingType, Map.DistansMap[index.x, index.y])).ConfigureAwait(false);
-            }
-
-            foreach (var index in Utils.Reange2d(Map.MapSize))
-            {
-                var Result = await UVMappingTask[index.x, index.y];
-                if (Map.DistansMap[index.x, index.y] < Result.Item2)
-                {
-                    Map.Map[index.x, index.y] = Result.Item1;
-                    Map.DistansMap[index.x, index.y] = Result.Item2;
-                }
-            }
-            //File.WriteAllText(AssetSaveHelper.GeneretNewSavePath("Test") + ".txt" ,JsonUtility.ToJson(new SerializableTransMapData(Map)));
-            return Map;
-        }
-        [Obsolete]
-        public static TransMapData TransMapGenerat(TransMapData Map, List<TraiangleIndex> triangles, List<Vector2> TargetUV, List<Vector2> SourceUV, PadingType padingType)
-        {
-            var TargetTexScaleTargetUV = UVtoTexScale(TargetUV, Map.MapSize);
-            foreach (var Index in Utils.Reange2d(Map.MapSize))
-            {
-                var Result = UVMapingCalculat(triangles, TargetTexScaleTargetUV, SourceUV, new Vector2Int(Index.x, Index.y), padingType, Map.DistansMap[Index.x, Index.y]);
-                if (Map.DistansMap[Index.x, Index.y] < Result.Item2)
-                {
-                    Map.Map[Index.x, Index.y] = Result.Item1;
-                    Map.DistansMap[Index.x, Index.y] = Result.Item2;
-                }
-            }
-            return Map;
-        }
-
         public static (Vector2, float) UVMapingCalculat(List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PadingType padingType, float DefaultDistans)
         {
             Vector2 Targetpixself = TargetPixsel;// + new Vector2(0.5f, 0.5f);
@@ -187,10 +131,10 @@ namespace Rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData Map, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             if (Shader == null) Shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
-            Vector2Int ThredGropSize = Map.MapSize / 32;
+            Vector2Int ThredGropSize = TransMap.Map.MapSize / 32;
             int karnelindex = -1;
             switch (padingType)
             {
@@ -201,11 +145,9 @@ namespace Rs64.TexTransTool
                     karnelindex = Shader.FindKernel("TransMapGeneratPadingVartexBase");
                     break;
             }
-            var ResBuffer = new ComputeBuffer((Map.MapSize.x * Map.MapSize.y), 12);
 
-
-            var array = Utils.TowDtoOneD(Map.GetMapAndDistansMap(), Map.MapSize);
-            ResBuffer.SetData(array);
+            var ResBuffer = new ComputeBuffer((TransMap.Map.Array.Length), 12);
+            ResBuffer.SetData(TransMap.Map.Array);
             Shader.SetBuffer(karnelindex, "Result", ResBuffer);
 
 
@@ -223,29 +165,15 @@ namespace Rs64.TexTransTool
             TriBuffer.SetData<Vector2>(TriangleList);
             Shader.SetBuffer(karnelindex, "Traiangles", TriBuffer);
 
-
-            Shader.SetInt("Size", Map.MapSize.x);
+            Shader.SetInt("Size", TransMap.Map.MapSize.x);
             Shader.Dispatch(karnelindex, ThredGropSize.x, ThredGropSize.y, TrianglesToIndex.Count);
 
-
-            var carray = array.ToArray();
-            ResBuffer.GetData(carray);
-            foreach (var Index in Utils.Reange2d(Map.MapSize))
-            {
-                var data = carray[(Index.y * Map.MapSize.x) + Index.x];
-
-                if (data.z > Map.DefaultPading)
-                {
-                    Map.Map[Index.x, Index.y] = new Vector2(data.x, data.y);
-                    Map.DistansMap[Index.x, Index.y] = data.z;
-                }
-            }
-
+            ResBuffer.GetData(TransMap.Map.Array);
 
             ResBuffer.Release();
             TriBuffer.Release();
 
-            return Map;
+            return TransMap;
         }
 
         public static List<Vector2> UVtoTexScale(List<Vector2> UV, Vector2Int TexSize)
@@ -348,7 +276,7 @@ namespace Rs64.TexTransTool
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ToList().GetEnumerator();
+            return ToArray().GetEnumerator();
         }
 
         public List<T> GetTraiangle<T>(List<T> List)

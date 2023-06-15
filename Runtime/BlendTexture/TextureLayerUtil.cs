@@ -660,7 +660,7 @@ namespace Rs64.TexTransTool
 
         public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SorsSize)
         {
-            var Pos = Utils.OneDToTwoDIndex(Index, SorsSize.x);
+            var Pos = Utils.ConvertIndex2D(Index, SorsSize.x);
             return Texture.GetPixelBilinear(Pos.x / (float)SorsSize.x, Pos.y / (float)SorsSize.y);
         }
 

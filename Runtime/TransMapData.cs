@@ -10,62 +10,114 @@ namespace Rs64.TexTransTool
     [Serializable]
     public class TransMapData
     {
-        public Vector2[,] Map;
-        public float[,] DistansMap;
+        public TowDMap<PosAndDistans> Map;
         public float DefaultPading;
-        public Vector2Int MapSize;
 
-        public TransMapData(Vector2[,] map, float[,] distansMap, float defaultPading, Vector2Int mapSize)
+        public PosAndDistans this[int i] => Map.Array[i];
+
+        public TransMapData(TowDMap<PosAndDistans> map, float defaultPading)
         {
             Map = map;
-            DistansMap = distansMap;
             DefaultPading = defaultPading;
-            MapSize = mapSize;
         }
-        public TransMapData(float Pading, Vector2Int mapSize)
+        public TransMapData(float defaultPading, Vector2Int mapSize)
         {
-            Map = new Vector2[mapSize.x, mapSize.y];
-            DistansMap = new float[mapSize.x, mapSize.y];
-            DefaultPading = Pading;
-            foreach (var index in Utils.Reange2d(mapSize))
-            {
-                DistansMap[index.x, index.y] = Pading;
-            }
-            MapSize = mapSize;
+            var arrey = Enumerable.Repeat(new PosAndDistans(Vector2.zero, defaultPading), mapSize.x * mapSize.y).ToArray();
+            DefaultPading = defaultPading;
+            var mapsize = mapSize;
+            Map = new TowDMap<PosAndDistans>(arrey, mapsize);
         }
         public TransMapData()
         {
         }
 
-        public Vector3[,] GetMapAndDistansMap()
+        public Vector3[] GetVector3s()
         {
-            var MargeDmap = new Vector3[MapSize.x, MapSize.y];
-            foreach (var index in Utils.Reange2d(MapSize))
+            var Ret = new Vector3[Map.Array.Length];
+            for (int i = 0; i < Map.Array.Length; i += 1)
             {
-                MargeDmap[index.x, index.y] = new Vector3(Map[index.x, index.y].x, Map[index.x, index.y].y, DistansMap[index.x, index.y]);
+                Ret[i] = Map.Array[i];
             }
-            return MargeDmap;
+            return Ret;
+        }
+        public void SetVector3s(Vector3[] vector3s)
+        {
+            for (int i = 0; i < vector3s.Length; i += 1)
+            {
+                Map.Array[i] = vector3s[i];
+            }
         }
     }
     [Serializable]
     public class TransTargetTexture
     {
         public Texture2D Texture2D;
-        public float[,] DistansMap;
+        public TowDMap<float> DistansMap;
 
-        public TransTargetTexture(Texture2D texture2D, float[,] distansMap)
+        public TransTargetTexture(Texture2D texture2D, TowDMap<float> distansMap)
         {
-            this.Texture2D = texture2D;
+            Texture2D = texture2D;
             DistansMap = distansMap;
         }
-        public TransTargetTexture(Texture2D texture2D, float DefoultDistans)
+
+    }
+
+    public class TowDMap<T>
+    {
+        public T[] Array;
+        public Vector2Int MapSize;
+
+        public T this[int i] { get => Array[i]; set => Array[i] = value; }
+
+        public TowDMap(T[] array, Vector2Int mapSize)
         {
-            this.Texture2D = texture2D;
-            DistansMap = new float[texture2D.width, texture2D.height];
-            foreach (var index in Utils.Reange2d(new Vector2Int(texture2D.width, texture2D.height)))
-            {
-                DistansMap[index.x, index.y] = DefoultDistans;
-            }
+            Array = array;
+            MapSize = mapSize;
+        }
+        public TowDMap(T defaultValue, Vector2Int mapSize)
+        {
+            Array = Enumerable.Repeat(defaultValue, mapSize.x * mapSize.y).ToArray();
+            MapSize = mapSize;
+        }
+
+        public TowDMap()
+        {
+        }
+
+        public Vector2Int GetPosOn2D(int i)
+        {
+            return Utils.ConvertIndex2D(i, MapSize.x);
+        }
+    }
+    public struct PosAndDistans
+    {
+        public Vector2 Pos;
+        public float Distans;
+
+        public PosAndDistans(Vector2 pos, float distans)
+        {
+            Pos = pos;
+            Distans = distans;
+        }
+
+        public PosAndDistans(float Posx, float Posy, float distans)
+        {
+            Pos = new Vector2(Posx, Posy);
+            Distans = distans;
+        }
+        public PosAndDistans(Vector3 Valu)
+        {
+            Pos = new Vector2(Valu.x, Valu.y);
+            Distans = Valu.z;
+        }
+
+        public static implicit operator Vector3(PosAndDistans v)
+        {
+            return new Vector3(v.Pos.x, v.Pos.y, v.Distans);
+        }
+        public static implicit operator PosAndDistans(Vector3 v)
+        {
+            return new PosAndDistans(v);
         }
     }
 
