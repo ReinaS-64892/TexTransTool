@@ -145,11 +145,9 @@ namespace Rs64.TexTransTool
                     karnelindex = Shader.FindKernel("TransMapGeneratPadingVartexBase");
                     break;
             }
+
             var ResBuffer = new ComputeBuffer((TransMap.Map.Array.Length), 12);
-
-
-            var array = TransMap.GetVector3s();
-            ResBuffer.SetData(array);
+            ResBuffer.SetData(TransMap.Map.Array);
             Shader.SetBuffer(karnelindex, "Result", ResBuffer);
 
 
@@ -168,11 +166,9 @@ namespace Rs64.TexTransTool
             Shader.SetBuffer(karnelindex, "Traiangles", TriBuffer);
 
             Shader.SetInt("Size", TransMap.Map.MapSize.x);
-
             Shader.Dispatch(karnelindex, ThredGropSize.x, ThredGropSize.y, TrianglesToIndex.Count);
 
-            ResBuffer.GetData(array);
-            TransMap.SetVector3s(array);
+            ResBuffer.GetData(TransMap.Map.Array);
 
             ResBuffer.Release();
             TriBuffer.Release();
