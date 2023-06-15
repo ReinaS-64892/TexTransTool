@@ -75,9 +75,11 @@ namespace Rs64.TexTransTool.Decal
                     var TexName = $"DecalBlendTexture {DistMat.name}";
                     if (DistAndGeneretaTex.ContainsKey(OldTex))
                     {
-                        var MoreBlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistAndGeneretaTex[OldTex], DecalTex, BlendType);
+                        var OldGenereatetex = DistAndGeneretaTex[OldTex];
+                        var MoreBlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldGenereatetex, DecalTex, BlendType);
                         MoreBlendsTex.name = TexName;
                         var SavedTex = AssetSaveHelper.SaveAsset(MoreBlendsTex);
+                        AssetSaveHelper.DeletAsset(OldGenereatetex);
                         DistAndGeneretaTex[OldTex] = SavedTex;
                     }
                     else
