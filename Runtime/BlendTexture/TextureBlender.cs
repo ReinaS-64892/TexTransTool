@@ -31,16 +31,15 @@ namespace Rs64.TexTransTool
             ContainerCheck();
 
             var DistMaterials = TargetRenderer.sharedMaterials;
-            (Material, Material) PeadMaterial;
-            Texture2D GeneretaTex;
 
-            if(DistMaterials.Length <= MaterialSelect) return;
+            if (DistMaterials.Length <= MaterialSelect) return;
 
             var DistMat = DistMaterials[MaterialSelect];
 
             var DistTex = DistMat.GetTexture(TargetPropatyName) as Texture2D;
             var AddTex = BlendTexture;
             if (DistTex == null) return;
+
 
             var DistSize = DistTex.NativeSize();
             if (DistSize != AddTex.NativeSize())
@@ -49,21 +48,14 @@ namespace Rs64.TexTransTool
                 AddTex = TextureLayerUtil.ResizeTexture(AddTex, DistSize);
             }
 
-
             var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistTex, AddTex, BlendType);
             var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
 
-            var NewMat = Instantiate<Material>(DistMat);
-            NewMat.SetTexture(TargetPropatyName, SavedTex);
 
-            PeadMaterial = (DistMat, NewMat);
-            GeneretaTex = SavedTex;
+            Container.BlendTexteres = SavedTex;
 
-
-            Container.BlendTexteres = GeneretaTex;
-            Container.GenereatMaterials = new List<MatPea> { new MatPea(DistMat, NewMat) };
-
-            avatarMaterialDomain.SetMaterial(PeadMaterial.Item1, PeadMaterial.Item2);
+            var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, SavedTex);
+            Container.GenereatMaterials = MatPea.GeneratMatPeaList(ChangeDict);
         }
 
         public override void Compile() { }
@@ -74,8 +66,7 @@ namespace Rs64.TexTransTool
             _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
 
-            var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
-            avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
+            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials));
         }
 
         protected virtual void ContainerCheck()
