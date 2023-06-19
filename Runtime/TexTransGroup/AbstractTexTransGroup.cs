@@ -2,15 +2,10 @@
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
-#if VRC_BASE
-using VRC.SDKBase;
-#endif
+
 namespace Rs64.TexTransTool
 {
     public abstract class AbstractTexTransGroup : TextureTransformer
-#if VRC_BASE
-    , IEditorOnly
-#endif
     {
         public abstract IEnumerable<TextureTransformer> Targets { get; }
 

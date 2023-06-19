@@ -2,16 +2,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-#if VRC_BASE
-using VRC.SDKBase;
-#endif
 namespace Rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TextureBlender")]
     public class TextureBlender : TextureTransformer
-#if VRC_BASE
-    , IEditorOnly
-#endif
     {
         public Renderer TargetRenderer;
         public int MaterialSelect = 0;

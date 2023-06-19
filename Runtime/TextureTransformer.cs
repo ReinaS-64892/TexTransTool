@@ -1,8 +1,14 @@
 #if UNITY_EDITOR
 using UnityEngine;
+#if VRC_BASE
+using VRC.SDKBase;
+#endif
 namespace Rs64.TexTransTool
 {
     public abstract class TextureTransformer : MonoBehaviour
+#if VRC_BASE
+    , IEditorOnly
+#endif
     {
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract bool IsApply { get; }
