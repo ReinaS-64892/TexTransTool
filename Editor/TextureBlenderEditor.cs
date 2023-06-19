@@ -13,6 +13,7 @@ namespace Rs64.TexTransTool.Editor
             var Target = target as TextureBlender;
             var This_S_Object = serializedObject;
 
+            EditorGUI.BeginDisabledGroup(Target.IsApply);
             var S_TargetRendare = This_S_Object.FindProperty("TargetRenderer");
             TextureTransformerEditor.objectReferencePorpty<Renderer>(S_TargetRendare, TextureTransformerEditor.RendererFiltaling);
 
@@ -36,6 +37,7 @@ namespace Rs64.TexTransTool.Editor
 
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
             EditorGUILayout.PropertyField(S_TargetPropatyName);
+            EditorGUI.EndDisabledGroup();
 
 
             TextureTransformerEditor.DrowApplyAndRevart(Target);
