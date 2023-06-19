@@ -50,7 +50,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public void SetTexture(PropAndTexture Souse)
         {
             PropAndTextures.Add(Souse);
-            Souse.Texture2D.name = "AtlasTexture"+ Souse.PropertyName;
+            Souse.Texture2D.name = "AtlasTexture" + Souse.PropertyName;
             PropAndTextures[PropAndTextures.IndexOf(Souse)].Texture2D = AssetSaveHelper.SaveAsset(Souse.Texture2D);
         }
         public void SetTextures(List<PropAndTexture> Souses)
@@ -91,13 +91,9 @@ namespace Rs64.TexTransTool.TexturAtlas
             if (IsClearUnusedProperties) MaterialUtil.RemoveUnusedProperties(Gmat);
             MaterialCustomSetting(Gmat);
 
-            SetSubAsset(new List<Material>() { Gmat });
-            var Gmats = GenereatMaterials;
-            Gmats.Clear();
-            var Mapepa = new MatPea(SouseMatrial, Gmat);
-            Gmats.Add(Mapepa);
-            GenereatMaterials = Gmats;
-            return Mapepa;
+            var MatPea = new MatPea(SouseMatrial, Gmat);
+            GenereatMaterials = new List<MatPea>() { MatPea };
+            return MatPea;
         }
 
         public static void PropToMaterialTexApply(List<PropAndTexture> PropAndTextures, Material TargetMat, bool FocuseSetTexture = false)

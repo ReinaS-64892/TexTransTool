@@ -76,7 +76,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 else RefMat = DistMats.First();
                 var GenereatMat = Contenar.GeneratCompileTexturedMaterial(RefMat, true, ForseSetTexture);
 
-                AvatarMaterialDomain.SetMaterial(GenereatMat);
+                AvatarMaterialDomain.SetMaterials(DistMats, GenereatMat.SecndMaterial);
             }
         }
 
