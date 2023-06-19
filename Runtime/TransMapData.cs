@@ -52,6 +52,9 @@ namespace Rs64.TexTransTool
     public class TransTargetTexture
     {
         public Texture2D Texture2D;
+        /// <summary>
+        /// テクスチャーの本当の加増解像度と同じサイズのマップ
+        /// </summary>
         public TowDMap<float> DistansMap;
 
         public TransTargetTexture(Texture2D texture2D, TowDMap<float> distansMap)
@@ -87,6 +90,15 @@ namespace Rs64.TexTransTool
         public Vector2Int GetPosOn2D(int i)
         {
             return Utils.ConvertIndex2D(i, MapSize.x);
+        }
+        public int GetIndexOn1D(Vector2Int pos)
+        {
+            return Utils.TwoDToOneDIndex(pos, MapSize.x);
+        }
+
+        public T GetOn2DIndex(Vector2Int pos)
+        {
+            return Array[GetIndexOn1D(pos)];
         }
     }
     public struct PosAndDistans
