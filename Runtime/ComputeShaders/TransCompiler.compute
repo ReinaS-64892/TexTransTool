@@ -8,9 +8,12 @@ RWStructuredBuffer<float4> Source;
 uint2 SourceTexSize;
 
 RWStructuredBuffer<float3> AtlasMap;
+
 RWStructuredBuffer<float4> Target;
 RWStructuredBuffer<float> TargetDistansMap;
 uint2 TargetTexSize;
+bool IsOutRange;
+float2 OutRange;
 
 [numthreads(32, 32, 1)] void NotWrap(uint3 id
                                      : SV_DispatchThreadID) {
@@ -30,6 +33,17 @@ uint2 TargetTexSize;
         GetColorBiliner(Source, SourceTexSize, Pos),
         IsOutPos);
 
+  if (IsOutRange)
+  {
+    float Rangeflag = 0;
+    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
+    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+
+    IsWiret = IsWiret * Rangeflag;
+  }
+
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
   TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
 }
@@ -46,6 +60,17 @@ uint2 TargetTexSize;
 
   float4 SousePicColor = GetColorBiliner(Source, SourceTexSize, Pos);
 
+  if (IsOutRange)
+  {
+    float Rangeflag = 0;
+    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
+    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+
+    IsWiret = IsWiret * Rangeflag;
+  }
+
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
   TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
 }
@@ -61,6 +86,17 @@ uint2 TargetTexSize;
   float2 Pos = float2(AtlasMapNawPixsel.x % 1.0f, AtlasMapNawPixsel.y % 1.0f);
 
   float4 SousePicColor = GetColorBiliner(Source, SourceTexSize, Pos);
+
+  if (IsOutRange)
+  {
+    float Rangeflag = 0;
+    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
+    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
+    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+
+    IsWiret = IsWiret * Rangeflag;
+  }
 
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
   TargetDistansMap[TOneDIndex] = lerp(TargetDistansNawPixsel, AtlasMapNawPixsel.z, IsWiret);
