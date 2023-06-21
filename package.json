@@ -1,13 +1,19 @@
 {
-  "name": "rs64.tex-trans-tool",
+  "name": "net.rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.1.1",
-  "description": "TextureTransforTool!",
-  "gitDependencies": {},
-  "vpmDependencies": {
-    "com.vrchat.avatars": "3.1.13"
+  "version": "0.2.0",
+  "unity": "2019.4",
+  "description": "TextureTransformTool!",
+  "author": {
+    "name": "ReinaSakiria",
+    "url": "https://rs64.net/"
   },
-  "legacyFolders": {},
-  "legacyFiles": {},
-  "unity": "2019.4"
+  "url": "https://github.com/SASIKI-64892/TexTransTool",
+  "repo": "https://vpm.rs64.net/vpm.json",
+  "vpmDependencies": {
+    "com.vrchat.avatars": ">=3.1.13"
+  },
+  "legacyFolders" : {
+    "Packages\\rs64.tex-trans-tool" : ""
+  }
 }
