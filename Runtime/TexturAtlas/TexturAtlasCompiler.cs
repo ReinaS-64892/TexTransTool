@@ -83,6 +83,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         private static void GenereatMovedIlands(IslandSortingType SortingType, IslandPool IslandPool)
         {
+            IslandPool.IslandPoolList.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
             switch (SortingType)
             {
                 case IslandSortingType.EvenlySpaced:
@@ -95,6 +96,12 @@ namespace Rs64.TexTransTool.TexturAtlas
                         IslandUtils.IslandPoolNextFitDecreasingHeight(IslandPool);
                         break;
                     }
+                case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
+                    {
+                        IslandUtils.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool);
+                        break;
+                    }
+
                 default: throw new ArgumentException();
             }
         }
@@ -275,6 +282,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         EvenlySpaced,
         NextFitDecreasingHeight,
+        NextFitDecreasingHeightPlusFloorCeilineg,
     }
 
     public struct MeshIndex

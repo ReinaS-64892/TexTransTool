@@ -272,6 +272,15 @@ namespace Rs64.TexTransTool
             }
             return Result;
         }
+        public static bool InRange(float min, float max, float target)
+        {
+            return (min <= target && target <= max);
+        }
+        public static bool OutRenge(float min, float max, float target)
+        {
+            return (target < min || max < target);
+        }
+
 
     }
     public static class GizmosUtility
@@ -325,6 +334,7 @@ namespace Rs64.TexTransTool
 
             return Indexs;
         }
+
 
     }
 

@@ -79,6 +79,161 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
+        public static IslandPool IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        {
+            var Islands = TargetPool.IslandPoolList;
+            if (!Islands.Any()) return TargetPool;
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
+            bool Success = false;
+            float NawScaile = 1f;
+            int loopCount = -1;
+
+            while (!Success && MaxLoopCount > loopCount)
+            {
+                loopCount += 1;
+                Success = true;
+
+                var Boxs = new List<UVWithBox>();
+
+
+                foreach (var islandandIndex in Islands)
+                {
+                    var Result = false;
+                    foreach (var withbox in Boxs)
+                    {
+                        Result = withbox.TrySetBox(islandandIndex);
+                        if (Result) { break; }
+
+                    }
+                    if (!Result)
+                    {
+                        var Floor = Boxs.Any() ? Boxs.Last().Ceil + IslanadsPading : IslanadsPading;
+                        var Ceil = islandandIndex.island.Size.y + Floor;
+                        var newWithBox = new UVWithBox(Ceil, Floor, IslanadsPading);
+                        var res = newWithBox.TrySetBox(islandandIndex);
+                        if (!res) Debug.Log($"{Ceil - Floor} {islandandIndex.island.Size.y}");
+                        Boxs.Add(newWithBox);
+                    }
+                }
+
+                var LastHeigt = Boxs.Last().Ceil + IslanadsPading;
+                Success = LastHeigt < 1;
+
+                if (!Success)
+                {
+                    ScaileAppry(1 - ClorreScaile);
+                }
+
+                if (Success && MinHeight > LastHeigt)
+                {
+                    Success = false;
+                    ScaileAppry(1 + ClorreScaile);
+                }
+
+                Debug.Log(Boxs.Count);
+
+            }
+
+            return TargetPool;
+
+            void ScaileAppry(float Scaile)
+            {
+                foreach (var islandandIndex in Islands)
+                {
+                    var Island = islandandIndex.island;
+                    Island.Size *= Scaile;
+                }
+                NawScaile *= Scaile;
+            }
+
+        }
+
+        class UVWithBox
+        {
+            public float with = 1;
+            public float Pading;
+            public float Ceil;
+            public float Floor;
+            public float Haight => Ceil - Floor;
+            public List<IslandPool.IslandAndIndex> Upper = new List<IslandPool.IslandAndIndex>();
+            public List<IslandPool.IslandAndIndex> Lower = new List<IslandPool.IslandAndIndex>();
+
+            public UVWithBox(float height, float floor, float pading)
+            {
+                Ceil = height;
+                Floor = floor;
+                Pading = pading;
+            }
+
+            public bool TrySetBox(IslandPool.IslandAndIndex Box)
+            {
+                var Island = Box.island;
+                if (!(Haight >= Island.Size.y)) return false;
+
+
+                var withMin = Lower.Any() ? Lower.Last().island.GetMaxPos.x : 0;
+                var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + Island.Size.y + Pading, Floor, Ceil));
+                var withSize = withMax - withMin;
+                if (withSize > Pading + Island.Size.x + Pading)
+                {
+                    Island.Pivot = new Vector2(withMin + Pading, Floor);
+                    Lower.Add(Box);
+                    return true;
+                }
+
+
+                withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - Island.Size.y - Pading, Floor, Ceil));
+                withMax = Upper.Any() ? Upper.Last().island.Pivot.x : with;
+                withSize = withMax - withMin;
+                if (withSize > Pading + Island.Size.x + Pading)
+                {
+                    Island.Pivot = new Vector2(withMax - Island.Size.x - Pading, Ceil - Island.Size.y);
+                    Upper.Add(Box);
+                    return true;
+                }
+
+
+                return false;
+            }
+
+            public float GetFloorWithEmpty(float TargetHeight)
+            {
+                if (!Utils.InRange(Floor, Ceil, TargetHeight)) { throw new Exception("TargetHeight is not in range!"); }
+
+                var MinWith = 0f;
+
+                foreach (var Box in Lower)
+                {
+                    var Island = Box.island;
+                    if (Utils.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
+                    {
+                        if (MinWith < Island.GetMaxPos.x) { MinWith = Island.GetMaxPos.x; }
+                    }
+                }
+
+
+
+                return MinWith;
+            }
+            public float GetCeilWithEmpty(float TargetHeight)
+            {
+                if (!Utils.InRange(Floor, Ceil, TargetHeight)) throw new Exception("TargetHeight is not in range!");
+
+                var MaxWith = with;
+
+                foreach (var Box in Upper)
+                {
+                    var Island = Box.island;
+                    if (Utils.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
+                    {
+                        if (Island.GetMaxPos.x < MaxWith) { MaxWith = Island.GetMaxPos.x; }
+                    }
+                }
+
+                return MaxWith;
+            }
+        }
+
         public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
         {
             var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
@@ -221,10 +376,6 @@ namespace Rs64.TexTransTool.TexturAtlas
                 await task;
             }
             return MovedUV;
-
-
-
-
         }
         static void MoveUV(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved, List<List<Vector2>> MovedUV, int Index)
         {
@@ -355,9 +506,9 @@ namespace Rs64.TexTransTool.TexturAtlas
                 IslandIndex = Souse.IslandIndex;
             }
 
-            public Island island { get; set; }
-            public MeshIndex MapIndex { get; set; }
-            public int IslandIndex { get; set; }
+            public Island island;
+            public MeshIndex MapIndex;
+            public int IslandIndex;
         }
 
         public IslandAndIndex GetLargest()
