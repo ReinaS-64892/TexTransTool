@@ -8,7 +8,7 @@
     "name": "ReinaSakiria",
     "url": "https://rs64.net/"
   },
-  "url": "https://github.com/SASIKI-64892/TexTransTool/archive/refs/heads/VPM-Support.zip",
+  "url": "https://github.com/ReinaS-64892/TexTransTool/releases/download/0.2.0-VPM-Support-Test/tex-trans-tool-0.2.0-VPM-Support-Test.zip",
   "repo": "https://vpm.rs64.net/vpm.json",
   "vpmDependencies": {
     "com.vrchat.avatars": ">=3.1.13"
