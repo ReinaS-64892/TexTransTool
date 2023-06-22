@@ -21,6 +21,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public float Pading = -10;
         public PadingType PadingType;
         public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
+        public bool UseIslandCash = true;
         public bool GeneratMatClearUnusedProperties = true;
         [SerializeField] bool _IsApply;
         public Action<TexturAtlasDataContenar> AtlasCompilePostCallBack = (i) => { };
@@ -149,6 +150,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Data.AtlasTextureSize = AtlasTextureSize;
             Data.Pading = Pading;
             Data.PadingType = PadingType;
+            Data.UseIslandCash = UseIslandCash;
 
 
             var MeshIndexs = Data.TargetMeshIndex;

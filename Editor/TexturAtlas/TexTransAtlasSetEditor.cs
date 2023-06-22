@@ -27,6 +27,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var PadingType = serializedObject.FindProperty("PadingType");
             var SortingType = serializedObject.FindProperty("SortingType");
             var Contenar = serializedObject.FindProperty("Contenar");
+            var UseIslandCash = serializedObject.FindProperty("UseIslandCash");
 
             var ThisTarget = target as AtlasSet;
             var IsApply = ThisTarget.IsApply;
@@ -65,6 +66,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             EditorGUILayout.PropertyField(Pading);
             EditorGUILayout.PropertyField(PadingType);
             EditorGUILayout.PropertyField(SortingType);
+            EditorGUILayout.PropertyField(UseIslandCash);
             EditorGUILayout.PropertyField(Contenar);
 
             PostPrcessFoldout = EditorGUILayout.Foldout(PostPrcessFoldout, "PostProcess");

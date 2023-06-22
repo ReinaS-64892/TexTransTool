@@ -19,10 +19,26 @@ namespace Rs64.TexTransTool.TexturAtlas
             var Contenar = Target.Contenar;
             var UVs = Data.GetUVs();
 
-            var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
-            var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
-            var IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex, CacheIslands).Result;
-            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i => { var NI = ScriptableObject.CreateInstance<IslandCache>(); NI.CacheObject = i; NI.name = "IslandCache"; return NI; }));
+            IslandPool IslandPool;
+
+            if (Data.UseIslandCash)
+            {
+                var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+                var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
+
+                IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex, CacheIslands).Result;
+
+                AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
+                {
+                    var NI = ScriptableObject.CreateInstance<IslandCache>();
+                    NI.CacheObject = i; NI.name = "IslandCache";
+                    return NI;
+                }));
+            }
+            else
+            {
+                IslandPool = IslandUtils.AsyncGeneretIslandPool(Data.meshes, UVs, Data.TargetMeshIndex).Result;
+            }
 
 
             var NotMovedIslandPool = new IslandPool(IslandPool);
@@ -192,6 +208,8 @@ namespace Rs64.TexTransTool.TexturAtlas
         public Vector2Int AtlasTextureSize;
         public float Pading;
         public PadingType PadingType;
+
+        public bool UseIslandCash;
         public void AddTexture(PropAndTexture AddPropAndtex, MeshIndex addIndex)
         {
             var Texture = SouseTextures.Find(i => i.PropertyName == AddPropAndtex.PropertyName);
