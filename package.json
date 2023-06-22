@@ -1,14 +1,14 @@
 {
   "name": "net.rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.2.0",
+  "version": "0.2.0-VPM-Support-Test",
   "unity": "2019.4",
   "description": "TextureTransformTool!",
   "author": {
     "name": "ReinaSakiria",
     "url": "https://rs64.net/"
   },
-  "url": "https://github.com/SASIKI-64892/TexTransTool",
+  "url": "https://github.com/SASIKI-64892/TexTransTool/archive/refs/heads/VPM-Support.zip",
   "repo": "https://vpm.rs64.net/vpm.json",
   "vpmDependencies": {
     "com.vrchat.avatars": ">=3.1.13"
