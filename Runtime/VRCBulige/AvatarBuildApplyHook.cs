@@ -7,7 +7,7 @@ using VRC.SDK3.Avatars.Components;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
-    [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(AbstractTexTransGroup))]
+    [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(AbstractTexTransGroup)), DefaultExecutionOrder(-11024)]
     public class AvatarBuildApplyHook : AvatarDomainDefinition, IEditorOnly
     {
 
@@ -33,6 +33,17 @@ namespace Rs64.TexTransTool.VRCBulige
             {
                 Avatar = Setavatar;
             }
+        }
+
+        private void Awake()
+        {
+            if (TexTransGroup.IsApply) return;
+            Apply(null);
+        }
+        private void Start()
+        {
+            if (TexTransGroup.IsApply) return;
+            Apply(null);
         }
 
         //https://github.com/bdunderscore/modular-avatar/blob/5ad6b58c7ffb1f809ed1b585989b8cad65002563/Packages/nadena.dev.modular-avatar/Runtime/RuntimeUtil.cs
