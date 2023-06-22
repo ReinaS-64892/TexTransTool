@@ -1,12 +1,10 @@
 ﻿#if UNITY_EDITOR
 using System.IO;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
-using System.Runtime.CompilerServices;
 using System.Linq;
 
 namespace Rs64.TexTransTool
@@ -122,35 +120,142 @@ namespace Rs64.TexTransTool
         public static Vector2Int NativeSize(this Texture2D SouseTex)
         {
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-#if !UNITY_ANDROID
-            System.Drawing.Bitmap map;
+            Stream Stream;
+            bool IsJPG = false;
             if (string.IsNullOrEmpty(SouseTexPath))
             {
-                map = new System.Drawing.Bitmap(new MemoryStream(SouseTex.EncodeToPNG()));
+                Stream = new MemoryStream(SouseTex.EncodeToPNG());
+            }
+            else if (Path.GetExtension(SouseTexPath) == ".png")
+            {
+                Stream = File.OpenRead(SouseTexPath);
+            }
+            else if (Path.GetExtension(SouseTexPath) == ".jpg" || Path.GetExtension(SouseTexPath) == ".jpeg")
+            {
+                Stream = File.OpenRead(SouseTexPath);
+                IsJPG = true;
             }
             else
             {
-                map = new System.Drawing.Bitmap(SouseTexPath);
+                Stream = new MemoryStream(SouseTex.EncodeToPNG());
             }
-            return new Vector2Int(map.Width, map.Height);
-#else
-            using (var map = new AndroidJavaClass("android.graphics.BitmapFactory"))
-            {
-                byte[] PngByte;
-                if (string.IsNullOrEmpty(SouseTexPath))
-                {
-                    PngByte = SouseTex.EncodeToPNG();
-                }
-                else
-                {
-                    PngByte = File.ReadAllBytes(SouseTexPath);
-                }
-                var bitmap = map.CallStatic<AndroidJavaObject>("decodeByteArray", PngByte, 0, PngByte.Length);
-                return new Vector2Int(bitmap.Call<int>("getWidth"), bitmap.Call<int>("getHeight"));
-            }
-#endif
+
+
+
+            return !IsJPG ? PNGtoSize(Stream) : JPGtoSize(Stream);
         }
 
+
+        public static Vector2Int JPGtoSize(Stream Stream)
+        {
+            var SOI = new byte[2] { 0xFF, 0xD8 };
+
+            var ReadSOI = new byte[2];
+            Stream.Read(ReadSOI, 0, 2);
+
+            if (!ReadSOI.SequenceEqual(SOI))
+            {
+                throw new Exception("JPGファイルではありません");
+            }
+
+            var SOFFirstByte = 0xFF;
+            var SOFSeconndBytes = new byte[] {
+                     0xC0 ,  0xC1 , 0xC2 , 0xC3 ,
+                     0xC5 , 0xC6 , 0xC7 ,
+                     0xC9 , 0xCA , 0xCB ,
+                     0xCD , 0xCE , 0xCF
+                    };
+            var SOS = 0xDA;
+
+            bool SOFHit = false;
+
+            while (!SOFHit)
+            {
+                if ((Byte)Stream.ReadByte() == SOFFirstByte)
+                {
+                    var SecoondByte = (Byte)Stream.ReadByte();
+                    if (SOFSeconndBytes.Contains(SecoondByte))
+                    {
+                        SOFHit = true;
+                    }
+                    else if (SOS == SecoondByte)
+                    {
+                        throw new Exception("JPGデータから画像サイズを取得できませんでした。");
+                    }
+
+                }
+            }
+            var LFP = new byte[3];
+            Stream.Read(LFP, 0, 3);
+
+
+            var WithByte = new byte[2];
+            var HeightByte = new byte[2];
+
+            Stream.Read(WithByte, 0, 2);
+            Stream.Read(HeightByte, 0, 2);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                WithByte = WithByte.Reverse().ToArray();
+                HeightByte = HeightByte.Reverse().ToArray();
+            }
+
+            var with = BitConverter.ToUInt16(WithByte, 0);
+            var height = BitConverter.ToUInt16(HeightByte, 0);
+
+            return new Vector2Int((int)with, (int)height);
+        }
+
+        public static Vector2Int PNGtoSize(Stream Stream)
+        {
+            var PNGHeader = new byte[8] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+
+            var ReadByte = new byte[8];
+            Stream.Read(ReadByte, 0, 8);
+
+            if (!ReadByte.SequenceEqual(PNGHeader))
+            {
+                throw new Exception("PNGファイルではありません");
+            }
+
+            var IHDRBytes = new byte[4] { 0x49, 0x48, 0x44, 0x52 };
+
+            var IHDRHit = false;
+            while (!IHDRHit)
+            {
+                foreach (var IHDRByte in IHDRBytes)
+                {
+                    var Byte = (Byte)Stream.ReadByte();
+                    if (IHDRByte == Byte)
+                    {
+                        IHDRHit = true;
+                    }
+                    else
+                    {
+                        IHDRHit = false;
+                        break;
+                    }
+                }
+            }
+
+            var WithByte = new byte[4];
+            var HeightByte = new byte[4];
+
+            Stream.Read(WithByte, 0, 4);
+            Stream.Read(HeightByte, 0, 4);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                WithByte = WithByte.Reverse().ToArray();
+                HeightByte = HeightByte.Reverse().ToArray();
+            }
+
+            var with = BitConverter.ToUInt32(WithByte, 0);
+            var height = BitConverter.ToUInt32(HeightByte, 0);
+
+            return new Vector2Int((int)with, (int)height);
+        }
 
         public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRenge = null, ComputeShader CS = null)
         {
