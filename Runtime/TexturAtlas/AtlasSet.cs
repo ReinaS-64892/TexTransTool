@@ -20,7 +20,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public float Pading = -10;
         public PadingType PadingType;
-        public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeight;
+        public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
         public bool GeneratMatClearUnusedProperties = true;
         [SerializeField] bool _IsApply;
         public Action<TexturAtlasDataContenar> AtlasCompilePostCallBack = (i) => { };
