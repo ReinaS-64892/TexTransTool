@@ -21,7 +21,9 @@ VRChatアバターの場合は[AvatarBuildApplyHook](Manual/AvatarBuildApplyHook
 
 VRChatアバターの場合、アバター配下に前述で生成した[AvatarBuildApplyHook](Manual/AvatarBuildApplyHook.md)がある場合はそのまま、ない場合はアバター配下に移動してから VRChat SDKから「Build & Publich for ~ 」を行えば、適応されたものがアップロードされます。
 
-そうでない場合は前述で生成した[AvatarMaterialDmain](Manual/AvatarMaterialDmain.md)の「MaterialDomainUse - Apply」を実行すれば適応でき、任意の何かしらにご使用ください。
+そうでない場合は前述で生成した[AvatarDomainDefinition](Manual/AvatarDomainDefinition.md)の「MaterialDomainUse - Apply」を実行すれば適応できます。
+
+そして[AvatarBuildApplyHook](Manual/AvatarBuildApplyHook.md)にはApply on Play機能があり、エディターを再生時に自動で「MaterialDomainUse - Apply」を実行します。
 
 ## Feature
 
@@ -31,7 +33,7 @@ VRChatアバターの場合、アバター配下に前述で生成した[AvatarB
 
 ### AtlasSet
 
-指定した GameObject とその子に含まれる Renderer のマテリアルのメインテクスチャをアトラス化することのできるコンポーネントです。[詳細はこちら](Manual/AtlasSet.md)
+指定した GameObject とその子に含まれる Renderer のマテリアルのメインテクスチャ(liltoonの場合はすべてのテクスチャー)をアトラス化することのできるコンポーネントです。[詳細はこちら](Manual/AtlasSet.md)
 
 ### TextureBlender
 
