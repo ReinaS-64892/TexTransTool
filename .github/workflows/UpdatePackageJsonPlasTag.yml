@@ -1,0 +1,27 @@
+name: update-package-json-plas-tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+
+jobs:
+  update-package-json: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: replace version
+        run: |
+         withoutvtagstr=`echo ${{ github.event.inputs.tag }} | sed -e "s/^v//"`
+         cat ./package.json | jq ".version|=\"${withoutvtagstr}\"" ./package.json
+         URL="https://github.com/ReinaS-64892/TexTransTool/releases/download/${{ github.event.inputs.tag }}/tex-trans-tool-${{ github.event.inputs.tag }}.zip"
+         cat ./package.json | jq ".url|=\"${URL}\"" ./package.json
+      - name: git commit
+        run: |
+          git config user.name  "GitHub Action"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ./package.json
+          git commit -m "Update package.json"
+          git push
