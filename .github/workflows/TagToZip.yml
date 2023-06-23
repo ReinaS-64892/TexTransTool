@@ -1,7 +1,7 @@
 name: tag-to-zip
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag:
         type: string
