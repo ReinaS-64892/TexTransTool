@@ -22,8 +22,6 @@ jobs:
          mv $tempjson ./package.json
       - name: git commit
         run: |
-          git config user.name  "ReinaSakiria"
-          git config user.email "sasiki.64892@gmail.com"
           git add ./package.json
           git commit -m "Update package.json"
           git tag ${{ github.event.inputs.tag }}
