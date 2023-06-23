@@ -27,4 +27,5 @@ jobs:
           git add ./package.json
           git commit -m "Update package.json"
           git tag ${{ github.event.inputs.tag }}
+          git push
           git push origin ${{ github.event.inputs.tag }}
