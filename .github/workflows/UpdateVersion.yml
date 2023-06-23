@@ -7,8 +7,17 @@ on:
         type: string
 
 jobs:
-  update-version: 
-    runs-on: ubuntu-latest
+  StartPoint:
+    runs-on: ubuntu-20.04
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      - run: echo "HELLO MAIN"
+  call-Update:
+      needs: [StartPoint]
+      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+      with:
+        tag: ${{ github.event.inputs.tag }}
+  call-TagToZip:
+      needs: [StartPoint]
+      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+      with:
+        tag: ${{ github.event.inputs.tag }}
