@@ -18,6 +18,6 @@ jobs:
         tag: ${{ github.event.inputs.tag }}
   call-TagToZip:
       needs: [call-Update]
-      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+      uses: ./.github/workflows/TagToZip.yml
       with:
         tag: ${{ github.event.inputs.tag }}
