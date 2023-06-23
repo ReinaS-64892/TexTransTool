@@ -1,0 +1,14 @@
+name: update-version
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+
+jobs:
+  update-version: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
