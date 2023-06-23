@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool
 {
     public static class TransMapper
     {
-        public const string TransMapperPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
+        public const string TransMapperPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
         public static (Vector2, float) UVMapingCalculat(List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PadingType padingType, float DefaultDistans)
         {

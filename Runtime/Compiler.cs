@@ -17,7 +17,7 @@ namespace Rs64.TexTransTool
     }
     public static class Compiler
     {
-        public const string TransCompilerPath = "Packages/rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
+        public const string TransCompilerPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
 
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRenge = null)
