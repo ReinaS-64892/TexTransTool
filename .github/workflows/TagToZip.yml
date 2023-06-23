@@ -2,17 +2,20 @@ name: tag-to-zip
 
 on:
   workflow_dispatch:
-  
+    inputs:
+      tag:
+        type: string
+
 jobs:
   Create-tag-to-zip: 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout-tag-and-zip
         run: |
-          git checkout -b master ${{ inputs }}
-          zip -r tex-trans-tool-${{ inputs }}.zip ./*
+          git checkout -b master ${{ github.event.inputs.tag }}
+          zip -r tex-trans-tool-${{ github.event.inputs.tag }}.zip ./*
       - name: Upload-artifact
         uses: actions/upload-artifact@v3
         with:
           name: tagzipfile
-          path: ./tex-trans-tool-${{ inputs }}.zip
+          path: ./tex-trans-tool-${{ github.event.inputs.tag }}.zip
