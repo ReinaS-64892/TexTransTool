@@ -168,7 +168,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             public bool TrySetBox(IslandPool.IslandAndIndex Box)
             {
                 var Island = Box.island;
-                if (!(Haight >= Island.Size.y)) return false;
+                if (Haight + 0.01f < Island.Size.y) return false;
 
 
                 var withMin = Lower.Any() ? Lower.Last().island.GetMaxPos.x : 0;
