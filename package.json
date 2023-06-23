@@ -1,19 +1,19 @@
 {
   "name": "net.rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.2.1",
+  "version": "0.2.2-test",
   "unity": "2019.4",
   "description": "TextureTransformTool!",
   "author": {
     "name": "ReinaSakiria",
     "url": "https://rs64.net/"
   },
-  "url": "https://github.com/ReinaS-64892/TexTransTool/releases/download/v0.2.1/tex-trans-tool-0.2.1.zip",
+  "url": "https://github.com/ReinaS-64892/TexTransTool/releases/download/v0.2.2-test/tex-trans-tool-v0.2.2-test.zip",
   "repo": "https://vpm.rs64.net/vpm.json",
   "vpmDependencies": {
     "com.vrchat.avatars": ">=3.1.13"
   },
-  "legacyFolders" : {
-    "Packages\\rs64.tex-trans-tool" : ""
+  "legacyFolders": {
+    "Packages\\rs64.tex-trans-tool": ""
   }
 }
