@@ -1,7 +1,7 @@
 name: update-package-json-plas-tag
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag:
         type: string
