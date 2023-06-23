@@ -15,10 +15,11 @@ jobs:
         uses: actions/checkout@v3
       - name: replace version
         run: |
+         tempjson='mktemp'
          withoutvtagstr=`echo ${{ github.event.inputs.tag }} | sed -e "s/^v//"`
-         cat ./package.json | jq ".version|=\"${withoutvtagstr}\"" ./package.json
          URL="https://github.com/ReinaS-64892/TexTransTool/releases/download/${{ github.event.inputs.tag }}/tex-trans-tool-${{ github.event.inputs.tag }}.zip"
-         cat ./package.json | jq ".url|=\"${URL}\"" ./package.json
+         jq ".version|=\"${withoutvtagstr}\" | .url|=\"${URL}\"" ./package.json > $tempjson
+         mv $tempjson ./package.json
       - name: git commit
         run: |
           git config user.name  "GitHub Action"
