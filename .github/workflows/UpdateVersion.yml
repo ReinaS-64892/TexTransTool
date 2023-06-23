@@ -1,0 +1,23 @@
+name: update-version
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+
+jobs:
+  StartPoint:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: echo "HELLO MAIN"
+  call-Update:
+      needs: [StartPoint]
+      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+      with:
+        tag: ${{ github.event.inputs.tag }}
+  call-TagToZip:
+      needs: [StartPoint]
+      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+      with:
+        tag: ${{ github.event.inputs.tag }}
