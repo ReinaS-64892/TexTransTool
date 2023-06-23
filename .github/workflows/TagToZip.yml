@@ -17,9 +17,8 @@ jobs:
         run: |
           git fetch --tags
           git checkout ${{ github.event.inputs.tag }}
-          zip -r tex-trans-tool-${{ github.event.inputs.tag }}.zip ./*
       - name: Upload-artifact
         uses: actions/upload-artifact@v3
         with:
-          name: tagzipfile
-          path: ./tex-trans-tool-${{ github.event.inputs.tag }}.zip
+          name: tex-trans-tool-${{ github.event.inputs.tag }}.zip
+          path: ./*
