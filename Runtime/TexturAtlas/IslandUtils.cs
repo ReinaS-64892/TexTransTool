@@ -111,7 +111,6 @@ namespace Rs64.TexTransTool.TexturAtlas
                         var Ceil = islandandIndex.island.Size.y + Floor;
                         var newWithBox = new UVWithBox(Ceil, Floor, IslanadsPading);
                         var res = newWithBox.TrySetBox(islandandIndex);
-                        if (!res) Debug.Log($"{Ceil - Floor} {islandandIndex.island.Size.y}");
                         Boxs.Add(newWithBox);
                     }
                 }
@@ -130,7 +129,6 @@ namespace Rs64.TexTransTool.TexturAtlas
                     ScaileAppry(1 + ClorreScaile);
                 }
 
-                Debug.Log(Boxs.Count);
 
             }
 
