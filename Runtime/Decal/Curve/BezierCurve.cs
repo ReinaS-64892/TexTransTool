@@ -119,7 +119,7 @@ namespace Rs64.TexTransTool.Decal.Curve
             {
                 Vector3 ToPoint; float ToWight; (ToPoint, ToWight) = GetOfLeng(FromWight, Size);
                 var ToLook = Quaternion.FromToRotation(ToPoint, FromPoint);
-                ToLook *= Quaternion.AngleAxis(GetRool(ToWight), Vector3.up);
+                ToLook *= Quaternion.AngleAxis(GetRool(ToWight), FromPoint - ToPoint);
                 var ToEdge = (
                         ToPoint + ToLook * Vector3.left * (Size * 0.5f),
                         ToPoint + ToLook * Vector3.right * (Size * 0.5f)
