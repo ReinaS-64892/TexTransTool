@@ -231,7 +231,7 @@ float4 ColorBlendLinearLight(float4 BaseColor, float4 AddColor) {
   float4 ResultColor = lerp(BaseColor, BlendColor, AddColor.w);
   ResultColor.w = FinalAlpha;
 
-  return ResultColor; 
+  return ResultColor;
 }
 float4 ColorBlendDivide(float4 BaseColor, float4 AddColor) {
 
@@ -301,7 +301,7 @@ float4 ColorBlendDarkenOnly(float4 BaseColor, float4 AddColor) {
   float4 ResultColor = lerp(BaseColor, BlendColor, AddColor.w);
   ResultColor.w = FinalAlpha;
 
-  return ResultColor; 
+  return ResultColor;
 }
 float4 ColorBlendLightenOnly(float4 BaseColor, float4 AddColor) {
 

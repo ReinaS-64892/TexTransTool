@@ -7,13 +7,15 @@
 RWStructuredBuffer<float4> Source;
 uint2 SourceTexSize;
 
-RWStructuredBuffer<float3> AtlasMap;
 
 RWStructuredBuffer<float4> Target;
 RWStructuredBuffer<float> TargetDistansMap;
+
 uint2 TargetTexSize;
 bool IsOutRange;
 float2 OutRange;
+
+RWStructuredBuffer<float3> AtlasMap;
 
 [numthreads(32, 32, 1)] void NotWrap(uint3 id
                                      : SV_DispatchThreadID) {
@@ -36,12 +38,12 @@ float2 OutRange;
   if (IsOutRange)
   {
     float Rangeflag = 0;
-    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
-    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.x ,abs(AtlasMapNawPixsel.x - 0.5))); // with
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.y ,abs(AtlasMapNawPixsel.y- 0.5))); // haith
 
-    IsWiret = IsWiret * Rangeflag;
+    Rangeflag  = 1 - Rangeflag;
+    IsWiret *= Rangeflag;
+
   }
 
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
@@ -63,12 +65,12 @@ float2 OutRange;
   if (IsOutRange)
   {
     float Rangeflag = 0;
-    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
-    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.x ,abs(AtlasMapNawPixsel.x - 0.5))); // with
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.y ,abs(AtlasMapNawPixsel.y - 0.5))); // haith
 
-    IsWiret = IsWiret * Rangeflag;
+    Rangeflag  = 1 - Rangeflag;
+    IsWiret *= Rangeflag;
+
   }
 
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);
@@ -90,12 +92,11 @@ float2 OutRange;
   if (IsOutRange)
   {
     float Rangeflag = 0;
-    Rangeflag = max(Rangeflag, step(1 + OutRange.x ,AtlasMapNawPixsel.x)); // right
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.x, OutRange.x *-1 )); // left
-    Rangeflag = max(Rangeflag, step(1 + OutRange.y ,AtlasMapNawPixsel.y)); // top
-    Rangeflag = max(Rangeflag, step(AtlasMapNawPixsel.y, OutRange.y *-1 )); // bottom
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.x ,abs(AtlasMapNawPixsel.x - 0.5))); // with
+    Rangeflag = max(Rangeflag, step(0.5f + OutRange.y ,abs(AtlasMapNawPixsel.y - 0.5))); // haith
 
-    IsWiret = IsWiret * Rangeflag;
+    Rangeflag  = 1 - Rangeflag;
+    IsWiret *= Rangeflag;
   }
 
   Target[TOneDIndex] = lerp(Target[TOneDIndex], SousePicColor, IsWiret);

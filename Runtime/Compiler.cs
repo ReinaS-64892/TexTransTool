@@ -299,10 +299,10 @@ namespace Rs64.TexTransTool
 
 
             CS.SetInts("TargetTexSize", new int[2] { TexSize.x, TexSize.y });
-            CS.SetBool("IsOutRenge", OutRenge.HasValue);
+            CS.SetBool("IsOutRange", OutRenge.HasValue);
             if (OutRenge.HasValue)
             {
-                CS.SetFloats("OutRenge", new float[2] { OutRenge.Value.x, OutRenge.Value.y });
+                CS.SetFloats("OutRange", new float[2] { OutRenge.Value.x, OutRenge.Value.y });
             }
 
             foreach (var AtralsMap in AtralsMaps)
