@@ -33,8 +33,8 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
             var isUseStartAndEnd = S_isUseStartAndEnd.boolValue;
             if (isUseStartAndEnd)
             {
-                var S_Start = This_S_Object.FindProperty("FirstTexture");
-                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_Start);
+                var S_End = This_S_Object.FindProperty("EndTexture");
+                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_End);
             }
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
@@ -42,8 +42,8 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
 
             if (isUseStartAndEnd)
             {
-                var S_End = This_S_Object.FindProperty("EndTexture");
-                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_End);
+                var S_Start = This_S_Object.FindProperty("FirstTexture");
+                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_Start);
             }
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
