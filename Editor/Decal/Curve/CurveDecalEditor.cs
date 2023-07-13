@@ -63,6 +63,10 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
             var S_LoopCount = This_S_Object.FindProperty("LoopCount");
             EditorGUILayout.PropertyField(S_LoopCount);
 
+            var S_CurveStartOffset = This_S_Object.FindProperty("CurveStartOffset");
+            EditorGUILayout.PropertyField(S_CurveStartOffset);
+
+
             var S_DorwGizmoAwiys = This_S_Object.FindProperty("DorwGizmoAwiys");
             EditorGUILayout.PropertyField(S_DorwGizmoAwiys);
         }

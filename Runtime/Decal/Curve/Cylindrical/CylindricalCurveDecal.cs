@@ -32,7 +32,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         {
             if (!IsPossibleSegments) return;
             Gizmos.color = Color.black;
-            var Quads = BezierCurve.GetQuad(LoopCount, Size);
+            var Quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
             GizmosUtility.DrowGizmoQuad(Quads);
             GizmosUtility.DrowGimzLine(Segments.ConvertAll(i => i.position));
             GizmosUtility.DrowGimzLine(BezierCurve.GetLine());
@@ -63,7 +63,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
             int Count = 0;
-            foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size))
+            foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
             {
                 var TargetDecalTexture = DecalTexture;
                 if (UseFirstAndEnd)
