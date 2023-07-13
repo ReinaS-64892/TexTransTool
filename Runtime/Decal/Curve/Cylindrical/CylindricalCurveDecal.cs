@@ -16,7 +16,10 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FiltedBackSide = true;
 
-        public BezierCurve BezierCurve => new BezierCurve(Segments);
+        public RoolMode RoolMode = RoolMode.WorldUp;
+
+
+        public BezierCurve BezierCurve => new BezierCurve(Segments, RoolMode);
 
         private void OnDrawGizmosSelected()
         {

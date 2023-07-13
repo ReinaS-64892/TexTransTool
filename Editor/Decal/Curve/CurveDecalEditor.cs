@@ -66,6 +66,8 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
             var S_CurveStartOffset = This_S_Object.FindProperty("CurveStartOffset");
             EditorGUILayout.PropertyField(S_CurveStartOffset);
 
+            var S_RoolMode = This_S_Object.FindProperty("RoolMode");
+            EditorGUILayout.PropertyField(S_RoolMode);
 
             var S_DorwGizmoAwiys = This_S_Object.FindProperty("DorwGizmoAwiys");
             EditorGUILayout.PropertyField(S_DorwGizmoAwiys);
