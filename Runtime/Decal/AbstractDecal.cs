@@ -51,8 +51,6 @@ namespace Rs64.TexTransTool.Decal
             Container.DecalCompiledTextures = Texs;
         }
 
-        public virtual List<DecalUtil.Filtaring> GetFiltarings() { return null; }
-
         public override void Apply(AvatarDomain avatarMaterialDomain)
         {
             if (!IsPossibleApply) return;
@@ -108,10 +106,7 @@ namespace Rs64.TexTransTool.Decal
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
         }
 
-        public virtual List<Vector3> ComvartSpace(List<Vector3> varticals)
-        {
-            return DecalUtil.ConvartVerticesInMatlix(transform.worldToLocalMatrix, varticals, new Vector3(0.5f, 0.5f, 0));
-        }
+
 
     }
 }

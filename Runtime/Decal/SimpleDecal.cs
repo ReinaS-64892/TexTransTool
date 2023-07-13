@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Diagnostics.SymbolStore;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -28,9 +29,9 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        public override List<DecalUtil.Filtaring> GetFiltarings()
+        public List<DecalUtil.Filtaring<List<Vector3>>> GetFilter()
         {
-            List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
+            var Filters = new List<DecalUtil.Filtaring<List<Vector3>>>();
 
             Filters.Add((i, i2) => DecalUtil.FarClip(i, i2, 1f, false));
             Filters.Add((i, i2) => DecalUtil.NerClip(i, i2, 0f, true));
@@ -60,18 +61,22 @@ namespace Rs64.TexTransTool.Decal
             if (!IsPossibleCompile) return;
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
+            var PPSSpase = new ParallelProjectionSpase(transform.worldToLocalMatrix);
+            var PPSFilter = new ParallelProjectionFilter(GetFilter());
+
 
             TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
                                                 i,
                                                 DecalTexture,
-                                                ComvartSpace,
-                                                TargetPropatyName,
-                                                TrainagleFilters: GetFiltarings())
+                                                PPSSpase,
+                                                PPSFilter,
+                                                TargetPropatyName
+                                                )
                                         ));
 
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.AlphaLerp);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => {if (Tex != null) Tex.name = "DecalTexture";});
+            TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
             SetContainer(TextureList);
         }
 
@@ -192,6 +197,46 @@ namespace Rs64.TexTransTool.Decal
         private void Update()
         {
             UpdateRealTimePreview();
+        }
+    }
+
+    public class ParallelProjectionSpase : DecalUtil.IConvertSpace
+    {
+        public Matrix4x4 ParallelProjectionMatrix;
+        public List<Vector3> PPSVarts;
+        public ParallelProjectionSpase(Matrix4x4 ParallelProjectionMatrix)
+        {
+            this.ParallelProjectionMatrix = ParallelProjectionMatrix;
+
+        }
+        public void Input(DecalUtil.MeshDatas MeshData)
+        {
+            PPSVarts = DecalUtil.ConvartVerticesInMatlix(ParallelProjectionMatrix, MeshData.Varticals, new Vector3(0.5f, 0.5f, 0));
+        }
+
+        public List<Vector2> OutPutUV()
+        {
+            var UV = new List<Vector2>();
+            foreach (var Vart in PPSVarts)
+            {
+                UV.Add(Vart);
+            }
+            return UV;
+        }
+
+    }
+
+    public class ParallelProjectionFilter : DecalUtil.ITraiangleFilter<ParallelProjectionSpase>
+    {
+        public List<DecalUtil.Filtaring<List<Vector3>>> Filters;
+
+        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters)
+        {
+            this.Filters = Filters;
+        }
+        public List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
+        {
+            return DecalUtil.FiltaringTraiangle<List<Vector3>>(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
 }
