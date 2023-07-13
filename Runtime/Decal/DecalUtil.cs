@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.Collections.ObjectModel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,26 +11,49 @@ namespace Rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {
-        public delegate List<Vector3> ConvertSpase(List<Vector3> Varticals);
-        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture(
+        public interface IConvertSpace
+        {
+            void Input(MeshDatas meshDatas);
+            List<Vector2> OutPutUV();
+        }
+        public interface ITraiangleFilter<SpaseConverter>
+        {
+            List<TraiangleIndex> Filtering(SpaseConverter Spase, List<TraiangleIndex> Traiangeles);
+        }
+        public class MeshDatas
+        {
+            public IReadOnlyList<Vector3> Varticals;
+            public IReadOnlyList<Vector2> UV;
+            public IReadOnlyList<IReadOnlyList<TraiangleIndex>> TraiangelsSubMesh;
+
+            public MeshDatas(List<Vector3> varticals, List<Vector2> uV, List<List<TraiangleIndex>> traiangelsSubMesh)
+            {
+                Varticals = varticals;
+                UV = uV;
+                TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
+            }
+        }
+        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture<SpaseConverter>(
             Renderer TargetRenderer,
             Texture2D SousTextures,
-            ConvertSpase ConvertSpase,
+            SpaseConverter ConvertSpase,
+            ITraiangleFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
             string TransMapperPath = null,
-            List<Filtaring> TrainagleFilters = null,
             Vector2? TextureOutRenge = null,
             TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
             float DefoaltPading = -1f
         )
+        where SpaseConverter : IConvertSpace
         {
             var ResultTexutres = new Dictionary<Material, List<Texture2D>>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
             List<Vector2> tUV; List<List<TraiangleIndex>> TraiangelsSubMesh; (tUV, TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
 
-            var LoaclVarticals = ConvertSpase.Invoke(Vraticals);
-            var sUV = LoaclVarticals.ConvertAll<Vector2>(i => i);
+            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
+            var sUV = ConvertSpase.OutPutUV();
+
 
             var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             var Materials = TargetRenderer.sharedMaterials;
@@ -40,10 +64,12 @@ namespace Rs64.TexTransTool.Decal
                 SubMeshCount += 1;
                 var TargetMat = Materials[SubMeshCount];
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
-                if (TargetTexture == null) { break; }
+                if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture.NativeSize();
-                var FiltaringdTrainagle = TrainagleFilters != null ? FiltaringTraiangle(Traiangel, LoaclVarticals, TrainagleFilters) : Traiangel;
-                if (FiltaringdTrainagle.Any() == false) { break; }
+
+                var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
+
+                if (FiltaringdTrainagle.Any() == false) { continue; }
 
 
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
@@ -114,7 +140,7 @@ namespace Rs64.TexTransTool.Decal
             }
             return (UV, TraingleIndexs);
         }
-        public static List<Vector3> ConvartVerticesInMatlix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
+        public static List<Vector3> ConvartVerticesInMatlix(Matrix4x4 matrix, IEnumerable<Vector3> Vertices, Vector3 Offset)
         {
             var ConvertVertices = new List<Vector3>();
             foreach (var Vertice in Vertices)
@@ -168,8 +194,8 @@ namespace Rs64.TexTransTool.Decal
             return FiltalingTraingles;
         }
 
-        public delegate bool Filtaring(TraiangleIndex TargetTri, List<Vector3> Vartex);//対象の三角形を通せない場合True
-        public static List<TraiangleIndex> FiltaringTraiangle(List<TraiangleIndex> Target, List<Vector3> Vartex, List<Filtaring> Filtars)
+        public delegate bool Filtaring<InterObject>(TraiangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
+        public static List<TraiangleIndex> FiltaringTraiangle<InterSpace>(List<TraiangleIndex> Target, InterSpace InterObjects, List<Filtaring<InterSpace>> Filtars)
         {
             var FiltalingTraingles = new List<TraiangleIndex>(Target.Count);
             foreach (var Traiangle in Target)
@@ -177,7 +203,7 @@ namespace Rs64.TexTransTool.Decal
                 bool Isfiltered = false;
                 foreach (var filtar in Filtars)
                 {
-                    if (filtar.Invoke(Traiangle, Vartex))
+                    if (filtar.Invoke(Traiangle, InterObjects))
                     {
                         Isfiltered = true;
                         break;
@@ -266,7 +292,7 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        public static Vector2 QuadNormaliz(List<Vector2> Quad, Vector2 TargetPos)
+        public static Vector2 QuadNormaliz(IReadOnlyList<Vector2> Quad, Vector2 TargetPos)
         {
             var OneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
             var OneCross = Vector3.Cross(Quad[2] - Quad[0], TargetPos - Quad[0]).z > 0 ? -1 : 1;
@@ -290,7 +316,7 @@ namespace Rs64.TexTransTool.Decal
 
             return new Vector2(x, y);
         }
-        public static List<Vector2> QuadNormaliz(List<Vector2> Quad, List<Vector2> TargetPoss)
+        public static List<Vector2> QuadNormaliz(IReadOnlyList<Vector2> Quad, List<Vector2> TargetPoss)
         {
             List<Vector2> NormalizedPos = new List<Vector2>(TargetPoss.Count);
             foreach (var TargetPos in TargetPoss)
