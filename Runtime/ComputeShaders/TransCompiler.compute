@@ -4,7 +4,7 @@
 
 #include "./TransCompilerHelper.hlsl"
 
-RWStructuredBuffer<float4> Source;
+StructuredBuffer<float4> Source;
 uint2 SourceTexSize;
 
 
@@ -15,7 +15,7 @@ uint2 TargetTexSize;
 bool IsOutRange;
 float2 OutRange;
 
-RWStructuredBuffer<float3> AtlasMap;
+StructuredBuffer<float3> AtlasMap;
 
 [numthreads(32, 32, 1)] void NotWrap(uint3 id
                                      : SV_DispatchThreadID) {

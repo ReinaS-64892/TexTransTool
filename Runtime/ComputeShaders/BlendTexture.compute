@@ -27,7 +27,7 @@
 
 uint Size;
 RWStructuredBuffer<float4> BaseTex;
-RWStructuredBuffer<float4> AddTex;
+StructuredBuffer<float4> AddTex;
 
 [numthreads(32, 32, 1)] void Normal(uint3 id : SV_DispatchThreadID) {
   uint OneDIndex = TwoDToOneDIndex((uint2)id, Size);

@@ -5,7 +5,7 @@
 #include "./TransMapperHelper.hlsl"
 
 uint Size;
-RWStructuredBuffer<float2> Traiangles;
+StructuredBuffer<float2> Traiangles;
 RWStructuredBuffer<float3> Result;
 
 [numthreads(32, 32, 1)] void TransMapGeneratPadingEdgeBase(uint3 id: SV_DispatchThreadID)
