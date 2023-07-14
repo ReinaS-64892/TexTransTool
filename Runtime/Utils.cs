@@ -55,14 +55,17 @@ namespace Rs64.TexTransTool
         public static Texture2D CreateFillTexture(Vector2Int Size, Color FillColor)
         {
             var TestTex = new Texture2D(Size.x, Size.y);
-            List<Color> Colors = new List<Color>();
-            foreach (var count in Enumerable.Range(0, Size.x * Size.y))
-            {
-                Colors.Add(FillColor);
-            }
-            TestTex.SetPixels(Colors.ToArray());
-            TestTex.Apply();
+            TestTex.SetPixels(FilledArray(FillColor, Size.x * Size.y));
             return TestTex;
+        }
+        public static T[] FilledArray<T>(T DefaultValue, int Length)
+        {
+            var Array = new T[Length];
+            for (int i = 0; i < Array.Length; i++)
+            {
+                Array[i] = DefaultValue;
+            }
+            return Array;
         }
         public static List<TraiangleIndex> ToList(int[] triangleIndexs)
         {

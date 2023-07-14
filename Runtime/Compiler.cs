@@ -45,7 +45,6 @@ namespace Rs64.TexTransTool
                 }
             }
             TargetTex.Texture2D.SetPixels(TargetPixsel);
-            TargetTex.Texture2D.Apply();
             return TargetTex;
 
         }
@@ -316,7 +315,6 @@ namespace Rs64.TexTransTool
 
             TargetBuffer.GetData(TColors);
             targetTex.Texture2D.SetPixels(TColors);
-            targetTex.Texture2D.Apply();
 
             TargetDistansBuffer.GetData(targetTex.DistansMap.Array);
 

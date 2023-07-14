@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Decal
             {
                 var Mat = kvp.Key;
                 var Texs = kvp.Value;
-                var Tex = Texs.Count == 1 ? Texs.FirstOrDefault() : TextureLayerUtil.BlendTexturesUseComputeSheder(null, Texs, BlendType);
+                var Tex = Texs.Count == 1 ? Texs.FirstOrDefault() : TextureLayerUtil.BlendTextureUseComputeSheder(null, Texs, BlendType);
                 RetDict.Add(Mat, Tex);
             }
 

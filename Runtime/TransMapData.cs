@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool
         }
         public TransMapData(float defaultPading, Vector2Int mapSize)
         {
-            var arrey = Enumerable.Repeat(new PosAndDistans(Vector2.zero, defaultPading), mapSize.x * mapSize.y).ToArray();
+            var arrey = Utils.FilledArray(new PosAndDistans(Vector2.zero, defaultPading), mapSize.x * mapSize.y);
             DefaultPading = defaultPading;
             var mapsize = mapSize;
             Map = new TowDMap<PosAndDistans>(arrey, mapsize);
@@ -100,7 +100,7 @@ namespace Rs64.TexTransTool
         }
         public TowDMap(T defaultValue, Vector2Int mapSize)
         {
-            Array = Enumerable.Repeat(defaultValue, mapSize.x * mapSize.y).ToArray();
+            Array = Utils.FilledArray(defaultValue, mapSize.x * mapSize.y);
             MapSize = mapSize;
         }
 

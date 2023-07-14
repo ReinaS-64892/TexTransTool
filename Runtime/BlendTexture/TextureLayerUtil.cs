@@ -283,7 +283,6 @@ namespace Rs64.TexTransTool
             }
 
             ResultTexutres.SetPixels(ResultPixels);
-            ResultTexutres.Apply();
 
             return ResultTexutres;
         }
@@ -291,53 +290,22 @@ namespace Rs64.TexTransTool
 
         public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, Texture2D Base, Texture2D Add, BlendType PileType)
         {
-            if (Base.width != Add.width && Base.height != Add.height) throw new System.ArgumentException("Textureの解像度が同一ではありません。。");
-            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPaht);
-            Compiler.NotFIlterAndReadWritTexture2D(ref Base);
-            Compiler.NotFIlterAndReadWritTexture2D(ref Add);
-            var BaesPixels = Base.GetPixels();
-            var AddPixels = Add.GetPixels();
-            var ResultTexutres = new Texture2D(Base.width, Base.height);
-            int KarnelId;
-
-            KarnelId = CS.FindKernel(PileType.ToString());
-
-            CS.SetInt("Size", Base.width);
-
-            var BaseTexCB = new ComputeBuffer(BaesPixels.Length, 16);
-            var AddTexCB = new ComputeBuffer(BaesPixels.Length, 16);
-            BaseTexCB.SetData(BaesPixels);
-            AddTexCB.SetData(AddPixels);
-            CS.SetBuffer(KarnelId, "BaseTex", BaseTexCB);
-            CS.SetBuffer(KarnelId, "AddTex", AddTexCB);
-
-            CS.Dispatch(KarnelId, Base.width / 32, Base.height / 32, 1);
-
-            BaseTexCB.GetData(BaesPixels);
-
-            ResultTexutres.SetPixels(BaesPixels);
-            ResultTexutres.Apply();
-
-            BaseTexCB.Release();
-            AddTexCB.Release();
-
-            return ResultTexutres;
+            return BlendTextureUseComputeSheder(CS, new Texture2D[] { Base, Add }, PileType);
         }
 
-        public static Texture2D BlendTexturesUseComputeSheder(ComputeShader CS, List<Texture2D> Textures, BlendType PileType)
+        public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, IReadOnlyList<Texture2D> Textures, BlendType PileType)
         {
             if (!Textures.Any()) throw new System.ArgumentException("対象が存在しません");
-            var Size = Textures.First().NativeSize();
+            var FirstTex = Textures[0];
+            var Size = FirstTex.NativeSize();
             if (Textures.Any(i => i.NativeSize() != Size)) throw new System.ArgumentException("Textureの解像度が同一ではありません。");
             if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPaht);
 
-            var FirstTex = Textures.First();
+
             Compiler.NotFIlterAndReadWritTexture2D(ref FirstTex);
             var BaesPixels = FirstTex.GetPixels();
             var ResultTexutres = new Texture2D(Size.x, Size.y);
-            int KarnelId;
-
-            KarnelId = CS.FindKernel(PileType.ToString());
+            int KarnelId = CS.FindKernel(PileType.ToString());
 
             CS.SetInt("Size", Size.x);
 
@@ -359,9 +327,7 @@ namespace Rs64.TexTransTool
             }
 
             BaseTexCB.GetData(BaesPixels);
-
             ResultTexutres.SetPixels(BaesPixels);
-            ResultTexutres.Apply();
 
             BaseTexCB.Release();
             AddTexCB.Release();

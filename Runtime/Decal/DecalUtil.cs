@@ -54,7 +54,6 @@ namespace Rs64.TexTransTool.Decal
             ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
             var sUV = ConvertSpase.OutPutUV();
 
-
             var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             var Materials = TargetRenderer.sharedMaterials;
 
@@ -71,15 +70,19 @@ namespace Rs64.TexTransTool.Decal
 
                 if (FiltaringdTrainagle.Any() == false) { continue; }
 
-
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
+
                 var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
+
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
+
                 var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
+
                 AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
-                AtlasTex.Texture2D.Apply();
+
                 if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
                 else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }
+
             }
             return ResultTexutres;
         }

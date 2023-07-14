@@ -150,9 +150,9 @@ namespace Rs64.TexTransTool
             ResBuffer.SetData(TransMap.Map.Array);
             Shader.SetBuffer(karnelindex, "Result", ResBuffer);
 
-
-            var TriBuffer = new ComputeBuffer((TrianglesToIndex.Count * 6), 8);
-            var TriangleList = new List<Vector2>();
+            var TriBufferSize = TrianglesToIndex.Count * 6;
+            var TriBuffer = new ComputeBuffer(TriBufferSize, 8);
+            var TriangleList = new List<Vector2>(TriBufferSize);
             foreach (var TriangleToIndex in TrianglesToIndex)
             {
                 TriangleList.Add(TargetTexScaleTargetUV[TriangleToIndex[0]]);
@@ -164,8 +164,8 @@ namespace Rs64.TexTransTool
             }
             TriBuffer.SetData<Vector2>(TriangleList);
             Shader.SetBuffer(karnelindex, "Traiangles", TriBuffer);
-
             Shader.SetInt("Size", TransMap.Map.MapSize.x);
+
             Shader.Dispatch(karnelindex, ThredGropSize.x, ThredGropSize.y, TrianglesToIndex.Count);
 
             ResBuffer.GetData(TransMap.Map.Array);
