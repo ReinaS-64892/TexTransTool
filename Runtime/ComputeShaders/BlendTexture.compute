@@ -174,5 +174,5 @@ RWStructuredBuffer<float4> AddTex;
   float4 BaseColor = BaseTex[OneDIndex];
   float4 AddColor = AddTex[OneDIndex];
 
-  BaseTex[OneDIndex] = ColorBlendAlphaLerp(BaseColor, AddColor);
+  BaseTex[OneDIndex] = saturate(ColorBlendAlphaLerp(BaseColor, AddColor));
 }

@@ -7,13 +7,15 @@ namespace Rs64.TexTransTool.Decal.Curve
     public class BezierCurve : ICurve
     {
         public List<CurevSegment> Segments = new List<CurevSegment>();
+        public RoolMode RoolMode;
 
         float _DefaultWightStep = 0.1f;
         public float DefaultWightStep { get => _DefaultWightStep; set => _DefaultWightStep = value > 0 ? value : 0.1f; }
-        public BezierCurve(List<CurevSegment> segments, float defaultWightStep = 0.1f)
+        public BezierCurve(List<CurevSegment> segments, RoolMode roolMode = RoolMode.WorldUp, float defaultWightStep = 0.1f)
         {
             Segments = segments;
             DefaultWightStep = defaultWightStep;
+            RoolMode = roolMode;
         }
         public Vector3 GetPoint(float wight)
         {
@@ -108,22 +110,14 @@ namespace Rs64.TexTransTool.Decal.Curve
             var Quads = new List<List<Vector3>>();
             var FromWight = StartWight;
             var FromPoint = GetPoint(FromWight);
-            var FromLook = Quaternion.FromToRotation(FromPoint, GetPoint(FromWight + 0.01f));
-            FromLook *= Quaternion.AngleAxis(GetRool(FromWight), Vector3.up);
-            var FromEdge = (
-                    FromPoint + FromLook * Vector3.left * (Size * 0.5f),
-                    FromPoint + FromLook * Vector3.right * (Size * 0.5f)
-                );
+            var FromEdge = GetEdge(FromWight, Size);
+
 
             foreach (var Index in Enumerable.Range(0, (int)Quad))
             {
                 Vector3 ToPoint; float ToWight; (ToPoint, ToWight) = GetOfLeng(FromWight, Size);
-                var ToLook = Quaternion.FromToRotation(ToPoint, FromPoint);
-                ToLook *= Quaternion.AngleAxis(GetRool(ToWight), Vector3.up);
-                var ToEdge = (
-                        ToPoint + ToLook * Vector3.left * (Size * 0.5f),
-                        ToPoint + ToLook * Vector3.right * (Size * 0.5f)
-                    );
+
+                var ToEdge = GetEdge(ToWight, Size);
 
                 Quads.Add(new List<Vector3>(4) { FromEdge.Item1, FromEdge.Item2, ToEdge.Item1, ToEdge.Item2 });
 
@@ -132,6 +126,49 @@ namespace Rs64.TexTransTool.Decal.Curve
                 FromEdge = ToEdge;
             }
             return Quads;
+        }
+
+        public (Vector3, Vector3) GetEdge(float wight, float Size)
+        {
+            var Point = GetPoint(wight);
+            var Rool = GetRool(wight);
+
+            switch (RoolMode)
+            {
+                default:
+                case RoolMode.WorldUp:
+                    {
+                        var foward = GetPoint(wight + DefaultWightStep);
+                        var ToLook = Quaternion.FromToRotation(foward, Point);
+                        ToLook *= Quaternion.AngleAxis(Rool, Point - foward);
+                        var ToEdge = (
+                                Point + ToLook * Vector3.left * (Size * 0.5f),
+                                Point + ToLook * Vector3.right * (Size * 0.5f)
+                            );
+                        return ToEdge;
+                    }
+                case RoolMode.Cross:
+                    {
+                        var Back = GetPoint(wight - DefaultWightStep);
+                        var foward = GetPoint(wight + DefaultWightStep);
+
+                        var RoolAsix = foward - Back;
+
+                        var Clossvec = Vector3.Cross(Back - Point, foward - Point);
+                        Clossvec *= Vector3.left.magnitude / Clossvec.magnitude;
+
+                        Clossvec = Quaternion.AngleAxis(Rool, RoolAsix) * Clossvec;
+
+                        Clossvec *= (Size * 0.5f);
+                        var Invers = Clossvec * -1;
+
+                        var Left = Point + Clossvec;
+                        var Right = Point + Invers;
+
+                        return (Left, Right);
+                    }
+            }
+
         }
 
         public List<Vector3> GetLine(float StartWight, float Endwight)
@@ -159,5 +196,12 @@ namespace Rs64.TexTransTool.Decal.Curve
         Vector3 GetPoint(float wight);
         float GetRool(float wight);
         (Vector3, float) GetOfLeng(float FormWight, float Lengs);
+    }
+
+    public enum RoolMode
+    {
+        WorldUp,
+        Cross,
+
     }
 }

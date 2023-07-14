@@ -18,6 +18,7 @@ namespace Rs64.TexTransTool.Decal.Curve
         public bool UseFirstAndEnd = false;
         public Texture2D FirstTexture;
         public Texture2D EndTexture;
+        public float CurveStartOffset;
 
         public bool IsPossibleSegments => Segments.Count > 1 && !Segments.Any(i => i == null);
         public override bool IsPossibleCompile => base.IsPossibleCompile && (UseFirstAndEnd ? FirstTexture != null && EndTexture != null : true) && IsPossibleSegments;

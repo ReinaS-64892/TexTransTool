@@ -146,6 +146,12 @@ namespace Rs64.TexTransTool
                 }
             }
         }
+
+        public static void SaveAsset(string Name, string String)
+        {
+            var path = GeneretNewSavePath(Name) + ".txt";
+            File.WriteAllText(path, String);
+        }
     }
 }
 #endif

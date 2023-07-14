@@ -346,9 +346,9 @@ namespace Rs64.TexTransTool
             BaseTexCB.SetData(BaesPixels);
             CS.SetBuffer(KarnelId, "BaseTex", BaseTexCB);
 
-            foreach (var Index in Enumerable.Range(1, Textures.Count - 1))
+            foreach (var tex in Textures.Skip(1))
             {
-                var AddTex = Textures[Index];
+                var AddTex = tex;
                 Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
                 var AddPixels = AddTex.GetPixels();
                 AddTexCB.SetData(AddPixels);

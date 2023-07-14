@@ -1,9 +1,6 @@
 #if UNITY_EDITOR
-using System;
-using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
-using static Rs64.TexTransTool.Decal.DecalUtil;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
@@ -19,7 +16,10 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FiltedBackSide = true;
 
-        public BezierCurve BezierCurve => new BezierCurve(Segments);
+        public RoolMode RoolMode = RoolMode.WorldUp;
+
+
+        public BezierCurve BezierCurve => new BezierCurve(Segments, RoolMode);
 
         private void OnDrawGizmosSelected()
         {
@@ -35,7 +35,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
         {
             if (!IsPossibleSegments) return;
             Gizmos.color = Color.black;
-            var Quads = BezierCurve.GetQuad(LoopCount, Size);
+            var Quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
             GizmosUtility.DrowGizmoQuad(Quads);
             GizmosUtility.DrowGimzLine(Segments.ConvertAll(i => i.position));
             GizmosUtility.DrowGimzLine(BezierCurve.GetLine());
@@ -57,11 +57,16 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             if (!IsPossibleCompile) return;
 
             Vector2? TexRenage = null;
-            if (IsTextureStreach) TexRenage = TextureStreathRenge;
+            TexWrapMode texWrapMode = TexWrapMode.NotWrap;
+            if (IsTextureStreach)
+            {
+                TexRenage = TextureStreathRenge;
+                texWrapMode = TexWrapMode.Stretch;
+            }
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
             int Count = 0;
-            foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size))
+            foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
             {
                 var TargetDecalTexture = DecalTexture;
                 if (UseFirstAndEnd)
@@ -78,14 +83,16 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
                 foreach (var Renderer in TargetRenderers)
                 {
-                    DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer, TargetDecalTexture,
-                    I => ComvartSpace(Quad, I),
-                    TargetPropatyName,
-                    TextureOutRenge: TexRenage,
-                    TrainagleFilters: GetFiltarings(),
-                    DefoaltPading: DefaultPading,
-                    TexWrapMode: TexWrapMode.Stretch
-                    ));
+                    var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
+                    var CCSfilter = new CCSFilter(OutOfRangeOffset);
+                    DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer,
+                                                                         TargetDecalTexture,
+                                                                         CCSspase,
+                                                                         CCSfilter,
+                                                                         TargetPropatyName,
+                                                                         TextureOutRenge: TexRenage,
+                                                                         DefoaltPading: DefaultPading,
+                                                                         TexWrapMode: texWrapMode));
                 }
                 Count += 1;
             }
@@ -93,30 +100,6 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
             SetContainer(TextureList);
-        }
-
-        private List<Vector3> ComvartSpace(List<Vector3> Quad, List<Vector3> Vartexs)
-        {
-            var LoaclPases = CylindricalCoordinatesSystem.VartexsConvertCCS(Quad, Vartexs, true);
-            var Normalaized = DecalUtil.QuadNormaliz(LoaclPases.Item1.ConvertAll(i => (Vector2)i), LoaclPases.Item2.ConvertAll(i => (Vector2)i));
-            return Utils.ZipListVector3(Normalaized, LoaclPases.Item2.ConvertAll(i => i.z));
-        }
-
-        public override List<DecalUtil.Filtaring> GetFiltarings()
-        {
-            List<DecalUtil.Filtaring> Filters = new List<DecalUtil.Filtaring>();
-
-            if (FiltedBackSide)
-            {
-                Filters.Add((i, i2) => DecalUtil.SideChek(i, i2, true));
-                Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
-            }
-            else
-            {
-                Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
-            }
-
-            return Filters;
         }
     }
 }

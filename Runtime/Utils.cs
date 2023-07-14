@@ -106,7 +106,7 @@ namespace Rs64.TexTransTool
             }
             return MatS;
         }
-        public static void SetMaterials(IEnumerable<Renderer> Rendres, List<Material> Mat)
+        public static void SetMaterials(IEnumerable<Renderer> Rendres, IReadOnlyList<Material> Mat)
         {
             int StartOffset = 0;
             foreach (var Rendera in Rendres)
@@ -116,7 +116,7 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static List<Mesh> GetMeshes(List<Renderer> renderers, bool NullInsertion = false)
+        public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)
         {
             List<Mesh> Meshs = new List<Mesh>();
             foreach (var Rendera in renderers)
@@ -165,7 +165,7 @@ namespace Rs64.TexTransTool
             }
         }
 
-        public static void SetMeshs(List<Renderer> renderers, List<Mesh> DistMesh, List<Mesh> SetMesh)
+        public static void SetMeshs(IEnumerable<Renderer> renderers, IReadOnlyList<Mesh> DistMesh, IReadOnlyList<Mesh> SetMesh)
         {
             foreach (var Rendera in renderers)
             {
@@ -194,14 +194,15 @@ namespace Rs64.TexTransTool
             }
         }
 
-        public static List<Vector3> ZipListVector3(List<Vector2> XY, List<float> Z)
+
+        public static List<Vector3> ZipListVector3(IReadOnlyList<Vector2> XY, IReadOnlyList<float> Z)
         {
             var Count = XY.Count;
             if (Count != Z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
 
             List<Vector3> Result = new List<Vector3>(Count);
 
-            foreach (var Index in Enumerable.Range(0, Count))
+            for (int Index = 0; Index < Count; Index += 1)
             {
                 Result.Add(new Vector3(XY[Index].x, XY[Index].y, Z[Index]));
             }
@@ -209,9 +210,9 @@ namespace Rs64.TexTransTool
             return Result;
         }
 
-        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(Dictionary<T, List<T2>> Souse, Dictionary<T, List<T2>> Add)
+        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(IReadOnlyDictionary<T, List<T2>> Souse, IReadOnlyDictionary<T, List<T2>> Add)
         {
-            var Result = new Dictionary<T, List<T2>>(Souse);
+            var Result = ReadOnlyDictClone(Souse);
             foreach (var Key in Add.Keys)
             {
                 if (Result.ContainsKey(Key))
@@ -226,27 +227,37 @@ namespace Rs64.TexTransTool
             return Result;
         }
 
-        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(List<Dictionary<T, List<T2>>> Target)
+        public static Dictionary<T, T2> ReadOnlyDictClone<T, T2>(IReadOnlyDictionary<T, T2> Souse)
+        {
+            var Result = new Dictionary<T, T2>();
+            foreach (var KeyValue in Souse)
+            {
+                Result.Add(KeyValue.Key, KeyValue.Value);
+            }
+            return Result;
+        }
+
+        public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(IReadOnlyList<Dictionary<T, List<T2>>> Target)
         {
             var Result = new Dictionary<T, List<T2>>();
-            foreach (var Add in Target)
+            foreach (var ZiptargetDict in Target)
             {
-                foreach (var Key in Add.Keys)
+                foreach (var Key in ZiptargetDict.Keys)
                 {
                     if (Result.ContainsKey(Key))
                     {
-                        Result[Key].AddRange(Add[Key]);
+                        Result[Key].AddRange(ZiptargetDict[Key]);
                     }
                     else
                     {
-                        Result.Add(Key, Add[Key]);
+                        Result.Add(Key, ZiptargetDict[Key]);
                     }
                 }
             }
             return Result;
         }
 
-        public static List<Texture2D> GeneratTexturesList(List<Material> SouseMaterials, Dictionary<Material, Texture2D> MatAndTexs)
+        public static List<Texture2D> GeneratTexturesList(IReadOnlyList<Material> SouseMaterials, IReadOnlyDictionary<Material, Texture2D> MatAndTexs)
         {
             List<Texture2D> Result = new List<Texture2D>();
             foreach (var Mat in SouseMaterials)
@@ -263,7 +274,7 @@ namespace Rs64.TexTransTool
             return Result;
         }
 
-        public static Dictionary<T, T2> GeneretFromKvP<T, T2>(List<KeyValuePair<T, T2>> KvPList)
+        public static Dictionary<T, T2> GeneretFromKvP<T, T2>(IReadOnlyList<KeyValuePair<T, T2>> KvPList)
         {
             Dictionary<T, T2> Result = new Dictionary<T, T2>();
             foreach (var KvP in KvPList)
@@ -282,6 +293,22 @@ namespace Rs64.TexTransTool
         }
 
 
+    }
+    public static class IReadOnylUtility
+    {
+        public static int IndexOf<T>(this IReadOnlyList<T> ROList, T item)
+        {
+            var Count = ROList.Count;
+            for (int Index = 0; Index < Count; Index += 1)
+            {
+                if (ROList[Index].Equals(item))
+                {
+                    return Index;
+                }
+            }
+
+            return -1;
+        }
     }
     public static class GizmosUtility
     {
@@ -336,43 +363,6 @@ namespace Rs64.TexTransTool
         }
 
 
-    }
-
-    public class DebugTimer
-    {
-        Stopwatch _Stopwatch;
-        Stopwatch _StepStopwatch;
-
-        public DebugTimer()
-        {
-            _Stopwatch = new Stopwatch();
-            _StepStopwatch = new Stopwatch();
-            _Stopwatch.Start();
-            _StepStopwatch.Start();
-        }
-
-        public void Log(string messeg = "")
-        {
-            _StepStopwatch.Stop();
-            _Stopwatch.Stop();
-
-            ELtoLog(_StepStopwatch.Elapsed, messeg);
-
-            _StepStopwatch.Restart();
-            _Stopwatch.Start();
-        }
-
-        public void EndLog(string messeg = "")
-        {
-            Log(messeg);
-            _Stopwatch.Stop();
-            ELtoLog(_Stopwatch.Elapsed, "Total");
-        }
-
-        public static void ELtoLog(TimeSpan el, string messeg = "")
-        {
-            UnityEngine.Debug.Log($"{messeg} {el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
-        }
     }
     public static class MaterialUtil
     {

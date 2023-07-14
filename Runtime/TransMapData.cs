@@ -7,7 +7,6 @@ using System.Collections;
 
 namespace Rs64.TexTransTool
 {
-    [Serializable]
     public class TransMapData
     {
         public TowDMap<PosAndDistans> Map;
@@ -26,6 +25,12 @@ namespace Rs64.TexTransTool
             DefaultPading = defaultPading;
             var mapsize = mapSize;
             Map = new TowDMap<PosAndDistans>(arrey, mapsize);
+        }
+        public TransMapData(SerialaizableMap Smap)
+        {
+            Map = new TowDMap<PosAndDistans>(Smap.Map.Select(I => new PosAndDistans(I.x, I.y, I.z)).ToArray(), Smap.MapSize);
+            DefaultPading = Smap.DefaultPading;
+
         }
         public TransMapData()
         {
@@ -46,6 +51,22 @@ namespace Rs64.TexTransTool
             {
                 Map.Array[i] = vector3s[i];
             }
+        }
+        [Serializable]
+        public struct SerialaizableMap
+        {
+            public Vector3[] Map;
+            public Vector2Int MapSize;
+            public float DefaultPading;
+        }
+        public SerialaizableMap ToSerialaizable()
+        {
+            return new SerialaizableMap()
+            {
+                Map = GetVector3s(),
+                MapSize = Map.MapSize,
+                DefaultPading = DefaultPading
+            };
         }
     }
     [Serializable]
