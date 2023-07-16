@@ -101,19 +101,15 @@ namespace Rs64.TexTransTool
             TargetPixsel[index] = souspixselcloro;
         }
 
-        public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex, bool ConvertToLiner = false)
+        public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex)
         {
+            var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
+            if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
+
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            byte[] PngBytes = string.IsNullOrEmpty(SouseTexPath) ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
-            if (ConvertToLiner)
-            {
-                SouseTex = new Texture2D(2, 2, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-            }
-            else
-            {
-                SouseTex = new Texture2D(2, 2);
-            }
-            SouseTex.LoadImage(PngBytes);
+            byte[] ImageBytes = string.IsNullOrEmpty(SouseTexPath) ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
+            SouseTex = new Texture2D(2, 2);
+            SouseTex.LoadImage(ImageBytes);
         }
 
         public static Vector2Int NativeSize(this Texture2D SouseTex)
