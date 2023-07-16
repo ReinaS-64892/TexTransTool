@@ -11,9 +11,24 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         public static List<IShaderSupport> GetSupprotInstans()
         {
-            var SappotedLists = Assembly.GetExecutingAssembly().GetTypes().Where(C => C.GetInterfaces().Any(I => I == typeof(IShaderSupport))).ToList();
-            List<IShaderSupport> SappotedListInstans = SappotedLists.ConvertAll<IShaderSupport>(I => Activator.CreateInstance(I) as IShaderSupport);
-            return SappotedListInstans;
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(I => I.GetTypes())
+                //.Where(I => I != typeof(IShaderSupport) && I != typeof(object)  && I.IsAssignableFrom(typeof(IShaderSupport))) // なぜか...この方法だとうまくいかなかった...
+                .Where(I => I.GetInterfaces().Any(I2 => I2 == typeof(IShaderSupport)))
+                .Select(I =>
+                {
+                    try
+                    {
+                        //Debug.Log(I.ToString());
+                        return (IShaderSupport)Activator.CreateInstance(I);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log(I.ToString());
+                        throw e;
+                    }
+                })
+                .ToList();
         }
     }
 }
