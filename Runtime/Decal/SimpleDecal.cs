@@ -17,18 +17,10 @@ namespace Rs64.TexTransTool.Decal
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
-        public virtual void ScaleApply()
+        public override void ScaleApply()
         {
-            if (DecalTexture != null && FixedAspect)
-            {
-                transform.localScale = new Vector3(Scale.x, Scale.x * ((float)DecalTexture.height / (float)DecalTexture.width), MaxDistans);
-            }
-            else
-            {
-                transform.localScale = new Vector3(Scale.x, FixedAspect ? Scale.x : Scale.y, MaxDistans);
-            }
+            ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
         }
-
         public List<DecalUtil.Filtaring<List<Vector3>>> GetFilter()
         {
             var Filters = new List<DecalUtil.Filtaring<List<Vector3>>>();

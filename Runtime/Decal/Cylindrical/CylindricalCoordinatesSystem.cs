@@ -4,9 +4,9 @@ using UnityEngine;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
-namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
+namespace Rs64.TexTransTool.Decal.Cylindrical
 {
-    [AddComponentMenu("TexTransTool/Experimental/CylindricalCoordinatesSystem")]
+    [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
     public class CylindricalCoordinatesSystem : MonoBehaviour
 #if VRC_BASE
     , IEditorOnly
@@ -122,13 +122,13 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
     public class CCSSpace : DecalUtil.IConvertSpace
     {
         public CylindricalCoordinatesSystem CCS;
-        public List<Vector3> Quad;
+        public IReadOnlyList<Vector3> Quad;
         public List<Vector3> CCSvarts;
         public List<Vector3> CCSQuad;
         public float Offset;
         public List<Vector3> QuadNormalizedVarts;
 
-        public CCSSpace(CylindricalCoordinatesSystem CCS, List<Vector3> Quad)
+        public CCSSpace(CylindricalCoordinatesSystem CCS, IReadOnlyList<Vector3> Quad)
         {
             this.CCS = CCS;
             this.Quad = Quad;

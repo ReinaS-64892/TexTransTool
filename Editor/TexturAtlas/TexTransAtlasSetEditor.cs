@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             var IsApply = ThisTarget.IsApply;
 
             EditorGUI.BeginDisabledGroup(IsApply);
-            TextureTransformerEditor.objectReferencePorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
+            TextureTransformerEditor.ObjectReferencePorpty<GameObject>(TargetRoot, i => SetTargetRoot(i, TargetRenderer, TargetMaterial));
             if (TargetRoot.objectReferenceValue != null)
             {
                 if (GUILayout.Button("ResearchRenderas"))

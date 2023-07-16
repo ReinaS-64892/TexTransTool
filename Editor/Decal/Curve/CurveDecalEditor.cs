@@ -2,7 +2,6 @@
 
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool.Decal.Curve.Cylindrical;
 using Rs64.TexTransTool.Decal.Curve;
 
 namespace Rs64.TexTransTool.Editor.Decal.Curve
@@ -25,7 +24,7 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
         {
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
-            DecalEditorUtili.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
+            TextureTransformerEditor.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
 
             var S_isUseStartAndEnd = This_S_Object.FindProperty("UseFirstAndEnd");
             EditorGUILayout.PropertyField(S_isUseStartAndEnd);
@@ -34,16 +33,16 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
             if (isUseStartAndEnd)
             {
                 var S_End = This_S_Object.FindProperty("EndTexture");
-                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_End);
+                TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_End);
             }
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_DecalTexture);
+            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_DecalTexture);
 
             if (isUseStartAndEnd)
             {
                 var S_Start = This_S_Object.FindProperty("FirstTexture");
-                TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_Start);
+                TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_Start);
             }
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
@@ -92,7 +91,7 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
                 Count += 1;
             }
 
-            DecalEditorUtili.DrowArryResizeButton(Segment);
+            TextureTransformerEditor.DrowArryResizeButton(Segment);
 
         }
     }

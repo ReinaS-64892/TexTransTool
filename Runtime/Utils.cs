@@ -312,15 +312,20 @@ namespace Rs64.TexTransTool
     }
     public static class GizmosUtility
     {
-        public static void DrowGizmoQuad(List<List<Vector3>> Quads)
+        public static void DrowGizmoQuad(IEnumerable<List<Vector3>> Quads)
         {
             foreach (var Quad in Quads)
             {
-                Gizmos.DrawLine(Quad[0], Quad[1]);
-                Gizmos.DrawLine(Quad[0], Quad[2]);
-                Gizmos.DrawLine(Quad[2], Quad[3]);
-                Gizmos.DrawLine(Quad[1], Quad[3]);
+                DrowQuad(Quad);
             }
+        }
+
+        public static void DrowQuad(IReadOnlyList<Vector3> Quad)
+        {
+            Gizmos.DrawLine(Quad[0], Quad[1]);
+            Gizmos.DrawLine(Quad[0], Quad[2]);
+            Gizmos.DrawLine(Quad[2], Quad[3]);
+            Gizmos.DrawLine(Quad[1], Quad[3]);
         }
 
         public static void DrowGimzLine(List<Vector3> Line)
