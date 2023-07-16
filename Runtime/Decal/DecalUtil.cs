@@ -72,7 +72,7 @@ namespace Rs64.TexTransTool.Decal
 
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
 
-                var TargetScaileTargetUV = TransMapper.UVtoTexScale(tUV, TargetTexSize);
+                TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
 
                 Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
 

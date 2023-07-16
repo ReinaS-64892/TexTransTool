@@ -186,11 +186,12 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var Mesh = TargetMeshs[Index.Index];
                 var AtlasMapDataI = new TransMapData(Pading, AtlasTextureSize);
                 var triangles = Utils.ToList(Mesh.GetTriangles(Index.SubMeshIndex));
-                var SouseUV = new List<Vector2>();
-                var TargetUV = new List<Vector2>();
+                var capa = Mesh.vertexCount;
+                var SouseUV = new List<Vector2>(capa);
+                var TargetUV = new List<Vector2>(capa);
                 Mesh.GetUVs(1, SouseUV);
                 Mesh.GetUVs(0, TargetUV);
-                var TargetTexScliUV = TransMapper.UVtoTexScale(TargetUV, AtlasTextureSize);
+                TransMapper.UVtoTexScale(TargetUV, AtlasTextureSize);var TargetTexScliUV = TargetUV;
                 RetuneData[Index.Index][Index.SubMeshIndex] = TransMapper.TransMapGeneratUseComputeSheder(TransMapperCS, AtlasMapDataI, triangles, TargetTexScliUV, SouseUV, padingType);
             }
 

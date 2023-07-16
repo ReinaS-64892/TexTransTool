@@ -175,10 +175,12 @@ namespace Rs64.TexTransTool
 
             return TransMap;
         }
-
-        public static List<Vector2> UVtoTexScale(List<Vector2> UV, Vector2Int TexSize)
+        public static void UVtoTexScale(List<Vector2> UV, Vector2Int TexSize)
         {
-            return UV.ConvertAll<Vector2>(i => new Vector2(i.x * TexSize.x, i.y * TexSize.y));
+            for (int i = 0; i < UV.Count; i++)
+            {
+                UV[i] = new Vector2(UV[i].x * TexSize.x, UV[i].y * TexSize.y);
+            }
         }
 
         public static (Vector2, Vector2) BoxCal(List<Vector2> Traiangels)
