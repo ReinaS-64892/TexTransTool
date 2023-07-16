@@ -85,7 +85,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                 foreach (var Renderer in TargetRenderers)
                 {
                     var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
-                    var CCSfilter = new CCSFilter(OutOfRangeOffset);
+                    var CCSfilter = new CCSFilter(CCSFilter.DefaultFilter(OutOfRangeOffset));
                     DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer,
                                                                          TargetDecalTexture,
                                                                          CCSspase,

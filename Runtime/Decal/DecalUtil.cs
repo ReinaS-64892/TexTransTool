@@ -195,7 +195,7 @@ namespace Rs64.TexTransTool.Decal
         }
 
         public delegate bool Filtaring<InterObject>(TraiangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
-        public static List<TraiangleIndex> FiltaringTraiangle<InterSpace>(List<TraiangleIndex> Target, InterSpace InterObjects, List<Filtaring<InterSpace>> Filtars)
+        public static List<TraiangleIndex> FiltaringTraiangle<InterSpace>(List<TraiangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filtaring<InterSpace>> Filtars)
         {
             var FiltalingTraingles = new List<TraiangleIndex>(Target.Count);
             foreach (var Traiangle in Target)

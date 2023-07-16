@@ -19,7 +19,7 @@ namespace Rs64.TexTransTool.Decal
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
             var PPSSpase = new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-            var PPSFilter = new CCSFilter(0);
+            var PPSFilter = new CCSFilter();
 
 
             TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
