@@ -13,17 +13,7 @@ namespace Rs64.TexTransTool.Decal
 
         public List<Texture2D> DecalCompiledTextures
         {
-            set
-            {
-                foreach (var item in _DecalCompiledTextures)
-                {
-                    if (item != null)
-                    {
-                        item.Apply();
-                    }
-                }
-                _DecalCompiledTextures = value;
-            }
+            set => _DecalCompiledTextures = value;
             get => _DecalCompiledTextures;
         }
         public List<Texture2D> DecaleBlendTexteres
