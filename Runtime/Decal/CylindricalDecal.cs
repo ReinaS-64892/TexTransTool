@@ -59,16 +59,62 @@ namespace Rs64.TexTransTool.Decal
         protected virtual void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
-            var Matrix = transform.localToWorldMatrix;
+            var Matrix = Matrix4x4.identity;
             Gizmos.matrix = Matrix;
 
             var CenterPos = Vector3.zero;
 
-            GizmosUtility.DrowQuad(LocalQuad);
+            var Quad = GetQuad();
+            var CCSQuad = cylindricalCoordinatesSystem.VartexsConvertCCS(Quad);
+
+            foreach (var FromPoint in Quad)
+            {
+                var CCSPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
+                CCSPoint.z = 0;
+                var ToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
+
+                Gizmos.DrawLine(FromPoint, ToPoint);
+            }
+            for (int Count = 0; 4 > Count; Count += 1)
+            {
+                (var From, var To) = GetEdge(CCSQuad, Count);
+
+                for (float I = 0f; 0.95f > I; I += 0.1f)
+                {
+                    var CCSForom = Vector3.Lerp(From, To, I);
+                    var CCSTo = Vector3.Lerp(From, To, I + 0.1f);
+
+                    var WorldFrom = cylindricalCoordinatesSystem.GetWorldPoint(CCSForom);
+                    var WorldTo = cylindricalCoordinatesSystem.GetWorldPoint(CCSTo);
+
+                    Gizmos.DrawLine(WorldFrom, WorldTo);
+                }
+            }
 
 
-
-
+        }
+        public static (Vector3, Vector3) GetEdge(IReadOnlyList<Vector3> Quad, int Count)
+        {
+            switch (Count)
+            {
+                default:
+                case 0:
+                    {
+                        return (Quad[0], Quad[1]);
+                    }
+                case 1:
+                    {
+                        return (Quad[0], Quad[2]);
+                    }
+                case 2:
+                    {
+                        return (Quad[2], Quad[3]);
+                    }
+                case 3:
+                    {
+                        return (Quad[1], Quad[3]);
+                    }
+            }
         }
 
         public override void ScaleApply()

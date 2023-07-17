@@ -21,6 +21,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
             TextureTransformerEditor.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
+            EditorGUILayout.PropertyField(S_MultiRendereMode);
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
             TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_DecalTexture);
