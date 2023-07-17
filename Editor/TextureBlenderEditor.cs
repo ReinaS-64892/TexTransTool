@@ -15,7 +15,7 @@ namespace Rs64.TexTransTool.Editor
 
             EditorGUI.BeginDisabledGroup(Target.IsApply);
             var S_TargetRendare = This_S_Object.FindProperty("TargetRenderer");
-            TextureTransformerEditor.objectReferencePorpty<Renderer>(S_TargetRendare, TextureTransformerEditor.RendererFiltaling);
+            TextureTransformerEditor.ObjectReferencePorpty<Renderer>(S_TargetRendare, TextureTransformerEditor.RendererFiltaling);
 
 
             var S_MaterialSelect = This_S_Object.FindProperty("MaterialSelect");
@@ -28,7 +28,7 @@ namespace Rs64.TexTransTool.Editor
 
 
             var S_BlendTexture = This_S_Object.FindProperty("BlendTexture");
-            TextureTransformerEditor.objectReferencePorpty<Texture2D>(S_BlendTexture);
+            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_BlendTexture);
 
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");

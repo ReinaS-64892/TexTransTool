@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                 var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
                 if (TRArryElemetValue != TRArryElemetEditValue)
                 {
-                    Renderer FiltalingdRendarer = RendererFiltaling(TRArryElemetEditValue);
+                    Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TRArryElemetEditValue);
                     S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
                 }
             }
@@ -47,7 +47,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                     var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
                     if (TargetRendererValue != TargetRendererEditValue)
                     {
-                        Renderer FiltalingdRendarer = RendererFiltaling(TargetRendererEditValue);
+                        Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TargetRendererEditValue);
                         S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
                     }
                 }
@@ -158,21 +158,6 @@ namespace Rs64.TexTransTool.Editor.Decal
             EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
-        }
-
-        private static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
-        {
-            Renderer FiltalingdRendarer;
-            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
-            {
-                FiltalingdRendarer = TargetRendererEditValue;
-            }
-            else
-            {
-                FiltalingdRendarer = null;
-            }
-
-            return FiltalingdRendarer;
         }
 
         private static void DrowRealTimePreviewEditor(SimpleDecal Target)

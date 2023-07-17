@@ -4,9 +4,9 @@ using UnityEngine;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
-namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
+namespace Rs64.TexTransTool.Decal.Cylindrical
 {
-    [AddComponentMenu("TexTransTool/Experimental/CylindricalCoordinatesSystem")]
+    [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
     public class CylindricalCoordinatesSystem : MonoBehaviour
 #if VRC_BASE
     , IEditorOnly
@@ -122,13 +122,13 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
     public class CCSSpace : DecalUtil.IConvertSpace
     {
         public CylindricalCoordinatesSystem CCS;
-        public List<Vector3> Quad;
+        public IReadOnlyList<Vector3> Quad;
         public List<Vector3> CCSvarts;
         public List<Vector3> CCSQuad;
         public float Offset;
         public List<Vector3> QuadNormalizedVarts;
 
-        public CCSSpace(CylindricalCoordinatesSystem CCS, List<Vector3> Quad)
+        public CCSSpace(CylindricalCoordinatesSystem CCS, IReadOnlyList<Vector3> Quad)
         {
             this.CCS = CCS;
             this.Quad = Quad;
@@ -168,21 +168,28 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
 
     public class CCSFilter : DecalUtil.ITraiangleFilter<CCSSpace>
     {
-        public float OutOfRangeOffset;
+        public IReadOnlyList<DecalUtil.Filtaring<CCSSpace>> Filters;
 
-        public CCSFilter(float outOfRangeOffset)
+        public CCSFilter(IReadOnlyList<DecalUtil.Filtaring<CCSSpace>> filters)
         {
-            OutOfRangeOffset = outOfRangeOffset;
+            Filters = filters;
+        }
+        public CCSFilter()
+        {
+            Filters = DefaultFilter();
         }
 
         public List<TraiangleIndex> Filtering(CCSSpace Spase, List<TraiangleIndex> Traiangeles)
         {
+            return DecalUtil.FiltaringTraiangle(Traiangeles, Spase, Filters);
+        }
+
+        public static List<DecalUtil.Filtaring<CCSSpace>> DefaultFilter(float OutOfRangeOffset = 0)
+        {
             var Filters = new List<DecalUtil.Filtaring<CCSSpace>>();
             Filters.Add((i, i2) => CylindricalCoordinatesSystem.BorderOnPorygon(i, i2.CCSvarts));
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
-            var filtedTraiangle = DecalUtil.FiltaringTraiangle(Traiangeles, Spase, Filters);
-
-            return filtedTraiangle;
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
+            return Filters;
         }
     }
 }

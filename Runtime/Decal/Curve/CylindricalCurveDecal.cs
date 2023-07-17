@@ -1,11 +1,12 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
+using Rs64.TexTransTool.Decal.Cylindrical;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
 
-namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
+namespace Rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
     public class CylindricalCurveDecal : CurveDecal
@@ -84,7 +85,7 @@ namespace Rs64.TexTransTool.Decal.Curve.Cylindrical
                 foreach (var Renderer in TargetRenderers)
                 {
                     var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
-                    var CCSfilter = new CCSFilter(OutOfRangeOffset);
+                    var CCSfilter = new CCSFilter(CCSFilter.DefaultFilter(OutOfRangeOffset));
                     DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(Renderer,
                                                                          TargetDecalTexture,
                                                                          CCSspase,
