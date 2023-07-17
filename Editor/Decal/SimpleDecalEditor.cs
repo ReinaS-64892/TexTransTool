@@ -17,139 +17,36 @@ namespace Rs64.TexTransTool.Editor.Decal
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
 
-            var S_Advansd = This_S_Object.FindProperty("AdvansdMode");
-            var AdvansdMode = S_Advansd.boolValue;
-
 
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
 
+            AbstractDecalEditor.DrowDecalEditor(This_S_Object);
 
-            var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderers");
-            if (!AdvansdMode)
-            {
-                S_TargetRenderer.arraySize = 1;
-                var S_TRArryElemt = S_TargetRenderer.GetArrayElementAtIndex(0);
-                var TRArryElemetValue = S_TRArryElemt.objectReferenceValue;
-                var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
-                if (TRArryElemetValue != TRArryElemetEditValue)
-                {
-                    Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TRArryElemetEditValue);
-                    S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("TargetRenderer");
-                foreach (var Index in Enumerable.Range(0, S_TargetRenderer.arraySize))
-                {
-                    var S_TargetRendererValue = S_TargetRenderer.GetArrayElementAtIndex(Index);
-                    var TargetRendererValue = S_TargetRendererValue.objectReferenceValue;
-                    var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
-                    if (TargetRendererValue != TargetRendererEditValue)
-                    {
-                        Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TargetRendererEditValue);
-                        S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
-                    }
-                }
-                EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("+")) S_TargetRenderer.arraySize += 1;
-                EditorGUI.BeginDisabledGroup(S_TargetRenderer.arraySize <= 1);
-                if (GUILayout.Button("-")) S_TargetRenderer.arraySize -= 1;
-                EditorGUI.EndDisabledGroup();
-                EditorGUILayout.EndHorizontal();
-            }
-
-
-
-            var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            var DecalTexValue = S_DecalTexture.objectReferenceValue;
-            var DecalTexEditValue = EditorGUILayout.ObjectField("DecalTexture", DecalTexValue, typeof(Texture2D), false) as Texture2D;
-            if (DecalTexValue != DecalTexEditValue)
-            {
-                S_DecalTexture.objectReferenceValue = DecalTexEditValue;
-                This_S_Object.ApplyModifiedProperties();
-
-                Undo.RecordObject(ThisObject, "ApplyScaile - TextureAspect");
-                ThisObject.ScaleApply();
-                ThisObject.GizmInstans();
-            }
-
-
-
-            var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
             var S_Scale = This_S_Object.FindProperty("Scale");
-            if (!AdvansdMode || S_FixedAspect.boolValue)
+            var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
+            AbstractDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
             {
-                var ScaleValue = S_Scale.vector2Value;
-                var ScaleEditValue = EditorGUILayout.FloatField("Scale", ScaleValue.x);
-                if (ScaleValue.x != ScaleEditValue)
-                {
-                    ScaleValue.x = ScaleEditValue;
-                    S_Scale.vector2Value = ScaleValue;
-                    This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
-                    ThisObject.ScaleApply();
-                }
-            }
-            else
-            {
-                var ScaleValue = S_Scale.vector2Value;
-                var ScaleEditValue = EditorGUILayout.Vector2Field("Scale", ScaleValue);
-                if (ScaleValue != ScaleEditValue)
-                {
-                    S_Scale.vector2Value = ScaleEditValue;
-                    This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
-                    ThisObject.ScaleApply();
-                }
-            }
-
-
+                Undo.RecordObject(ThisObject, "ApplyScaile - SideChek");
+                ThisObject.FixedAspect = FixdAspectValue;
+                ThisObject.ScaleApply();
+            });
 
             var S_MaxDistans = This_S_Object.FindProperty("MaxDistans");
-            var MaxDistansValue = S_MaxDistans.floatValue;
-            var MaxDistansEditValue = EditorGUILayout.FloatField("MaxDistans", MaxDistansValue);
-            if (MaxDistansValue != MaxDistansEditValue)
+            TextureTransformerEditor.DrowProperty(S_MaxDistans, (float MaxDistansValue) =>
             {
                 Undo.RecordObject(ThisObject, "ApplyScaile - MaxDistans");
-                ThisObject.MaxDistans = MaxDistansEditValue;
+                ThisObject.MaxDistans = MaxDistansValue;
                 ThisObject.ScaleApply();
-            }
+            });
+
+            var S_PolygonCaling = This_S_Object.FindProperty("PolygonCaling");
+            EditorGUILayout.PropertyField(S_PolygonCaling);
+
+            var S_SideChek = This_S_Object.FindProperty("SideChek");
+            EditorGUILayout.PropertyField(S_SideChek);
 
 
-
-            if (AdvansdMode)
-            {
-
-                EditorGUILayout.PropertyField(S_FixedAspect);
-
-                var S_BlendType = This_S_Object.FindProperty("BlendType");
-                EditorGUILayout.PropertyField(S_BlendType);
-
-                var S_TargetPropatyNames = This_S_Object.FindProperty("TargetPropatyName");
-                EditorGUILayout.PropertyField(S_TargetPropatyNames);
-
-                var S_PolygonCaling = This_S_Object.FindProperty("PolygonCaling");
-                EditorGUILayout.PropertyField(S_PolygonCaling);
-
-                var S_SideChek = This_S_Object.FindProperty("SideChek");
-                EditorGUILayout.PropertyField(S_SideChek);
-
-            }
-            var EditAdvansdMode = EditorGUILayout.Toggle("AdvansdMode", AdvansdMode);
-            if (AdvansdMode != EditAdvansdMode)
-            {
-                if (!EditAdvansdMode)
-                {
-                    Undo.RecordObject(ThisObject, "EditAdvansdMode - False");
-                    ThisObject.AdvansdModeReset();
-                }
-                else
-                {
-                    Undo.RecordObject(ThisObject, "EditAdvansdMode - True");
-                    ThisObject.AdvansdMode = EditAdvansdMode;
-                }
-            }
 
             EditorGUI.EndDisabledGroup();
             DrowRealTimePreviewEditor(ThisObject);

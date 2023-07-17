@@ -116,7 +116,7 @@ namespace Rs64.TexTransTool.Decal
             }
             else
             {
-                transform.localScale = new Vector3(Scale.x, FixedAspect ? Scale.x : Scale.y, Scale.z);
+                transform.localScale = Scale;
             }
         }
 

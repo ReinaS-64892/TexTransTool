@@ -13,7 +13,6 @@ namespace Rs64.TexTransTool.Decal
     {
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
-        public bool AdvansdMode;
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
@@ -71,11 +70,10 @@ namespace Rs64.TexTransTool.Decal
             TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
             SetContainer(TextureList);
         }
-
+        [Obsolete]
         public void AdvansdModeReset()
         {
             TargetPropatyName = "_MainTex";
-            AdvansdMode = false;
             SideChek = true;
             PolygonCaling = PolygonCaling.Vartex;
         }
