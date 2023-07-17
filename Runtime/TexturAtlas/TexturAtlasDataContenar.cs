@@ -9,6 +9,7 @@ using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
+    [System.Serializable]
     public class TexturAtlasDataContenar : TTDataContainer
     {
         [SerializeField] List<Mesh> _DistMeshs = new List<Mesh>();
@@ -22,24 +23,12 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public List<Mesh> GenereatMeshs
         {
-            set
-            {
-                if (_GenereatMeshs != null) AssetSaveHelper.DeletSubAssets(_GenereatMeshs);
-                _GenereatMeshs = value;
-                AssetSaveHelper.SaveSubAssets(this, _GenereatMeshs);
-            }
+            set => _GenereatMeshs = value;
+
             get => _GenereatMeshs;
         }
         public List<int[]> DistMeshsSloats = new List<int[]>();
         public List<PropAndTexture> PropAndTextures = new List<PropAndTexture>();
-
-        private string ThisPath => AssetDatabase.GetAssetPath(this);
-
-        public void SetSubAsset<T>(List<T> Assets) where T : UnityEngine.Object
-        {
-            AssetSaveHelper.SaveSubAssets(this, Assets);
-        }
-
 
         public void DeletTexture()
         {

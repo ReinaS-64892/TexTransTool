@@ -5,24 +5,16 @@ using UnityEngine;
 
 namespace Rs64.TexTransTool
 {
-    public class TTDataContainer : ScriptableObject
+    [System.Serializable]
+    public class TTDataContainer
     {
         [SerializeField] List<MatPea> _GenereatMatPears = new List<MatPea>();
 
         public List<MatPea> GenereatMaterials
         {
-            set
-            {
-                if (_GenereatMatPears != null) AssetSaveHelper.DeletSubAssets(_GenereatMatPears.ConvertAll(x => x.SecndMaterial));
-                _GenereatMatPears = value;
-                AssetSaveHelper.SaveSubAssets(this, _GenereatMatPears.ConvertAll(x => x.SecndMaterial));
-            }
+            set { _GenereatMatPears = value; }
             get => _GenereatMatPears;
         }
-
-
-
-
 
     }
 
