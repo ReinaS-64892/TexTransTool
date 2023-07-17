@@ -100,7 +100,7 @@ namespace Rs64.TexTransTool.Decal.Curve
 
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            SetContainer(TextureList);
+            Container.DecalCompiledTextures = TextureList;
         }
     }
 }

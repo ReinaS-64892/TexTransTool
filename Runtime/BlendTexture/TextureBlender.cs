@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool
         public BlendType BlendType = BlendType.Normal;
         public string TargetPropatyName = "_MainTex";
 
-        public TextureBlenderDataContainer Container;
+        public TextureBlenderDataContainer Container = new TextureBlenderDataContainer();
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
@@ -28,7 +28,6 @@ namespace Rs64.TexTransTool
             if (_IsApply) return;
             _IsApply = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
-            ContainerCheck();
 
             var DistMaterials = TargetRenderer.sharedMaterials;
 
@@ -67,11 +66,6 @@ namespace Rs64.TexTransTool
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
 
             avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials));
-        }
-
-        protected virtual void ContainerCheck()
-        {
-            if (Container == null) { Container = ScriptableObject.CreateInstance<TextureBlenderDataContainer>(); AssetSaveHelper.SaveAsset(Container); }
         }
     }
 

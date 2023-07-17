@@ -40,7 +40,7 @@ namespace Rs64.TexTransTool.Decal
             var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
             TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
-            SetContainer(TextureList);
+            Container.DecalCompiledTextures = TextureList;
         }
 
         private List<DecalUtil.Filtaring<CCSSpace>> GetFilters()
