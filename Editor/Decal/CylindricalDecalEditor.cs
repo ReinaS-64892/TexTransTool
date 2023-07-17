@@ -26,6 +26,14 @@ namespace Rs64.TexTransTool.Editor.Decal
             AbstractDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             EditorGUILayout.PropertyField(S_FixedAspect);
 
+            var S_SideChek = This_S_Object.FindProperty("SideChek");
+            EditorGUILayout.PropertyField(S_SideChek);
+            var S_FarCulling = This_S_Object.FindProperty("FarCulling");
+            EditorGUILayout.PropertyField(S_FarCulling);
+            var S_NierCullingOffSet = This_S_Object.FindProperty("NierCullingOffSet");
+            EditorGUILayout.PropertyField(S_NierCullingOffSet);
+
+
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 

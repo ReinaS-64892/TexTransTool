@@ -12,14 +12,20 @@ namespace Rs64.TexTransTool.Decal
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
         public bool FixedAspect = true;
         public Vector2 Scale = Vector2.one;
+        public bool SideChek = true;
+        public float OutOfRangeOffset = 1f;
+        public float FarCulling = 1f;
+        public float NierCullingOffSet = 1f;
         public override void Compile()
         {
             if (_IsApply) return;
             if (!IsPossibleCompile) return;
 
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
+
+
             var PPSSpase = new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-            var PPSFilter = new CCSFilter();
+            var PPSFilter = new CCSFilter(GetFilters());
 
 
             TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
@@ -35,6 +41,23 @@ namespace Rs64.TexTransTool.Decal
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
             TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
             SetContainer(TextureList);
+        }
+
+        private List<DecalUtil.Filtaring<CCSSpace>> GetFilters()
+        {
+            var Filters = new List<DecalUtil.Filtaring<CCSSpace>>();
+            Filters.Add((i, i2) => CylindricalCoordinatesSystem.BorderOnPorygon(i, i2.CCSvarts));
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
+
+            var ThisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
+
+            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2.QuadNormalizedVarts, NierCullingOffSet + ThisCCSZ, false));
+            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2.QuadNormalizedVarts, Mathf.Max(ThisCCSZ - FarCulling, 0f), false));
+
+
+            if (SideChek) { Filters.Add((i, i2) => DecalUtil.SideChek(i, i2.QuadNormalizedVarts)); }
+
+            return Filters;
         }
 
         public static readonly Vector3[] LocalQuad = new Vector3[]
@@ -56,7 +79,7 @@ namespace Rs64.TexTransTool.Decal
             return WorldSpaseQuad;
         }
 
-        protected virtual void OnDrawGizmosSelected()
+        void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
             var Matrix = Matrix4x4.identity;
@@ -65,30 +88,24 @@ namespace Rs64.TexTransTool.Decal
             var CenterPos = Vector3.zero;
 
             var Quad = GetQuad();
-            var CCSQuad = cylindricalCoordinatesSystem.VartexsConvertCCS(Quad);
 
             foreach (var FromPoint in Quad)
             {
                 var CCSPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
-                CCSPoint.z = 0;
-                var ToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
+                CCSPoint.z = Mathf.Max(CCSPoint.z - FarCulling, 0f);
+                var OffSetToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
 
-                Gizmos.DrawLine(FromPoint, ToPoint);
+                var CCSFromPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
+                CCSFromPoint.z += NierCullingOffSet;
+                var OffSetFromPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSFromPoint);
+
+                Gizmos.DrawLine(OffSetFromPoint, OffSetToPoint);
             }
+
             for (int Count = 0; 4 > Count; Count += 1)
             {
-                (var From, var To) = GetEdge(CCSQuad, Count);
-
-                for (float I = 0f; 0.95f > I; I += 0.1f)
-                {
-                    var CCSForom = Vector3.Lerp(From, To, I);
-                    var CCSTo = Vector3.Lerp(From, To, I + 0.1f);
-
-                    var WorldFrom = cylindricalCoordinatesSystem.GetWorldPoint(CCSForom);
-                    var WorldTo = cylindricalCoordinatesSystem.GetWorldPoint(CCSTo);
-
-                    Gizmos.DrawLine(WorldFrom, WorldTo);
-                }
+                (var From, var To) = GetEdge(Quad, Count);
+                Gizmos.DrawLine(From, To);
             }
 
 

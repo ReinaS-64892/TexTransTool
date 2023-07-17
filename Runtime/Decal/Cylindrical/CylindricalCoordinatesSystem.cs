@@ -188,7 +188,7 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
         {
             var Filters = new List<DecalUtil.Filtaring<CCSSpace>>();
             Filters.Add((i, i2) => CylindricalCoordinatesSystem.BorderOnPorygon(i, i2.CCSvarts));
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, true));
+            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
             return Filters;
         }
     }
