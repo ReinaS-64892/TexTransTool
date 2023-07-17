@@ -126,6 +126,7 @@ namespace Rs64.TexTransTool
 
         public static List<T> LoadAssets<T>() where T : UnityEngine.Object
         {
+            SaveDirectoryCheck();
             List<T> LoadedAssets = new List<T>();
             foreach (var path in Directory.GetFiles(SaveDirectory))
             {
