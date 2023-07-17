@@ -103,11 +103,15 @@ namespace Rs64.TexTransTool
 
         public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex)
         {
-            var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
-            if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
-
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            byte[] ImageBytes = string.IsNullOrEmpty(SouseTexPath) ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
+            var IsEmpty = string.IsNullOrEmpty(SouseTexPath);
+            if (!IsEmpty)
+            {
+                var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
+                if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
+            }
+
+            byte[] ImageBytes = IsEmpty ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
             SouseTex = new Texture2D(2, 2);
             SouseTex.LoadImage(ImageBytes);
         }
