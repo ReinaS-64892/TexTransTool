@@ -62,7 +62,7 @@ namespace Rs64.TexTransTool.Decal
 
                 if (DistMat == null || DecalTex == null) continue;
 
-                if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex)
+                if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex && OldTex != null)
                 {
                     var TexName = $"DecalBlendTexture {DistMat.name}";
                     if (DistAndGeneretaTex.ContainsKey(OldTex))
@@ -84,7 +84,7 @@ namespace Rs64.TexTransTool.Decal
                 }
             }
 
-            Container.DecaleBlendTexteres = DistAndGeneretaTex.Values.ToList();
+            Container.DecaleBlendTexteres = new List<Texture2D>(DistAndGeneretaTex.Values);
 
             var NotSavedMats = avatarMaterialDomain.SetTexture(DistAndGeneretaTex);
             Container.GenereatMaterials = MatPea.GeneratMatPeaList(NotSavedMats);
