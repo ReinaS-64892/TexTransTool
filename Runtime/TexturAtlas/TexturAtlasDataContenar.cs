@@ -23,7 +23,12 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
         public List<Mesh> GenereatMeshs
         {
-            set => _GenereatMeshs = value;
+            set
+            {
+                AssetSaveHelper.DeletAssets(_GenereatMeshs);
+                _GenereatMeshs = value;
+                AssetSaveHelper.SaveAssets(_GenereatMeshs);
+            }
 
             get => _GenereatMeshs;
         }
