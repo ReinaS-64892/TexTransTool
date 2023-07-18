@@ -28,7 +28,7 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
-        public override bool IsPossibleApply => Container != null;
+        public override bool IsPossibleApply => Container.IsPossibleApply;
         public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
 
         public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType = BlendType.AlphaLerp)
@@ -114,6 +114,14 @@ namespace Rs64.TexTransTool.Decal
             {
                 transform.localScale = Scale;
             }
+        }
+
+        [ContextMenu("ClearContainer")]
+        public void ClearContainer()
+        {
+            if (IsApply) return;
+            Container.DecaleBlendTexteres = null;
+            Container = new DecalDataContainer();
         }
 
 

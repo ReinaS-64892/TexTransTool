@@ -69,6 +69,7 @@ namespace Rs64.TexTransTool.Decal
             var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
             TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
             Container.DecalCompiledTextures = TextureList;
+            Container.IsPossibleApply = true;
         }
         [Obsolete]
         public void AdvansdModeReset()
