@@ -10,7 +10,19 @@ namespace Rs64.TexTransTool
 {
     public static class AssetSaveHelper
     {
-        public static bool IsTmplaly;
+        static bool _IsTmplaly;
+        public static bool IsTmplaly
+        {
+            get => _IsTmplaly;
+            set
+            {
+                _IsTmplaly = value;
+                if (!_IsTmplaly)
+                {
+                    ClearTemp();
+                }
+            }
+        }
         public const string SaveDirectory = "Assets/TexTransToolGanareats";
         public const string TempDirName = "TempDirectory";
         public static void SaveDirectoryCheck()
@@ -91,7 +103,7 @@ namespace Rs64.TexTransTool
         }
         public static void DeletAsset<T>(T Target) where T : UnityEngine.Object
         {
-            if(Target == null) return;
+            if (Target == null) return;
             var path = AssetDatabase.GetAssetPath(Target);
             if (!string.IsNullOrEmpty(path))
             {
@@ -169,7 +181,7 @@ namespace Rs64.TexTransTool
             var temppath = Path.Combine(SaveDirectory, TempDirName);
             foreach (var path in Directory.GetFiles(temppath))
             {
-                if(string.IsNullOrWhiteSpace(path))continue;
+                if (string.IsNullOrWhiteSpace(path)) continue;
                 AssetDatabase.DeleteAsset(path);
             }
 

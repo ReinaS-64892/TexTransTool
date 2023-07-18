@@ -34,14 +34,10 @@ namespace Rs64.TexTransTool.VRCBulige
                 Debug.LogError(e);
                 return false;
             }
-            finally
-            {
-                AssetSaveHelper.IsTmplaly = false;
-            }
         }
         public void OnPostprocessAvatar()
         {
-            AssetSaveHelper.ClearTemp();
+            AssetSaveHelper.IsTmplaly = false;
         }
 
     }

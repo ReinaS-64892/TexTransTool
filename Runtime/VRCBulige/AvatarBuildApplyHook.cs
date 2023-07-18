@@ -37,8 +37,13 @@ namespace Rs64.TexTransTool.VRCBulige
 
         private void Awake()
         {
+            AssetSaveHelper.IsTmplaly = true;
             if (TexTransGroup.IsApply) return;
             Apply(null);
+        }
+        private void OnDestroy()
+        {
+            AssetSaveHelper.IsTmplaly = false;
         }
         private void Start()
         {
