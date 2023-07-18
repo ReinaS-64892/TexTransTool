@@ -8,6 +8,7 @@ namespace Rs64.TexTransTool
     [System.Serializable]
     public class TTDataContainer
     {
+        public bool IsPossibleApply = false;
         [SerializeField] List<MatPea> _GenereatMatPears = new List<MatPea>();
 
         public List<MatPea> GenereatMaterials

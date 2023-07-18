@@ -67,7 +67,6 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             EditorGUILayout.PropertyField(PadingType);
             EditorGUILayout.PropertyField(SortingType);
             EditorGUILayout.PropertyField(UseIslandCash);
-            EditorGUILayout.PropertyField(Contenar);
 
             PostPrcessFoldout = EditorGUILayout.Foldout(PostPrcessFoldout, "PostProcess");
             if (PostPrcessFoldout)

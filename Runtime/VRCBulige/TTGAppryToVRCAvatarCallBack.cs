@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
 using System.Linq;
-using Rs64.TexTransTool.TexturAtlas;
+using Rs64.TexTransTool;
 
 namespace Rs64.TexTransTool.VRCBulige
 {
@@ -19,6 +19,7 @@ namespace Rs64.TexTransTool.VRCBulige
         {
             try
             {
+                AssetSaveHelper.IsTmplaly = true;
                 var AvatarBuildApplyHooks = avatarGameObject.GetComponentsInChildren<AvatarBuildApplyHook>();
                 foreach (var ABAH in AvatarBuildApplyHooks)
                 {
@@ -36,6 +37,7 @@ namespace Rs64.TexTransTool.VRCBulige
         }
         public void OnPostprocessAvatar()
         {
+            AssetSaveHelper.IsTmplaly = false;
         }
 
     }

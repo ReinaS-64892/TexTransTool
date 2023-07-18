@@ -28,7 +28,7 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
-        public override bool IsPossibleApply => Container != null;
+        public override bool IsPossibleApply => Container.IsPossibleApply;
         public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
 
         public static Dictionary<Material, Texture2D> ZipAndBlendTextures(List<Dictionary<Material, List<Texture2D>>> DictCompiledTextures, BlendType BlendType = BlendType.AlphaLerp)
@@ -51,6 +51,7 @@ namespace Rs64.TexTransTool.Decal
             if (_IsApply) return;
             _IsApply = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            Container.DecaleBlendTexteres = null;
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
             var DecalTextures = Container.DecalCompiledTextures;
@@ -62,7 +63,7 @@ namespace Rs64.TexTransTool.Decal
 
                 if (DistMat == null || DecalTex == null) continue;
 
-                if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex)
+                if (DistMat.GetTexture(TargetPropatyName) is Texture2D OldTex && OldTex != null)
                 {
                     var TexName = $"DecalBlendTexture {DistMat.name}";
                     if (DistAndGeneretaTex.ContainsKey(OldTex))
@@ -84,7 +85,7 @@ namespace Rs64.TexTransTool.Decal
                 }
             }
 
-            Container.DecaleBlendTexteres = DistAndGeneretaTex.Values.ToList();
+            Container.DecaleBlendTexteres = new List<Texture2D>(DistAndGeneretaTex.Values);
 
             var NotSavedMats = avatarMaterialDomain.SetTexture(DistAndGeneretaTex);
             Container.GenereatMaterials = MatPea.GeneratMatPeaList(NotSavedMats);
@@ -95,6 +96,7 @@ namespace Rs64.TexTransTool.Decal
             if (!_IsApply) return;
             _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            IsSelfCallApply = false;
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
@@ -112,6 +114,14 @@ namespace Rs64.TexTransTool.Decal
             {
                 transform.localScale = Scale;
             }
+        }
+
+        [ContextMenu("ClearContainer")]
+        public void ClearContainer()
+        {
+            if (IsApply) return;
+            Container.DecaleBlendTexteres = null;
+            Container = new DecalDataContainer();
         }
 
 

@@ -31,17 +31,19 @@ namespace Rs64.TexTransTool.Editor
                     if (GUILayout.Button("Apply"))
                     {
                         Undo.RecordObject(Target, "TextureTransformer - Apply");
-                        Target.Apply();
+                        Target.SelfCallApply();
                     }
                 }
                 else
                 {
+                    EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
                     if (GUILayout.Button("Revart"))
                     {
                         Undo.RecordObject(Target, "TextureTransformer - Revart");
                         Target.Revart();
 
                     }
+                    EditorGUI.EndDisabledGroup();
                 }
             }
             EditorGUI.EndDisabledGroup();

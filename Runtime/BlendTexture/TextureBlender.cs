@@ -64,6 +64,7 @@ namespace Rs64.TexTransTool
             if (!_IsApply) return;
             _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
+            IsSelfCallApply = false;
 
             avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials));
         }

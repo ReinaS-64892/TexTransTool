@@ -133,6 +133,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
             }
             TexturAtlasCompiler.AtlasSetCompile(this);
+            Contenar.IsPossibleApply = true;
         }
 
         public AtlasCompileData GetCompileData()
@@ -260,6 +261,16 @@ namespace Rs64.TexTransTool.TexturAtlas
                 mat.Offset = (float)(MatTex.width * MatTex.height) / (float)MaxTexPicelCount;
             }
         }
+
+        [ContextMenu("ClearContainer")]
+        public void ClearContainer()
+        {
+            if (IsApply) return;
+            Contenar.GenereatMeshs = null;
+            Contenar.GenereatMaterials = null;
+            Contenar.PropAndTextures = null;
+            Contenar = new TexturAtlasDataContenar();
+            }
     }
     [System.Serializable]
     public class AtlasPostPrcess
