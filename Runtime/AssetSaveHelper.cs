@@ -10,14 +10,19 @@ namespace Rs64.TexTransTool
 {
     public static class AssetSaveHelper
     {
+        public static bool IsTmplaly;
         public const string SaveDirectory = "Assets/TexTransToolGanareats";
+        public const string TempDirName = "TempDirectory";
         public static void SaveDirectoryCheck()
         {
             if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
+            if (!Directory.Exists(Path.Combine(SaveDirectory, TempDirName))) Directory.CreateDirectory(Path.Combine(SaveDirectory, TempDirName));
         }
         public static string GenereatFullPath(string Name)
         {
-            return SaveDirectory + "/" + Name.Replace("(Clone)", "");
+            var replacedname = Name.Replace("(Clone)", "");
+            var parentpaht = !IsTmplaly ? SaveDirectory : Path.Combine(SaveDirectory, TempDirName);
+            return Path.Combine(parentpaht, replacedname);
         }
         public static List<T> SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
@@ -86,6 +91,7 @@ namespace Rs64.TexTransTool
         }
         public static void DeletAsset<T>(T Target) where T : UnityEngine.Object
         {
+            if(Target == null) return;
             var path = AssetDatabase.GetAssetPath(Target);
             if (!string.IsNullOrEmpty(path))
             {
@@ -156,6 +162,17 @@ namespace Rs64.TexTransTool
             var path = GenereatFullPath(Name) + ".txt";
             path = AssetDatabase.GenerateUniqueAssetPath(path);
             File.WriteAllText(path, String);
+        }
+
+        public static void ClearTemp()
+        {
+            var temppath = Path.Combine(SaveDirectory, TempDirName);
+            foreach (var path in Directory.GetFiles(temppath))
+            {
+                if(string.IsNullOrWhiteSpace(path))continue;
+                AssetDatabase.DeleteAsset(path);
+            }
+
         }
     }
 }
