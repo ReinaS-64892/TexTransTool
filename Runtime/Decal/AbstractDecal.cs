@@ -51,6 +51,7 @@ namespace Rs64.TexTransTool.Decal
             if (_IsApply) return;
             _IsApply = true;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            Container.DecaleBlendTexteres = null;
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
             var DecalTextures = Container.DecalCompiledTextures;
