@@ -11,8 +11,6 @@ namespace Rs64.TexTransTool
 
         [SerializeField] bool _IsApply;
         public override bool IsApply => _IsApply;
-        [SerializeField] bool _IsSelfCallApply;
-        public virtual bool IsSelfCallApply => _IsSelfCallApply;
 
         public override bool IsPossibleApply => PossibleApplyCheck();
 
@@ -31,22 +29,11 @@ namespace Rs64.TexTransTool
                 tf.Apply(AvatarMaterialDomain);
             }
         }
-        public void SelfCallApply()
-        {
-            if (_IsSelfCallApply == true) return;
-            _IsSelfCallApply = true;
-            Apply();
-        }
-        public void SelfCallRevart()
-        {
-            if (_IsSelfCallApply == false) return;
-            _IsSelfCallApply = false;
-            Revart();
-        }
         public override void Revart(AvatarDomain AvatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
+            IsSelfCallApply = false;
 
             foreach (var tf in Targets.Reverse())
             {

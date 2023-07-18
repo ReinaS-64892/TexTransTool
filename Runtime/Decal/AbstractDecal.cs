@@ -96,6 +96,7 @@ namespace Rs64.TexTransTool.Decal
             if (!_IsApply) return;
             _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            IsSelfCallApply = false;
 
             var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
             avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));

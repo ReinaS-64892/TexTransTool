@@ -24,14 +24,14 @@ namespace Rs64.TexTransTool.Editor
         public static void DrowApplyAndRevart(TextureTransformer Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
+            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || !Target.IsSelfCallApply);
             {
                 if (!Target.IsApply)
                 {
                     if (GUILayout.Button("Apply"))
                     {
                         Undo.RecordObject(Target, "TextureTransformer - Apply");
-                        Target.Apply();
+                        Target.SelfCallApply();
                     }
                 }
                 else

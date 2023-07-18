@@ -14,9 +14,16 @@ namespace Rs64.TexTransTool
         public abstract bool IsApply { get; }
         public abstract bool IsPossibleApply { get; }
         public abstract bool IsPossibleCompile { get; }
+        [SerializeField] bool _IsSelfCallApply;
+        public virtual bool IsSelfCallApply { get => _IsSelfCallApply; protected set => _IsSelfCallApply = value; }
         public abstract void Compile();
         public abstract void Apply(AvatarDomain avatarMaterialDomain = null);
         public abstract void Revart(AvatarDomain avatarMaterialDomain = null);
+        public virtual void SelfCallApply(AvatarDomain avatarMaterialDomain = null)
+        {
+            IsSelfCallApply = true;
+            Apply(avatarMaterialDomain);
+        }
     }
 }
 #endif
