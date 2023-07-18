@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Rs64.TexTransTool.Decal
 {
+    [System.Serializable]
     public class DecalDataContainer : TTDataContainer
     {
         [SerializeField] List<Texture2D> _DecalCompiledTextures;
@@ -12,18 +13,14 @@ namespace Rs64.TexTransTool.Decal
 
         public List<Texture2D> DecalCompiledTextures
         {
-            set
-            {
-                if (_DecalCompiledTextures != null) AssetSaveHelper.DeletAssets(_DecalCompiledTextures);
-                _DecalCompiledTextures = AssetSaveHelper.SaveAssets(value);
-            }
+            set => _DecalCompiledTextures = value;
             get => _DecalCompiledTextures;
         }
         public List<Texture2D> DecaleBlendTexteres
         {
             set
             {
-                if (_DecaleBlendTexteres != null) AssetSaveHelper.DeletAssets(_DecaleBlendTexteres);
+                if (_DecaleBlendTexteres != null) { AssetSaveHelper.DeletAssets(_DecaleBlendTexteres); }
                 _DecaleBlendTexteres = value;
             }
             get => _DecaleBlendTexteres;

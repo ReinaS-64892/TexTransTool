@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System;
 using Rs64.TexTransTool;
@@ -59,3 +60,4 @@ namespace Rs64.TexTransTool.DebugUtils
         }
     }
 }
+#endif

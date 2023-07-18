@@ -14,7 +14,7 @@ namespace Rs64.TexTransTool.Decal
         public BlendType BlendType = BlendType.Normal;
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
-        public DecalDataContainer Container;
+        public DecalDataContainer Container = new DecalDataContainer();
         public float DefaultPading = -1;
 
         protected Material[] GetMaterials()
@@ -45,12 +45,6 @@ namespace Rs64.TexTransTool.Decal
 
             return RetDict;
         }
-        protected virtual void SetContainer(List<Texture2D> Texs)
-        {
-            if (Container == null) { Container = ScriptableObject.CreateInstance<DecalDataContainer>(); Container.name = "DecalDataContainer"; AssetSaveHelper.SaveAsset(Container); }
-            Container.DecalCompiledTextures = Texs;
-        }
-
         public override void Apply(AvatarDomain avatarMaterialDomain)
         {
             if (!IsPossibleApply) return;

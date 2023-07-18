@@ -14,7 +14,6 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
 
             var Data = Target.GetCompileData();
-            if (Target.Contenar == null) { var NCI = ScriptableObject.CreateInstance<TexturAtlasDataContenar>(); NCI.name = "TexturAtlasDataContenar"; Target.Contenar = AssetSaveHelper.SaveAsset<TexturAtlasDataContenar>(NCI); }
 
             var Contenar = Target.Contenar;
             var UVs = Data.GetUVs();

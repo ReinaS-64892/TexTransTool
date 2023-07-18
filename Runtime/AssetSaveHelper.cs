@@ -15,9 +15,9 @@ namespace Rs64.TexTransTool
         {
             if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
         }
-        public static string GeneretNewSavePath(string Name)
+        public static string GenereatFullPath(string Name)
         {
-            return SaveDirectory + "/" + Name + "_" + Guid.NewGuid().ToString();
+            return SaveDirectory + "/" + Name.Replace("(Clone)", "");
         }
         public static List<T> SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
@@ -37,24 +37,27 @@ namespace Rs64.TexTransTool
             {
                 return null;
             }
-            var SavePath = GeneretNewSavePath(Target.name);
+            var SavePath = GenereatFullPath(Target.name);
             switch (Target)
             {
                 default:
                     {
                         SavePath += ".asset";
+                        SavePath = AssetDatabase.GenerateUniqueAssetPath(SavePath);
                         AssetDatabase.CreateAsset(Target, SavePath);
                         break;
                     }
                 case Texture2D Tex2d:
                     {
                         SavePath += ".png";
+                        SavePath = AssetDatabase.GenerateUniqueAssetPath(SavePath);
                         File.WriteAllBytes(SavePath, Tex2d.EncodeToPNG());
                         break;
                     }
                 case Material Mat:
                     {
                         SavePath += ".mat";
+                        SavePath = AssetDatabase.GenerateUniqueAssetPath(SavePath);
                         AssetDatabase.CreateAsset(Target, SavePath);
                         break;
                     }
@@ -126,6 +129,7 @@ namespace Rs64.TexTransTool
 
         public static List<T> LoadAssets<T>() where T : UnityEngine.Object
         {
+            SaveDirectoryCheck();
             List<T> LoadedAssets = new List<T>();
             foreach (var path in Directory.GetFiles(SaveDirectory))
             {
@@ -149,7 +153,8 @@ namespace Rs64.TexTransTool
 
         public static void SaveAsset(string Name, string String)
         {
-            var path = GeneretNewSavePath(Name) + ".txt";
+            var path = GenereatFullPath(Name) + ".txt";
+            path = AssetDatabase.GenerateUniqueAssetPath(path);
             File.WriteAllText(path, String);
         }
     }
