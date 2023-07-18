@@ -24,7 +24,7 @@ namespace Rs64.TexTransTool.Editor
         public static void DrowApplyAndRevart(TextureTransformer Target)
         {
             if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || !Target.IsSelfCallApply);
+            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
             {
                 if (!Target.IsApply)
                 {
@@ -36,12 +36,14 @@ namespace Rs64.TexTransTool.Editor
                 }
                 else
                 {
+                    EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
                     if (GUILayout.Button("Revart"))
                     {
                         Undo.RecordObject(Target, "TextureTransformer - Revart");
                         Target.Revart();
 
                     }
+                    EditorGUI.EndDisabledGroup();
                 }
             }
             EditorGUI.EndDisabledGroup();
