@@ -54,6 +54,10 @@ namespace Rs64.TexTransTool
             {
                 return null;
             }
+            if (AssetDatabase.Contains(Target))
+            {
+                return Target;
+            }
             var SavePath = GenereatFullPath(Target.name);
             switch (Target)
             {
