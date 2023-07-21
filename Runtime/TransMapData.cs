@@ -83,6 +83,11 @@ namespace Rs64.TexTransTool
             Texture2D = texture2D;
             DistansMap = distansMap;
         }
+        public TransTargetTexture(Vector2Int Size, Color DefautColor, float DefaultPading)
+        {
+            Texture2D = Utils.CreateFillTexture(Size, DefautColor);
+            DistansMap = new TowDMap<float>(DefaultPading, Size);
+        }
 
     }
 
