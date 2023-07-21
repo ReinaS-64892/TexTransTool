@@ -19,7 +19,7 @@ namespace Rs64.TexTransTool.ShaderSupport
         public List<PropAndTexture> GetTextures(Material material)
         {
             var textures = new List<PropAndTexture>();
-            var SupportShederI = _shaderSupports.Find(i => { return material.shader.name.Contains(i.SupprotShaderName); });
+            IShaderSupport SupportShederI = FindSupportI(material);
 
             if (SupportShederI != null)
             {
@@ -43,7 +43,21 @@ namespace Rs64.TexTransTool.ShaderSupport
             }
             return textures;
         }
+        public void MaterialCustomSetting(Material material)
+        {
+            IShaderSupport SupportShederI = FindSupportI(material);
+            if (SupportShederI != null)
+            {
+                SupportShederI.MaterialCustomSetting(material);
+            }
+        }
 
+
+
+        public IShaderSupport FindSupportI(Material material)
+        {
+            return _shaderSupports.Find(i => { return material.shader.name.Contains(i.SupprotShaderName); });
+        }
 
         public static List<IShaderSupport> GetSupprotInstans()
         {
