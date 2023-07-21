@@ -1,4 +1,5 @@
-﻿#if UNITY_EDITOR
+﻿/*
+#if UNITY_EDITOR
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
@@ -197,3 +198,4 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
     }
 }
 #endif
+*/
