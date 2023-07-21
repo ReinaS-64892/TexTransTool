@@ -1,3 +1,4 @@
+/*
 #if UNITY_EDITOR
 using System;
 using System.IO;
@@ -116,3 +117,4 @@ namespace Rs64.TexTransTool.TexturAtlas
     }
 }
 #endif
+*/
