@@ -11,7 +11,7 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         public string SupprotShaderName => "lilToon";
 
-        public void GenereatMaterialCustomSetting(Material material)
+        public void MaterialCustomSetting(Material material)
         {
             var MainTex = material.GetTexture("_MainTex") as Texture2D;
             material.SetTexture("_BaseMap", MainTex);

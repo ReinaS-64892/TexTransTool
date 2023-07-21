@@ -11,7 +11,7 @@ namespace Rs64.TexTransTool.ShaderSupport
         string SupprotShaderName { get; }
         List<PropAndTexture> GetPropertyAndTextures(Material material);
 
-        void GenereatMaterialCustomSetting(Material material);
+        void MaterialCustomSetting(Material material);
 
 
     }
