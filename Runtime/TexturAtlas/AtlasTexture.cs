@@ -13,26 +13,16 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilterdRendarer(TargetRoot.GetComponentsInChildren<Renderer>(true));
-        [SerializeField] List<Renderer> SelectRefRendares;
-        public OrderdHashSet<Material> SelectRefarensMat
-        {
-            get
-            {
-                var MatHashset = new OrderdHashSet<Material>();
-                var Materials = SelectRefRendares.SelectMany(R => R.sharedMaterials);
-                MatHashset.AddRange(Materials);
-                return MatHashset;
-            }
-        }
+        public List<Material> SelectRefarensMat;//OrderdHashSetにしたかったけどシリアライズの都合で
         public List<MatSelector> MatSelectors = new List<MatSelector>();
-        public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>();
+        public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
         public bool UseIslandCash = true;
         public AtlasTextureDataContainer Container = new AtlasTextureDataContainer();
 
         [SerializeField] bool _isApply = false;
         public override bool IsApply => _isApply;
         public override bool IsPossibleApply => Container.IsPossibleApply;
-        public override bool IsPossibleCompile => TargetRoot != null;
+        public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
 
         public override void Compile()
         {
@@ -42,7 +32,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Container.Meshes = null;
             Container.IsPossibleApply = false;
 
-            var SelectRefsMat = SelectRefarensMat;
+            var SelectRefsMat = new OrderdHashSet<Material>(SelectRefarensMat);
 
             var TargetRenderers = Renderers;
             var AtlasDatas = GenereatAtlasMeshDatas(TargetRenderers);
@@ -289,7 +279,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
 
-            foreach(var Rendare in NawRendares)
+            foreach (var Rendare in NawRendares)
             {
                 var mesh = Rendare.GetMesh();
                 if (revartmeshdict.ContainsKey(mesh))
@@ -297,10 +287,9 @@ namespace Rs64.TexTransTool.TexturAtlas
                     Rendare.SetMesh(revartmeshdict[mesh]);
                 }
             }
-
-
-
         }
+
+
 
         public static List<Renderer> FilterdRendarer(IReadOnlyList<Renderer> renderers)
         {
@@ -373,7 +362,24 @@ namespace Rs64.TexTransTool.TexturAtlas
             return Meshs;
         }
 
+        public void AutomaticOffSetSetting()
+        {
+            var TargetMats = MatSelectors.Where(MS => MS.IsTarget).ToArray();
 
+            var MaxTexPixsel = 0;
+
+            foreach (var MatSelect in TargetMats)
+            {
+                var Tex = MatSelect.Material.mainTexture;
+                MaxTexPixsel = Mathf.Max(MaxTexPixsel, Tex.width * Tex.height);
+            }
+
+            foreach (var MatSelect in TargetMats)
+            {
+                var Tex = MatSelect.Material.mainTexture;
+                MatSelect.TextureSizeOffSet = (Tex.width * Tex.height) / (float)MaxTexPixsel;
+            }
+        }
     }
     public class AtlasDatas
     {
@@ -600,7 +606,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             UV = new List<Vector2>();
         }
     }
-
+    [Serializable]
     public class MatSelector
     {
         public Material Material;
@@ -608,6 +614,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public int AtlsChannel = 0;
         public float TextureSizeOffSet = 1;
     }
+    [Serializable]
     public class MatData
     {
         public int ThisRefMat;
@@ -615,6 +622,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public float TextureSizeOffSet = 1;
         public List<PropAndTexture> PropAndTextures;
     }
+    [Serializable]
     public class AtlasSetting
     {
         public bool IsMargeMaterial;

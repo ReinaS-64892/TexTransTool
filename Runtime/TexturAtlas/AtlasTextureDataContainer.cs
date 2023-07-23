@@ -29,6 +29,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public void SetAtlasTextures(List<List<PropAndTexture>> AtlasTextures)
         {
             ClearAtlasTextures();
+            if(AtlasTextures == null) return;
             var count = AtlasTextures.Count;
             for (int i = 0; i < count; i++)
             {
@@ -53,6 +54,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public void SetMeshs(List<List<MeshAndMatRef>> Meshs)
         {
             ClearMeshs();
+            if (Meshs == null) return;
             var count = Meshs.Count;
             for (int i = 0; i < count; i++)
             {
@@ -78,6 +80,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public void SetGenereatMaterials(List<List<Material>> GenereatMaterials)
         {
             ClearGenereatMaterials();
+            if (GenereatMaterials == null) return;
             var count = GenereatMaterials.Count;
             for (int i = 0; i < count; i++)
             {

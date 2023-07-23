@@ -71,10 +71,10 @@ namespace Rs64.TexTransTool.Editor
             var EditVulue = EditorGUILayout.Toggle(label, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(SerializedProperty Prop, Action<float> EditCollBack = null)
+        public static void DrowProperty(SerializedProperty Prop, Action<float> EditCollBack = null, bool WithoutLabel = false)
         {
             var Vulue = Prop.floatValue;
-            var EditVulue = EditorGUILayout.FloatField(Prop.displayName, Vulue);
+            var EditVulue = WithoutLabel ? EditorGUILayout.FloatField(Vulue) : EditorGUILayout.FloatField(Prop.displayName, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
         public static void DrowProperty(string label, float Prop, Action<float> EditCollBack = null)
@@ -95,7 +95,18 @@ namespace Rs64.TexTransTool.Editor
             var EditVulue = EditorGUILayout.Vector2Field(label, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-
+        public static void DrowProperty(SerializedProperty Prop, Action<int> EditCollBack = null, bool WithoutLabel = false)
+        {
+            var Vulue = Prop.intValue;
+            var EditVulue = WithoutLabel ? EditorGUILayout.IntField(Vulue) : EditorGUILayout.IntField(Prop.displayName, Vulue);
+            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+        }
+        public static void DrowProperty(string label, int Prop, Action<int> EditCollBack = null)
+        {
+            var Vulue = Prop;
+            var EditVulue = EditorGUILayout.IntField(label, Vulue);
+            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+        }
         public static void ObjectReferencePorpty<T>(SerializedProperty Prop, Action<T> EditCollBack) where T : UnityEngine.Object
         {
             var valu = Prop.objectReferenceValue as T;
@@ -103,7 +114,6 @@ namespace Rs64.TexTransTool.Editor
             if (valu != Editvalu)
             {
                 EditCollBack.Invoke(Editvalu);
-                Prop.objectReferenceValue = Editvalu;
             }
         }
         public delegate T Filter<T>(T Target);

@@ -388,9 +388,10 @@ namespace Rs64.TexTransTool
 
     }
 
+    [Serializable]
     public class OrderdHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
     {
-        List<T> List;
+        [SerializeField] List<T> List;
         public T this[int index] => List[index];
         public int Count => List.Count;
 
@@ -441,12 +442,25 @@ namespace Rs64.TexTransTool
 
         public OrderdHashSet(IEnumerable<T> enumreat)
         {
-            List = new List<T>(enumreat);
+            List = new List<T>();
+            List.AddRange(enumreat);
         }
 
         public OrderdHashSet()
         {
             List = new List<T>();
+        }
+
+        public List<T> ToList(bool DeepClone = false)
+        {
+            if (DeepClone)
+            {
+                return new List<T>(List);
+            }
+            else
+            {
+                return List;
+            }
         }
     }
 

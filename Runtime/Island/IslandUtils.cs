@@ -461,7 +461,7 @@ namespace Rs64.TexTransTool.Island
     }
     public class TagIslandPool<Tag> : IEnumerable<TagIsland<Tag>>
     {
-        public List<TagIsland<Tag>> Islands;
+        public List<TagIsland<Tag>> Islands = new List<TagIsland<Tag>>();
 
         public TagIsland<Tag> this[int Index] => Islands[Index];
 
