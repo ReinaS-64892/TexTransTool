@@ -569,6 +569,7 @@ namespace Rs64.TexTransTool.Island
             }
             Pivot = Souse.Pivot;
             Size = Souse.Size;
+            this.tag = tag;
         }
         public TagIsland(TagIsland<Tag> Souse, bool DeepClone = false)
         {
