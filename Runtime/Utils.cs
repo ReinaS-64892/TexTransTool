@@ -407,7 +407,7 @@ namespace Rs64.TexTransTool
 
         public void Add(T item)
         {
-            var Index = List.IndexOf(item);
+            var Index = IndexOf(item);
             if (Index == -1)
             {
                 List.Add(item);
