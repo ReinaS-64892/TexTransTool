@@ -6,6 +6,8 @@ using System.Linq;
 using System;
 using Rs64.TexTransTool.ShaderSupport;
 using Rs64.TexTransTool.Island;
+using static Rs64.TexTransTool.TexturAtlas.AtlasTextureDataContainer;
+
 namespace Rs64.TexTransTool.TexturAtlas
 {
 
@@ -43,7 +45,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var CompiledMeshs = new List<List<AtlasTextureDataContainer.MeshAndMatRef>>();
 
             var ChannelCount = AtlasSettings.Count;
-            for (int Channel = 0; Channel < ChannelCount; Channel++)
+            for (int Channel = 0; Channel < ChannelCount; Channel += 1)
             {
                 var atlasSetting = AtlasSettings[Channel];
                 var TargetMats = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
@@ -169,12 +171,11 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
 
         public AvatarDomain RevartDomain;
-        public List<List<MeshPea>> RevartMeshs;
+        public List<SubListMeshPea> RevartMeshs;
         public override void Apply(AvatarDomain avatarMaterialDomain = null)
         {
             if (!IsPossibleApply) return;
             if (_isApply == true) return;
-            _isApply = true;
             var NawRendares = Renderers;
             if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(NawRendares); RevartDomain = avatarMaterialDomain; }
             else { RevartDomain = avatarMaterialDomain.GetBackUp(); }
@@ -190,7 +191,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var Materials = GetMaterials(NawRendares);
             var RefarensMesh = GetMeshes(NawRendares);
 
-            if (AtlasSettings.Count == AtlasTexs.Count && AtlasSettings.Count == MeshDatas.Count) { return; }
+            if (AtlasSettings.Count != AtlasTexs.Count || AtlasSettings.Count != MeshDatas.Count) { return; }
 
             var ChannelCount = AtlasSettings.Count;
             for (var Channel = 0; ChannelCount > Channel; Channel += 1)
@@ -214,6 +215,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     Rendare.SetMesh(TargetMeshdata.Mesh);
                     nawchannelrevartmeshs.Add(new MeshPea(Mehs, TargetMeshdata.Mesh));
                 }
+                Nawrevartmeshs.Add(nawchannelrevartmeshs);
 
                 var ChannnelMatRefs = new HashSet<int>();
                 foreach (var md in Meshdata)
@@ -257,7 +259,8 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
             Container.GenereatMaterials = GenereatMaterials;
-            RevartMeshs = Nawrevartmeshs;
+            RevartMeshs = SubListMeshPea.ConvartSubList(Nawrevartmeshs);
+            _isApply = true;
         }
 
 
@@ -273,7 +276,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var NawRendares = Renderers;
 
             var revartmeshdict = new Dictionary<Mesh, Mesh>();
-            foreach (var meshpea in RevartMeshs.SelectMany(I => I))
+            foreach (var meshpea in RevartMeshs.SelectMany(I => I.SubListInstans))
             {
                 revartmeshdict.Add(meshpea.SecondMesh, meshpea.Mesh);
             }
@@ -463,7 +466,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
 
             var TagIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
-            var PoolCount = TagIslandPool.Islands.Count;
+            var PoolCount = IslandPool.Islands.Count;
             for (int PoolIndex = 0; PoolIndex < PoolCount; PoolIndex += 1)
             {
                 var OldTag = IslandPool[PoolIndex].tag;
@@ -645,6 +648,22 @@ namespace Rs64.TexTransTool.TexturAtlas
         }
 
 
+
+    }
+    [Serializable]
+    public class SubListMeshPea : SubList<MeshPea>
+    {
+        public SubListMeshPea(List<MeshPea> subListInstans) : base(subListInstans)
+        {
+        }
+        public static List<SubListMeshPea> ConvartSubList(List<List<MeshPea>> SubListMeshPeas)
+        {
+            return SubListMeshPeas.ConvertAll(I => new SubListMeshPea(I));
+        }
+        public static List<List<MeshPea>> ConvartSubList(List<SubListMeshPea> SubListMeshPeas)
+        {
+            return SubListMeshPeas.ConvertAll(I => I.SubListInstans);
+        }
 
     }
 }
