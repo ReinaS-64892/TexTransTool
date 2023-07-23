@@ -33,6 +33,7 @@ namespace Rs64.TexTransTool
         public static string GenereatFullPath(string Name)
         {
             var replacedname = Name.Replace("(Clone)", "");
+            replacedname = string.IsNullOrWhiteSpace(replacedname) ? "GanaraetAsset" : replacedname;
             var parentpaht = !IsTmplaly ? SaveDirectory : Path.Combine(SaveDirectory, TempDirName);
             return Path.Combine(parentpaht, replacedname);
         }
