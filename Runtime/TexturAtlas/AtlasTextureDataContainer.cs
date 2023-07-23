@@ -14,11 +14,16 @@ namespace Rs64.TexTransTool.TexturAtlas
         [SerializeField] List<SubListPropAndTexture> _atlasTextures;
         public List<List<PropAndTexture>> AtlasTextures { get => ConvartSubList(_atlasTextures.Cast<SubList<PropAndTexture>>()); set => SetAtlasTextures(value); }
 
-        [SerializeField] List<SubListMeshAndMatRef> _meshes;
-        public List<List<MeshAndMatRef>> Meshes { get => ConvartSubList(_meshes.Cast<SubList<MeshAndMatRef>>()); set => SetMeshs(value); }
+        [SerializeField] List<MeshAndMatRef> _meshes;
+        public List<MeshAndMatRef> GenereatMeshs { get => _meshes; set => SetMeshs(value); }
+
+        [SerializeField] List<SubListInt> _matRefarens;
+        public List<List<int>> ChannnelsMatRef { get => ConvartSubList(_matRefarens.Cast<SubList<int>>()); set => _matRefarens = SubListInt.ConvartSubList(value); }
+
+
 
         [SerializeField] List<SubListMaterial> _genereatMaterials;
-        public List<List<Material>> GenereatMaterials { get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>()); set => SetGenereatMaterials(value); }
+        public List<List<Material>> GenereatMaterials { get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>()); set => ConvartSubList(value); }
 
 
 
@@ -51,27 +56,23 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
             _atlasTextures.Clear();
         }
-        public void SetMeshs(List<List<MeshAndMatRef>> Meshs)
+        public void SetMeshs(List<MeshAndMatRef> Meshs)
         {
             ClearMeshs();
             if (Meshs == null) return;
-            var ConvartSubMeshs = SubListMeshAndMatRef.ConvartSubList(Meshs);
-            var count = ConvartSubMeshs.Count;
+            var count = Meshs.Count;
             for (int i = 0; i < count; i++)
             {
-                for (int j = 0; j < ConvartSubMeshs[i].Count; j++)
-                {
-                    var mesh2matref = ConvartSubMeshs[i][j];
-                    mesh2matref.Mesh = AssetSaveHelper.SaveAsset(mesh2matref.Mesh);
-                    ConvartSubMeshs[i][j] = mesh2matref;
-                }
+                var mesh2matref = Meshs[i];
+                mesh2matref.Mesh = AssetSaveHelper.SaveAsset(mesh2matref.Mesh);
+                Meshs[i] = mesh2matref;
             }
-            _meshes = ConvartSubMeshs;
+            _meshes = Meshs;
         }
         void ClearMeshs()
         {
             if (_meshes == null) return;
-            foreach (var item in _meshes.SelectMany(I => I.SubListInstans))
+            foreach (var item in _meshes)
             {
                 AssetSaveHelper.DeletAsset(item.Mesh);
             }
@@ -203,6 +204,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             public static List<SubListPropAndTexture> ConvartSubList(List<List<PropAndTexture>> atlasTextures)
             {
+                if (atlasTextures == null) return null;
                 var result = new List<SubListPropAndTexture>();
                 foreach (var item in atlasTextures)
                 {
@@ -221,6 +223,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             public static List<SubListMeshAndMatRef> ConvartSubList(List<List<MeshAndMatRef>> meshs)
             {
+                if (meshs == null) return null;
                 var result = new List<SubListMeshAndMatRef>();
                 foreach (var item in meshs)
                 {
@@ -239,6 +242,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             public static List<SubListMaterial> ConvartSubList(List<List<Material>> genereatMaterials)
             {
+                if (genereatMaterials == null) return null;
                 var result = new List<SubListMaterial>();
                 foreach (var item in genereatMaterials)
                 {
@@ -247,6 +251,25 @@ namespace Rs64.TexTransTool.TexturAtlas
                 return result;
             }
         }
+        [Serializable]
+        public class SubListInt : SubList<int>
+        {
+            public SubListInt(List<int> SubListInstans) : base(SubListInstans)
+            {
+            }
+
+            public static List<SubListInt> ConvartSubList(List<List<int>> matRefarens)
+            {
+                if (matRefarens == null) return null;
+                var result = new List<SubListInt>();
+                foreach (var item in matRefarens)
+                {
+                    result.Add(new SubListInt(item));
+                }
+                return result;
+            }
+        }
+
 
 
 

@@ -496,6 +496,13 @@ namespace Rs64.TexTransTool.Island
                 AddIsland(item, tag);
             }
         }
+        public void AddRangeIsland(TagIslandPool<Tag> nawChannnelAtlasIslandPool)
+        {
+            foreach (var item in nawChannnelAtlasIslandPool)
+            {
+                AddIsland(item);
+            }
+        }
         public int RemoveAll(Tag tag)
         {
             return Islands.RemoveAll(I => I.tag.Equals(tag));
@@ -549,6 +556,8 @@ namespace Rs64.TexTransTool.Island
                 return null;
             }
         }
+
+
     }
     public class TagIsland<Tag> : Island
     {
