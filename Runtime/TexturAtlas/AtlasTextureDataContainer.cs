@@ -23,7 +23,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
         [SerializeField] List<SubListMaterial> _genereatMaterials;
-        public List<List<Material>> GenereatMaterials { get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>()); set => ConvartSubList(value); }
+        public List<List<Material>> GenereatMaterials { get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>()); set => SetGenereatMaterials(value); }
 
 
 
