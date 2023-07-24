@@ -30,7 +30,7 @@ namespace Rs64.TexTransTool.Editor
                 {
                     if (GUILayout.Button("Apply"))
                     {
-                        Undo.RecordObject(Target, "TextureTransformer - Apply");
+                        UnityEditor.EditorUtility.SetDirty(Target);
                         Target.SelfCallApply();
                     }
                 }
@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Editor
                     EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
                     if (GUILayout.Button("Revart"))
                     {
-                        Undo.RecordObject(Target, "TextureTransformer - Revart");
+                        UnityEditor.EditorUtility.SetDirty(Target);
                         Target.Revart();
 
                     }
@@ -54,7 +54,8 @@ namespace Rs64.TexTransTool.Editor
             EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsApply));
             if (GUILayout.Button("Compile"))
             {
-                Undo.RecordObject(Target, "TextureTransformer - Compile");
+                UnityEditor.EditorUtility.SetDirty(Target);
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
                 Target.Compile();
             }
             EditorGUI.EndDisabledGroup();
