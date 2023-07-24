@@ -83,11 +83,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 AtlasIslandPool.AddRangeIsland(NawChannnelAtlasIslandPool);
 
                 var Tags = NawChannnelAtlasIslandPool.GetTag();
-                var IndexTag = new HashSet<IndexTag>();
-                foreach (var tag in Tags)
-                {
-                    IndexTag.Add(new IndexTag(tag.AtlasMeshDataIndex, tag.MaterialSlot));
-                }
+                HashSet<IndexTag> IndexTag = ToIndexTags(Tags);
 
                 var Porps = new HashSet<string>();
                 foreach (var matdata in Matdatas)
@@ -167,10 +163,41 @@ namespace Rs64.TexTransTool.TexturAtlas
                     );
 
                 var thistags = new List<IndexTag>();
+                var PoolTags = ToIndexTags(AtlasIslandPool.GetTag());
 
                 for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
-                    thistags.Add(new IndexTag(I, SlotIndex));
+                    var Thistag = new IndexTag(I, SlotIndex);
+                    if (PoolTags.Contains(Thistag))
+                    {
+                        thistags.Add(Thistag);
+                    }
+                    else
+                    {
+                        var thistagMeshref = AMD.RefarensMesh;
+                        var thistagMatSlot = SlotIndex;
+                        var thistagMatref = AMD.MaterialIndex[SlotIndex];
+
+                        IndexTag? IdeticalTag = null;
+                        foreach (var ptag in PoolTags)
+                        {
+                            var ptagtargetAMD = AtlasDatas.AtlasMeshData[ptag.AtlasMeshDataIndex];
+                            var ptagtMeshRef = ptagtargetAMD.RefarensMesh;
+                            var ptagMatSlot = ptag.MaterialSlot;
+                            var ptagMatref = AMD.MaterialIndex[ptag.MaterialSlot];
+
+                            if (thistagMeshref == ptagtMeshRef && thistagMatSlot == ptagMatSlot && thistagMatref == ptagMatref)
+                            {
+                                IdeticalTag = ptag;
+                                break;
+                            }
+                        }
+
+                        if (IdeticalTag.HasValue)
+                        {
+                            thistags.Add(IdeticalTag.Value);
+                        }
+                    }
                 }
 
                 var MovedPool = new TagIslandPool<IndexTagPlusIslandIndex>();
@@ -193,6 +220,17 @@ namespace Rs64.TexTransTool.TexturAtlas
             Container.AtlasTextures = CompiledAllAtlasTextures;
             Container.GenereatMeshs = CompiledMeshs;
             Container.IsPossibleApply = true;
+        }
+
+        private static HashSet<IndexTag> ToIndexTags(HashSet<IndexTagPlusIslandIndex> Tags)
+        {
+            var IndexTag = new HashSet<IndexTag>();
+            foreach (var tag in Tags)
+            {
+                IndexTag.Add(new IndexTag(tag.AtlasMeshDataIndex, tag.MaterialSlot));
+            }
+
+            return IndexTag;
         }
 
         public AvatarDomain RevartDomain;
