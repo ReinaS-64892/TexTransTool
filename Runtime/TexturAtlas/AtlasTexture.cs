@@ -476,6 +476,21 @@ namespace Rs64.TexTransTool.TexturAtlas
                 MatSelect.TextureSizeOffSet = (Tex.width * Tex.height) / (float)MaxTexPixsel;
             }
         }
+
+        [ContextMenu("ClearContainer")]
+        public void ClearContainer()
+        {
+            if (IsApply) return;
+            Container.AtlasTextures = null;
+            Container.GenereatMeshs = null;
+            Container.ChannnelsMatRef = null;
+            Container.IsPossibleApply = false;
+
+            Container.GenereatMaterials = null;
+
+            RevartMeshs = null;
+            RevartDomain = null;
+        }
     }
     public class AtlasDatas
     {
