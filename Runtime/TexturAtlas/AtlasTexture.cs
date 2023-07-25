@@ -116,7 +116,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     var transMap = new TransMapData(atlasSetting.Pading, atlasSetting.AtlasTextureSize);
                     var matref = matdata.MaterialRefarens;
 
-                    foreach (var itag in IndexTag.Where(tag => AtlasDatas.GetMaterialRefarens(tag) != matref))
+                    foreach (var itag in IndexTag.Where(tag => AtlasDatas.GetMaterialRefarens(tag) == matref))
                     {
                         var targetAMD = AtlasDatas.AtlasMeshData[itag.AtlasMeshDataIndex];
                         var TargetTrainagles = targetAMD.Traiangles[itag.MaterialSlot];
