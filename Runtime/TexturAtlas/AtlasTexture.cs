@@ -6,7 +6,6 @@ using System.Linq;
 using System;
 using Rs64.TexTransTool.ShaderSupport;
 using Rs64.TexTransTool.Island;
-using static Rs64.TexTransTool.TexturAtlas.AtlasTextureDataContainer;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
@@ -727,7 +726,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public PadingType PadingType = PadingType.EdgeBase;
         public float Pading = -10;
-        public IslandSortingType SortingType = IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
+        public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
     }
     [Serializable]
     public struct MeshPea
@@ -744,7 +743,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
     }
     [Serializable]
-    public class SubListMeshPea : SubList<MeshPea>
+    public class SubListMeshPea : AtlasTextureDataContainer.SubList<MeshPea>
     {
         public SubListMeshPea(List<MeshPea> subListInstans) : base(subListInstans)
         {
