@@ -98,12 +98,12 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var NawChannnelAtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
                 foreach (var Matdatapool in MatDataPools)
                 {
-                    Matdatapool.Value.OffSetApply(Matdatapool.Key.TextureSizeOffSet);
+                    Matdatapool.Value.IslandPoolSizeOffset(Matdatapool.Key.TextureSizeOffSet);
                     NawChannnelAtlasIslandPool.AddRangeIsland(Matdatapool.Value);
                 }
 
 
-                TexturAtlasCompiler.GenereatMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool);
+                IslandSorting.GenereatMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool);
                 AtlasIslandPool.AddRangeIsland(NawChannnelAtlasIslandPool);
 
                 var Tags = NawChannnelAtlasIslandPool.GetTag();

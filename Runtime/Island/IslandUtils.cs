@@ -1,12 +1,11 @@
 #if UNITY_EDITOR
 using System;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using Rs64.TexTransTool.TexturAtlas;
 using System.Collections;
+using Rs64.TexTransTool;
 
 namespace Rs64.TexTransTool.Island
 {
@@ -14,6 +13,154 @@ namespace Rs64.TexTransTool.Island
     public static class IslandUtils
     {
 
+        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
+        {
+            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
+            if (Caches != null)
+            {
+                foreach (var Cache in Caches)
+                {
+                    if (Cache.Hash.SequenceEqual(NawHash))
+                    {
+                        //Debug.Log("Use Cache!");
+                        return Cache.Islands;
+                    }
+                }
+            }
+
+            var Islands = traiangles.Select(i => new Island(i)).ToList();
+
+            bool Continue = true;
+            while (Continue)
+            {
+                Continue = false;
+                Islands = IslandCrawling(Islands, UV, ref Continue);
+            }
+            Islands.ForEach(i => i.BoxCurriculation(UV));
+
+            if (Caches != null)
+            {
+                var NewCache = new IslandCacheObject(NawHash, Islands);
+
+                Caches.Add(NewCache);
+            }
+
+            return Islands;
+        }
+
+        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
+        {
+
+            var CrawlingdIslandPool = new List<Island>();
+
+            foreach (var Iland in IslandPool)
+            {
+                var IslandVartPos = Iland.GetVertexPos(UV);
+
+
+                int IlandCout = -1;
+                int IlandJoinIndex = -1;
+
+                foreach (var CrawlingdIsland in CrawlingdIslandPool)
+                {
+                    IlandCout += 1;
+
+                    var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
+
+
+                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
+                    {
+                        IlandJoinIndex = IlandCout;
+                        break;
+                    }
+
+                }
+
+                if (IlandJoinIndex == -1)
+                {
+                    CrawlingdIslandPool.Add(Iland);
+                }
+                else
+                {
+                    CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
+                    IsJoin = true;
+                }
+
+            }
+            return CrawlingdIslandPool;
+        }
+        public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
+        {
+            var mSize = MovedIsland.Size;
+            var nmSize = OriginIsland.Size;
+
+            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+
+            foreach (var VartIndex in OriginIsland.GetVertexIndex())
+            {
+                var VertPos = UV[VartIndex];
+                var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                RelativeVertPos.x *= RelativeScaile.x;
+                RelativeVertPos.y *= RelativeScaile.y;
+
+                var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+                MoveUV[VartIndex] = MovedVertPos;
+            }
+        }
+        public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
+        {
+            if (UV.Count != MoveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
+            foreach (var island in MovedPool)
+            {
+                var OriginIsland = OriginPool.FindTag(island.tag);
+                IslandMoveUV(UV, MoveUV, OriginIsland.island, island.island);
+            }
+        }
+
+        public static void IslandPoolSizeOffset<T>(this TagIslandPool<T> IslandPool, float Offset)
+        {
+            foreach (var islandI in IslandPool)
+            {
+                var island = islandI.island;
+                island.Size *= Offset;
+            }
+        }
+
+
+
+    }
+    public static class IslandSorting
+    {
+        public enum IslandSortingType
+        {
+            EvenlySpaced,
+            NextFitDecreasingHeight,
+            NextFitDecreasingHeightPlusFloorCeilineg,
+        }
+        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool)
+        {
+            switch (SortingType)
+            {
+                case IslandSortingType.EvenlySpaced:
+                    {
+                        IslandSorting.IslandPoolEvenlySpaced(IslandPool);
+                        break;
+                    }
+                case IslandSortingType.NextFitDecreasingHeight:
+                    {
+                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        break;
+                    }
+                case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
+                    {
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool);
+                        break;
+                    }
+
+                default: throw new ArgumentException();
+            }
+        }
         public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(TagIslandPool<T> TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.Islands;
@@ -146,10 +293,9 @@ namespace Rs64.TexTransTool.Island
                 }
                 NawScaile *= Scaile;
             }
-
         }
 
-        class UVWithBox
+        private class UVWithBox
         {
             public float with = 1;
             public float Pading;
@@ -235,83 +381,6 @@ namespace Rs64.TexTransTool.Island
             }
         }
 
-        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
-        {
-            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
-            if (Caches != null)
-            {
-                foreach (var Cache in Caches)
-                {
-                    if (Cache.Hash.SequenceEqual(NawHash))
-                    {
-                        //Debug.Log("Use Cache!");
-                        return Cache.Islands;
-                    }
-                }
-            }
-
-            var Islands = traiangles.Select(i => new Island(i)).ToList();
-
-            bool Continue = true;
-            while (Continue)
-            {
-                Continue = false;
-                Islands = IslandCrawling(Islands, UV, ref Continue);
-            }
-            Islands.ForEach(i => i.BoxCurriculation(UV));
-
-            if (Caches != null)
-            {
-                var NewCache = new IslandCacheObject(NawHash, Islands);
-
-                Caches.Add(NewCache);
-            }
-
-            return Islands;
-        }
-
-        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
-        {
-
-            var CrawlingdIslandPool = new List<Island>();
-
-            foreach (var Iland in IslandPool)
-            {
-                var IslandVartPos = Iland.GetVertexPos(UV);
-
-
-                int IlandCout = -1;
-                int IlandJoinIndex = -1;
-
-                foreach (var CrawlingdIsland in CrawlingdIslandPool)
-                {
-                    IlandCout += 1;
-
-                    var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
-
-
-                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
-                    {
-                        IlandJoinIndex = IlandCout;
-                        break;
-                    }
-
-                }
-
-                if (IlandJoinIndex == -1)
-                {
-                    CrawlingdIslandPool.Add(Iland);
-                }
-                else
-                {
-                    CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
-                    IsJoin = true;
-                }
-
-            }
-            return CrawlingdIslandPool;
-        }
-
         public static TagIslandPool<T> IslandPoolEvenlySpaced<T>(TagIslandPool<T> TargetPool)
         {
             Vector2 MaxIslandSize = TargetPool.GetLargest().island.Size;
@@ -347,117 +416,6 @@ namespace Rs64.TexTransTool.Island
             }
             return TargetPool;
         }
-        public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
-        {
-            var mSize = MovedIsland.Size;
-            var nmSize = OriginIsland.Size;
-
-            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-
-            foreach (var VartIndex in OriginIsland.GetVertexIndex())
-            {
-                var VertPos = UV[VartIndex];
-                var RelativeVertPos = VertPos - OriginIsland.Pivot;
-
-                RelativeVertPos.x *= RelativeScaile.x;
-                RelativeVertPos.y *= RelativeScaile.y;
-
-                var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
-                MoveUV[VartIndex] = MovedVertPos;
-            }
-        }
-        public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
-        {
-            if (UV.Count != MoveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
-            foreach (var island in MovedPool)
-            {
-                var OriginIsland = OriginPool.FindTag(island.tag);
-                IslandMoveUV(UV, MoveUV, OriginIsland.island, island.island);
-            }
-        }
-        /*
-                public static List<List<Vector2>> UVsMove<T>(List<List<Vector2>> UVs, TagIslandPool<T> Original, TagIslandPool<T> Moved)
-                {
-                    List<List<Vector2>> MovedUV = CloneUVs(UVs);
-
-                    foreach (var Index in Enumerable.Range(0, Moved.Islands.Count))
-                    {
-                        MoveUV(UVs, Original, Moved, MovedUV, Index);
-                    }
-
-                    return MovedUV;
-                }
-                public static async Task<List<List<Vector2>>> UVsMoveAsync<T>(List<List<Vector2>> UVs, TagIslandPool<T> Original, TagIslandPool<T> Moved)
-                {
-                    List<List<Vector2>> MovedUV = CloneUVs(UVs);
-                    List<ConfiguredTaskAwaitable> Tasks = new List<ConfiguredTaskAwaitable>();
-                    foreach (var Index in Enumerable.Range(0, Moved.Islands.Count))
-                    {
-                        var Indexi = Index;
-                        Tasks.Add(Task.Run(() => MoveUV(UVs, Original, Moved, MovedUV, Indexi)).ConfigureAwait(false));
-                    }
-                    foreach (var task in Tasks)
-                    {
-                        await task;
-                    }
-                    return MovedUV;
-                }
-                static void MoveUV<T>(List<List<Vector2>> UVs, TagIslandPool<T> Original, TagIslandPool<T> Moved, List<List<Vector2>> MovedUV, T tag)
-                {
-                    var OriginIsland = Original.FindTag(tag);
-                    var MovedIsland = Moved.FindTag(tag);
-
-                    var mSize = MovedIsland.Size;
-                    var nmSize = OriginIsland.Size;
-
-                    var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-
-                    foreach (var VartIndex in OriginIsland.GetVertexIndex())
-                    {
-                        var VertPos = UVs[1][VartIndex];
-                        var RelativeVertPos = VertPos - OriginIsland.Pivot;
-
-                        RelativeVertPos.x *= RelativeScaile.x;
-                        RelativeVertPos.y *= RelativeScaile.y;
-
-                        var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
-                        MovedUV[1][VartIndex] = MovedVertPos;
-                    }
-                }
-                public static List<List<Vector2>> GetUVs(this AtlasCompileData Data, int UVindex = 0)
-                {
-                    var UVs = new List<List<Vector2>>();
-
-                    foreach (var Mesh in Data.meshes)
-                    {
-                        List<Vector2> uv = new List<Vector2>();
-                        Mesh.GetUVs(UVindex, uv);
-                        UVs.Add(uv);
-                    }
-                    return UVs;
-                }
-                public static void SetUVs(this AtlasCompileData Data, List<List<Vector2>> UVs, int UVindex = 0)
-                {
-                    int Count = -1;
-                    foreach (var Mesh in Data.meshes)
-                    {
-                        Count += 1;
-                        Mesh.SetUVs(UVindex, UVs[Count]);
-                    }
-                }
-
-
-                public static List<List<Vector2>> CloneUVs(List<List<Vector2>> UVs)
-                {
-                    var Clone = new List<List<Vector2>>();
-
-                    foreach (var uv in UVs)
-                    {
-                        Clone.Add(new List<Vector2>(uv));
-                    }
-                    return Clone;
-                }
-                */
     }
     public class TagIslandPool<Tag> : IEnumerable<TagIsland<Tag>>
     {
