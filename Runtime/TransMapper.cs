@@ -131,7 +131,7 @@ namespace Rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, IReadOnlyList<TraiangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetTexScaleTargetUV, IReadOnlyList<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             if (Shader == null) Shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             Vector2Int ThredGropSize = TransMap.Map.MapSize / 32;

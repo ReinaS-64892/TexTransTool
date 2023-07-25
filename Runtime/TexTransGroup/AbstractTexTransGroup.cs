@@ -50,6 +50,9 @@ namespace Rs64.TexTransTool
                 {
                     if (tf == null) continue;
                     if (tf.ThisEnable == false) continue;
+
+                    UnityEditor.EditorUtility.SetDirty(tf);
+
                     tf.Compile();
                     tf.Apply();
                 }
@@ -64,6 +67,9 @@ namespace Rs64.TexTransTool
                 {
                     if (tf == null) continue;
                     if (tf.ThisEnable == false) continue;
+
+                    UnityEditor.EditorUtility.SetDirty(tf);
+
                     tf.Revart();
                 }
             }

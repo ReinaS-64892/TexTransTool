@@ -2,9 +2,10 @@
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace Rs64.TexTransTool.Island
 {
     [Serializable]
     public class IslandCacheObject
@@ -28,9 +29,9 @@ namespace Rs64.TexTransTool.TexturAtlas
             Hash = GenereatHash(Triange, UV);
         }
 
-        public static byte[] GenereatHash(List<TraiangleIndex> Triange, List<Vector2> UV)
+        public static byte[] GenereatHash(IReadOnlyList<TraiangleIndex> Triange, List<Vector2> UV)
         {
-            var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(Triange, UV));
+            var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(new List<TraiangleIndex>(Triange), UV));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(datajson);
 
             return SHA1.Create().ComputeHash(data);

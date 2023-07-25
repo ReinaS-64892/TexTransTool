@@ -1,19 +1,169 @@
 #if UNITY_EDITOR
 using System;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-namespace Rs64.TexTransTool.TexturAtlas
+using Rs64.TexTransTool.TexturAtlas;
+using System.Collections;
+using Rs64.TexTransTool;
+
+namespace Rs64.TexTransTool.Island
 {
 
     public static class IslandUtils
     {
 
-        public static IslandPool IslandPoolNextFitDecreasingHeight(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
         {
-            var Islands = TargetPool.IslandPoolList;
+            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
+            if (Caches != null)
+            {
+                foreach (var Cache in Caches)
+                {
+                    if (Cache.Hash.SequenceEqual(NawHash))
+                    {
+                        //Debug.Log("Use Cache!");
+                        return Cache.Islands;
+                    }
+                }
+            }
+
+            var Islands = traiangles.Select(i => new Island(i)).ToList();
+
+            bool Continue = true;
+            while (Continue)
+            {
+                Continue = false;
+                Islands = IslandCrawling(Islands, UV, ref Continue);
+            }
+            Islands.ForEach(i => i.BoxCurriculation(UV));
+
+            if (Caches != null)
+            {
+                var NewCache = new IslandCacheObject(NawHash, Islands);
+
+                Caches.Add(NewCache);
+            }
+
+            return Islands;
+        }
+
+        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
+        {
+
+            var CrawlingdIslandPool = new List<Island>();
+
+            foreach (var Iland in IslandPool)
+            {
+                var IslandVartPos = Iland.GetVertexPos(UV);
+
+
+                int IlandCout = -1;
+                int IlandJoinIndex = -1;
+
+                foreach (var CrawlingdIsland in CrawlingdIslandPool)
+                {
+                    IlandCout += 1;
+
+                    var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
+
+
+                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
+                    {
+                        IlandJoinIndex = IlandCout;
+                        break;
+                    }
+
+                }
+
+                if (IlandJoinIndex == -1)
+                {
+                    CrawlingdIslandPool.Add(Iland);
+                }
+                else
+                {
+                    CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
+                    IsJoin = true;
+                }
+
+            }
+            return CrawlingdIslandPool;
+        }
+        public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
+        {
+            var mSize = MovedIsland.Size;
+            var nmSize = OriginIsland.Size;
+
+            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+
+            foreach (var VartIndex in OriginIsland.GetVertexIndex())
+            {
+                var VertPos = UV[VartIndex];
+                var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                RelativeVertPos.x *= RelativeScaile.x;
+                RelativeVertPos.y *= RelativeScaile.y;
+
+                var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+                MoveUV[VartIndex] = MovedVertPos;
+            }
+        }
+        public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
+        {
+            if (UV.Count != MoveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
+            foreach (var island in MovedPool)
+            {
+                var OriginIsland = OriginPool.FindTag(island.tag);
+                IslandMoveUV(UV, MoveUV, OriginIsland.island, island.island);
+            }
+        }
+
+        public static void IslandPoolSizeOffset<T>(this TagIslandPool<T> IslandPool, float Offset)
+        {
+            foreach (var islandI in IslandPool)
+            {
+                var island = islandI.island;
+                island.Size *= Offset;
+            }
+        }
+
+
+
+    }
+    public static class IslandSorting
+    {
+        public enum IslandSortingType
+        {
+            EvenlySpaced,
+            NextFitDecreasingHeight,
+            NextFitDecreasingHeightPlusFloorCeilineg,
+        }
+        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool)
+        {
+            switch (SortingType)
+            {
+                case IslandSortingType.EvenlySpaced:
+                    {
+                        IslandSorting.IslandPoolEvenlySpaced(IslandPool);
+                        break;
+                    }
+                case IslandSortingType.NextFitDecreasingHeight:
+                    {
+                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        break;
+                    }
+                case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
+                    {
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool);
+                        break;
+                    }
+
+                default: throw new ArgumentException();
+            }
+        }
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(TagIslandPool<T> TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        {
+            var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
             bool Success = false;
@@ -79,9 +229,9 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public static IslandPool IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeightPlusFloorCeilineg<T>(TagIslandPool<T> TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
-            var Islands = TargetPool.IslandPoolList;
+            var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
             bool Success = false;
@@ -143,18 +293,17 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
                 NawScaile *= Scaile;
             }
-
         }
 
-        class UVWithBox
+        private class UVWithBox
         {
             public float with = 1;
             public float Pading;
             public float Ceil;
             public float Floor;
             public float Haight => Ceil - Floor;
-            public List<IslandPool.IslandAndIndex> Upper = new List<IslandPool.IslandAndIndex>();
-            public List<IslandPool.IslandAndIndex> Lower = new List<IslandPool.IslandAndIndex>();
+            public List<Island> Upper = new List<Island>();
+            public List<Island> Lower = new List<Island>();
 
             public UVWithBox(float height, float floor, float pading)
             {
@@ -163,13 +312,13 @@ namespace Rs64.TexTransTool.TexturAtlas
                 Pading = pading;
             }
 
-            public bool TrySetBox(IslandPool.IslandAndIndex Box)
+            public bool TrySetBox(Island Box)
             {
-                var Island = Box.island;
+                var Island = Box;
                 if (Haight + 0.01f < Island.Size.y) return false;
 
 
-                var withMin = Lower.Any() ? Lower.Last().island.GetMaxPos.x : 0;
+                var withMin = Lower.Any() ? Lower.Last().GetMaxPos.x : 0;
                 var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + Island.Size.y + Pading, Floor, Ceil));
                 var withSize = withMax - withMin;
                 if (withSize > Pading + Island.Size.x + Pading)
@@ -181,7 +330,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
                 withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - Island.Size.y - Pading, Floor, Ceil));
-                withMax = Upper.Any() ? Upper.Last().island.Pivot.x : with;
+                withMax = Upper.Any() ? Upper.Last().Pivot.x : with;
                 withSize = withMax - withMin;
                 if (withSize > Pading + Island.Size.x + Pading)
                 {
@@ -202,7 +351,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 foreach (var Box in Lower)
                 {
-                    var Island = Box.island;
+                    var Island = Box;
                     if (Utils.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
                     {
                         if (MinWith < Island.GetMaxPos.x) { MinWith = Island.GetMaxPos.x; }
@@ -221,7 +370,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 foreach (var Box in Upper)
                 {
-                    var Island = Box.island;
+                    var Island = Box;
                     if (Utils.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
                     {
                         if (Island.GetMaxPos.x < MaxWith) { MaxWith = Island.GetMaxPos.x; }
@@ -232,101 +381,20 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        public static List<Island> UVtoIsland(List<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
-        {
-            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
-            if (Caches != null)
-            {
-                foreach (var Cache in Caches)
-                {
-                    if (Cache.Hash.SequenceEqual(NawHash))
-                    {
-                        //Debug.Log("Use Cache!");
-                        return Cache.Islands;
-                    }
-                }
-            }
-
-            var Islands = traiangles.ConvertAll<Island>(i => new Island(i));
-
-            bool Continue = true;
-            while (Continue)
-            {
-                Continue = false;
-                Islands = IslandCrawling(Islands, UV, ref Continue);
-            }
-            Islands.ForEach(i => i.BoxCurriculation(UV));
-
-            if (Caches != null)
-            {
-                var NewCache = new IslandCacheObject(NawHash, Islands);
-
-                Caches.Add(NewCache);
-            }
-
-            return Islands;
-        }
-
-        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
-        {
-
-            var CrawlingdIslandPool = new List<Island>();
-
-            foreach (var Iland in IslandPool)
-            {
-                var IslandVartPos = Iland.GetVertexPos(UV);
-
-
-                int IlandCout = -1;
-                int IlandJoinIndex = -1;
-
-                foreach (var CrawlingdIsland in CrawlingdIslandPool)
-                {
-                    IlandCout += 1;
-
-                    var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
-
-
-                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
-                    {
-                        IlandJoinIndex = IlandCout;
-                        break;
-                    }
-
-                }
-
-                if (IlandJoinIndex == -1)
-                {
-                    CrawlingdIslandPool.Add(Iland);
-                }
-                else
-                {
-                    CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
-                    IsJoin = true;
-                }
-
-            }
-            return CrawlingdIslandPool;
-        }
-
-        public static IslandPool IslandPoolEvenlySpaced(IslandPool TargetPool)
+        public static TagIslandPool<T> IslandPoolEvenlySpaced<T>(TagIslandPool<T> TargetPool)
         {
             Vector2 MaxIslandSize = TargetPool.GetLargest().island.Size;
-            var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.IslandPoolList.Count));
+            var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.Islands.Count));
             var CellSize = 1f / GridSize;
             int Count = 0;
             foreach (var CellIndex in Utils.Reange2d(new Vector2Int(GridSize, GridSize)))
             {
                 var CellPos = (Vector2)CellIndex / GridSize;
-                MeshIndex MapIndex;
-                int IslandIndex;
                 Island Island;
-                if (TargetPool.IslandPoolList.Count > Count)
+                if (TargetPool.Islands.Count > Count)
                 {
-                    var Target = TargetPool.IslandPoolList[Count];
+                    var Target = TargetPool.Islands[Count];
                     Island = Target.island;
-                    MapIndex = Target.MapIndex;
-                    IslandIndex = Target.IslandIndex;
                 }
                 else
                 {
@@ -348,192 +416,148 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
             return TargetPool;
         }
-
-        public static List<List<Vector2>> UVsMove(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved)
-        {
-            List<List<Vector2>> MovedUV = CloneUVs(UVs);
-
-            foreach (var Index in Enumerable.Range(0, Moved.IslandPoolList.Count))
-            {
-                MoveUV(UVs, Original, Moved, MovedUV, Index);
-            }
-
-            return MovedUV;
-        }
-        public static async Task<List<List<Vector2>>> UVsMoveAsync(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved)
-        {
-            List<List<Vector2>> MovedUV = CloneUVs(UVs);
-            List<ConfiguredTaskAwaitable> Tasks = new List<ConfiguredTaskAwaitable>();
-            foreach (var Index in Enumerable.Range(0, Moved.IslandPoolList.Count))
-            {
-                var Indexi = Index;
-                Tasks.Add(Task.Run(() => MoveUV(UVs, Original, Moved, MovedUV, Indexi)).ConfigureAwait(false));
-            }
-            foreach (var task in Tasks)
-            {
-                await task;
-            }
-            return MovedUV;
-        }
-        static void MoveUV(List<List<Vector2>> UVs, IslandPool Original, IslandPool Moved, List<List<Vector2>> MovedUV, int Index)
-        {
-            var MapIndex = Moved.IslandPoolList[Index].MapIndex;
-            var MovedIslandI = Moved.IslandPoolList[Index];
-
-            var VertexIndex = MovedIslandI.island.GetVertexIndex();
-            var NotMovedIslandI = Original.IslandPoolList.Find(i => i.MapIndex.Index == MovedIslandI.MapIndex.Index && i.IslandIndex == MovedIslandI.IslandIndex);
-
-            var mIsland = MovedIslandI.island;
-            var nmIsland = NotMovedIslandI.island;
-
-            var mSize = mIsland.Size;
-            var nmSize = nmIsland.Size;
-            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-
-            foreach (var TrinagleIndex in VertexIndex)
-            {
-                var VertPos = UVs[MapIndex.Index][TrinagleIndex];
-                var RelativeVertPos = VertPos - nmIsland.Pivot;
-
-                RelativeVertPos.x *= RelativeScaile.x;
-                RelativeVertPos.y *= RelativeScaile.y;
-
-                var MovedVertPos = mIsland.Pivot + RelativeVertPos;
-                MovedUV[MapIndex.Index][TrinagleIndex] = MovedVertPos;
-            }
-        }
-
-        public static async Task<IslandPool> AsyncGeneretIslandPool(List<Mesh> Data, List<List<Vector2>> UVs, List<MeshIndex> SelectUVIndex, List<IslandCacheObject> Caches = null)
-        {
-            var IslandPool = new IslandPool();
-
-            List<Task<List<IslandPool.IslandAndIndex>>> Tesks = new List<Task<List<IslandPool.IslandAndIndex>>>();
-            foreach (var index in SelectUVIndex)
-            {
-                var _index = index;//Asyncな奴に投げるため一時変数に代入しないとなぜか壊れる.
-                var Triangle = Utils.ToList(Data[index.Index].GetTriangles(index.SubMeshIndex));
-                Tesks.Add(Task.Run<List<IslandPool.IslandAndIndex>>(() => GeneretIslandAndIndex(UVs[index.Index], Triangle, _index, Caches)));
-            }
-
-            var Islands = await Task.WhenAll(Tesks).ConfigureAwait(false);
-            IslandPool.IslandPoolList = Islands.SelectMany(i => i).ToList();
-
-            return IslandPool;
-        }
-        static List<IslandPool.IslandAndIndex> GeneretIslandAndIndex(List<Vector2> UV, List<TraiangleIndex> traiangles, MeshIndex MapCount, List<IslandCacheObject> Caches = null)
-        {
-            var Islanads = IslandUtils.UVtoIsland(traiangles, UV, Caches);
-            var IslandPoolList = new List<IslandPool.IslandAndIndex>();
-            int IlandIndex = -1;
-            foreach (var Islnad in Islanads)
-            {
-                IlandIndex += 1;
-                IslandPoolList.Add(new IslandPool.IslandAndIndex(Islnad, MapCount, IlandIndex));
-            }
-            return IslandPoolList;
-        }
-        public static List<List<Vector2>> GetUVs(this AtlasCompileData Data, int UVindex = 0)
-        {
-            var UVs = new List<List<Vector2>>();
-
-            foreach (var Mesh in Data.meshes)
-            {
-                List<Vector2> uv = new List<Vector2>();
-                Mesh.GetUVs(UVindex, uv);
-                UVs.Add(uv);
-            }
-            return UVs;
-        }
-        public static void SetUVs(this AtlasCompileData Data, List<List<Vector2>> UVs, int UVindex = 0)
-        {
-            int Count = -1;
-            foreach (var Mesh in Data.meshes)
-            {
-                Count += 1;
-                Mesh.SetUVs(UVindex, UVs[Count]);
-            }
-        }
-
-
-        public static List<List<Vector2>> CloneUVs(List<List<Vector2>> UVs)
-        {
-            var Clone = new List<List<Vector2>>();
-
-            foreach (var uv in UVs)
-            {
-                Clone.Add(new List<Vector2>(uv));
-            }
-            return Clone;
-        }
     }
-
-    public class IslandPool
+    public class TagIslandPool<Tag> : IEnumerable<TagIsland<Tag>>
     {
-        public List<IslandAndIndex> IslandPoolList = new List<IslandAndIndex>();
+        public List<TagIsland<Tag>> Islands = new List<TagIsland<Tag>>();
 
-        public IslandPool(List<IslandAndIndex> List)
-        {
-            IslandPoolList = List;
-        }
+        public TagIsland<Tag> this[int Index] => Islands[Index];
 
-        public IslandPool()
+        public HashSet<Tag> GetTag()
         {
-        }
-
-        public IslandPool(IslandPool targetPool)
-        {
-            foreach (var island in targetPool.IslandPoolList)
+            HashSet<Tag> tags = new HashSet<Tag>();
+            foreach (var island in Islands)
             {
-                IslandPoolList.Add(new IslandAndIndex(island));
+                tags.Add(island.tag);
+            }
+            return tags;
+        }
+        public void AddIsland(TagIsland<Tag> item)
+        {
+            Islands.Add(item);
+        }
+        public void AddIsland(Island item, Tag tag)
+        {
+            Islands.Add(new TagIsland<Tag>(item, tag, false));
+        }
+        public void AddRangeIsland(List<TagIsland<Tag>> items)
+        {
+            foreach (var item in items)
+            {
+                AddIsland(item);
             }
         }
-
-        public class IslandAndIndex
+        public void AddRangeIsland(List<Island> items, Tag tag)
         {
-            public IslandAndIndex(Island island, MeshIndex mapIndex, int islandInx)
+            foreach (var item in items)
             {
-                this.island = new Island(island);
-                MapIndex = mapIndex;
-                IslandIndex = islandInx;
+                AddIsland(item, tag);
             }
-
-            public IslandAndIndex(IslandAndIndex Souse)
+        }
+        public void AddRangeIsland(TagIslandPool<Tag> nawChannnelAtlasIslandPool)
+        {
+            foreach (var item in nawChannnelAtlasIslandPool)
             {
-                this.island = new Island(Souse.island);
-                MapIndex = Souse.MapIndex;
-                IslandIndex = Souse.IslandIndex;
+                AddIsland(item);
             }
-
-            public Island island;
-            public MeshIndex MapIndex;
-            public int IslandIndex;
+        }
+        public int RemoveAll(Tag tag)
+        {
+            return Islands.RemoveAll(I => I.tag.Equals(tag));
+        }
+        public TagIsland<Tag> FindTag(Tag tag)
+        {
+            return Islands.Find(I => I.tag.Equals(tag));
+        }
+        public IEnumerator<TagIsland<Tag>> GetEnumerator()
+        {
+            return Islands.GetEnumerator();
         }
 
-        public IslandAndIndex GetLargest()
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Islands.GetEnumerator();
+        }
+
+        public TagIslandPool<Tag> Clone()
+        {
+            var NewPool = new TagIslandPool<Tag>();
+            foreach (var island in Islands)
+            {
+                NewPool.AddIsland(new TagIsland<Tag>(island.island, island.tag, true));
+            }
+            return NewPool;
+        }
+
+
+        public TagIsland<Tag> GetLargest()
         {
             int GetIndex = -1;
             int Count = -1;
             Vector2 Cash = new Vector2(0, 0);
-            foreach (var islandandI in IslandPoolList)
+            foreach (var islandandI in Islands)
             {
                 Count += 1;
-                var Island = islandandI.island;
+                var Island = islandandI;
                 if (Cash.sqrMagnitude < Island.Size.sqrMagnitude)
                 {
-                    Cash = islandandI.island.Size;
+                    Cash = islandandI.Size;
                     GetIndex = Count;
                 }
             }
             if (GetIndex != -1)
             {
-                return IslandPoolList[GetIndex];
+                return Islands[GetIndex];
             }
             else
             {
                 return null;
             }
         }
+
+
     }
+    public class TagIsland<Tag> : Island
+    {
+        public Tag tag;
+        /// <summary>
+        /// 互換性のため
+        /// </summary>
+        public Island island => this;
+        public TagIsland(Island Souse, Tag tag, bool DeepClone = false)
+        {
+            if (DeepClone)
+            {
+                trainagels = new List<TraiangleIndex>(Souse.trainagels);
+            }
+            else
+            {
+                trainagels = Souse.trainagels;
+            }
+            Pivot = Souse.Pivot;
+            Size = Souse.Size;
+            this.tag = tag;
+        }
+        public TagIsland(TagIsland<Tag> Souse, bool DeepClone = false)
+        {
+            if (DeepClone)
+            {
+                trainagels = new List<TraiangleIndex>(Souse.trainagels);
+            }
+            else
+            {
+                trainagels = Souse.trainagels;
+            }
+            Pivot = Souse.Pivot;
+            Size = Souse.Size;
+            tag = Souse.tag;
+        }
+        public TagIsland()
+        {
+
+        }
+    }
+
     [Serializable]
     public class Island
     {
@@ -600,9 +624,9 @@ namespace Rs64.TexTransTool.TexturAtlas
                 TargetTextur.SetPixel(x, y, WriteColor);
             }
         }
-        public static void DrowIlandBox(IslandPool Pool, Texture2D TargetTextur, Color WriteColor)
+        public static void DrowIlandBox<T>(TagIslandPool<T> Pool, Texture2D TargetTextur, Color WriteColor)
         {
-            foreach (var island in Pool.IslandPoolList)
+            foreach (var island in Pool.Islands)
             {
                 var minpos = new Vector2Int(Mathf.RoundToInt(island.island.Pivot.x * TargetTextur.width), Mathf.RoundToInt(island.island.Pivot.y * TargetTextur.height));
                 var maxpos = new Vector2Int(Mathf.RoundToInt(island.island.GetMaxPos.x * TargetTextur.width), Mathf.RoundToInt(island.island.GetMaxPos.y * TargetTextur.height));

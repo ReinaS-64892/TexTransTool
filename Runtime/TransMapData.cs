@@ -69,6 +69,30 @@ namespace Rs64.TexTransTool
             };
         }
     }
+
+    [Serializable]
+    public class PropAndAtlasTex
+    {
+        public string PropertyName;
+        public TransTargetTexture AtlasTexture;
+
+        public PropAndAtlasTex(TransTargetTexture texture2D, string propertyName)
+        {
+            AtlasTexture = texture2D;
+            PropertyName = propertyName;
+        }
+        public PropAndAtlasTex(string propertyName, TransTargetTexture texture2D)
+        {
+            AtlasTexture = texture2D;
+            PropertyName = propertyName;
+        }
+
+        public static explicit operator PropAndTexture(PropAndAtlasTex s)
+        {
+            return new PropAndTexture(s.PropertyName, s.AtlasTexture.Texture2D);
+        }
+    }
+
     [Serializable]
     public class TransTargetTexture
     {
@@ -82,6 +106,11 @@ namespace Rs64.TexTransTool
         {
             Texture2D = texture2D;
             DistansMap = distansMap;
+        }
+        public TransTargetTexture(Vector2Int Size, Color DefautColor, float DefaultPading)
+        {
+            Texture2D = Utils.CreateFillTexture(Size, DefautColor);
+            DistansMap = new TowDMap<float>(DefaultPading, Size);
         }
 
     }
@@ -122,6 +151,7 @@ namespace Rs64.TexTransTool
             return Array[GetIndexOn1D(pos)];
         }
     }
+
     public struct PosAndDistans
     {
         public Vector2 Pos;

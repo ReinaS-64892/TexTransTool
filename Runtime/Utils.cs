@@ -78,6 +78,21 @@ namespace Rs64.TexTransTool
             }
             return TraianglesList;
         }
+        public static List<List<TraiangleIndex>> GetSubTraiangel(this Mesh mesh)
+        {
+            var SubMeshCount = mesh.subMeshCount;
+            List<List<TraiangleIndex>> SubTraiangles = new List<List<TraiangleIndex>>(SubMeshCount);
+
+            for (int i = 0; i < SubMeshCount; i++)
+            {
+                SubTraiangles.Add(mesh.GetSubTraiangle(i));
+            }
+            return SubTraiangles;
+        }
+        public static List<TraiangleIndex> GetSubTraiangle(this Mesh mesh, int SubMesh)
+        {
+            return ToList(mesh.GetTriangles(SubMesh));
+        }
 
         public static T[] TowDtoOneD<T>(T[,] SouseArry, Vector2Int Size)
         {
@@ -372,14 +387,102 @@ namespace Rs64.TexTransTool
 
 
     }
+
+    [Serializable]
+    public class OrderdHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
+    {
+        [SerializeField] List<T> List;
+        public T this[int index] => List[index];
+        public int Count => List.Count;
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return List.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return List.GetEnumerator();
+        }
+
+        public void Add(T item)
+        {
+            var Index = IndexOf(item);
+            if (Index == -1)
+            {
+                List.Add(item);
+            }
+        }
+        public int AddAndIndexOf(T item)
+        {
+            var Index = List.IndexOf(item);
+            if (Index == -1)
+            {
+                List.Add(item);
+                return List.Count - 1;
+            }
+            return Index;
+        }
+
+        public int IndexOf(T item)
+        {
+            return List.IndexOf(item);
+        }
+
+        public void AddRange(IEnumerable<T> Items)
+        {
+            foreach (var item in Items)
+            {
+                Add(item);
+            }
+        }
+
+
+
+
+        public OrderdHashSet(IEnumerable<T> enumreat)
+        {
+            List = new List<T>();
+            List.AddRange(enumreat);
+        }
+
+        public OrderdHashSet()
+        {
+            List = new List<T>();
+        }
+
+        public List<T> ToList(bool DeepClone = false)
+        {
+            if (DeepClone)
+            {
+                return new List<T>(List);
+            }
+            else
+            {
+                return List;
+            }
+        }
+    }
+
     public static class MaterialUtil
     {
+        public static void SetTextures(this Material TargetMat, List<PropAndTexture> PropAndTextures, bool FocuseSetTexture = false)
+        {
+            foreach (var propAndTexture in PropAndTextures)
+            {
+                if (FocuseSetTexture || TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                {
+                    TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
+                }
+            }
+        }
+
         //MIT License
         //Copyright (c) 2020-2021 lilxyzw
         //https://github.com/lilxyzw/lilToon/blob/master/Assets/lilToon/Editor/lilMaterialUtils.cs
         //
         //https://light11.hatenadiary.com/entry/2018/12/04/224253
-        public static void RemoveUnusedProperties(Material material)
+        public static void RemoveUnusedProperties(this Material material)
         {
             var so = new SerializedObject(material);
             so.Update();
