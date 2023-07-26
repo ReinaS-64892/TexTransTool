@@ -188,20 +188,20 @@ namespace Rs64.TexTransTool
             Stream.Read(LFP, 0, 3);
 
 
-            var WithByte = new byte[2];
             var HeightByte = new byte[2];
+            var WithByte = new byte[2];
 
-            Stream.Read(WithByte, 0, 2);
             Stream.Read(HeightByte, 0, 2);
+            Stream.Read(WithByte, 0, 2);
 
             if (BitConverter.IsLittleEndian)
             {
-                WithByte = WithByte.Reverse().ToArray();
                 HeightByte = HeightByte.Reverse().ToArray();
+                WithByte = WithByte.Reverse().ToArray();
             }
 
-            var with = BitConverter.ToUInt16(WithByte, 0);
             var height = BitConverter.ToUInt16(HeightByte, 0);
+            var with = BitConverter.ToUInt16(WithByte, 0);
 
             return new Vector2Int((int)with, (int)height);
         }
