@@ -15,7 +15,7 @@ namespace Rs64.TexTransTool.Island
             {
                 var Hits = HitRay(i, Positions, Traiangles, out var RayMatrixPoss);
                 FiltedBackTraiangle(Hits);
-                RayCastHitTraiangle.Add(Hits[0].Traiangle);
+                if (Hits.Any()) RayCastHitTraiangle.Add(Hits[0].Traiangle);
             }
             var HitSelectIsland = new HashSet<Island>();
             foreach (var Hittri in RayCastHitTraiangle)
@@ -36,8 +36,8 @@ namespace Rs64.TexTransTool.Island
 
         public static List<RayCastHitTraiangle> HitRay(Ray Ray, IReadOnlyList<Vector3> Positions, IReadOnlyList<TraiangleIndex> Traiangles, out List<Vector3> RayMatrixPoss)
         {
-            var Rot = Quaternion.FromToRotation(Ray.origin, Ray.direction);
-            var RayMatrix = Matrix4x4.TRS(Ray.origin, Rot, Vector3.one);
+            var Rot = Quaternion.LookRotation(Ray.direction);
+            var RayMatrix = Matrix4x4.TRS(Ray.origin, Rot, Vector3.one).inverse;
 
             RayMatrixPoss = new List<Vector3>();
             foreach (var i in Positions)
@@ -55,6 +55,7 @@ namespace Rs64.TexTransTool.Island
 
                 var Closs = TransMapper.ClossTraiangle(new Vector2[] { A, B, C }, Vector2.zero);
                 var TBC = TransMapper.ToBCS(Closs);
+                if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
                 var IsIn = TransMapper.IsInCal(Closs.x, Closs.y, Closs.z);
                 if (IsIn)
                 {
@@ -79,12 +80,12 @@ namespace Rs64.TexTransTool.Island
         public struct RayCastHitTraiangle
         {
             public TraiangleIndex Traiangle;
-            public Vector4 TBC;
+            public Vector4 Closs;
             public float Distans;
-            public RayCastHitTraiangle(TraiangleIndex traiangle, Vector4 tBC, float distans)
+            public RayCastHitTraiangle(TraiangleIndex traiangle, Vector4 closs, float distans)
             {
                 this.Traiangle = traiangle;
-                this.TBC = tBC;
+                this.Closs = closs;
                 this.Distans = distans;
             }
         }
