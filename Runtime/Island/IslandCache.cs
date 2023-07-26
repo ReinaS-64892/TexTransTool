@@ -29,7 +29,7 @@ namespace Rs64.TexTransTool.Island
             Hash = GenereatHash(Triange, UV);
         }
 
-        public static byte[] GenereatHash(IReadOnlyList<TraiangleIndex> Triange, List<Vector2> UV)
+        public static byte[] GenereatHash(IReadOnlyList<TraiangleIndex> Triange, IReadOnlyList<Vector2> UV)
         {
             var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(new List<TraiangleIndex>(Triange), UV));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(datajson);
@@ -48,6 +48,13 @@ namespace Rs64.TexTransTool.Island
                 Triange = triange;
                 UV = uV;
             }
+            public TrainagleAndUVpeas(IReadOnlyList<TraiangleIndex> triange, IReadOnlyList<Vector2> uV)
+            {
+                Triange = triange.ToList();
+                UV = uV.ToList();
+            }
+        
+
         }
     }
 
