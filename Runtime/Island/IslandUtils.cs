@@ -12,8 +12,23 @@ namespace Rs64.TexTransTool.Island
 
     public static class IslandUtils
     {
+        public static List<Island> CachengUVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV)
+        {
+            var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+            var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
 
-        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, List<Vector2> UV, List<IslandCacheObject> Caches = null)
+            var IslandPool = UVtoIsland(traiangles, UV, CacheIslands);
+
+            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
+                    {
+                        var NI = ScriptableObject.CreateInstance<IslandCache>();
+                        NI.CacheObject = i; NI.name = "IslandCache";
+                        return NI;
+                    }));
+            return IslandPool;
+        }
+
+        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV, List<IslandCacheObject> Caches = null)
         {
             var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
             if (Caches != null)
@@ -48,7 +63,7 @@ namespace Rs64.TexTransTool.Island
             return Islands;
         }
 
-        public static List<Island> IslandCrawling(List<Island> IslandPool, List<Vector2> UV, ref bool IsJoin)
+        public static List<Island> IslandCrawling(IReadOnlyList<Island> IslandPool, IReadOnlyList<Vector2> UV, ref bool IsJoin)
         {
 
             var CrawlingdIslandPool = new List<Island>();
@@ -590,12 +605,12 @@ namespace Rs64.TexTransTool.Island
             }
             return IndexList;
         }
-        public List<Vector2> GetVertexPos(List<Vector2> SouseUV)
+        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> SouseUV)
         {
             var VIndexs = GetVertexIndex();
             return VIndexs.ConvertAll<Vector2>(i => SouseUV[i]);
         }
-        public void BoxCurriculation(List<Vector2> SouseUV)
+        public void BoxCurriculation(IReadOnlyList<Vector2> SouseUV)
         {
             var VartPoss = GetVertexPos(SouseUV);
             var Box = TransMapper.BoxCal(VartPoss);
@@ -608,7 +623,6 @@ namespace Rs64.TexTransTool.Island
             var RelaTargetPos = TargetPos - Pivot;
             return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
         }
-
     }
 
 

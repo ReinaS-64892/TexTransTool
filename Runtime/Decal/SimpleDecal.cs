@@ -17,11 +17,10 @@ namespace Rs64.TexTransTool.Decal
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
 
-
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
         public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
 
-
+        public bool IslandCulling = false;
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
@@ -182,6 +181,7 @@ namespace Rs64.TexTransTool.Decal
     {
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVarts;
+        public DecalUtil.MeshDatas MeshData;
         public ParallelProjectionSpase(Matrix4x4 ParallelProjectionMatrix)
         {
             this.ParallelProjectionMatrix = ParallelProjectionMatrix;
@@ -189,6 +189,7 @@ namespace Rs64.TexTransTool.Decal
         }
         public void Input(DecalUtil.MeshDatas MeshData)
         {
+            this.MeshData = MeshData;
             PPSVarts = DecalUtil.ConvartVerticesInMatlix(ParallelProjectionMatrix, MeshData.Varticals, new Vector3(0.5f, 0.5f, 0));
         }
 
@@ -207,13 +208,22 @@ namespace Rs64.TexTransTool.Decal
     public class ParallelProjectionFilter : DecalUtil.ITraianglesFilter<ParallelProjectionSpase>
     {
         public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters;
+        public List<Ray> IslandSelectors;
 
         public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters)
         {
             this.Filters = Filters;
+            IslandSelectors = null;
         }
+        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters, List<Ray> IslandSelectors)
+        {
+            this.Filters = Filters;
+            this.IslandSelectors = IslandSelectors;
+        }
+
         public List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
         {
+            if (IslandSelectors != null) Traiangeles = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Traiangeles);
             return TrainagelFilterUtility.FiltaringTraiangle<List<Vector3>, TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
