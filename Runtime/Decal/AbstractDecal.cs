@@ -90,10 +90,10 @@ namespace Rs64.TexTransTool.Decal
             Container.DecaleBlendTexteres = new List<Texture2D>(DistAndGeneretaTex.Values);
             if (!SelfSave)
             {
-                foreach (var DisMat in DistAndGeneretaTex.Keys.ToList())
-                {
-                    DistAndGeneretaTex[DisMat] = DistAndGeneretaTex[DisMat].CopySetting(DisMat);
-                }
+                // foreach (var DisMat in DistAndGeneretaTex.Keys.ToList())
+                // {
+                //     DistAndGeneretaTex[DisMat] = DistAndGeneretaTex[DisMat].CopySetting(DisMat);
+                // }
             }
             else
             {

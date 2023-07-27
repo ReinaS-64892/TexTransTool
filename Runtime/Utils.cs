@@ -61,6 +61,7 @@ namespace Rs64.TexTransTool
         /// <summary>
         /// いろいろな設定をコピーしたような感じにする。
         /// 戻り値はクローンになる可能性があるため注意。
+        /// ならない場合もあるため注意。
         /// </summary>
         /// <param name="tex"></param>
         /// <param name="CopySouse"></param>

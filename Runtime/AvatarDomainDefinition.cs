@@ -30,6 +30,7 @@ namespace Rs64.TexTransTool
             CacheDomain = GetDomain();
             _IsSelfCallApply = true;
             TexTransGroup.Apply(CacheDomain);
+            CacheDomain.SaveTexture();
         }
 
         public virtual void Revart()
@@ -52,7 +53,8 @@ namespace Rs64.TexTransTool
         渡されたアセットはすべて保存する。
         アセットに保存されていない物を渡すのが前提。
 
-        ただし、テクスチャの圧縮やノーマルマップ設定は各コンポーネントで行うこと。
+        マテリアルで渡すときは、テクスチャは圧縮して渡す
+        テクスチャを渡すときは、圧縮せず渡す
         */
         public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false)
         {
@@ -63,6 +65,8 @@ namespace Rs64.TexTransTool
         }
         [SerializeField] List<Renderer> _Renderers;
         [SerializeField] List<Material> _initialMaterials;
+        [SerializeField] List<TextureStack> _TextureStacks = new List<TextureStack>();
+
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
         {
@@ -97,7 +101,6 @@ namespace Rs64.TexTransTool
         {
             SetMaterial(Pea.Material, Pea.SecndMaterial);
         }
-
         public void SetMaterials(List<Material> Target, List<Material> SetMat)
         {
             foreach (var index in Enumerable.Range(0, Target.Count))
@@ -143,6 +146,7 @@ namespace Rs64.TexTransTool
         public Dictionary<Material, Material> SetTexture(Texture2D Target, Texture2D SetTex)
         {
             var Mats = GetFiltedMaterials();
+            AddStack(Target, SetTex);
             Dictionary<Material, Material> TargetAndSet = new Dictionary<Material, Material>();
             foreach (var Mat in Mats)
             {
@@ -164,7 +168,6 @@ namespace Rs64.TexTransTool
                 }
             }
 
-            if (Asset != null) AssetSaveHelper.SaveSubAsset(Asset, SetTex);
             SetMaterials(TargetAndSet);
 
             return TargetAndSet;
@@ -193,6 +196,47 @@ namespace Rs64.TexTransTool
                 }
             }
             return KeyAndNotSavedMat;
+        }
+        void AddStack(Texture2D Dist, Texture2D SetTex)
+        {
+            var Stack = _TextureStacks.Find(i => i.Stack == Dist);
+            if (Stack == null)
+            {
+                Stack = new TextureStack { FirstTexture = Dist };
+                Stack.Stack = SetTex;
+                _TextureStacks.Add(Stack);
+            }
+            else
+            {
+                Stack.Stack = SetTex;
+            }
+
+        }
+
+        public void SaveTexture()
+        {
+            foreach (var Stack in _TextureStacks)
+            {
+                var Dist = Stack.FirstTexture;
+                var SetTex = Stack.Stack;
+                if (Dist == null || SetTex == null) continue;
+                var CopyTex = SetTex.CopySetting(Dist);
+                if (SetTex != CopyTex) SetTexture(SetTex, CopyTex);
+                AssetSaveHelper.SaveSubAsset(Asset, SetTex);
+            }
+
+        }
+
+        public class TextureStack
+        {
+            public Texture2D FirstTexture;
+            [SerializeField] List<Texture2D> StackTextures = new List<Texture2D>();
+
+            public Texture2D Stack
+            {
+                get => StackTextures.Count > 0 ? StackTextures[StackTextures.Count - 1] : null;
+                set => StackTextures.Add(value);
+            }
         }
     }
 }
