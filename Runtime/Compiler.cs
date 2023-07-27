@@ -108,7 +108,12 @@ namespace Rs64.TexTransTool
             if (!IsEmpty)
             {
                 var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
+                if(TextureImporter == null) return;
                 if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
+            }
+            else
+            {
+                if (SouseTex.isReadable) return;
             }
 
             byte[] ImageBytes = IsEmpty ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
@@ -121,9 +126,10 @@ namespace Rs64.TexTransTool
             var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
             Stream Stream;
             bool IsJPG = false;
-            if (string.IsNullOrEmpty(SouseTexPath))
+            if (string.IsNullOrEmpty(SouseTexPath) || AssetDatabase.IsSubAsset(SouseTex))
             {
-                Stream = new MemoryStream(SouseTex.EncodeToPNG());
+                //メモリに直接乗っかってる場合かunityアセットの場合、Texture2Dが誤った値を返さない。
+                return new Vector2Int(SouseTex.width, SouseTex.height);
             }
             else if (Path.GetExtension(SouseTexPath) == ".png")
             {
