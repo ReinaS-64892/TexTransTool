@@ -13,12 +13,7 @@ namespace Rs64.TexTransTool
 
         public List<MatPea> GenereatMaterials
         {
-            set
-            {
-                AssetSaveHelper.DeletAssets(_GenereatMatPears.ConvertAll(x => x.SecndMaterial));
-                _GenereatMatPears = value;
-                AssetSaveHelper.SaveAssets(_GenereatMatPears.ConvertAll(x => x.SecndMaterial));
-            }
+            set => _GenereatMatPears = value;
             get => _GenereatMatPears;
         }
 
