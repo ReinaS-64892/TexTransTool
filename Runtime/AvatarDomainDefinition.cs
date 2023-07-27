@@ -16,7 +16,7 @@ namespace Rs64.TexTransTool
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
         public virtual AvatarDomain GetDomain()
         {
-            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList());
+            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList(), true);
         }
         protected void Reset()
         {
@@ -38,25 +38,37 @@ namespace Rs64.TexTransTool
             if (TexTransGroup == null) Reset();
             if (!TexTransGroup.IsApply) return;
             _IsSelfCallApply = false;
+            CacheDomain.ResetMaterial();
             TexTransGroup.Revart(CacheDomain);
+            AssetSaveHelper.DeletAsset(CacheDomain.Asset);
             CacheDomain = null;
         }
     }
     [System.Serializable]
     public class AvatarDomain
     {
-        public AvatarDomain(List<Renderer> Renderers)
+        /*
+        AssetSaverがtrueのとき
+        渡されたアセットはすべて保存する。
+        アセットに保存されていない物を渡すのが前提。
+
+        ただし、テクスチャの圧縮やノーマルマップ設定は各コンポーネントで行うこと。
+        */
+        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false)
         {
             _Renderers = Renderers;
             _initialMaterials = Utils.GetMaterials(Renderers);
+            if (AssetSaver) Asset = AssetSaveHelper.SaveAsset(ScriptableObject.CreateInstance<AvatarDomainAsset>());
+
         }
         [SerializeField] List<Renderer> _Renderers;
         [SerializeField] List<Material> _initialMaterials;
+        public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
         {
             return new AvatarDomain(_Renderers);
         }
-        private List<Material> _GetMaterials()
+        private List<Material> GetFiltedMaterials()
         {
             return Utils.GetMaterials(_Renderers).Distinct().Where(I => I != null).ToList();
         }
@@ -79,6 +91,7 @@ namespace Rs64.TexTransTool
                     Renderer.sharedMaterials = Materials;
                 }
             }
+            if (Asset != null) AssetSaveHelper.SaveSubAsset(Asset, SetMat);
         }
         public void SetMaterial(MatPea Pea)
         {
@@ -127,10 +140,9 @@ namespace Rs64.TexTransTool
         /// </summary>
         /// <param name="Target">差し替え元</param>
         /// <param name="SetTex">差し替え先</param>
-        /// <returns>どこにも保存されていない変更したマテリアルの配列</returns>
         public Dictionary<Material, Material> SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            var Mats = _GetMaterials();
+            var Mats = GetFiltedMaterials();
             Dictionary<Material, Material> TargetAndSet = new Dictionary<Material, Material>();
             foreach (var Mat in Mats)
             {
@@ -152,6 +164,7 @@ namespace Rs64.TexTransTool
                 }
             }
 
+            if (Asset != null) AssetSaveHelper.SaveSubAsset(Asset, SetTex);
             SetMaterials(TargetAndSet);
 
             return TargetAndSet;
@@ -160,7 +173,6 @@ namespace Rs64.TexTransTool
         /// ドメイン内のすべてのマテリアルのtextureをKeyからValueに変更する
         /// </summary>
         /// <param name="TargetAndSet"></param>
-        /// <returns>どこにも保存されていない変更したマテリアルの辞書</returns>
         public Dictionary<Material, Material> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
         {
             Dictionary<Material, Material> KeyAndNotSavedMat = new Dictionary<Material, Material>();
