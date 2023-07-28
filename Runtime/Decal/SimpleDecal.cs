@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool.Decal
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
         public override DecalUtil.ITraiangleFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
 
-        
+
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
@@ -180,7 +180,7 @@ namespace Rs64.TexTransTool.Decal
 
         public List<Vector2> OutPutUV()
         {
-            var UV = new List<Vector2>();
+            var UV = new List<Vector2>(PPSVarts.Capacity);
             foreach (var Vart in PPSVarts)
             {
                 UV.Add(Vart);
