@@ -50,7 +50,6 @@ namespace Rs64.TexTransTool.Decal
         {
             if (_IsApply) return;
             if (!IsPossibleCompile) return;
-
             var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
             var PPSSpase = new ParallelProjectionSpase(transform.worldToLocalMatrix);
             var PPSFilter = new ParallelProjectionFilter(GetFilter());
@@ -61,7 +60,8 @@ namespace Rs64.TexTransTool.Decal
                                                 DecalTexture,
                                                 PPSSpase,
                                                 PPSFilter,
-                                                TargetPropatyName
+                                                TargetPropatyName,
+                                                TextureOutRenge: Vector2.zero
                                                 )
                                         ));
 

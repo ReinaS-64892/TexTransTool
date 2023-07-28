@@ -72,15 +72,7 @@ namespace Rs64.TexTransTool.Decal
 
                 var Map = new TransMapData(DefoaltPading, TargetTexSize);
 
-                // TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
-
-                // Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-
-                // var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
-
-                // AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
-
-                var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, -1, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
 
                 TransTexture.TransTextureToRenderTexture(
                     RendererTexture,
@@ -89,7 +81,7 @@ namespace Rs64.TexTransTool.Decal
                     tUV,
                     sUV,
                     DefoaltPading,
-                    BlendType.NotBlend
+                    TextureOutRenge
                 );
 
                 var DecalTex = RendererTexture.CopyTexture2D();
