@@ -15,7 +15,7 @@ namespace Rs64.TexTransTool.Decal
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
         public DecalDataContainer Container = new DecalDataContainer();
-        public float DefaultPading = -1;
+        public float DefaultPading = 1;
 
         protected Material[] GetMaterials()
         {

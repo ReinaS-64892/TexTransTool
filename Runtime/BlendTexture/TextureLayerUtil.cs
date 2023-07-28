@@ -32,6 +32,7 @@ namespace Rs64.TexTransTool
         Color,
         Luminosity,
         AlphaLerp,
+        NotBlend,
     }
     public static class TextureLayerUtil
     {
