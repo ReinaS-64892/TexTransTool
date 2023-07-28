@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.ObjectModel;
 using System;
 using System.Collections;
@@ -98,13 +98,13 @@ namespace Rs64.TexTransTool.Decal
                         Mesh Mesh = new Mesh();
                         SMR.BakeMesh(Mesh);
                         Mesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
                     {
                         MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 default:
@@ -153,6 +153,13 @@ namespace Rs64.TexTransTool.Decal
                 ConvertVertices.Add(Pos);
             }
             return ConvertVertices;
+        }
+        public static void ConvartVerticesInMatlix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
+        {
+            for (int i = 0; i < Vertices.Count; i++)
+            {
+                Vertices[i] = matrix.MultiplyPoint3x4(Vertices[i]) + Offset;
+            }
         }
         [Obsolete]
         public static List<TraiangleIndex> FiltaringTraiangle(
