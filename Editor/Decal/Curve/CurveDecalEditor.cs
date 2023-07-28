@@ -3,12 +3,13 @@
 using UnityEngine;
 using UnityEditor;
 using Rs64.TexTransTool.Decal.Curve;
+using Rs64.TexTransTool.Decal;
 
 namespace Rs64.TexTransTool.Editor.Decal.Curve
 {
 
 
-    [CustomEditor(typeof(CurveDecal))]
+    [CustomEditor(typeof(CurveDecal<DecalUtil.IConvertSpace>))]
     public class CurveDecalEditor : AbstractDecalEditor
     {
         public override void OnInspectorGUI()

@@ -5,7 +5,7 @@ using Rs64.TexTransTool.Decal;
 
 namespace Rs64.TexTransTool.Editor.Decal
 {
-    [CustomEditor(typeof(AbstractDecal), true)]
+    [CustomEditor(typeof(AbstractDecal<DecalUtil.IConvertSpace>), true)]
     public class AbstractDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(S_TargetPropatyName);
         }
 
-        public static void DorwScaileEditor(AbstractDecal ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect)
+        public static void DorwScaileEditor<T>(AbstractDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
             if (S_FixedAspect.boolValue)
             {
