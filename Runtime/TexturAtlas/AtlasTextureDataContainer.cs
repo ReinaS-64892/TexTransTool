@@ -84,16 +84,6 @@ namespace Rs64.TexTransTool.TexturAtlas
             ClearGenereatMaterials();
             if (GenereatMaterials == null) return;
             var ConvartSubMeshs = SubListMaterial.ConvartSubList(GenereatMaterials);
-            var count = ConvartSubMeshs.Count;
-            for (int i = 0; i < count; i++)
-            {
-                for (int j = 0; j < ConvartSubMeshs[i].Count; j++)
-                {
-                    var mat = ConvartSubMeshs[i][j];
-                    mat = AssetSaveHelper.SaveAsset(mat);
-                    ConvartSubMeshs[i][j] = mat;
-                }
-            }
             _genereatMaterials = ConvartSubMeshs;
         }
         void ClearGenereatMaterials()

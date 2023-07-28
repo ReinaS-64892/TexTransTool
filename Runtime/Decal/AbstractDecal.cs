@@ -50,7 +50,12 @@ namespace Rs64.TexTransTool.Decal
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            var SelfSave = false;
+            if (avatarMaterialDomain == null)
+            {
+                avatarMaterialDomain = new AvatarDomain(TargetRenderers, false);
+                SelfSave = true;
+            }
             Container.DecaleBlendTexteres = null;
 
             var DistMaterials = Utils.GetMaterials(TargetRenderers);
@@ -71,35 +76,55 @@ namespace Rs64.TexTransTool.Decal
                         var OldGenereatetex = DistAndGeneretaTex[OldTex];
                         var MoreBlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldGenereatetex, DecalTex, BlendType);
                         MoreBlendsTex.name = TexName;
-                        var SavedTex = AssetSaveHelper.SaveAsset(MoreBlendsTex);
-                        AssetSaveHelper.DeletAsset(OldGenereatetex);
-                        DistAndGeneretaTex[OldTex] = SavedTex;
+                        DistAndGeneretaTex[OldTex] = MoreBlendsTex;
                     }
                     else
                     {
                         var BlendsTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, OldTex, DecalTex, BlendType);
                         BlendsTex.name = TexName;
-                        var SavedTex = AssetSaveHelper.SaveAsset(BlendsTex);
-                        DistAndGeneretaTex.Add(OldTex, SavedTex);
+                        DistAndGeneretaTex.Add(OldTex, BlendsTex);
                     }
                 }
             }
 
             Container.DecaleBlendTexteres = new List<Texture2D>(DistAndGeneretaTex.Values);
+            if (!SelfSave)
+            {
+                // foreach (var DisMat in DistAndGeneretaTex.Keys.ToList())
+                // {
+                //     DistAndGeneretaTex[DisMat] = DistAndGeneretaTex[DisMat].CopySetting(DisMat);
+                // }
+            }
+            else
+            {
+                foreach (var Dist2Gen in DistAndGeneretaTex)
+                {
+                    Dist2Gen.Value.Apply(true);
+                }
+
+            }
 
             var NotSavedMats = avatarMaterialDomain.SetTexture(DistAndGeneretaTex);
-            Container.GenereatMaterials = MatPea.GeneratMatPeaList(NotSavedMats);
+            if (SelfSave) Container.GenereatMaterials = MatPea.GeneratMatPeaList(NotSavedMats);
         }
 
         public override void Revart(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+            var SelfSave = false;
+            if (avatarMaterialDomain == null)
+            {
+                avatarMaterialDomain = new AvatarDomain(TargetRenderers);
+                SelfSave = true;
+            }
             IsSelfCallApply = false;
 
-            var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
-            avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
+            if (SelfSave)
+            {
+                var MatsDict = MatPea.SwitchingdList(Container.GenereatMaterials);
+                avatarMaterialDomain.SetMaterials(MatPea.GeneratMatDict(MatsDict));
+            }
         }
 
         public virtual void ScaleApply() { throw new NotImplementedException(); }

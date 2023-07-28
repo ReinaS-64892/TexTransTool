@@ -115,9 +115,9 @@ namespace Rs64.TexTransTool
                 AssetDatabase.DeleteAsset(path);
             }
         }
-
         public static void SaveSubAsset<T>(UnityEngine.Object MainAsset, T SubAssets) where T : UnityEngine.Object
         {
+            if (AssetDatabase.Contains(SubAssets)) { Debug.Log($"{SubAssets.name}はすでにどこかのアセットです。"); return; }
             AssetDatabase.AddObjectToAsset(SubAssets, MainAsset);
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(MainAsset));
         }
