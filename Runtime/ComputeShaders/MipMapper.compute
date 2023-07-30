@@ -27,7 +27,7 @@ float4 GetMip(Buffer<float4> Souse,uint TexSizeX,uint2 texel)
 		}
 	}
 	sum /= Pixselcount;
-    return  Pixselcount > 0 ?  sum : 0;
+    return  saturate(sum);
 }
 
 
