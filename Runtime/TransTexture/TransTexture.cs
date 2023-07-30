@@ -66,7 +66,7 @@ namespace Rs64.TexTransTool
             try
             {
                 RenderTexture.active = Rt;
-                var Texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+                var Texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain);
                 Texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
                 Texture.Apply();
                 return Texture;

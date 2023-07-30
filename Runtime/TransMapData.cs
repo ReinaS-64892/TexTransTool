@@ -121,6 +121,7 @@ namespace Rs64.TexTransTool
         public Vector2Int MapSize;
 
         public T this[int i] { get => Array[i]; set => Array[i] = value; }
+        public T this[int x, int y] { get => Array[GetIndexOn1D(new Vector2Int(x, y))]; set => Array[GetIndexOn1D(new Vector2Int(x, y))] = value; }
 
         public TowDMap(T[] array, Vector2Int mapSize)
         {
@@ -132,7 +133,11 @@ namespace Rs64.TexTransTool
             Array = Utils.FilledArray(defaultValue, mapSize.x * mapSize.y);
             MapSize = mapSize;
         }
-
+        public TowDMap( Vector2Int mapSize)
+        {
+            Array = new T[mapSize.x * mapSize.y];
+            MapSize = mapSize;
+        }
         public TowDMap()
         {
         }
