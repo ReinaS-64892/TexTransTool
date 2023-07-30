@@ -1,27 +1,24 @@
 #pragma kernel MipMapper
-#pragma kernel MipMapper2x2
-#pragma kernel SingleMipMapper
-#pragma kernel SingleMipMapper2x2
 
 #include "./TransHelper.hlsl"
 
-Buffer<float4> TexSecond;
-uint TexSecondSizeX;
-Buffer<float4> TexFirst;
-uint TexFirstSizeX;
+
+Buffer<float4> Tex;
+uint TexSizeX;
 
 
 RWBuffer<float4> OutPutMap;
 uint MipSizeX;
-uint2 BoxSize;
 
-float4 GetMip(Buffer<float4> Souse,uint TexSizeX,uint2 texel,uint2 boxSize)
+float4 GetMip(Buffer<float4> Souse,uint TexSizeX,uint2 texel)
 {
 	float4 sum = 0;
 	float4 Pixselcount = 0;
-	for (uint x = 0; x < boxSize.x; x++)
+	[unroll]
+	for (uint x = 0; x < 2; x++)
 	{
-		for (uint y = 0; y < boxSize.y; y++)
+		[unroll]
+		for (uint y = 0; y < 2; y++)
 		{
 			float4 current = Souse[TwoDToOneDIndex(uint2(texel.x + x, texel.y + y),TexSizeX)];
             float IsEndable = ceil(current.w);
@@ -29,36 +26,12 @@ float4 GetMip(Buffer<float4> Souse,uint TexSizeX,uint2 texel,uint2 boxSize)
             Pixselcount += IsEndable;
 		}
 	}
-
 	sum /= Pixselcount;
     return  Pixselcount > 0 ?  sum : 0;
 }
 
+
 [numthreads(32, 32, 1)] void MipMapper(uint3 id : SV_DispatchThreadID)
 {
-    uint2 texel = id.xy * BoxSize;
-    float4 FirstMip = GetMip(TexFirst,TexFirstSizeX,texel,BoxSize);
-    float4 SecondMip = GetMip(TexSecond,TexSecondSizeX,texel,BoxSize);
-
-	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = lerp(SecondMip,FirstMip,ceil(FirstMip.w));
-}
-[numthreads(2, 2, 1)] void MipMapper2x2(uint3 id : SV_DispatchThreadID)
-{
-    uint2 texel = id.xy * BoxSize;
-    float4 FirstMip = GetMip(TexFirst,TexFirstSizeX,texel,BoxSize);
-    float4 SecondMip = GetMip(TexSecond,TexSecondSizeX,texel,BoxSize);
-
-	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = lerp(SecondMip,FirstMip,ceil(FirstMip.w));
-}
-[numthreads(32, 32, 1)] void SingleMipMapper(uint3 id : SV_DispatchThreadID)
-{
-    uint2 texel = id.xy * BoxSize;
-
-	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = GetMip(TexFirst,TexFirstSizeX,texel,BoxSize);
-}
-[numthreads(2, 2, 1)] void SingleMipMapper2x2(uint3 id : SV_DispatchThreadID)
-{
-    uint2 texel = id.xy * BoxSize;
-
-	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = GetMip(TexFirst,TexFirstSizeX,texel,BoxSize);
+	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = GetMip(Tex,TexSizeX,id.xy * 2);
 }
