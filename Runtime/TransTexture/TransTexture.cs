@@ -17,7 +17,7 @@ namespace Rs64.TexTransTool
             IReadOnlyList<TraiangleIndex> TrianglesToIndex,
             IReadOnlyList<Vector2> TargetUV,
             IReadOnlyList<Vector2> SourceUV,
-            float Pading,
+            float? Pading = null,
             Vector2? WarpRange = null
             )
         {
@@ -31,9 +31,9 @@ namespace Rs64.TexTransTool
 
             var Material = new Material(Shader.Find("Hidden/TransTexture"));
             Material.SetTexture("_MainTex", SouseTexture);
-            Material.SetFloat("_Pading", Pading);
+            if (Pading != null) Material.SetFloat("_Pading", Pading.Value);
 
-            if(WarpRange != null)
+            if (WarpRange != null)
             {
                 Material.EnableKeyword("WarpRange");
                 Material.SetFloat("_WarpRangeX", WarpRange.Value.x);
@@ -50,9 +50,11 @@ namespace Rs64.TexTransTool
                 RenderTexture.active = TargetTexture;
                 Material.SetPass(0);
                 Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
-                Material.SetPass(1);
-                Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
-
+                if (Pading != null)
+                {
+                    Material.SetPass(1);
+                    Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
+                }
 
             }
             finally
