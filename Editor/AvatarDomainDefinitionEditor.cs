@@ -13,6 +13,7 @@ namespace Rs64.TexTransTool.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("GenereatCustomMipMap"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TexTransGroup"));
 
             var thsitarget = target as AvatarDomainDefinition;

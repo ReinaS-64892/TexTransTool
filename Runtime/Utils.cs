@@ -60,16 +60,16 @@ namespace Rs64.TexTransTool
         }
         /// <summary>
         /// いろいろな設定をコピーしたような感じにする。
+        /// ただしリサイズだけは行わない。
         /// 戻り値はクローンになる可能性があるため注意。
         /// ならない場合もあるため注意。
         /// </summary>
         /// <param name="tex"></param>
         /// <param name="CopySouse"></param>
         /// <returns></returns>
-        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, bool GenereatMipMap = false)
+        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, SortedList<int, Color[]> MipMap = null)
         {
             var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
-            if (tex.width != CopySouse.width || tex.height != CopySouse.height) tex = TextureLayerUtil.ResizeTexture(tex, new Vector2Int(CopySouse.width, CopySouse.height));
             if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
             tex.filterMode = CopySouse.filterMode;
             tex.anisoLevel = CopySouse.anisoLevel;
@@ -79,7 +79,11 @@ namespace Rs64.TexTransTool
             tex.wrapModeU = CopySouse.wrapModeU;
             tex.wrapModeV = CopySouse.wrapModeV;
             tex.wrapMode = CopySouse.wrapMode;
-            tex.Apply(GenereatMipMap);
+            if (MipMap != null)
+            {
+                tex.ApplyMip(MipMap);
+            }
+            else { tex.Apply(true); }
             EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
 
             return tex;

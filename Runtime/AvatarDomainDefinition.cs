@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static Rs64.TexTransTool.TextureLayerUtil;
+using System;
 
 namespace Rs64.TexTransTool
 {
@@ -10,6 +11,7 @@ namespace Rs64.TexTransTool
     public class AvatarDomainDefinition : MonoBehaviour
     {
         public GameObject Avatar;
+        public bool GenereatCustomMipMap;
         [SerializeField] public AbstractTexTransGroup TexTransGroup;
         [SerializeField] protected AvatarDomain CacheDomain;
 
@@ -17,7 +19,7 @@ namespace Rs64.TexTransTool
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
         public virtual AvatarDomain GetDomain()
         {
-            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList(), true);
+            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList(), true, GenereatCustomMipMap);
         }
         protected void Reset()
         {
@@ -57,16 +59,17 @@ namespace Rs64.TexTransTool
         マテリアルで渡すときは、テクスチャは圧縮して渡す
         テクスチャを渡すときは、圧縮せず渡す
         */
-        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false)
+        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false, bool genereatCustomMipMap = false)
         {
             _Renderers = Renderers;
             _initialMaterials = Utils.GetMaterials(Renderers);
             if (AssetSaver) Asset = AssetSaveHelper.SaveAsset(ScriptableObject.CreateInstance<AvatarDomainAsset>());
-
+            GenereatCustomMipMap = genereatCustomMipMap;
         }
         [SerializeField] List<Renderer> _Renderers;
         [SerializeField] List<Material> _initialMaterials;
         [SerializeField] List<TextureStack> _TextureStacks = new List<TextureStack>();
+        [SerializeField] bool GenereatCustomMipMap;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
@@ -220,11 +223,76 @@ namespace Rs64.TexTransTool
                 var Dist = Stack.FirstTexture;
                 var SetTex = Stack.MargeStack();
                 if (Dist == null || SetTex == null) continue;
-                var CopySetTex = SetTex.CopySetting(Dist);
+
+                if (Dist.width != SetTex.width || Dist.height != SetTex.height)
+                {
+                    SetTex = TextureLayerUtil.ResizeTexture(SetTex, new Vector2Int(Dist.width, Dist.height));
+                }
+
+                SortedList<int, Color[]> Mip = null;
+                if (GenereatCustomMipMap)
+                {
+                    var UsingUVdata = new List<TransTexture.TransUVData>();
+                    foreach (var Mat in FindUseMaterials(Dist))
+                    {
+                        MatUseUvDataGet(UsingUVdata, Mat);
+                    }
+                    var PrimeRT = new RenderTexture(SetTex.width, SetTex.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    TransTexture.TransTextureToRenderTexture(PrimeRT, SetTex, UsingUVdata);
+
+                    var PrimeTex = PrimeRT.CopyTexture2D();
+
+                    var DistMip = SetTex.GenereatMiplist();
+                    var SetTexMip = PrimeTex.GenereatMiplist();
+                    MipMapUtili.MargeMip(DistMip, SetTexMip);
+
+                    Mip = DistMip;
+                }
+
+
+                var CopySetTex = SetTex.CopySetting(Dist, Mip);
                 SetTexture(Dist, CopySetTex);
+
                 AssetSaveHelper.SaveSubAsset(Asset, CopySetTex);
             }
 
+        }
+
+        private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)
+        {
+            for (int i = 0; _Renderers.Count > i; i++)
+            {
+                var render = _Renderers[i];
+                for (int j = 0; render.sharedMaterials.Length > j; j++)
+                {
+                    if (render.sharedMaterials[j] == Mat)
+                    {
+                        var mesh = render.GetMesh();
+                        UsingUVdata.Add(new TransTexture.TransUVData(
+                            Utils.ToList(mesh.GetTriangles(j)),
+                            mesh.uv,
+                            mesh.uv
+                            )
+                        );
+                    }
+                }
+            }
+        }
+
+        public List<Material> FindUseMaterials(Texture2D Texture)
+        {
+            var Mats = GetFiltedMaterials();
+            List<Material> UseMats = new List<Material>();
+            foreach (var Mat in Mats)
+            {
+                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat),Mat);
+
+                if (Textures.ContainsValue(Texture))
+                {
+                    UseMats.Add(Mat);
+                }
+            }
+            return UseMats;
         }
 
         public class TextureStack

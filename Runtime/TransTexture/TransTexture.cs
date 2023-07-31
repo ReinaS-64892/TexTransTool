@@ -80,6 +80,18 @@ namespace Rs64.TexTransTool
                 RenderTexture.active = Pre;
             }
         }
+        public static void TransTextureToRenderTexture(
+            RenderTexture TargetTexture,
+            Texture2D SouseTexture,
+            IEnumerable<TransUVData> TransUVData,
+            float? Pading = null,
+            Vector2? WarpRange = null)
+        {
+            foreach(var TUVD in TransUVData)
+            {
+                TransTextureToRenderTexture(TargetTexture, SouseTexture, TUVD, Pading, WarpRange);
+            }
+        }   
         public static Texture2D CopyTexture2D(this RenderTexture Rt)
         {
             var Pre = RenderTexture.active;
