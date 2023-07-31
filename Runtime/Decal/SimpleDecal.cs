@@ -9,13 +9,19 @@ namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/SimpleDecal")]
     [ExecuteInEditMode]
-    public class SimpleDecal : AbstractDecal
+    public class SimpleDecal : AbstractDecal<ParallelProjectionSpase>
     {
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
+
+
+        public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
+        public override DecalUtil.ITraiangleFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
+
+
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
@@ -46,39 +52,6 @@ namespace Rs64.TexTransTool.Decal
 
             return Filters;
         }
-        public override void Compile()
-        {
-            if (_IsApply) return;
-            if (!IsPossibleCompile) return;
-
-            var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
-            var PPSSpase = new ParallelProjectionSpase(transform.worldToLocalMatrix);
-            var PPSFilter = new ParallelProjectionFilter(GetFilter());
-
-
-            TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
-                                                i,
-                                                DecalTexture,
-                                                PPSSpase,
-                                                PPSFilter,
-                                                TargetPropatyName
-                                                )
-                                        ));
-
-            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.AlphaLerp);
-            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
-            Container.DecalCompiledTextures = TextureList;
-            Container.IsPossibleApply = true;
-        }
-        [Obsolete]
-        public void AdvansdModeReset()
-        {
-            TargetPropatyName = "_MainTex";
-            SideChek = true;
-            PolygonCaling = PolygonCaling.Vartex;
-        }
-
 
 
         [NonSerialized] public Material DisplayDecalMat;
@@ -207,7 +180,7 @@ namespace Rs64.TexTransTool.Decal
 
         public List<Vector2> OutPutUV()
         {
-            var UV = new List<Vector2>();
+            var UV = new List<Vector2>(PPSVarts.Capacity);
             foreach (var Vart in PPSVarts)
             {
                 UV.Add(Vart);

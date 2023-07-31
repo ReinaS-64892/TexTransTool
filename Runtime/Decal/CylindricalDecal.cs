@@ -7,7 +7,7 @@ using Rs64.TexTransTool.Decal.Cylindrical;
 namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/CylindricalDecal")]
-    public class CylindricalDecal : AbstractDecal
+    public class CylindricalDecal : AbstractDecal<CCSSpace>
     {
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
         public bool FixedAspect = true;
@@ -16,34 +16,9 @@ namespace Rs64.TexTransTool.Decal
         public float OutOfRangeOffset = 1f;
         public float FarCulling = 1f;
         public float NierCullingOffSet = 1f;
-        public override void Compile()
-        {
-            if (_IsApply) return;
-            if (!IsPossibleCompile) return;
 
-            var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
-
-
-            var PPSSpase = new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-            var PPSFilter = new CCSFilter(GetFilters());
-
-
-            TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
-                                                i,
-                                                DecalTexture,
-                                                PPSSpase,
-                                                PPSFilter,
-                                                TargetPropatyName
-                                                )
-                                        ));
-
-            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
-            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
-            Container.DecalCompiledTextures = TextureList;
-
-            Container.IsPossibleApply = true;
-        }
+        public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
+        public override DecalUtil.ITraiangleFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
 
         private List<DecalUtil.Filtaring<CCSSpace>> GetFilters()
         {
@@ -69,6 +44,7 @@ namespace Rs64.TexTransTool.Decal
             new Vector3(-0.5f, 0.5f, 0),
             new Vector3(0.5f, 0.5f, 0),
         };
+
 
         public List<Vector3> GetQuad()
         {

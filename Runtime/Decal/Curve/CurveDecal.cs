@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Rs64.TexTransTool.Decal.Curve
 {
-    public abstract class CurveDecal : AbstractDecal
+    public abstract class CurveDecal<T> : AbstractDecal<T> where T : DecalUtil.IConvertSpace
     {
         public float Size = 0.5f;
         public uint LoopCount = 1;

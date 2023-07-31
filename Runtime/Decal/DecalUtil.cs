@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.ObjectModel;
 using System;
 using System.Collections;
@@ -33,58 +33,59 @@ namespace Rs64.TexTransTool.Decal
                 TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
             }
         }
-        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture<SpaseConverter>(
+        public static Dictionary<Texture2D, RenderTexture> CreatDecalTexture<SpaseConverter>(
             Renderer TargetRenderer,
+            Dictionary<Texture2D, RenderTexture> RenderTextures,
             Texture2D SousTextures,
             SpaseConverter ConvertSpase,
             ITraiangleFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
-            string TransMapperPath = null,
             Vector2? TextureOutRenge = null,
-            TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
-            float DefoaltPading = -1f
+            //TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
+            float DefoaltPading = 0.5f
         )
         where SpaseConverter : IConvertSpace
         {
-            var ResultTexutres = new Dictionary<Material, List<Texture2D>>();
+            if (RenderTextures == null) RenderTextures = new Dictionary<Texture2D, RenderTexture>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
-            List<Vector2> tUV; List<List<TraiangleIndex>> TraiangelsSubMesh; (tUV, TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
 
             ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
             var sUV = ConvertSpase.OutPutUV();
 
-            var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             var Materials = TargetRenderer.sharedMaterials;
 
-            int SubMeshCount = -1;
-            foreach (var Traiangel in TraiangelsSubMesh)
+            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
             {
-                SubMeshCount += 1;
-                var TargetMat = Materials[SubMeshCount];
+                var Traiangel = TraiangelsSubMesh[i];
+                var TargetMat = Materials[i];
+
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture.NativeSize();
 
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
-
                 if (FiltaringdTrainagle.Any() == false) { continue; }
 
-                var Map = new TransMapData(DefoaltPading, TargetTexSize);
+                if (!RenderTextures.ContainsKey(TargetTexture))
+                {
+                    var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    RenderTextures.Add(TargetTexture, RendererTexture);
+                }
 
-                TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
-
-                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
-
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
-
-                AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
-
-                if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
-                else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }
-
+                TransTexture.TransTextureToRenderTexture(
+                    RenderTextures[TargetTexture],
+                    SousTextures,
+                    FiltaringdTrainagle,
+                    tUV,
+                    sUV,
+                    DefoaltPading,
+                    TextureOutRenge
+                );
             }
-            return ResultTexutres;
+
+            return RenderTextures;
         }
 
         public static List<Vector3> GetWorldSpeasVertices(Renderer Target)
@@ -97,13 +98,13 @@ namespace Rs64.TexTransTool.Decal
                         Mesh Mesh = new Mesh();
                         SMR.BakeMesh(Mesh);
                         Mesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
                     {
                         MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 default:
@@ -152,6 +153,13 @@ namespace Rs64.TexTransTool.Decal
                 ConvertVertices.Add(Pos);
             }
             return ConvertVertices;
+        }
+        public static void ConvartVerticesInMatlix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
+        {
+            for (int i = 0; i < Vertices.Count; i++)
+            {
+                Vertices[i] = matrix.MultiplyPoint3x4(Vertices[i]) + Offset;
+            }
         }
         [Obsolete]
         public static List<TraiangleIndex> FiltaringTraiangle(

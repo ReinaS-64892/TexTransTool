@@ -164,6 +164,19 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
+        public static void ChangeMaterials(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
+        {
+            foreach (var render in Rendres)
+            {
+                var Materials = render.sharedMaterials;
+                for (int i = 0; i < Materials.Length; i++)
+                {
+                    if (MatPeas.ContainsKey(Materials[i])) Materials[i] = MatPeas[Materials[i]];
+                }
+                render.sharedMaterials = Materials;
+
+            }
+        }
         public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)
         {
             List<Mesh> Meshs = new List<Mesh>();

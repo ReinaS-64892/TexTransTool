@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using static Rs64.TexTransTool.TextureLayerUtil;
 
 namespace Rs64.TexTransTool
 {
@@ -146,7 +147,6 @@ namespace Rs64.TexTransTool
         public Dictionary<Material, Material> SetTexture(Texture2D Target, Texture2D SetTex)
         {
             var Mats = GetFiltedMaterials();
-            AddStack(Target, SetTex);
             Dictionary<Material, Material> TargetAndSet = new Dictionary<Material, Material>();
             foreach (var Mat in Mats)
             {
@@ -197,9 +197,9 @@ namespace Rs64.TexTransTool
             }
             return KeyAndNotSavedMat;
         }
-        void AddStack(Texture2D Dist, Texture2D SetTex)
+        public void AddTextureStack(Texture2D Dist, BlendRenderTarget SetTex)
         {
-            var Stack = _TextureStacks.Find(i => i.Stack == Dist);
+            var Stack = _TextureStacks.Find(i => i.FirstTexture == Dist);
             if (Stack == null)
             {
                 Stack = new TextureStack { FirstTexture = Dist };
@@ -218,11 +218,11 @@ namespace Rs64.TexTransTool
             foreach (var Stack in _TextureStacks)
             {
                 var Dist = Stack.FirstTexture;
-                var SetTex = Stack.Stack;
+                var SetTex = Stack.MargeStack();
                 if (Dist == null || SetTex == null) continue;
-                var CopyTex = SetTex.CopySetting(Dist);
-                if (SetTex != CopyTex) SetTexture(SetTex, CopyTex);
-                AssetSaveHelper.SaveSubAsset(Asset, SetTex);
+                var CopySetTex = SetTex.CopySetting(Dist);
+                SetTexture(Dist, CopySetTex);
+                AssetSaveHelper.SaveSubAsset(Asset, CopySetTex);
             }
 
         }
@@ -230,13 +230,24 @@ namespace Rs64.TexTransTool
         public class TextureStack
         {
             public Texture2D FirstTexture;
-            [SerializeField] List<Texture2D> StackTextures = new List<Texture2D>();
+            [SerializeField] List<BlendRenderTarget> StackTextures = new List<BlendRenderTarget>();
 
-            public Texture2D Stack
+            public BlendRenderTarget Stack
             {
-                get => StackTextures.Count > 0 ? StackTextures[StackTextures.Count - 1] : null;
                 set => StackTextures.Add(value);
             }
+
+            public Texture2D MargeStack()
+            {
+                var Size = FirstTexture.NativeSize();
+                var RendererTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                Graphics.Blit(FirstTexture, RendererTexture);
+
+                RendererTexture.BlendBlit(StackTextures);
+
+                return RendererTexture.CopyTexture2D();
+            }
+
         }
     }
 }

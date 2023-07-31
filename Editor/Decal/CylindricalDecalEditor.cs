@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
+            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }
