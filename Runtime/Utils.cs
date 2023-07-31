@@ -66,7 +66,7 @@ namespace Rs64.TexTransTool
         /// <param name="tex"></param>
         /// <param name="CopySouse"></param>
         /// <returns></returns>
-        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse)
+        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, bool GenereatMipMap = false)
         {
             var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
             if (tex.width != CopySouse.width || tex.height != CopySouse.height) tex = TextureLayerUtil.ResizeTexture(tex, new Vector2Int(CopySouse.width, CopySouse.height));
@@ -79,7 +79,7 @@ namespace Rs64.TexTransTool
             tex.wrapModeU = CopySouse.wrapModeU;
             tex.wrapModeV = CopySouse.wrapModeV;
             tex.wrapMode = CopySouse.wrapMode;
-            tex.Apply(true);
+            tex.Apply(GenereatMipMap);
             EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
 
             return tex;

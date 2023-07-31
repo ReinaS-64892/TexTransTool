@@ -1,0 +1,37 @@
+#pragma kernel MipMapper
+
+#include "./TransHelper.hlsl"
+
+
+Buffer<float4> Tex;
+uint TexSizeX;
+
+
+RWBuffer<float4> OutPutMap;
+uint MipSizeX;
+
+float4 GetMip(Buffer<float4> Souse,uint TexSizeX,uint2 texel)
+{
+	float4 sum = 0;
+	float4 Pixselcount = 0;
+	[unroll]
+	for (uint x = 0; x < 2; x++)
+	{
+		[unroll]
+		for (uint y = 0; y < 2; y++)
+		{
+			float4 current = Souse[TwoDToOneDIndex(uint2(texel.x + x, texel.y + y),TexSizeX)];
+            float IsEndable = ceil(current.w);
+			sum += current * IsEndable;
+            Pixselcount += IsEndable;
+		}
+	}
+	sum /= Pixselcount;
+    return  saturate(sum);
+}
+
+
+[numthreads(32, 32, 1)] void MipMapper(uint3 id : SV_DispatchThreadID)
+{
+	OutPutMap[TwoDToOneDIndex(id.xy,MipSizeX)] = GetMip(Tex,TexSizeX,id.xy * 2);
+}
