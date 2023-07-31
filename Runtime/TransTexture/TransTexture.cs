@@ -10,24 +10,42 @@ namespace Rs64.TexTransTool
 {
     public static class TransTexture
     {
+        public struct TransUVData
+        {
+            public IReadOnlyList<TraiangleIndex> TrianglesToIndex;
+            public IReadOnlyList<Vector2> TargetUV;
+            public IReadOnlyList<Vector2> SourceUV;
+
+            public TransUVData(IReadOnlyList<TraiangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetUV, IReadOnlyList<Vector2> SourceUV)
+            {
+                this.TrianglesToIndex = TrianglesToIndex;
+                this.TargetUV = TargetUV;
+                this.SourceUV = SourceUV;
+            }
+
+            public Mesh GenereateTransMesh()
+            {
+                var Mesh = new Mesh();
+                var Vertices = TargetUV.Select(I => new Vector3(I.x, I.y, 0)).ToArray();
+                var UV = SourceUV.ToArray();
+                var Triangles = TrianglesToIndex.SelectMany(I => I).ToArray();
+                Mesh.vertices = Vertices;
+                Mesh.uv = UV;
+                Mesh.triangles = Triangles;
+                return Mesh;
+            }
+        }
         //sRGBのRenderTexture
         public static void TransTextureToRenderTexture(
             RenderTexture TargetTexture,
             Texture2D SouseTexture,
-            IReadOnlyList<TraiangleIndex> TrianglesToIndex,
-            IReadOnlyList<Vector2> TargetUV,
-            IReadOnlyList<Vector2> SourceUV,
+            TransUVData TransUVData,
             float? Pading = null,
             Vector2? WarpRange = null
             )
         {
-            var Mesh = new Mesh();
-            var Vertices = TargetUV.Select(I => new Vector3(I.x, I.y, 0)).ToArray();
-            var UV = SourceUV.ToArray();
-            var Triangles = TrianglesToIndex.SelectMany(I => I).ToArray();
-            Mesh.vertices = Vertices;
-            Mesh.uv = UV;
-            Mesh.triangles = Triangles;
+            var Mesh = TransUVData.GenereateTransMesh();
+
 
             var Material = new Material(Shader.Find("Hidden/TransTexture"));
             Material.SetTexture("_MainTex", SouseTexture);

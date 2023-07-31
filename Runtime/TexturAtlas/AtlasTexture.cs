@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using Rs64.TexTransTool.ShaderSupport;
 using Rs64.TexTransTool.Island;
+using static Rs64.TexTransTool.TransTexture;
 
 namespace Rs64.TexTransTool.TexturAtlas
 {
@@ -110,11 +111,11 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
 
-                var TransMaps = new Dictionary<int, TransMapData>();
+                var TransMaps = new Dictionary<int, List<TransUVData>>();
                 foreach (var matdata in Matdatas)
                 {
-                    var transMap = new TransMapData(atlasSetting.Pading, atlasSetting.AtlasTextureSize);
                     var matref = matdata.MaterialRefarens;
+                    var Maps = new List<TransUVData>();
 
                     foreach (var itag in IndexTag.Where(tag => AtlasDatas.GetMaterialRefarens(tag) == matref))
                     {
@@ -124,17 +125,18 @@ namespace Rs64.TexTransTool.TexturAtlas
                         var MovedPool = AtlasDatas.FindIndexTagIslandPool(AtlasIslandPool, itag, false);
                         var MoveUV = new List<Vector2>(NotMovedUV);
                         IslandUtils.IslandPoolMoveUV(NotMovedUV, MoveUV, OriginIslandPool, MovedPool);
-                        TransMapper.UVtoTexScale(MoveUV, atlasSetting.AtlasTextureSize);
+                        // TransMapper.UVtoTexScale(MoveUV, atlasSetting.AtlasTextureSize);
 
-                        TransMapper.TransMapGeneratUseComputeSheder(null, transMap, TargetTrainagles, MoveUV, NotMovedUV, atlasSetting.PadingType);
+                        // TransMapper.TransMapGeneratUseComputeSheder(null, transMap, TargetTrainagles, MoveUV, NotMovedUV, atlasSetting.PadingType);
+                        Maps.Add(new TransUVData(TargetTrainagles, MoveUV, NotMovedUV));
                     }
 
-                    TransMaps.Add(matref, transMap);
+                    TransMaps.Add(matref, Maps);
                 }
 
 
 
-                var CompiledAtlasTextures = new List<PropAndAtlasTex>();
+                var CompiledAtlasTextures = new List<PropAndTexture>();
 
                 var PropatyNames = new HashSet<string>();
                 foreach (var matdata in Matdatas)
@@ -144,18 +146,30 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 foreach (var Porp in PropatyNames)
                 {
-                    var TargetTex = new TransTargetTexture(atlasSetting.AtlasTextureSize, new Color(0, 0, 0, 0), atlasSetting.Pading);
+                    // var TargetTex = new TransTargetTexture(atlasSetting.AtlasTextureSize, new Color(0, 0, 0, 0), atlasSetting.Pading);
+                    var TargetRT = new RenderTexture(atlasSetting.AtlasTextureSize.x, atlasSetting.AtlasTextureSize.y, 32, RenderTextureFormat.ARGB32);
                     foreach (var matdata in Matdatas)
                     {
                         var SousePorp2Tex = matdata.PropAndTextures.Find(I => I.PropertyName == Porp);
                         if (SousePorp2Tex == null) continue;
 
-                        Compiler.TransCompileUseComputeSheder(SousePorp2Tex.Texture2D, TransMaps[matdata.MaterialRefarens], TargetTex, TexWrapMode.Stretch);
+                        // Compiler.TransCompileUseComputeSheder(SousePorp2Tex.Texture2D, TransMaps[matdata.MaterialRefarens], TargetTex, TexWrapMode.Stretch);
+                        float? pading = null;
+                        if (atlasSetting.Pading > 0)
+                        {
+                            pading = atlasSetting.Pading;
+                        }
+
+                        foreach (var transUv in TransMaps[matdata.MaterialRefarens])
+                        {
+                            TransTexture.TransTextureToRenderTexture(TargetRT, SousePorp2Tex.Texture2D, transUv, pading);
+                        }
                     }
-                    CompiledAtlasTextures.Add(new PropAndAtlasTex(Porp, TargetTex));
+                    var tex2d = TargetRT.CopyTexture2D();
+                    CompiledAtlasTextures.Add(new PropAndTexture(Porp, tex2d));
                 }
 
-                CompiledAllAtlasTextures.Add(CompiledAtlasTextures.ConvertAll(I => new PropAndTexture(I.PropertyName, I.AtlasTexture.Texture2D)));
+                CompiledAllAtlasTextures.Add(CompiledAtlasTextures.ConvertAll(I => new PropAndTexture(I.PropertyName, I.Texture2D)));
 
             }
 

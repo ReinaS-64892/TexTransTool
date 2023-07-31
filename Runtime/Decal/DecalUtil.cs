@@ -77,9 +77,7 @@ namespace Rs64.TexTransTool.Decal
                 TransTexture.TransTextureToRenderTexture(
                     RenderTextures[TargetTexture],
                     SousTextures,
-                    FiltaringdTrainagle,
-                    tUV,
-                    sUV,
+                    new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV),
                     DefoaltPading,
                     TextureOutRenge
                 );
