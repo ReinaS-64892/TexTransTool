@@ -87,11 +87,11 @@ namespace Rs64.TexTransTool
             float? Pading = null,
             Vector2? WarpRange = null)
         {
-            foreach(var TUVD in TransUVData)
+            foreach (var TUVD in TransUVData)
             {
                 TransTextureToRenderTexture(TargetTexture, SouseTexture, TUVD, Pading, WarpRange);
             }
-        }   
+        }
         public static Texture2D CopyTexture2D(this RenderTexture Rt)
         {
             var Pre = RenderTexture.active;
@@ -108,7 +108,25 @@ namespace Rs64.TexTransTool
                 RenderTexture.active = Pre;
             }
         }
-    }
 
+
+        public static void TransTextureUseCS(
+            TransTargetTexture targetTexture,
+            Texture2D SouseTexture,
+            TransUVData TransUVData,
+            float? Pading = null,
+            Vector2? WarpRange = null,
+            TexWrapMode wrapMode = TexWrapMode.Stretch
+            )
+        {
+            if (Pading.HasValue) { Pading = Mathf.Abs(Pading.Value) * -2; }
+            else { Pading = 0f; }
+            var TransMap = new TransMapData(Pading.Value, targetTexture.DistansMap.MapSize);
+            var TargetScaiUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaiUV, targetTexture.DistansMap.MapSize);
+            TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaiUV, TransUVData.SourceUV);
+            Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode);
+        }
+
+    }
 }
 #endif

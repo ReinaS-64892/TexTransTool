@@ -68,6 +68,7 @@ namespace Rs64.TexTransTool.Decal
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
                 if (FiltaringdTrainagle.Any() == false) { continue; }
 
+
                 if (!RenderTextures.ContainsKey(TargetTexture))
                 {
                     var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
@@ -81,6 +82,8 @@ namespace Rs64.TexTransTool.Decal
                     DefoaltPading,
                     TextureOutRenge
                 );
+
+
             }
 
             return RenderTextures;
@@ -97,7 +100,6 @@ namespace Rs64.TexTransTool.Decal
         where SpaseConverter : IConvertSpace
         {
             var ResultTexutres = new Dictionary<Texture2D, List<Texture2D>>();
-            DefoaltPading = Mathf.Abs(DefoaltPading) * -2;
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
             (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
@@ -118,14 +120,11 @@ namespace Rs64.TexTransTool.Decal
 
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
                 if (FiltaringdTrainagle.Any() == false) { continue; }
-                var Map = new TransMapData(DefoaltPading, TargetTexSize);
-                TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
 
-                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
 
                 var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
+                TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV), DefoaltPading, TextureOutRenge);
 
-                AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode.NotWrap, TextureOutRenge);
 
                 if (ResultTexutres.ContainsKey(TargetTexture) == false) { ResultTexutres.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
                 else { ResultTexutres[TargetTexture].Add(AtlasTex.Texture2D); }
