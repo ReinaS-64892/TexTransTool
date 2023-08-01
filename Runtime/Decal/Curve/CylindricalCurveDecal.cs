@@ -26,7 +26,7 @@ namespace Rs64.TexTransTool.Decal.Curve
         public override DecalUtil.ITraiangleFilter<CCSSpace> GetTraiangleFilter => throw new System.NotImplementedException();
 
 
-        public override Dictionary<Texture2D, RenderTexture> CompileDecal()
+        public override Dictionary<Texture2D, Texture> CompileDecal()
         {
 
 
@@ -36,7 +36,10 @@ namespace Rs64.TexTransTool.Decal.Curve
                 TexRenage = TextureStreathRenge;
             }
 
-            var DictCompiledTextures = new Dictionary<Texture2D, RenderTexture>();
+            Dictionary<Texture2D, RenderTexture> FastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
+            List<Dictionary<Texture2D, List<Texture2D>>> SlowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<Texture2D>>>();
+
+            var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
             int Count = 0;
             foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
             {
@@ -52,26 +55,56 @@ namespace Rs64.TexTransTool.Decal.Curve
                         TargetDecalTexture = EndTexture;
                     }
                 }
-
                 foreach (var Renderer in TargetRenderers)
                 {
                     var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
                     var CCSfilter = new CCSFilter(CCSFilter.DefaultFilter(OutOfRangeOffset));
-                    DecalUtil.CreatDecalTexture(Renderer,
-                                                DictCompiledTextures,
-                                                TargetDecalTexture,
-                                                CCSspase,
-                                                CCSfilter,
-                                                TargetPropatyName,
-                                                TextureOutRenge: TexRenage,
-                                                DefoaltPading: DefaultPading
-                                                );
+
+                    if (FastMode)
+                    {
+                        DecalUtil.CreatDecalTexture(Renderer,
+                                                    FastDictCompiledTextures,
+                                                    TargetDecalTexture,
+                                                    CCSspase,
+                                                    CCSfilter,
+                                                    TargetPropatyName,
+                                                    TextureOutRenge: TexRenage,
+                                                    DefoaltPading: DefaultPading
+                                                    );
+                    }
+                    else
+                    {
+                        SlowDictCompiledTextures.Add(DecalUtil.CreatDecalTextureCS(Renderer,
+                                                                             TargetDecalTexture,
+                                                                             CCSspase,
+                                                                             CCSfilter,
+                                                                             TargetPropatyName,
+                                                                             TextureOutRenge: TexRenage,
+                                                                             DefoaltPading: DefaultPading
+                                                                            ));
+                    }
+
+                    Count += 1;
                 }
-                Count += 1;
             }
 
-            return DictCompiledTextures;
+            if (FastMode)
+            {
+                foreach (var Texture in FastDictCompiledTextures)
+                {
+                    DecalCompiledTextures.Add(Texture.Key, Texture.Value);
+                }
+            }
+            else
+            {
+                var zipd = Utils.ZipToDictionaryOnList(SlowDictCompiledTextures);
+                foreach (var Texture in zipd)
+                {
+                    DecalCompiledTextures.Add(Texture.Key, TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp));
+                }
+            }
 
+            return DecalCompiledTextures;
         }
 
 

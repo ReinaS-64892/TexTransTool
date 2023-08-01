@@ -38,7 +38,7 @@ namespace Rs64.TexTransTool
     {
         public const string BlendTextureCSPaht = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/BlendTexture.compute";
 
-        public static void BlendBlit(this RenderTexture Base, RenderTexture Add, BlendType blendType)
+        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
         {
             var Material = new Material(Shader.Find("Hidden/BlendTexture"));
             var Swap = new RenderTexture(Base.descriptor);
@@ -51,7 +51,7 @@ namespace Rs64.TexTransTool
             Graphics.CopyTexture(Swap, Base);
 
         }
-        public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendRenderTarget> Adds)
+        public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
         {
             var Material = new Material(Shader.Find("Hidden/BlendTexture"));
             var Swap = new RenderTexture(Base.descriptor);//GlabPassが使えないためスワップしている。
@@ -61,7 +61,7 @@ namespace Rs64.TexTransTool
             {
                 Material.shaderKeywords = new string[] { Add.BlendType.ToString() };
                 Material.SetTexture("_DistTex", IsSwap ? Swap : Base);
-                Graphics.Blit(Add.RenderTexture, IsSwap ? Base : Swap, Material);
+                Graphics.Blit(Add.Texture, IsSwap ? Base : Swap, Material);
                 IsSwap = !IsSwap;
             }
 
@@ -70,7 +70,7 @@ namespace Rs64.TexTransTool
                 Graphics.CopyTexture(Swap, Base);
             }
         }
-        public static RenderTexture BlendBlit(Texture2D Base, RenderTexture Add, BlendType blendType)
+        public static RenderTexture BlendBlit(Texture2D Base, Texture Add, BlendType blendType)
         {
             var Size = Base.NativeSize();
             var RenderTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
@@ -86,14 +86,14 @@ namespace Rs64.TexTransTool
 
             return RenderTexture;
         }
-        public struct BlendRenderTarget
+        public struct BlendTextures
         {
-            public RenderTexture RenderTexture;
+            public Texture Texture;
             public BlendType BlendType;
 
-            public BlendRenderTarget(RenderTexture renderTexture, BlendType blendType)
+            public BlendTextures(Texture texture, BlendType blendType)
             {
-                RenderTexture = renderTexture;
+                Texture = texture;
                 BlendType = blendType;
             }
         }

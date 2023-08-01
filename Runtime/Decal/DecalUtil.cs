@@ -85,7 +85,54 @@ namespace Rs64.TexTransTool.Decal
 
             return RenderTextures;
         }
+        public static Dictionary<Texture2D, List<Texture2D>> CreatDecalTextureCS<SpaseConverter>(
+            Renderer TargetRenderer,
+            Texture2D SousTextures,
+            SpaseConverter ConvertSpase,
+            ITraiangleFilter<SpaseConverter> Filter,
+            string TargetProptyeName = "_MainTex",
+            Vector2? TextureOutRenge = null,
+            float DefoaltPading = 0.5f
+        )
+        where SpaseConverter : IConvertSpace
+        {
+            var ResultTexutres = new Dictionary<Texture2D, List<Texture2D>>();
+            DefoaltPading = Mathf.Abs(DefoaltPading) * -2;
 
+            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
+            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+
+            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
+            var sUV = ConvertSpase.OutPutUV();
+
+            var Materials = TargetRenderer.sharedMaterials;
+
+            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
+            {
+                var Traiangel = TraiangelsSubMesh[i];
+                var TargetMat = Materials[i];
+
+                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
+                if (TargetTexture == null) { continue; }
+                var TargetTexSize = TargetTexture.NativeSize();
+
+                var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
+                if (FiltaringdTrainagle.Any() == false) { continue; }
+                var Map = new TransMapData(DefoaltPading, TargetTexSize);
+                TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
+
+                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
+
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
+
+                AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode.NotWrap, TextureOutRenge);
+
+                if (ResultTexutres.ContainsKey(TargetTexture) == false) { ResultTexutres.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
+                else { ResultTexutres[TargetTexture].Add(AtlasTex.Texture2D); }
+            }
+
+            return ResultTexutres;
+        }
         public static List<Vector3> GetWorldSpeasVertices(Renderer Target)
         {
             List<Vector3> Vertices = new List<Vector3>();

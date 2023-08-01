@@ -200,7 +200,7 @@ namespace Rs64.TexTransTool
             }
             return KeyAndNotSavedMat;
         }
-        public void AddTextureStack(Texture2D Dist, BlendRenderTarget SetTex)
+        public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
             var Stack = _TextureStacks.Find(i => i.FirstTexture == Dist);
             if (Stack == null)
@@ -298,9 +298,9 @@ namespace Rs64.TexTransTool
         public class TextureStack
         {
             public Texture2D FirstTexture;
-            [SerializeField] List<BlendRenderTarget> StackTextures = new List<BlendRenderTarget>();
+            [SerializeField] List<BlendTextures> StackTextures = new List<BlendTextures>();
 
-            public BlendRenderTarget Stack
+            public BlendTextures Stack
             {
                 set => StackTextures.Add(value);
             }

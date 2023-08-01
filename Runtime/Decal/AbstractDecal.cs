@@ -16,6 +16,7 @@ namespace Rs64.TexTransTool.Decal
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
         public float DefaultPading = 0.5f;
+        public bool FastMode = true;
 
         public abstract SpaseConverter GetSpaseConverter { get; }
         public abstract DecalUtil.ITraiangleFilter<SpaseConverter> GetTraiangleFilter { get; }
@@ -31,13 +32,13 @@ namespace Rs64.TexTransTool.Decal
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
-            Dictionary<Texture2D, RenderTexture> DecalCompiledTextures = CompileDecal();
+            Dictionary<Texture2D, Texture> DecalCompiledTextures = CompileDecal();
 
             if (avatarDomain != null)
             {
                 foreach (var trp in DecalCompiledTextures)
                 {
-                    avatarDomain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendRenderTarget(trp.Value, BlendType));
+                    avatarDomain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
                 }
             }
             else
@@ -74,22 +75,58 @@ namespace Rs64.TexTransTool.Decal
             _IsApply = true;
         }
 
-        public virtual Dictionary<Texture2D, RenderTexture> CompileDecal()
+        public virtual Dictionary<Texture2D, Texture> CompileDecal()
         {
-            var DecalCompiledTextures = new Dictionary<Texture2D, RenderTexture>();
-            foreach (var Rendarer in TargetRenderers)
+            var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
+            if (FastMode)
             {
-                DecalUtil.CreatDecalTexture(
-                    Rendarer,
-                    DecalCompiledTextures,
-                    DecalTexture,
-                    GetSpaseConverter,
-                    GetTraiangleFilter,
-                    TargetPropatyName,
-                    GetOutRengeTexture,
-                    DefaultPading
-                );
+                var DecalCompiledRenderTextures = new Dictionary<Texture2D, RenderTexture>();
+                foreach (var Rendarer in TargetRenderers)
+                {
+                    DecalUtil.CreatDecalTexture(
+                        Rendarer,
+                        DecalCompiledRenderTextures,
+                        DecalTexture,
+                        GetSpaseConverter,
+                        GetTraiangleFilter,
+                        TargetPropatyName,
+                        GetOutRengeTexture,
+                        DefaultPading
+                    );
+                }
+
+                foreach (var Texture in DecalCompiledRenderTextures)
+                {
+                    DecalCompiledTextures.Add(Texture.Key, Texture.Value);
+                }
             }
+            else
+            {
+                List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompoleTexs = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                foreach (var Rendarer in TargetRenderers)
+                {
+                    var DecalsCompoleds = DecalUtil.CreatDecalTextureCS(
+                        Rendarer,
+                        DecalTexture,
+                        GetSpaseConverter,
+                        GetTraiangleFilter,
+                        TargetPropatyName,
+                        GetOutRengeTexture,
+                        DefaultPading
+                    );
+                    DecalsCompoleTexs.Add(DecalsCompoleds);
+                }
+
+                var ZipDecit = Utils.ZipToDictionaryOnList(DecalsCompoleTexs);
+
+                foreach (var Texture in ZipDecit)
+                {
+                    var BlendTexture = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
+                    BlendTexture.Apply();
+                    DecalCompiledTextures.Add(Texture.Key, BlendTexture);
+                }
+            }
+
 
             return DecalCompiledTextures;
         }
