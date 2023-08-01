@@ -87,6 +87,7 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsRealTimePreview = false;
         public bool IsRealTimePreview => _IsRealTimePreview;
+        Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTexture;
         public List<MatPea> PreViewMaterials = new List<MatPea>();
 
         public void EnableRealTimePreview()
@@ -96,6 +97,8 @@ namespace Rs64.TexTransTool.Decal
             _IsRealTimePreview = true;
 
             PreViewMaterials.Clear();
+            _RealTimePreviewDecalTexture = new Dictionary<Texture2D, RenderTexture>();
+
 
             foreach (var Rendarer in TargetRenderers)
             {
@@ -112,13 +115,25 @@ namespace Rs64.TexTransTool.Decal
                         var DistMat = Materials[i];
                         var NewMat = Instantiate<Material>(Materials[i]);
                         NewMat.shader = Shader.Find("Hidden/RealTimeSimpleDecalPreview");
+                        if (NewMat.GetTexture(TargetPropatyName) is Texture2D tex2d && tex2d != null)
+                        {
+                            if (_RealTimePreviewDecalTexture.ContainsKey(tex2d))
+                            {
+                                NewMat.SetTexture("_DecalTex", _RealTimePreviewDecalTexture[tex2d]);
+                            }
+                            else
+                            {
+                                var NewTex = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                                _RealTimePreviewDecalTexture.Add(tex2d, NewTex);
+                                NewMat.SetTexture("_DecalTex", NewTex);
+                            }
+                        }
                         Materials[i] = NewMat;
                         PreViewMaterials.Add(new MatPea(DistMat, NewMat));
                     }
                 }
                 Rendarer.sharedMaterials = Materials;
             }
-            AssetSaveHelper.SaveAssets(PreViewMaterials.Select(i => i.SecndMaterial));
         }
         public void DisableRealTimePreview()
         {
@@ -137,23 +152,31 @@ namespace Rs64.TexTransTool.Decal
                 Rendarer.sharedMaterials = Materials;
 
             }
-            AssetSaveHelper.DeletAssets(PreViewMaterials.Select(i => i.SecndMaterial));
             PreViewMaterials.Clear();
+            _RealTimePreviewDecalTexture = null;
 
         }
 
         public void UpdateRealTimePreview()
         {
-            var Matrix = transform.worldToLocalMatrix;
+            if (!_IsRealTimePreview) return;
+
+            foreach (var rt in _RealTimePreviewDecalTexture)
+            {
+                rt.Value.Release();
+            }
+
+            foreach (var render in TargetRenderers)
+            {
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTexture, DecalTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, DefaultPading);
+            }
             foreach (var MatPea in PreViewMaterials)
             {
-                MatPea.SecndMaterial.SetMatrix("_WorldToDecal", Matrix);
-                MatPea.SecndMaterial.SetTexture("_DecalTex", DecalTexture);
+                if (MatPea.SecndMaterial.shader.name != "Hidden/RealTimeSimpleDecalPreview") continue;
 
                 if (MatPea.SecndMaterial.IsKeywordEnabled(BlendType.ToString()) == false)
                 {
                     MatPea.SecndMaterial.shaderKeywords = new string[] { BlendType.ToString() };
-
                 }
             }
         }
