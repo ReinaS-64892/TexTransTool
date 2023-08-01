@@ -11,6 +11,7 @@ namespace Rs64.TexTransTool
 {
     public enum TexWrapMode
     {
+        [Obsolete]
         NotWrap,
         Stretch,
         Loop,

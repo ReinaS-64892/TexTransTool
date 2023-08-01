@@ -41,10 +41,18 @@ namespace Rs64.TexTransTool
             Texture2D SouseTexture,
             TransUVData TransUVData,
             float? Pading = null,
-            Vector2? WarpRange = null
+            Vector2? WarpRange = null,
+            TexWrapMode wrapMode = TexWrapMode.Stretch
             )
         {
             var Mesh = TransUVData.GenereateTransMesh();
+
+            var PreBias = SouseTexture.mipMapBias;
+            SouseTexture.mipMapBias = SouseTexture.mipmapCount * -1;
+            var PreWarp = SouseTexture.wrapMode;
+            SouseTexture.wrapMode = wrapMode == TexWrapMode.Stretch ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+
+
 
 
             var Material = new Material(Shader.Find("Hidden/TransTexture"));
@@ -79,6 +87,10 @@ namespace Rs64.TexTransTool
             {
                 RenderTexture.active = Pre;
             }
+
+            SouseTexture.mipMapBias = PreBias;
+            SouseTexture.wrapMode = PreWarp;
+
         }
         public static void TransTextureToRenderTexture(
             RenderTexture TargetTexture,
@@ -119,12 +131,17 @@ namespace Rs64.TexTransTool
             TexWrapMode wrapMode = TexWrapMode.Stretch
             )
         {
-            if (Pading.HasValue) { Pading = Mathf.Abs(Pading.Value) * -2; }
-            else { Pading = 0f; }
+            Pading = CSPading(Pading);
             var TransMap = new TransMapData(Pading.Value, targetTexture.DistansMap.MapSize);
             var TargetScaiUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaiUV, targetTexture.DistansMap.MapSize);
             TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaiUV, TransUVData.SourceUV);
             Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode);
+        }
+
+        public static float CSPading(float? Pading)
+        {
+            if (Pading.HasValue) { return Mathf.Abs(Pading.Value) * -2; }
+            else { return 0f; }
         }
 
     }

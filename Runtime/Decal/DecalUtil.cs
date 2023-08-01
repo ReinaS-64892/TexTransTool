@@ -95,7 +95,7 @@ namespace Rs64.TexTransTool.Decal
             ITraiangleFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
             Vector2? TextureOutRenge = null,
-            float DefoaltPading = 0.5f
+            float DefoaltPading = 1f
         )
         where SpaseConverter : IConvertSpace
         {
@@ -122,7 +122,7 @@ namespace Rs64.TexTransTool.Decal
                 if (FiltaringdTrainagle.Any() == false) { continue; }
 
 
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPading(DefoaltPading), TargetTexSize));
                 TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV), DefoaltPading, TextureOutRenge);
 
 
