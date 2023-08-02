@@ -20,7 +20,7 @@ namespace Rs64.TexTransTool
     {
         public const string TransCompilerPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
-
+        [Obsolete]
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRenge = null)
         {
             var TargetTexSize = TargetTex.DistansMap.MapSize;
@@ -50,6 +50,7 @@ namespace Rs64.TexTransTool
 
         }
 
+        [Obsolete]
         private static Vector2? GetWarpdPos(TexWrapMode wrapMode, Vector2 SouseTexPos)
         {
             Vector2? WarpdPos = null;
