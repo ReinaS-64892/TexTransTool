@@ -119,23 +119,19 @@ namespace Rs64.TexTransTool.Decal
                         var DistMat = Materials[i];
                         var NewMat = Instantiate<Material>(Materials[i]);
                         var srostex = NewMat.GetTexture(TargetPropatyName);
-                        if (srostex != null)
+
+                        if (srostex is Texture2D tex2d && tex2d != null)
                         {
-                            if (srostex is Texture2D tex2d)
-                            {
-                                var NewTexBlend = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
-                                var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
-                                _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
-                                _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
-                                NewMat.SetTexture(TargetPropatyName, NewTexBlend);
-                            }
-                            else
-                            {
-                                throw new System.Exception("対応していないテクスチャタイプです");
-                            }
+                            var NewTexBlend = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                            var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                            _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
+                            _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
+                            NewMat.SetTexture(TargetPropatyName, NewTexBlend);
+
+                            Materials[i] = NewMat;
+                            PreViewMaterials.Add(new MatPea(DistMat, NewMat));
                         }
-                        Materials[i] = NewMat;
-                        PreViewMaterials.Add(new MatPea(DistMat, NewMat));
+
                     }
                 }
                 Rendarer.sharedMaterials = Materials;
