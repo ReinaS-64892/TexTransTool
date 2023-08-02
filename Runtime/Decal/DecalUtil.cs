@@ -33,9 +33,9 @@ namespace Rs64.TexTransTool.Decal
                 TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
             }
         }
-        public static Dictionary<Texture2D, RenderTexture> CreatDecalTexture<SpaseConverter>(
+        public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture,SpaseConverter>(
             Renderer TargetRenderer,
-            Dictionary<Texture2D, RenderTexture> RenderTextures,
+            Dictionary<KeyTexture, RenderTexture> RenderTextures,
             Texture2D SousTextures,
             SpaseConverter ConvertSpase,
             ITraiangleFilter<SpaseConverter> Filter,
@@ -44,9 +44,10 @@ namespace Rs64.TexTransTool.Decal
             //TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
             float DefoaltPading = 0.5f
         )
+        where KeyTexture : Texture
         where SpaseConverter : IConvertSpace
         {
-            if (RenderTextures == null) RenderTextures = new Dictionary<Texture2D, RenderTexture>();
+            if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
             (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
@@ -61,9 +62,9 @@ namespace Rs64.TexTransTool.Decal
                 var Traiangel = TraiangelsSubMesh[i];
                 var TargetMat = Materials[i];
 
-                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
+                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as KeyTexture;
                 if (TargetTexture == null) { continue; }
-                var TargetTexSize = TargetTexture.NativeSize();
+                var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);
 
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
                 if (FiltaringdTrainagle.Any() == false) { continue; }

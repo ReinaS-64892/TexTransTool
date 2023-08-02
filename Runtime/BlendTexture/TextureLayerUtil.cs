@@ -42,13 +42,12 @@ namespace Rs64.TexTransTool
         {
             var Material = new Material(Shader.Find("Hidden/BlendTexture"));
             var Swap = new RenderTexture(Base.descriptor);
-            Material.SetTexture("_DistTex", Base);
+            Graphics.CopyTexture(Base, Swap);
+            Material.SetTexture("_DistTex", Swap);
             Material.EnableKeyword(blendType.ToString());
 
-            RenderTexture.active = Base;
-            Graphics.Blit(Add, Swap, Material);
+            Graphics.Blit(Add, Base, Material);
 
-            Graphics.CopyTexture(Swap, Base);
 
         }
         public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
