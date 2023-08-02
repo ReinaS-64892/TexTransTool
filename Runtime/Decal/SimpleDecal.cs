@@ -162,8 +162,6 @@ namespace Rs64.TexTransTool.Decal
             _RealTimePreviewDecalTextureBlend = null;
             _RealTimePreviewDecalTextureCompile = null;
 
-            DecalsTexResetTex = null;
-
         }
 
         public void UpdateRealTimePreview()
