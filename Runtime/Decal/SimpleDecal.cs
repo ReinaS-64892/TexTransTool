@@ -89,7 +89,7 @@ namespace Rs64.TexTransTool.Decal
         public bool IsRealTimePreview => _IsRealTimePreview;
         Dictionary<RenderTexture, RenderTexture> _RealTimePreviewDecalTextureCompile;
         Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTextureBlend;
-        Texture2D DecalsTexResetTex;
+
         public List<MatPea> PreViewMaterials = new List<MatPea>();
 
         public void EnableRealTimePreview()
@@ -102,9 +102,6 @@ namespace Rs64.TexTransTool.Decal
 
             _RealTimePreviewDecalTextureCompile = new Dictionary<RenderTexture, RenderTexture>();
             _RealTimePreviewDecalTextureBlend = new Dictionary<Texture2D, RenderTexture>();
-
-            DecalsTexResetTex = Utils.CreateFillTexture(2, new Color(1, 1, 1, 0));
-            DecalsTexResetTex.Apply();
 
 
             foreach (var Rendarer in TargetRenderers)
