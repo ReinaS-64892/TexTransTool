@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.Decal
                 TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
             }
         }
-        public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture,SpaseConverter>(
+        public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture, SpaseConverter>(
             Renderer TargetRenderer,
             Dictionary<KeyTexture, RenderTexture> RenderTextures,
             Texture2D SousTextures,
@@ -62,6 +62,7 @@ namespace Rs64.TexTransTool.Decal
                 var Traiangel = TraiangelsSubMesh[i];
                 var TargetMat = Materials[i];
 
+                if (!TargetMat.HasProperty(TargetProptyeName)) { continue; };
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as KeyTexture;
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);

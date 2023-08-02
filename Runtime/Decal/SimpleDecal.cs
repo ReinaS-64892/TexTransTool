@@ -109,7 +109,8 @@ namespace Rs64.TexTransTool.Decal
                 var Materials = Rendarer.sharedMaterials;
                 for (int i = 0; i < Materials.Length; i += 1)
                 {
-                    if (Materials[i].GetTexture(TargetPropatyName) is RenderTexture) continue;
+                    if (!Materials[i].HasProperty(TargetPropatyName)) { continue; }
+                    if (Materials[i].GetTexture(TargetPropatyName) is RenderTexture) { continue; }
                     if (PreViewMaterials.Any(i2 => i2.Material == Materials[i]))
                     {
                         Materials[i] = PreViewMaterials.Find(i2 => i2.Material == Materials[i]).SecndMaterial;
