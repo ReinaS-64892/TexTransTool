@@ -51,7 +51,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             EditorGUI.EndDisabledGroup();
             DrowRealTimePreviewEditor(ThisObject);
             EditorGUI.BeginDisabledGroup(ThisObject.IsRealTimePreview);
-            TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
+            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
             EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
@@ -66,7 +66,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                     EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile || Target.IsApply);
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
-                        Undo.RecordObject(Target, "SimpleDecal - EnableRealTimePreview");
+                        EditorUtility.SetDirty(Target);
                         Target.EnableRealTimePreview();
                     }
                     EditorGUI.EndDisabledGroup();
@@ -75,7 +75,7 @@ namespace Rs64.TexTransTool.Editor.Decal
                 {
                     if (GUILayout.Button("DisableRealTimePreview"))
                     {
-                        Undo.RecordObject(Target, "SimpleDecal - DisableRealTimePreview");
+                        EditorUtility.SetDirty(Target);
                         Target.DisableRealTimePreview();
 
                     }

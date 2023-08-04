@@ -7,57 +7,32 @@ using Rs64.TexTransTool.Decal.Cylindrical;
 namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/CylindricalDecal")]
-    public class CylindricalDecal : AbstractDecal
+    public class CylindricalDecal : AbstractDecal<CCSSpace>
     {
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
         public bool FixedAspect = true;
         public Vector2 Scale = Vector2.one;
         public bool SideChek = true;
         public float OutOfRangeOffset = 1f;
-        public float FarCulling = 1f;
-        public float NierCullingOffSet = 1f;
-        public override void Compile()
+        public float InDistansCulling = 1f;
+        public float OutDistansCulling = 1f;
+
+        public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
+        public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
+
+        private List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilters()
         {
-            if (_IsApply) return;
-            if (!IsPossibleCompile) return;
-
-            var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
-
-
-            var PPSSpase = new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-            var PPSFilter = new CCSFilter(GetFilters());
-
-
-            TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
-                                                i,
-                                                DecalTexture,
-                                                PPSSpase,
-                                                PPSFilter,
-                                                TargetPropatyName
-                                                )
-                                        ));
-
-            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures);
-            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
-            Container.DecalCompiledTextures = TextureList;
-
-            Container.IsPossibleApply = true;
-        }
-
-        private List<DecalUtil.Filtaring<CCSSpace>> GetFilters()
-        {
-            var Filters = new List<DecalUtil.Filtaring<CCSSpace>>();
-            Filters.Add((i, i2) => CylindricalCoordinatesSystem.BorderOnPorygon(i, i2.CCSvarts));
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
+            {
+                new CCSFilter.BorderOnPorygonStruct(),
+                new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false)
+            };
 
             var ThisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
 
-            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2.QuadNormalizedVarts, NierCullingOffSet + ThisCCSZ, false));
-            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2.QuadNormalizedVarts, Mathf.Max(ThisCCSZ - FarCulling, 0f), false));
-
-
-            if (SideChek) { Filters.Add((i, i2) => DecalUtil.SideChek(i, i2.QuadNormalizedVarts)); }
+            Filters.Add(new CCSFilter.OutDistansStruct(OutDistansCulling + ThisCCSZ, false));
+            Filters.Add(new CCSFilter.InDistansStruct(Mathf.Max(ThisCCSZ - InDistansCulling, 0f), false));
+            if (SideChek) Filters.Add(new CCSFilter.SideStruct());
 
             return Filters;
         }
@@ -69,6 +44,7 @@ namespace Rs64.TexTransTool.Decal
             new Vector3(-0.5f, 0.5f, 0),
             new Vector3(0.5f, 0.5f, 0),
         };
+
 
         public List<Vector3> GetQuad()
         {
@@ -94,11 +70,11 @@ namespace Rs64.TexTransTool.Decal
             foreach (var FromPoint in Quad)
             {
                 var CCSPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
-                CCSPoint.z = Mathf.Max(CCSPoint.z - FarCulling, 0f);
+                CCSPoint.z = Mathf.Max(CCSPoint.z - InDistansCulling, 0f);
                 var OffSetToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
 
                 var CCSFromPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
-                CCSFromPoint.z += NierCullingOffSet;
+                CCSFromPoint.z += OutDistansCulling;
                 var OffSetFromPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSFromPoint);
 
                 Gizmos.DrawLine(OffSetFromPoint, OffSetToPoint);

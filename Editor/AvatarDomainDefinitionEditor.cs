@@ -13,6 +13,7 @@ namespace Rs64.TexTransTool.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("GenereatCustomMipMap"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TexTransGroup"));
 
             var thsitarget = target as AvatarDomainDefinition;
@@ -32,7 +33,7 @@ namespace Rs64.TexTransTool.Editor
             {
                 if (GUILayout.Button("MaterialDomainUse - Apply"))
                 {
-                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Apply");
+                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Apply();
                 }
             }
@@ -41,7 +42,7 @@ namespace Rs64.TexTransTool.Editor
                 EditorGUI.BeginDisabledGroup(!thsitarget.IsSelfCallApply);
                 if (GUILayout.Button("Revart"))
                 {
-                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Revart");
+                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Revart();
 
                 }

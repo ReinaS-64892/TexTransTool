@@ -28,9 +28,9 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             var S_SideChek = This_S_Object.FindProperty("SideChek");
             EditorGUILayout.PropertyField(S_SideChek);
-            var S_FarCulling = This_S_Object.FindProperty("FarCulling");
+            var S_FarCulling = This_S_Object.FindProperty("OutDistansCulling");
             EditorGUILayout.PropertyField(S_FarCulling);
-            var S_NierCullingOffSet = This_S_Object.FindProperty("NierCullingOffSet");
+            var S_NierCullingOffSet = This_S_Object.FindProperty("InDistansCulling");
             EditorGUILayout.PropertyField(S_NierCullingOffSet);
 
 
@@ -39,7 +39,7 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.TextureTransformerEditorDrow(ThisObject);
+            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

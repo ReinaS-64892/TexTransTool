@@ -32,32 +32,69 @@ namespace Rs64.TexTransTool
         Color,
         Luminosity,
         AlphaLerp,
+        NotBlend,
     }
     public static class TextureLayerUtil
     {
         public const string BlendTextureCSPaht = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/BlendTexture.compute";
 
-        [System.Obsolete]
-        public static Texture2D InBlendTexture(this ExecuteClient ClientSelect, Texture2D BaseTex, Texture2D AddTex, BlendType BlendType, ComputeShader blendTextureCS = null)
+        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
         {
-            Texture2D BlendTextere;
-            switch (ClientSelect)
+            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
+            var Swap = new RenderTexture(Base.descriptor);
+            Graphics.CopyTexture(Base, Swap);
+            Material.SetTexture("_DistTex", Swap);
+            Material.EnableKeyword(blendType.ToString());
+
+            Graphics.Blit(Add, Base, Material);
+
+
+        }
+        public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
+        {
+            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
+            var Swap = new RenderTexture(Base.descriptor);//GlabPassが使えないためスワップしている。
+
+            var IsSwap = false;
+            foreach (var Add in Adds)
             {
-                default:
-                case ExecuteClient.AsyncCPU:
-                    {
-                        BlendTextere = TextureLayerUtil.BlendTexture(BaseTex, AddTex, BlendType).Result;
-                        break;
-                    }
-                case ExecuteClient.ComputeSheder:
-                    {
-                        BlendTextere = TextureLayerUtil.BlendTextureUseComputeSheder(blendTextureCS, BaseTex, AddTex, BlendType);
-                        break;
-                    }
+                Material.shaderKeywords = new string[] { Add.BlendType.ToString() };
+                Material.SetTexture("_DistTex", IsSwap ? Swap : Base);
+                Graphics.Blit(Add.Texture, IsSwap ? Base : Swap, Material);
+                IsSwap = !IsSwap;
             }
 
-            return BlendTextere;
+            if (Swap)
+            {
+                Graphics.CopyTexture(Swap, Base);
+            }
+        }
+        public static RenderTexture BlendBlit(Texture2D Base, Texture Add, BlendType blendType)
+        {
+            var Size = Base.NativeSize();
+            var RenderTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+            Graphics.Blit(Base, RenderTexture);
 
+            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
+            Material.SetTexture("_DistTex", Base);
+            Material.EnableKeyword(blendType.ToString());
+
+            Graphics.Blit(Add, RenderTexture, Material);
+
+
+
+            return RenderTexture;
+        }
+        public struct BlendTextures
+        {
+            public Texture Texture;
+            public BlendType BlendType;
+
+            public BlendTextures(Texture texture, BlendType blendType)
+            {
+                Texture = texture;
+                BlendType = blendType;
+            }
         }
         public static async Task<Texture2D> BlendTexture(Texture2D Base, Texture2D Add, BlendType blendType)
         {
@@ -286,13 +323,10 @@ namespace Rs64.TexTransTool
 
             return ResultTexutres;
         }
-
-
         public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, Texture2D Base, Texture2D Add, BlendType PileType)
         {
             return BlendTextureUseComputeSheder(CS, new Texture2D[] { Base, Add }, PileType);
         }
-
         public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, IReadOnlyList<Texture2D> Textures, BlendType PileType)
         {
             if (!Textures.Any()) throw new System.ArgumentException("対象が存在しません");
@@ -347,7 +381,6 @@ namespace Rs64.TexTransTool
             ResultColor.a = FinalAlpha;
             return ResultColor;
         }
-
         public static Color BlendColorMul(Color Base, Color Add)
         {
             float FinalAlpha = FinalAlphaAndReversCal(Base.a, Add.a).Item1;
@@ -428,7 +461,6 @@ namespace Rs64.TexTransTool
             ResultColor.a = FinalAlpha;
             return ResultColor;
         }
-
         public static Color BlendColorLinearBurn(Color Base, Color Add)
         {
             float FinalAlpha = FinalAlphaAndReversCal(Base.a, Add.a).Item1;
@@ -604,7 +636,6 @@ namespace Rs64.TexTransTool
             Color.b = Mathf.Clamp01(Color.b);
             Color.a = Mathf.Clamp01(Color.a);
         }
-
         public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
         {
             var ResizedTexture = new Texture2D(Size.x, Size.y);
@@ -623,7 +654,6 @@ namespace Rs64.TexTransTool
 
             return ResizedTexture;
         }
-
         public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SorsSize)
         {
             var Pos = Utils.ConvertIndex2D(Index, SorsSize.x);

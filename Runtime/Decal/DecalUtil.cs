@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.ObjectModel;
 using System;
 using System.Collections;
@@ -16,7 +16,7 @@ namespace Rs64.TexTransTool.Decal
             void Input(MeshDatas meshDatas);
             List<Vector2> OutPutUV();
         }
-        public interface ITraiangleFilter<SpaseConverter>
+        public interface ITraianglesFilter<SpaseConverter>
         {
             List<TraiangleIndex> Filtering(SpaseConverter Spase, List<TraiangleIndex> Traiangeles);
         }
@@ -33,60 +33,109 @@ namespace Rs64.TexTransTool.Decal
                 TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
             }
         }
-        public static Dictionary<Material, List<Texture2D>> CreatDecalTexture<SpaseConverter>(
+        public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture, SpaseConverter>(
             Renderer TargetRenderer,
+            Dictionary<KeyTexture, RenderTexture> RenderTextures,
             Texture2D SousTextures,
             SpaseConverter ConvertSpase,
-            ITraiangleFilter<SpaseConverter> Filter,
+            ITraianglesFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
-            string TransMapperPath = null,
             Vector2? TextureOutRenge = null,
-            TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
-            float DefoaltPading = -1f
+            //TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
+            float DefoaltPading = 0.5f
         )
+        where KeyTexture : Texture
         where SpaseConverter : IConvertSpace
         {
-            var ResultTexutres = new Dictionary<Material, List<Texture2D>>();
+            if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
 
             var Vraticals = GetWorldSpeasVertices(TargetRenderer);
-            List<Vector2> tUV; List<List<TraiangleIndex>> TraiangelsSubMesh; (tUV, TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
 
             ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
             var sUV = ConvertSpase.OutPutUV();
 
-            var CS = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             var Materials = TargetRenderer.sharedMaterials;
 
-            int SubMeshCount = -1;
-            foreach (var Traiangel in TraiangelsSubMesh)
+            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
             {
-                SubMeshCount += 1;
-                var TargetMat = Materials[SubMeshCount];
+                var Traiangel = TraiangelsSubMesh[i];
+                var TargetMat = Materials[i];
+
+                if (!TargetMat.HasProperty(TargetProptyeName)) { continue; };
+                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as KeyTexture;
+                if (TargetTexture == null) { continue; }
+                var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);
+
+                var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
+                if (FiltaringdTrainagle.Any() == false) { continue; }
+
+
+
+
+                if (!RenderTextures.ContainsKey(TargetTexture))
+                {
+                    var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    RenderTextures.Add(TargetTexture, RendererTexture);
+                }
+
+                TransTexture.TransTextureToRenderTexture(
+                    RenderTextures[TargetTexture],
+                    SousTextures,
+                    new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV),
+                    DefoaltPading,
+                    TextureOutRenge
+                );
+
+
+            }
+
+            return RenderTextures;
+        }
+        public static Dictionary<Texture2D, List<Texture2D>> CreatDecalTextureCS<SpaseConverter>(
+            Renderer TargetRenderer,
+            Texture2D SousTextures,
+            SpaseConverter ConvertSpase,
+            ITraianglesFilter<SpaseConverter> Filter,
+            string TargetProptyeName = "_MainTex",
+            Vector2? TextureOutRenge = null,
+            float DefoaltPading = 1f
+        )
+        where SpaseConverter : IConvertSpace
+        {
+            var ResultTexutres = new Dictionary<Texture2D, List<Texture2D>>();
+
+            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
+            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+
+            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
+            var sUV = ConvertSpase.OutPutUV();
+
+            var Materials = TargetRenderer.sharedMaterials;
+
+            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
+            {
+                var Traiangel = TraiangelsSubMesh[i];
+                var TargetMat = Materials[i];
+
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture.NativeSize();
 
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
-
                 if (FiltaringdTrainagle.Any() == false) { continue; }
 
-                var Map = new TransMapData(DefoaltPading, TargetTexSize);
 
-                TransMapper.UVtoTexScale(tUV, TargetTexSize); var TargetScaileTargetUV = tUV;
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPading(DefoaltPading), TargetTexSize));
+                TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV), DefoaltPading, TextureOutRenge);
 
-                Map = TransMapper.TransMapGeneratUseComputeSheder(null, Map, FiltaringdTrainagle, TargetScaileTargetUV, sUV);
 
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(DefoaltPading, TargetTexSize));
-
-                AtlasTex = Compiler.TransCompileUseComputeSheder(SousTextures, Map, AtlasTex, TexWrapMode, TextureOutRenge);
-
-                if (ResultTexutres.ContainsKey(TargetMat) == false) { ResultTexutres.Add(TargetMat, new List<Texture2D>() { AtlasTex.Texture2D }); }
-                else { ResultTexutres[TargetMat].Add(AtlasTex.Texture2D); }
-
+                if (ResultTexutres.ContainsKey(TargetTexture) == false) { ResultTexutres.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
+                else { ResultTexutres[TargetTexture].Add(AtlasTex.Texture2D); }
             }
+
             return ResultTexutres;
         }
-
         public static List<Vector3> GetWorldSpeasVertices(Renderer Target)
         {
             List<Vector3> Vertices = new List<Vector3>();
@@ -97,13 +146,13 @@ namespace Rs64.TexTransTool.Decal
                         Mesh Mesh = new Mesh();
                         SMR.BakeMesh(Mesh);
                         Mesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
                     {
                         MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
-                        Vertices = ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 default:
@@ -153,148 +202,13 @@ namespace Rs64.TexTransTool.Decal
             }
             return ConvertVertices;
         }
-        [Obsolete]
-        public static List<TraiangleIndex> FiltaringTraiangle(
-            List<TraiangleIndex> Target, List<Vector3> Vartex,
-            float StartDistans = 0, float MaxDistans = 1, float MinRange = 0, float MaxRange = 1, bool SideChek = true
-        )
+        public static void ConvartVerticesInMatlix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
         {
-            var FiltalingTraingles = new List<TraiangleIndex>();
-            foreach (var Traiangle in Target)
+            for (int i = 0; i < Vertices.Count; i++)
             {
-                if (Vartex[Traiangle[0]].z < StartDistans || Vartex[Traiangle[1]].z < StartDistans || Vartex[Traiangle[2]].z < StartDistans)
-                {
-                    continue;
-                }
-                if (Vartex[Traiangle[0]].z > MaxDistans && Vartex[Traiangle[1]].z > MaxDistans && Vartex[Traiangle[2]].z > MaxDistans)
-                {
-                    continue;
-                }
-
-                if (SideChek)
-                {
-                    var ba = Vartex[Traiangle[1]] - Vartex[Traiangle[0]];
-                    var ac = Vartex[Traiangle[0]] - Vartex[Traiangle[2]];
-                    var TraiangleSide = Vector3.Cross(ba, ac).z;
-                    if (TraiangleSide < 0)
-                    {
-                        continue;
-                    }
-                }
-
-
-                bool OutOfPrygon = false;
-                foreach (var VIndex in Traiangle)
-                {
-                    var Tvartex = Vartex[VIndex];
-                    if (Tvartex.x < MaxRange && Tvartex.x > MinRange && Tvartex.y < MaxRange && Tvartex.y > MinRange) OutOfPrygon = true;
-                }
-                if (!OutOfPrygon) continue;
-
-
-                FiltalingTraingles.Add(Traiangle);
-            }
-            return FiltalingTraingles;
-        }
-
-        public delegate bool Filtaring<InterObject>(TraiangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
-        public static List<TraiangleIndex> FiltaringTraiangle<InterSpace>(List<TraiangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filtaring<InterSpace>> Filtars)
-        {
-            var FiltalingTraingles = new List<TraiangleIndex>(Target.Count);
-            foreach (var Traiangle in Target)
-            {
-                bool Isfiltered = false;
-                foreach (var filtar in Filtars)
-                {
-                    if (filtar.Invoke(Traiangle, InterObjects))
-                    {
-                        Isfiltered = true;
-                        break;
-                    }
-                }
-                if (!Isfiltered)
-                {
-                    FiltalingTraingles.Add(Traiangle);
-                }
-            }
-            return FiltalingTraingles;
-        }
-
-        public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex)
-        { return SideChek(TargetTri, Vartex, false); }
-        public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse)
-        {
-            var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
-            var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
-            var TraiangleSide = Vector3.Cross(ba, ac).z;
-            if (!IsReverse) return TraiangleSide < 0;
-            else return TraiangleSide > 0;
-        }
-        public static bool FarClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
-        {
-            if (IsAllVartex)
-            {
-                return Vartex[TargetTri[0]].z > Far && Vartex[TargetTri[1]].z > Far && Vartex[TargetTri[2]].z > Far;
-            }
-            else
-            {
-                return Vartex[TargetTri[0]].z > Far || Vartex[TargetTri[1]].z > Far || Vartex[TargetTri[2]].z > Far;
+                Vertices[i] = matrix.MultiplyPoint3x4(Vertices[i]) + Offset;
             }
         }
-        public static bool NerClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Nre, bool IsAllVartex)
-        {
-            if (IsAllVartex)
-            {
-                return Vartex[TargetTri[0]].z < Nre && Vartex[TargetTri[1]].z < Nre && Vartex[TargetTri[2]].z < Nre;
-            }
-            else
-            {
-                return Vartex[TargetTri[0]].z < Nre || Vartex[TargetTri[1]].z < Nre || Vartex[TargetTri[2]].z < Nre;
-            }
-        }
-        public static bool OutOfPorigonVartexBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
-        {
-            bool[] OutOfPrygon = new bool[3] { false, false, false };
-            foreach (var Index in Enumerable.Range(0, 3))
-            {
-
-                var Tvartex = Vartex[TargetTri[Index]];
-                OutOfPrygon[Index] = !(Tvartex.x < MaxRange && Tvartex.x > MinRange && Tvartex.y < MaxRange && Tvartex.y > MinRange);
-            }
-            if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
-            else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
-        }
-        public static bool OutOfPorigonEdgeBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
-        {
-            float CenterPos = (MaxRange + MinRange) / 2;
-            Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
-            bool[] OutOfPrygon = new bool[3] { false, false, false };
-            foreach (var Index in new Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) })
-            {
-
-                var a = Vartex[TargetTri[Index.x]];
-                var b = Vartex[TargetTri[Index.y]];
-                var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPos2);
-                OutOfPrygon[Index.x] = !(NerPoint.x < MaxRange && NerPoint.x > MinRange && NerPoint.y < MaxRange && NerPoint.y > MinRange);
-            }
-            if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
-            else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
-        }
-        public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
-        {
-            float CenterPos = (MaxRange + MinRange) / 2;
-            Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
-            if (!OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex))
-            {
-                return false;
-            }
-            else
-            {
-                var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPos2);
-                return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
-            }
-        }
-
         public static Vector2 QuadNormaliz(IReadOnlyList<Vector2> Quad, Vector2 TargetPos)
         {
             var OneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
@@ -329,6 +243,7 @@ namespace Rs64.TexTransTool.Decal
             return NormalizedPos;
         }
     }
+
     public enum PolygonCaling
     {
         Vartex,

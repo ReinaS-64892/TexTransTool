@@ -9,76 +9,34 @@ namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/SimpleDecal")]
     [ExecuteInEditMode]
-    public class SimpleDecal : AbstractDecal
+    public class SimpleDecal : AbstractDecal<ParallelProjectionSpase>
     {
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
         public bool FixedAspect = true;
         public bool SideChek = true;
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
+
+
+        public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
+        public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
+
+
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
         }
-        public List<DecalUtil.Filtaring<List<Vector3>>> GetFilter()
+        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
         {
-            var Filters = new List<DecalUtil.Filtaring<List<Vector3>>>();
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>();
 
-            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2, 1f, false));
-            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2, 0f, true));
-            if (SideChek) Filters.Add(DecalUtil.SideChek);
-            switch (PolygonCaling)
-            {
-                default:
-                case PolygonCaling.Vartex:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1, 0, true)); break;
-                    }
-                case PolygonCaling.Edge:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true)); break;
-                    }
-                case PolygonCaling.EdgeAndCenterRay:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeEdgeAndCenterRayCast(i, i2, 1, 0, true)); break;
-                    }
-            }
+            Filters.Add(new TrainagelFilterUtility.FarStruct(1, false));
+            Filters.Add(new TrainagelFilterUtility.NearStruct(0, true));
+            if (SideChek) Filters.Add(new TrainagelFilterUtility.SideStruct());
+            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCaling, 0, 1, true));
 
             return Filters;
         }
-        public override void Compile()
-        {
-            if (_IsApply) return;
-            if (!IsPossibleCompile) return;
-
-            var DictCompiledTextures = new List<Dictionary<Material, List<Texture2D>>>();
-            var PPSSpase = new ParallelProjectionSpase(transform.worldToLocalMatrix);
-            var PPSFilter = new ParallelProjectionFilter(GetFilter());
-
-
-            TargetRenderers.ForEach(i => DictCompiledTextures.Add(DecalUtil.CreatDecalTexture(
-                                                i,
-                                                DecalTexture,
-                                                PPSSpase,
-                                                PPSFilter,
-                                                TargetPropatyName
-                                                )
-                                        ));
-
-            var MatTexDict = ZipAndBlendTextures(DictCompiledTextures, BlendType.AlphaLerp);
-            var TextureList = Utils.GeneratTexturesList(Utils.GetMaterials(TargetRenderers), MatTexDict);
-            TextureList.ForEach(Tex => { if (Tex != null) Tex.name = "DecalTexture"; });
-            Container.DecalCompiledTextures = TextureList;
-            Container.IsPossibleApply = true;
-        }
-        [Obsolete]
-        public void AdvansdModeReset()
-        {
-            TargetPropatyName = "_MainTex";
-            SideChek = true;
-            PolygonCaling = PolygonCaling.Vartex;
-        }
-
 
 
         [NonSerialized] public Material DisplayDecalMat;
@@ -114,6 +72,9 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsRealTimePreview = false;
         public bool IsRealTimePreview => _IsRealTimePreview;
+        Dictionary<RenderTexture, RenderTexture> _RealTimePreviewDecalTextureCompile;
+        Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTextureBlend;
+
         public List<MatPea> PreViewMaterials = new List<MatPea>();
 
         public void EnableRealTimePreview()
@@ -124,12 +85,17 @@ namespace Rs64.TexTransTool.Decal
 
             PreViewMaterials.Clear();
 
+            _RealTimePreviewDecalTextureCompile = new Dictionary<RenderTexture, RenderTexture>();
+            _RealTimePreviewDecalTextureBlend = new Dictionary<Texture2D, RenderTexture>();
+
+
             foreach (var Rendarer in TargetRenderers)
             {
                 var Materials = Rendarer.sharedMaterials;
                 for (int i = 0; i < Materials.Length; i += 1)
                 {
-                    if (Materials[i].shader.name == "Hidden/RealTimeSimpleDecalPreview") continue;
+                    if (!Materials[i].HasProperty(TargetPropatyName)) { continue; }
+                    if (Materials[i].GetTexture(TargetPropatyName) is RenderTexture) { continue; }
                     if (PreViewMaterials.Any(i2 => i2.Material == Materials[i]))
                     {
                         Materials[i] = PreViewMaterials.Find(i2 => i2.Material == Materials[i]).SecndMaterial;
@@ -138,14 +104,24 @@ namespace Rs64.TexTransTool.Decal
                     {
                         var DistMat = Materials[i];
                         var NewMat = Instantiate<Material>(Materials[i]);
-                        NewMat.shader = Shader.Find("Hidden/RealTimeSimpleDecalPreview");
-                        Materials[i] = NewMat;
-                        PreViewMaterials.Add(new MatPea(DistMat, NewMat));
+                        var srostex = NewMat.GetTexture(TargetPropatyName);
+
+                        if (srostex is Texture2D tex2d && tex2d != null)
+                        {
+                            var NewTexBlend = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                            var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                            _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
+                            _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
+                            NewMat.SetTexture(TargetPropatyName, NewTexBlend);
+
+                            Materials[i] = NewMat;
+                            PreViewMaterials.Add(new MatPea(DistMat, NewMat));
+                        }
+
                     }
                 }
                 Rendarer.sharedMaterials = Materials;
             }
-            AssetSaveHelper.SaveAssets(PreViewMaterials.Select(i => i.SecndMaterial));
         }
         public void DisableRealTimePreview()
         {
@@ -164,25 +140,36 @@ namespace Rs64.TexTransTool.Decal
                 Rendarer.sharedMaterials = Materials;
 
             }
-            AssetSaveHelper.DeletAssets(PreViewMaterials.Select(i => i.SecndMaterial));
             PreViewMaterials.Clear();
+            _RealTimePreviewDecalTextureBlend = null;
+            _RealTimePreviewDecalTextureCompile = null;
 
         }
 
         public void UpdateRealTimePreview()
         {
-            var Matrix = transform.worldToLocalMatrix;
-            foreach (var MatPea in PreViewMaterials)
+            if (!_IsRealTimePreview) return;
+
+            foreach (var rt in _RealTimePreviewDecalTextureCompile)
             {
-                MatPea.SecndMaterial.SetMatrix("_WorldToDecal", Matrix);
-                MatPea.SecndMaterial.SetTexture("_DecalTex", DecalTexture);
-
-                if (MatPea.SecndMaterial.IsKeywordEnabled(BlendType.ToString()) == false)
-                {
-                    MatPea.SecndMaterial.shaderKeywords = new string[] { BlendType.ToString() };
-
-                }
+                rt.Value.Release();
             }
+
+            foreach (var render in TargetRenderers)
+            {
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, DefaultPading);
+            }
+            foreach (var Stex in _RealTimePreviewDecalTextureBlend.Keys)
+            {
+                var BlendRT = _RealTimePreviewDecalTextureBlend[Stex];
+                var CompoledRT = _RealTimePreviewDecalTextureCompile[BlendRT];
+                BlendRT.Release();
+                Graphics.Blit(Stex, BlendRT);
+                TextureLayerUtil.BlendBlit(BlendRT, CompoledRT, BlendType);
+            }
+
+
+
         }
 
         private void Update()
@@ -207,7 +194,7 @@ namespace Rs64.TexTransTool.Decal
 
         public List<Vector2> OutPutUV()
         {
-            var UV = new List<Vector2>();
+            var UV = new List<Vector2>(PPSVarts.Capacity);
             foreach (var Vart in PPSVarts)
             {
                 UV.Add(Vart);
@@ -217,17 +204,17 @@ namespace Rs64.TexTransTool.Decal
 
     }
 
-    public class ParallelProjectionFilter : DecalUtil.ITraiangleFilter<ParallelProjectionSpase>
+    public class ParallelProjectionFilter : DecalUtil.ITraianglesFilter<ParallelProjectionSpase>
     {
-        public List<DecalUtil.Filtaring<List<Vector3>>> Filters;
+        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters;
 
-        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters)
+        public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters)
         {
             this.Filters = Filters;
         }
         public List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
         {
-            return DecalUtil.FiltaringTraiangle<List<Vector3>>(Traiangeles, Spase.PPSVarts, Filters);
+            return TrainagelFilterUtility.FiltaringTraiangle<List<Vector3>, TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
 }
