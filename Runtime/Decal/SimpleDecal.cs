@@ -18,7 +18,7 @@ namespace Rs64.TexTransTool.Decal
         public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
 
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
-        public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
+        public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter(),GetIslandSelecotor());
 
         public bool IslandCulling = false;
         public override void ScaleApply()
@@ -27,14 +27,21 @@ namespace Rs64.TexTransTool.Decal
         }
         public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>();
-
-            Filters.Add(new TrainagelFilterUtility.FarStruct(1, false));
-            Filters.Add(new TrainagelFilterUtility.NearStruct(0, true));
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>
+            {
+                new TrainagelFilterUtility.FarStruct(1, false),
+                new TrainagelFilterUtility.NearStruct(0, true)
+            };
             if (SideChek) Filters.Add(new TrainagelFilterUtility.SideStruct());
             Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCaling, 0, 1, true));
 
             return Filters;
+        }
+
+        public List<Ray> GetIslandSelecotor()
+        {
+            if (!IslandCulling) return null;
+            return new List<Ray>() { new Ray(transform.position, transform.forward) };
         }
 
 
@@ -182,7 +189,6 @@ namespace Rs64.TexTransTool.Decal
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVarts;
         public DecalUtil.MeshDatas MeshData;
-        public DecalUtil.MeshDatas MeshData;
         public ParallelProjectionSpase(Matrix4x4 ParallelProjectionMatrix)
         {
             this.ParallelProjectionMatrix = ParallelProjectionMatrix;
@@ -190,7 +196,6 @@ namespace Rs64.TexTransTool.Decal
         }
         public void Input(DecalUtil.MeshDatas MeshData)
         {
-            this.MeshData = MeshData;
             this.MeshData = MeshData;
             PPSVarts = DecalUtil.ConvartVerticesInMatlix(ParallelProjectionMatrix, MeshData.Varticals, new Vector3(0.5f, 0.5f, 0));
         }
@@ -217,12 +222,7 @@ namespace Rs64.TexTransTool.Decal
             this.Filters = Filters;
             IslandSelectors = null;
         }
-        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters, List<Ray> IslandSelectors)
-        {
-            this.Filters = Filters;
-            IslandSelectors = null;
-        }
-        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters, List<Ray> IslandSelectors)
+        public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters, List<Ray> IslandSelectors)
         {
             this.Filters = Filters;
             this.IslandSelectors = IslandSelectors;
@@ -231,7 +231,7 @@ namespace Rs64.TexTransTool.Decal
         public List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
         {
             if (IslandSelectors != null) Traiangeles = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Traiangeles);
-            return TrainagelFilterUtility.FiltaringTraiangle<List<Vector3>, TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>(Traiangeles, Spase.PPSVarts, Filters);
+            return TrainagelFilterUtility.FiltaringTraiangle(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
 }
