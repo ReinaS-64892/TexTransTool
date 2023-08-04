@@ -182,6 +182,7 @@ namespace Rs64.TexTransTool.Decal
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVarts;
         public DecalUtil.MeshDatas MeshData;
+        public DecalUtil.MeshDatas MeshData;
         public ParallelProjectionSpase(Matrix4x4 ParallelProjectionMatrix)
         {
             this.ParallelProjectionMatrix = ParallelProjectionMatrix;
@@ -189,6 +190,7 @@ namespace Rs64.TexTransTool.Decal
         }
         public void Input(DecalUtil.MeshDatas MeshData)
         {
+            this.MeshData = MeshData;
             this.MeshData = MeshData;
             PPSVarts = DecalUtil.ConvartVerticesInMatlix(ParallelProjectionMatrix, MeshData.Varticals, new Vector3(0.5f, 0.5f, 0));
         }
@@ -211,6 +213,11 @@ namespace Rs64.TexTransTool.Decal
         public List<Ray> IslandSelectors;
 
         public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters)
+        {
+            this.Filters = Filters;
+            IslandSelectors = null;
+        }
+        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters, List<Ray> IslandSelectors)
         {
             this.Filters = Filters;
             IslandSelectors = null;
