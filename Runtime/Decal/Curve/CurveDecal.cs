@@ -11,8 +11,8 @@ namespace Rs64.TexTransTool.Decal.Curve
         public float Size = 0.5f;
         public uint LoopCount = 1;
         public float OutOfRangeOffset = 0f;
-        public bool IsTextureStreach = true;
-        public Vector2 TextureStreathRenge = new Vector2(0, 0.05f);
+        public bool IsTextureWarp = true;
+        public Vector2 TextureWarpRenge = new Vector2(0, 0.05f);
         public List<CurevSegment> Segments = new List<CurevSegment>();
         public bool DorwGizmoAwiys = false;
         public bool UseFirstAndEnd = false;

@@ -30,10 +30,10 @@ namespace Rs64.TexTransTool.Decal.Curve
         {
 
 
-            Vector2? TexRenage = null;
-            if (IsTextureStreach)
+            Vector2? TexWarpRenage = null;
+            if (IsTextureWarp)
             {
-                TexRenage = TextureStreathRenge;
+                TexWarpRenage = TextureWarpRenge;
             }
 
             Dictionary<Texture2D, RenderTexture> FastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
@@ -68,7 +68,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                                                     CCSspase,
                                                     CCSfilter,
                                                     TargetPropatyName,
-                                                    TextureOutRenge: TexRenage,
+                                                    TextureOutRenge: TexWarpRenage,
                                                     DefoaltPading: DefaultPading
                                                     );
                     }
@@ -79,7 +79,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                                                                              CCSspase,
                                                                              CCSfilter,
                                                                              TargetPropatyName,
-                                                                             TextureOutRenge: TexRenage,
+                                                                             TextureOutRenge: TexWarpRenage,
                                                                              DefoaltPading: DefaultPading
                                                                             ));
                     }
@@ -100,7 +100,9 @@ namespace Rs64.TexTransTool.Decal.Curve
                 var zipd = Utils.ZipToDictionaryOnList(SlowDictCompiledTextures);
                 foreach (var Texture in zipd)
                 {
-                    DecalCompiledTextures.Add(Texture.Key, TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp));
+                    var CompiledTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
+                    CompiledTex.Apply();
+                    DecalCompiledTextures.Add(Texture.Key, CompiledTex);
                 }
             }
 
@@ -109,9 +111,11 @@ namespace Rs64.TexTransTool.Decal.Curve
 
         public List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilers()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>();
-            Filters.Add(new CCSFilter.BorderOnPorygonStruct());
-            Filters.Add(new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false));
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
+            {
+                new CCSFilter.BorderOnPorygonStruct(150),
+                new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false)
+            };
 
             return Filters;
         }

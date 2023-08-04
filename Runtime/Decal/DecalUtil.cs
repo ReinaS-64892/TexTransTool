@@ -67,13 +67,8 @@ namespace Rs64.TexTransTool.Decal
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);
 
-                var timer = System.Diagnostics.Stopwatch.StartNew();
-
                 var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
                 if (FiltaringdTrainagle.Any() == false) { continue; }
-
-                timer.Stop();
-                Debug.Log($"FiltaringdTrainagle {timer.ElapsedMilliseconds}ms");
 
 
 

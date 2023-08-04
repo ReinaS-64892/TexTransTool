@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Decal{
+namespace Rs64.TexTransTool.Decal
+{
     public static class TrainagelFilterUtility
     {
         public interface ITraiangleFiltaring<InterObject>
@@ -39,7 +40,7 @@ namespace Rs64.TexTransTool.Decal{
             return FiltalingTraingles;
         }
 
-        public struct SideStruct : TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>
+        public struct SideStruct : ITraiangleFiltaring<List<Vector3>>
         {
             public bool IsReverse;
 
@@ -65,7 +66,7 @@ namespace Rs64.TexTransTool.Decal{
 
         }
 
-        public struct FarStruct : TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>
+        public struct FarStruct : ITraiangleFiltaring<List<Vector3>>
         {
             public float Far;
             public bool IsAllVartex;
@@ -121,7 +122,7 @@ namespace Rs64.TexTransTool.Decal{
             }
         }
 
-        public struct OutOfPorigonStruct : TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>
+        public struct OutOfPorigonStruct : ITraiangleFiltaring<List<Vector3>>
         {
             public PolygonCaling PolygonCaling;
             public float MinRange;
@@ -165,31 +166,31 @@ namespace Rs64.TexTransTool.Decal{
             }
             public static bool OutOfPorigonEdgeBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
             {
-                float CenterPos = (MaxRange + MinRange) / 2;
-                Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
+                float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
+                var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
                 bool[] OutOfPrygon = new bool[3] { false, false, false };
                 foreach (var Index in new Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) })
                 {
 
                     var a = Vartex[TargetTri[Index.x]];
                     var b = Vartex[TargetTri[Index.y]];
-                    var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPos2);
-                    OutOfPrygon[Index.x] = !(NerPoint.x < MaxRange && NerPoint.x > MinRange && NerPoint.y < MaxRange && NerPoint.y > MinRange);
+                    var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPosVec2);
+                    OutOfPrygon[Index.x] = !( MinRange < NerPoint.x && NerPoint.x < MaxRange  &&  MinRange < NerPoint.y &&  NerPoint.y < MaxRange );
                 }
                 if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
                 else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
             }
             public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
             {
-                float CenterPos = (MaxRange + MinRange) / 2;
-                Vector2 ConterPos2 = new Vector2(CenterPos, CenterPos);
+                float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
+                var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
                 if (!OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex))
                 {
                     return false;
                 }
                 else
                 {
-                    var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPos2);
+                    var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
                     return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
                 }
             }

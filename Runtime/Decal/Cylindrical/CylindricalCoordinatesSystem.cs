@@ -79,7 +79,7 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
         {
             for (int i = 0; i < Varts.Count; i++)
             {
-                Varts[i] = new Vector3(Varts[i].x, CylindricalCoordinatesSystem.OffsetAngle(Varts[i].y, Offset), Varts[i].z);
+                Varts[i] = new Vector3(Varts[i].x, OffsetAngle(Varts[i].y, Offset), Varts[i].z);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
             return PositiveCount;
         }
 
-        public static void heightScaleFactor(List<Vector3> CCSVarts, float factor = 100)
+        public static void HeightScaleFactor(List<Vector3> CCSVarts, float factor = 100)
         {
             for (int i = 0; i < CCSVarts.Count; i++)
             {
@@ -131,8 +131,8 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
             CylindricalCoordinatesSystem.OffSetApply(cCSVartexs, offset);
 
             //円柱座標系での高さの値を大きくするとQuadNormalaizeの精度が上がる。
-            CylindricalCoordinatesSystem.heightScaleFactor(cCSVartexs);
-            CylindricalCoordinatesSystem.heightScaleFactor(cCSQuad);
+            CylindricalCoordinatesSystem.HeightScaleFactor(cCSVartexs);
+            CylindricalCoordinatesSystem.HeightScaleFactor(cCSQuad);
 
             Offset = offset;
             var Normalized = DecalUtil.QuadNormaliz(cCSQuad.ConvertAll(i => (Vector2)i), cCSVartexs.ConvertAll(i => (Vector2)i));
@@ -167,12 +167,12 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
         }
 
 
-        public struct NeraStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct InDistansStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
         {
             public float Near;
             public bool IsAllVartex;
 
-            public NeraStruct(float Near, bool IsAllVartex)
+            public InDistansStruct(float Near, bool IsAllVartex)
             {
                 this.Near = Near;
                 this.IsAllVartex = IsAllVartex;
@@ -185,12 +185,12 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
             }
         }
 
-        public struct FarStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct OutDistansStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
         {
             public float Far;
             public bool IsAllVartex;
 
-            public FarStruct(float Far, bool IsAllVartex)
+            public OutDistansStruct(float Far, bool IsAllVartex)
             {
                 this.Far = Far;
                 this.IsAllVartex = IsAllVartex;
@@ -208,7 +208,7 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
 
             public SideStruct(bool isRevaers)
             {
-                this.IsRevaers = isRevaers;
+                IsRevaers = isRevaers;
             }
 
             public bool Filtering(TraiangleIndex tri, CCSSpace Space)
@@ -219,11 +219,11 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
 
         public struct BorderOnPorygonStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
         {
-            public float Threshold;
+            public float Threshold /*= 150f */;
 
-            public BorderOnPorygonStruct(float Threshold = 150f)
+            public BorderOnPorygonStruct(float threshold)
             {
-                this.Threshold = Threshold;
+                Threshold = threshold;
             }
 
             public bool Filtering(TraiangleIndex tri, CCSSpace Space)

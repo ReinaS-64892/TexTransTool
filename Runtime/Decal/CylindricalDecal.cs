@@ -14,26 +14,24 @@ namespace Rs64.TexTransTool.Decal
         public Vector2 Scale = Vector2.one;
         public bool SideChek = true;
         public float OutOfRangeOffset = 1f;
-        public float FarCulling = 1f;
-        public float NierCullingOffSet = 1f;
+        public float InDistansCulling = 1f;
+        public float OutDistansCulling = 1f;
 
         public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
         public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
 
         private List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilters()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>();
-
-
-
-            Filters.Add(new CCSFilter.BorderOnPorygonStruct());
-            Filters.Add(new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false));
-
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
+            {
+                new CCSFilter.BorderOnPorygonStruct(),
+                new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false)
+            };
 
             var ThisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
 
-            Filters.Add(new CCSFilter.FarStruct(Mathf.Max(ThisCCSZ - FarCulling, 0f), false));
-            Filters.Add(new CCSFilter.NeraStruct(NierCullingOffSet + ThisCCSZ, false));
+            Filters.Add(new CCSFilter.OutDistansStruct(OutDistansCulling + ThisCCSZ, false));
+            Filters.Add(new CCSFilter.InDistansStruct(Mathf.Max(ThisCCSZ - InDistansCulling, 0f), false));
             if (SideChek) Filters.Add(new CCSFilter.SideStruct());
 
             return Filters;
@@ -72,11 +70,11 @@ namespace Rs64.TexTransTool.Decal
             foreach (var FromPoint in Quad)
             {
                 var CCSPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
-                CCSPoint.z = Mathf.Max(CCSPoint.z - FarCulling, 0f);
+                CCSPoint.z = Mathf.Max(CCSPoint.z - InDistansCulling, 0f);
                 var OffSetToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
 
                 var CCSFromPoint = cylindricalCoordinatesSystem.GetCCSPoint(FromPoint);
-                CCSFromPoint.z += NierCullingOffSet;
+                CCSFromPoint.z += OutDistansCulling;
                 var OffSetFromPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSFromPoint);
 
                 Gizmos.DrawLine(OffSetFromPoint, OffSetToPoint);

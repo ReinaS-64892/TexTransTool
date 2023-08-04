@@ -135,7 +135,7 @@ namespace Rs64.TexTransTool
             var TransMap = new TransMapData(Pading.Value, targetTexture.DistansMap.MapSize);
             var TargetScaiUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaiUV, targetTexture.DistansMap.MapSize);
             TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaiUV, TransUVData.SourceUV);
-            Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode);
+            Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode, WarpRange);
         }
 
         public static float CSPading(float? Pading)
