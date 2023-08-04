@@ -19,7 +19,7 @@ namespace Rs64.TexTransTool.Decal
         public bool FastMode = true;
 
         public abstract SpaseConverter GetSpaseConverter { get; }
-        public abstract DecalUtil.ITraiangleFilter<SpaseConverter> GetTraiangleFilter { get; }
+        public abstract DecalUtil.ITraianglesFilter<SpaseConverter> GetTraiangleFilter { get; }
         public virtual Vector2? GetOutRengeTexture { get => Vector2.zero; }
 
         [SerializeField] protected bool _IsApply = false;

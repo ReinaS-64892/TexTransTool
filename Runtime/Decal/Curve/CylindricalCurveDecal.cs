@@ -23,7 +23,7 @@ namespace Rs64.TexTransTool.Decal.Curve
         public BezierCurve BezierCurve => new BezierCurve(Segments, RoolMode);
 
         public override CCSSpace GetSpaseConverter => throw new System.NotImplementedException();
-        public override DecalUtil.ITraiangleFilter<CCSSpace> GetTraiangleFilter => throw new System.NotImplementedException();
+        public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => throw new System.NotImplementedException();
 
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
@@ -58,7 +58,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                 foreach (var Renderer in TargetRenderers)
                 {
                     var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
-                    var CCSfilter = new CCSFilter(CCSFilter.DefaultFilter(OutOfRangeOffset));
+                    var CCSfilter = new CCSFilter(GetFilers());
 
                     if (FastMode)
                     {
@@ -107,6 +107,14 @@ namespace Rs64.TexTransTool.Decal.Curve
             return DecalCompiledTextures;
         }
 
+        public List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilers()
+        {
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>();
+            Filters.Add(new CCSFilter.BorderOnPorygonStruct());
+            Filters.Add(new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false));
+
+            return Filters;
+        }
 
 
 

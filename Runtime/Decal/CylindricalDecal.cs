@@ -18,21 +18,23 @@ namespace Rs64.TexTransTool.Decal
         public float NierCullingOffSet = 1f;
 
         public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-        public override DecalUtil.ITraiangleFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
+        public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
 
-        private List<DecalUtil.Filtaring<CCSSpace>> GetFilters()
+        private List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilters()
         {
-            var Filters = new List<DecalUtil.Filtaring<CCSSpace>>();
-            Filters.Add((i, i2) => CylindricalCoordinatesSystem.BorderOnPorygon(i, i2.CCSvarts));
-            Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2.QuadNormalizedVarts, 1 + OutOfRangeOffset, 0 - OutOfRangeOffset, false));
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>();
+
+
+
+            Filters.Add(new CCSFilter.BorderOnPorygonStruct());
+            Filters.Add(new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false));
+
 
             var ThisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
 
-            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2.QuadNormalizedVarts, NierCullingOffSet + ThisCCSZ, false));
-            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2.QuadNormalizedVarts, Mathf.Max(ThisCCSZ - FarCulling, 0f), false));
-
-
-            if (SideChek) { Filters.Add((i, i2) => DecalUtil.SideChek(i, i2.QuadNormalizedVarts)); }
+            Filters.Add(new CCSFilter.FarStruct(Mathf.Max(ThisCCSZ - FarCulling, 0f), false));
+            Filters.Add(new CCSFilter.NeraStruct(NierCullingOffSet + ThisCCSZ, false));
+            if (SideChek) Filters.Add(new CCSFilter.SideStruct());
 
             return Filters;
         }

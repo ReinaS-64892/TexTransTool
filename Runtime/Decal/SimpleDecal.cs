@@ -19,36 +19,21 @@ namespace Rs64.TexTransTool.Decal
 
 
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
-        public override DecalUtil.ITraiangleFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
+        public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter => new ParallelProjectionFilter(GetFilter());
 
 
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
         }
-        public List<DecalUtil.Filtaring<List<Vector3>>> GetFilter()
+        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
         {
-            var Filters = new List<DecalUtil.Filtaring<List<Vector3>>>();
+            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>();
 
-            Filters.Add((i, i2) => DecalUtil.FarClip(i, i2, 1f, false));
-            Filters.Add((i, i2) => DecalUtil.NerClip(i, i2, 0f, true));
-            if (SideChek) Filters.Add(DecalUtil.SideChek);
-            switch (PolygonCaling)
-            {
-                default:
-                case PolygonCaling.Vartex:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonVartexBase(i, i2, 1, 0, true)); break;
-                    }
-                case PolygonCaling.Edge:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeBase(i, i2, 1, 0, true)); break;
-                    }
-                case PolygonCaling.EdgeAndCenterRay:
-                    {
-                        Filters.Add((i, i2) => DecalUtil.OutOfPorigonEdgeEdgeAndCenterRayCast(i, i2, 1, 0, true)); break;
-                    }
-            }
+            Filters.Add(new TrainagelFilterUtility.FarStruct(1, false));
+            Filters.Add(new TrainagelFilterUtility.NearStruct(0, true));
+            if (SideChek) Filters.Add(new TrainagelFilterUtility.SideStruct());
+            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCaling, 0, 1, true));
 
             return Filters;
         }
@@ -219,17 +204,17 @@ namespace Rs64.TexTransTool.Decal
 
     }
 
-    public class ParallelProjectionFilter : DecalUtil.ITraiangleFilter<ParallelProjectionSpase>
+    public class ParallelProjectionFilter : DecalUtil.ITraianglesFilter<ParallelProjectionSpase>
     {
-        public List<DecalUtil.Filtaring<List<Vector3>>> Filters;
+        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters;
 
-        public ParallelProjectionFilter(List<DecalUtil.Filtaring<List<Vector3>>> Filters)
+        public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters)
         {
             this.Filters = Filters;
         }
         public List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
         {
-            return DecalUtil.FiltaringTraiangle<List<Vector3>>(Traiangeles, Spase.PPSVarts, Filters);
+            return TrainagelFilterUtility.FiltaringTraiangle<List<Vector3>, TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
 }

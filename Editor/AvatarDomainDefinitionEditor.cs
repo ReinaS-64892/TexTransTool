@@ -33,7 +33,7 @@ namespace Rs64.TexTransTool.Editor
             {
                 if (GUILayout.Button("MaterialDomainUse - Apply"))
                 {
-                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Apply");
+                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Apply();
                 }
             }
@@ -42,7 +42,7 @@ namespace Rs64.TexTransTool.Editor
                 EditorGUI.BeginDisabledGroup(!thsitarget.IsSelfCallApply);
                 if (GUILayout.Button("Revart"))
                 {
-                    Undo.RecordObject(thsitarget, "AvatarMaterialDomain - Revart");
+                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Revart();
 
                 }
