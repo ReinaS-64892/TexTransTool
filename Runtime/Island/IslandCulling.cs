@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.Island
             var RayCastHitTraiangle = new List<TraiangleIndex>();
             foreach (var i in IslandSelectors)
             {
-                var Hits = HitRay(i, Positions, Traiangles, out var RayMatrixPoss);
+                var Hits = RayCast(i, Positions, Traiangles, out var RayMatrixPoss);
                 FiltedBackTraiangle(Hits);
                 if (Hits.Any()) RayCastHitTraiangle.Add(Hits[0].Traiangle);
             }
@@ -34,7 +34,7 @@ namespace Rs64.TexTransTool.Island
 
         }
 
-        public static List<RayCastHitTraiangle> HitRay(Ray Ray, IReadOnlyList<Vector3> Positions, IReadOnlyList<TraiangleIndex> Traiangles, out List<Vector3> RayMatrixPoss)
+        public static List<RayCastHitTraiangle> RayCast(Ray Ray, IReadOnlyList<Vector3> Positions, IReadOnlyList<TraiangleIndex> Traiangles, out List<Vector3> RayMatrixPoss)
         {
             var Rot = Quaternion.LookRotation(Ray.direction);
             var RayMatrix = Matrix4x4.TRS(Ray.origin, Rot, Vector3.one).inverse;
@@ -66,7 +66,7 @@ namespace Rs64.TexTransTool.Island
             }
             Hits.Sort((a, b) => a.Item2.CompareTo(b.Item2));
 
-            var Out = new List<RayCastHitTraiangle>();
+            var Out = new List<RayCastHitTraiangle>(Hits.Capacity);
             foreach (var i in Hits)
             {
                 Out.Add(new RayCastHitTraiangle(Traiangles[i.Item1], i.Item3, i.Item2));
