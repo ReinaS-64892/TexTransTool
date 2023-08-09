@@ -10,7 +10,7 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
 
 
     [CustomEditor(typeof(CurveDecal))]
-    public class CurveDecalEditor : AbstractDecalEditor
+    public class CurveDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

@@ -9,7 +9,6 @@ namespace Rs64.TexTransTool.Decal
     public abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
-        public Texture2D DecalTexture;
         public BlendType BlendType = BlendType.Normal;
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
@@ -20,8 +19,7 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
-        public override bool IsPossibleApply => IsPossibleCompile;
-        public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
+        public override bool IsPossibleCompile => IsPossibleApply;
 
 
         public override void Apply(AvatarDomain avatarDomain)

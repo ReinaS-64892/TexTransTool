@@ -5,8 +5,7 @@ using Rs64.TexTransTool.Decal;
 
 namespace Rs64.TexTransTool.Editor.Decal
 {
-    [CustomEditor(typeof(AbstractDecal), true)]
-    public class AbstractDecalEditor : UnityEditor.Editor
+    public class AbstructSingleDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

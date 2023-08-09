@@ -2,12 +2,15 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rs64.TexTransTool.Decal
 {
     public abstract class AbstructSingleDecal<SpaseConverter> : AbstractDecal
     where SpaseConverter : DecalUtil.IConvertSpace
     {
+        public Texture2D DecalTexture;
+        public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null);
         public abstract SpaseConverter GetSpaseConverter { get; }
         public abstract DecalUtil.ITraianglesFilter<SpaseConverter> GetTraiangleFilter { get; }
 
