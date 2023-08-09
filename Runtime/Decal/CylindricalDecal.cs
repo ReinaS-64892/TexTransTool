@@ -7,7 +7,7 @@ using Rs64.TexTransTool.Decal.Cylindrical;
 namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/CylindricalDecal")]
-    public class CylindricalDecal : AbstractDecal<CCSSpace>
+    public class CylindricalDecal : AbstructSingleDecal<CCSSpace>
     {
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
         public bool FixedAspect = true;
