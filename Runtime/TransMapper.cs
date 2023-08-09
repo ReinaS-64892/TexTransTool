@@ -49,7 +49,7 @@ namespace Rs64.TexTransTool
             }
             return (SourceUVPosition, Distans);
         }
-        public static Vector4 ClossTraiangle(List<Vector2> Triangle, Vector2 TargetPoint)
+        public static Vector4 ClossTraiangle(IList<Vector2> Triangle, Vector2 TargetPoint)
         {
             var w = Vector3.Cross(Triangle[2] - Triangle[1], TargetPoint - Triangle[1]).z;
             var u = Vector3.Cross(Triangle[0] - Triangle[2], TargetPoint - Triangle[2]).z;
@@ -57,7 +57,7 @@ namespace Rs64.TexTransTool
             var wuv = TraiangelArea(Triangle);
             return new Vector4(w, u, v, wuv);
         }
-        public static float TraiangelArea(List<Vector2> Triangle)
+        public static float TraiangelArea(IList<Vector2> Triangle)
         {
             return Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
         }
@@ -71,9 +71,17 @@ namespace Rs64.TexTransTool
             return new Vector3(a, b, c);
         }
 
-        public static Vector2 FromBCS(List<Vector2> Triangle, Vector3 SuorseTBC)
+        public static Vector2 FromBCS(IList<Vector2> Triangle, Vector3 SuorseTBC)
         {
             var ConversionPos = Vector2.zero;
+            ConversionPos += Triangle[0] * SuorseTBC.x;
+            ConversionPos += Triangle[1] * SuorseTBC.y;
+            ConversionPos += Triangle[2] * SuorseTBC.z;
+            return ConversionPos;
+        }
+        public static Vector3 FromBCS(IList<Vector3> Triangle, Vector3 SuorseTBC)
+        {
+            var ConversionPos = Vector3.zero;
             ConversionPos += Triangle[0] * SuorseTBC.x;
             ConversionPos += Triangle[1] * SuorseTBC.y;
             ConversionPos += Triangle[2] * SuorseTBC.z;
@@ -284,6 +292,33 @@ namespace Rs64.TexTransTool
         public List<T> GetTraiangle<T>(List<T> List)
         {
             return new List<T> { List[zero], List[one], List[two] };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TraiangleIndex index &&
+                   zero == index.zero &&
+                   one == index.one &&
+                   two == index.two;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 662952323;
+            hashCode = hashCode * -1521134295 + zero.GetHashCode();
+            hashCode = hashCode * -1521134295 + one.GetHashCode();
+            hashCode = hashCode * -1521134295 + two.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(TraiangleIndex left, TraiangleIndex right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TraiangleIndex left, TraiangleIndex right)
+        {
+            return !(left == right);
         }
     }
 }
