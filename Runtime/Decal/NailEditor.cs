@@ -15,6 +15,8 @@ namespace Rs64.TexTransTool.Decal
         public NailSet LeftHand;
         public NailSet RightHand;
 
+        public Upvector FingerUpvector;
+
 
         public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
@@ -152,15 +154,39 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        private static Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion)
+        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion)
         {
             var FingerSize = SorsFingetTF.localPosition.magnitude;
+            var SRot = SorsFingetTF.rotation;
+
+            switch (FingerUpvector)
+            {
+                default:
+                case Upvector.Zminus:
+                    break;
+                case Upvector.Zplus:
+                    SRot *= Quaternion.Euler(0, 180, 0);
+                    break;
+                case Upvector.Yminus:
+                    SRot *= Quaternion.Euler(90, 0, 0);
+                    break;
+                case Upvector.Yplus:
+                    SRot *= Quaternion.Euler(-90, 0, 0);
+                    break;
+                case Upvector.Xminus:
+                    SRot *= Quaternion.Euler(0, 90, 0);
+                    break;
+                case Upvector.Xplus:
+                    SRot *= Quaternion.Euler(0, -90, 0);
+                    break;
+
+            }
 
             var NailPos = SorsFingetTF.position;
-            NailPos += SorsFingetTF.rotation * (SorsFingetTF.localPosition * 0.9f);
-            NailPos += SorsFingetTF.rotation * new Vector3(0, 0, FingerSize * -0.25f);
-            NailPos += SorsFingetTF.rotation * naileDecalDescripstion.PositionOffset;
-            var NailRot = SorsFingetTF.rotation * naileDecalDescripstion.RotationOffset;
+            NailPos += SRot * (SorsFingetTF.localPosition * 0.9f);
+            NailPos += SRot * new Vector3(0, 0, FingerSize * -0.25f);
+            NailPos += SRot * naileDecalDescripstion.PositionOffset;
+            var NailRot = SRot * naileDecalDescripstion.RotationOffset;
             var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
@@ -240,7 +266,15 @@ namespace Rs64.TexTransTool.Decal
         Littl,
     }
 
-
+    public enum Upvector
+    {
+        Zminus,
+        Zplus,
+        Yminus,
+        Yplus,
+        Xminus,
+        Xplus,
+    }
 
 
 }
