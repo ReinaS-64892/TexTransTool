@@ -27,9 +27,6 @@ namespace Rs64.TexTransTool.Editor.Decal
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
             EditorGUILayout.PropertyField(S_TargetPropatyName);
 
-            var S_FingerUpvector = This_S_Object.FindProperty("FingerUpvector");
-            EditorGUILayout.PropertyField(S_FingerUpvector);
-
             var S_LeftHand = This_S_Object.FindProperty("LeftHand");
             var S_RightHand = This_S_Object.FindProperty("RightHand");
             EditorGUILayout.LabelField("LeftHand");
@@ -49,6 +46,7 @@ namespace Rs64.TexTransTool.Editor.Decal
 
         public static void DrawNailSet(SerializedProperty serializedProperty)
         {
+            var S_FingerUpvector = serializedProperty.FindPropertyRelative("FingerUpvector");
             var S_Thumb = serializedProperty.FindPropertyRelative("Thumb");
             var S_Index = serializedProperty.FindPropertyRelative("Index");
             var S_Middle = serializedProperty.FindPropertyRelative("Middle");
@@ -56,6 +54,8 @@ namespace Rs64.TexTransTool.Editor.Decal
             var S_Little = serializedProperty.FindPropertyRelative("Little");
 
             EditorGUI.indentLevel += 1;
+
+            EditorGUILayout.PropertyField(S_FingerUpvector);
 
             EditorGUILayout.LabelField("Thumb");
             DrawNailDiscriptor(S_Thumb);

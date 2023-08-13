@@ -15,7 +15,6 @@ namespace Rs64.TexTransTool.Decal
         public NailSet LeftHand;
         public NailSet RightHand;
 
-        public Upvector FingerUpvector;
 
 
         public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
@@ -104,7 +103,7 @@ namespace Rs64.TexTransTool.Decal
                     var naileDecalDescripstion = NaileDD.Item2;
                     if (naileDecalDescripstion.DecalTexture == null) continue;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector);
 
                     var ray = new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward));
 
@@ -145,7 +144,7 @@ namespace Rs64.TexTransTool.Decal
                     var Finger = NaileDD.Item1;
                     var naileDecalDescripstion = NaileDD.Item2;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector);
 
                     Gizmos.matrix = Matlix;
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
@@ -154,7 +153,7 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion)
+        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion, Upvector FingerUpvector)
         {
             var FingerSize = SorsFingetTF.localPosition.magnitude;
             var SRot = SorsFingetTF.rotation;
@@ -221,13 +220,13 @@ namespace Rs64.TexTransTool.Decal
     [Serializable]
     public class NailSet : IEnumerable<(Finger, NaileDecalDescripstion)>
     {
+        public Upvector FingerUpvector;
+
         public NaileDecalDescripstion Thumb;
         public NaileDecalDescripstion Index;
         public NaileDecalDescripstion Middle;
         public NaileDecalDescripstion Ring;
         public NaileDecalDescripstion Little;
-
-
 
 
         IEnumerator<(Finger, NaileDecalDescripstion)> IEnumerable<(Finger, NaileDecalDescripstion)>.GetEnumerator()
