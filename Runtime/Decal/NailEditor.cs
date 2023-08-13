@@ -157,11 +157,11 @@ namespace Rs64.TexTransTool.Decal
             var FingerSize = SorsFingetTF.localPosition.magnitude;
 
             var NailPos = SorsFingetTF.position;
-            NailPos += SorsFingetTF.rotation * (SorsFingetTF.localPosition * 0.75f);
-            NailPos += SorsFingetTF.rotation * new Vector3(0, 0, -0.25f * FingerSize);
+            NailPos += SorsFingetTF.rotation * (SorsFingetTF.localPosition * 0.9f);
+            NailPos += SorsFingetTF.rotation * new Vector3(0, 0, FingerSize * -0.25f);
             NailPos += SorsFingetTF.rotation * naileDecalDescripstion.PositionOffset;
             var NailRot = SorsFingetTF.rotation * naileDecalDescripstion.RotationOffset;
-            var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize;
+            var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
         }
