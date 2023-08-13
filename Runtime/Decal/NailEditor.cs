@@ -189,6 +189,8 @@ namespace Rs64.TexTransTool.Decal
             var NailRot = SRot * Quaternion.Euler(naileDecalDescripstion.RotationOffset);
             var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
+            if (naileDecalDescripstion.DecalTexture != null) { NailSize.y *= (float)naileDecalDescripstion.DecalTexture.height / (float)naileDecalDescripstion.DecalTexture.width; }
+
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
         }
 
@@ -255,6 +257,20 @@ namespace Rs64.TexTransTool.Decal
         public Vector3 PositionOffset = Vector3.zero;
         public Vector3 ScaileOffset = Vector3.one;
         public Vector3 RotationOffset = Vector3.zero;
+
+        public void Copy(NaileDecalDescripstion Souse)
+        {
+            DecalTexture = Souse.DecalTexture;
+            PositionOffset = Souse.PositionOffset;
+            ScaileOffset = Souse.ScaileOffset;
+            RotationOffset = Souse.RotationOffset;
+        }
+        public NaileDecalDescripstion Clone()
+        {
+            var New = new NaileDecalDescripstion();
+            New.Copy(this);
+            return New;
+        }
     }
 
     public enum Finger
