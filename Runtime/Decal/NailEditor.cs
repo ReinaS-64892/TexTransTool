@@ -186,7 +186,7 @@ namespace Rs64.TexTransTool.Decal
             NailPos += SRot * (SorsFingetTF.localPosition * 0.9f);
             NailPos += SRot * new Vector3(0, 0, FingerSize * -0.25f);
             NailPos += SRot * naileDecalDescripstion.PositionOffset;
-            var NailRot = SRot * naileDecalDescripstion.RotationOffset;
+            var NailRot = SRot * Quaternion.Euler(naileDecalDescripstion.RotationOffset);
             var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
@@ -254,7 +254,7 @@ namespace Rs64.TexTransTool.Decal
 
         public Vector3 PositionOffset = Vector3.zero;
         public Vector3 ScaileOffset = Vector3.one;
-        public Quaternion RotationOffset = Quaternion.identity;
+        public Vector3 RotationOffset = Vector3.zero;
     }
 
     public enum Finger
