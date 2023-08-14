@@ -8,17 +8,17 @@ namespace Rs64.TexTransTool.Editor
     public class BlankTextureGenereater
     {
 
-        [MenuItem("Assets/Create/BlankTexture/2048")]
+        [MenuItem("Assets/Create/TexTransTool/BlankTexture/2048")]
         public static void CreateBlankTexture2048()
         {
             GeneretAndSaveBlanTexture(2048);
         }
-        [MenuItem("Assets/Create/BlankTexture/1024")]
+        [MenuItem("Assets/Create/TexTransTool/BlankTexture/1024")]
         public static void CreateBlankTexture1024()
         {
             GeneretAndSaveBlanTexture(1024);
         }
-        [MenuItem("Assets/Create/BlankTexture/512")]
+        [MenuItem("Assets/Create/TexTransTool/BlankTexture/512")]
         public static void CreateBlankTexture512()
         {
             GeneretAndSaveBlanTexture(512);
