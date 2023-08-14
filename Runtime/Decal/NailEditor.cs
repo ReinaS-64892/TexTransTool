@@ -103,7 +103,7 @@ namespace Rs64.TexTransTool.Decal
                     var naileDecalDescripstion = NaileDD.Item2;
                     if (naileDecalDescripstion.DecalTexture == null) continue;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector, IsRight);
 
                     var ray = new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward));
 
@@ -144,7 +144,7 @@ namespace Rs64.TexTransTool.Decal
                     var Finger = NaileDD.Item1;
                     var naileDecalDescripstion = NaileDD.Item2;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector, IsRight);
 
                     Gizmos.matrix = Matlix;
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
@@ -153,7 +153,7 @@ namespace Rs64.TexTransTool.Decal
             }
         }
 
-        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion, Upvector FingerUpvector)
+        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion, Upvector FingerUpvector, bool InvaersdRight)
         {
             var FingerSize = SorsFingetTF.localPosition.magnitude;
             var SRot = SorsFingetTF.rotation;
@@ -184,8 +184,8 @@ namespace Rs64.TexTransTool.Decal
             var NailPos = SorsFingetTF.position;
             NailPos += SRot * (SorsFingetTF.localPosition * 0.9f);
             NailPos += SRot * new Vector3(0, 0, FingerSize * -0.25f);
-            NailPos += SRot * naileDecalDescripstion.PositionOffset;
-            var NailRot = SRot * Quaternion.Euler(naileDecalDescripstion.RotationOffset);
+            NailPos += SRot * (!InvaersdRight ? naileDecalDescripstion.PositionOffset : PosOffsetInverseRight(naileDecalDescripstion.PositionOffset));
+            var NailRot = SRot * Quaternion.Euler(!InvaersdRight ? naileDecalDescripstion.RotationOffset : RotOffsetInverseRight(naileDecalDescripstion.RotationOffset));
             var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
             if (naileDecalDescripstion.DecalTexture != null) { NailSize.y *= (float)naileDecalDescripstion.DecalTexture.height / (float)naileDecalDescripstion.DecalTexture.width; }
@@ -193,6 +193,14 @@ namespace Rs64.TexTransTool.Decal
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
         }
 
+        public Vector3 PosOffsetInverseRight(Vector3 positionOffset)
+        {
+            return new Vector3(positionOffset.x * -1, positionOffset.y, positionOffset.z);
+        }
+        public Vector3 RotOffsetInverseRight(Vector3 rotationOffset)
+        {
+            return new Vector3(rotationOffset.x, rotationOffset.y * -1, rotationOffset.z * -1);
+        }
         public Transform GetFinger(Finger finger, bool IsRight)
         {
             return TargetAvatar.GetBoneTransform(ConvertHumanBodyBones(finger, IsRight));
