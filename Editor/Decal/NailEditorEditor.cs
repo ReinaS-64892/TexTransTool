@@ -105,17 +105,19 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             if (GUILayout.Button("Left <= Right "))
             {
-                EditorUtility.SetDirty(nailEditor);
+                Undo.RecordObject(nailEditor,"NailEditor Offset Copy Left <= Right");
                 var nailOffsets = new NailOffSets();
                 nailOffsets.Copy(nailEditor.RightHand);
+                nailOffsets.Upvector = nailEditor.LeftHand.FingerUpvector;
                 nailEditor.LeftHand.Copy(nailOffsets);
             }
 
             if (GUILayout.Button("Left => Right"))
             {
-                EditorUtility.SetDirty(nailEditor);
+                Undo.RecordObject(nailEditor,"NailEditor Offset Copy Left => Right");
                 var nailOffsets = new NailOffSets();
                 nailOffsets.Copy(nailEditor.LeftHand);
+                nailOffsets.Upvector = nailEditor.RightHand.FingerUpvector;
                 nailEditor.RightHand.Copy(nailOffsets);
             }
 
