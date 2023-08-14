@@ -9,7 +9,7 @@ namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/SimpleDecal")]
     [ExecuteInEditMode]
-    public class SimpleDecal : AbstractDecal<ParallelProjectionSpase>
+    public class SimpleDecal : AbstructSingleDecal<ParallelProjectionSpase>
     {
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;

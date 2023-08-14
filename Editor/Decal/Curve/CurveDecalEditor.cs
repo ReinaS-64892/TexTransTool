@@ -9,8 +9,8 @@ namespace Rs64.TexTransTool.Editor.Decal.Curve
 {
 
 
-    [CustomEditor(typeof(CurveDecal<DecalUtil.IConvertSpace>))]
-    public class CurveDecalEditor : AbstractDecalEditor
+    [CustomEditor(typeof(CurveDecal))]
+    public class CurveDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

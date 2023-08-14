@@ -9,7 +9,7 @@ using VRC.SDKBase;
 namespace Rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
-    public class CylindricalCurveDecal : CurveDecal<CCSSpace>
+    public class CylindricalCurveDecal : CurveDecal
 #if VRC_BASE
     , IEditorOnly
 #endif
@@ -21,10 +21,6 @@ namespace Rs64.TexTransTool.Decal.Curve
 
 
         public BezierCurve BezierCurve => new BezierCurve(Segments, RoolMode);
-
-        public override CCSSpace GetSpaseConverter => throw new System.NotImplementedException();
-        public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => throw new System.NotImplementedException();
-
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {

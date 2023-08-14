@@ -20,11 +20,11 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
 
-            AbstractDecalEditor.DrowDecalEditor(This_S_Object);
+            AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
 
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstractDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
             {
                 Undo.RecordObject(ThisObject, "ApplyScaile - SideChek");

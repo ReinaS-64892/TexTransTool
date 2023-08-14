@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Rs64.TexTransTool.Decal.Curve
 {
-    public abstract class CurveDecal<T> : AbstractDecal<T> where T : DecalUtil.IConvertSpace
+    public abstract class CurveDecal : AbstractDecal
     {
         public float Size = 0.5f;
         public uint LoopCount = 1;
@@ -16,12 +16,13 @@ namespace Rs64.TexTransTool.Decal.Curve
         public List<CurevSegment> Segments = new List<CurevSegment>();
         public bool DorwGizmoAwiys = false;
         public bool UseFirstAndEnd = false;
+        public Texture2D DecalTexture;
         public Texture2D FirstTexture;
         public Texture2D EndTexture;
         public float CurveStartOffset;
 
         public bool IsPossibleSegments => Segments.Count > 1 && !Segments.Any(i => i == null);
-        public override bool IsPossibleCompile => base.IsPossibleCompile && (UseFirstAndEnd ? FirstTexture != null && EndTexture != null : true) && IsPossibleSegments;
+        public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null) && (UseFirstAndEnd ? FirstTexture != null && EndTexture != null : true) && IsPossibleSegments;
 
 
 

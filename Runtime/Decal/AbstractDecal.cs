@@ -1,31 +1,25 @@
 #if UNITY_EDITOR
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 
 namespace Rs64.TexTransTool.Decal
 {
-    public abstract class AbstractDecal<SpaseConverter> : TextureTransformer
-    where SpaseConverter : DecalUtil.IConvertSpace
+    public abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
-        public Texture2D DecalTexture;
         public BlendType BlendType = BlendType.Normal;
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
         public float DefaultPading = 0.5f;
         public bool FastMode = true;
 
-        public abstract SpaseConverter GetSpaseConverter { get; }
-        public abstract DecalUtil.ITraianglesFilter<SpaseConverter> GetTraiangleFilter { get; }
         public virtual Vector2? GetOutRengeTexture { get => Vector2.zero; }
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
-        public override bool IsPossibleApply => IsPossibleCompile;
-        public override bool IsPossibleCompile => DecalTexture != null && TargetRenderers.Any(i => i != null);
+        public override bool IsPossibleCompile => IsPossibleApply;
 
 
         public override void Apply(AvatarDomain avatarDomain)
@@ -75,61 +69,7 @@ namespace Rs64.TexTransTool.Decal
             _IsApply = true;
         }
 
-        public virtual Dictionary<Texture2D, Texture> CompileDecal()
-        {
-            var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
-            if (FastMode)
-            {
-                var DecalCompiledRenderTextures = new Dictionary<Texture2D, RenderTexture>();
-                foreach (var Rendarer in TargetRenderers)
-                {
-                    DecalUtil.CreatDecalTexture(
-                        Rendarer,
-                        DecalCompiledRenderTextures,
-                        DecalTexture,
-                        GetSpaseConverter,
-                        GetTraiangleFilter,
-                        TargetPropatyName,
-                        GetOutRengeTexture,
-                        DefaultPading
-                    );
-                }
-
-                foreach (var Texture in DecalCompiledRenderTextures)
-                {
-                    DecalCompiledTextures.Add(Texture.Key, Texture.Value);
-                }
-            }
-            else
-            {
-                List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompoleTexs = new List<Dictionary<Texture2D, List<Texture2D>>>();
-                foreach (var Rendarer in TargetRenderers)
-                {
-                    var DecalsCompoleds = DecalUtil.CreatDecalTextureCS(
-                        Rendarer,
-                        DecalTexture,
-                        GetSpaseConverter,
-                        GetTraiangleFilter,
-                        TargetPropatyName,
-                        GetOutRengeTexture,
-                        DefaultPading
-                    );
-                    DecalsCompoleTexs.Add(DecalsCompoleds);
-                }
-
-                var ZipDecit = Utils.ZipToDictionaryOnList(DecalsCompoleTexs);
-
-                foreach (var Texture in ZipDecit)
-                {
-                    var BlendTexture = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
-                    BlendTexture.Apply();
-                    DecalCompiledTextures.Add(Texture.Key, BlendTexture);
-                }
-            }
-
-
-            return DecalCompiledTextures;
-        }
+        public abstract Dictionary<Texture2D, Texture> CompileDecal();
 
         DecalDataContainer LocalSave;
 
@@ -152,19 +92,6 @@ namespace Rs64.TexTransTool.Decal
 
         }
 
-        public virtual void ScaleApply() { throw new NotImplementedException(); }
-
-        public void ScaleApply(Vector3 Scale, bool FixedAspect)
-        {
-            if (DecalTexture != null && FixedAspect)
-            {
-                transform.localScale = new Vector3(Scale.x, Scale.x * ((float)DecalTexture.height / (float)DecalTexture.width), Scale.z);
-            }
-            else
-            {
-                transform.localScale = Scale;
-            }
-        }
     }
 }
 
