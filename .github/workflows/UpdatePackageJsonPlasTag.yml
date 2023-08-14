@@ -17,8 +17,7 @@ jobs:
         run: |
          tempjson='mktemp'
          withoutvtagstr=`echo ${{ github.event.inputs.tag }} | sed -e "s/^v//"`
-         URL="https://github.com/ReinaS-64892/TexTransTool/releases/download/${{ github.event.inputs.tag }}/tex-trans-tool-${{ github.event.inputs.tag }}.zip"
-         jq ".version|=\"${withoutvtagstr}\" | .url|=\"${URL}\"" ./package.json > $tempjson
+         jq ".version|=\"${withoutvtagstr}\"" ./package.json > $tempjson
          mv $tempjson ./package.json
       - name: git commit
         run: |

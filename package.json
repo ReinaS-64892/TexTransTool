@@ -8,7 +8,7 @@
     "name": "ReinaSakiria",
     "url": "https://rs64.net/"
   },
-  "url": "https://github.com/ReinaS-64892/TexTransTool/releases/download/v0.2.2/tex-trans-tool-v0.2.2.zip",
+  "url": "https://github.com/ReinaS-64892/TexTransTool",
   "repo": "https://vpm.rs64.net/vpm.json",
   "vpmDependencies": {
     "com.vrchat.avatars": ">=3.1.13"
