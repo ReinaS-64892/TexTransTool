@@ -15,6 +15,8 @@ namespace Rs64.TexTransTool.Decal
         public NailSet LeftHand;
         public NailSet RightHand;
 
+        public bool UseTextureAspect = false;
+
 
 
         public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
@@ -188,7 +190,7 @@ namespace Rs64.TexTransTool.Decal
             var NailRot = SRot * Quaternion.Euler(!InvaersdRight ? naileDecalDescripstion.RotationOffset : RotOffsetInverseRight(naileDecalDescripstion.RotationOffset));
             var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
 
-            if (naileDecalDescripstion.DecalTexture != null) { NailSize.y *= (float)naileDecalDescripstion.DecalTexture.height / (float)naileDecalDescripstion.DecalTexture.width; }
+            if (UseTextureAspect && naileDecalDescripstion.DecalTexture != null) { NailSize.y *= (float)naileDecalDescripstion.DecalTexture.height / (float)naileDecalDescripstion.DecalTexture.width; }
 
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
         }
@@ -236,6 +238,14 @@ namespace Rs64.TexTransTool.Decal
         public NaileDecalDescripstion Ring;
         public NaileDecalDescripstion Little;
 
+        public NailSet()
+        {
+            Thumb = new NaileDecalDescripstion();
+            Index = new NaileDecalDescripstion();
+            Middle = new NaileDecalDescripstion();
+            Ring = new NaileDecalDescripstion();
+            Little = new NaileDecalDescripstion();
+        }
 
         IEnumerator<(Finger, NaileDecalDescripstion)> IEnumerable<(Finger, NaileDecalDescripstion)>.GetEnumerator()
         {
@@ -245,7 +255,6 @@ namespace Rs64.TexTransTool.Decal
             yield return (Finger.Ring, Ring);
             yield return (Finger.Littl, Little);
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             yield return (Finger.Thumb, Thumb);
@@ -254,6 +263,33 @@ namespace Rs64.TexTransTool.Decal
             yield return (Finger.Ring, Ring);
             yield return (Finger.Littl, Little);
         }
+
+        public void Copy(NailSet Souse)
+        {
+            FingerUpvector = Souse.FingerUpvector;
+            Thumb.Copy(Souse.Thumb);
+            Index.Copy(Souse.Index);
+            Middle.Copy(Souse.Middle);
+            Ring.Copy(Souse.Ring);
+            Little.Copy(Souse.Little);
+        }
+        public void Copy(NailOffSets Souse)
+        {
+            FingerUpvector = Souse.Upvector;
+            Thumb.Copy(Souse.Thumb);
+            Index.Copy(Souse.Index);
+            Middle.Copy(Souse.Middle);
+            Ring.Copy(Souse.Ring);
+            Little.Copy(Souse.Little);
+
+        }
+        public NailSet Clone()
+        {
+            var New = new NailSet();
+            New.Copy(this);
+            return New;
+        }
+
     }
 
     [Serializable]
@@ -278,6 +314,13 @@ namespace Rs64.TexTransTool.Decal
             New.Copy(this);
             return New;
         }
+
+        public void Copy(NaileOffset Souse)
+        {
+            PositionOffset = Souse.PositionOffset;
+            ScaileOffset = Souse.ScaileOffset;
+            RotationOffset = Souse.RotationOffset;
+        }
     }
 
     public enum Finger
@@ -298,7 +341,6 @@ namespace Rs64.TexTransTool.Decal
         Xminus,
         Xplus,
     }
-
 
 }
 

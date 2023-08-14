@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Rs64.TexTransTool.Decal;
 using Rs64.TexTransTool.Editor;
+using System;
 
 namespace Rs64.TexTransTool.Editor.Decal
 {
@@ -27,6 +28,10 @@ namespace Rs64.TexTransTool.Editor.Decal
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
             EditorGUILayout.PropertyField(S_TargetPropatyName);
 
+            var S_UseTextureAspect = This_S_Object.FindProperty("UseTextureAspect");
+            EditorGUILayout.PropertyField(S_UseTextureAspect);
+
+
             var S_LeftHand = This_S_Object.FindProperty("LeftHand");
             var S_RightHand = This_S_Object.FindProperty("RightHand");
             EditorGUILayout.LabelField("LeftHand");
@@ -35,8 +40,8 @@ namespace Rs64.TexTransTool.Editor.Decal
             DrawNailSet(S_RightHand);
 
 
-
-
+            DrawOffsetUtiliEditor(ThisObject);
+            DrawOffsetSaveAndLoadser(ThisObject);
 
 
             TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
@@ -90,6 +95,58 @@ namespace Rs64.TexTransTool.Editor.Decal
         {
             var DrawValue = serializedProperty.vector3Value * 100;
             serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "PositionOffset", DrawValue) * 0.01f;
+
+        }
+
+        public static void DrawOffsetUtiliEditor(NailEditor nailEditor)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Copy", GUILayout.Width(100));
+
+            if (GUILayout.Button("Left <= Right "))
+            {
+                EditorUtility.SetDirty(nailEditor);
+                var nailOffsets = new NailOffSets();
+                nailOffsets.Copy(nailEditor.RightHand);
+                nailEditor.LeftHand.Copy(nailOffsets);
+            }
+
+            if (GUILayout.Button("Left => Right"))
+            {
+                EditorUtility.SetDirty(nailEditor);
+                var nailOffsets = new NailOffSets();
+                nailOffsets.Copy(nailEditor.LeftHand);
+                nailEditor.RightHand.Copy(nailOffsets);
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+        }
+
+        public NailOffsetData nailOffsetData;
+        public void DrawOffsetSaveAndLoadser(NailEditor thisObject)
+        {
+            EditorGUILayout.BeginHorizontal();
+            nailOffsetData = EditorGUILayout.ObjectField("SaveData", nailOffsetData, typeof(NailOffsetData), false) as NailOffsetData;
+            if (GUILayout.Button("Load"))
+            {
+                if (nailOffsetData != null)
+                {
+                    EditorUtility.SetDirty(nailOffsetData);
+                    thisObject.LeftHand.Copy(nailOffsetData.LeftHand);
+                    thisObject.RightHand.Copy(nailOffsetData.RightHand);
+                }
+            }
+            if (GUILayout.Button("Save"))
+            {
+                if (nailOffsetData != null)
+                {
+                    EditorUtility.SetDirty(nailOffsetData);
+                    nailOffsetData.LeftHand.Copy(thisObject.LeftHand);
+                    nailOffsetData.RightHand.Copy(thisObject.RightHand);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
 
         }
 
