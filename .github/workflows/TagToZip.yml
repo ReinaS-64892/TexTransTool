@@ -17,6 +17,9 @@ jobs:
         run: |
           git fetch --tags
           git checkout ${{ github.event.inputs.tag }}
+      - name: RemoveDotgit
+        run: |
+          rm -r ./.git
       - name: Upload-artifact
         uses: actions/upload-artifact@v3
         with:
