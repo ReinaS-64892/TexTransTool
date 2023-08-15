@@ -64,7 +64,7 @@ namespace Rs64.TexTransTool
                 IsSwap = !IsSwap;
             }
 
-            if (Swap)
+            if (IsSwap)
             {
                 Graphics.CopyTexture(Swap, Base);
             }
