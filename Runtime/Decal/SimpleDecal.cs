@@ -121,15 +121,22 @@ namespace Rs64.TexTransTool.Decal
 
                         if (srostex is Texture2D tex2d && tex2d != null)
                         {
-                            var NewTexBlend = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
-                            var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
-                            _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
-                            _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
-                            NewMat.SetTexture(TargetPropatyName, NewTexBlend);
-
+                            if (!_RealTimePreviewDecalTextureBlend.ContainsKey(tex2d))
+                            {
+                                var NewTexBlend = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                                var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                                _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
+                                _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
+                                NewMat.SetTexture(TargetPropatyName, NewTexBlend);
+                            }
+                            else
+                            {
+                                NewMat.SetTexture(TargetPropatyName, _RealTimePreviewDecalTextureBlend[tex2d]);
+                            }
                             Materials[i] = NewMat;
                             PreViewMaterials.Add(new MatPea(DistMat, NewMat));
                         }
+
 
                     }
                 }
