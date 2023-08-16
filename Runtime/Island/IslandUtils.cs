@@ -153,7 +153,7 @@ namespace Rs64.TexTransTool.Island
             NextFitDecreasingHeight,
             NextFitDecreasingHeightPlusFloorCeilineg,
         }
-        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool)
+        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Pading = 0.01f)
         {
             switch (SortingType)
             {
@@ -164,12 +164,12 @@ namespace Rs64.TexTransTool.Island
                     }
                 case IslandSortingType.NextFitDecreasingHeight:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool, Pading);
                         break;
                     }
                 case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool);
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool, Pading);
                         break;
                     }
 
@@ -180,7 +180,8 @@ namespace Rs64.TexTransTool.Island
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
+            foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
             int loopCount = -1;
@@ -248,7 +249,8 @@ namespace Rs64.TexTransTool.Island
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
+            foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
             int loopCount = -1;
