@@ -106,21 +106,51 @@ namespace Rs64.TexTransTool.Island
         }
         public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
         {
-            var mSize = MovedIsland.Size;
-            var nmSize = OriginIsland.Size;
-
-            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-
-            foreach (var VartIndex in OriginIsland.GetVertexIndex())
+            if (OriginIsland.Is90Ratation == MovedIsland.Is90Ratation)
             {
-                var VertPos = UV[VartIndex];
-                var RelativeVertPos = VertPos - OriginIsland.Pivot;
+                var mSize = MovedIsland.Size;
+                var nmSize = OriginIsland.Size;
 
-                RelativeVertPos.x *= RelativeScaile.x;
-                RelativeVertPos.y *= RelativeScaile.y;
+                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
 
-                var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
-                MoveUV[VartIndex] = MovedVertPos;
+                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                {
+                    var VertPos = UV[VartIndex];
+                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                    RelativeVertPos.x *= RelativeScaile.x;
+                    RelativeVertPos.y *= RelativeScaile.y;
+
+                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+                    MoveUV[VartIndex] = MovedVertPos;
+                }
+            }
+            else
+            {
+                var mSize = MovedIsland.Is90Ratation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
+                var nmSize = OriginIsland.Is90Ratation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
+
+                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+                var IsRotRight = MovedIsland.Is90Ratation;
+                var Rotate = Quaternion.Euler(0, 0, IsRotRight ? -90 : 90);
+
+                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                {
+                    var VertPos = UV[VartIndex];
+                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                    RelativeVertPos.x *= RelativeScaile.x;
+                    RelativeVertPos.y *= RelativeScaile.y;
+
+                    RelativeVertPos = Rotate * RelativeVertPos;
+
+                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+
+                    if (IsRotRight) { MovedVertPos.y += MovedIsland.Size.y; }
+                    else { MovedVertPos.x += MovedIsland.Size.x; }
+
+                    MoveUV[VartIndex] = MovedVertPos;
+                }
             }
         }
         public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
@@ -153,7 +183,7 @@ namespace Rs64.TexTransTool.Island
             NextFitDecreasingHeight,
             NextFitDecreasingHeightPlusFloorCeilineg,
         }
-        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool)
+        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Pading = 0.01f)
         {
             switch (SortingType)
             {
@@ -164,12 +194,12 @@ namespace Rs64.TexTransTool.Island
                     }
                 case IslandSortingType.NextFitDecreasingHeight:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool);
+                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool, Pading);
                         break;
                     }
                 case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool);
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool, Pading);
                         break;
                     }
 
@@ -180,7 +210,8 @@ namespace Rs64.TexTransTool.Island
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
+            foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
             int loopCount = -1;
@@ -248,7 +279,8 @@ namespace Rs64.TexTransTool.Island
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.island.Size.y - l.island.Size.y) * 100));
+            foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
             float NawScaile = 1f;
             int loopCount = -1;
@@ -579,14 +611,16 @@ namespace Rs64.TexTransTool.Island
         public List<TraiangleIndex> trainagels = new List<TraiangleIndex>();
         public Vector2 Pivot;
         public Vector2 Size;
+        public bool Is90Ratation;
 
-        public Vector2 GetMaxPos => (Pivot + Size);
+        public Vector2 GetMaxPos => Pivot + Size;
 
         public Island(Island Souse)
         {
             trainagels = new List<TraiangleIndex>(Souse.trainagels);
             Pivot = Souse.Pivot;
             Size = Souse.Size;
+            Is90Ratation = Souse.Is90Ratation;
         }
         public Island(TraiangleIndex traiangleIndex)
         {
@@ -623,6 +657,33 @@ namespace Rs64.TexTransTool.Island
             var RelaTargetPos = TargetPos - Pivot;
             return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
         }
+        public List<Vector2> GenereatRectVart(float pading = 0)
+        {
+            pading = Mathf.Abs(pading);
+            var Varts = new List<Vector2>();
+            if (!Is90Ratation)
+            {
+                Varts.Add(Pivot + new Vector2(-pading, -pading));
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
+                Varts.Add(Pivot + Size + new Vector2(pading, pading));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
+            }
+            else
+            {
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
+                Varts.Add(Pivot + Size + new Vector2(pading, pading));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
+                Varts.Add(Pivot + new Vector2(-pading, -pading));
+            }
+            return Varts;
+        }
+
+        public void Rotate90()
+        {
+            Is90Ratation = !Is90Ratation;
+            (Size.x, Size.y) = (Size.y, Size.x);
+        }
+
     }
 
 
