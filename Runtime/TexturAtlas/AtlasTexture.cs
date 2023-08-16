@@ -103,36 +103,8 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
 
 
-                IslandSorting.GenereatMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool);
+                IslandSorting.GenereatMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool, atlasSetting.GetTexScailPading);
                 AtlasIslandPool.AddRangeIsland(NawChannnelAtlasIslandPool);
-
-                var Tags = NawChannnelAtlasIslandPool.GetTag();
-                var IndexTag = ToIndexTags(Tags);
-
-
-
-                var TransMaps = new Dictionary<int, List<TransUVData>>();
-                foreach (var matdata in Matdatas)
-                {
-                    var matref = matdata.MaterialRefarens;
-                    var Maps = new List<TransUVData>();
-
-                    foreach (var itag in IndexTag.Where(tag => AtlasDatas.GetMaterialRefarens(tag) == matref))
-                    {
-                        var targetAMD = AtlasDatas.AtlasMeshData[itag.AtlasMeshDataIndex];
-                        var TargetTrainagles = targetAMD.Traiangles[itag.MaterialSlot];
-                        var NotMovedUV = targetAMD.UV;
-                        var MovedPool = AtlasDatas.FindIndexTagIslandPool(AtlasIslandPool, itag, false);
-                        var MoveUV = new List<Vector2>(NotMovedUV);
-                        IslandUtils.IslandPoolMoveUV(NotMovedUV, MoveUV, OriginIslandPool, MovedPool);
-                        // TransMapper.UVtoTexScale(MoveUV, atlasSetting.AtlasTextureSize);
-
-                        // TransMapper.TransMapGeneratUseComputeSheder(null, transMap, TargetTrainagles, MoveUV, NotMovedUV, atlasSetting.PadingType);
-                        Maps.Add(new TransUVData(TargetTrainagles, MoveUV, NotMovedUV));
-                    }
-
-                    TransMaps.Add(matref, Maps);
-                }
 
 
 
@@ -144,32 +116,34 @@ namespace Rs64.TexTransTool.TexturAtlas
                     PropatyNames.UnionWith(matdata.PropAndTextures.ConvertAll(PaT => PaT.PropertyName));
                 }
 
+
+                var Tags = NawChannnelAtlasIslandPool.GetTag();
+
                 foreach (var Porp in PropatyNames)
                 {
-                    // var TargetTex = new TransTargetTexture(atlasSetting.AtlasTextureSize, new Color(0, 0, 0, 0), atlasSetting.Pading);
                     var TargetRT = new RenderTexture(atlasSetting.AtlasTextureSize.x, atlasSetting.AtlasTextureSize.y, 32, RenderTextureFormat.ARGB32);
                     foreach (var matdata in Matdatas)
                     {
                         var SousePorp2Tex = matdata.PropAndTextures.Find(I => I.PropertyName == Porp);
                         if (SousePorp2Tex == null) continue;
 
-                        // Compiler.TransCompileUseComputeSheder(SousePorp2Tex.Texture2D, TransMaps[matdata.MaterialRefarens], TargetTex, TexWrapMode.Stretch);
-                        float? pading = null;
-                        if (atlasSetting.Pading > 0)
+
+                        var IslandPeas = new List<(Island.Island, Island.Island)>();
+                        foreach (var TargetIndexTag in Tags.Where(tag => AtlasDatas.GetMaterialRefarens(tag) == matdata.MaterialRefarens))
                         {
-                            pading = atlasSetting.Pading;
+                            var Origin = OriginIslandPool.FindTag(TargetIndexTag);
+                            var Moved = NawChannnelAtlasIslandPool.FindTag(TargetIndexTag);
+
+                            if (Origin != null && Moved != null) { IslandPeas.Add((Origin, Moved)); }
                         }
 
-                        foreach (var transUv in TransMaps[matdata.MaterialRefarens])
-                        {
-                            TransTexture.TransTextureToRenderTexture(TargetRT, SousePorp2Tex.Texture2D, transUv, pading);
-                        }
+                        TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPeas, atlasSetting.GetTexScailPading);
                     }
-                    var tex2d = TargetRT.CopyTexture2D();
-                    CompiledAtlasTextures.Add(new PropAndTexture(Porp, tex2d));
+
+                    CompiledAtlasTextures.Add(new PropAndTexture(Porp, TargetRT.CopyTexture2D()));
                 }
 
-                CompiledAllAtlasTextures.Add(CompiledAtlasTextures.ConvertAll(I => new PropAndTexture(I.PropertyName, I.Texture2D)));
+                CompiledAllAtlasTextures.Add(CompiledAtlasTextures);
 
             }
 
@@ -232,6 +206,33 @@ namespace Rs64.TexTransTool.TexturAtlas
             Container.AtlasTextures = CompiledAllAtlasTextures;
             Container.GenereatMeshs = CompiledMeshs;
             Container.IsPossibleApply = true;
+        }
+
+        private void TransMoveRectIsland(Texture2D SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPeas, float pading)
+        {
+            pading *= 0.5f;
+            var SUV = new List<Vector2>();
+            var TUV = new List<Vector2>();
+            var Traiangles = new List<TraiangleIndex>();
+
+            var NawIndex = 0;
+            foreach ((var Origin, var Moved) in islandPeas)
+            {
+                var Originvarts = Origin.GenereatRectVart(pading);
+                var Movedvarts = Moved.GenereatRectVart(pading);
+                var Tris = new List<TraiangleIndex>(6)
+                {
+                    new TraiangleIndex(NawIndex + 0, NawIndex + 1, NawIndex + 2),
+                    new TraiangleIndex( NawIndex + 0, NawIndex + 2, NawIndex + 3)
+                };
+                NawIndex += 4;
+                Traiangles.AddRange(Tris);
+                SUV.AddRange(Originvarts);
+                TUV.AddRange(Movedvarts);
+            }
+
+            TransTexture.TransTextureToRenderTexture(targetRT, SouseTex, new TransUVData(Traiangles, TUV, SUV), wrapMode: TexWrapMode.Loop);
+
         }
 
         public static IndexTag? FindIdenticalTag(AtlasDatas AtlasDatas, HashSet<IndexTag> PoolTags, int FindTagMeshref, int FindTagMatSlot, int FindTagMatref)
@@ -599,13 +600,17 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         public int GetMaterialRefarens(IndexTagPlusIslandIndex indexTag)
         {
-            return AtlasMeshData[indexTag.AtlasMeshDataIndex].MaterialIndex[indexTag.MaterialSlot];
-
+            return GetMaterialRefarens(indexTag.AtlasMeshDataIndex, indexTag.MaterialSlot);
         }
         public int GetMaterialRefarens(IndexTag indexTag)
         {
-            return AtlasMeshData[indexTag.AtlasMeshDataIndex].MaterialIndex[indexTag.MaterialSlot];
+            return GetMaterialRefarens(indexTag.AtlasMeshDataIndex, indexTag.MaterialSlot);
         }
+        private int GetMaterialRefarens(int atlasMeshDataIndex, int materialSlot)
+        {
+            return AtlasMeshData[atlasMeshDataIndex].MaterialIndex[materialSlot];
+        }
+
 
         public TagIslandPool<IndexTagPlusIslandIndex> FindMatIslandPool(TagIslandPool<IndexTagPlusIslandIndex> Souse, int MatRef, bool DeepClone = true)
         {
@@ -754,8 +759,10 @@ namespace Rs64.TexTransTool.TexturAtlas
         public bool ForseSetTexture;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public PadingType PadingType = PadingType.EdgeBase;
-        public float Pading = -10;
+        public float Pading = 10;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
+
+        public float GetTexScailPading => Pading / AtlasTextureSize.x;
     }
     [Serializable]
     public struct MeshPea

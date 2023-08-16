@@ -579,14 +579,16 @@ namespace Rs64.TexTransTool.Island
         public List<TraiangleIndex> trainagels = new List<TraiangleIndex>();
         public Vector2 Pivot;
         public Vector2 Size;
+        public bool Is90Ratation;
 
-        public Vector2 GetMaxPos => (Pivot + Size);
+        public Vector2 GetMaxPos => Pivot + Size;
 
         public Island(Island Souse)
         {
             trainagels = new List<TraiangleIndex>(Souse.trainagels);
             Pivot = Souse.Pivot;
             Size = Souse.Size;
+            Is90Ratation = Souse.Is90Ratation;
         }
         public Island(TraiangleIndex traiangleIndex)
         {
@@ -623,6 +625,34 @@ namespace Rs64.TexTransTool.Island
             var RelaTargetPos = TargetPos - Pivot;
             return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
         }
+        public List<Vector2> GenereatRectVart(float pading = 0)
+        {
+            pading = Mathf.Abs(pading);
+            var Varts = new List<Vector2>();
+            var Rot = Quaternion.Euler(0, 0, Is90Ratation ? 90 : 0);
+            if (!Is90Ratation)
+            {
+                Varts.Add(Pivot + new Vector2(-pading, -pading));
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
+                Varts.Add(Pivot + Size + new Vector2(pading, pading));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
+            }
+            else
+            {
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
+                Varts.Add(Pivot + Size + new Vector2(pading, pading));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
+                Varts.Add(Pivot + new Vector2(-pading, -pading));
+            }
+            return Varts;
+        }
+
+        public void Rotate90()
+        {
+            Is90Ratation = !Is90Ratation;
+            (Size.x, Size.y) = (Size.y, Size.x);
+        }
+
     }
 
 
