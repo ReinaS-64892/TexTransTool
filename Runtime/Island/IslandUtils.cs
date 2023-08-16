@@ -106,21 +106,51 @@ namespace Rs64.TexTransTool.Island
         }
         public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
         {
-            var mSize = MovedIsland.Size;
-            var nmSize = OriginIsland.Size;
-
-            var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-
-            foreach (var VartIndex in OriginIsland.GetVertexIndex())
+            if (OriginIsland.Is90Ratation == MovedIsland.Is90Ratation)
             {
-                var VertPos = UV[VartIndex];
-                var RelativeVertPos = VertPos - OriginIsland.Pivot;
+                var mSize = MovedIsland.Size;
+                var nmSize = OriginIsland.Size;
 
-                RelativeVertPos.x *= RelativeScaile.x;
-                RelativeVertPos.y *= RelativeScaile.y;
+                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
 
-                var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
-                MoveUV[VartIndex] = MovedVertPos;
+                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                {
+                    var VertPos = UV[VartIndex];
+                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                    RelativeVertPos.x *= RelativeScaile.x;
+                    RelativeVertPos.y *= RelativeScaile.y;
+
+                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+                    MoveUV[VartIndex] = MovedVertPos;
+                }
+            }
+            else
+            {
+                var mSize = MovedIsland.Is90Ratation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
+                var nmSize = OriginIsland.Is90Ratation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
+
+                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+                var IsRotRight = MovedIsland.Is90Ratation;
+                var Rotate = Quaternion.Euler(0, 0, IsRotRight ? -90 : 90);
+
+                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                {
+                    var VertPos = UV[VartIndex];
+                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+
+                    RelativeVertPos.x *= RelativeScaile.x;
+                    RelativeVertPos.y *= RelativeScaile.y;
+
+                    RelativeVertPos = Rotate * RelativeVertPos;
+
+                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+
+                    if (IsRotRight) { MovedVertPos.y += MovedIsland.Size.y; }
+                    else { MovedVertPos.x += MovedIsland.Size.x; }
+
+                    MoveUV[VartIndex] = MovedVertPos;
+                }
             }
         }
         public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
@@ -631,7 +661,6 @@ namespace Rs64.TexTransTool.Island
         {
             pading = Mathf.Abs(pading);
             var Varts = new List<Vector2>();
-            var Rot = Quaternion.Euler(0, 0, Is90Ratation ? 90 : 0);
             if (!Is90Ratation)
             {
                 Varts.Add(Pivot + new Vector2(-pading, -pading));
