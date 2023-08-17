@@ -33,10 +33,6 @@ namespace Rs64.TexTransTool
             if (Avatar == null) return;
             CacheDomain = GetDomain();
             _IsSelfCallApply = true;
-            foreach (var tf in TexTransGroup.Targets)
-            {
-                EditorUtility.SetDirty(tf);
-            }
             TexTransGroup.Apply(CacheDomain);
             CacheDomain.SaveTexture();
         }
@@ -48,10 +44,6 @@ namespace Rs64.TexTransTool
             if (!TexTransGroup.IsApply) return;
             _IsSelfCallApply = false;
             CacheDomain.ResetMaterial();
-            foreach (var tf in TexTransGroup.Targets)
-            {
-                EditorUtility.SetDirty(tf);
-            }
             TexTransGroup.Revart(CacheDomain);
             AssetSaveHelper.DeletAsset(CacheDomain.Asset);
             CacheDomain = null;

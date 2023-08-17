@@ -30,8 +30,8 @@ namespace Rs64.TexTransTool.Editor
                 {
                     if (GUILayout.Button("Apply"))
                     {
-                        UnityEditor.EditorUtility.SetDirty(Target);
                         Target.SelfCallApply();
+                        EditorUtility.SetDirty(Target);
                     }
                 }
                 else
@@ -39,8 +39,8 @@ namespace Rs64.TexTransTool.Editor
                     EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
                     if (GUILayout.Button("Revart"))
                     {
-                        UnityEditor.EditorUtility.SetDirty(Target);
                         Target.Revart();
+                        EditorUtility.SetDirty(Target);
 
                     }
                     EditorGUI.EndDisabledGroup();
@@ -54,9 +54,8 @@ namespace Rs64.TexTransTool.Editor
             EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsApply));
             if (GUILayout.Button("Compile"))
             {
-                UnityEditor.EditorUtility.SetDirty(Target);
-                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
                 Target.Compile();
+                EditorUtility.SetDirty(Target);
             }
             EditorGUI.EndDisabledGroup();
         }

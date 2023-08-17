@@ -24,7 +24,6 @@ namespace Rs64.TexTransTool
             foreach (var tf in Targets)
             {
                 if (tf == null) continue;
-                //Debug.Log(tf.gameObject.name);
                 if (tf.ThisEnable == false) continue;
                 tf.Apply(AvatarMaterialDomain);
             }
@@ -51,10 +50,11 @@ namespace Rs64.TexTransTool
                     if (tf == null) continue;
                     if (tf.ThisEnable == false) continue;
 
-                    UnityEditor.EditorUtility.SetDirty(tf);
 
                     tf.Compile();
                     tf.Apply();
+
+                    UnityEditor.EditorUtility.SetDirty(tf);
                 }
             }
             catch (System.Exception e)
@@ -68,9 +68,9 @@ namespace Rs64.TexTransTool
                     if (tf == null) continue;
                     if (tf.ThisEnable == false) continue;
 
-                    UnityEditor.EditorUtility.SetDirty(tf);
 
                     tf.Revart();
+                    UnityEditor.EditorUtility.SetDirty(tf);
                 }
             }
         }
