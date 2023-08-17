@@ -10,6 +10,12 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
         public string SousePropatyName;
         public string TargetPropatyName;
 
+        public RefarensCopy(string refarensCopy_SousePropatyName, string refarensCopy_TargetPropatyName)
+        {
+            SousePropatyName = refarensCopy_SousePropatyName;
+            TargetPropatyName = refarensCopy_TargetPropatyName;
+        }
+
         public void FineSetting(List<PropAndTexture> propAndTextures)
         {
             var Texture = propAndTextures.Find(x => x.PropertyName == SousePropatyName);

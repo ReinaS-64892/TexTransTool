@@ -10,6 +10,15 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
         public int Size;
         public string PropatyNames;
         public PropatySelect select;
+
+        public Resize(int resize_Size, string resize_PropatyNames, PropatySelect resize_select)
+        {
+            Size = resize_Size;
+            PropatyNames = resize_PropatyNames;
+            select = resize_select;
+
+        }
+
         public void FineSetting(List<PropAndTexture> propAndTextures)
         {
             foreach (var target in FineSettingUtil.FiltTarget(PropatyNames, select, propAndTextures))

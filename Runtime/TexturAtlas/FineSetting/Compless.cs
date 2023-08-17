@@ -13,6 +13,15 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
         public string PropatyNames;
         public PropatySelect select;
 
+        public Compless(FromatQuality compless_fromatQuality, TextureCompressionQuality compless_compressionQuality, string compless_PropatyNames, PropatySelect compless_select)
+        {
+            fromatQuality = compless_fromatQuality;
+            compressionQuality = compless_compressionQuality;
+            PropatyNames = compless_PropatyNames;
+            select = compless_select;
+
+        }
+
         public enum FromatQuality
         {
             None,
