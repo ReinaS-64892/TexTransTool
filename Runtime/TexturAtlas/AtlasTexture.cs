@@ -329,6 +329,9 @@ namespace Rs64.TexTransTool.TexturAtlas
 
                 var ChannnelMatRefs = ChannnelMatRef[Channel];
 
+
+
+
                 if (AtlasSetting.IsMargeMaterial)
                 {
                     var MargeMat = AtlasSetting.MargeRefarensMaterial != null ? AtlasSetting.MargeRefarensMaterial : Materials[ChannnelMatRefs.First()];
@@ -751,19 +754,6 @@ namespace Rs64.TexTransTool.TexturAtlas
         public int MaterialRefarens;
         public float TextureSizeOffSet = 1;
         public List<PropAndTexture> PropAndTextures;
-    }
-    [Serializable]
-    public class AtlasSetting
-    {
-        public bool IsMargeMaterial;
-        public Material MargeRefarensMaterial;
-        public bool ForseSetTexture;
-        public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
-        public PadingType PadingType = PadingType.EdgeBase;
-        public float Pading = 10;
-        public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
-
-        public float GetTexScailPading => Pading / AtlasTextureSize.x;
     }
     [Serializable]
     public struct MeshPea

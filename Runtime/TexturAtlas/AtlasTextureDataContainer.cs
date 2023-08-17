@@ -12,10 +12,38 @@ namespace Rs64.TexTransTool.TexturAtlas
     public class AtlasTextureDataContainer
     {
         [SerializeField] List<SubListPropAndTexture> _atlasTextures;
-        public List<List<PropAndTexture>> AtlasTextures { get => ConvartSubList(_atlasTextures.Cast<SubList<PropAndTexture>>()); set => SetAtlasTextures(value); }
+        public List<List<PropAndTexture>> AtlasTextures
+        {
+            get => ConvartSubList(_atlasTextures.Cast<SubList<PropAndTexture>>()); set
+            {
+                var AtlasTextures = value;
+                ClearAtlasTextures();
+                if (AtlasTextures == null) return;
+                var ConvAtlasTextures = SubListPropAndTexture.ConvartSubList(AtlasTextures);
+                foreach (var item in ConvAtlasTextures.SelectMany(I => I.SubListInstans))
+                {
+                    AssetSaveHelper.SaveAsset(item.Texture2D, false);
+                }
+                _atlasTextures = ConvAtlasTextures;
+            }
+        }
 
         [SerializeField] List<MeshAndMatRef> _meshes;
-        public List<MeshAndMatRef> GenereatMeshs { get => _meshes; set => SetMeshs(value); }
+        public List<MeshAndMatRef> GenereatMeshs
+        {
+            get => _meshes; set
+            {
+                ClearMeshs();
+                if (value == null) return;
+                var Meshs = value;
+                foreach (var item in Meshs)
+                {
+                    item.Mesh = AssetSaveHelper.SaveAsset(item.Mesh);
+                }
+                _meshes = Meshs;
+
+            }
+        }
 
         [SerializeField] List<SubListInt> _matRefarens;
         public List<List<int>> ChannnelsMatRef { get => ConvartSubList(_matRefarens.Cast<SubList<int>>()); set => _matRefarens = SubListInt.ConvartSubList(value); }
@@ -28,25 +56,24 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
         [SerializeField] bool _IsPossibleApply;
-        public bool IsPossibleApply { get => _IsPossibleApply; set => _IsPossibleApply = value; }
-
-        public void SetAtlasTextures(List<List<PropAndTexture>> AtlasTextures)
+        public bool IsPossibleApply
         {
-            ClearAtlasTextures();
-            if (AtlasTextures == null) return;
-            var ConvAtlasTextures = SubListPropAndTexture.ConvartSubList(AtlasTextures);
-            var count = ConvAtlasTextures.Count;
-            for (int i = 0; i < count; i++)
+            get
             {
-                for (int j = 0; j < ConvAtlasTextures[i].Count; j++)
+                var IsPossibleMesh = true;
+                foreach (var item in _meshes)
                 {
-                    var porp2Tex = ConvAtlasTextures[i][j];
-                    porp2Tex.Texture2D = AssetSaveHelper.SaveAsset(porp2Tex.Texture2D);
-                    ConvAtlasTextures[i][j] = porp2Tex;
+                    if (item.Mesh == null)
+                    {
+                        IsPossibleMesh = false;
+                        break;
+                    }
                 }
+                return _IsPossibleApply && IsPossibleMesh;
             }
-            _atlasTextures = ConvAtlasTextures;
+            set => _IsPossibleApply = value;
         }
+
         void ClearAtlasTextures()
         {
             if (_atlasTextures == null) return;
@@ -55,19 +82,6 @@ namespace Rs64.TexTransTool.TexturAtlas
                 AssetSaveHelper.DeletAsset(item.Texture2D);
             }
             _atlasTextures.Clear();
-        }
-        public void SetMeshs(List<MeshAndMatRef> Meshs)
-        {
-            ClearMeshs();
-            if (Meshs == null) return;
-            var count = Meshs.Count;
-            for (int i = 0; i < count; i++)
-            {
-                var mesh2matref = Meshs[i];
-                mesh2matref.Mesh = AssetSaveHelper.SaveAsset(mesh2matref.Mesh);
-                Meshs[i] = mesh2matref;
-            }
-            _meshes = Meshs;
         }
         void ClearMeshs()
         {
