@@ -21,6 +21,20 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<FineSettingDeta> fineSettings;
         public float GetTexScailPading => Pading / AtlasTextureSize.x;
 
+        public List<IFineSetting> GetFineSettings()
+        {
+            var IfineSettings = new List<IFineSetting>
+            {
+                new Initialize(),
+                new DefaultCompless()
+            };
+            foreach (var fineSetting in fineSettings)
+            {
+                IfineSettings.Add(fineSetting.GetFineSetting());
+            }
+            IfineSettings.Sort((L,R) => L.Order - R.Order);
+            return IfineSettings;
+        }
 
     }
     [Serializable]
@@ -50,6 +64,24 @@ namespace Rs64.TexTransTool.TexturAtlas
         //Remove
         public string Remove_PropatyNames = "_MainTex";
         public PropatySelect Remove_select = PropatySelect.NotEqual;
+
+        public IFineSetting GetFineSetting()
+        {
+            switch (select)
+            {
+                case FineSettingSelect.Resize:
+                    return new Resize(Resize_Size, Resize_PropatyNames, Resize_select);
+                case FineSettingSelect.Compless:
+                    return new Compless(Compless_fromatQuality, Compless_compressionQuality, Compless_PropatyNames, Compless_select);
+                case FineSettingSelect.RefarensCopy:
+                    return new RefarensCopy(RefarensCopy_SousePropatyName, RefarensCopy_TargetPropatyName);
+                case FineSettingSelect.Remove:
+                    return new Remove(Remove_PropatyNames, Remove_select);
+                default:
+                    return null;
+            }
+
+        }
     }
 
 }

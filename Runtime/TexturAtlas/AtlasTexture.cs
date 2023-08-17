@@ -324,10 +324,19 @@ namespace Rs64.TexTransTool.TexturAtlas
             for (var Channel = 0; ChannelCount > Channel; Channel += 1)
             {
                 var Meshdata = ChannnelMatRef[Channel];
-                var AtlasTex = AtlasTexs[Channel];
                 var AtlasSetting = AtlasSettings[Channel];
-
                 var ChannnelMatRefs = ChannnelMatRef[Channel];
+
+                var AtlasTex = new List<PropAndTexture>(AtlasTexs[Channel].Capacity);
+                foreach (var porptex in AtlasTexs[Channel])
+                {
+                    AtlasTex.Add(new PropAndTexture(porptex.PropertyName, porptex.Texture2D));
+                }
+                var fineSettings = AtlasSetting.GetFineSettings();
+                foreach (var fineSetting in fineSettings)
+                {
+                    fineSetting.FineSetting(AtlasTex);
+                }
 
 
 
