@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Rs64.TexTransTool.TextureLayerUtil;
 using System;
+using UnityEditor;
 
 namespace Rs64.TexTransTool
 {
@@ -32,6 +33,10 @@ namespace Rs64.TexTransTool
             if (Avatar == null) return;
             CacheDomain = GetDomain();
             _IsSelfCallApply = true;
+            foreach (var tf in TexTransGroup.Targets)
+            {
+                EditorUtility.SetDirty(tf);
+            }
             TexTransGroup.Apply(CacheDomain);
             CacheDomain.SaveTexture();
         }
@@ -43,6 +48,10 @@ namespace Rs64.TexTransTool
             if (!TexTransGroup.IsApply) return;
             _IsSelfCallApply = false;
             CacheDomain.ResetMaterial();
+            foreach (var tf in TexTransGroup.Targets)
+            {
+                EditorUtility.SetDirty(tf);
+            }
             TexTransGroup.Revart(CacheDomain);
             AssetSaveHelper.DeletAsset(CacheDomain.Asset);
             CacheDomain = null;
@@ -105,29 +114,11 @@ namespace Rs64.TexTransTool
         {
             SetMaterial(Pea.Material, Pea.SecndMaterial);
         }
-        public void SetMaterials(List<Material> Target, List<Material> SetMat)
-        {
-            foreach (var index in Enumerable.Range(0, Target.Count))
-            {
-                SetMaterial(Target[index], SetMat[index]);
-            }
-        }
-        public void SetMaterials(IEnumerable<Material> Target, IEnumerable<Material> SetMat)
-        {
-            SetMaterials(Target.ToList(), SetMat.ToList());
-        }
         public void SetMaterials(Dictionary<Material, Material> TargetAndSet)
         {
             foreach (var KVP in TargetAndSet)
             {
                 SetMaterial(KVP.Key, KVP.Value);
-            }
-        }
-        public void SetMaterials(List<Material> TargetMat, Material SetMat)
-        {
-            foreach (var Target in TargetMat)
-            {
-                SetMaterial(Target, SetMat);
             }
         }
         public void SetMaterials(IEnumerable<MatPea> peas)
@@ -285,7 +276,7 @@ namespace Rs64.TexTransTool
             List<Material> UseMats = new List<Material>();
             foreach (var Mat in Mats)
             {
-                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat),Mat);
+                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
 
                 if (Textures.ContainsValue(Texture))
                 {
