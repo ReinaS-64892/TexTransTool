@@ -9,7 +9,7 @@ public class AvatarDomainAsset : ScriptableObject
 
     public void AddSubObject(Object UnityObject)
     {
-        if (!SubAssets.Contains(UnityObject))
+        if (!SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
         {
             AssetDatabase.AddObjectToAsset(UnityObject, this);
         }

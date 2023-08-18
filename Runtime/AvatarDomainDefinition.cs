@@ -57,8 +57,10 @@ namespace Rs64.TexTransTool
         渡されたアセットはすべて保存する。
         アセットに保存されていない物を渡すのが前提。
 
-        マテリアルで渡すときは、テクスチャは圧縮して渡す
-        テクスチャを渡すときは、圧縮せず渡す
+        マテリアルで渡された場合、マテリアルは保存するが、マテリアルの持つテクスチャーは保存しないため、保存の必要がある場合個別でテクスチャーを渡す必要がある。
+
+        基本テクスチャは圧縮して渡す
+        ただし、スタックに入れるものは圧縮の必要はない。
         */
         public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false, bool genereatCustomMipMap = false)
         {
@@ -85,6 +87,10 @@ namespace Rs64.TexTransTool
         {
             return Utils.GetMaterials(_Renderers).Distinct().Where(I => I != null).ToList();
         }
+        public void transferAsset(UnityEngine.Object UnityObject)
+        {
+            if (Asset != null) Asset.AddSubObject(UnityObject);
+        }
         public void SetMaterial(Material Target, Material SetMat)
         {
             foreach (var Renderer in _Renderers)
@@ -104,7 +110,7 @@ namespace Rs64.TexTransTool
                     Renderer.sharedMaterials = Materials;
                 }
             }
-            if (Asset != null) Asset.AddSubObject(SetMat);
+            transferAsset(SetMat);
         }
         public void SetMaterial(MatPea Pea)
         {
@@ -233,7 +239,7 @@ namespace Rs64.TexTransTool
                 var CopySetTex = SetTex.CopySetting(Dist, Mip);
                 SetTexture(Dist, CopySetTex);
 
-                if (Asset != null) Asset.AddSubObject(CopySetTex);
+                transferAsset(CopySetTex);
             }
 
         }
