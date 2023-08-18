@@ -122,6 +122,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 foreach (var Porp in PropatyNames)
                 {
                     var TargetRT = new RenderTexture(atlasSetting.AtlasTextureSize.x, atlasSetting.AtlasTextureSize.y, 32, RenderTextureFormat.ARGB32);
+                    TargetRT.name = "AtlasTex" + Porp;
                     foreach (var matdata in Matdatas)
                     {
                         var SousePorp2Tex = matdata.PropAndTextures.Find(I => I.PropertyName == Porp);
@@ -161,6 +162,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     UnityEngine.Object.Instantiate<Mesh>(AtlasDatas.Meshs[AMD.RefarensMesh]),
                     AMD.MaterialIndex
                     );
+                GeneeatMeshAndMatRef.Mesh.name = "AtlasMesh_" + GeneeatMeshAndMatRef.Mesh.name;
 
                 var MeshTags = new List<IndexTag>();
                 var PoolContainsTags = ToIndexTags(AtlasIslandPool.GetTag());

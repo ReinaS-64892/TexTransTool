@@ -649,8 +649,7 @@ namespace Rs64.TexTransTool
 
             ResizedTexture.SetPixels(Pixsels);
             ResizedTexture.Apply();
-
-
+            ResizedTexture.name = Souse.name + " Resized " + Size.x.ToString();
 
             return ResizedTexture;
         }

@@ -306,6 +306,7 @@ namespace Rs64.TexTransTool
 
                 RendererTexture.BlendBlit(StackTextures);
 
+                RendererTexture.name = FirstTexture.name + "_MargedStack";
                 return RendererTexture.CopyTexture2D();
             }
 
