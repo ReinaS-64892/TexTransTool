@@ -337,8 +337,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 {
                     fineSetting.FineSetting(AtlasTex);
                 }
-
-
+                avatarMaterialDomain.transferAsset(AtlasTex.Select(PaT => PaT.Texture2D));
 
 
                 if (AtlasSetting.IsMargeMaterial)
@@ -540,7 +539,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 IslandUtils.CacheGet(out var CacheIslands, out var diffCacheIslands);
                 var IslandPool = GeneratedIslandPool(CacheIslands);
                 IslandUtils.CacheSave(CacheIslands, diffCacheIslands);
-                
+
                 return IslandPool;
             }
             else
