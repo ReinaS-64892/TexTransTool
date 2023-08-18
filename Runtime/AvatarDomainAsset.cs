@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class AvatarDomainAsset : ScriptableObject
 {
-    [SerializeField] List<Object> SubAssets;
+    [SerializeField] List<Object> SubAssets = new List<Object>();
 
     public void AddSubObject(Object UnityObject)
     {
-        if (!SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
+        if (UnityObject != null && !SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
         {
             AssetDatabase.AddObjectToAsset(UnityObject, this);
+            SubAssets.Add(UnityObject);
         }
     }
 }
