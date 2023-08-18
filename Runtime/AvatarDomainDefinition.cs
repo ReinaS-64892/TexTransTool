@@ -91,6 +91,13 @@ namespace Rs64.TexTransTool
         {
             if (Asset != null) Asset.AddSubObject(UnityObject);
         }
+        public void transferAsset(IEnumerable<UnityEngine.Object> UnityObjects)
+        {
+            foreach (var UnityObject in UnityObjects)
+            {
+                transferAsset(UnityObject);
+            }
+        }
         public void SetMaterial(Material Target, Material SetMat)
         {
             foreach (var Renderer in _Renderers)
