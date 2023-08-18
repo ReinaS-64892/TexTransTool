@@ -22,7 +22,8 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var ConvAtlasTextures = SubListPropAndTexture.ConvartSubList(AtlasTextures);
                 foreach (var item in ConvAtlasTextures.SelectMany(I => I.SubListInstans))
                 {
-                    AssetSaveHelper.SaveAsset(item.Texture2D, false);
+                    AssetDatabase.CreateAsset(item.Texture2D, AssetSaveHelper.GenereatAssetPath(item.Texture2D.name, ".asset"));
+
                 }
                 _atlasTextures = ConvAtlasTextures;
             }
@@ -38,7 +39,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var Meshs = value;
                 foreach (var item in Meshs)
                 {
-                    item.Mesh = AssetSaveHelper.SaveAsset(item.Mesh);
+                    AssetDatabase.CreateAsset(item.Mesh, AssetSaveHelper.GenereatAssetPath(item.Mesh.name, ".asset"));
                 }
                 _meshes = Meshs;
 
@@ -51,10 +52,16 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
         [SerializeField] List<SubListMaterial> _genereatMaterials;
-        public List<List<Material>> GenereatMaterials { get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>()); set => SetGenereatMaterials(value); }
-
-
-
+        public List<List<Material>> GenereatMaterials
+        {
+            get => ConvartSubList(_genereatMaterials.Cast<SubList<Material>>());
+            set
+            {
+                ClearGenereatMaterials();
+                if (value == null) return;
+                _genereatMaterials = SubListMaterial.ConvartSubList(value);
+            }
+        }
         [SerializeField] bool _IsPossibleApply;
         public bool IsPossibleApply
         {
@@ -77,36 +84,19 @@ namespace Rs64.TexTransTool.TexturAtlas
         void ClearAtlasTextures()
         {
             if (_atlasTextures == null) return;
-            foreach (var item in _atlasTextures.SelectMany(I => I.SubListInstans))
-            {
-                AssetSaveHelper.DeletAsset(item.Texture2D);
-            }
+            AssetSaveHelper.DeletAssets(_atlasTextures.SelectMany(I => I.SubListInstans.Select(J => J.Texture2D)));
             _atlasTextures.Clear();
         }
         void ClearMeshs()
         {
-            if (_meshes == null) return;
-            foreach (var item in _meshes)
-            {
-                AssetSaveHelper.DeletAsset(item.Mesh);
-            }
+            if (_meshes == null) { return; }
+            AssetSaveHelper.DeletAssets(_meshes.Select(I => I.Mesh));
             _meshes.Clear();
-        }
-
-        public void SetGenereatMaterials(List<List<Material>> GenereatMaterials)
-        {
-            ClearGenereatMaterials();
-            if (GenereatMaterials == null) return;
-            var ConvartSubMeshs = SubListMaterial.ConvartSubList(GenereatMaterials);
-            _genereatMaterials = ConvartSubMeshs;
         }
         void ClearGenereatMaterials()
         {
-            if (_genereatMaterials == null) return;
-            foreach (var item in _genereatMaterials.SelectMany(I => I.SubListInstans))
-            {
-                AssetSaveHelper.DeletAsset(item);
-            }
+            if (_genereatMaterials == null) { return; }
+            AssetSaveHelper.DeletAssets(_genereatMaterials.SelectMany(I => I.SubListInstans));
             _genereatMaterials.Clear();
         }
 

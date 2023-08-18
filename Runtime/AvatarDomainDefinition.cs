@@ -64,7 +64,11 @@ namespace Rs64.TexTransTool
         {
             _Renderers = Renderers;
             _initialMaterials = Utils.GetMaterials(Renderers);
-            if (AssetSaver) Asset = AssetSaveHelper.SaveAsset(ScriptableObject.CreateInstance<AvatarDomainAsset>());
+            if (AssetSaver)
+            {
+                Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
+                AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenereatAssetPath("AvatarDomainAsset", ".asset"));
+            };
             GenereatCustomMipMap = genereatCustomMipMap;
         }
         [SerializeField] List<Renderer> _Renderers;
@@ -100,18 +104,11 @@ namespace Rs64.TexTransTool
                     Renderer.sharedMaterials = Materials;
                 }
             }
-            if (Asset != null) AssetSaveHelper.SaveSubAsset(Asset, SetMat);
+            if (Asset != null) Asset.AddSubObject(SetMat);
         }
         public void SetMaterial(MatPea Pea)
         {
             SetMaterial(Pea.Material, Pea.SecndMaterial);
-        }
-        public void SetMaterials(Dictionary<Material, Material> TargetAndSet)
-        {
-            foreach (var KVP in TargetAndSet)
-            {
-                SetMaterial(KVP.Key, KVP.Value);
-            }
         }
         public void SetMaterials(IEnumerable<MatPea> peas)
         {
@@ -130,10 +127,10 @@ namespace Rs64.TexTransTool
         /// </summary>
         /// <param name="Target">差し替え元</param>
         /// <param name="SetTex">差し替え先</param>
-        public Dictionary<Material, Material> SetTexture(Texture2D Target, Texture2D SetTex)
+        public List<MatPea> SetTexture(Texture2D Target, Texture2D SetTex)
         {
             var Mats = GetFiltedMaterials();
-            Dictionary<Material, Material> TargetAndSet = new Dictionary<Material, Material>();
+            var TargetAndSet = new List<MatPea>();
             foreach (var Mat in Mats)
             {
                 var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
@@ -150,7 +147,7 @@ namespace Rs64.TexTransTool
                         }
                     }
 
-                    TargetAndSet.Add(Mat, NewMat);
+                    TargetAndSet.Add(new MatPea(Mat, NewMat));
                 }
             }
 
@@ -162,7 +159,7 @@ namespace Rs64.TexTransTool
         /// ドメイン内のすべてのマテリアルのtextureをKeyからValueに変更する
         /// </summary>
         /// <param name="TargetAndSet"></param>
-        public Dictionary<Material, Material> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
+        public List<MatPea> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
         {
             Dictionary<Material, Material> KeyAndNotSavedMat = new Dictionary<Material, Material>();
             foreach (var KVP in TargetAndSet)
@@ -171,17 +168,17 @@ namespace Rs64.TexTransTool
 
                 foreach (var MatPar in NotSavedMat)
                 {
-                    if (KeyAndNotSavedMat.ContainsKey(MatPar.Key) == false)
+                    if (KeyAndNotSavedMat.ContainsKey(MatPar.Material) == false)
                     {
-                        KeyAndNotSavedMat.Add(MatPar.Key, MatPar.Value);
+                        KeyAndNotSavedMat.Add(MatPar.Material, MatPar.SecndMaterial);
                     }
                     else
                     {
-                        KeyAndNotSavedMat[MatPar.Key] = MatPar.Value;
+                        KeyAndNotSavedMat[MatPar.Material] = MatPar.SecndMaterial;
                     }
                 }
             }
-            return KeyAndNotSavedMat;
+            return KeyAndNotSavedMat.Select(i => new MatPea(i.Key, i.Value)).ToList();
         }
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
@@ -236,7 +233,7 @@ namespace Rs64.TexTransTool
                 var CopySetTex = SetTex.CopySetting(Dist, Mip);
                 SetTexture(Dist, CopySetTex);
 
-                AssetSaveHelper.SaveSubAsset(Asset, CopySetTex);
+                if (Asset != null) Asset.AddSubObject(CopySetTex);
             }
 
         }

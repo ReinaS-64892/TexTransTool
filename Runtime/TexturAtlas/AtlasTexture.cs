@@ -353,17 +353,17 @@ namespace Rs64.TexTransTool.TexturAtlas
                 }
                 else
                 {
-                    Dictionary<Material, Material> MaterialMap = new Dictionary<Material, Material>();
+                    List<MatPea> MaterialMap = new List<MatPea>();
                     foreach (var Matref in ChannnelMatRefs)
                     {
                         var Mat = Materials[Matref];
                         var GenereatMat = GenereatAtlasMat(Mat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
 
-                        MaterialMap.Add(Mat, GenereatMat);
+                        MaterialMap.Add(new MatPea(Mat, GenereatMat));
                     }
 
                     avatarMaterialDomain.SetMaterials(MaterialMap);
-                    GenereatMaterials.Add(MaterialMap.Values.ToList());
+                    GenereatMaterials.Add(MaterialMap.ConvertAll(MP => MP.SecndMaterial));
                 }
             }
 
@@ -537,18 +537,10 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             if (UseIslandCash)
             {
-                var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
-                var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
-
+                IslandUtils.CacheGet(out var CacheIslands, out var diffCacheIslands);
                 var IslandPool = GeneratedIslandPool(CacheIslands);
-
-                AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
-                {
-                    var NI = ScriptableObject.CreateInstance<IslandCache>();
-                    NI.CacheObject = i; NI.name = "IslandCache";
-                    return NI;
-                }));
-
+                IslandUtils.CacheSave(CacheIslands, diffCacheIslands);
+                
                 return IslandPool;
             }
             else

@@ -14,18 +14,27 @@ namespace Rs64.TexTransTool.Island
     {
         public static List<Island> CachengUVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV)
         {
-            var CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
-            var diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
+            CacheGet(out var CacheIslands, out var diffCacheIslands);
 
             var IslandPool = UVtoIsland(traiangles, UV, CacheIslands);
 
-            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
-                    {
-                        var NI = ScriptableObject.CreateInstance<IslandCache>();
-                        NI.CacheObject = i; NI.name = "IslandCache";
-                        return NI;
-                    }));
+            CacheSave(CacheIslands, diffCacheIslands);
             return IslandPool;
+        }
+
+        public static void CacheGet(out List<IslandCacheObject> CacheIslands, out List<IslandCacheObject> diffCacheIslands)
+        {
+            CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+            diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
+        }
+        public static void CacheSave(List<IslandCacheObject> CacheIslands, List<IslandCacheObject> diffCacheIslands)
+        {
+            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
+            {
+                var NI = ScriptableObject.CreateInstance<IslandCache>();
+                NI.CacheObject = i; NI.name = "IslandCache";
+                return NI;
+            }));
         }
 
         public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV, List<IslandCacheObject> Caches = null)
