@@ -324,10 +324,22 @@ namespace Rs64.TexTransTool.TexturAtlas
             for (var Channel = 0; ChannelCount > Channel; Channel += 1)
             {
                 var Meshdata = ChannnelMatRef[Channel];
-                var AtlasTex = AtlasTexs[Channel];
                 var AtlasSetting = AtlasSettings[Channel];
-
                 var ChannnelMatRefs = ChannnelMatRef[Channel];
+
+                var AtlasTex = new List<PropAndTexture>(AtlasTexs[Channel].Capacity);
+                foreach (var porptex in AtlasTexs[Channel])
+                {
+                    AtlasTex.Add(new PropAndTexture(porptex.PropertyName, porptex.Texture2D));
+                }
+                var fineSettings = AtlasSetting.GetFineSettings();
+                foreach (var fineSetting in fineSettings)
+                {
+                    fineSetting.FineSetting(AtlasTex);
+                }
+
+
+
 
                 if (AtlasSetting.IsMargeMaterial)
                 {
@@ -751,19 +763,6 @@ namespace Rs64.TexTransTool.TexturAtlas
         public int MaterialRefarens;
         public float TextureSizeOffSet = 1;
         public List<PropAndTexture> PropAndTextures;
-    }
-    [Serializable]
-    public class AtlasSetting
-    {
-        public bool IsMargeMaterial;
-        public Material MargeRefarensMaterial;
-        public bool ForseSetTexture;
-        public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
-        public PadingType PadingType = PadingType.EdgeBase;
-        public float Pading = 10;
-        public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg;
-
-        public float GetTexScailPading => Pading / AtlasTextureSize.x;
     }
     [Serializable]
     public struct MeshPea

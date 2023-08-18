@@ -6,6 +6,7 @@ using UnityEditor;
 using System.Linq;
 using Rs64.TexTransTool.Editor;
 using System.Collections.Generic;
+using System;
 
 namespace Rs64.TexTransTool.TexturAtlas.Editor
 {
@@ -75,6 +76,8 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 var S_PadingType = S_Channel.FindPropertyRelative("PadingType");
                 var S_Pading = S_Channel.FindPropertyRelative("Pading");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
+                var S_fineSettings = S_Channel.FindPropertyRelative("fineSettings");
+
 
 
                 EditorGUILayout.PropertyField(S_AtlasTextureSize);
@@ -84,6 +87,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 EditorGUILayout.PropertyField(S_PadingType);
                 EditorGUILayout.PropertyField(S_Pading);
                 EditorGUILayout.PropertyField(S_SortingType);
+                DrawFineSettings(S_fineSettings);
 
             }
             EditorGUI.indentLevel -= 1;
@@ -101,6 +105,73 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             EditorGUILayout.EndHorizontal();
 
         }
+
+        private static void DrawFineSettings(SerializedProperty s_fineSettings)
+        {
+            EditorGUILayout.LabelField("FineSettings");
+            EditorGUI.indentLevel += 1;
+
+            for (int i = 0; s_fineSettings.arraySize > i; i += 1)
+            {
+                var S_fineSettingData = s_fineSettings.GetArrayElementAtIndex(i);
+                var S_select = S_fineSettingData.FindPropertyRelative("select");
+                EditorGUILayout.PropertyField(S_select, new GUIContent("FineSetting " + i));
+                switch (S_select.enumValueIndex)
+                {
+                    default:
+                    case 0:
+                        {
+                            var S_Resize_Size = S_fineSettingData.FindPropertyRelative("Resize_Size");
+                            var S_Resize_PropatyNames = S_fineSettingData.FindPropertyRelative("Resize_PropatyNames");
+                            var S_Resize_select = S_fineSettingData.FindPropertyRelative("Resize_select");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size") );
+                            EditorGUILayout.PropertyField(S_Resize_PropatyNames, new GUIContent("PropatyNames"));
+                            EditorGUILayout.PropertyField(S_Resize_select, new GUIContent("select"));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
+                    case 1:
+                        {
+                            var S_Compless_fromatQuality = S_fineSettingData.FindPropertyRelative("Compless_fromatQuality");
+                            var S_Compless_compressionQuality = S_fineSettingData.FindPropertyRelative("Compless_compressionQuality");
+                            var S_Compless_PropatyNames = S_fineSettingData.FindPropertyRelative("Compless_PropatyNames");
+                            var S_Compless_select = S_fineSettingData.FindPropertyRelative("Compless_select");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(S_Compless_fromatQuality, new GUIContent("fromatQuality"));
+                            EditorGUILayout.PropertyField(S_Compless_compressionQuality, new GUIContent("compressionQuality"));
+                            EditorGUILayout.PropertyField(S_Compless_PropatyNames, new GUIContent("PropatyNames"));
+                            EditorGUILayout.PropertyField(S_Compless_select, new GUIContent("select"));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
+                    case 2:
+                        {
+                            var S_RefarensCopy_SousePropatyName = S_fineSettingData.FindPropertyRelative("RefarensCopy_SousePropatyName");
+                            var S_RefarensCopy_TargetPropatyName = S_fineSettingData.FindPropertyRelative("RefarensCopy_TargetPropatyName");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(S_RefarensCopy_SousePropatyName, new GUIContent("SousePropatyName"));
+                            EditorGUILayout.PropertyField(S_RefarensCopy_TargetPropatyName, new GUIContent("TargetPropatyName"));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
+                    case 3:
+                        {
+                            var S_Remove_PropatyNames = S_fineSettingData.FindPropertyRelative("Remove_PropatyNames");
+                            var S_Remove_select = S_fineSettingData.FindPropertyRelative("Remove_select");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(S_Remove_PropatyNames, new GUIContent("PropatyNames"));
+                            EditorGUILayout.PropertyField(S_Remove_select, new GUIContent("select"));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
+                }
+            }
+
+            TextureTransformerEditor.DrowArryResizeButton(s_fineSettings);
+            EditorGUI.indentLevel -= 1;
+        }
+
         static void SetDefault(SerializedProperty serializedProperty)
         {
 

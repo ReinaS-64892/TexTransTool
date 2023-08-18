@@ -99,6 +99,36 @@ namespace Rs64.TexTransTool
             }
         }
 
+        public static Texture2D SaveAsset(Texture2D Target, bool ConvertPNG)
+        {
+            SaveDirectoryCheck();
+            if (Target == null)
+            {
+                return null;
+            }
+            if (AssetDatabase.Contains(Target))
+            {
+                return null;
+            }
+            var SavePath = GenereatFullPath(Target.name);
+            if (ConvertPNG)
+            {
+                SavePath += ".png";
+                SavePath = AssetDatabase.GenerateUniqueAssetPath(SavePath);
+                File.WriteAllBytes(SavePath, Target.EncodeToPNG());
+                AssetDatabase.ImportAsset(SavePath);
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(SavePath);
+            }
+            else
+            {
+                SavePath += ".asset";
+                SavePath = AssetDatabase.GenerateUniqueAssetPath(SavePath);
+                AssetDatabase.CreateAsset(Target, SavePath);
+            }
+            AssetDatabase.ImportAsset(SavePath);
+            return null;
+        }
+
         public static void DeletAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
             foreach (var target in Targets)
