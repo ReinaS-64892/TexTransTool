@@ -48,13 +48,13 @@ namespace Rs64.TexTransTool
             }
 
             var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistTex, AddTex, BlendType);
-            var SavedTex = AssetSaveHelper.SaveAsset(Newtex);
+            var SavedTex = AssetSaveHelper.SavePng(Newtex);
 
 
             Container.BlendTexteres = SavedTex;
 
             var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, SavedTex);
-            Container.GenereatMaterials = MatPea.GeneratMatPeaList(ChangeDict);
+            Container.GenereatMaterials = ChangeDict;
         }
 
         public override void Compile() { }
