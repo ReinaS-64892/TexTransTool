@@ -110,7 +110,7 @@ namespace Rs64.TexTransTool
             if (!IsEmpty)
             {
                 var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
-                if(TextureImporter == null) return;
+                if (TextureImporter == null) return;
                 if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
             }
             else
@@ -141,6 +141,10 @@ namespace Rs64.TexTransTool
             {
                 Stream = File.OpenRead(SouseTexPath);
                 IsJPG = true;
+            }
+            else if (Path.GetExtension(SouseTexPath) == ".asset")
+            {
+                return new Vector2Int(SouseTex.width, SouseTex.height);
             }
             else
             {
