@@ -87,14 +87,16 @@ namespace Rs64.TexTransTool.TexturAtlas
                     var MatIndex = SelectRefsMat.IndexOf(MatSelector.Material);
                     Matdata.MaterialRefarens = MatIndex;
                     Matdata.TextureSizeOffSet = MatSelector.TextureSizeOffSet;
-                    Matdata.PropAndTextures = ShaderSupports.GetTextures(AtlasDatas.Materials[MatIndex]);
+                    // Matdata.PropAndTextures = ShaderSupports.GetTextures(AtlasDatas.Materials[MatIndex]);
                     Matdatas.Add(Matdata);
                 }
 
                 ChannnelsMatRef.Add(Matdatas.Select(MD => MD.MaterialRefarens).ToList());
 
-                var MatDataPools = GetMatDataPool(AtlasDatas, OriginIslandPool, Matdatas);
 
+
+
+                var MatDataPools = GetMatDataPool(AtlasDatas, OriginIslandPool, Matdatas);
                 var NawChannnelAtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
                 foreach (var Matdatapool in MatDataPools)
                 {

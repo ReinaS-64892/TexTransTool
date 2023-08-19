@@ -13,6 +13,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public bool IsMargeMaterial;
         public Material MargeRefarensMaterial;
+        public bool IsGenerateNewTextureForMergePropaty;
         public bool ForseSetTexture;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public PadingType PadingType = PadingType.EdgeBase;
@@ -32,7 +33,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             {
                 IfineSettings.Add(fineSetting.GetFineSetting());
             }
-            IfineSettings.Sort((L,R) => L.Order - R.Order);
+            IfineSettings.Sort((L, R) => L.Order - R.Order);
             return IfineSettings;
         }
 
