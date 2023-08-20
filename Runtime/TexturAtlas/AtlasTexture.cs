@@ -68,7 +68,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             var AtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
 
 
-            var CompiledAllAtlasTextures = new List<List<PropAndTexture>>();
+            var CompiledAllAtlasTextures = new List<List<PropAndTexture2D>>();
             var CompiledMeshs = new List<AtlasTextureDataContainer.MeshAndMatRef>();
             var ChannnelsMatRef = new List<List<int>>();
 
@@ -110,7 +110,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
 
-                var CompiledAtlasTextures = new List<PropAndTexture>();
+                var CompiledAtlasTextures = new List<PropAndTexture2D>();
 
                 var PropatyNames = new HashSet<string>();
                 foreach (var matdata in Matdatas)
@@ -143,7 +143,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                         TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPeas, atlasSetting.GetTexScailPading);
                     }
 
-                    CompiledAtlasTextures.Add(new PropAndTexture(Porp, TargetRT.CopyTexture2D()));
+                    CompiledAtlasTextures.Add(new PropAndTexture2D(Porp, TargetRT.CopyTexture2D()));
                 }
 
                 CompiledAllAtlasTextures.Add(CompiledAtlasTextures);
@@ -331,10 +331,10 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var AtlasSetting = AtlasSettings[Channel];
                 var ChannnelMatRefs = ChannnelMatRef[Channel];
 
-                var AtlasTex = new List<PropAndTexture>(AtlasTexs[Channel].Capacity);
+                var AtlasTex = new List<PropAndTexture2D>(AtlasTexs[Channel].Capacity);
                 foreach (var porptex in AtlasTexs[Channel])
                 {
-                    AtlasTex.Add(new PropAndTexture(porptex.PropertyName, porptex.Texture2D));
+                    AtlasTex.Add(new PropAndTexture2D(porptex.PropertyName, porptex.Texture2D));
                 }
                 var fineSettings = AtlasSetting.GetFineSettings();
                 foreach (var fineSetting in fineSettings)
@@ -375,7 +375,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             _isApply = true;
         }
 
-        private static Material GenereatAtlasMat(Material TargetMat, List<PropAndTexture> AtlasTex, ShaderSupportUtili ShaderSupport, bool ForseSetTexture)
+        private static Material GenereatAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, ShaderSupportUtili ShaderSupport, bool ForseSetTexture)
         {
             var EditableTMat = UnityEngine.Object.Instantiate(TargetMat);
 
@@ -757,7 +757,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public int MaterialRefarens;
         public float TextureSizeOffSet = 1;
-        public List<PropAndTexture> PropAndTextures;
+        public List<PropAndTexture2D> PropAndTextures;
     }
     [Serializable]
     public struct MeshPea

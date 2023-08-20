@@ -19,7 +19,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
 
         }
 
-        public void FineSetting(List<PropAndTexture> propAndTextures)
+        public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
             foreach (var target in FineSettingUtil.FiltTarget(PropatyNames, select, propAndTextures))
             {

@@ -341,18 +341,29 @@ namespace Rs64.TexTransTool
 
 
     [Serializable]
-    public class PropAndTexture
+    public class PropAndTexture2D
     {
         public string PropertyName;
         public Texture2D Texture2D;
 
-        public PropAndTexture(string propertyName, Texture2D textures)
+        public PropAndTexture2D(string propertyName, Texture2D textures)
         {
             PropertyName = propertyName;
             Texture2D = textures;
         }
     }
+    [Serializable]
+    public class PropAndTexture
+    {
+        public string PropertyName;
+        public Texture Texture2D;
 
+        public PropAndTexture(string propertyName, Texture textures)
+        {
+            PropertyName = propertyName;
+            Texture2D = textures;
+        }
+    }
 
 }
 

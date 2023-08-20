@@ -38,7 +38,7 @@ namespace Rs64.TexTransTool
         //sRGBのRenderTexture
         public static void TransTextureToRenderTexture(
             RenderTexture TargetTexture,
-            Texture2D SouseTexture,
+            Texture SouseTexture,
             TransUVData TransUVData,
             float? Pading = null,
             Vector2? WarpRange = null,
@@ -94,7 +94,7 @@ namespace Rs64.TexTransTool
         }
         public static void TransTextureToRenderTexture(
             RenderTexture TargetTexture,
-            Texture2D SouseTexture,
+            Texture SouseTexture,
             IEnumerable<TransUVData> TransUVData,
             float? Pading = null,
             Vector2? WarpRange = null)
