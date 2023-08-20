@@ -20,126 +20,126 @@ namespace Rs64.TexTransTool.ShaderSupport
 
         public List<PropAndTexture> GetPropertyAndTextures(Material material, bool IsGNTFMP = false)
         {
-            var PropEnvsDict = new Dictionary<string, Texture>();
+            var propEnvsDict = new Dictionary<string, Texture>();
 
-            PropEnvsDict.Add("_MainTex", material.GetTexture("_MainTex") as Texture2D);
-            PropEnvsDict.Add("_MainColorAdjustMask", material.GetTexture("_MainColorAdjustMask") as Texture2D);
+            propEnvsDict.Add("_MainTex", material.GetTexture("_MainTex") as Texture2D);
+            propEnvsDict.Add("_MainColorAdjustMask", material.GetTexture("_MainColorAdjustMask") as Texture2D);
             if (material.GetFloat("_UseMain2ndTex") > 0.5f)
             {
-                PropEnvsDict.Add("_Main2ndTex", material.GetTexture("_Main2ndTex") as Texture2D);
-                PropEnvsDict.Add("_Main2ndBlendMask", material.GetTexture("_Main2ndBlendMask") as Texture2D);
+                propEnvsDict.Add("_Main2ndTex", material.GetTexture("_Main2ndTex") as Texture2D);
+                propEnvsDict.Add("_Main2ndBlendMask", material.GetTexture("_Main2ndBlendMask") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_Main2ndDissolveMask", material.GetTexture("_Main2ndDissolveMask") as Texture2D));
             // PropertyAndTextures.Add(new PropAndTexture("_Main2ndDissolveNoiseMask", material.GetTexture("_Main2ndDissolveNoiseMask") as Texture2D));
             if (material.GetFloat("_UseMain3rdTex") > 0.5f)
             {
-                PropEnvsDict.Add("_Main3rdTex", material.GetTexture("_Main3rdTex") as Texture2D);
-                PropEnvsDict.Add("_Main3rdBlendMask", material.GetTexture("_Main3rdBlendMask") as Texture2D);
+                propEnvsDict.Add("_Main3rdTex", material.GetTexture("_Main3rdTex") as Texture2D);
+                propEnvsDict.Add("_Main3rdBlendMask", material.GetTexture("_Main3rdBlendMask") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_Main3rdDissolveMask", material.GetTexture("_Main3rdDissolveMask") as Texture2D));
             // PropertyAndTextures.Add(new PropAndTexture("_Main3rdDissolveNoiseMask", material.GetTexture("_Main3rdDissolveNoiseMask") as Texture2D));
-            PropEnvsDict.Add("_AlphaMask", material.GetTexture("_AlphaMask") as Texture2D);
+            propEnvsDict.Add("_AlphaMask", material.GetTexture("_AlphaMask") as Texture2D);
             if (material.GetFloat("_UseBumpMap") > 0.5f)
             {
-                PropEnvsDict.Add("_BumpMap", material.GetTexture("_BumpMap") as Texture2D);
+                propEnvsDict.Add("_BumpMap", material.GetTexture("_BumpMap") as Texture2D);
             }
             if (material.GetFloat("_UseBump2ndMap") > 0.5f)
             {
-                PropEnvsDict.Add("_Bump2ndMap", material.GetTexture("_Bump2ndMap") as Texture2D);
-                PropEnvsDict.Add("_Bump2ndScaleMask", material.GetTexture("_Bump2ndScaleMask") as Texture2D);
+                propEnvsDict.Add("_Bump2ndMap", material.GetTexture("_Bump2ndMap") as Texture2D);
+                propEnvsDict.Add("_Bump2ndScaleMask", material.GetTexture("_Bump2ndScaleMask") as Texture2D);
             }
             if (material.GetFloat("_UseAnisotropy") > 0.5f)
             {
-                PropEnvsDict.Add("_AnisotropyTangentMap", material.GetTexture("_AnisotropyTangentMap") as Texture2D);
-                PropEnvsDict.Add("_AnisotropyScaleMask", material.GetTexture("_AnisotropyScaleMask") as Texture2D);
+                propEnvsDict.Add("_AnisotropyTangentMap", material.GetTexture("_AnisotropyTangentMap") as Texture2D);
+                propEnvsDict.Add("_AnisotropyScaleMask", material.GetTexture("_AnisotropyScaleMask") as Texture2D);
             }
             if (material.GetFloat("_UseBacklight") > 0.5f)
             {
-                PropEnvsDict.Add("_BacklightColorTex", material.GetTexture("_BacklightColorTex") as Texture2D);
+                propEnvsDict.Add("_BacklightColorTex", material.GetTexture("_BacklightColorTex") as Texture2D);
             }
             if (material.GetFloat("_UseShadow") > 0.5f)
             {
-                PropEnvsDict.Add("_ShadowStrengthMask", material.GetTexture("_ShadowStrengthMask") as Texture2D);
-                PropEnvsDict.Add("_ShadowBorderMask", material.GetTexture("_ShadowBorderMask") as Texture2D);
-                PropEnvsDict.Add("_ShadowBlurMask", material.GetTexture("_ShadowBlurMask") as Texture2D);
-                PropEnvsDict.Add("_ShadowColorTex", material.GetTexture("_ShadowColorTex") as Texture2D);
-                PropEnvsDict.Add("_Shadow2ndColorTex", material.GetTexture("_Shadow2ndColorTex") as Texture2D);
-                PropEnvsDict.Add("_Shadow3rdColorTex", material.GetTexture("_Shadow3rdColorTex") as Texture2D);
+                propEnvsDict.Add("_ShadowStrengthMask", material.GetTexture("_ShadowStrengthMask") as Texture2D);
+                propEnvsDict.Add("_ShadowBorderMask", material.GetTexture("_ShadowBorderMask") as Texture2D);
+                propEnvsDict.Add("_ShadowBlurMask", material.GetTexture("_ShadowBlurMask") as Texture2D);
+                propEnvsDict.Add("_ShadowColorTex", material.GetTexture("_ShadowColorTex") as Texture2D);
+                propEnvsDict.Add("_Shadow2ndColorTex", material.GetTexture("_Shadow2ndColorTex") as Texture2D);
+                propEnvsDict.Add("_Shadow3rdColorTex", material.GetTexture("_Shadow3rdColorTex") as Texture2D);
             }
             if (material.GetFloat("_UseReflection") > 0.5f)
             {
-                PropEnvsDict.Add("_SmoothnessTex", material.GetTexture("_SmoothnessTex") as Texture2D);
-                PropEnvsDict.Add("_MetallicGlossMap", material.GetTexture("_MetallicGlossMap") as Texture2D);
-                PropEnvsDict.Add("_ReflectionColorTex", material.GetTexture("_ReflectionColorTex") as Texture2D);
+                propEnvsDict.Add("_SmoothnessTex", material.GetTexture("_SmoothnessTex") as Texture2D);
+                propEnvsDict.Add("_MetallicGlossMap", material.GetTexture("_MetallicGlossMap") as Texture2D);
+                propEnvsDict.Add("_ReflectionColorTex", material.GetTexture("_ReflectionColorTex") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_MatCapBlendMask", material.GetTexture("_MatCapBlendMask") as Texture2D));
             // PropertyAndTextures.Add(new PropAndTexture("_MatCap2ndBlendMask", material.GetTexture("_MatCap2ndBlendMask") as Texture2D));
             if (material.GetFloat("_UseRim") > 0.5f)
             {
-                PropEnvsDict.Add("_RimColorTex", material.GetTexture("_RimColorTex") as Texture2D);
+                propEnvsDict.Add("_RimColorTex", material.GetTexture("_RimColorTex") as Texture2D);
             }
             if (material.GetFloat("_UseGlitter") > 0.5f)
             {
-                PropEnvsDict.Add("_GlitterColorTex", material.GetTexture("_GlitterColorTex") as Texture2D);
+                propEnvsDict.Add("_GlitterColorTex", material.GetTexture("_GlitterColorTex") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_GlitterShapeTex", material.GetTexture("_GlitterShapeTex") as Texture2D));
             if (material.GetFloat("_UseEmission") > 0.5f)
             {
-                PropEnvsDict.Add("_EmissionMap", material.GetTexture("_EmissionMap") as Texture2D);
-                PropEnvsDict.Add("_EmissionBlendMask", material.GetTexture("_EmissionBlendMask") as Texture2D);
+                propEnvsDict.Add("_EmissionMap", material.GetTexture("_EmissionMap") as Texture2D);
+                propEnvsDict.Add("_EmissionBlendMask", material.GetTexture("_EmissionBlendMask") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_EmissionGradTex", material.GetTexture("_EmissionGradTex") as Texture2D));
             if (material.GetFloat("_UseEmission2nd") > 0.5f)
             {
-                PropEnvsDict.Add("_Emission2ndMap", material.GetTexture("_Emission2ndMap") as Texture2D);
-                PropEnvsDict.Add("_Emission2ndBlendMask", material.GetTexture("_Emission2ndBlendMask") as Texture2D);
+                propEnvsDict.Add("_Emission2ndMap", material.GetTexture("_Emission2ndMap") as Texture2D);
+                propEnvsDict.Add("_Emission2ndBlendMask", material.GetTexture("_Emission2ndBlendMask") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_Emission2ndGradTex", material.GetTexture("_Emission2ndGradTex") as Texture2D));
             // PropEnvsDict.Add("_ParallaxMap", material.GetTexture("_ParallaxMap") as Texture2D);
             if (material.GetFloat("_UseAudioLink") > 0.5f)
             {
-                PropEnvsDict.Add("_AudioLinkMask", material.GetTexture("_AudioLinkMask") as Texture2D);
+                propEnvsDict.Add("_AudioLinkMask", material.GetTexture("_AudioLinkMask") as Texture2D);
             }
             // PropertyAndTextures.Add(new PropAndTexture("_DissolveMask", material.GetTexture("_DissolveMask") as Texture2D));
             // PropertyAndTextures.Add(new PropAndTexture("_DissolveNoiseMask", material.GetTexture("_DissolveNoiseMask") as Texture2D));
             if (material.shader.name.Contains("Outline"))
             {
-                PropEnvsDict.Add("_OutlineTex", material.GetTexture("_OutlineTex") as Texture2D);
-                PropEnvsDict.Add("_OutlineWidthMask", material.GetTexture("_OutlineWidthMask") as Texture2D);
-                PropEnvsDict.Add("_OutlineVectorTex", material.GetTexture("_OutlineVectorTex") as Texture2D);
+                propEnvsDict.Add("_OutlineTex", material.GetTexture("_OutlineTex") as Texture2D);
+                propEnvsDict.Add("_OutlineWidthMask", material.GetTexture("_OutlineWidthMask") as Texture2D);
+                propEnvsDict.Add("_OutlineVectorTex", material.GetTexture("_OutlineVectorTex") as Texture2D);
             }
             void ColorMul(string TexPropName, string ColorPorpName, bool AradeyTex)
             {
                 var Color = material.GetColor(ColorPorpName);
 
-                var MainTex = PropEnvsDict.ContainsKey(TexPropName) ? PropEnvsDict[TexPropName] : null;
+                var MainTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                 if (MainTex == null)
                 {
                     if (AradeyTex || IsGNTFMP)
                     {
-                        PropEnvsDict[TexPropName] = CreateColorTex(Color);
+                        propEnvsDict[TexPropName] = CreateColorTex(Color);
                     }
                 }
                 else
                 {
-                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(MainTex, Color);
+                    propEnvsDict[TexPropName] = CreatMuldRenderTexture(MainTex, Color);
                 }
             }
             void FloatMul(string TexPropName, string FloatProp, bool AradeyTex)
             {
                 var Propfloat = material.GetFloat(FloatProp);
 
-                var PropTex = PropEnvsDict.ContainsKey(TexPropName) ? PropEnvsDict[TexPropName] : null;
+                var PropTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                 if (PropTex == null)
                 {
                     if (AradeyTex || IsGNTFMP)
                     {
-                        PropEnvsDict[TexPropName] = CreateColorTex(new Color(Propfloat, Propfloat, Propfloat, Propfloat));
+                        propEnvsDict[TexPropName] = CreateColorTex(new Color(Propfloat, Propfloat, Propfloat, Propfloat));
                     }
                 }
                 else
                 {
-                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(PropTex, new Color(Propfloat, Propfloat, Propfloat, Propfloat));
+                    propEnvsDict[TexPropName] = CreatMuldRenderTexture(PropTex, new Color(Propfloat, Propfloat, Propfloat, Propfloat));
                 }
             }
 
@@ -149,8 +149,8 @@ namespace Rs64.TexTransTool.ShaderSupport
             }
             if (lilDifferenceRecordI.IsDifference_MainTexHSVG)
             {
-                var MainTex = PropEnvsDict.ContainsKey("_MainTex") ? PropEnvsDict["_MainTex"] : null;
-                var ColorAdjustMask = PropEnvsDict.ContainsKey("_MainColorAdjustMask") ? PropEnvsDict["_MainColorAdjustMask"] : null;
+                var MainTex = propEnvsDict.ContainsKey("_MainTex") ? propEnvsDict["_MainTex"] : null;
+                var ColorAdjustMask = propEnvsDict.ContainsKey("_MainColorAdjustMask") ? propEnvsDict["_MainColorAdjustMask"] : null;
 
                 var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
                 Mat.SetFloat("_UseMask", ColorAdjustMask == null ? 0 : 1);
@@ -162,8 +162,8 @@ namespace Rs64.TexTransTool.ShaderSupport
                 {
                     var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
                     Graphics.Blit(MainTex2d, MainTexRt, Mat);
-                    if (PropEnvsDict.ContainsKey("_MainTex")) { PropEnvsDict["_MainTex"] = MainTexRt; }
-                    else { PropEnvsDict.Add("_MainTex", MainTexRt); }
+                    if (propEnvsDict.ContainsKey("_MainTex")) { propEnvsDict["_MainTex"] = MainTexRt; }
+                    else { propEnvsDict.Add("_MainTex", MainTexRt); }
                 }
                 else if (MainTex is RenderTexture MainTexRt && MainTexRt != null)
                 {
@@ -261,7 +261,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                 }
                 if (lilDifferenceRecordI.IsDifference_OutlineTexHSVG)
                 {
-                    var OutlineTex = PropEnvsDict.ContainsKey("_OutlineTex") ? PropEnvsDict["_OutlineTex"] : null;
+                    var OutlineTex = propEnvsDict.ContainsKey("_OutlineTex") ? propEnvsDict["_OutlineTex"] : null;
 
                     var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
                     var MainTexHSVG = material.GetColor("_OutlineTexHSVG");
@@ -272,8 +272,8 @@ namespace Rs64.TexTransTool.ShaderSupport
                     {
                         var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
                         Graphics.Blit(MainTex2d, MainTexRt, Mat);
-                        if (PropEnvsDict.ContainsKey("_OutlineTex")) { PropEnvsDict["_OutlineTex"] = MainTexRt; }
-                        else { PropEnvsDict.Add("_OutlineTex", MainTexRt); }
+                        if (propEnvsDict.ContainsKey("_OutlineTex")) { propEnvsDict["_OutlineTex"] = MainTexRt; }
+                        else { propEnvsDict.Add("_OutlineTex", MainTexRt); }
                     }
                     else if (OutlineTex is RenderTexture OutlineRt && OutlineRt != null)
                     {
@@ -289,33 +289,33 @@ namespace Rs64.TexTransTool.ShaderSupport
 
                     var Outlinewidth = material.GetFloat(FloatProp) / lilDifferenceRecordI._OutlineWidth;
 
-                    var OutlinewidthMask = PropEnvsDict.ContainsKey(TexPropName) ? PropEnvsDict[TexPropName] : null;
+                    var OutlinewidthMask = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                     if (OutlinewidthMask == null)
                     {
                         if (lilDifferenceRecordI.IsAredyTex_OutlineWidth || IsGNTFMP)
                         {
                             var newtex = CreateColorTex(new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
-                            if (PropEnvsDict.ContainsKey(TexPropName))
+                            if (propEnvsDict.ContainsKey(TexPropName))
                             {
-                                PropEnvsDict[TexPropName] = newtex;
+                                propEnvsDict[TexPropName] = newtex;
                             }
                             else
                             {
-                                PropEnvsDict.Add(TexPropName, newtex);
+                                propEnvsDict.Add(TexPropName, newtex);
                             }
 
                         }
                     }
                     else
                     {
-                        var newtex = PropEnvsDict[TexPropName] = CreatMuldRenderTexture(OutlinewidthMask, new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
-                        if (PropEnvsDict.ContainsKey(TexPropName))
+                        var newtex = propEnvsDict[TexPropName] = CreatMuldRenderTexture(OutlinewidthMask, new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
+                        if (propEnvsDict.ContainsKey(TexPropName))
                         {
-                            PropEnvsDict[TexPropName] = newtex;
+                            propEnvsDict[TexPropName] = newtex;
                         }
                         else
                         {
-                            PropEnvsDict.Add(TexPropName, newtex);
+                            propEnvsDict.Add(TexPropName, newtex);
                         }
 
                     }
@@ -324,7 +324,7 @@ namespace Rs64.TexTransTool.ShaderSupport
 
 
             var PropAndTexture = new List<PropAndTexture>();
-            foreach (var PropEnv in PropEnvsDict)
+            foreach (var PropEnv in propEnvsDict)
             {
                 PropAndTexture.Add(new PropAndTexture(PropEnv.Key, PropEnv.Value));
             }
