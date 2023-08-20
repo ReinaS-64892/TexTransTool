@@ -19,7 +19,6 @@ Shader "Hidden/ColorAdjustShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../ComputeShaders/BlendTextureHelper.hlsl"
 
             struct appdata
             {
@@ -69,9 +68,9 @@ Shader "Hidden/ColorAdjustShader"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 MainColor = tex2D(_MainTex ,i.uv);
-                float MaskValue = leap(1,tex2D(_Mask ,i.uv).r,_UseMask);
+                float MaskValue = lerp(1,tex2D(_Mask ,i.uv).r,_UseMask);
 
-                MainColor.rgb = leap(MainColor.rgb,lilToneCorrection(MainColor.rgb,_HSVG),MaskValue);
+                MainColor.rgb = lerp(MainColor.rgb,lilToneCorrection(MainColor.rgb,_HSVG),MaskValue);
                 return MainColor;
             }
             ENDHLSL
