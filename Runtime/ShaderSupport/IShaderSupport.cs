@@ -10,8 +10,8 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         string SupprotShaderName { get; }
 
-        void PropatyDataStack(Material material);
-        void StackClear();
+        void AddRecord(Material material);
+        void ClearRecord();
 
         List<PropAndTexture> GetPropertyAndTextures(Material material, bool IsGNTFMP = false);
 
