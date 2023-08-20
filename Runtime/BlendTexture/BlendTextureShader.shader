@@ -30,7 +30,6 @@ Shader "Hidden/BlendTexture"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                float4 grabPos : TEXCOORD1;
             };
 
             sampler2D _MainTex;
@@ -40,7 +39,6 @@ Shader "Hidden/BlendTexture"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.grabPos = ComputeGrabScreenPos(o.vertex);
                 o.uv = v.uv;
                 return o;
             }
