@@ -102,7 +102,7 @@ namespace Rs64.TexTransTool.ShaderSupport
             }
             // PropertyAndTextures.Add(new PropAndTexture("_DissolveMask", material.GetTexture("_DissolveMask") as Texture2D));
             // PropertyAndTextures.Add(new PropAndTexture("_DissolveNoiseMask", material.GetTexture("_DissolveNoiseMask") as Texture2D));
-            if (material.GetFloat("_UseOutline") > 0.5f)
+            if (material.shader.name.Contains("Outline"))
             {
                 PropEnvsDict.Add("_OutlineTex", material.GetTexture("_OutlineTex") as Texture2D);
                 PropEnvsDict.Add("_OutlineWidthMask", material.GetTexture("_OutlineWidthMask") as Texture2D);
@@ -122,7 +122,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                 }
                 else
                 {
-                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(Color, MainTex);
+                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(MainTex, Color);
                 }
             }
             void FloatMul(string TexPropName, string FloatProp, bool AradeyTex)
@@ -139,7 +139,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                 }
                 else
                 {
-                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(new Color(Propfloat, Propfloat, Propfloat, Propfloat), PropTex);
+                    PropEnvsDict[TexPropName] = CreatMuldRenderTexture(PropTex, new Color(Propfloat, Propfloat, Propfloat, Propfloat));
                 }
             }
 
@@ -191,7 +191,7 @@ namespace Rs64.TexTransTool.ShaderSupport
             }
             if (lilDifferenceRecordI.IsDifference_MainColor2nd && material.GetFloat("_UseMain2ndTex") > 0.5f)
             {
-                ColorMul("_Main2ndTex", "_Color2nd" , lilDifferenceRecordI.IsAredyTex_MainColor2nd);
+                ColorMul("_Main2ndTex", "_Color2nd", lilDifferenceRecordI.IsAredyTex_MainColor2nd);
             }
             if (lilDifferenceRecordI.IsDifference_MainColor3rd && material.GetFloat("_UseMain3rdTex") > 0.5f)
             {
@@ -286,7 +286,6 @@ namespace Rs64.TexTransTool.ShaderSupport
                     if (OutlinewidthMask == null)
                     {
                         if (lilDifferenceRecordI.IsAredyTex_OutlineWidth || IsGNTFMP)
-
                         {
                             var newtex = CreateColorTex(new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
                             if (PropEnvsDict.ContainsKey(TexPropName))
@@ -302,7 +301,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                     }
                     else
                     {
-                        var newtex = PropEnvsDict[TexPropName] = CreatMuldRenderTexture(new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth), OutlinewidthMask);
+                        var newtex = PropEnvsDict[TexPropName] = CreatMuldRenderTexture(OutlinewidthMask, new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
                         if (PropEnvsDict.ContainsKey(TexPropName))
                         {
                             PropEnvsDict[TexPropName] = newtex;
@@ -325,7 +324,7 @@ namespace Rs64.TexTransTool.ShaderSupport
             return PropAndTexture;
         }
 
-        private static RenderTexture CreatMuldRenderTexture(Color Color, Texture MainTex)
+        private static RenderTexture CreatMuldRenderTexture(Texture MainTex, Color Color)
         {
             var MainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
             var Mat = new Material(Shader.Find("Hidden/ColorMulShader"));
