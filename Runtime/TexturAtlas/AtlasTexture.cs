@@ -80,6 +80,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var atlasSetting = AtlasSettings[Channel];
                 var TargetMatSerectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
 
+                ShaderSupports.IsGenerateNewTextureForMergePropaty = atlasSetting.IsGenerateNewTextureForMergePropaty;
                 var Matdatas = new List<MatData>();
                 foreach (var MatSelector in TargetMatSerectors)
                 {
@@ -87,9 +88,16 @@ namespace Rs64.TexTransTool.TexturAtlas
                     var MatIndex = SelectRefsMat.IndexOf(MatSelector.Material);
                     Matdata.MaterialRefarens = MatIndex;
                     Matdata.TextureSizeOffSet = MatSelector.TextureSizeOffSet;
-                    // Matdata.PropAndTextures = ShaderSupports.GetTextures(AtlasDatas.Materials[MatIndex]);
+                    ShaderSupports.AddRecord(AtlasDatas.Materials[MatIndex]);
                     Matdatas.Add(Matdata);
                 }
+
+                foreach (var md in Matdatas)
+                {
+                    md.PropAndTextures = ShaderSupports.GetTextures(AtlasDatas.Materials[md.MaterialRefarens]);
+                }
+
+                ShaderSupports.ClearRecord();
 
                 ChannnelsMatRef.Add(Matdatas.Select(MD => MD.MaterialRefarens).ToList());
 
@@ -212,7 +220,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Container.IsPossibleApply = true;
         }
 
-        private void TransMoveRectIsland(Texture2D SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPeas, float pading)
+        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPeas, float pading)
         {
             pading *= 0.5f;
             var SUV = new List<Vector2>();
@@ -757,7 +765,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public int MaterialRefarens;
         public float TextureSizeOffSet = 1;
-        public List<PropAndTexture2D> PropAndTextures;
+        public List<PropAndTexture> PropAndTextures;
     }
     [Serializable]
     public struct MeshPea

@@ -17,6 +17,22 @@ namespace Rs64.TexTransTool.ShaderSupport
             _shaderSupports = ShaderSupportUtili.GetSupprotInstans();
         }
 
+        public void AddRecord(Material material)
+        {
+            IShaderSupport SupportShederI = FindSupportI(material);
+            if (SupportShederI != null)
+            {
+                SupportShederI.AddRecord(material);
+            }
+        }
+        public void ClearRecord()
+        {
+            foreach (var i in _shaderSupports)
+            {
+                i.ClearRecord();
+            }
+        }
+
         public List<PropAndTexture> GetTextures(Material material)
         {
             var textures = new List<PropAndTexture>();
