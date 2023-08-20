@@ -47,6 +47,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Compless,
             RefarensCopy,
             Remove,
+            MipMapRemove,
         }
 
         //Resize
@@ -64,6 +65,9 @@ namespace Rs64.TexTransTool.TexturAtlas
         //Remove
         public string Remove_PropatyNames = "_MainTex";
         public PropatySelect Remove_select = PropatySelect.NotEqual;
+        //MipMapRemove
+        public string MipMapRemove_PropatyNames = "_OutlineWidthMask";
+        public PropatySelect MipMapRemove_select = PropatySelect.Equal;
 
         public IFineSetting GetFineSetting()
         {
@@ -77,6 +81,9 @@ namespace Rs64.TexTransTool.TexturAtlas
                     return new RefarensCopy(RefarensCopy_SousePropatyName, RefarensCopy_TargetPropatyName);
                 case FineSettingSelect.Remove:
                     return new Remove(Remove_PropatyNames, Remove_select);
+                case FineSettingSelect.MipMapRemove:
+                    return new MipMapRemove(MipMapRemove_PropatyNames, MipMapRemove_select);
+
                 default:
                     return null;
             }

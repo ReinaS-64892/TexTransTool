@@ -638,7 +638,7 @@ namespace Rs64.TexTransTool
         }
         public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
         {
-            var ResizedTexture = new Texture2D(Size.x, Size.y);
+            var ResizedTexture = new Texture2D(Size.x, Size.y, Souse.graphicsFormat, Souse.mipmapCount > 1 ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
 
             var Pixsels = new Color[Size.x * Size.y];
 

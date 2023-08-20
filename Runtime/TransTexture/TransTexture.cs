@@ -110,7 +110,7 @@ namespace Rs64.TexTransTool
             try
             {
                 RenderTexture.active = Rt;
-                var Texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain);
+                var Texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat,Rt.useMipMap ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
                 Texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
                 Texture.Apply();
                 Texture.name = Rt.name + "_CopyTex2D";

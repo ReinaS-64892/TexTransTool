@@ -11,7 +11,11 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
         {
             foreach (var target in propAndTextures)
             {
-                target.Texture2D = UnityEngine.Object.Instantiate<Texture2D>(target.Texture2D);
+                var Editabletex = new Texture2D(target.Texture2D.width, target.Texture2D.height, TextureFormat.RGBA32, true);
+                Editabletex.SetPixels32(target.Texture2D.GetPixels32());
+                Editabletex.Apply(true);
+                Editabletex.name = target.Texture2D.name;
+                target.Texture2D = Editabletex;
             }
         }
     }

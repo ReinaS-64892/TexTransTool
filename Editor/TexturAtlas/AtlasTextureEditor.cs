@@ -119,13 +119,17 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 switch (S_select.enumValueIndex)
                 {
                     default:
+                        {
+                            EditorGUILayout.LabelField($"{S_select.enumValueIndex} enumValue Not Found");
+                            break;
+                        }
                     case 0:
                         {
                             var S_Resize_Size = S_fineSettingData.FindPropertyRelative("Resize_Size");
                             var S_Resize_PropatyNames = S_fineSettingData.FindPropertyRelative("Resize_PropatyNames");
                             var S_Resize_select = S_fineSettingData.FindPropertyRelative("Resize_select");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size") );
+                            EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size"));
                             EditorGUILayout.PropertyField(S_Resize_PropatyNames, new GUIContent("PropatyNames"));
                             EditorGUILayout.PropertyField(S_Resize_select, new GUIContent("select"));
                             EditorGUI.indentLevel -= 1;
@@ -165,6 +169,17 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
+                    case 4:
+                        {
+                            var S_MipMapRemove_PropatyNames = S_fineSettingData.FindPropertyRelative("MipMapRemove_PropatyNames");
+                            var S_MipMapRemove_select = S_fineSettingData.FindPropertyRelative("MipMapRemove_select");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(S_MipMapRemove_PropatyNames, new GUIContent("PropatyNames"));
+                            EditorGUILayout.PropertyField(S_MipMapRemove_select, new GUIContent("select"));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
+                
                 }
             }
 

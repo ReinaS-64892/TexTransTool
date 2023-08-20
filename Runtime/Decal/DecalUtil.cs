@@ -146,7 +146,7 @@ namespace Rs64.TexTransTool.Decal
                         Mesh Mesh = new Mesh();
                         SMR.BakeMesh(Mesh);
                         Mesh.GetVertices(Vertices);
-                        ConvartVerticesInMatlix(SMR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvartVerticesInMatlix(Matrix4x4.TRS(SMR.transform.position, SMR.transform.rotation, Vector3.one), Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
