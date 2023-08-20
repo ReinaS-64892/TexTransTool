@@ -20,7 +20,9 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
         {
             var Texture = propAndTextures.Find(x => x.PropertyName == SousePropatyName);
             if (Texture == null) return;
-            propAndTextures.Find(x => x.PropertyName == TargetPropatyName).Texture2D = Texture.Texture2D;
+            var propAndTex = propAndTextures.Find(x => x.PropertyName == TargetPropatyName);
+            if (propAndTex == null) propAndTex = new PropAndTexture2D(TargetPropatyName, null);
+            propAndTex.Texture2D = Texture.Texture2D;
         }
     }
 
