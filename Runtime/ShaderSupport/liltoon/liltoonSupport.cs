@@ -152,40 +152,24 @@ namespace Rs64.TexTransTool.ShaderSupport
                 var MainTex = PropEnvsDict.ContainsKey("_MainTex") ? PropEnvsDict["_MainTex"] : null;
                 var ColorAdjustMask = PropEnvsDict.ContainsKey("_MainColorAdjustMask") ? PropEnvsDict["_MainColorAdjustMask"] : null;
 
+                var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
+                Mat.SetFloat("_UseMask", ColorAdjustMask == null ? 0 : 1);
+                if (ColorAdjustMask != null) { Mat.SetTexture("_Mask", ColorAdjustMask); }
+                var MainTexHSVG = material.GetColor("_MainTexHSVG");
+                Mat.SetColor("_HSVG", MainTexHSVG);
+
                 if (MainTex is Texture2D MainTex2d && MainTex2d != null)
                 {
                     var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
-
-                    var MainTexHSVG = material.GetColor("_MainTexHSVG");
-                    var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-
-                    Mat.SetFloat("_UseMask", ColorAdjustMask == null ? 0 : 1);
-                    if (ColorAdjustMask != null) { Mat.SetTexture("_Mask", ColorAdjustMask); }
-                    Mat.SetColor("_HSVG", MainTexHSVG);
-
                     Graphics.Blit(MainTex2d, MainTexRt, Mat);
-                    if (PropEnvsDict.ContainsKey("_MainTex"))
-                    {
-                        PropEnvsDict["_MainTex"] = MainTexRt;
-                    }
-                    else
-                    {
-                        PropEnvsDict.Add("_MainTex", MainTexRt);
-                    }
+                    if (PropEnvsDict.ContainsKey("_MainTex")) { PropEnvsDict["_MainTex"] = MainTexRt; }
+                    else { PropEnvsDict.Add("_MainTex", MainTexRt); }
                 }
                 else if (MainTex is RenderTexture MainTexRt && MainTexRt != null)
                 {
                     var SwapRt = new RenderTexture(MainTexRt.descriptor);
 
                     Graphics.CopyTexture(MainTex, SwapRt);
-
-                    var MainTexHSVG = material.GetColor("_MainTexHSVG");
-
-                    var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                    Mat.SetFloat("_UseMask", ColorAdjustMask == null ? 0 : 1);
-                    if (ColorAdjustMask != null) { Mat.SetTexture("_Mask", ColorAdjustMask); }
-                    Mat.SetColor("_HSVG", MainTexHSVG);
-
                     Graphics.Blit(SwapRt, MainTexRt, Mat);
                 }
             }
@@ -274,6 +258,29 @@ namespace Rs64.TexTransTool.ShaderSupport
                 if (lilDifferenceRecordI.IsDifference_OutlineColor)
                 {
                     ColorMul("_OutlineTex", "_OutlineColor", lilDifferenceRecordI.IsAredyTex_OutlineColor);
+                }
+                if (lilDifferenceRecordI.IsDifference_OutlineTexHSVG)
+                {
+                    var OutlineTex = PropEnvsDict.ContainsKey("_OutlineTex") ? PropEnvsDict["_OutlineTex"] : null;
+
+                    var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
+                    var MainTexHSVG = material.GetColor("_OutlineTexHSVG");
+                    Mat.SetFloat("_UseMask", 0);
+                    Mat.SetColor("_HSVG", MainTexHSVG);
+
+                    if (OutlineTex is Texture2D MainTex2d && MainTex2d != null)
+                    {
+                        var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
+                        Graphics.Blit(MainTex2d, MainTexRt, Mat);
+                        if (PropEnvsDict.ContainsKey("_OutlineTex")) { PropEnvsDict["_OutlineTex"] = MainTexRt; }
+                        else { PropEnvsDict.Add("_OutlineTex", MainTexRt); }
+                    }
+                    else if (OutlineTex is RenderTexture OutlineRt && OutlineRt != null)
+                    {
+                        var SwapRt = new RenderTexture(OutlineRt.descriptor);
+                        Graphics.CopyTexture(OutlineTex, SwapRt);
+                        Graphics.Blit(SwapRt, OutlineRt, Mat);
+                    }
                 }
                 if (lilDifferenceRecordI.IsDifference_OutlineWidth)
                 {
@@ -529,6 +536,10 @@ IDMask --
             public bool IsDifference_OutlineColor;
             public bool IsAredyTex_OutlineColor;
 
+            public Color _OutlineTexHSVG;
+            public bool IsDifference_OutlineTexHSVG;
+
+
             public float _OutlineWidth;
             public bool IsDifference_OutlineWidth;
             public bool IsAredyTex_OutlineWidth;
@@ -654,6 +665,9 @@ IDMask --
                     lilDifferenceRecordI.IsDifference_OutlineColor = false;
                     lilDifferenceRecordI.IsAredyTex_OutlineColor = material.GetTexture("_OutlineTex") != null;
 
+                    lilDifferenceRecordI._OutlineTexHSVG = material.GetColor("_OutlineTexHSVG");
+                    lilDifferenceRecordI.IsDifference_OutlineTexHSVG = false;
+
                     lilDifferenceRecordI._OutlineWidth = material.GetFloat("_OutlineWidth");
                     lilDifferenceRecordI.IsDifference_OutlineWidth = false;
                     lilDifferenceRecordI.IsAredyTex_OutlineWidth = material.GetTexture("_OutlineWidthMask") != null;
@@ -736,6 +750,7 @@ IDMask --
                 {
                     if (lilDifferenceRecordI._OutlineColor != material.GetColor("_OutlineColor")) lilDifferenceRecordI.IsDifference_OutlineColor = true;
                     if (material.GetTexture("_OutlineTex") != null) lilDifferenceRecordI.IsAredyTex_OutlineColor = true;
+                    if (lilDifferenceRecordI._OutlineTexHSVG != material.GetColor("_OutlineTexHSVG")) lilDifferenceRecordI.IsDifference_OutlineTexHSVG = true;
                     if (!Mathf.Approximately(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth"))) { lilDifferenceRecordI.IsDifference_OutlineWidth = true; lilDifferenceRecordI._OutlineWidth = Mathf.Max(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth")); }
                     if (material.GetTexture("_OutlineWidthMask") != null) lilDifferenceRecordI.IsAredyTex_OutlineWidth = true;
                 }
