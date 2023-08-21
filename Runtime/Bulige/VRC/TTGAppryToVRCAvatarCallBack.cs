@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.Bulige.VRC
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            return AvatarBuligeUtili.ProcesAvatar(avatarGameObject);
+            return AvatarBuligeUtili.ProcesAvatar(avatarGameObject, null, true);
 
         }
         public void OnPostprocessAvatar()

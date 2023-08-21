@@ -11,15 +11,15 @@ namespace Rs64.TexTransTool.Bulige.VRC
     public class AvatarBuildApplyHook : AvatarDomainDefinition, IEditorOnly
     {
 
-        public override void Apply()
+        public override void Apply(UnityEngine.Object OverrideAssetContainer = null)
         {
             SetAvatar(null);
-            base.Apply();
+            base.Apply(OverrideAssetContainer);
         }
         public void Apply(GameObject avatar)
         {
             SetAvatar(avatar);
-            base.Apply();
+            base.Apply(null);
         }
         public override void SetAvatar(GameObject Setavatar)
         {

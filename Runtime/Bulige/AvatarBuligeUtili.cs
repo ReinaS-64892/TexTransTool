@@ -7,16 +7,16 @@ namespace Rs64.TexTransTool.Bulige
     public static class AvatarBuligeUtili
     {
 
-        public static bool ProcesAvatar(GameObject avatarGameObject)
+        public static bool ProcesAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false)
         {
             try
             {
-                AssetSaveHelper.IsTmplaly = true;
-                var AvatarBuildApplyHooks = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
-                foreach (var ABAH in AvatarBuildApplyHooks)
+                if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTmplaly = true; }
+                var ADD = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
+                foreach (var ABAH in ADD)
                 {
                     ABAH.SetAvatar(avatarGameObject);
-                    ABAH.Apply();
+                    ABAH.Apply(OverrideAssetContainer);
                     MonoBehaviour.DestroyImmediate(ABAH);
                 }
                 foreach (var TT in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(TT); }
