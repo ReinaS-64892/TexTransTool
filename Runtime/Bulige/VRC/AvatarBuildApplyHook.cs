@@ -14,12 +14,12 @@ namespace Rs64.TexTransTool.Bulige.VRC
         public override void Apply(UnityEngine.Object OverrideAssetContainer = null)
         {
             SetAvatar(null);
-            base.Apply(OverrideAssetContainer);
+            base.Apply();
         }
         public void Apply(GameObject avatar)
         {
             SetAvatar(avatar);
-            base.Apply(null);
+            base.Apply();
         }
         public override void SetAvatar(GameObject Setavatar)
         {
