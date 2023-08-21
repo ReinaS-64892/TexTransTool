@@ -12,14 +12,15 @@ namespace Rs64.TexTransTool.Bulige
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTmplaly = true; }
-                var ADD = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
-                foreach (var ABAH in ADD)
+                var aDDs = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
+                foreach (var aDD in aDDs)
                 {
-                    ABAH.SetAvatar(avatarGameObject);
-                    ABAH.Apply(OverrideAssetContainer);
-                    MonoBehaviour.DestroyImmediate(ABAH);
+                    aDD.SetAvatar(avatarGameObject);
+                    aDD.Apply(OverrideAssetContainer);
                 }
-                foreach (var TT in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(TT); }
+                foreach (var aDD in aDDs) { RemoveAvatarDomainDefinition(aDD); }
+                foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(tf); }
+                foreach (var tf in avatarGameObject.GetComponentsInChildren<TexTransToolTag>(true)) { MonoBehaviour.DestroyImmediate(tf); }
                 return true;
             }
             catch (Exception e)
@@ -27,6 +28,37 @@ namespace Rs64.TexTransTool.Bulige
                 Debug.LogError(e);
                 return false;
             }
+        }
+
+        public static void RemoveAvatarDomainDefinition(AvatarDomainDefinition avatarDomainDefinition)
+        {
+            foreach (var tf in avatarDomainDefinition.TexTransGroup.Targets)
+            {
+                switch (tf)
+                {
+                    case AbstractTexTransGroup abstractTexTransGroup:
+                        RemoveTexTransGroup(abstractTexTransGroup);
+                        break;
+                }
+                MonoBehaviour.DestroyImmediate(tf);
+            }
+            MonoBehaviour.DestroyImmediate(avatarDomainDefinition);
+            MonoBehaviour.DestroyImmediate(avatarDomainDefinition.TexTransGroup);
+        }
+        public static void RemoveTexTransGroup(AbstractTexTransGroup texTransGroup)
+        {
+            foreach (var tf in texTransGroup.Targets)
+            {
+                switch (tf)
+                {
+                    case AbstractTexTransGroup abstractTexTransGroup:
+                        RemoveTexTransGroup(abstractTexTransGroup);
+                        break;
+
+                }
+                MonoBehaviour.DestroyImmediate(tf);
+            }
+            MonoBehaviour.DestroyImmediate(texTransGroup);
         }
     }
 }
