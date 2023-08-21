@@ -153,10 +153,8 @@ namespace Rs64.TexTransTool.ShaderSupport
                 var ColorAdjustMask = propEnvsDict.ContainsKey("_MainColorAdjustMask") ? propEnvsDict["_MainColorAdjustMask"] : null;
 
                 var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                Mat.SetFloat("_UseMask", ColorAdjustMask == null ? 0 : 1);
                 if (ColorAdjustMask != null) { Mat.SetTexture("_Mask", ColorAdjustMask); }
-                var MainTexHSVG = material.GetColor("_MainTexHSVG");
-                Mat.SetColor("_HSVG", MainTexHSVG);
+                Mat.SetColor("_HSVG", material.GetColor("_MainTexHSVG"));
 
                 if (MainTex is Texture2D MainTex2d && MainTex2d != null)
                 {
@@ -264,9 +262,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                     var OutlineTex = propEnvsDict.ContainsKey("_OutlineTex") ? propEnvsDict["_OutlineTex"] : null;
 
                     var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                    var MainTexHSVG = material.GetColor("_OutlineTexHSVG");
-                    Mat.SetFloat("_UseMask", 0);
-                    Mat.SetColor("_HSVG", MainTexHSVG);
+                    Mat.SetColor("_HSVG", material.GetColor("_MainTexHSVG"));
 
                     if (OutlineTex is Texture2D MainTex2d && MainTex2d != null)
                     {

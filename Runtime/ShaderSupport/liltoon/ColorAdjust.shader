@@ -3,9 +3,8 @@ Shader "Hidden/ColorAdjustShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _HSVG ("Color", Color) = (1,1,1,1)
+        _HSVG ("HSVG",  Vector) = (0,1,1,1)
         _Mask ("Mask", 2D) = "white" {}
-        _UseMask ("Use Mask", Float) = 0
     }
     SubShader
     {
@@ -68,7 +67,7 @@ Shader "Hidden/ColorAdjustShader"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 MainColor = tex2D(_MainTex ,i.uv);
-                float MaskValue = lerp(1,tex2D(_Mask ,i.uv).r,_UseMask);
+                float MaskValue = tex2D(_Mask ,i.uv).r;
 
                 MainColor.rgb = lerp(MainColor.rgb,lilToneCorrection(MainColor.rgb,_HSVG),MaskValue);
                 return MainColor;
