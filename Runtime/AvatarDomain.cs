@@ -185,10 +185,6 @@ namespace Rs64.TexTransTool
                 var SetTex = Stack.MargeStack();
                 if (Dist == null || SetTex == null) continue;
 
-                if (Dist.width != SetTex.width || Dist.height != SetTex.height)
-                {
-                    SetTex = TextureLayerUtil.ResizeTexture(SetTex, new Vector2Int(Dist.width, Dist.height));
-                }
 
                 SortedList<int, Color[]> Mip = null;
                 if (GenereatCustomMipMap)
