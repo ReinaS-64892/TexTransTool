@@ -5,7 +5,7 @@ using VRC.SDKBase;
 using System.Linq;
 using VRC.SDK3.Avatars.Components;
 
-namespace Rs64.TexTransTool.VRCBulige
+namespace Rs64.TexTransTool.Bulige.VRC
 {
     [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(AbstractTexTransGroup)), DefaultExecutionOrder(-11024)]
     public class AvatarBuildApplyHook : AvatarDomainDefinition, IEditorOnly
@@ -13,15 +13,15 @@ namespace Rs64.TexTransTool.VRCBulige
 
         public override void Apply()
         {
-            SetOrFindAvatar(null);
+            SetAvatar(null);
             base.Apply();
         }
         public void Apply(GameObject avatar)
         {
-            SetOrFindAvatar(avatar);
+            SetAvatar(avatar);
             base.Apply();
         }
-        public void SetOrFindAvatar(GameObject Setavatar)
+        public override void SetAvatar(GameObject Setavatar)
         {
             if (Setavatar == null)
             {
