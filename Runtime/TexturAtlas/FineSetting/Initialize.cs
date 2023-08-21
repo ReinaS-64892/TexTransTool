@@ -7,7 +7,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
     public struct Initialize : IFineSetting
     {
         public int Order => -1024;
-        public void FineSetting(List<PropAndTexture> propAndTextures)
+        public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
             foreach (var target in propAndTextures)
             {

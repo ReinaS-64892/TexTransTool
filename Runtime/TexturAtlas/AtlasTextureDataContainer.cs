@@ -12,9 +12,9 @@ namespace Rs64.TexTransTool.TexturAtlas
     public class AtlasTextureDataContainer
     {
         [SerializeField] List<SubListPropAndTexture> _atlasTextures;
-        public List<List<PropAndTexture>> AtlasTextures
+        public List<List<PropAndTexture2D>> AtlasTextures
         {
-            get => ConvartSubList(_atlasTextures.Cast<SubList<PropAndTexture>>()); set
+            get => ConvartSubList(_atlasTextures.Cast<SubList<PropAndTexture2D>>()); set
             {
                 var AtlasTextures = value;
                 ClearAtlasTextures();
@@ -190,13 +190,13 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         }
         [Serializable]
-        public class SubListPropAndTexture : SubList<PropAndTexture>
+        public class SubListPropAndTexture : SubList<PropAndTexture2D>
         {
-            public SubListPropAndTexture(List<PropAndTexture> SubListInstans) : base(SubListInstans)
+            public SubListPropAndTexture(List<PropAndTexture2D> SubListInstans) : base(SubListInstans)
             {
             }
 
-            public static List<SubListPropAndTexture> ConvartSubList(List<List<PropAndTexture>> atlasTextures)
+            public static List<SubListPropAndTexture> ConvartSubList(List<List<PropAndTexture2D>> atlasTextures)
             {
                 if (atlasTextures == null) return null;
                 var result = new List<SubListPropAndTexture>();

@@ -29,7 +29,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
             Normal,
             High,
         }
-        public void FineSetting(List<PropAndTexture> propAndTextures)
+        public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
             TextureFormat textureFormat = GetTextureFormat(fromatQuality);
             foreach (var target in FineSettingUtil.FiltTarget(PropatyNames, select, propAndTextures))

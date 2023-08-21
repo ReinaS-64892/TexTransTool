@@ -11,9 +11,26 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         List<IShaderSupport> _shaderSupports;
 
+        public bool IsGenerateNewTextureForMergePropaty = false;
         public ShaderSupportUtili()
         {
             _shaderSupports = ShaderSupportUtili.GetSupprotInstans();
+        }
+
+        public void AddRecord(Material material)
+        {
+            IShaderSupport SupportShederI = FindSupportI(material);
+            if (SupportShederI != null)
+            {
+                SupportShederI.AddRecord(material);
+            }
+        }
+        public void ClearRecord()
+        {
+            foreach (var i in _shaderSupports)
+            {
+                i.ClearRecord();
+            }
         }
 
         public List<PropAndTexture> GetTextures(Material material)
@@ -23,7 +40,7 @@ namespace Rs64.TexTransTool.ShaderSupport
 
             if (SupportShederI != null)
             {
-                var texs = SupportShederI.GetPropertyAndTextures(material);
+                var texs = SupportShederI.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty);
                 foreach (var tex in texs)
                 {
                     if (tex.Texture2D != null)

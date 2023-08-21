@@ -9,7 +9,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
     public interface IFineSetting
     {
         int Order { get; }
-        void FineSetting(List<PropAndTexture> propAndTextures);
+        void FineSetting(List<PropAndTexture2D> propAndTextures);
     }
 
     public enum PropatySelect
@@ -20,7 +20,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
 
     public static class FineSettingUtil
     {
-        public static IEnumerable<PropAndTexture> FiltTarget(string PropatyNames, PropatySelect select, List<PropAndTexture> propAndTextures)
+        public static IEnumerable<PropAndTexture2D> FiltTarget(string PropatyNames, PropatySelect select, List<PropAndTexture2D> propAndTextures)
         {
             var PropatyNameList = PropatyNames.Split(' ');
             switch (select)

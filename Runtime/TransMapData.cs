@@ -87,9 +87,9 @@ namespace Rs64.TexTransTool
             PropertyName = propertyName;
         }
 
-        public static explicit operator PropAndTexture(PropAndAtlasTex s)
+        public static explicit operator PropAndTexture2D(PropAndAtlasTex s)
         {
-            return new PropAndTexture(s.PropertyName, s.AtlasTexture.Texture2D);
+            return new PropAndTexture2D(s.PropertyName, s.AtlasTexture.Texture2D);
         }
     }
 

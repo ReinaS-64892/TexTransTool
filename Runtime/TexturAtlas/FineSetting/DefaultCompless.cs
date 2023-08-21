@@ -8,7 +8,7 @@ namespace Rs64.TexTransTool.TexturAtlas.FineSettng
     {
         public int Order => 1;
 
-        public void FineSetting(List<PropAndTexture> propAndTextures)
+        public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
             var format = Compless.GetTextureFormat(Compless.FromatQuality.Normal);
             foreach (var target in propAndTextures)

@@ -513,7 +513,7 @@ namespace Rs64.TexTransTool
 
     public static class MaterialUtil
     {
-        public static void SetTextures(this Material TargetMat, List<PropAndTexture> PropAndTextures, bool FocuseSetTexture = false)
+        public static void SetTextures(this Material TargetMat, List<PropAndTexture2D> PropAndTextures, bool FocuseSetTexture = false)
         {
             foreach (var propAndTexture in PropAndTextures)
             {
