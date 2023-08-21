@@ -71,6 +71,13 @@ namespace Rs64.TexTransTool
         {
             var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
             if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
+            if (tex.mipmapCount > 1 != CopySouse.mipmapCount > 1)
+            {
+                var newtex = new Texture2D(tex.width, tex.height, tex.format, CopySouse.mipmapCount > 1);
+                newtex.SetPixels32(tex.GetPixels32());
+                newtex.name = tex.name;
+                tex = newtex;
+            }
             tex.filterMode = CopySouse.filterMode;
             tex.anisoLevel = CopySouse.anisoLevel;
             tex.alphaIsTransparency = CopySouse.alphaIsTransparency;
@@ -79,11 +86,11 @@ namespace Rs64.TexTransTool
             tex.wrapModeU = CopySouse.wrapModeU;
             tex.wrapModeV = CopySouse.wrapModeV;
             tex.wrapMode = CopySouse.wrapMode;
-            if (MipMap != null)
+            if (tex.mipmapCount > 1)
             {
-                tex.ApplyMip(MipMap);
+                if (MipMap != null) { tex.ApplyMip(MipMap); }
+                else { tex.Apply(true); }
             }
-            else { tex.Apply(true); }
             EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
 
             return tex;
