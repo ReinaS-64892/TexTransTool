@@ -20,7 +20,7 @@ namespace Rs64.TexTransTool.Bulige
                 }
                 foreach (var aDD in aDDs) { RemoveAvatarDomainDefinition(aDD); }
                 foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(tf); }
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<TexTransToolTag>(true)) { MonoBehaviour.DestroyImmediate(tf); }
+                foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true)) { if (tf is MonoBehaviour mb && mb != null) MonoBehaviour.DestroyImmediate(mb); }
                 return true;
             }
             catch (Exception e)
