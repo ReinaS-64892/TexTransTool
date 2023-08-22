@@ -19,8 +19,8 @@ namespace Rs64.TexTransTool.Bulige
                     aDD.Apply(OverrideAssetContainer);
                 }
                 foreach (var aDD in aDDs) { RemoveAvatarDomainDefinition(aDD); }
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(tf); }
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true)) { if (tf is MonoBehaviour mb && mb != null) MonoBehaviour.DestroyImmediate(mb); }
+                foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>(true)) { MonoBehaviour.DestroyImmediate(tf.gameObject); }
+                foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true)) { if (tf is MonoBehaviour mb && mb != null) MonoBehaviour.DestroyImmediate(mb.gameObject); }
                 return true;
             }
             catch (Exception e)
@@ -40,10 +40,9 @@ namespace Rs64.TexTransTool.Bulige
                         RemoveTexTransGroup(abstractTexTransGroup);
                         break;
                 }
-                MonoBehaviour.DestroyImmediate(tf);
+                MonoBehaviour.DestroyImmediate(tf.gameObject);
             }
-            MonoBehaviour.DestroyImmediate(avatarDomainDefinition);
-            MonoBehaviour.DestroyImmediate(avatarDomainDefinition.TexTransGroup);
+            MonoBehaviour.DestroyImmediate(avatarDomainDefinition.gameObject);
         }
         public static void RemoveTexTransGroup(AbstractTexTransGroup texTransGroup)
         {
@@ -56,9 +55,9 @@ namespace Rs64.TexTransTool.Bulige
                         break;
 
                 }
-                MonoBehaviour.DestroyImmediate(tf);
+                MonoBehaviour.DestroyImmediate(tf.gameObject);
             }
-            MonoBehaviour.DestroyImmediate(texTransGroup);
+            MonoBehaviour.DestroyImmediate(texTransGroup.gameObject);
         }
     }
 }
