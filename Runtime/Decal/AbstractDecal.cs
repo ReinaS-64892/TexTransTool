@@ -10,6 +10,7 @@ namespace Rs64.TexTransTool.Decal
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public BlendType BlendType = BlendType.Normal;
+        public Color Color = Color.white;
         public string TargetPropatyName = "_MainTex";
         public bool MultiRendereMode = false;
         public float DefaultPading = 0.5f;

@@ -85,6 +85,7 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsRealTimePreview = false;
         public bool IsRealTimePreview => _IsRealTimePreview;
+        [SerializeField] RenderTexture DecalRendereTexture;
         Dictionary<RenderTexture, RenderTexture> _RealTimePreviewDecalTextureCompile;
         Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTextureBlend;
 
@@ -100,6 +101,7 @@ namespace Rs64.TexTransTool.Decal
 
             _RealTimePreviewDecalTextureCompile = new Dictionary<RenderTexture, RenderTexture>();
             _RealTimePreviewDecalTextureBlend = new Dictionary<Texture2D, RenderTexture>();
+            DecalRendereTexture = new RenderTexture(DecalTexture.width, DecalTexture.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
 
 
             foreach (var Rendarer in TargetRenderers)
@@ -163,12 +165,15 @@ namespace Rs64.TexTransTool.Decal
             PreViewMaterials.Clear();
             _RealTimePreviewDecalTextureBlend = null;
             _RealTimePreviewDecalTextureCompile = null;
-
+            DecalRendereTexture = null;
         }
 
         public void UpdateRealTimePreview()
         {
             if (!_IsRealTimePreview) return;
+
+            DecalRendereTexture.Release();
+            TextureLayerUtil.MuldRenderTexture(DecalRendereTexture, DecalTexture, Color);
 
             foreach (var rt in _RealTimePreviewDecalTextureCompile)
             {
@@ -177,7 +182,7 @@ namespace Rs64.TexTransTool.Decal
 
             foreach (var render in TargetRenderers)
             {
-                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, DefaultPading);
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, DefaultPading);
             }
             foreach (var Stex in _RealTimePreviewDecalTextureBlend.Keys)
             {

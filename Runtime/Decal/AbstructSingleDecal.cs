@@ -16,6 +16,7 @@ namespace Rs64.TexTransTool.Decal
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {
+            var muldDecalTexture = TextureLayerUtil.CreatMuldRenderTexture(DecalTexture, Color);
             var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
             if (FastMode)
             {
@@ -25,7 +26,7 @@ namespace Rs64.TexTransTool.Decal
                     DecalUtil.CreatDecalTexture(
                         Rendarer,
                         DecalCompiledRenderTextures,
-                        DecalTexture,
+                        muldDecalTexture,
                         GetSpaseConverter,
                         GetTraiangleFilter,
                         TargetPropatyName,
@@ -41,12 +42,13 @@ namespace Rs64.TexTransTool.Decal
             }
             else
             {
+                var muldDecalTexture2D = muldDecalTexture.CopyTexture2D();
                 List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompoleTexs = new List<Dictionary<Texture2D, List<Texture2D>>>();
                 foreach (var Rendarer in TargetRenderers)
                 {
                     var DecalsCompoleds = DecalUtil.CreatDecalTextureCS(
                         Rendarer,
-                        DecalTexture,
+                        muldDecalTexture2D,
                         GetSpaseConverter,
                         GetTraiangleFilter,
                         TargetPropatyName,
