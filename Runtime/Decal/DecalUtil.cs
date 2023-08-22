@@ -36,7 +36,7 @@ namespace Rs64.TexTransTool.Decal
         public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture, SpaseConverter>(
             Renderer TargetRenderer,
             Dictionary<KeyTexture, RenderTexture> RenderTextures,
-            Texture2D SousTextures,
+            Texture SousTextures,
             SpaseConverter ConvertSpase,
             ITraianglesFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
