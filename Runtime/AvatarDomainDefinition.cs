@@ -127,7 +127,7 @@ namespace Rs64.TexTransTool
         {
             foreach (var pea in peas)
             {
-                SetMaterial(pea);
+                SetMaterial(pea.Material, pea.SecndMaterial);
             }
         }
 
