@@ -659,6 +659,27 @@ namespace Rs64.TexTransTool
             return Texture.GetPixelBilinear(Pos.x / (float)SorsSize.x, Pos.y / (float)SorsSize.y);
         }
 
+        public static RenderTexture CreatMuldRenderTexture(Texture MainTex, Color Color)
+        {
+            var MainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
+            MuldRenderTexture(MainTexRt, MainTex, Color);
+            return MainTexRt;
+        }
+        public static void MuldRenderTexture(RenderTexture MainTexRt, Texture MainTex, Color Color)
+        {
+            var Mat = new Material(Shader.Find("Hidden/ColorMulShader"));
+            Mat.SetColor("_Color", Color);
+            Graphics.Blit(MainTex, MainTexRt, Mat);
+        }
+
+        public static Texture2D CreateColorTex(Color Color)
+        {
+            var MainTex2d = new Texture2D(1, 1);
+            MainTex2d.SetPixel(0, 0, Color);
+            MainTex2d.Apply();
+            return MainTex2d;
+        }
+
     }
 
 }
