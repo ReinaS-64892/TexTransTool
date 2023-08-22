@@ -105,7 +105,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
 
 
-                //UVをタグのついたアイランドに変換し並び替えるフェーズ
+                //アイランドを並び替えるフェーズ
                 var MatDataPools = GetMatDataPool(AtlasDatas, OriginIslandPool, Matdatas);
                 var NawChannnelAtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
                 foreach (var Matdatapool in MatDataPools)
