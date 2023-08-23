@@ -5,7 +5,7 @@ using VRC.SDKBase;
 #endif
 namespace Rs64.TexTransTool
 {
-    public abstract class TextureTransformer : MonoBehaviour
+    public abstract class TextureTransformer : MonoBehaviour , ITexTransToolTag
 #if VRC_BASE
     , IEditorOnly
 #endif
