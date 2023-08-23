@@ -12,21 +12,10 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal), true)]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
-        ShaderSupportUtili shaderSupportUtili;
-        int shaderindex;
-        int propselect;
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
-
-            if (shaderSupportUtili == null) shaderSupportUtili = new ShaderSupportUtili();
-            var enumtarget = shaderSupportUtili.GetPropatyNames();
-            var keys = enumtarget.Keys.ToArray();
-            shaderindex = EditorGUI.Popup(EditorGUILayout.GetControlRect(), shaderindex, keys);
-            propselect = EditorGUI.Popup(EditorGUILayout.GetControlRect(), propselect, enumtarget[keys[shaderindex]].Select(I => I.DisplayName).ToArray());
-
-
 
 
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
