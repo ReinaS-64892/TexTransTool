@@ -51,10 +51,6 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             DrawAtlasSettings(S_AtlasSettings);
 
 
-
-
-
-
             TextureTransformerEditor.TextureTransformerEditorDrow(ThisTarget);
             serializedObject.ApplyModifiedProperties();
 
@@ -132,7 +128,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             var S_Resize_select = S_fineSettingData.FindPropertyRelative("Resize_select");
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size"));
-                            EditorGUILayout.PropertyField(S_Resize_PropatyNames, new GUIContent("PropatyNames"));
+                            PropatyNameEditor.DrawInspectorGUI(S_Resize_PropatyNames);
                             EditorGUILayout.PropertyField(S_Resize_select, new GUIContent("select"));
                             EditorGUI.indentLevel -= 1;
                             break;
@@ -146,7 +142,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(S_Compless_fromatQuality, new GUIContent("fromatQuality"));
                             EditorGUILayout.PropertyField(S_Compless_compressionQuality, new GUIContent("compressionQuality"));
-                            EditorGUILayout.PropertyField(S_Compless_PropatyNames, new GUIContent("PropatyNames"));
+                            PropatyNameEditor.DrawInspectorGUI(S_Compless_PropatyNames);
                             EditorGUILayout.PropertyField(S_Compless_select, new GUIContent("select"));
                             EditorGUI.indentLevel -= 1;
                             break;
@@ -156,8 +152,8 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             var S_RefarensCopy_SousePropatyName = S_fineSettingData.FindPropertyRelative("RefarensCopy_SousePropatyName");
                             var S_RefarensCopy_TargetPropatyName = S_fineSettingData.FindPropertyRelative("RefarensCopy_TargetPropatyName");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(S_RefarensCopy_SousePropatyName, new GUIContent("SousePropatyName"));
-                            EditorGUILayout.PropertyField(S_RefarensCopy_TargetPropatyName, new GUIContent("TargetPropatyName"));
+                            PropatyNameEditor.DrawInspectorGUI(S_RefarensCopy_SousePropatyName);
+                            PropatyNameEditor.DrawInspectorGUI(S_RefarensCopy_TargetPropatyName);
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
@@ -166,7 +162,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             var S_Remove_PropatyNames = S_fineSettingData.FindPropertyRelative("Remove_PropatyNames");
                             var S_Remove_select = S_fineSettingData.FindPropertyRelative("Remove_select");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(S_Remove_PropatyNames, new GUIContent("PropatyNames"));
+                            PropatyNameEditor.DrawInspectorGUI(S_Remove_PropatyNames);
                             EditorGUILayout.PropertyField(S_Remove_select, new GUIContent("select"));
                             EditorGUI.indentLevel -= 1;
                             break;
@@ -176,7 +172,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             var S_MipMapRemove_PropatyNames = S_fineSettingData.FindPropertyRelative("MipMapRemove_PropatyNames");
                             var S_MipMapRemove_select = S_fineSettingData.FindPropertyRelative("MipMapRemove_select");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(S_MipMapRemove_PropatyNames, new GUIContent("PropatyNames"));
+                            PropatyNameEditor.DrawInspectorGUI(S_MipMapRemove_PropatyNames);
                             EditorGUILayout.PropertyField(S_MipMapRemove_select, new GUIContent("select"));
                             EditorGUI.indentLevel -= 1;
                             break;

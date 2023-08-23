@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Rs64.TexTransTool.Decal;
 using Rs64.TexTransTool.Editor;
+using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.Editor.Decal
 {
@@ -11,7 +12,6 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal), true)]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
-        bool FordiantAdvansd;
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;

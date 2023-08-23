@@ -9,20 +9,22 @@ namespace Rs64.TexTransTool.ShaderSupport
 {
     public class ShaderSupportUtili
     {
+        DefaultShaderSupprot _defaultShaderSupprot;
         List<IShaderSupport> _shaderSupports;
 
         public bool IsGenerateNewTextureForMergePropaty = false;
         public ShaderSupportUtili()
         {
+            _defaultShaderSupprot = new DefaultShaderSupprot();
             _shaderSupports = ShaderSupportUtili.GetSupprotInstans();
         }
 
         public void AddRecord(Material material)
         {
-            IShaderSupport SupportShederI = FindSupportI(material);
-            if (SupportShederI != null)
+            IShaderSupport supportShederI = FindSupportI(material);
+            if (supportShederI != null)
             {
-                SupportShederI.AddRecord(material);
+                supportShederI.AddRecord(material);
             }
         }
         public void ClearRecord()
@@ -35,29 +37,21 @@ namespace Rs64.TexTransTool.ShaderSupport
 
         public List<PropAndTexture> GetTextures(Material material)
         {
+            var allTexs = new List<PropAndTexture>();
+            IShaderSupport supportShederI = FindSupportI(material);
+
+            if (supportShederI != null) { allTexs = supportShederI.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty); }
+            else { allTexs = _defaultShaderSupprot.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty); }
+
             var textures = new List<PropAndTexture>();
-            IShaderSupport SupportShederI = FindSupportI(material);
-
-            if (SupportShederI != null)
+            foreach (var tex in allTexs)
             {
-                var texs = SupportShederI.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty);
-                foreach (var tex in texs)
+                if (tex.Texture2D != null)
                 {
-                    if (tex.Texture2D != null)
-                    {
-                        textures.Add(tex);
-                    }
+                    textures.Add(tex);
                 }
             }
-            else
-            {
-                var PropertyName = "_MainTex";
-                if (material.GetTexture(PropertyName) is Texture2D texture2D && texture2D != null)
-                {
-                    textures.Add(new PropAndTexture(PropertyName, texture2D));
-                }
 
-            }
             return textures;
         }
         public void MaterialCustomSetting(Material material)
@@ -69,6 +63,16 @@ namespace Rs64.TexTransTool.ShaderSupport
             }
         }
 
+        public Dictionary<string, PropertyNameAndDisplayName[]> GetPropatyNames()
+        {
+            var PropatyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.DisplayShaderName, _defaultShaderSupprot.GetPropatyNames } };
+            foreach (var i in _shaderSupports)
+            {
+                PropatyNames.Add(i.DisplayShaderName, i.GetPropatyNames);
+            }
+            return PropatyNames;
+        }
+
 
 
         public IShaderSupport FindSupportI(Material material)
@@ -78,10 +82,11 @@ namespace Rs64.TexTransTool.ShaderSupport
 
         public static List<IShaderSupport> GetSupprotInstans()
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
+            var shaderSupport = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(I => I.GetTypes())
                 //.Where(I => I != typeof(IShaderSupport) && I != typeof(object)  && I.IsAssignableFrom(typeof(IShaderSupport))) // なぜか...この方法だとうまくいかなかった...
                 .Where(I => I.GetInterfaces().Any(I2 => I2 == typeof(IShaderSupport)))
+                .Where(I => !I.IsAbstract && I != typeof(DefaultShaderSupprot))
                 .Select(I =>
                 {
                     try
@@ -96,6 +101,7 @@ namespace Rs64.TexTransTool.ShaderSupport
                     }
                 })
                 .ToList();
+            return shaderSupport;
         }
 
 

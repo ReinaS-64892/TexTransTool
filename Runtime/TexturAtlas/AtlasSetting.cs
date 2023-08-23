@@ -53,21 +53,21 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         //Resize
         public int Resize_Size = 512;
-        public string Resize_PropatyNames = "_MainTex";
+        public PropertyName Resize_PropatyNames;
         public PropatySelect Resize_select = PropatySelect.NotEqual;
         //Compless
         public Compless.FromatQuality Compless_fromatQuality = Compless.FromatQuality.High;
         public TextureCompressionQuality Compless_compressionQuality = TextureCompressionQuality.Best;
-        public string Compless_PropatyNames = "_MainTex";
+        public PropertyName Compless_PropatyNames;
         public PropatySelect Compless_select = PropatySelect.Equal;
         //RefarensCopy
-        public string RefarensCopy_SousePropatyName = "_MainTex";
-        public string RefarensCopy_TargetPropatyName = "_OutlineTex";
+        public PropertyName RefarensCopy_SousePropatyName;
+        public PropertyName RefarensCopy_TargetPropatyName;
         //Remove
-        public string Remove_PropatyNames = "_MainTex";
+        public PropertyName Remove_PropatyNames;
         public PropatySelect Remove_select = PropatySelect.NotEqual;
         //MipMapRemove
-        public string MipMapRemove_PropatyNames = "_OutlineWidthMask";
+        public PropertyName MipMapRemove_PropatyNames;
         public PropatySelect MipMapRemove_select = PropatySelect.Equal;
 
         public IFineSetting GetFineSetting()

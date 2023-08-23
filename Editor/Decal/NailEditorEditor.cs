@@ -26,7 +26,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(S_BlendType);
 
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            EditorGUILayout.PropertyField(S_TargetPropatyName);
+            PropatyNameEditor.DrawInspectorGUI(S_TargetPropatyName);
 
             var S_UseTextureAspect = This_S_Object.FindProperty("UseTextureAspect");
             EditorGUILayout.PropertyField(S_UseTextureAspect);

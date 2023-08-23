@@ -59,6 +59,69 @@ namespace Rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
         }
+        public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
+        {
+            return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);
+        }
+        public static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
+        {
+            Renderer FiltalingdRendarer;
+            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
+            {
+                FiltalingdRendarer = TargetRendererEditValue;
+            }
+            else
+            {
+                FiltalingdRendarer = null;
+            }
+
+            return FiltalingdRendarer;
+        }
+        public static void DrowArryResizeButton(SerializedProperty ArrayPorpatye)
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("+")) ArrayPorpatye.arraySize += 1;
+            EditorGUI.BeginDisabledGroup(ArrayPorpatye.arraySize <= 1);
+            if (GUILayout.Button("-")) ArrayPorpatye.arraySize -= 1;
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        public static void DorwRendarar(SerializedProperty RendererListSP, bool MultiRendararMode)
+        {
+
+            if (!MultiRendararMode)
+            {
+                RendererListSP.arraySize = 1;
+                var S_TRArryElemt = RendererListSP.GetArrayElementAtIndex(0);
+                var TRArryElemetValue = S_TRArryElemt.objectReferenceValue;
+                var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
+                if (TRArryElemetValue != TRArryElemetEditValue)
+                {
+                    Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TRArryElemetEditValue);
+                    S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("TargetRenderer");
+                foreach (var Index in Enumerable.Range(0, RendererListSP.arraySize))
+                {
+                    var S_TargetRendererValue = RendererListSP.GetArrayElementAtIndex(Index);
+                    var TargetRendererValue = S_TargetRendererValue.objectReferenceValue;
+                    var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
+                    if (TargetRendererValue != TargetRendererEditValue)
+                    {
+                        Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TargetRendererEditValue);
+                        S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
+                    }
+                }
+
+                DrowArryResizeButton(RendererListSP);
+            }
+        }
+
+        #region DrowProperty
         public static void DrowProperty(SerializedProperty Prop, Action<bool> EditCollBack = null)
         {
             var Vulue = Prop.boolValue;
@@ -131,69 +194,8 @@ namespace Rs64.TexTransTool.Editor
             Prop.objectReferenceValue = EditorGUILayout.ObjectField(Prop.name, Prop.objectReferenceValue, typeof(T), true) as T;
         }
 
-        public static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
-        {
-            Renderer FiltalingdRendarer;
-            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
-            {
-                FiltalingdRendarer = TargetRendererEditValue;
-            }
-            else
-            {
-                FiltalingdRendarer = null;
-            }
+        #endregion
 
-            return FiltalingdRendarer;
-        }
-
-        public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
-        {
-
-            return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);
-        }
-        public static void DrowArryResizeButton(SerializedProperty ArrayPorpatye)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+")) ArrayPorpatye.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(ArrayPorpatye.arraySize <= 1);
-            if (GUILayout.Button("-")) ArrayPorpatye.arraySize -= 1;
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-        }
-
-        public static void DorwRendarar(SerializedProperty RendererListSP, bool MultiRendararMode)
-        {
-
-            if (!MultiRendararMode)
-            {
-                RendererListSP.arraySize = 1;
-                var S_TRArryElemt = RendererListSP.GetArrayElementAtIndex(0);
-                var TRArryElemetValue = S_TRArryElemt.objectReferenceValue;
-                var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
-                if (TRArryElemetValue != TRArryElemetEditValue)
-                {
-                    Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TRArryElemetEditValue);
-                    S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("TargetRenderer");
-                foreach (var Index in Enumerable.Range(0, RendererListSP.arraySize))
-                {
-                    var S_TargetRendererValue = RendererListSP.GetArrayElementAtIndex(Index);
-                    var TargetRendererValue = S_TargetRendererValue.objectReferenceValue;
-                    var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
-                    if (TargetRendererValue != TargetRendererEditValue)
-                    {
-                        Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TargetRendererEditValue);
-                        S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
-                    }
-                }
-
-                DrowArryResizeButton(RendererListSP);
-            }
-        }
 
     }
 }

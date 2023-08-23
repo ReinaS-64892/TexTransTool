@@ -11,7 +11,6 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(CylindricalDecal), true)]
     public class CylindricalDecalEditor : UnityEditor.Editor
     {
-        bool FordiantAdvansd;
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;

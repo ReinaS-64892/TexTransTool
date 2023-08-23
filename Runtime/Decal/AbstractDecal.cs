@@ -11,7 +11,7 @@ namespace Rs64.TexTransTool.Decal
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
-        public string TargetPropatyName = "_MainTex";
+        public PropertyName TargetPropatyName = new PropertyName("_MainTex");
         public bool MultiRendereMode = false;
         public float DefaultPading = 0.5f;
         public bool FastMode = true;
@@ -77,6 +77,7 @@ namespace Rs64.TexTransTool.Decal
             var DictMat = new Dictionary<Material, Material>();
             foreach (var Material in Materials)
             {
+                if (Material.HasProperty(TargetPropatyName)) { continue; }
                 var OldTex = Material.GetTexture(TargetPropatyName) as Texture2D;
 
                 if (OldTex == null) continue;
