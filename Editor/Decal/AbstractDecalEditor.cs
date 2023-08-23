@@ -29,7 +29,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(S_BlendType);
 
             var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            EditorGUILayout.PropertyField(S_TargetPropatyName);
+            PropatyNameEditor.DrawInspectorGUI(S_TargetPropatyName);
         }
 
         public static void DorwScaileEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace

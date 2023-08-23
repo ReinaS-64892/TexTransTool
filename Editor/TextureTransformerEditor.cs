@@ -59,24 +59,6 @@ namespace Rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
         }
-
-        public static void DrowTargetPropatyName(SerializedProperty PropertyName, ref bool UseShaderSapport)
-        {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("TargetPropatyName");
-            if (!UseShaderSapport)
-            {
-                EditorGUILayout.PropertyField(PropertyName, GUIContent.none);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-            UseShaderSapport = EditorGUILayout.Toggle(UseShaderSapport);
-            EditorGUILayout.EndHorizontal();
-        }
-
-
         public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
         {
             return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);

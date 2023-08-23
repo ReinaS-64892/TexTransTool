@@ -13,6 +13,53 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         public string SupprotShaderName => "lilToon";
 
+        public string DisplayShaderName => SupprotShaderName;
+
+        public PropertyNameAndDisplayName[] GetPropatyNames
+        {
+            get
+            {
+                return new PropertyNameAndDisplayName[]{
+                new PropertyNameAndDisplayName("_MainTex", "MainTexture"),
+                new PropertyNameAndDisplayName("_EmissionMap", "EmissionMap"),
+
+                new PropertyNameAndDisplayName("_Main2ndTex", "2ndMainTexture"),
+                new PropertyNameAndDisplayName("_Main3rdTex", "3rdMainTexture"),
+
+                new PropertyNameAndDisplayName("_Emission2ndMap", "Emission2ndMap"),
+
+
+                new PropertyNameAndDisplayName("_MainColorAdjustMask", "MainColorAdjustMask"),
+                new PropertyNameAndDisplayName("_Main2ndBlendMask", "2ndMainBlendMask"),
+                new PropertyNameAndDisplayName("_Main3rdBlendMask", "3rdMainBlendMask"),
+                new PropertyNameAndDisplayName("_AlphaMask", "AlphaMask"),
+                new PropertyNameAndDisplayName("_BumpMap", "NormalMap"),
+                new PropertyNameAndDisplayName("_Bump2ndMap", "2ndNormalMap"),
+                new PropertyNameAndDisplayName("_Bump2ndScaleMask", "2ndNormalScaleMask"),
+                new PropertyNameAndDisplayName("_AnisotropyTangentMap", "AnisotropyTangentMap"),
+                new PropertyNameAndDisplayName("_AnisotropyScaleMask", "AnisotropyScaleMask"),
+                new PropertyNameAndDisplayName("_BacklightColorTex", "BacklightColorTex"),
+                new PropertyNameAndDisplayName("_ShadowStrengthMask", "ShadowStrengthMask"),
+                new PropertyNameAndDisplayName("_ShadowBorderMask", "ShadowBorderMask"),
+                new PropertyNameAndDisplayName("_ShadowBlurMask", "ShadowBlurMask"),
+                new PropertyNameAndDisplayName("_ShadowColorTex", "ShadowColorTex"),
+                new PropertyNameAndDisplayName("_Shadow2ndColorTex", "Shadow2ndColorTex"),
+                new PropertyNameAndDisplayName("_Shadow3rdColorTex", "Shadow3rdColorTex"),
+                new PropertyNameAndDisplayName("_SmoothnessTex", "SmoothnessTex"),
+                new PropertyNameAndDisplayName("_MetallicGlossMap", "MetallicGlossMap"),
+                new PropertyNameAndDisplayName("_ReflectionColorTex", "ReflectionColorTex"),
+                new PropertyNameAndDisplayName("_RimColorTex", "RimColorTex"),
+                new PropertyNameAndDisplayName("_GlitterColorTex", "GlitterColorTex"),
+                new PropertyNameAndDisplayName("_EmissionBlendMask", "EmissionBlendMask"),
+                new PropertyNameAndDisplayName("_Emission2ndBlendMask", "Emission2ndBlendMask"),
+                new PropertyNameAndDisplayName("_AudioLinkMask", "AudioLinkMask"),
+                new PropertyNameAndDisplayName("_OutlineTex", "OutlineTex"),
+                new PropertyNameAndDisplayName("_OutlineWidthMask", "OutlineWidthMask"),
+                new PropertyNameAndDisplayName("_OutlineVectorTex", "OutlineVectorTex"),
+                };
+            }
+        }
+
         public void MaterialCustomSetting(Material material)
         {
             var MainTex = material.GetTexture("_MainTex") as Texture2D;
@@ -330,109 +377,109 @@ namespace Rs64.TexTransTool.ShaderSupport
         }
 
         /*
-対応状況まとめ
+        対応状況まとめ
 
-基本的にタイリングやオフセットには対応しない。
-色変更の系統は、白(1,1,1,1)の時、まとめる前と同じ見た目になるようにする。
-マスクなどの系統は、プロパティの値が1の時、まとめてないときと同じようになるようにする。  アウトラインを除く。
-
-
-色設定 ---
-
-< 色Tex * 色Color * (色調補正 * 色補正マスクTex)
-ただし、グラデーションは無理。
-
-2nd 3nd & BlendMask 2nd 3nd --
-< (2,3)Tex * (2,3)Color
-< (2,3)BlendMaskTex
-カラーなどはまとめるが...UV0でかつ、デカール化されてない場合のみ。
-
-Dissolve 2nd 3nd
-マットキャップと同じような感じで..適当にまとめるべきではない。
-
-影設定 ---
-
-< マスクと強度Tex * マスクと強度Float
-< 影色(1,2,3)Tex * 影色(1,2,3)Color
-マスクと強度　や影色等は色と加味してまとめるが、
-範囲やぼかしなどはどうしようもない。そもそもまとめるべきかというと微妙
+        基本的にタイリングやオフセットには対応しない。
+        色変更の系統は、白(1,1,1,1)の時、まとめる前と同じ見た目になるようにする。
+        マスクなどの系統は、プロパティの値が1の時、まとめてないときと同じようになるようにする。  アウトラインを除く。
 
 
-ぼかし量マスクやAOMapは私が全く使ったことがないため、勝手がわからないため保留。
+        色設定 ---
 
-発光設定 ---
+        < 色Tex * 色Color * (色調補正 * 色補正マスクTex)
+        ただし、グラデーションは無理。
 
-発光 1nd 2nd --
-< 色/マスクTex * 色Color
-< マスクTex * マスクFloat
-UVModeがUV0の時はまとめる。
+        2nd 3nd & BlendMask 2nd 3nd --
+        < (2,3)Tex * (2,3)Color
+        < (2,3)BlendMaskTex
+        カラーなどはまとめるが...UV0でかつ、デカール化されてない場合のみ。
 
-グラデーションはまず無理。
-合成モードはどうにもできない。ユーザーが一番いいのを設定すべき。
+        Dissolve 2nd 3nd
+        マットキャップと同じような感じで..適当にまとめるべきではない。
 
-マスクも一応まとめはするが、どのような風になるかは保証できない。
+        影設定 ---
 
-ノーマルマップ・光沢設定 ---
-
-ノーマルマップ 1nd 2nd & 異方性反射 --
-< ノーマルマップ(1,2)Tex
-< ノーマルマップ2のマスクと強度
-< 異方性反射ノーマルマップTex
-< 異方性反射強度Tex * 異方性反射強度Float
-まとめはするがどうなるかは保証できない。
-
-逆光ライト --
-< 色/マスクtex * 色Color
-
-反射 --
-< 滑らかさTex * 滑らかさFloat
-< 金属度Tex * 金属度Float
-< 色/マスクTex * 色Color
-はまとめる。
-
-MatCap系統は基本的に無理...そもそもこの方針だとできない。
-
-リムライト --
-< 色/マスクTex * 色Color
-
-ラメ --
-UV0の場合のみ。
-< 色/マスクTex * 色Color
-
-Shape周りは勝手がわからないため保留。
-
-拡張設定 ---
-
-輪郭線設定 --
-< 色Tex * 色Color * 色調補正
-< マスクと太さTex * マスクと太さFloat**
-
-** 全体を見て全体の最大値を加味した値で補正する。ここだけ特殊な設定をする。
-
-UV0の時だけまとめる。
-< ノーマルマップ
-
-視差マップ --
-勝手がわからないため保留
-
-AudioLink --
-まとめれるものはない。
-
-Dissolve --
-そもそもまとめるべきではない。
-
-IDMask --
-ステンシル設定 --
-レンダリング設定 --
-ライトベイク設定 --
-テッセレーション --
-最適化 --
-
-これらはそもそもまとめれるものではない。
+        < マスクと強度Tex * マスクと強度Float
+        < 影色(1,2,3)Tex * 影色(1,2,3)Color
+        マスクと強度　や影色等は色と加味してまとめるが、
+        範囲やぼかしなどはどうしようもない。そもそもまとめるべきかというと微妙
 
 
-ファーや屈折、宝石、などの高負荷系統は、独自の設定が強いし、そもそもまとめるべきかというと微妙。分けといたほうが軽いとかがありそうだから。
-*/
+        ぼかし量マスクやAOMapは私が全く使ったことがないため、勝手がわからないため保留。
+
+        発光設定 ---
+
+        発光 1nd 2nd --
+        < 色/マスクTex * 色Color
+        < マスクTex * マスクFloat
+        UVModeがUV0の時はまとめる。
+
+        グラデーションはまず無理。
+        合成モードはどうにもできない。ユーザーが一番いいのを設定すべき。
+
+        マスクも一応まとめはするが、どのような風になるかは保証できない。
+
+        ノーマルマップ・光沢設定 ---
+
+        ノーマルマップ 1nd 2nd & 異方性反射 --
+        < ノーマルマップ(1,2)Tex
+        < ノーマルマップ2のマスクと強度
+        < 異方性反射ノーマルマップTex
+        < 異方性反射強度Tex * 異方性反射強度Float
+        まとめはするがどうなるかは保証できない。
+
+        逆光ライト --
+        < 色/マスクtex * 色Color
+
+        反射 --
+        < 滑らかさTex * 滑らかさFloat
+        < 金属度Tex * 金属度Float
+        < 色/マスクTex * 色Color
+        はまとめる。
+
+        MatCap系統は基本的に無理...そもそもこの方針だとできない。
+
+        リムライト --
+        < 色/マスクTex * 色Color
+
+        ラメ --
+        UV0の場合のみ。
+        < 色/マスクTex * 色Color
+
+        Shape周りは勝手がわからないため保留。
+
+        拡張設定 ---
+
+        輪郭線設定 --
+        < 色Tex * 色Color * 色調補正
+        < マスクと太さTex * マスクと太さFloat**
+
+        ** 全体を見て全体の最大値を加味した値で補正する。ここだけ特殊な設定をする。
+
+        UV0の時だけまとめる。
+        < ノーマルマップ
+
+        視差マップ --
+        勝手がわからないため保留
+
+        AudioLink --
+        まとめれるものはない。
+
+        Dissolve --
+        そもそもまとめるべきではない。
+
+        IDMask --
+        ステンシル設定 --
+        レンダリング設定 --
+        ライトベイク設定 --
+        テッセレーション --
+        最適化 --
+
+        これらはそもそもまとめれるものではない。
+
+
+        ファーや屈折、宝石、などの高負荷系統は、独自の設定が強いし、そもそもまとめるべきかというと微妙。分けといたほうが軽いとかがありそうだから。
+        */
 
         class lilDifferenceRecord
         {
