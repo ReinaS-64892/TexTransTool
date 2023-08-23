@@ -1,14 +1,13 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using Rs64.TexTransTool.Bulige;
 
 namespace Rs64.TexTransTool.Editor
 {
-    using UnityEngine;
-    using UnityEditor;
 
     [CustomEditor(typeof(AvatarDomainDefinition), true)]
-    public class AvatarDomainDefinitionEditor : Editor
+    public class AvatarDomainDefinitionEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
