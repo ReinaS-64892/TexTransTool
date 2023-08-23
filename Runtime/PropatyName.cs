@@ -17,6 +17,16 @@ namespace Rs64.TexTransTool
         [SerializeField] int _shaderIndex;
         [SerializeField] int _propatyIndex;
 
+
+        public PropertyName(string propatyName)
+        {
+            _propatyName = propatyName;
+            _useCustomProperty = false;
+            _shaderIndex = 0;
+            _propatyIndex = 0;
+        }
+
+
         public static implicit operator string(PropertyName p) => p._propatyName;
     }
 }

@@ -55,13 +55,22 @@ namespace Rs64.TexTransTool.Editor
                 rect.width = PropWith;
                 var editShaderIndex = EditorGUI.Popup(rect, s_shaderIndex.intValue, ShadersNames);
                 rect.x += rect.width;
-                if (editShaderIndex != s_shaderIndex.intValue) { s_shaderIndex.intValue = editShaderIndex; editoFlag = true; }
+                if (editShaderIndex != s_shaderIndex.intValue)
+                {
+                    s_shaderIndex.intValue = editShaderIndex;
+                    s_propatyIndex.intValue = Mathf.Clamp(s_propatyIndex.intValue, 0, ShaderNameAndPorertys[ShadersNames[s_shaderIndex.intValue]].Length - 1);
+                    editoFlag = true;
+                }
 
                 var editPropIndex = EditorGUI.Popup(rect, s_propatyIndex.intValue, ShaderNameAndDisplayNames[ShadersNames[s_shaderIndex.intValue]]);
                 rect.x += rect.width;
-                if (editPropIndex != s_propatyIndex.intValue) { s_propatyIndex.intValue = editPropIndex; editoFlag = true; }
+                if (editPropIndex != s_propatyIndex.intValue)
+                {
+                    s_propatyIndex.intValue = editPropIndex;
+                    editoFlag = true;
+                }
 
-                if (editoFlag) { s_propatyName.stringValue = ShaderNameAndPorertys[ShadersNames[s_shaderIndex.intValue]][s_propatyIndex.intValue].PropertyName; }
+                if (editoFlag || string.IsNullOrWhiteSpace(s_propatyName.stringValue)) { s_propatyName.stringValue = ShaderNameAndPorertys[ShadersNames[s_shaderIndex.intValue]][s_propatyIndex.intValue].PropertyName; }
             }
             rect.width = PropWith;
             s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty"), s_useCustomProperty.boolValue);
