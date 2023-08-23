@@ -3,52 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static Rs64.TexTransTool.TextureLayerUtil;
-using System;
 using UnityEditor;
 
 namespace Rs64.TexTransTool
 {
-    [RequireComponent(typeof(AbstractTexTransGroup))]
-    public class AvatarDomainDefinition : MonoBehaviour
-    {
-        public GameObject Avatar;
-        public bool GenereatCustomMipMap;
-        [SerializeField] public AbstractTexTransGroup TexTransGroup;
-        [SerializeField] protected AvatarDomain CacheDomain;
-
-        [SerializeField] bool _IsSelfCallApply;
-        public virtual bool IsSelfCallApply => _IsSelfCallApply;
-        public virtual AvatarDomain GetDomain()
-        {
-            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList(), true, GenereatCustomMipMap);
-        }
-        protected void Reset()
-        {
-            TexTransGroup = GetComponent<AbstractTexTransGroup>();
-        }
-        public virtual void Apply()
-        {
-            if (TexTransGroup == null) Reset();
-            if (TexTransGroup.IsApply) return;
-            if (Avatar == null) return;
-            CacheDomain = GetDomain();
-            _IsSelfCallApply = true;
-            TexTransGroup.Apply(CacheDomain);
-            CacheDomain.SaveTexture();
-        }
-
-        public virtual void Revart()
-        {
-            if (_IsSelfCallApply == false) return;
-            if (TexTransGroup == null) Reset();
-            if (!TexTransGroup.IsApply) return;
-            _IsSelfCallApply = false;
-            CacheDomain.ResetMaterial();
-            TexTransGroup.Revart(CacheDomain);
-            AssetSaveHelper.DeletAsset(CacheDomain.Asset);
-            CacheDomain = null;
-        }
-    }
     [System.Serializable]
     public class AvatarDomain
     {
@@ -62,14 +20,24 @@ namespace Rs64.TexTransTool
         基本テクスチャは圧縮して渡す
         ただし、スタックに入れるものは圧縮の必要はない。
         */
-        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false, bool genereatCustomMipMap = false)
+        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false, bool genereatCustomMipMap = false, UnityEngine.Object OverrideAssetContainer = null)
         {
             _Renderers = Renderers;
             _initialMaterials = Utils.GetMaterials(Renderers);
             if (AssetSaver)
             {
-                Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenereatAssetPath("AvatarDomainAsset", ".asset"));
+                if (OverrideAssetContainer == null)
+                {
+                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
+                    AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenereatAssetPath("AvatarDomainAsset", ".asset"));
+                }
+                else
+                {
+                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
+                    Asset.OverrideContainer = OverrideAssetContainer;
+                    Asset.name = "net.rs64.TexTransTool.AssetContainer";
+                    Asset.AddSubObject(Asset);
+                }
             };
             GenereatCustomMipMap = genereatCustomMipMap;
         }
@@ -127,7 +95,7 @@ namespace Rs64.TexTransTool
         {
             foreach (var pea in peas)
             {
-                SetMaterial(pea.Material, pea.SecndMaterial);
+                SetMaterial(pea);
             }
         }
 
@@ -216,6 +184,7 @@ namespace Rs64.TexTransTool
                 var Dist = Stack.FirstTexture;
                 var SetTex = Stack.MargeStack();
                 if (Dist == null || SetTex == null) continue;
+
 
                 SortedList<int, Color[]> Mip = null;
                 if (GenereatCustomMipMap)

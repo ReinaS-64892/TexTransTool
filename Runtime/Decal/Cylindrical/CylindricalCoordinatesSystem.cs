@@ -8,7 +8,7 @@ using VRC.SDKBase;
 namespace Rs64.TexTransTool.Decal.Cylindrical
 {
     [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
-    public class CylindricalCoordinatesSystem : MonoBehaviour
+    public class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
 #if VRC_BASE
     , IEditorOnly
 #endif
