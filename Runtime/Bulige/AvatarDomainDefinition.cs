@@ -17,7 +17,7 @@ namespace Rs64.TexTransTool.Bulige
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
         public virtual AvatarDomain GetDomain(UnityEngine.Object OverrideAssetContainer = null)
         {
-            return new AvatarDomain(Avatar.GetComponentsInChildren<Renderer>(true).ToList(), true, GenereatCustomMipMap, OverrideAssetContainer);
+            return new AvatarDomain(Avatar, true, GenereatCustomMipMap, OverrideAssetContainer);
         }
         public virtual void SetAvatar(GameObject gameObject)
         {

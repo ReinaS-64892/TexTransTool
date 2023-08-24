@@ -175,17 +175,103 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static void ChangeMaterials(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
+        public static void ChangeMaterialsRendereas(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
         {
-            foreach (var render in Rendres)
+            foreach (var Renderer in Rendres)
             {
-                var Materials = render.sharedMaterials;
-                for (int i = 0; i < Materials.Length; i++)
+                var Materials = Renderer.sharedMaterials;
+                var IsEdit = false;
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
                 {
-                    if (MatPeas.ContainsKey(Materials[i])) Materials[i] = MatPeas[Materials[i]];
+                    var DistMat = Materials[Index];
+                    if (MatPeas.ContainsKey(DistMat))
+                    {
+                        Materials[Index] = MatPeas[DistMat];
+                        IsEdit = true;
+                    }
                 }
-                render.sharedMaterials = Materials;
+                if (IsEdit)
+                {
+                    Renderer.sharedMaterials = Materials;
+                }
+            }
+        }
+        public static void ChangeMaterialRendereas(IEnumerable<Renderer> Rendres, Material target, Material set)
+        {
+            foreach (var Renderer in Rendres)
+            {
+                var Materials = Renderer.sharedMaterials;
+                var IsEdit = false;
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
+                {
+                    var DistMat = Materials[Index];
+                    if (target == DistMat)
+                    {
+                        Materials[Index] = set;
+                        IsEdit = true;
+                    }
+                }
+                if (IsEdit)
+                {
+                    Renderer.sharedMaterials = Materials;
+                }
+            }
+        }
+        public static Dictionary<SerializedObject, SerializedProperty[]> SearchMaterialPropetys(GameObject targetRoot, Type[] IgnoreTypes = null)
+        {
+            var materialPropetysDict = new Dictionary<SerializedObject, SerializedProperty[]>();
+            var allComponent = targetRoot.GetComponentsInChildren<Component>();
+            IEnumerable<Component> componets;
+            if (IgnoreTypes.Any())
+            {
+                var filtedComponents = new List<Component>(allComponent.Length);
+                foreach (var comoponent in allComponent)
+                {
+                    var type = comoponent.GetType();
+                    if (!IgnoreTypes.Any(J => J.IsAssignableFrom(type))) { filtedComponents.Add(comoponent); }
+                }
+                componets = filtedComponents;
+            }
+            else
+            {
+                componets = allComponent;
+            }
 
+            foreach (var component in componets)
+            {
+                var type = component.GetType();
+
+                var serializeobj = new SerializedObject(component);
+                var iter = serializeobj.GetIterator();
+                var MaterialPropetys = new List<SerializedProperty>();
+                while (iter.Next(true))
+                {
+                    var s_Obj = iter;
+                    if (s_Obj.type == "PPtr<Material>" || s_Obj.type == "PPtr<$Material>")
+                    {
+                        MaterialPropetys.Add(s_Obj.Copy());
+                    }
+                }
+                if (MaterialPropetys.Any())
+                {
+                    materialPropetysDict.Add(serializeobj, MaterialPropetys.ToArray());
+                }
+            }
+            return materialPropetysDict;
+        }
+        public static void ChengeMateralSerialaizd(Dictionary<SerializedObject, SerializedProperty[]> MaterialPropetys, Material target, Material setMat)
+        {
+            foreach (var serializeObjectAndMatProp in MaterialPropetys)
+            {
+                serializeObjectAndMatProp.Key.Update();
+                foreach (var MaterialPropety in serializeObjectAndMatProp.Value)
+                {
+                    if (MaterialPropety.objectReferenceValue == target)
+                    {
+                        MaterialPropety.objectReferenceValue = setMat;
+                    }
+                }
+                serializeObjectAndMatProp.Key.ApplyModifiedProperties();
             }
         }
         public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)

@@ -12,10 +12,12 @@ namespace Rs64.TexTransTool
     {
         [SerializeField] string _propatyName;
 
+#pragma warning disable CS0414 , IDE0052
         [SerializeField] bool _useCustomProperty;
 
         [SerializeField] string _shaderName;
         [SerializeField] int _propatyIndex;
+#pragma warning restore CS0414 , IDE0052
 
 
         public PropertyName(string propatyName)

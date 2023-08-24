@@ -27,7 +27,7 @@ namespace Rs64.TexTransTool
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
 
             var DistMaterials = TargetRenderer.sharedMaterials;
 
@@ -63,10 +63,10 @@ namespace Rs64.TexTransTool
         {
             if (!_IsApply) return;
             _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(new List<Renderer> { TargetRenderer });
+            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
             IsSelfCallApply = false;
 
-            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials));
+            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials), true);
         }
     }
 
