@@ -14,7 +14,7 @@ namespace Rs64.TexTransTool
 
         [SerializeField] bool _useCustomProperty;
 
-        [SerializeField] int _shaderIndex;
+        [SerializeField] string _shaderName;
         [SerializeField] int _propatyIndex;
 
 
@@ -22,7 +22,7 @@ namespace Rs64.TexTransTool
         {
             _propatyName = propatyName;
             _useCustomProperty = false;
-            _shaderIndex = 0;
+            _shaderName = "";
             _propatyIndex = 0;
         }
 
