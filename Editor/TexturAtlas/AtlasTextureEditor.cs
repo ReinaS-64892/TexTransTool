@@ -69,7 +69,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 var S_IsMargeMaterial = S_Channel.FindPropertyRelative("IsMargeMaterial");
                 var S_MargeRefarensMaterial = S_Channel.FindPropertyRelative("MargeRefarensMaterial");
                 var S_ForseSetTexture = S_Channel.FindPropertyRelative("ForseSetTexture");
-                var S_IsGenerateNewTextureForMergePropaty = S_Channel.FindPropertyRelative("IsGenerateNewTextureForMergePropaty");
+                var S_PropatyBakeSetting = S_Channel.FindPropertyRelative("PropatyBakeSetting");
                 var S_PadingType = S_Channel.FindPropertyRelative("PadingType");
                 var S_Pading = S_Channel.FindPropertyRelative("Pading");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
@@ -81,7 +81,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                 EditorGUILayout.PropertyField(S_IsMargeMaterial);
                 if (S_IsMargeMaterial.boolValue) { EditorGUILayout.PropertyField(S_MargeRefarensMaterial); }
                 EditorGUILayout.PropertyField(S_ForseSetTexture);
-                EditorGUILayout.PropertyField(S_IsGenerateNewTextureForMergePropaty);
+                EditorGUILayout.PropertyField(S_PropatyBakeSetting);
                 EditorGUILayout.PropertyField(S_PadingType);
                 EditorGUILayout.PropertyField(S_Pading);
                 EditorGUILayout.PropertyField(S_SortingType);

@@ -64,7 +64,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             var TargetRenderers = Renderers;
             var AtlasDatas = GenereatAtlasMeshDatas(TargetRenderers);
-            var ShaderSupports = new ShaderSupportUtili();
+            var ShaderSupports = new AtlasShaderSupportUtili();
             var OriginIslandPool = AtlasDatas.GeneratedIslandPool(UseIslandCash);
             var AtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
 
@@ -82,7 +82,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var TargetMatSerectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-                ShaderSupports.IsGenerateNewTextureForMergePropaty = atlasSetting.IsGenerateNewTextureForMergePropaty;
+                ShaderSupports.BakeSetting = atlasSetting.PropatyBakeSetting;
                 var Matdatas = new List<MatData>();
                 foreach (var MatSelector in TargetMatSerectors)
                 {
@@ -236,7 +236,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
             var GenereatMaterials = new List<List<Material>>();
 
-            var ShaderSupport = new ShaderSupportUtili();
+            var ShaderSupport = new AtlasShaderSupportUtili();
 
             var ChannnelMatRef = Container.ChannnelsMatRef;
             var GenereatMeshs = Container.GenereatMeshs;
@@ -417,7 +417,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             return IndexTag;
         }
 
-        private static Material GenereatAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, ShaderSupportUtili ShaderSupport, bool ForseSetTexture)
+        private static Material GenereatAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtili ShaderSupport, bool ForseSetTexture)
         {
             var EditableTMat = UnityEngine.Object.Instantiate(TargetMat);
 

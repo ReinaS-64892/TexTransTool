@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.TexturAtlas
     {
         public bool IsMargeMaterial;
         public Material MargeRefarensMaterial;
-        public bool IsGenerateNewTextureForMergePropaty;
+        public PropatyBakeSetting PropatyBakeSetting = PropatyBakeSetting.NotBake;
         public bool ForseSetTexture;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public PadingType PadingType = PadingType.EdgeBase;
@@ -37,6 +37,12 @@ namespace Rs64.TexTransTool.TexturAtlas
             return IfineSettings;
         }
 
+    }
+    public enum PropatyBakeSetting
+    {
+        NotBake,
+        Bake,
+        BakeAllPropaty,
     }
     [Serializable]
     public class FineSettingDeta

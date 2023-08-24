@@ -8,14 +8,7 @@ namespace Rs64.TexTransTool.ShaderSupport
 {
     public interface IShaderSupport
     {
-        string SupprotShaderName { get; }
-        string DisplayShaderName { get; }
-
-        void AddRecord(Material material);
-        void ClearRecord();
-
-        List<PropAndTexture> GetPropertyAndTextures(Material material, bool IsGNTFMP = false);
-        void MaterialCustomSetting(Material material);
+        string ShaderName { get; }
 
         PropertyNameAndDisplayName[] GetPropatyNames { get; }
     }
