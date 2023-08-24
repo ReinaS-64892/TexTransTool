@@ -11,96 +11,42 @@ namespace Rs64.TexTransTool.ShaderSupport
     {
         DefaultShaderSupprot _defaultShaderSupprot;
         List<IShaderSupport> _shaderSupports;
-
-        public bool IsGenerateNewTextureForMergePropaty = false;
         public ShaderSupportUtili()
         {
             _defaultShaderSupprot = new DefaultShaderSupprot();
-            _shaderSupports = ShaderSupportUtili.GetSupprotInstans();
-        }
-
-        public void AddRecord(Material material)
-        {
-            IShaderSupport supportShederI = FindSupportI(material);
-            if (supportShederI != null)
-            {
-                supportShederI.AddRecord(material);
-            }
-        }
-        public void ClearRecord()
-        {
-            foreach (var i in _shaderSupports)
-            {
-                i.ClearRecord();
-            }
-        }
-
-        public List<PropAndTexture> GetTextures(Material material)
-        {
-            var allTexs = new List<PropAndTexture>();
-            IShaderSupport supportShederI = FindSupportI(material);
-
-            if (supportShederI != null) { allTexs = supportShederI.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty); }
-            else { allTexs = _defaultShaderSupprot.GetPropertyAndTextures(material, IsGenerateNewTextureForMergePropaty); }
-
-            var textures = new List<PropAndTexture>();
-            foreach (var tex in allTexs)
-            {
-                if (tex.Texture2D != null)
-                {
-                    textures.Add(tex);
-                }
-            }
-
-            return textures;
-        }
-        public void MaterialCustomSetting(Material material)
-        {
-            IShaderSupport SupportShederI = FindSupportI(material);
-            if (SupportShederI != null)
-            {
-                SupportShederI.MaterialCustomSetting(material);
-            }
+            _shaderSupports = ShaderSupportUtili.GetInterfaseInstans<IShaderSupport>(new Type[] { typeof(DefaultShaderSupprot) });
         }
 
         public Dictionary<string, PropertyNameAndDisplayName[]> GetPropatyNames()
         {
-            var PropatyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.DisplayShaderName, _defaultShaderSupprot.GetPropatyNames } };
+            var PropatyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.ShaderName, _defaultShaderSupprot.GetPropatyNames } };
             foreach (var i in _shaderSupports)
             {
-                PropatyNames.Add(i.DisplayShaderName, i.GetPropatyNames);
+                PropatyNames.Add(i.ShaderName, i.GetPropatyNames);
             }
             return PropatyNames;
         }
 
-
-
-        public IShaderSupport FindSupportI(Material material)
-        {
-            return _shaderSupports.Find(i => { return material.shader.name.Contains(i.SupprotShaderName); });
-        }
-
-        public static List<IShaderSupport> GetSupprotInstans()
+        public static List<T> GetInterfaseInstans<T>(Type[] IgnorType = null)
         {
             var shaderSupport = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(I => I.GetTypes())
                 //.Where(I => I != typeof(IShaderSupport) && I != typeof(object)  && I.IsAssignableFrom(typeof(IShaderSupport))) // なぜか...この方法だとうまくいかなかった...
-                .Where(I => I.GetInterfaces().Any(I2 => I2 == typeof(IShaderSupport)))
-                .Where(I => !I.IsAbstract && I != typeof(DefaultShaderSupprot))
+                .Where(I => I.GetInterfaces().Any(I2 => I2 == typeof(T)))
+                .Where(I => !I.IsAbstract && IgnorType.Any(I2 => I2 != I))
                 .Select(I =>
                 {
                     try
                     {
                         //Debug.Log(I.ToString());
-                        return (IShaderSupport)Activator.CreateInstance(I);
+                        return (T)Activator.CreateInstance(I);
                     }
                     catch (Exception e)
                     {
                         Debug.Log(I.ToString());
                         throw e;
                     }
-                })
-                .ToList();
+                }).ToList();
             return shaderSupport;
         }
 

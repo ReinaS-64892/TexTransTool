@@ -11,9 +11,7 @@ namespace Rs64.TexTransTool.ShaderSupport
 {
     public class DefaultShaderSupprot : IShaderSupport
     {
-        public string SupprotShaderName => "DefaultShader";
-
-        public string DisplayShaderName => SupprotShaderName;
+        public string ShaderName => "DefaultShader";
 
         public PropertyNameAndDisplayName[] GetPropatyNames => new PropertyNameAndDisplayName[] { new PropertyNameAndDisplayName("_MainTex", "MainTexture") };
 
