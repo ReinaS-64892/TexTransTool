@@ -30,7 +30,7 @@ namespace Rs64.TexTransTool.Editor
 
             var s_propatyName = s_Target.FindPropertyRelative("_propatyName");
             var s_useCustomProperty = s_Target.FindPropertyRelative("_useCustomProperty");
-            var s_shaderIndex = s_Target.FindPropertyRelative("_shaderIndex");
+            var s_shaderName = s_Target.FindPropertyRelative("_shaderName");
             var s_propatyIndex = s_Target.FindPropertyRelative("_propatyIndex");
 
 
@@ -53,16 +53,17 @@ namespace Rs64.TexTransTool.Editor
                 bool editoFlag = false;
 
                 rect.width = PropWith;
-                var editShaderIndex = EditorGUI.Popup(rect, s_shaderIndex.intValue, ShadersNames);
+                var notEditShaderIndex = Mathf.Clamp(ShadersNames.IndexOf(s_shaderName.stringValue), 0, ShadersNames.Length - 1);
+                var editShaderIndex = EditorGUI.Popup(rect, notEditShaderIndex, ShadersNames);
                 rect.x += rect.width;
-                if (editShaderIndex != s_shaderIndex.intValue)
+                if (editShaderIndex != notEditShaderIndex)
                 {
-                    s_shaderIndex.intValue = editShaderIndex;
-                    s_propatyIndex.intValue = Mathf.Clamp(s_propatyIndex.intValue, 0, ShaderNameAndPorertys[ShadersNames[s_shaderIndex.intValue]].Length - 1);
+                    s_shaderName.stringValue = ShadersNames[editShaderIndex];
+                    s_propatyIndex.intValue = Mathf.Clamp(s_propatyIndex.intValue, 0, ShaderNameAndPorertys[ShadersNames[editShaderIndex]].Length - 1);
                     editoFlag = true;
                 }
 
-                var editPropIndex = EditorGUI.Popup(rect, s_propatyIndex.intValue, ShaderNameAndDisplayNames[ShadersNames[s_shaderIndex.intValue]]);
+                var editPropIndex = EditorGUI.Popup(rect, s_propatyIndex.intValue, ShaderNameAndDisplayNames[ShadersNames[editShaderIndex]]);
                 rect.x += rect.width;
                 if (editPropIndex != s_propatyIndex.intValue)
                 {
@@ -70,7 +71,7 @@ namespace Rs64.TexTransTool.Editor
                     editoFlag = true;
                 }
 
-                if (editoFlag || string.IsNullOrWhiteSpace(s_propatyName.stringValue)) { s_propatyName.stringValue = ShaderNameAndPorertys[ShadersNames[s_shaderIndex.intValue]][s_propatyIndex.intValue].PropertyName; }
+                if (editoFlag || string.IsNullOrWhiteSpace(s_propatyName.stringValue)) { s_propatyName.stringValue = ShaderNameAndPorertys[ShadersNames[editShaderIndex]][s_propatyIndex.intValue].PropertyName; }
             }
             rect.width = PropWith;
             s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty"), s_useCustomProperty.boolValue);
