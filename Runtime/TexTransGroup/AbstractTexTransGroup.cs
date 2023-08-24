@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace Rs64.TexTransTool
 {
@@ -26,6 +27,7 @@ namespace Rs64.TexTransTool
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
                 tf.Apply(AvatarMaterialDomain);
+                EditorUtility.SetDirty(tf);
             }
         }
         public override void Revart(AvatarDomain AvatarMaterialDomain = null)
@@ -39,6 +41,7 @@ namespace Rs64.TexTransTool
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
                 tf.Revart(AvatarMaterialDomain);
+                EditorUtility.SetDirty(tf);
             }
         }
         public override void Compile()

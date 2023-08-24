@@ -32,8 +32,9 @@ namespace Rs64.TexTransTool.Editor
             {
                 if (GUILayout.Button("MaterialDomainUse - Apply"))
                 {
-                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Apply();
+                    EditorUtility.SetDirty(thsitarget);
+                    EditorUtility.SetDirty(thsitarget.TexTransGroup);
                 }
             }
             else
@@ -41,9 +42,9 @@ namespace Rs64.TexTransTool.Editor
                 EditorGUI.BeginDisabledGroup(!thsitarget.IsSelfCallApply);
                 if (GUILayout.Button("Revart"))
                 {
-                    EditorUtility.SetDirty(thsitarget);
                     thsitarget.Revart();
-
+                    EditorUtility.SetDirty(thsitarget);
+                    EditorUtility.SetDirty(thsitarget.TexTransGroup);
                 }
                 EditorGUI.EndDisabledGroup();
             }
