@@ -88,16 +88,9 @@ namespace Rs64.TexTransTool
         {
             if (isPaird)
             {
-                var timer = new System.Diagnostics.Stopwatch();
-                timer.Start();
-
                 if (_cashMaterialPropertys == null) { _cashMaterialPropertys = Utils.SearchMaterialPropetys(_avatarRoot, IgnoreTypes); }
                 Utils.ChengeMateralSerialaizd(_cashMaterialPropertys, Target, SetMat);
                 MatModifids.Add(new MatPea(Target, SetMat));
-
-                timer.Stop();
-                Debug.Log(timer.ElapsedMilliseconds + "ms");
-
             }
             else
             {
