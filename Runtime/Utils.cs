@@ -196,6 +196,27 @@ namespace Rs64.TexTransTool
                 }
             }
         }
+        public static void ChangeMaterialRendereas(IEnumerable<Renderer> Rendres, Material target, Material set)
+        {
+            foreach (var Renderer in Rendres)
+            {
+                var Materials = Renderer.sharedMaterials;
+                var IsEdit = false;
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
+                {
+                    var DistMat = Materials[Index];
+                    if (target == DistMat)
+                    {
+                        Materials[Index] = set;
+                        IsEdit = true;
+                    }
+                }
+                if (IsEdit)
+                {
+                    Renderer.sharedMaterials = Materials;
+                }
+            }
+        }
         public static void ChengeMateralSerialaizd(GameObject targetRoot, Material target, Material setMat, Type[] IgnoreTypes = null)
         {
             var allComponent = targetRoot.GetComponentsInChildren<Component>();

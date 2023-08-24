@@ -291,7 +291,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                     Material GenereatMat = GenereatAtlasMat(MargeMat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
 
                     var DistMats = ChannnelMatRefs.Select(Matref => Materials[Matref]).ToList();
-                    avatarMaterialDomain.SetMaterials(DistMats.ConvertAll(Mat => new MatPea(Mat, GenereatMat)));
+                    avatarMaterialDomain.SetMaterials(DistMats.ConvertAll(Mat => new MatPea(Mat, GenereatMat)), false);
 
                     GenereatMaterials.Add(new List<Material>(1) { GenereatMat });
                 }
@@ -306,7 +306,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                         MaterialMap.Add(new MatPea(Mat, GenereatMat));
                     }
 
-                    avatarMaterialDomain.SetMaterials(MaterialMap);
+                    avatarMaterialDomain.SetMaterials(MaterialMap, true);
                     GenereatMaterials.Add(MaterialMap.ConvertAll(MP => MP.SecndMaterial));
                 }
             }

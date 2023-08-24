@@ -66,7 +66,7 @@ namespace Rs64.TexTransTool
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
             IsSelfCallApply = false;
 
-            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials));
+            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials), true);
         }
     }
 

@@ -49,12 +49,23 @@ namespace Rs64.TexTransTool
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] List<Material> _initialMaterials;
         [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
+        [SerializeField] List<MatPea> MatModifids = new List<MatPea>();
         [SerializeField] bool _genereatCustomMipMap;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
         {
             return new AvatarDomain(_avatarRoot);
+        }
+        public void ResetMaterial()
+        {
+            MatModifids.Reverse();
+            foreach (var ModifiaidPea in MatModifids)
+            {
+                Utils.ChengeMateralSerialaizd(_avatarRoot, ModifiaidPea.SecndMaterial, ModifiaidPea.Material, IgnoreTypes);
+            }
+            MatModifids.Clear();
+            Utils.SetMaterials(_renderers, _initialMaterials);
         }
         private List<Material> GetFiltedMaterials()
         {
@@ -71,28 +82,34 @@ namespace Rs64.TexTransTool
                 transferAsset(UnityObject);
             }
         }
-        public void SetMaterial(Material Target, Material SetMat)
+        public void SetMaterial(Material Target, Material SetMat, bool isPaird)
         {
-            Utils.ChengeMateralSerialaizd(_avatarRoot, Target, SetMat, IgnoreTypes);
+            if (isPaird)
+            {
+                Utils.ChengeMateralSerialaizd(_avatarRoot, Target, SetMat, IgnoreTypes);
+                MatModifids.Add(new MatPea(Target, SetMat));
+            }
+            else
+            {
+                Utils.ChangeMaterialRendereas(_renderers, Target, SetMat);
+            }
+
             transferAsset(SetMat);
         }
 
-        public void SetMaterial(MatPea Pea)
+        public void SetMaterial(MatPea Pea, bool isPaird)
         {
-            SetMaterial(Pea.Material, Pea.SecndMaterial);
+            SetMaterial(Pea.Material, Pea.SecndMaterial, isPaird);
         }
-        public void SetMaterials(IEnumerable<MatPea> peas)
+        public void SetMaterials(IEnumerable<MatPea> peas, bool isPaird)
         {
             foreach (var pea in peas)
             {
-                SetMaterial(pea);
+                SetMaterial(pea, isPaird);
             }
         }
 
-        public void ResetMaterial()
-        {
-            Utils.SetMaterials(_renderers, _initialMaterials);
-        }
+
         /// <summary>
         /// ドメイン内のすべてのマテリアルのtextureをtargetからsetTexに変更する
         /// </summary>
@@ -122,7 +139,7 @@ namespace Rs64.TexTransTool
                 }
             }
 
-            SetMaterials(TargetAndSet);
+            SetMaterials(TargetAndSet, true);
 
             return TargetAndSet;
         }
