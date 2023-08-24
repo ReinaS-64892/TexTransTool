@@ -51,6 +51,7 @@ namespace Rs64.TexTransTool
         [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
         [SerializeField] List<MatPea> MatModifids = new List<MatPea>();
         [SerializeField] bool _genereatCustomMipMap;
+        Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialPropertys;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
@@ -59,10 +60,11 @@ namespace Rs64.TexTransTool
         }
         public void ResetMaterial()
         {
+            if (_cashMaterialPropertys == null) { _cashMaterialPropertys = Utils.SearchMaterialPropetys(_avatarRoot, IgnoreTypes); }
             MatModifids.Reverse();
             foreach (var ModifiaidPea in MatModifids)
             {
-                Utils.ChengeMateralSerialaizd(_avatarRoot, ModifiaidPea.SecndMaterial, ModifiaidPea.Material, IgnoreTypes);
+                Utils.ChengeMateralSerialaizd(_cashMaterialPropertys, ModifiaidPea.SecndMaterial, ModifiaidPea.Material);
             }
             MatModifids.Clear();
             Utils.SetMaterials(_renderers, _initialMaterials);
@@ -86,8 +88,16 @@ namespace Rs64.TexTransTool
         {
             if (isPaird)
             {
-                Utils.ChengeMateralSerialaizd(_avatarRoot, Target, SetMat, IgnoreTypes);
+                var timer = new System.Diagnostics.Stopwatch();
+                timer.Start();
+
+                if (_cashMaterialPropertys == null) { _cashMaterialPropertys = Utils.SearchMaterialPropetys(_avatarRoot, IgnoreTypes); }
+                Utils.ChengeMateralSerialaizd(_cashMaterialPropertys, Target, SetMat);
                 MatModifids.Add(new MatPea(Target, SetMat));
+
+                timer.Stop();
+                Debug.Log(timer.ElapsedMilliseconds + "ms");
+
             }
             else
             {
