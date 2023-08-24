@@ -175,17 +175,66 @@ namespace Rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static void ChangeMaterials(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
+        public static void ChangeMaterialsRendereas(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
         {
-            foreach (var render in Rendres)
+            foreach (var Renderer in Rendres)
             {
-                var Materials = render.sharedMaterials;
-                for (int i = 0; i < Materials.Length; i++)
+                var Materials = Renderer.sharedMaterials;
+                var IsEdit = false;
+                foreach (var Index in Enumerable.Range(0, Materials.Length))
                 {
-                    if (MatPeas.ContainsKey(Materials[i])) Materials[i] = MatPeas[Materials[i]];
+                    var DistMat = Materials[Index];
+                    if (MatPeas.ContainsKey(DistMat))
+                    {
+                        Materials[Index] = MatPeas[DistMat];
+                        IsEdit = true;
+                    }
                 }
-                render.sharedMaterials = Materials;
+                if (IsEdit)
+                {
+                    Renderer.sharedMaterials = Materials;
+                }
+            }
+        }
+        public static void ChengeMateralSerialaizd(GameObject targetRoot, Material target, Material setMat, Type[] IgnoreTypes = null)
+        {
+            var allComponent = targetRoot.GetComponentsInChildren<Component>();
+            IEnumerable<Component> componets;
+            if (IgnoreTypes.Any())
+            {
+                var filtedComponents = new List<Component>(allComponent.Length);
+                foreach (var comoponent in allComponent)
+                {
+                    var type = comoponent.GetType();
+                    if (!IgnoreTypes.Any(J => J.IsAssignableFrom(type))) { filtedComponents.Add(comoponent); }
+                }
+                componets = filtedComponents;
+            }
+            else
+            {
+                componets = allComponent;
+            }
 
+            foreach (var component in componets)
+            {
+                var type = component.GetType();
+
+                var serializeobj = new SerializedObject(component);
+                var iter = serializeobj.GetIterator();
+                var enterchisd = true;
+                while (iter.Next(enterchisd))
+                {
+                    enterchisd = true;
+                    var s_Obj = iter;
+                    if (s_Obj.type == "PPtr<Material>" || s_Obj.type == "PPtr<$Material>")
+                    {
+                        if (s_Obj.objectReferenceInstanceIDValue == target.GetInstanceID())
+                        {
+                            s_Obj.objectReferenceValue = setMat;
+                            serializeobj.ApplyModifiedProperties();
+                        }
+                    }
+                }
             }
         }
         public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)

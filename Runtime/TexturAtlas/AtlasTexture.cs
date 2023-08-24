@@ -230,7 +230,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             if (!IsPossibleApply) return;
             if (_isApply == true) return;
             var NawRendares = Renderers;
-            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(NawRendares); RevartDomain = avatarMaterialDomain; }
+            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevartDomain = avatarMaterialDomain; }
             else { RevartDomain = avatarMaterialDomain.GetBackUp(); }
             Container.GenereatMaterials = null;
 

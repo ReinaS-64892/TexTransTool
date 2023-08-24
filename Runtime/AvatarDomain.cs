@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Rs64.TexTransTool.TextureLayerUtil;
 using UnityEditor;
+using System;
+using Rs64.TexTransTool.Bulige;
 
 namespace Rs64.TexTransTool
 {
     [System.Serializable]
     public class AvatarDomain
     {
+        static Type[] IgnoreTypes = new Type[] { typeof(Transform), typeof(AvatarDomainDefinition) };
         /*
         AssetSaverがtrueのとき
         渡されたアセットはすべて保存する。
@@ -20,10 +23,11 @@ namespace Rs64.TexTransTool
         基本テクスチャは圧縮して渡す
         ただし、スタックに入れるものは圧縮の必要はない。
         */
-        public AvatarDomain(List<Renderer> Renderers, bool AssetSaver = false, bool genereatCustomMipMap = false, UnityEngine.Object OverrideAssetContainer = null)
+        public AvatarDomain(GameObject avatarRoot, bool AssetSaver = false, bool genereatCustomMipMap = false, UnityEngine.Object OverrideAssetContainer = null)
         {
-            _Renderers = Renderers;
-            _initialMaterials = Utils.GetMaterials(Renderers);
+            _avatarRoot = avatarRoot;
+            _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
+            _initialMaterials = Utils.GetMaterials(_renderers);
             if (AssetSaver)
             {
                 if (OverrideAssetContainer == null)
@@ -39,21 +43,22 @@ namespace Rs64.TexTransTool
                     Asset.AddSubObject(Asset);
                 }
             };
-            GenereatCustomMipMap = genereatCustomMipMap;
+            _genereatCustomMipMap = genereatCustomMipMap;
         }
-        [SerializeField] List<Renderer> _Renderers;
+        [SerializeField] GameObject _avatarRoot;
+        [SerializeField] List<Renderer> _renderers;
         [SerializeField] List<Material> _initialMaterials;
-        [SerializeField] List<TextureStack> _TextureStacks = new List<TextureStack>();
-        [SerializeField] bool GenereatCustomMipMap;
+        [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
+        [SerializeField] bool _genereatCustomMipMap;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
         {
-            return new AvatarDomain(_Renderers);
+            return new AvatarDomain(_avatarRoot);
         }
         private List<Material> GetFiltedMaterials()
         {
-            return Utils.GetMaterials(_Renderers).Distinct().Where(I => I != null).ToList();
+            return Utils.GetMaterials(_renderers).Distinct().Where(I => I != null).ToList();
         }
         public void transferAsset(UnityEngine.Object UnityObject)
         {
@@ -68,25 +73,10 @@ namespace Rs64.TexTransTool
         }
         public void SetMaterial(Material Target, Material SetMat)
         {
-            foreach (var Renderer in _Renderers)
-            {
-                var Materials = Renderer.sharedMaterials;
-                var IsEdit = false;
-                foreach (var Index in Enumerable.Range(0, Materials.Length))
-                {
-                    if (Materials[Index] == Target)
-                    {
-                        Materials[Index] = SetMat;
-                        IsEdit = true;
-                    }
-                }
-                if (IsEdit)
-                {
-                    Renderer.sharedMaterials = Materials;
-                }
-            }
+            Utils.ChengeMateralSerialaizd(_avatarRoot, Target, SetMat, IgnoreTypes);
             transferAsset(SetMat);
         }
+
         public void SetMaterial(MatPea Pea)
         {
             SetMaterial(Pea.Material, Pea.SecndMaterial);
@@ -101,7 +91,7 @@ namespace Rs64.TexTransTool
 
         public void ResetMaterial()
         {
-            Utils.SetMaterials(_Renderers, _initialMaterials);
+            Utils.SetMaterials(_renderers, _initialMaterials);
         }
         /// <summary>
         /// ドメイン内のすべてのマテリアルのtextureをtargetからsetTexに変更する
@@ -163,12 +153,12 @@ namespace Rs64.TexTransTool
         }
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
-            var Stack = _TextureStacks.Find(i => i.FirstTexture == Dist);
+            var Stack = _textureStacks.Find(i => i.FirstTexture == Dist);
             if (Stack == null)
             {
                 Stack = new TextureStack { FirstTexture = Dist };
                 Stack.Stack = SetTex;
-                _TextureStacks.Add(Stack);
+                _textureStacks.Add(Stack);
             }
             else
             {
@@ -179,7 +169,7 @@ namespace Rs64.TexTransTool
 
         public void SaveTexture()
         {
-            foreach (var Stack in _TextureStacks)
+            foreach (var Stack in _textureStacks)
             {
                 var Dist = Stack.FirstTexture;
                 var SetTex = Stack.MargeStack();
@@ -187,7 +177,7 @@ namespace Rs64.TexTransTool
 
 
                 SortedList<int, Color[]> Mip = null;
-                if (GenereatCustomMipMap)
+                if (_genereatCustomMipMap)
                 {
                     var UsingUVdata = new List<TransTexture.TransUVData>();
                     foreach (var Mat in FindUseMaterials(Dist))
@@ -217,9 +207,9 @@ namespace Rs64.TexTransTool
 
         private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)
         {
-            for (int i = 0; _Renderers.Count > i; i++)
+            for (int i = 0; _renderers.Count > i; i++)
             {
-                var render = _Renderers[i];
+                var render = _renderers[i];
                 for (int j = 0; render.sharedMaterials.Length > j; j++)
                 {
                     if (render.sharedMaterials[j] == Mat)

@@ -46,7 +46,7 @@ namespace Rs64.TexTransTool.Decal
                     CopyTexdiscription(DecaleBlendTexteres);
 
                     var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropatyName);
-                    Utils.ChangeMaterials(TargetRenderers, DictMat);
+                    Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
                 }
             }
             else
@@ -55,7 +55,7 @@ namespace Rs64.TexTransTool.Decal
                 var Materials = Utils.GetMaterials(TargetRenderers).Distinct();
                 var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropatyName);
 
-                Utils.ChangeMaterials(TargetRenderers, DictMat);
+                Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
                 var ListMatpe = MatPea.GeneratMatPeaList(DictMat);
                 LocalSave = new DecalDataContainer();
                 LocalSave.GenereatMaterials = ListMatpe;
@@ -122,7 +122,7 @@ namespace Rs64.TexTransTool.Decal
             else
             {
                 var RevarList = MatPea.GeneratMatDict(MatPea.SwitchingdList(LocalSave.GenereatMaterials));
-                Utils.ChangeMaterials(TargetRenderers, RevarList);
+                Utils.ChangeMaterialsRendereas(TargetRenderers, RevarList);
                 LocalSave = null;
             }
             IsSelfCallApply = false;
