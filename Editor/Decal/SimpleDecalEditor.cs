@@ -3,8 +3,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using Rs64.TexTransTool.Decal;
-using Rs64.TexTransTool.Editor;
-using Rs64.TexTransTool.ShaderSupport;
 
 namespace Rs64.TexTransTool.Editor.Decal
 {
@@ -12,6 +10,7 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal), true)]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
+        bool FoldoutOption;
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
@@ -22,30 +21,65 @@ namespace Rs64.TexTransTool.Editor.Decal
 
             AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
 
-            var S_Scale = This_S_Object.FindProperty("Scale");
-            var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
-            TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
+            EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
+
+            EditorGUI.indentLevel += 1;
+
+            var s_Scale = This_S_Object.FindProperty("Scale");
+            var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
+            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
+            TextureTransformerEditor.DrowProperty(s_FixedAspect, (bool FixdAspectValue) =>
             {
-                Undo.RecordObject(ThisObject, "ApplyScaile - SideChek");
+                Undo.RecordObject(ThisObject, "ApplyScaile - Size");
                 ThisObject.FixedAspect = FixdAspectValue;
                 ThisObject.ScaleApply();
             });
 
-            var S_MaxDistans = This_S_Object.FindProperty("MaxDistans");
-            TextureTransformerEditor.DrowProperty(S_MaxDistans, (float MaxDistansValue) =>
+            var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
+            TextureTransformerEditor.DrowProperty(s_MaxDistans, (float MaxDistansValue) =>
             {
                 Undo.RecordObject(ThisObject, "ApplyScaile - MaxDistans");
                 ThisObject.MaxDistans = MaxDistansValue;
                 ThisObject.ScaleApply();
             });
 
-            var S_PolygonCaling = This_S_Object.FindProperty("PolygonCaling");
-            EditorGUILayout.PropertyField(S_PolygonCaling);
+            EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
 
-            var S_SideChek = This_S_Object.FindProperty("SideChek");
-            EditorGUILayout.PropertyField(S_SideChek);
+            var s_PolygonCulling = This_S_Object.FindProperty("PolygonCulling");
+            EditorGUILayout.PropertyField(s_PolygonCulling, new GUIContent("Polygon Culling"));
 
+            var s_SideCulling = This_S_Object.FindProperty("SideCulling");
+            EditorGUILayout.PropertyField(s_SideCulling, new GUIContent("Side Culling"));
+
+            var s_IslandCulling = This_S_Object.FindProperty("IslandCulling");
+            EditorGUILayout.PropertyField(s_IslandCulling);
+            if (s_IslandCulling.boolValue)
+            {
+                EditorGUI.indentLevel += 1;
+                EditorGUILayout.LabelField("IslandSelectorPos");
+                EditorGUI.indentLevel += 1;
+                var s_IslandSelectorPos = This_S_Object.FindProperty("IslandSelectorPos");
+                var s_IslandSelectorPosX = s_IslandSelectorPos.FindPropertyRelative("x");
+                var s_IslandSelectorPosY = s_IslandSelectorPos.FindPropertyRelative("y");
+                EditorGUILayout.Slider(s_IslandSelectorPosX, 0, 1, new GUIContent("x"));
+                EditorGUILayout.Slider(s_IslandSelectorPosY, 0, 1, new GUIContent("y"));
+                EditorGUI.indentLevel -= 1;
+                var s_IslandSelectorRange = This_S_Object.FindProperty("IslandSelectorRange");
+                EditorGUILayout.Slider(s_IslandSelectorRange, 0, 1);
+                EditorGUI.indentLevel -= 1;
+            }
+            EditorGUI.indentLevel -= 1;
+
+            FoldoutOption = EditorGUILayout.Foldout(FoldoutOption, "Advanced Option");
+            if (FoldoutOption)
+            {
+                EditorGUI.indentLevel += 1;
+                var s_IsSeparateMaterial = This_S_Object.FindProperty("IsSeparateMaterial");
+                EditorGUILayout.PropertyField(s_IsSeparateMaterial, new GUIContent("SeparateMaterial"));
+                EditorGUI.indentLevel -= 1;
+            }
 
 
             EditorGUI.EndDisabledGroup();
@@ -66,8 +100,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                     EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile || Target.IsApply);
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
-                        EditorUtility.SetDirty(Target);
                         Target.EnableRealTimePreview();
+                        EditorUtility.SetDirty(Target);
                     }
                     EditorGUI.EndDisabledGroup();
                 }
@@ -75,8 +109,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                 {
                     if (GUILayout.Button("DisableRealTimePreview"))
                     {
-                        EditorUtility.SetDirty(Target);
                         Target.DisableRealTimePreview();
+                        EditorUtility.SetDirty(Target);
 
                     }
                 }

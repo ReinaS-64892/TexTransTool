@@ -17,23 +17,36 @@ namespace Rs64.TexTransTool.Editor.Decal
 
         public static void DrowDecalEditor(SerializedObject This_S_Object)
         {
-            var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
-            TextureTransformerEditor.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
-            EditorGUILayout.PropertyField(S_MultiRendereMode);
+            EditorGUILayout.LabelField("RenderesSettings",EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
+            var s_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
+            TextureTransformerEditor.DorwRendarar(s_TargetRenderers, s_MultiRendereMode.boolValue);
+            EditorGUILayout.PropertyField(s_MultiRendereMode);
 
-            var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_DecalTexture);
+            EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("TextureSettings",EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
 
-            var S_BlendType = This_S_Object.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(S_BlendType);
 
-            var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            PropatyNameEditor.DrawInspectorGUI(S_TargetPropatyName);
+            var s_DecalTexture = This_S_Object.FindProperty("DecalTexture");
+            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(s_DecalTexture);
+
+            var s_Color = This_S_Object.FindProperty("Color");
+            EditorGUILayout.PropertyField(s_Color);
+
+            var s_BlendType = This_S_Object.FindProperty("BlendType");
+            EditorGUILayout.PropertyField(s_BlendType);
+
+            var s_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
+            PropatyNameEditor.DrawInspectorGUI(s_TargetPropatyName);
+            EditorGUI.indentLevel -= 1;
         }
 
         public static void DorwScaileEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
+            EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
             if (S_FixedAspect.boolValue)
             {
                 TextureTransformerEditor.DrowProperty(S_Scale.displayName, S_Scale.vector2Value.x, EditVulue =>
@@ -55,6 +68,8 @@ namespace Rs64.TexTransTool.Editor.Decal
                     ThisObject.ScaleApply();
                 });
             }
+            EditorGUILayout.PropertyField(S_FixedAspect);
+            EditorGUI.indentLevel -= 1;
         }
 
 

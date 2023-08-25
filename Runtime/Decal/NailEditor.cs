@@ -126,7 +126,7 @@ namespace Rs64.TexTransTool.Decal
                 new TrainagelFilterUtility.FarStruct(1, false),
                 new TrainagelFilterUtility.NearStruct(0, true),
                 new TrainagelFilterUtility.SideStruct(),
-                new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCaling.Edge, 0, 1, true)
+                new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
             };
         }
 

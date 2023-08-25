@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEngine.Serialization;
+
 namespace Rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/SimpleDecal")]
@@ -14,8 +16,8 @@ namespace Rs64.TexTransTool.Decal
         public Vector2 Scale = Vector2.one;
         public float MaxDistans = 1;
         public bool FixedAspect = true;
-        public bool SideChek = true;
-        public PolygonCaling PolygonCaling = PolygonCaling.Vartex;
+        [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
+        [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vartex;
 
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
         public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter
@@ -28,6 +30,8 @@ namespace Rs64.TexTransTool.Decal
         }
 
         public bool IslandCulling = false;
+        public Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
+        public float IslandSelectorRange = 1;
         public override void ScaleApply()
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
@@ -39,8 +43,8 @@ namespace Rs64.TexTransTool.Decal
                 new TrainagelFilterUtility.FarStruct(1, false),
                 new TrainagelFilterUtility.NearStruct(0, true)
             };
-            if (SideChek) Filters.Add(new TrainagelFilterUtility.SideStruct());
-            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCaling, 0, 1, true));
+            if (SideCulling) Filters.Add(new TrainagelFilterUtility.SideStruct());
+            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling, 0, 1, true));
 
             return Filters;
         }
@@ -72,7 +76,12 @@ namespace Rs64.TexTransTool.Decal
                 DisplayDecalMat.SetPass(0);
                 Graphics.DrawMeshNow(Quad, Matrix);
             }
-            Gizmos.DrawLine(CenterPos, CenterPos + new Vector3(0, 0, MaxDistans / 2));//前方向の表示
+            if (IslandCulling)
+            {
+                Vector3 SelecotOrigin = new Vector2(IslandSelectorPos.x - 0.5f, IslandSelectorPos.y - 0.5f);
+                var SelectorTail = (Vector3.forward * IslandSelectorRange) + SelecotOrigin;
+                Gizmos.DrawLine(SelecotOrigin, SelectorTail);
+            }
         }
 
         public void GizmInstans()
