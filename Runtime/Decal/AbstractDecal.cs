@@ -132,6 +132,9 @@ namespace Rs64.TexTransTool.Decal
         [ContextMenu("ExtractDecalCompiledTexture")]
         public void ExtractDecalCompiledTexture()
         {
+            if(!IsPossibleApply) {Debug.LogError("Applyできないためデカールをコンパイルできません。");return;}
+
+
             var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
             if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
 
