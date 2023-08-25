@@ -77,7 +77,7 @@ namespace Rs64.TexTransTool.TexturAtlas
                 var TargetMatSerectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-                ShaderSupports.BakeSetting = atlasSetting.PropatyBakeSetting;
+                ShaderSupports.BakeSetting = atlasSetting.IsMargeMaterial ? atlasSetting.PropatyBakeSetting : PropatyBakeSetting.NotBake;
                 var Matdatas = new List<MatData>();
                 foreach (var MatSelector in TargetMatSerectors)
                 {

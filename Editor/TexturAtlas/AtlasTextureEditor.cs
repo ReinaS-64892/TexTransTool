@@ -79,9 +79,12 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
 
                 EditorGUILayout.PropertyField(S_AtlasTextureSize);
                 EditorGUILayout.PropertyField(S_IsMargeMaterial);
-                if (S_IsMargeMaterial.boolValue) { EditorGUILayout.PropertyField(S_MargeRefarensMaterial); }
+                if (S_IsMargeMaterial.boolValue)
+                {
+                    EditorGUILayout.PropertyField(S_PropatyBakeSetting);
+                    EditorGUILayout.PropertyField(S_MargeRefarensMaterial);
+                }
                 EditorGUILayout.PropertyField(S_ForseSetTexture);
-                EditorGUILayout.PropertyField(S_PropatyBakeSetting);
                 EditorGUILayout.PropertyField(S_PadingType);
                 EditorGUILayout.PropertyField(S_Pading);
                 EditorGUILayout.PropertyField(S_SortingType);
@@ -177,7 +180,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
-                
+
                 }
             }
 
