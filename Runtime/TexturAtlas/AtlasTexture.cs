@@ -52,10 +52,7 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             if (!IsPossibleApply) return false;
             if (IsApply) return false;
-            Container.AtlasTextures = null;
-            Container.GenereatMeshs = null;
-            Container.ChannnelsMatRef = null;
-            Container.IsPossibleApply = false;
+            ClearContainer();
 
             //情報を集めるフェーズ
             var SelectRefsMat = new OrderdHashSet<Material>(SelectRefarensMat);
@@ -520,17 +517,17 @@ namespace Rs64.TexTransTool.TexturAtlas
             }
         }
 
-        [ContextMenu("ClearContainer")]
         public void ClearContainer()
         {
             if (IsApply) return;
-            Container.AtlasTextures = null;
-            Container.GenereatMeshs = null;
-            Container.ChannnelsMatRef = null;
-            Container.IsPossibleApply = false;
-
-            Container.GenereatMaterials = null;
-
+            if (Container != null)
+            {
+                Container.AtlasTextures = null;
+                Container.GenereatMeshs = null;
+                Container.ChannnelsMatRef = null;
+                Container.IsPossibleApply = false;
+                Container.GenereatMaterials = null;
+            }
             RevartMeshs = null;
             RevartDomain = null;
         }
