@@ -21,7 +21,7 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         [SerializeField] bool _isApply = false;
         public override bool IsApply => _isApply;
-        public override bool IsPossibleApply => Container.IsPossibleApply && TargetRoot != null && AtlasSettings.Count > 0;
+        public override bool IsPossibleApply => TargetRoot != null && AtlasSettings.Count > 0;
         // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
         /*
         TargetRenderers 対象となるのはメッシュが存在しマテリアルスロットにNullが含まれていないもの。
@@ -226,11 +226,9 @@ namespace Rs64.TexTransTool.TexturAtlas
         public List<MeshPea> RevartMeshs;
         public override void Apply(AvatarDomain avatarMaterialDomain = null)
         {
-            if (!IsPossibleApply) return;
-            if (_isApply == true) return;
-
             var result = CompileAtlasTextures();
-            if (!result) return;
+            if (!result) { return; }
+            if (!Container.IsPossibleApply) { return; }
 
             var NawRendares = Renderers;
             if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevartDomain = avatarMaterialDomain; }
