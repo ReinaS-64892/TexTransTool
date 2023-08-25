@@ -21,7 +21,6 @@ namespace Rs64.TexTransTool.Decal
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
-        public override bool IsPossibleCompile => IsPossibleApply;
 
 
         public override void Apply(AvatarDomain avatarDomain)

@@ -23,8 +23,8 @@ namespace Rs64.TexTransTool.TexturAtlas
 
         [SerializeField] bool _isApply = false;
         public override bool IsApply => _isApply;
-        public override bool IsPossibleApply => Container.IsPossibleApply;
-        public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
+        public override bool IsPossibleApply => Container.IsPossibleApply && TargetRoot != null && AtlasSettings.Count > 0;
+        // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
         /*
         TargetRenderers 対象となるのはメッシュが存在しマテリアルスロットにNullが含まれていないもの。
 
@@ -50,10 +50,10 @@ namespace Rs64.TexTransTool.TexturAtlas
         MeshAndMatRef MeshRefarensとマテリアルスロット分のMaterialRefarensをもち、適応するときこれをもとに、マテリアル違いやマテリアルの一部違いなども識別して適応する。
 
         */
-        public override void Compile()
+        public bool CompileAtlasTextures()
         {
-            if (!IsPossibleCompile) return;
-            if (IsApply) return;
+            if (!IsPossibleApply) return false;
+            if (IsApply) return false;
             Container.AtlasTextures = null;
             Container.GenereatMeshs = null;
             Container.ChannnelsMatRef = null;
@@ -221,6 +221,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             Container.AtlasTextures = CompiledAllAtlasTextures;
             Container.GenereatMeshs = CompiledMeshs;
             Container.IsPossibleApply = true;
+            return true;
         }
 
         public AvatarDomain RevartDomain;
@@ -229,6 +230,10 @@ namespace Rs64.TexTransTool.TexturAtlas
         {
             if (!IsPossibleApply) return;
             if (_isApply == true) return;
+
+            var result = CompileAtlasTextures();
+            if (!result) return;
+
             var NawRendares = Renderers;
             if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevartDomain = avatarMaterialDomain; }
             else { RevartDomain = avatarMaterialDomain.GetBackUp(); }

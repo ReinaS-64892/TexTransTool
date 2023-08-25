@@ -20,11 +20,11 @@ namespace Rs64.TexTransTool.TexturAtlas
                 ClearAtlasTextures();
                 if (AtlasTextures == null) return;
                 var ConvAtlasTextures = SubListPropAndTexture.ConvartSubList(AtlasTextures);
-                foreach (var item in ConvAtlasTextures.SelectMany(I => I.SubListInstans))
-                {
-                    AssetDatabase.CreateAsset(item.Texture2D, AssetSaveHelper.GenereatAssetPath(item.Texture2D.name, ".asset"));
+                // foreach (var item in ConvAtlasTextures.SelectMany(I => I.SubListInstans))
+                // {
+                //     AssetDatabase.CreateAsset(item.Texture2D, AssetSaveHelper.GenereatAssetPath(item.Texture2D.name, ".asset"));
 
-                }
+                // }
                 _atlasTextures = ConvAtlasTextures;
             }
         }
@@ -37,10 +37,10 @@ namespace Rs64.TexTransTool.TexturAtlas
                 ClearMeshs();
                 if (value == null) return;
                 var Meshs = value;
-                foreach (var item in Meshs)
-                {
-                    AssetDatabase.CreateAsset(item.Mesh, AssetSaveHelper.GenereatAssetPath(item.Mesh.name, ".asset"));
-                }
+                // foreach (var item in Meshs)
+                // {
+                //     AssetDatabase.CreateAsset(item.Mesh, AssetSaveHelper.GenereatAssetPath(item.Mesh.name, ".asset"));
+                // }
                 _meshes = Meshs;
 
             }
@@ -84,19 +84,19 @@ namespace Rs64.TexTransTool.TexturAtlas
         void ClearAtlasTextures()
         {
             if (_atlasTextures == null) return;
-            AssetSaveHelper.DeletAssets(_atlasTextures.SelectMany(I => I.SubListInstans.Select(J => J.Texture2D)));
+            // AssetSaveHelper.DeletAssets(_atlasTextures.SelectMany(I => I.SubListInstans.Select(J => J.Texture2D)));
             _atlasTextures.Clear();
         }
         void ClearMeshs()
         {
             if (_meshes == null) { return; }
-            AssetSaveHelper.DeletAssets(_meshes.Select(I => I.Mesh));
+            // AssetSaveHelper.DeletAssets(_meshes.Select(I => I.Mesh));
             _meshes.Clear();
         }
         void ClearGenereatMaterials()
         {
             if (_genereatMaterials == null) { return; }
-            AssetSaveHelper.DeletAssets(_genereatMaterials.SelectMany(I => I.SubListInstans));
+            // AssetSaveHelper.DeletAssets(_genereatMaterials.SelectMany(I => I.SubListInstans));
             _genereatMaterials.Clear();
         }
 

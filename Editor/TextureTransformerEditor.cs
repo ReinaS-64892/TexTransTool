@@ -11,16 +11,16 @@ namespace Rs64.TexTransTool.Editor
     [CustomEditor(typeof(TextureTransformer))]
     public class TextureTransformerEditor : UnityEditor.Editor
     {
-        public override void OnInspectorGUI()
-        {
-            var Target = target as TextureTransformer;
-            TextureTransformerEditorDrow(Target);
-        }
-        public static void TextureTransformerEditorDrow(TextureTransformer Target)
-        {
-            DrowApplyAndRevart(Target);
-            DrowCompile(Target);
-        }
+        // public override void OnInspectorGUI()
+        // {
+        //     var Target = target as TextureTransformer;
+        //     TextureTransformerEditorDrow(Target);
+        // }
+        // public static void TextureTransformerEditorDrow(TextureTransformer Target)
+        // {
+        //     DrowApplyAndRevart(Target);
+        //     DrowCompile(Target);
+        // }
         public static void DrowApplyAndRevart(TextureTransformer Target)
         {
             if (Target == null) return;
@@ -48,17 +48,17 @@ namespace Rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
         }
-        public static void DrowCompile(TextureTransformer Target)
-        {
-            if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsApply));
-            if (GUILayout.Button("Compile"))
-            {
-                Target.Compile();
-                EditorUtility.SetDirty(Target);
-            }
-            EditorGUI.EndDisabledGroup();
-        }
+        // public static void DrowCompile(TextureTransformer Target)
+        // {
+        //     if (Target == null) return;
+        //     EditorGUI.BeginDisabledGroup(!(Target.IsPossibleCompile && !Target.IsApply));
+        //     if (GUILayout.Button("Compile"))
+        //     {
+        //         Target.Compile();
+        //         EditorUtility.SetDirty(Target);
+        //     }
+        //     EditorGUI.EndDisabledGroup();
+        // }
         public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
         {
             return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);

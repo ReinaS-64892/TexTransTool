@@ -97,7 +97,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             {
                 if (!Target.IsRealTimePreview)
                 {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleCompile || Target.IsApply);
+                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || Target.IsApply);
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
                         Target.EnableRealTimePreview();
