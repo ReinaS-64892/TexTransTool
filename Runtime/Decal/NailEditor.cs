@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections;
+using Rs64.TexTransTool.Island;
 
 namespace Rs64.TexTransTool.Decal
 {
@@ -107,10 +108,10 @@ namespace Rs64.TexTransTool.Decal
                     var SorsFingetTF = GetFinger(Finger, IsRight);
                     Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector, IsRight);
 
-                    var ray = new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward));
+                    var islandSelecotr = new IslandSelector(new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward)), Matlix.lossyScale.z * 1);
 
                     var SpaseConverter = new ParallelProjectionSpase(Matlix.inverse);
-                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<Ray>(1) { ray });
+                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelecotr });
 
                     Spases.Add((naileDecalDescripstion.DecalTexture, SpaseConverter, Filter));
                 }

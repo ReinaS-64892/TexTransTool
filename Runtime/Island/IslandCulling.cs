@@ -2,35 +2,56 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+
 namespace Rs64.TexTransTool.Island
 {
+    [Serializable]
+    public struct IslandSelector
+    {
+        public Ray Ray;
+        public float RayRange;
+        public IslandSelector(Ray ray, float rayRange)
+        {
+            this.Ray = ray;
+            this.RayRange = rayRange;
+        }
+
+    }
     public static class IslandCulling
     {
 
-        public static List<TraiangleIndex> Culling(List<Ray> IslandSelectors, IReadOnlyList<Vector3> Positions, IReadOnlyList<Vector2> UV, List<TraiangleIndex> Traiangles)
+        public static List<TraiangleIndex> Culling(List<IslandSelector> IslandSelectors, IReadOnlyList<Vector3> Positions, IReadOnlyList<Vector2> UV, List<TraiangleIndex> Traiangles)
         {
-            var Islands = IslandUtils.CachengUVtoIsland(Traiangles, UV);
-            var RayCastHitTraiangle = new List<TraiangleIndex>();
+            var iIslands = IslandUtils.CachengUVtoIsland(Traiangles, UV);
+            var rayCastHitTraiangle = new List<TraiangleIndex>();
             foreach (var i in IslandSelectors)
             {
-                var Hits = RayCast(i, Positions, Traiangles, out var RayMatrixPoss);
-                FiltedBackTraiangle(Hits);
-                if (Hits.Any()) RayCastHitTraiangle.Add(Hits[0].Traiangle);
-            }
-            var HitSelectIsland = new HashSet<Island>();
-            foreach (var Hittri in RayCastHitTraiangle)
-            {
-                foreach (var island in Islands)
+                var hits = RayCast(i.Ray, Positions, Traiangles, out var RayMatrixPoss);
+
+                FiltedBackTraiangle(hits);
+                FiltedRangeTraiangle(hits, i.RayRange);
+
+                if (hits.Any())
                 {
-                    if (island.trainagels.Any(I => I == Hittri))
+                    foreach(var hit in hits)
+                    rayCastHitTraiangle.Add(hit.Traiangle);
+                }
+            }
+            var hitSelectIsland = new HashSet<Island>();
+            foreach (var hitTraiangle in rayCastHitTraiangle)
+            {
+                foreach (var island in iIslands)
+                {
+                    if (island.trainagels.Any(I => I == hitTraiangle))
                     {
-                        HitSelectIsland.Add(island);
+                        hitSelectIsland.Add(island);
                         break;
                     }
                 }
             }
 
-            return HitSelectIsland.SelectMany(I => I.trainagels).ToList();
+            return hitSelectIsland.SelectMany(I => I.trainagels).ToList();
 
         }
 
@@ -76,6 +97,10 @@ namespace Rs64.TexTransTool.Island
         public static void FiltedBackTraiangle(List<RayCastHitTraiangle> RCHTaris)
         {
             RCHTaris.RemoveAll(I => I.Distans < 0);
+        }
+        public static void FiltedRangeTraiangle(List<RayCastHitTraiangle> RCHTaris, float Range)
+        {
+            RCHTaris.RemoveAll(I => I.Distans > Range);
         }
         public struct RayCastHitTraiangle
         {
