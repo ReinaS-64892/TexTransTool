@@ -20,7 +20,6 @@ namespace Rs64.TexTransTool
 
         public override bool IsPossibleApply => TargetRenderer != null && BlendTexture != null;
 
-        public override bool IsPossibleCompile => IsPossibleApply;
 
         public override void Apply(AvatarDomain avatarMaterialDomain = null)
         {
@@ -57,7 +56,6 @@ namespace Rs64.TexTransTool
             Container.GenereatMaterials = ChangeDict;
         }
 
-        public override void Compile() { }
 
         public override void Revart(AvatarDomain avatarMaterialDomain = null)
         {

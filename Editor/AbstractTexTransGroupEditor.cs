@@ -12,7 +12,7 @@ namespace Rs64.TexTransTool.Editor
         {
             var thsitarget = target as AbstractTexTransGroup;
             TextureTransformerEditor.DrowApplyAndRevart(thsitarget);
-            TextureTransformerEditor.DrowCompile(thsitarget);
+            // TextureTransformerEditor.DrowCompile(thsitarget);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Rs64.TexTransTool.TexturAtlas.Editor
             DrawAtlasSettings(S_AtlasSettings);
 
 
-            TextureTransformerEditor.TextureTransformerEditorDrow(ThisTarget);
+            TextureTransformerEditor.DrowApplyAndRevart(ThisTarget);
             serializedObject.ApplyModifiedProperties();
 
         }

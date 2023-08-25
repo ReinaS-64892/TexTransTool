@@ -13,10 +13,10 @@ namespace Rs64.TexTransTool
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract bool IsApply { get; }
         public abstract bool IsPossibleApply { get; }
-        public abstract bool IsPossibleCompile { get; }
+        // public abstract bool IsPossibleCompile { get; }
         [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply { get => _IsSelfCallApply; protected set => _IsSelfCallApply = value; }
-        public virtual void Compile() { }
+        // public virtual void Compile() { }
         public abstract void Apply(AvatarDomain avatarMaterialDomain = null);
         public abstract void Revart(AvatarDomain avatarMaterialDomain = null);
         public virtual void SelfCallApply(AvatarDomain avatarMaterialDomain = null)

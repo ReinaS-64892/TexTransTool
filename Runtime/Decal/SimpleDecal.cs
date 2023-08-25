@@ -106,7 +106,7 @@ namespace Rs64.TexTransTool.Decal
         public void EnableRealTimePreview()
         {
             if (_IsRealTimePreview) return;
-            if (!IsPossibleCompile) return;
+            if (!IsPossibleApply) return;
             _IsRealTimePreview = true;
 
             PreViewMaterials.Clear();
