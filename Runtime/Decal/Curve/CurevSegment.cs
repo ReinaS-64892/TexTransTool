@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 #if VRC_BASE
 using VRC.SDKBase;
@@ -7,7 +8,7 @@ using VRC.SDKBase;
 namespace Rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CurevSegment")]
-    public class CurevSegment : MonoBehaviour , ITexTransToolTag
+    public class CurevSegment : MonoBehaviour, ITexTransToolTag
 #if VRC_BASE
     , IEditorOnly
 #endif
@@ -17,3 +18,4 @@ namespace Rs64.TexTransTool.Decal.Curve
 
     }
 }
+#endif
