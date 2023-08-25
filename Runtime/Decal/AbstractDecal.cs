@@ -76,7 +76,7 @@ namespace Rs64.TexTransTool.Decal
             var DictMat = new Dictionary<Material, Material>();
             foreach (var Material in Materials)
             {
-                if (Material.HasProperty(TargetPropatyName)) { continue; }
+                if (!Material.HasProperty(TargetPropatyName)) { continue; }
                 var OldTex = Material.GetTexture(TargetPropatyName) as Texture2D;
 
                 if (OldTex == null) continue;
