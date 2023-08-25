@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine.Serialization;
+using Rs64.TexTransTool.Island;
 
 namespace Rs64.TexTransTool.Decal
 {
@@ -49,10 +50,12 @@ namespace Rs64.TexTransTool.Decal
             return Filters;
         }
 
-        public List<Ray> GetIslandSelecotor()
+        public List<IslandSelector> GetIslandSelecotor()
         {
             if (!IslandCulling) return null;
-            return new List<Ray>() { new Ray(transform.position, transform.forward) };
+            return new List<IslandSelector>() {
+                new IslandSelector(new Ray(transform.localToWorldMatrix.MultiplyPoint3x4(IslandSelectorPos - new Vector2(0.5f, 0.5f)), transform.forward), MaxDistans * IslandSelectorRange)
+                };
         }
 
 
@@ -257,9 +260,9 @@ namespace Rs64.TexTransTool.Decal
 
     public class IslandCullingPPFilter : ParallelProjectionFilter
     {
-        public List<Ray> IslandSelectors;
+        public List<IslandSelector> IslandSelectors;
 
-        public IslandCullingPPFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters, List<Ray> IslandSelectors) : base(Filters)
+        public IslandCullingPPFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
         {
             this.IslandSelectors = IslandSelectors;
         }
