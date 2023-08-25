@@ -121,6 +121,8 @@ namespace Rs64.TexTransTool.Island
                 var nmSize = OriginIsland.Size;
 
                 var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+                RelativeScaile.x = float.IsNaN(RelativeScaile.x) ? 0 : RelativeScaile.x;
+                RelativeScaile.y = float.IsNaN(RelativeScaile.y) ? 0 : RelativeScaile.y;
 
                 foreach (var VartIndex in OriginIsland.GetVertexIndex())
                 {
