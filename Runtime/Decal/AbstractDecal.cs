@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using System.IO;
 
 namespace Rs64.TexTransTool.Decal
 {
@@ -126,6 +127,38 @@ namespace Rs64.TexTransTool.Decal
             }
             IsSelfCallApply = false;
 
+        }
+
+        [ContextMenu("ExtractDecalCompiledTexture")]
+        public void ExtractDecalCompiledTexture()
+        {
+            if(!IsPossibleApply) {Debug.LogError("Applyできないためデカールをコンパイルできません。");return;}
+
+
+            var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
+            if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
+
+            var DecalCompiledTextures = CompileDecal();
+            foreach (var Texturepea in DecalCompiledTextures)
+            {
+                var Name = Texturepea.Key.name;
+                Texture2D extractDCtex;
+                switch (Texturepea.Value)
+                {
+                    case RenderTexture rt:
+                        extractDCtex = rt.CopyTexture2D();
+                        break;
+                    case Texture2D tex:
+                        extractDCtex = tex;
+                        break;
+                    default:
+                        continue;
+                }
+                var PngByte = extractDCtex.EncodeToPNG();
+
+                System.IO.File.WriteAllBytes(Path.Combine(path, Name + ".png"), PngByte);
+
+            }
         }
 
     }
