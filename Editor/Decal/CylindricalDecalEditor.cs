@@ -11,30 +11,44 @@ namespace Rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(CylindricalDecal), true)]
     public class CylindricalDecalEditor : UnityEditor.Editor
     {
+        bool FoldoutOption;
+
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
             var ThisObject = target as CylindricalDecal;
 
+
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
+
+            var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
+            EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 
             AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
 
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
             AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
-            EditorGUILayout.PropertyField(S_FixedAspect);
 
-            var S_SideChek = This_S_Object.FindProperty("SideChek");
-            EditorGUILayout.PropertyField(S_SideChek);
-            var S_FarCulling = This_S_Object.FindProperty("OutDistansCulling");
-            EditorGUILayout.PropertyField(S_FarCulling);
-            var S_NierCullingOffSet = This_S_Object.FindProperty("InDistansCulling");
-            EditorGUILayout.PropertyField(S_NierCullingOffSet);
+            EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+            var s_SideCulling = This_S_Object.FindProperty("SideCulling");
+            EditorGUILayout.PropertyField(s_SideCulling);
+            var s_FarCulling = This_S_Object.FindProperty("OutDistansCulling");
+            EditorGUILayout.PropertyField(s_FarCulling, new GUIContent("Far Culling OffSet"));
+            var s_NierCullingOffSet = This_S_Object.FindProperty("InDistansCulling");
+            EditorGUILayout.PropertyField(s_NierCullingOffSet , new GUIContent("Nier Culling OffSet"));
+            EditorGUI.indentLevel -= 1;
 
 
-            var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
-            EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
+            FoldoutOption = EditorGUILayout.Foldout(FoldoutOption, "Advanced Option");
+            if (FoldoutOption)
+            {
+                EditorGUI.indentLevel += 1;
+                var s_IsSeparateMaterial = This_S_Object.FindProperty("IsSeparateMaterial");
+                EditorGUILayout.PropertyField(s_IsSeparateMaterial, new GUIContent("SeparateMaterial"));
+                EditorGUI.indentLevel -= 1;
+            }
 
             EditorGUI.EndDisabledGroup();
 

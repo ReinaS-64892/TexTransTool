@@ -124,12 +124,12 @@ namespace Rs64.TexTransTool.Decal
 
         public struct OutOfPorigonStruct : ITraiangleFiltaring<List<Vector3>>
         {
-            public PolygonCaling PolygonCaling;
+            public PolygonCulling PolygonCaling;
             public float MinRange;
             public float MaxRange;
             public bool IsAllVartex;
 
-            public OutOfPorigonStruct(PolygonCaling polygonCaling, float minRange, float maxRange, bool isAllVartex)
+            public OutOfPorigonStruct(PolygonCulling polygonCaling, float minRange, float maxRange, bool isAllVartex)
             {
                 PolygonCaling = polygonCaling;
                 MinRange = minRange;
@@ -142,11 +142,11 @@ namespace Rs64.TexTransTool.Decal
                 switch (PolygonCaling)
                 {
                     default:
-                    case PolygonCaling.Vartex:
+                    case PolygonCulling.Vartex:
                         return OutOfPorigonVartexBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
-                    case PolygonCaling.Edge:
+                    case PolygonCulling.Edge:
                         return OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
-                    case PolygonCaling.EdgeAndCenterRay:
+                    case PolygonCulling.EdgeAndCenterRay:
                         return OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
                 }
 

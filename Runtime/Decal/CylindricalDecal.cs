@@ -12,10 +12,10 @@ namespace Rs64.TexTransTool.Decal
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
         public bool FixedAspect = true;
         public Vector2 Scale = Vector2.one;
-        public bool SideChek = true;
-        public float OutOfRangeOffset = 1f;
+        public bool SideCulling = true;
         public float InDistansCulling = 1f;
         public float OutDistansCulling = 1f;
+        public float OutOfRangeOffset = 1f;
 
         public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
         public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
@@ -25,14 +25,14 @@ namespace Rs64.TexTransTool.Decal
             var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(),
-                new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false)
+                new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
             };
 
             var ThisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
 
             Filters.Add(new CCSFilter.OutDistansStruct(OutDistansCulling + ThisCCSZ, false));
             Filters.Add(new CCSFilter.InDistansStruct(Mathf.Max(ThisCCSZ - InDistansCulling, 0f), false));
-            if (SideChek) Filters.Add(new CCSFilter.SideStruct());
+            if (SideCulling) Filters.Add(new CCSFilter.SideStruct());
 
             return Filters;
         }

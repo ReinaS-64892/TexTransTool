@@ -110,7 +110,7 @@ namespace Rs64.TexTransTool.Decal.Curve
             var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(150),
-                new CCSFilter.OutOfPorigonStruct(PolygonCaling.Edge, OutOfRangeOffset, false)
+                new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
             };
 
             return Filters;

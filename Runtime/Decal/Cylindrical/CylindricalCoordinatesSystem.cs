@@ -247,12 +247,12 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
         }
         public struct OutOfPorigonStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
         {
-            public PolygonCaling PolygonCaling;
+            public PolygonCulling PolygonCaling;
             public float MinRange;
             public float MaxRange;
             public bool IsAllVartex;
 
-            public OutOfPorigonStruct(PolygonCaling polygonCaling, float OutOfRangeOffset, bool isAllVartex)
+            public OutOfPorigonStruct(PolygonCulling polygonCaling, float OutOfRangeOffset, bool isAllVartex)
             {
                 PolygonCaling = polygonCaling;
                 MinRange = 0 - OutOfRangeOffset;
@@ -266,11 +266,11 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
                 switch (PolygonCaling)
                 {
                     default:
-                    case PolygonCaling.Vartex:
+                    case PolygonCulling.Vartex:
                         return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonVartexBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
-                    case PolygonCaling.Edge:
+                    case PolygonCulling.Edge:
                         return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonEdgeBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
-                    case PolygonCaling.EdgeAndCenterRay:
+                    case PolygonCulling.EdgeAndCenterRay:
                         return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
                 }
 

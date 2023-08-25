@@ -244,7 +244,7 @@ namespace Rs64.TexTransTool.Decal
         }
     }
 
-    public enum PolygonCaling
+    public enum PolygonCulling
     {
         Vartex,
         Edge,
