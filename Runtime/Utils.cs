@@ -7,6 +7,7 @@ using System.Linq;
 using Rs64.TexTransTool.Decal;
 using UnityEngine;
 using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 namespace Rs64.TexTransTool
 {
@@ -217,9 +218,8 @@ namespace Rs64.TexTransTool
                 }
             }
         }
-        public static Dictionary<SerializedObject, SerializedProperty[]> SearchMaterialPropetys(GameObject targetRoot, Type[] IgnoreTypes = null)
+        public static void ChangeMaterialPropetys(IReadOnlyDictionary<Material, Material> MatMapping, GameObject targetRoot, Type[] IgnoreTypes = null)
         {
-            var materialPropetysDict = new Dictionary<SerializedObject, SerializedProperty[]>();
             var allComponent = targetRoot.GetComponentsInChildren<Component>();
             IEnumerable<Component> componets;
             if (IgnoreTypes.Any())
@@ -243,35 +243,19 @@ namespace Rs64.TexTransTool
 
                 var serializeobj = new SerializedObject(component);
                 var iter = serializeobj.GetIterator();
-                var MaterialPropetys = new List<SerializedProperty>();
                 while (iter.Next(true))
                 {
                     var s_Obj = iter;
-                    if (s_Obj.type == "PPtr<Material>" || s_Obj.type == "PPtr<$Material>")
+                    // Debug.Log(s_Obj.type);
+                    if (s_Obj.type == "PPtr<Material>" || s_Obj.type == "PPtr<$Material>" || s_Obj.type == "PPtr<$Object>" || s_Obj.type == "PPtr<Object>")
                     {
-                        MaterialPropetys.Add(s_Obj.Copy());
+                        if (s_Obj.objectReferenceValue is Material mat && MatMapping.ContainsKey(mat))
+                        {
+                            s_Obj.objectReferenceValue = MatMapping[mat];
+                            serializeobj.ApplyModifiedProperties();
+                        }
                     }
                 }
-                if (MaterialPropetys.Any())
-                {
-                    materialPropetysDict.Add(serializeobj, MaterialPropetys.ToArray());
-                }
-            }
-            return materialPropetysDict;
-        }
-        public static void ChengeMateralSerialaizd(Dictionary<SerializedObject, SerializedProperty[]> MaterialPropetys, Material target, Material setMat)
-        {
-            foreach (var serializeObjectAndMatProp in MaterialPropetys)
-            {
-                serializeObjectAndMatProp.Key.Update();
-                foreach (var MaterialPropety in serializeObjectAndMatProp.Value)
-                {
-                    if (MaterialPropety.objectReferenceValue == target)
-                    {
-                        MaterialPropety.objectReferenceValue = setMat;
-                    }
-                }
-                serializeObjectAndMatProp.Key.ApplyModifiedProperties();
             }
         }
         public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)

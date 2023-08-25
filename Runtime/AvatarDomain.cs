@@ -49,6 +49,7 @@ namespace Rs64.TexTransTool
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] List<Material> _initialMaterials;
         [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
+        FlatMapDict<Material> _MapDict;
         [SerializeField] List<MatPea> MatModifids = new List<MatPea>();
         [SerializeField] bool _genereatCustomMipMap;
         Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialPropertys;
@@ -60,13 +61,13 @@ namespace Rs64.TexTransTool
         }
         public void ResetMaterial()
         {
-            if (_cashMaterialPropertys == null) { _cashMaterialPropertys = Utils.SearchMaterialPropetys(_avatarRoot, IgnoreTypes); }
-            MatModifids.Reverse();
-            foreach (var ModifiaidPea in MatModifids)
-            {
-                Utils.ChengeMateralSerialaizd(_cashMaterialPropertys, ModifiaidPea.SecndMaterial, ModifiaidPea.Material);
-            }
+            var RevarsdMatModifaidDict = new Dictionary<Material, Material>();
+            foreach (var MatPea in MatModifids) { RevarsdMatModifaidDict.Add(MatPea.SecndMaterial, MatPea.Material); }
+
+            Utils.ChangeMaterialPropetys(RevarsdMatModifaidDict, _avatarRoot, IgnoreTypes);
+
             MatModifids.Clear();
+
             Utils.SetMaterials(_renderers, _initialMaterials);
         }
         private List<Material> GetFiltedMaterials()
@@ -88,9 +89,9 @@ namespace Rs64.TexTransTool
         {
             if (isPaird)
             {
-                if (_cashMaterialPropertys == null) { _cashMaterialPropertys = Utils.SearchMaterialPropetys(_avatarRoot, IgnoreTypes); }
-                Utils.ChengeMateralSerialaizd(_cashMaterialPropertys, Target, SetMat);
-                MatModifids.Add(new MatPea(Target, SetMat));
+                Utils.ChangeMaterialRendereas(_renderers, Target, SetMat);
+                if(_MapDict == null) _MapDict = new FlatMapDict<Material>();
+                _MapDict.Add(Target, SetMat);
             }
             else
             {
@@ -223,6 +224,9 @@ namespace Rs64.TexTransTool
                 transferAsset(CopySetTex);
             }
 
+            var matModifaidDict = _MapDict.GetMapping;
+            Utils.ChangeMaterialPropetys(matModifaidDict, _avatarRoot, IgnoreTypes);
+            MatModifids = matModifaidDict.Select(i => new MatPea(i.Key, i.Value)).ToList();
         }
 
         private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)
@@ -285,6 +289,28 @@ namespace Rs64.TexTransTool
             }
 
         }
+    }
+
+    public class FlatMapDict<TkeyValu>
+    {
+        Dictionary<TkeyValu, TkeyValu> _dict = new Dictionary<TkeyValu, TkeyValu>();
+        Dictionary<TkeyValu, TkeyValu> _revastDict = new Dictionary<TkeyValu, TkeyValu>();
+
+        public void Add(TkeyValu key, TkeyValu value)
+        {
+            if (_revastDict.TryGetValue(key, out var tkey))
+            {
+                _dict[tkey] = value;
+                _revastDict.Remove(key);
+                _revastDict.Add(value, tkey);
+            }
+            else
+            {
+                _dict.Add(key, value);
+                _revastDict.Add(value, key);
+            }
+        }
+        public IReadOnlyDictionary<TkeyValu, TkeyValu> GetMapping => _dict;
     }
 }
 #endif
