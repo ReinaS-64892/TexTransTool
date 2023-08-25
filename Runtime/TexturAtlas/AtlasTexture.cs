@@ -1,10 +1,8 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
 using System;
-using Rs64.TexTransTool.ShaderSupport;
 using Rs64.TexTransTool.Island;
 using static Rs64.TexTransTool.TransTexture;
 
@@ -786,24 +784,7 @@ namespace Rs64.TexTransTool.TexturAtlas
             SecondMesh = secondMesh;
         }
 
-
-
     }
-    [Serializable]
-    public class SubListMeshPea : AtlasTextureDataContainer.SubList<MeshPea>
-    {
-        public SubListMeshPea(List<MeshPea> subListInstans) : base(subListInstans)
-        {
-        }
-        public static List<SubListMeshPea> ConvartSubList(List<List<MeshPea>> SubListMeshPeas)
-        {
-            return SubListMeshPeas.ConvertAll(I => new SubListMeshPea(I));
-        }
-        public static List<List<MeshPea>> ConvartSubList(List<SubListMeshPea> SubListMeshPeas)
-        {
-            return SubListMeshPeas.ConvertAll(I => I.SubListInstans);
-        }
 
-    }
 }
 #endif

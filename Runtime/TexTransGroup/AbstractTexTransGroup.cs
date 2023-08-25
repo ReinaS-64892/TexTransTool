@@ -42,41 +42,6 @@ namespace Rs64.TexTransTool
                 EditorUtility.SetDirty(tf);
             }
         }
-        // public override void Compile()
-        // {
-        //     try
-        //     {
-        //         foreach (var tf in Targets)
-        //         {
-        //             if (tf == null) continue;
-        //             if (tf.ThisEnable == false) continue;
-
-
-        //             tf.Compile();
-        //             tf.Apply();
-
-        //             UnityEditor.EditorUtility.SetDirty(tf);
-        //         }
-        //     }
-        //     catch (System.Exception e)
-        //     {
-        //         Debug.LogError(e);
-        //     }
-        //     finally
-        //     {
-        //         foreach (var tf in Targets.Reverse())
-        //         {
-        //             if (tf == null) continue;
-        //             if (tf.ThisEnable == false) continue;
-
-
-        //             tf.Revart();
-        //             UnityEditor.EditorUtility.SetDirty(tf);
-        //         }
-        //     }
-        // }
-
-
 
         bool PossibleApplyCheck()
         {
@@ -92,20 +57,6 @@ namespace Rs64.TexTransTool
             }
             return PossibleFlag;
         }
-        // bool PossibleCompileCheck()
-        // {
-        //     bool PossibleFlag = true;
-        //     foreach (var tf in Targets)
-        //     {
-        //         if (tf == null) continue;
-        //         if (tf.ThisEnable == false) continue;
-        //         if (!tf.IsPossibleCompile)
-        //         {
-        //             PossibleFlag = false;
-        //         }
-        //     }
-        //     return PossibleFlag;
-        // }
     }
 }
 #endif
