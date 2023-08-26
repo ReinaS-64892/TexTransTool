@@ -37,7 +37,7 @@ namespace Rs64.TexTransTool.Editor.Decal
             var s_FarCulling = This_S_Object.FindProperty("OutDistansCulling");
             EditorGUILayout.PropertyField(s_FarCulling, new GUIContent("Far Culling OffSet"));
             var s_NierCullingOffSet = This_S_Object.FindProperty("InDistansCulling");
-            EditorGUILayout.PropertyField(s_NierCullingOffSet , new GUIContent("Nier Culling OffSet"));
+            EditorGUILayout.PropertyField(s_NierCullingOffSet, new GUIContent("Nier Culling OffSet"));
             EditorGUI.indentLevel -= 1;
 
 
@@ -45,6 +45,12 @@ namespace Rs64.TexTransTool.Editor.Decal
             if (FoldoutOption)
             {
                 EditorGUI.indentLevel += 1;
+                var s_FastMode = This_S_Object.FindProperty("FastMode");
+                EditorGUILayout.PropertyField(s_FastMode, new GUIContent("FastMode"));
+
+                var s_Pading = This_S_Object.FindProperty("Pading");
+                EditorGUILayout.PropertyField(s_Pading, new GUIContent("Pading"));
+
                 var s_IsSeparateMaterial = This_S_Object.FindProperty("IsSeparateMaterial");
                 EditorGUILayout.PropertyField(s_IsSeparateMaterial, new GUIContent("SeparateMaterial"));
                 EditorGUI.indentLevel -= 1;
