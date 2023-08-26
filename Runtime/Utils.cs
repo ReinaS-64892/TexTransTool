@@ -13,6 +13,7 @@ namespace Rs64.TexTransTool
 {
     public static class Utils
     {
+        public const int ThiSaveDataVersion = 0;
         public static void ForEach2D(Vector2Int Reange, Action<int, int> action)
         {
             int countx = 0;

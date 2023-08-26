@@ -6,7 +6,7 @@ using System;
 namespace Rs64.TexTransTool.Bulige
 {
     [RequireComponent(typeof(AbstractTexTransGroup))]
-    public class AvatarDomainDefinition : MonoBehaviour
+    public class AvatarDomainDefinition : MonoBehaviour , ITexTransToolTag
     {
         public GameObject Avatar;
         public bool GenereatCustomMipMap;
@@ -15,6 +15,9 @@ namespace Rs64.TexTransTool.Bulige
 
         [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
+        [HideInInspector] public int _saveDataVersion = Utils.ThiSaveDataVersion;
+        public int SaveDataVersion => _saveDataVersion;
+
         public virtual AvatarDomain GetDomain(UnityEngine.Object OverrideAssetContainer = null)
         {
             return new AvatarDomain(Avatar, true, GenereatCustomMipMap, OverrideAssetContainer);
