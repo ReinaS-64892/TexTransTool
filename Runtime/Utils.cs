@@ -247,8 +247,7 @@ namespace Rs64.TexTransTool
                 while (iter.Next(true))
                 {
                     var s_Obj = iter;
-                    // Debug.Log(s_Obj.type);
-                    if (s_Obj.type == "PPtr<Material>" || s_Obj.type == "PPtr<$Material>" || s_Obj.type == "PPtr<$Object>" || s_Obj.type == "PPtr<Object>")
+                    if (s_Obj.propertyType == SerializedPropertyType.ObjectReference)
                     {
                         if (s_Obj.objectReferenceValue is Material mat && MatMapping.ContainsKey(mat))
                         {
