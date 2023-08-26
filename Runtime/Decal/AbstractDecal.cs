@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool MultiRendereMode = false;
         public float Pading = 0.5f;
         public bool FastMode = true;
-        public bool IsSeparateMaterial;
+        public bool IsSeparateMatAndTexture;
 
         public virtual Vector2? GetOutRengeTexture { get => Vector2.zero; }
 
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Decal
 
             if (avatarDomain != null)
             {
-                if (!IsSeparateMaterial)
+                if (!IsSeparateMatAndTexture)
                 {
                     foreach (var trp in DecalCompiledTextures)
                     {
