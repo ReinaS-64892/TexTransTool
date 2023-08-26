@@ -31,7 +31,7 @@ namespace Rs64.TexTransTool.Decal
                         GetTraiangleFilter,
                         TargetPropatyName,
                         GetOutRengeTexture,
-                        DefaultPading
+                        Pading
                     );
                 }
 
@@ -53,7 +53,7 @@ namespace Rs64.TexTransTool.Decal
                         GetTraiangleFilter,
                         TargetPropatyName,
                         GetOutRengeTexture,
-                        DefaultPading
+                        Pading
                     );
                     DecalsCompoleTexs.Add(DecalsCompoleds);
                 }

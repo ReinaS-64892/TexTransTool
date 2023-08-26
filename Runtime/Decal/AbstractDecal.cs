@@ -14,7 +14,7 @@ namespace Rs64.TexTransTool.Decal
         public Color Color = Color.white;
         public PropertyName TargetPropatyName = new PropertyName("_MainTex");
         public bool MultiRendereMode = false;
-        public float DefaultPading = 0.5f;
+        public float Pading = 0.5f;
         public bool FastMode = true;
         public bool IsSeparateMaterial;
 

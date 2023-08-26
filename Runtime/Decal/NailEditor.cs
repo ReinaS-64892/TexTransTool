@@ -40,7 +40,7 @@ namespace Rs64.TexTransTool.Decal
                             NailTexSpaseFilter.Item3,
                             TargetPropatyName,
                             GetOutRengeTexture,
-                            DefaultPading
+                            Pading
                         );
                     }
                 }
@@ -69,7 +69,7 @@ namespace Rs64.TexTransTool.Decal
                                     NailTexSpaseFilter.Item3,
                                     TargetPropatyName,
                                     GetOutRengeTexture,
-                                    DefaultPading
+                                    Pading
                                 ));
                     }
                 }

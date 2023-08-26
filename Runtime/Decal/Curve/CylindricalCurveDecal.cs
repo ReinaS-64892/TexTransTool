@@ -65,7 +65,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                                                     CCSfilter,
                                                     TargetPropatyName,
                                                     TextureOutRenge: TexWarpRenage,
-                                                    DefoaltPading: DefaultPading
+                                                    DefoaltPading: Pading
                                                     );
                     }
                     else
@@ -76,7 +76,7 @@ namespace Rs64.TexTransTool.Decal.Curve
                                                                              CCSfilter,
                                                                              TargetPropatyName,
                                                                              TextureOutRenge: TexWarpRenage,
-                                                                             DefoaltPading: DefaultPading
+                                                                             DefoaltPading: Pading
                                                                             ));
                     }
 

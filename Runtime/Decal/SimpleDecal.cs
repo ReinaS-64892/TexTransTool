@@ -194,7 +194,7 @@ namespace Rs64.TexTransTool.Decal
 
             foreach (var render in TargetRenderers)
             {
-                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, DefaultPading);
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, Pading);
             }
             foreach (var Stex in _RealTimePreviewDecalTextureBlend.Keys)
             {
