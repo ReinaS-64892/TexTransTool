@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Bulige
+namespace net.rs64.TexTransTool.Bulige
 {
     public static class AvatarBuligeUtili
     {

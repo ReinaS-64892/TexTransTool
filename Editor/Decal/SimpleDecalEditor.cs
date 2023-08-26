@@ -2,9 +2,9 @@
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.Decal;
 
-namespace Rs64.TexTransTool.Editor.Decal
+namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(SimpleDecal), true)]

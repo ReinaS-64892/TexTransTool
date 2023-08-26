@@ -5,7 +5,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rs64.TexTransTool.Editor
+namespace net.rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(TextureTransformer))]

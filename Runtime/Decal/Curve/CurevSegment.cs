@@ -5,7 +5,7 @@ using VRC.SDKBase;
 #endif
 
 
-namespace Rs64.TexTransTool.Decal.Curve
+namespace net.rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CurevSegment")]
     public class CurevSegment : MonoBehaviour, ITexTransToolTag

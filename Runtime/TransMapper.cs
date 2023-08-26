@@ -9,7 +9,7 @@ using UnityEditor;
 using System.Runtime.CompilerServices;
 using System.Collections;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public static class TransMapper
     {

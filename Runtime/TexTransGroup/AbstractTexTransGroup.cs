@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public abstract class AbstractTexTransGroup : TextureTransformer
     {

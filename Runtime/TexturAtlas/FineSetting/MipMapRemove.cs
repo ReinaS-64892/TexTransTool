@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 {
     public struct MipMapRemove : IFineSetting
     {

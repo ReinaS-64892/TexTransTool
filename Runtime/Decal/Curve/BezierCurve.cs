@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Decal.Curve
+namespace net.rs64.TexTransTool.Decal.Curve
 {
     public class BezierCurve : ICurve
     {

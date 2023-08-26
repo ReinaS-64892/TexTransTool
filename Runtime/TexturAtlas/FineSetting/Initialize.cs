@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 {
     public struct Initialize : IFineSetting
     {

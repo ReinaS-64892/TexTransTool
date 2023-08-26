@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace Rs64.TexTransTool.Decal.Curve
+namespace net.rs64.TexTransTool.Decal.Curve
 {
     public abstract class CurveDecal : AbstractDecal
     {

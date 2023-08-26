@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using Rs64.TexTransTool.Island;
-using static Rs64.TexTransTool.TransTexture;
+using net.rs64.TexTransTool.Island;
+using static net.rs64.TexTransTool.TransTexture;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TexturAtlas
 {
 
     public class AtlasTexture : TextureTransformer

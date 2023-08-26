@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using System.IO;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public abstract class AbstractDecal : TextureTransformer
     {

@@ -1,9 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
-using Rs64.TexTransTool.ShaderSupport;
+using net.rs64.TexTransTool.ShaderSupport;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TexturAtlas
 {
     public interface IAtlasShaderSupport
     {

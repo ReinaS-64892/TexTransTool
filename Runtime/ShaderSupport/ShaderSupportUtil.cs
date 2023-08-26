@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.ShaderSupport
+namespace net.rs64.TexTransTool.ShaderSupport
 {
     public class ShaderSupportUtili
     {

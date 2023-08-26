@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TextureBlender")]
     public class TextureBlender : TextureTransformer

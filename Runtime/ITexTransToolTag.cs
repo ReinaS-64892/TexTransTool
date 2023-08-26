@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public interface ITexTransToolTag
     {

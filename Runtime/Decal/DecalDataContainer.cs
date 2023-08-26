@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     [System.Serializable]
     public class DecalDataContainer : TTDataContainer

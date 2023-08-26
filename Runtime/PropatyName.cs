@@ -5,7 +5,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     [Serializable]
     public struct PropertyName

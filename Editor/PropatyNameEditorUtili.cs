@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using Rs64.TexTransTool.ShaderSupport;
+using net.rs64.TexTransTool.ShaderSupport;
 
-namespace Rs64.TexTransTool.Editor
+namespace net.rs64.TexTransTool.Editor
 {
 
     public static class PropatyNameEditor

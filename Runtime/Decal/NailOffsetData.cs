@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     [CreateAssetMenu(fileName = "NailOffsetData", menuName = "TexTransTool/NailOffsetData", order = 1)]
     public class NailOffsetData : ScriptableObject , ITexTransToolTag

@@ -1,11 +1,11 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System;
-using Rs64.TexTransTool;
+using net.rs64.TexTransTool;
 using UnityEngine;
 using System.Diagnostics;
 
-namespace Rs64.TexTransTool.DebugUtils
+namespace net.rs64.TexTransTool.DebugUtils
 {
     public static class TraiangelDebug
     {

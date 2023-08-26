@@ -2,9 +2,9 @@
 
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool.Decal.Curve;
+using net.rs64.TexTransTool.Decal.Curve;
 
-namespace Rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
+namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
 {
 
 

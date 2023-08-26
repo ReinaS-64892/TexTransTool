@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Editor
+namespace net.rs64.TexTransTool.Editor
 {
 
     public class BlankTextureGenereater

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-namespace Rs64.TexTransTool.Island
+namespace net.rs64.TexTransTool.Island
 {
     [Serializable]
     public struct IslandSelector

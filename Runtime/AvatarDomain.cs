@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using static Rs64.TexTransTool.TextureLayerUtil;
+using static net.rs64.TexTransTool.TextureLayerUtil;
 using UnityEditor;
 using System;
-using Rs64.TexTransTool.Bulige;
+using net.rs64.TexTransTool.Bulige;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     [System.Serializable]
     public class AvatarDomain

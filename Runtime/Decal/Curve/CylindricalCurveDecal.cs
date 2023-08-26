@@ -1,12 +1,12 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
-using Rs64.TexTransTool.Decal.Cylindrical;
+using net.rs64.TexTransTool.Decal.Cylindrical;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
 
-namespace Rs64.TexTransTool.Decal.Curve
+namespace net.rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
     public class CylindricalCurveDecal : CurveDecal

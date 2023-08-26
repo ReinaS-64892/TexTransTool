@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class AvatarDomainAsset : ScriptableObject
+namespace net.rs64.TexTransTool
 {
-    public UnityEngine.Object OverrideContainer;
-    [SerializeField] List<Object> SubAssets = new List<Object>();
-
-    public void AddSubObject(Object UnityObject)
+    public class AvatarDomainAsset : ScriptableObject
     {
-        if (UnityObject != null && !SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
+        public UnityEngine.Object OverrideContainer;
+        [SerializeField] List<Object> SubAssets = new List<Object>();
+
+        public void AddSubObject(Object UnityObject)
         {
-            AssetDatabase.AddObjectToAsset(UnityObject, OverrideContainer == null ? this : OverrideContainer);
-            SubAssets.Add(UnityObject);
+            if (UnityObject != null && !SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
+            {
+                AssetDatabase.AddObjectToAsset(UnityObject, OverrideContainer == null ? this : OverrideContainer);
+                SubAssets.Add(UnityObject);
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using System;
 
-namespace Rs64.TexTransTool.Bulige
+namespace net.rs64.TexTransTool.Bulige
 {
     [RequireComponent(typeof(AbstractTexTransGroup))]
     public class AvatarDomainDefinition : MonoBehaviour , ITexTransToolTag

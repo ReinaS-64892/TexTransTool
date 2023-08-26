@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public enum BlendType
     {

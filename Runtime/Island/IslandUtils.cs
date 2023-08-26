@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Rs64.TexTransTool.TexturAtlas;
+using net.rs64.TexTransTool.TexturAtlas;
 using System.Collections;
-using Rs64.TexTransTool;
+using net.rs64.TexTransTool;
 
-namespace Rs64.TexTransTool.Island
+namespace net.rs64.TexTransTool.Island
 {
 
     public static class IslandUtils

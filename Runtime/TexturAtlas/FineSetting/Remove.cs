@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 {
     public class Remove : IFineSetting
     {

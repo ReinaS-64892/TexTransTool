@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public class TransMapData
     {

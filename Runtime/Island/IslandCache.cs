@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.Island
+namespace net.rs64.TexTransTool.Island
 {
     [Serializable]
     public class IslandCacheObject

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public abstract class AbstructSingleDecal<SpaseConverter> : AbstractDecal
     where SpaseConverter : DecalUtil.IConvertSpace

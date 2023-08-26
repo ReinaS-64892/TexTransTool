@@ -1,12 +1,12 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System;
-using Rs64.TexTransTool.Island;
-using Rs64.TexTransTool.TexturAtlas.FineSettng;
+using net.rs64.TexTransTool.Island;
+using net.rs64.TexTransTool.TexturAtlas.FineSettng;
 using UnityEditor;
 using System.Collections.Generic;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TexturAtlas
 {
     [Serializable]
     public class AtlasSetting

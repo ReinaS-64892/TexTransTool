@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
 
-namespace Rs64.TexTransTool.Bulige.VRC
+namespace net.rs64.TexTransTool.Bulige.VRC
 {
 
     [InitializeOnLoad]

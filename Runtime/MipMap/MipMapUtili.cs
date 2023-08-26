@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public static class MipMapUtili
     {

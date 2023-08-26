@@ -4,11 +4,11 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using Rs64.TexTransTool.Editor;
+using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
 using System;
 
-namespace Rs64.TexTransTool.TexturAtlas.Editor
+namespace net.rs64.TexTransTool.TexturAtlas.Editor
 {
     [CustomEditor(typeof(AtlasTexture), true)]
     public class AtlasTextureEditor : UnityEditor.Editor

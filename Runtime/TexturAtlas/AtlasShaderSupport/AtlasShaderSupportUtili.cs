@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Rs64.TexTransTool.ShaderSupport;
+using net.rs64.TexTransTool.ShaderSupport;
 using UnityEngine;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TexturAtlas
 {
     public class AtlasShaderSupportUtili
     {

@@ -4,12 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.Decal;
 using UnityEngine;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public static class Utils
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     [System.Serializable]
     public class TTDataContainer

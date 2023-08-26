@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TexturAtlas
 {
     public class AtlasTextureDataContainer
     {

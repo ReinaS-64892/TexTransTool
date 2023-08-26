@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using Rs64.TexTransTool.ShaderSupport;
+using net.rs64.TexTransTool.ShaderSupport;
 
-namespace Rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 {
     public interface IFineSetting
     {

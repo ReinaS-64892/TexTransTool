@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TexTransGroup")]
     public class TexTransGroup : AbstractTexTransGroup

@@ -7,7 +7,7 @@ using UnityEditor;
 using Vector2 = UnityEngine.Vector2;
 using System.Linq;
 
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public enum TexWrapMode
     {

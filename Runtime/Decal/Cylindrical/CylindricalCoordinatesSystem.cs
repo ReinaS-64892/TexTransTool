@@ -5,7 +5,7 @@ using UnityEngine;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
-namespace Rs64.TexTransTool.Decal.Cylindrical
+namespace net.rs64.TexTransTool.Decal.Cylindrical
 {
     [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
     public class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag

@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 
-namespace Rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 {
     public class RefarensCopy : IFineSetting
     {

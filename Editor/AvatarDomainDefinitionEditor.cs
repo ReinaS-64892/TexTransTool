@@ -1,9 +1,9 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using Rs64.TexTransTool.Bulige;
+using net.rs64.TexTransTool.Bulige;
 
-namespace Rs64.TexTransTool.Editor
+namespace net.rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(AvatarDomainDefinition), true)]

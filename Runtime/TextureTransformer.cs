@@ -3,7 +3,7 @@ using UnityEngine;
 #if VRC_BASE
 using VRC.SDKBase;
 #endif
-namespace Rs64.TexTransTool
+namespace net.rs64.TexTransTool
 {
     public abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
 #if VRC_BASE

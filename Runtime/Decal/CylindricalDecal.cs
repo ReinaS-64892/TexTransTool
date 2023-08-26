@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Rs64.TexTransTool.Decal.Cylindrical;
+using net.rs64.TexTransTool.Decal.Cylindrical;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/CylindricalDecal")]
     public class CylindricalDecal : AbstructSingleDecal<CCSSpace>

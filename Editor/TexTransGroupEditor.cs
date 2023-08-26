@@ -3,7 +3,7 @@ using System.Net.Mime;
 using UnityEngine;
 using UnityEditor;
 
-namespace Rs64.TexTransTool.Editor
+namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(TexTransGroup))]
     public class TexTransGroupEditor : AbstractTexTransGroupEditor

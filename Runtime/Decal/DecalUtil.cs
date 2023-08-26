@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public static class DecalUtil
     {

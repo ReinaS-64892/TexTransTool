@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using Rs64.TexTransTool;
-using TexLU = Rs64.TexTransTool.TextureLayerUtil;
+using net.rs64.TexTransTool;
+using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
 
-namespace Rs64.TexTransTool.ShaderSupport
+namespace net.rs64.TexTransTool.ShaderSupport
 {
     public class liltoonSupport : IShaderSupport
     {

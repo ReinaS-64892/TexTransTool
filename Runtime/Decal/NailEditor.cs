@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections;
-using Rs64.TexTransTool.Island;
+using net.rs64.TexTransTool.Island;
 
-namespace Rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public class NailEditor : AbstractDecal
     {
