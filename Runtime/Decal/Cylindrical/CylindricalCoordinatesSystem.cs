@@ -16,7 +16,7 @@ namespace Rs64.TexTransTool.Decal.Cylindrical
         public float GizmoRadius = 0.25f;
         public float GizmoHeight = 1f;
 
-        [HideInInspector] public int _saveDataVersion = Utils.ThiSaveDataVersion;
+        [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
 
         private void OnDrawGizmosSelected()

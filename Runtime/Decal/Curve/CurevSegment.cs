@@ -13,7 +13,7 @@ namespace Rs64.TexTransTool.Decal.Curve
     , IEditorOnly
 #endif
     {
-        [HideInInspector] public int _saveDataVersion = Utils.ThiSaveDataVersion;
+        [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public Vector3 position => transform.position;
         public float Rool = 0f;

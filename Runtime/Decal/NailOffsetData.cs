@@ -6,8 +6,10 @@ using UnityEngine;
 namespace Rs64.TexTransTool.Decal
 {
     [CreateAssetMenu(fileName = "NailOffsetData", menuName = "TexTransTool/NailOffsetData", order = 1)]
-    public class NailOffsetData : ScriptableObject
+    public class NailOffsetData : ScriptableObject , ITexTransToolTag
     {
+        [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
+        public int SaveDataVersion => _saveDataVersion;
         public NailOffSets LeftHand = new NailOffSets();
         public NailOffSets RightHand = new NailOffSets();
     }
