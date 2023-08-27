@@ -59,6 +59,14 @@ namespace net.rs64.TexTransTool.TexturAtlas
 
             var TargetRenderers = Renderers;
             var AtlasDatas = GenereatAtlasMeshDatas(TargetRenderers);
+
+            if (SelectRefsMat.Count != AtlasDatas.Materials.Count)
+            {
+                Debug.LogWarning("AtlasTexture : すでにアトラス化されているためか、マテリアルインデックスがずれているためアトラス化ができません。");
+                return false;
+            }
+
+
             var ShaderSupports = new AtlasShaderSupportUtili();
             var OriginIslandPool = AtlasDatas.GeneratedIslandPool(UseIslandCash);
             var AtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
