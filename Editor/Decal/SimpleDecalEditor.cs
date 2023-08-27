@@ -21,19 +21,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
 
+
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
-
             EditorGUI.indentLevel += 1;
-
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
             AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
-            TextureTransformerEditor.DrowProperty(s_FixedAspect, (bool FixdAspectValue) =>
-            {
-                Undo.RecordObject(ThisObject, "ApplyScaile - Size");
-                ThisObject.FixedAspect = FixdAspectValue;
-                ThisObject.ScaleApply();
-            });
 
             var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
             TextureTransformerEditor.DrowProperty(s_MaxDistans, (float MaxDistansValue) =>
@@ -42,8 +35,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 ThisObject.MaxDistans = MaxDistansValue;
                 ThisObject.ScaleApply();
             });
-
             EditorGUI.indentLevel -= 1;
+
+
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
@@ -71,6 +65,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUI.indentLevel -= 1;
             }
             EditorGUI.indentLevel -= 1;
+
 
             FoldoutOption = EditorGUILayout.Foldout(FoldoutOption, "Advanced Option");
             if (FoldoutOption)
