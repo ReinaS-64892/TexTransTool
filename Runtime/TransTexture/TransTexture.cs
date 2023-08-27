@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool
             RenderTexture TargetTexture,
             Texture SouseTexture,
             TransUVData TransUVData,
-            float? Pading = null,
+            float? Padding = null,
             Vector2? WarpRange = null,
             TexWrapMode wrapMode = TexWrapMode.Stretch
             )
@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool
 
             var Material = new Material(Shader.Find("Hidden/TransTexture"));
             Material.SetTexture("_MainTex", SouseTexture);
-            if (Pading != null) Material.SetFloat("_Pading", Pading.Value);
+            if (Padding != null) Material.SetFloat("_Padding", Padding.Value);
 
             if (WarpRange != null)
             {
@@ -76,7 +76,7 @@ namespace net.rs64.TexTransTool
                 RenderTexture.active = TargetTexture;
                 Material.SetPass(0);
                 Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
-                if (Pading != null)
+                if (Padding != null)
                 {
                     Material.SetPass(1);
                     Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
@@ -96,12 +96,12 @@ namespace net.rs64.TexTransTool
             RenderTexture TargetTexture,
             Texture SouseTexture,
             IEnumerable<TransUVData> TransUVData,
-            float? Pading = null,
+            float? Padding = null,
             Vector2? WarpRange = null)
         {
             foreach (var TUVD in TransUVData)
             {
-                TransTextureToRenderTexture(TargetTexture, SouseTexture, TUVD, Pading, WarpRange);
+                TransTextureToRenderTexture(TargetTexture, SouseTexture, TUVD, Padding, WarpRange);
             }
         }
         public static Texture2D CopyTexture2D(this RenderTexture Rt)
@@ -127,21 +127,21 @@ namespace net.rs64.TexTransTool
             TransTargetTexture targetTexture,
             Texture2D SouseTexture,
             TransUVData TransUVData,
-            float? Pading = null,
+            float? Padding = null,
             Vector2? WarpRange = null,
             TexWrapMode wrapMode = TexWrapMode.Stretch
             )
         {
-            Pading = CSPading(Pading);
-            var TransMap = new TransMapData(Pading.Value, targetTexture.DistansMap.MapSize);
-            var TargetScaiUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaiUV, targetTexture.DistansMap.MapSize);
-            TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaiUV, TransUVData.SourceUV);
+            Padding = CSPadding(Padding);
+            var TransMap = new TransMapData(Padding.Value, targetTexture.DistansMap.MapSize);
+            var TargetScaleUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaleUV, targetTexture.DistansMap.MapSize);
+            TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaleUV, TransUVData.SourceUV);
             Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode, WarpRange);
         }
 
-        public static float CSPading(float? Pading)
+        public static float CSPadding(float? Padding)
         {
-            if (Pading.HasValue) { return Mathf.Abs(Pading.Value) * -2; }
+            if (Padding.HasValue) { return Mathf.Abs(Padding.Value) * -2; }
             else { return 0f; }
         }
 

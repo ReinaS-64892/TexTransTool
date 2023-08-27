@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool.Decal
                         GetTriangleFilter,
                         TargetPropertyName,
                         GetOutRangeTexture,
-                        Pading
+                        Padding
                     );
                 }
 
@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool.Decal
                         GetTriangleFilter,
                         TargetPropertyName,
                         GetOutRangeTexture,
-                        Pading
+                        Padding
                     );
                     DecalsCompoleTexs.Add(DecalsCompoleds);
                 }

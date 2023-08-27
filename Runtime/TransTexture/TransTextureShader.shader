@@ -3,7 +3,7 @@ Shader "Hidden/TransTexture"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Pading ("Pading", Float) = 0
+        _Padding ("Padding", Float) = 0
         _WarpRangeX("WarpRangeX" ,Float) = 0
         _WarpRangeY("WarpRangeY" ,Float) = 0
 

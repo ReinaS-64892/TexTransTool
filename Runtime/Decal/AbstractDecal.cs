@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Decal
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = new PropertyName("_MainTex");
         public bool MultiRendereMode = false;
-        public float Pading = 0.5f;
+        public float Padding = 0.5f;
         public bool FastMode = true;
         public bool IsSeparateMatAndTexture;
 
@@ -139,11 +139,11 @@ namespace net.rs64.TexTransTool.Decal
             if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
 
             var DecalCompiledTextures = CompileDecal();
-            foreach (var Texturepea in DecalCompiledTextures)
+            foreach (var Texturepair in DecalCompiledTextures)
             {
-                var Name = Texturepea.Key.name;
+                var Name = Texturepair.Key.name;
                 Texture2D extractDCtex;
-                switch (Texturepea.Value)
+                switch (Texturepair.Value)
                 {
                     case RenderTexture rt:
                         extractDCtex = rt.CopyTexture2D();

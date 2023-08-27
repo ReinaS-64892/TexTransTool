@@ -154,15 +154,15 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
                         var RollAsix = forward - Back;
 
-                        var Clossvec = Vector3.Cross(Back - Point, forward - Point);
-                        Clossvec *= Vector3.left.magnitude / Clossvec.magnitude;
+                        var Closevec = Vector3.Cross(Back - Point, forward - Point);
+                       Closevec *= Vector3.left.magnitude /Closevec.magnitude;
 
-                        Clossvec = Quaternion.AngleAxis(Roll, RollAsix) * Clossvec;
+                       Closevec = Quaternion.AngleAxis(Roll, RollAsix) *Closevec;
 
-                        Clossvec *= (Size * 0.5f);
-                        var Invers = Clossvec * -1;
+                       Closevec *= (Size * 0.5f);
+                        var Invers =Closevec * -1;
 
-                        var Left = Point + Clossvec;
+                        var Left = Point +Closevec;
                         var Right = Point + Invers;
 
                         return (Left, Right);

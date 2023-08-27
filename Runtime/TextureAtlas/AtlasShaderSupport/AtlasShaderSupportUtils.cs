@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public AtlasShaderSupportUtils()
         {
             _defaultShaderSupport = new AtlasDefaultShaderSupport();
-            _shaderSupports = ShaderSupportUtils.GetInterfaseInstans<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) });
+            _shaderSupports = ShaderSupportUtils.GetInterfaceInstance<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) });
         }
 
         public void AddRecord(Material material)

@@ -110,9 +110,9 @@ namespace net.rs64.TexTransTool
             List<T> LoadedAssets = new List<T>();
             foreach (var path in Directory.GetFiles(SaveDirectory))
             {
-                if (AssetDatabase.LoadAssetAtPath(path, typeof(T)) is T tinstans)
+                if (AssetDatabase.LoadAssetAtPath(path, typeof(T)) is T tinstance)
                 {
-                    LoadedAssets.Add(tinstans);
+                    LoadedAssets.Add(tinstance);
                 }
             }
             return LoadedAssets;

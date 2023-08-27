@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private static void DrawAtlasSettings(SerializedProperty s_AtlasSettings)
         {
-            EditorGUILayout.LabelField("AtlasSetiings");
+            EditorGUILayout.LabelField("AtlasSettings");
             EditorGUI.indentLevel += 1;
             for (var Index = 0; Index < s_AtlasSettings.arraySize; Index += 1)
             {
@@ -66,27 +66,27 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.LabelField("Channel " + Index);
                 var S_Channel = s_AtlasSettings.GetArrayElementAtIndex(Index);
                 var S_AtlasTextureSize = S_Channel.FindPropertyRelative("AtlasTextureSize");
-                var S_IsMargeMaterial = S_Channel.FindPropertyRelative("IsMargeMaterial");
-                var S_MargeRefarensMaterial = S_Channel.FindPropertyRelative("MargeRefarensMaterial");
-                var S_ForseSetTexture = S_Channel.FindPropertyRelative("ForseSetTexture");
+                var S_IsMergeMaterial = S_Channel.FindPropertyRelative("IsMergeMaterial");
+                var S_MergeRefarensMaterial = S_Channel.FindPropertyRelative("MergeRefarensMaterial");
+                var S_ForceSetTexture = S_Channel.FindPropertyRelative("ForceSetTexture");
                 var S_PropertyBakeSetting = S_Channel.FindPropertyRelative("PropertyBakeSetting");
-                var S_PadingType = S_Channel.FindPropertyRelative("PadingType");
-                var S_Pading = S_Channel.FindPropertyRelative("Pading");
+                var S_PaddingType = S_Channel.FindPropertyRelative("PaddingType");
+                var S_Padding = S_Channel.FindPropertyRelative("Padding");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
                 var S_fineSettings = S_Channel.FindPropertyRelative("fineSettings");
 
 
 
                 EditorGUILayout.PropertyField(S_AtlasTextureSize);
-                EditorGUILayout.PropertyField(S_IsMargeMaterial);
-                if (S_IsMargeMaterial.boolValue)
+                EditorGUILayout.PropertyField(S_IsMergeMaterial);
+                if (S_IsMergeMaterial.boolValue)
                 {
                     EditorGUILayout.PropertyField(S_PropertyBakeSetting);
-                    EditorGUILayout.PropertyField(S_MargeRefarensMaterial);
+                    EditorGUILayout.PropertyField(S_MergeRefarensMaterial);
                 }
-                EditorGUILayout.PropertyField(S_ForseSetTexture);
-                EditorGUILayout.PropertyField(S_PadingType);
-                EditorGUILayout.PropertyField(S_Pading);
+                EditorGUILayout.PropertyField(S_ForceSetTexture);
+                EditorGUILayout.PropertyField(S_PaddingType);
+                EditorGUILayout.PropertyField(S_Padding);
                 EditorGUILayout.PropertyField(S_SortingType);
                 DrawFineSettings(S_fineSettings);
 
@@ -193,10 +193,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var S_AtlasTextureSize = serializedProperty.FindPropertyRelative("AtlasTextureSize");
             S_AtlasTextureSize.vector2IntValue = new Vector2Int(2048, 2048);
-            var S_PadingType = serializedProperty.FindPropertyRelative("PadingType");
-            S_PadingType.enumValueIndex = 0;
-            var S_Pading = serializedProperty.FindPropertyRelative("Pading");
-            S_Pading.floatValue = -10;
+            var S_PaddingType = serializedProperty.FindPropertyRelative("PaddingType");
+            S_PaddingType.enumValueIndex = 0;
+            var S_Padding = serializedProperty.FindPropertyRelative("Padding");
+            S_Padding.floatValue = -10;
             var S_SortingType = serializedProperty.FindPropertyRelative("SortingType");
             S_SortingType.enumValueIndex = 2;
         }

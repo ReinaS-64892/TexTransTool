@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.Decal
 
             if (DecalTexture != null)
             {
-                if (DisplayDecalMat == null || Quad == null) GizmInstans();
+                if (DisplayDecalMat == null || Quad == null) GizmInstance();
                 DisplayDecalMat.SetPass(0);
                 Graphics.DrawMeshNow(Quad, Matrix);
             }
@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public void GizmInstans()
+        public void GizmInstance()
         {
             DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
             DisplayDecalMat.mainTexture = DecalTexture;
@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var render in TargetRenderers)
             {
-                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTriangleFilter, TargetPropertyName, GetOutRangeTexture, Pading);
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTriangleFilter, TargetPropertyName, GetOutRangeTexture, Padding);
             }
             foreach (var Stex in _RealTimePreviewDecalTextureBlend.Keys)
             {
@@ -252,9 +252,9 @@ namespace net.rs64.TexTransTool.Decal
             this.Filters = Filters;
         }
 
-        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Traiangeles)
+        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Trianglees)
         {
-            return TriangleFilterUtils.FiltaringTriangle(Traiangeles, Spase.PPSVarts, Filters);
+            return TriangleFilterUtils.FiltaringTriangle(Trianglees, Spase.PPSVarts, Filters);
         }
     }
 
@@ -267,10 +267,10 @@ namespace net.rs64.TexTransTool.Decal
             this.IslandSelectors = IslandSelectors;
         }
 
-        public override List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Traiangeles)
+        public override List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Trianglees)
         {
-            Traiangeles = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Traiangeles);
-            return base.Filtering(Spase, Traiangeles);
+            Trianglees = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Trianglees);
+            return base.Filtering(Spase, Trianglees);
         }
 
     }

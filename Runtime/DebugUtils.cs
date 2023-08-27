@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace net.rs64.TexTransTool.DebugUtils
 {
-    public static class TraiangelDebug
+    public static class TriangleDebug
     {
         public static string TriangleToString(IEnumerable<TriangleIndex> filtedTriangle, IReadOnlyList<Vector3> debugvarts)
         {

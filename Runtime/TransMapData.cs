@@ -10,26 +10,26 @@ namespace net.rs64.TexTransTool
     public class TransMapData
     {
         public TowDMap<PosAndDistans> Map;
-        public float DefaultPading;
+        public float DefaultPadding;
 
         public PosAndDistans this[int i] => Map.Array[i];
 
-        public TransMapData(TowDMap<PosAndDistans> map, float defaultPading)
+        public TransMapData(TowDMap<PosAndDistans> map, float defaultPadding)
         {
             Map = map;
-            DefaultPading = defaultPading;
+            DefaultPadding = defaultPadding;
         }
-        public TransMapData(float defaultPading, Vector2Int mapSize)
+        public TransMapData(float defaultPadding, Vector2Int mapSize)
         {
-            var arrey = Utils.FilledArray(new PosAndDistans(Vector2.zero, defaultPading), mapSize.x * mapSize.y);
-            DefaultPading = defaultPading;
+            var arrey = Utils.FilledArray(new PosAndDistans(Vector2.zero, defaultPadding), mapSize.x * mapSize.y);
+            DefaultPadding = defaultPadding;
             var mapsize = mapSize;
             Map = new TowDMap<PosAndDistans>(arrey, mapsize);
         }
         public TransMapData(SerialaizableMap Smap)
         {
             Map = new TowDMap<PosAndDistans>(Smap.Map.Select(I => new PosAndDistans(I.x, I.y, I.z)).ToArray(), Smap.MapSize);
-            DefaultPading = Smap.DefaultPading;
+            DefaultPadding = Smap.DefaultPadding;
 
         }
         public TransMapData()
@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool
         {
             public Vector3[] Map;
             public Vector2Int MapSize;
-            public float DefaultPading;
+            public float DefaultPadding;
         }
         public SerialaizableMap ToSerialaizable()
         {
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool
             {
                 Map = GetVector3s(),
                 MapSize = Map.MapSize,
-                DefaultPading = DefaultPading
+                DefaultPadding = DefaultPadding
             };
         }
     }
@@ -107,10 +107,10 @@ namespace net.rs64.TexTransTool
             Texture2D = texture2D;
             DistansMap = distansMap;
         }
-        public TransTargetTexture(Vector2Int Size, Color DefautColor, float DefaultPading)
+        public TransTargetTexture(Vector2Int Size, Color DefautColor, float DefaultPadding)
         {
             Texture2D = Utils.CreateFillTexture(Size, DefautColor);
-            DistansMap = new TowDMap<float>(DefaultPading, Size);
+            DistansMap = new TowDMap<float>(DefaultPadding, Size);
         }
 
     }

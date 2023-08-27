@@ -43,7 +43,7 @@ float3 DistansEdgeBase(float2 t1, float2 t2, float2 t3, float2 tp)
     return float3(DistansA, DistansB, DistansC);
 }
 
-float4 ClossTriangle(float3 t1, float3 t2, float3 t3, float3 tp)
+float4 CloseTriangle(float3 t1, float3 t2, float3 t3, float3 tp)
 {
 
     float w = cross(t3 - t2, tp - t2).z;
@@ -63,9 +63,9 @@ float MinVector(float3 Vector)
     return min(Vector.x, min(Vector.y, Vector.z));
 }
 
-float3 ToBCS(float4 ClossT)
+float3 ToBCS(float4 CloseT)
 {
-    return float3((ClossT.x/ClossT.w),(ClossT.y/ClossT.w),(ClossT.z/ClossT.w));
+    return float3((CloseT.x/CloseT.w),(CloseT.y/CloseT.w),(CloseT.z/CloseT.w));
 }
 float isDistansCla(float3 Distans, float IsIn)
 {

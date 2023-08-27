@@ -12,7 +12,7 @@
                 float4 vertex : SV_POSITION;
             };
             sampler2D _MainTex;
-            float _Pading;
+            float _Padding;
             float _WarpRangeX;
             float _WarpRangeY;
 
@@ -32,9 +32,9 @@
                 return o;
             }
 
-            UVandVart PadingCal(UVandVart center , UVandVart input,float Pading)
+            UVandVart PaddingCal(UVandVart center , UVandVart input,float Padding)
             {
-                float lerpValue = -1 * Pading;
+                float lerpValue = -1 * Padding;
                 UVandVart o;
                 o.uv = lerp(input.uv ,center.uv ,lerpValue);
                 o.vertex = lerp(input.vertex ,center.vertex ,lerpValue);
@@ -48,9 +48,9 @@
                 center.uv = lerp(lerp(input[0].uv ,input[1].uv ,0.5) ,input[2].uv ,0.5);
                 center.vertex = lerp(lerp(input[0].vertex ,input[1].vertex ,0.5) ,input[2].vertex ,0.5);
 
-                UVandVart g0 = PadingCal(center ,input[0] ,_Pading);
-                UVandVart g1 = PadingCal(center ,input[1] ,_Pading);
-                UVandVart g2 = PadingCal(center ,input[2] ,_Pading);
+                UVandVart g0 = PaddingCal(center ,input[0] ,_Padding);
+                UVandVart g1 = PaddingCal(center ,input[1] ,_Padding);
+                UVandVart g2 = PaddingCal(center ,input[2] ,_Padding);
 
                 stream.Append(g0);
                 stream.Append(g1);

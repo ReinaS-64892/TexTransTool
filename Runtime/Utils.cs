@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool
             }
             return TrianglesList;
         }
-        public static List<List<TriangleIndex>> GetSubTraiangel(this Mesh mesh)
+        public static List<List<TriangleIndex>> GetSubTriangle(this Mesh mesh)
         {
             var SubMeshCount = mesh.subMeshCount;
             List<List<TriangleIndex>> SubTriangles = new List<List<TriangleIndex>>(SubMeshCount);

@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool
             for (int i = 0; i < lengs; i += 1)
             {
                 var NawDistans = AtralsMap[i].Distans;
-                if (NawDistans > AtralsMap.DefaultPading && NawDistans > TargetTex.DistansMap[i])
+                if (NawDistans > AtralsMap.DefaultPadding && NawDistans > TargetTex.DistansMap[i])
                 {
                     Vector2 SouseTexPos = AtralsMap[i].Pos;
 

@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
 #endif
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
-        public bool FiltedBackSide = true;
+        public bool FilteredBackSide = true;
 
         public RollMode RollMode = RollMode.WorldUp;
 
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                                                     CCSfilter,
                                                     TargetPropertyName,
                                                     TextureOutRange: TexWarpRenage,
-                                                    DefoaltPading: Pading
+                                                    DefoaltPadding: Padding
                                                     );
                     }
                     else
@@ -76,7 +76,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                                                                              CCSfilter,
                                                                              TargetPropertyName,
                                                                              TextureOutRange: TexWarpRenage,
-                                                                             DefoaltPading: Pading
+                                                                             DefoaltPadding: Padding
                                                                             ));
                     }
 

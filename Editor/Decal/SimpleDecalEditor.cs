@@ -27,10 +27,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
+            AbstructSingleDecalEditor.DorwScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
             TextureTransformerEditor.DrawerProperty(s_FixedAspect, (bool FixdAspectValue) =>
             {
-                Undo.RecordObject(ThisObject, "ApplyScaile - Size");
+                Undo.RecordObject(ThisObject, "ApplyScale - Size");
                 ThisObject.FixedAspect = FixdAspectValue;
                 ThisObject.ScaleApply();
             });
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
             TextureTransformerEditor.DrawerProperty(s_MaxDistans, (float MaxDistansValue) =>
             {
-                Undo.RecordObject(ThisObject, "ApplyScaile - MaxDistans");
+                Undo.RecordObject(ThisObject, "ApplyScale - MaxDistans");
                 ThisObject.MaxDistans = MaxDistansValue;
                 ThisObject.ScaleApply();
             });
@@ -80,8 +80,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var s_FastMode = This_S_Object.FindProperty("FastMode");
                 EditorGUILayout.PropertyField(s_FastMode, new GUIContent("FastMode"));
 
-                var s_Pading = This_S_Object.FindProperty("Pading");
-                EditorGUILayout.PropertyField(s_Pading, new GUIContent("Pading"));
+                var s_Padding = This_S_Object.FindProperty("Padding");
+                EditorGUILayout.PropertyField(s_Padding, new GUIContent("Padding"));
 
                 var s_IsSeparateMatAndTexture = This_S_Object.FindProperty("IsSeparateMatAndTexture");
                 EditorGUILayout.PropertyField(s_IsSeparateMatAndTexture, new GUIContent("SeparateMaterialAndTexture"));

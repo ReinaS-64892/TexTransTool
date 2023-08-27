@@ -18,11 +18,11 @@ namespace net.rs64.TexTransTool.Decal
     {
         public Upvector Upvector;
 
-        public NaileOffset Thumb = new NaileOffset();
-        public NaileOffset Index = new NaileOffset();
-        public NaileOffset Middle = new NaileOffset();
-        public NaileOffset Ring = new NaileOffset();
-        public NaileOffset Little = new NaileOffset();
+        public NailOffset Thumb = new NailOffset();
+        public NailOffset Index = new NailOffset();
+        public NailOffset Middle = new NailOffset();
+        public NailOffset Ring = new NailOffset();
+        public NailOffset Little = new NailOffset();
 
         public void Copy(NailOffSets Souse)
         {
@@ -53,29 +53,29 @@ namespace net.rs64.TexTransTool.Decal
 
     }
     [Serializable]
-    public class NaileOffset
+    public class NailOffset
     {
 
         public Vector3 PositionOffset = Vector3.zero;
-        public Vector3 ScaileOffset = Vector3.one;
+        public Vector3 ScaleOffset = Vector3.one;
         public Vector3 RotationOffset = Vector3.zero;
 
-        public void Copy(NaileOffset Souse)
+        public void Copy(NailOffset Souse)
         {
             PositionOffset = Souse.PositionOffset;
-            ScaileOffset = Souse.ScaileOffset;
+            ScaleOffset = Souse.ScaleOffset;
             RotationOffset = Souse.RotationOffset;
         }
-        public void Copy(NaileDecalDescripstion Souse)
+        public void Copy(NailDecalDescription Souse)
         {
             PositionOffset = Souse.PositionOffset;
-            ScaileOffset = Souse.ScaileOffset;
+            ScaleOffset = Souse.ScaleOffset;
             RotationOffset = Souse.RotationOffset;
         }
 
-        public NaileOffset Clone()
+        public NailOffset Clone()
         {
-            var New = new NaileOffset();
+            var New = new NailOffset();
             New.Copy(this);
             return New;
         }

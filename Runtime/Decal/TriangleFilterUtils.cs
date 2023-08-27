@@ -16,22 +16,22 @@ namespace net.rs64.TexTransTool.Decal
         where Filter : ITriangleFiltaring<InterSpace>
         {
             var FiltalingTraingles = new List<TriangleIndex>(Target.Count);
-            var Filted = new bool[Target.Count];
+            var Filtered = new bool[Target.Count];
             foreach (var filter in Filtars)
             {
                 for (int i = 0; i < Target.Count; i++)
                 {
-                    if (Filted[i] == false)
+                    if (Filtered[i] == false)
                     {
                         var Triangle = Target[i];
-                        Filted[i] = filter.Filtering(Triangle, InterObjects);
+                        Filtered[i] = filter.Filtering(Triangle, InterObjects);
                     }
                 }
             }
 
             for (int i = 0; i < Target.Count; i++)
             {
-                if (Filted[i] == false)
+                if (Filtered[i] == false)
                 {
                     FiltalingTraingles.Add(Target[i]);
                 }
@@ -190,8 +190,8 @@ namespace net.rs64.TexTransTool.Decal
                 }
                 else
                 {
-                    var ClossT = TransMapper.ClossTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
-                    return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
+                    var CloseT = TransMapper.CloseTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
+                    return TransMapper.IsInCal(CloseT.x,CloseT.y,CloseT.z);
                 }
             }
         }

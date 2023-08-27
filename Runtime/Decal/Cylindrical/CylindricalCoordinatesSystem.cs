@@ -164,9 +164,9 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         {
             Filters = filters;
         }
-        public List<TriangleIndex> Filtering(CCSSpace Spase, List<TriangleIndex> Traiangeles)
+        public List<TriangleIndex> Filtering(CCSSpace Spase, List<TriangleIndex> Trianglees)
         {
-            return TriangleFilterUtils.FiltaringTriangle(Traiangeles, Spase, Filters);
+            return TriangleFilterUtils.FiltaringTriangle(Trianglees, Spase, Filters);
         }
 
 

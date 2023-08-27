@@ -79,14 +79,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var S_DecalTexture = serializedProperty.FindPropertyRelative("DecalTexture");
             var S_PositionOffset = serializedProperty.FindPropertyRelative("PositionOffset");
-            var S_ScaileOffset = serializedProperty.FindPropertyRelative("ScaileOffset");
+            var S_ScaleOffset = serializedProperty.FindPropertyRelative("ScaleOffset");
             var S_RotationOffset = serializedProperty.FindPropertyRelative("RotationOffset");
 
             EditorGUI.indentLevel += 1;
 
             EditorGUILayout.PropertyField(S_DecalTexture);
             DrawPositionOffset(S_PositionOffset);
-            EditorGUILayout.PropertyField(S_ScaileOffset);
+            EditorGUILayout.PropertyField(S_ScaleOffset);
             EditorGUILayout.PropertyField(S_RotationOffset);
 
             EditorGUI.indentLevel -= 1;

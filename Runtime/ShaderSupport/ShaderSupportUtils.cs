@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
         public ShaderSupportUtils()
         {
             _defaultShaderSupport = new DefaultShaderSupport();
-            _shaderSupports = ShaderSupportUtils.GetInterfaseInstans<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) });
+            _shaderSupports = ShaderSupportUtils.GetInterfaceInstance<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) });
         }
 
         public Dictionary<string, PropertyNameAndDisplayName[]> GetPropertyNames()
@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
             return PropertyNames;
         }
 
-        public static List<T> GetInterfaseInstans<T>(Type[] IgnorType = null)
+        public static List<T> GetInterfaceInstance<T>(Type[] IgnorType = null)
         {
             var shaderSupport = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(I => I.GetTypes())

@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool
             TexBuffer.Release();
             return Mips;
         }
-        public static void MargeMip(SortedList<int, Color[]> DistMaps, SortedList<int, Color[]> primMaps)
+        public static void MergeMip(SortedList<int, Color[]> DistMaps, SortedList<int, Color[]> primMaps)
         {
             for (int mapi = 1; mapi < DistMaps.Count; mapi++)
             {

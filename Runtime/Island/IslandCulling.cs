@@ -23,14 +23,14 @@ namespace net.rs64.TexTransTool.Island
 
         public static List<TriangleIndex> Culling(List<IslandSelector> IslandSelectors, IReadOnlyList<Vector3> Positions, IReadOnlyList<Vector2> UV, List<TriangleIndex> Triangles)
         {
-            var iIslands = IslandUtils.CachengUVtoIsland(Triangles, UV);
+            var iIslands = IslandUtils.CachingUVtoIsland(Triangles, UV);
             var rayCastHitTriangle = new List<TriangleIndex>();
             foreach (var i in IslandSelectors)
             {
                 var hits = RayCast(i.Ray, Positions, Triangles, out var RayMatrixPoss);
 
-                FiltedBackTriangle(hits);
-                FiltedRangeTriangle(hits, i.RayRange);
+                FilteredBackTriangle(hits);
+                FilteredRangeTriangle(hits, i.RayRange);
 
                 if (hits.Any())
                 {
@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.Island
             {
                 foreach (var island in iIslands)
                 {
-                    if (island.trainagels.Any(I => I == hitTriangle))
+                    if (island.triangles.Any(I => I == hitTriangle))
                     {
                         hitSelectIsland.Add(island);
                         break;
@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.Island
                 }
             }
 
-            return hitSelectIsland.SelectMany(I => I.trainagels).ToList();
+            return hitSelectIsland.SelectMany(I => I.triangles).ToList();
 
         }
 
@@ -74,15 +74,15 @@ namespace net.rs64.TexTransTool.Island
                 var B = RayMatrixPoss[Triangle.one];
                 var C = RayMatrixPoss[Triangle.two];
 
-                var Closs = TransMapper.ClossTriangle(new Vector2[] { A, B, C }, Vector2.zero);
-                var TBC = TransMapper.ToBCS(Closs);
+                var Close = TransMapper.CloseTriangle(new Vector2[] { A, B, C }, Vector2.zero);
+                var TBC = TransMapper.ToBCS(Close);
                 if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
-                var IsIn = TransMapper.IsInCal(Closs.x, Closs.y, Closs.z);
+                var IsIn = TransMapper.IsInCal(Close.x,Close.y,Close.z);
                 if (IsIn)
                 {
                     var Distans = TransMapper.FromBCS(new Vector3[] { A, B, C }, TBC).z;
 
-                    Hits.Add((i, Distans, Closs));
+                    Hits.Add((i, Distans, Close));
                 }
             }
             Hits.Sort((a, b) => a.Item2.CompareTo(b.Item2));
@@ -94,23 +94,23 @@ namespace net.rs64.TexTransTool.Island
             }
             return Out;
         }
-        public static void FiltedBackTriangle(List<RayCastHitTriangle> RCHTaris)
+        public static void FilteredBackTriangle(List<RayCastHitTriangle> RCHTaris)
         {
             RCHTaris.RemoveAll(I => I.Distans < 0);
         }
-        public static void FiltedRangeTriangle(List<RayCastHitTriangle> RCHTaris, float Range)
+        public static void FilteredRangeTriangle(List<RayCastHitTriangle> RCHTaris, float Range)
         {
             RCHTaris.RemoveAll(I => I.Distans > Range);
         }
         public struct RayCastHitTriangle
         {
             public TriangleIndex Triangle;
-            public Vector4 Closs;
+            public Vector4 Close;
             public float Distans;
-            public RayCastHitTriangle(TriangleIndex traiangle, Vector4 closs, float distans)
+            public RayCastHitTriangle(TriangleIndex triangle, Vector4 close, float distans)
             {
-                this.Triangle = traiangle;
-                this.Closs = closs;
+                this.Triangle = triangle;
+                this.Close = close;
                 this.Distans = distans;
             }
         }

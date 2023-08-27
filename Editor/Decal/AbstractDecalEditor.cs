@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel -= 1;
         }
 
-        public static void DorwScaileEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
+        public static void DorwScaleEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;

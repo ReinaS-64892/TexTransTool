@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstructSingleDecalEditor.DorwScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
@@ -48,8 +48,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var s_FastMode = This_S_Object.FindProperty("FastMode");
                 EditorGUILayout.PropertyField(s_FastMode, new GUIContent("FastMode"));
 
-                var s_Pading = This_S_Object.FindProperty("Pading");
-                EditorGUILayout.PropertyField(s_Pading, new GUIContent("Pading"));
+                var s_Padding = This_S_Object.FindProperty("Padding");
+                EditorGUILayout.PropertyField(s_Padding, new GUIContent("Padding"));
 
                 var s_IsSeparateMatAndTexture = This_S_Object.FindProperty("IsSeparateMatAndTexture");
                 EditorGUILayout.PropertyField(s_IsSeparateMatAndTexture, new GUIContent("SeparateMaterialAndTexture"));

@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var TargetMatSerectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-                ShaderSupports.BakeSetting = atlasSetting.IsMargeMaterial ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
+                ShaderSupports.BakeSetting = atlasSetting.IsMergeMaterial ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
                 var Matdatas = new List<MatData>();
                 foreach (var MatSelector in TargetMatSerectors)
                 {
@@ -110,7 +110,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
 
-                IslandSorting.GenerateMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool, atlasSetting.GetTexScailPading);
+                IslandSorting.GenerateMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool, atlasSetting.GetTexScailPadding);
                 AtlasIslandPool.AddRangeIsland(NawChannnelAtlasIslandPool);
 
 
@@ -145,7 +145,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             if (Origin != null && Moved != null) { IslandPairs.Add((Origin, Moved)); }
                         }
 
-                        TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPairs, atlasSetting.GetTexScailPading);
+                        TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPairs, atlasSetting.GetTexScailPadding);
                     }
 
                     CompiledAtlasTextures.Add(new PropAndTexture2D(Porp, TargetRT.CopyTexture2D()));
@@ -283,10 +283,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 avatarMaterialDomain.transferAsset(AtlasTex.Select(PaT => PaT.Texture2D));
 
 
-                if (AtlasSetting.IsMargeMaterial)
+                if (AtlasSetting.IsMergeMaterial)
                 {
-                    var MargeMat = AtlasSetting.MargeRefarensMaterial != null ? AtlasSetting.MargeRefarensMaterial : Materials[ChannnelMatRefs.First()];
-                    Material GenerateMat = GenerateAtlasMat(MargeMat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
+                    var MergeMat = AtlasSetting.MergeRefarensMaterial != null ? AtlasSetting.MergeRefarensMaterial : Materials[ChannnelMatRefs.First()];
+                    Material GenerateMat = GenerateAtlasMat(MergeMat, AtlasTex, ShaderSupport, AtlasSetting.ForceSetTexture);
 
                     var DistMats = ChannnelMatRefs.Select(Matref => Materials[Matref]).ToList();
                     avatarMaterialDomain.SetMaterials(DistMats.ConvertAll(Mat => new MatPair(Mat, GenerateMat)), false);
@@ -299,7 +299,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     foreach (var Matref in ChannnelMatRefs)
                     {
                         var Mat = Materials[Matref];
-                        var GenerateMat = GenerateAtlasMat(Mat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
+                        var GenerateMat = GenerateAtlasMat(Mat, AtlasTex, ShaderSupport, AtlasSetting.ForceSetTexture);
 
                         MaterialMap.Add(new MatPair(Mat, GenerateMat));
                     }
@@ -326,11 +326,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var NawRendares = Renderers;
 
             var revartmeshdict = new Dictionary<Mesh, Mesh>();
-            foreach (var meshpea in RevertMeshs)
+            foreach (var meshpair in RevertMeshs)
             {
-                if (!revartmeshdict.ContainsKey(meshpea.SecondMesh))
+                if (!revartmeshdict.ContainsKey(meshpair.SecondMesh))
                 {
-                    revartmeshdict.Add(meshpea.SecondMesh, meshpea.Mesh);
+                    revartmeshdict.Add(meshpair.SecondMesh, meshpair.Mesh);
                 }
             }
 
@@ -345,9 +345,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPairs, float pading)
+        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPairs, float padding)
         {
-            pading *= 0.5f;
+            padding *= 0.5f;
             var SUV = new List<Vector2>();
             var TUV = new List<Vector2>();
             var Triangles = new List<TriangleIndex>();
@@ -355,8 +355,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var NawIndex = 0;
             foreach ((var Origin, var Moved) in islandPairs)
             {
-                var Originvarts = Origin.GenerateRectVart(pading);
-                var Movedvarts = Moved.GenerateRectVart(pading);
+                var Originvarts = Origin.GenerateRectVart(padding);
+                var Movedvarts = Moved.GenerateRectVart(padding);
                 var Tris = new List<TriangleIndex>(6)
                 {
                     new TriangleIndex(NawIndex + 0, NawIndex + 1, NawIndex + 2),
@@ -415,11 +415,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return IndexTag;
         }
 
-        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtils ShaderSupport, bool ForseSetTexture)
+        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtils ShaderSupport, bool ForceSetTexture)
         {
             var EditableTMat = UnityEngine.Object.Instantiate(TargetMat);
 
-            EditableTMat.SetTextures(AtlasTex, ForseSetTexture);
+            EditableTMat.SetTextures(AtlasTex, ForceSetTexture);
             EditableTMat.RemoveUnusedProperties();
             ShaderSupport.MaterialCustomSetting(EditableTMat);
             return EditableTMat;
@@ -460,7 +460,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     AtlasMeshData.Add(new AtlasMeshData(
                         RefMesh,
-                        mesh.GetSubTraiangel(),
+                        mesh.GetSubTriangle(),
                         UV,
                         MaterialIndex
                         ));
@@ -740,10 +740,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<Vector2> GeneratedUV;
         public int[] MaterialIndex;
 
-        public AtlasMeshData(int refarensMesh, IReadOnlyList<IReadOnlyList<TriangleIndex>> traiangles, List<Vector2> uV, int[] materialIndex)
+        public AtlasMeshData(int refarensMesh, IReadOnlyList<IReadOnlyList<TriangleIndex>> triangles, List<Vector2> uV, int[] materialIndex)
         {
             RefarensMesh = refarensMesh;
-            Triangles = traiangles;
+            Triangles = triangles;
             UV = uV;
             MaterialIndex = materialIndex;
         }

@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool
 
             Utils.SetMaterials(_renderers, _initialMaterials);
         }
-        private List<Material> GetFiltedMaterials()
+        private List<Material> GetFilteredMaterials()
         {
             return Utils.GetMaterials(_renderers).Distinct().Where(I => I != null).ToList();
         }
@@ -105,11 +105,11 @@ namespace net.rs64.TexTransTool
         {
             SetMaterial(Pair.Material, Pair.SecondMaterial, isPaird);
         }
-        public void SetMaterials(IEnumerable<MatPair> peas, bool isPaird)
+        public void SetMaterials(IEnumerable<MatPair> pairs, bool isPaird)
         {
-            foreach (var pea in peas)
+            foreach (var pair in pairs)
             {
-                SetMaterial(pea, isPaird);
+                SetMaterial(pair, isPaird);
             }
         }
 
@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool
         /// <param name="SetTex">差し替え先</param>
         public List<MatPair> SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            var Mats = GetFiltedMaterials();
+            var Mats = GetFilteredMaterials();
             var TargetAndSet = new List<MatPair>();
             foreach (var Mat in Mats)
             {
@@ -193,7 +193,7 @@ namespace net.rs64.TexTransTool
             foreach (var Stack in _textureStacks)
             {
                 var Dist = Stack.FirstTexture;
-                var SetTex = Stack.MargeStack();
+                var SetTex = Stack.MergeStack();
                 if (Dist == null || SetTex == null) continue;
 
 
@@ -212,7 +212,7 @@ namespace net.rs64.TexTransTool
 
                     var DistMip = SetTex.GenerateMiplist();
                     var SetTexMip = PrimeTex.GenerateMiplist();
-                    MipMapUtils.MargeMip(DistMip, SetTexMip);
+                    MipMapUtils.MergeMip(DistMip, SetTexMip);
 
                     Mip = DistMip;
                 }
@@ -252,7 +252,7 @@ namespace net.rs64.TexTransTool
 
         public List<Material> FindUseMaterials(Texture2D Texture)
         {
-            var Mats = GetFiltedMaterials();
+            var Mats = GetFilteredMaterials();
             List<Material> UseMats = new List<Material>();
             foreach (var Mat in Mats)
             {
@@ -276,7 +276,7 @@ namespace net.rs64.TexTransTool
                 set => StackTextures.Add(value);
             }
 
-            public Texture2D MargeStack()
+            public Texture2D MergeStack()
             {
                 var Size = FirstTexture.NativeSize();
                 var RendererTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
@@ -284,7 +284,7 @@ namespace net.rs64.TexTransTool
 
                 RendererTexture.BlendBlit(StackTextures);
 
-                RendererTexture.name = FirstTexture.name + "_MargedStack";
+                RendererTexture.name = FirstTexture.name + "_MergedStack";
                 return RendererTexture.CopyTexture2D();
             }
 

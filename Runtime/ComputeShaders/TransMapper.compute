@@ -1,5 +1,5 @@
-﻿#pragma kernel TransMapGeneratPadingEdgeBase
-#pragma kernel TransMapGeneratPadingVartexBase
+﻿#pragma kernel TransMapGeneratPaddingEdgeBase
+#pragma kernel TransMapGeneratPaddingVartexBase
 
 #include "./TransHelper.hlsl"
 #include "./TransMapperHelper.hlsl"
@@ -8,16 +8,16 @@ uint Size;
 StructuredBuffer<float2> Triangles;
 RWStructuredBuffer<float3> Result;
 
-[numthreads(32, 32, 1)] void TransMapGeneratPadingEdgeBase(uint3 id: SV_DispatchThreadID)
+[numthreads(32, 32, 1)] void TransMapGeneratPaddingEdgeBase(uint3 id: SV_DispatchThreadID)
 {
   float3 TargetPos = float3(id.x , id.y , 0);
-  float4 ClossT = ClossTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
+  float4 CloseT =CloseTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansEdgeBase(Triangles[SelectTriangle(id.z,0)],Triangles[SelectTriangle(id.z,1)],Triangles[SelectTriangle(id.z,2)],(float2)TargetPos);
-  float IsIn = IsInCal(ClossT.x,ClossT.y,ClossT.z);
+  float IsIn = IsInCal(CloseT.x,CloseT.y,CloseT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBCS(ClossT));
+  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBCS(CloseT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
@@ -25,16 +25,16 @@ RWStructuredBuffer<float3> Result;
   Result[resindex] =  NotEdit.z  < RevPos3.z ?  RevPos3 : NotEdit;
 }
 
-[numthreads(32, 32, 1)] void TransMapGeneratPadingVartexBase(uint3 id: SV_DispatchThreadID)
+[numthreads(32, 32, 1)] void TransMapGeneratPaddingVartexBase(uint3 id: SV_DispatchThreadID)
 {
   float3 TargetPos = float3(id.x , id.y , 0);
-  float4 ClossT = ClossTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
+  float4 CloseT =CloseTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansVartBase(Triangles[SelectTriangle(id.z,0)],Triangles[SelectTriangle(id.z,1)],Triangles[SelectTriangle(id.z,2)],(float2)TargetPos);
-  float IsIn = IsInCal(ClossT.x,ClossT.y,ClossT.z);
+  float IsIn = IsInCal(CloseT.x,CloseT.y,CloseT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBCS(ClossT));
+  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBCS(CloseT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
