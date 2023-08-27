@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         public string ShaderName => "DefaultShader";
 
-        public PropertyNameAndDisplayName[] GetPropatyNames => new PropertyNameAndDisplayName[] { new PropertyNameAndDisplayName("_MainTex", "MainTexture") };
+        public PropertyNameAndDisplayName[] GetPropertyNames => new PropertyNameAndDisplayName[] { new PropertyNameAndDisplayName("_MainTex", "MainTexture") };
 
         public void AddRecord(Material material)
         {

@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool
 {
     public static class MipMapUtili
     {
-        public static SortedList<int, Color[]> GenereatMiplist(this Texture2D Texture)
+        public static SortedList<int, Color[]> GenerateMiplist(this Texture2D Texture)
         {
             var Mips = new SortedList<int, Color[]>();
             var MipMapper = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>("Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/MipMapper.compute");
@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool
                 Texture.SetPixels(mip, i);
             }
         }
-        public static SortedList<int, Color[]> GenereatMiplistInCPU(this Texture2D Texture)
+        public static SortedList<int, Color[]> GenerateMiplistInCPU(this Texture2D Texture)
         {
             var Tex = new TowDMap<Color>(Texture.GetPixels(), new Vector2Int(Texture.width, Texture.height));
             var Mips = new SortedList<int, Color[]>();

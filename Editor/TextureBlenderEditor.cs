@@ -35,12 +35,12 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(S_BlendType);
 
 
-            var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            EditorGUILayout.PropertyField(S_TargetPropatyName);
+            var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
+            EditorGUILayout.PropertyField(S_TargetPropertyName);
             EditorGUI.EndDisabledGroup();
 
 
-            TextureTransformerEditor.DrowApplyAndRevart(Target);
+            TextureTransformerEditor.DrawerApplyAndRevert(Target);
             This_S_Object.ApplyModifiedProperties();
         }
 

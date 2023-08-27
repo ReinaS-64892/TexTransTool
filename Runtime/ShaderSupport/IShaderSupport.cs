@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         string ShaderName { get; }
 
-        PropertyNameAndDisplayName[] GetPropatyNames { get; }
+        PropertyNameAndDisplayName[] GetPropertyNames { get; }
     }
 
     public struct PropertyNameAndDisplayName

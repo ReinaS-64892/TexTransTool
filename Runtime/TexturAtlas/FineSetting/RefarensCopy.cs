@@ -1,27 +1,27 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
 {
     public class RefarensCopy : IFineSetting
     {
         public int Order => 1024;
 
-        public string SousePropatyName;
-        public string TargetPropatyName;
+        public string SousePropertyName;
+        public string TargetPropertyName;
 
-        public RefarensCopy(string refarensCopy_SousePropatyName, string refarensCopy_TargetPropatyName)
+        public RefarensCopy(string refarensCopy_SousePropertyName, string refarensCopy_TargetPropertyName)
         {
-            SousePropatyName = refarensCopy_SousePropatyName;
-            TargetPropatyName = refarensCopy_TargetPropatyName;
+            SousePropertyName = refarensCopy_SousePropertyName;
+            TargetPropertyName = refarensCopy_TargetPropertyName;
         }
 
         public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
-            var Texture = propAndTextures.Find(x => x.PropertyName == SousePropatyName);
+            var Texture = propAndTextures.Find(x => x.PropertyName == SousePropertyName);
             if (Texture == null) return;
-            var propAndTex = propAndTextures.Find(x => x.PropertyName == TargetPropatyName);
-            if (propAndTex == null) propAndTex = new PropAndTexture2D(TargetPropatyName, null);
+            var propAndTex = propAndTextures.Find(x => x.PropertyName == TargetPropertyName);
+            if (propAndTex == null) propAndTex = new PropAndTexture2D(TargetPropertyName, null);
             propAndTex.Texture2D = Texture.Texture2D;
         }
     }

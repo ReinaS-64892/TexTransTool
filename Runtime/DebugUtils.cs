@@ -9,11 +9,11 @@ namespace net.rs64.TexTransTool.DebugUtils
 {
     public static class TraiangelDebug
     {
-        public static string TraiangleToString(IEnumerable<TraiangleIndex> filtedTraiangle, IReadOnlyList<Vector3> debugvarts)
+        public static string TriangleToString(IEnumerable<TriangleIndex> filtedTriangle, IReadOnlyList<Vector3> debugvarts)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-            foreach (var I in filtedTraiangle)
+            foreach (var I in filtedTriangle)
             {
                 sb.Append($"{debugvarts[I[0]].x},{debugvarts[I[0]].y},{debugvarts[I[0]].z},");
                 sb.Append($"{debugvarts[I[1]].x},{debugvarts[I[1]].y},{debugvarts[I[1]].z},");

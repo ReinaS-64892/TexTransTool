@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Bulige
     public class AvatarDomainDefinition : MonoBehaviour , ITexTransToolTag
     {
         public GameObject Avatar;
-        public bool GenereatCustomMipMap;
+        public bool GenerateCustomMipMap;
         [SerializeField] public AbstractTexTransGroup TexTransGroup;
         [SerializeField] protected AvatarDomain CacheDomain;
 
@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Bulige
         public int SaveDataVersion => _saveDataVersion;
         public virtual AvatarDomain GetDomain(UnityEngine.Object OverrideAssetContainer = null)
         {
-            return new AvatarDomain(Avatar, true, GenereatCustomMipMap, OverrideAssetContainer);
+            return new AvatarDomain(Avatar, true, GenerateCustomMipMap, OverrideAssetContainer);
         }
         public virtual void SetAvatar(GameObject gameObject)
         {
@@ -40,14 +40,14 @@ namespace net.rs64.TexTransTool.Bulige
             CacheDomain.SaveTexture();
         }
 
-        public virtual void Revart()
+        public virtual void Revert()
         {
             if (_IsSelfCallApply == false) return;
             if (TexTransGroup == null) Reset();
             if (!TexTransGroup.IsApply) return;
             _IsSelfCallApply = false;
             CacheDomain.ResetMaterial();
-            TexTransGroup.Revart(CacheDomain);
+            TexTransGroup.Revert(CacheDomain);
             AssetSaveHelper.DeletAsset(CacheDomain.Asset);
             CacheDomain = null;
         }

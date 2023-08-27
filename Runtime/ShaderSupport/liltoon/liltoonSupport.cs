@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         public string ShaderName => "lilToon";
 
-        public PropertyNameAndDisplayName[] GetPropatyNames
+        public PropertyNameAndDisplayName[] GetPropertyNames
         {
             get
             {

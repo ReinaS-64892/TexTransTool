@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
     public class AtlasTextureDataContainer
     {
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
         }
 
         List<MeshAndMatRef> _meshes;
-        public List<MeshAndMatRef> GenereatMeshs
+        public List<MeshAndMatRef> GenerateMeshs
         {
             get => _meshes;
             set
@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
 
 
         [SerializeField] List<List<Material>> _genereatMaterials;
-        public List<List<Material>> GenereatMaterials
+        public List<List<Material>> GenerateMaterials
         {
             get => _genereatMaterials;
             set

@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool
     }
     public static class TextureLayerUtil
     {
-        public const string BlendTextureCSPaht = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/BlendTexture.compute";
+        public const string BlendTextureCSPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/BlendTexture.compute";
 
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
         {
@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool
         public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
         {
             var Material = new Material(Shader.Find("Hidden/BlendTexture"));
-            var Swap = new RenderTexture(Base.descriptor);//GlabPassが使えないためスワップしている。
+            var Swap = new RenderTexture(Base.descriptor);//GrabPassが使えないためスワップしている。
 
             var IsSwap = false;
             foreach (var Add in Adds)
@@ -100,211 +100,211 @@ namespace net.rs64.TexTransTool
         {
             if (Base.width != Add.width && Base.height != Add.height) throw new System.ArgumentException("Textureの解像度が同一ではありません。。");
 
-            var BaesPixels = Base.GetPixels();
+            var BasePixels = Base.GetPixels();
             var AddPixels = Add.GetPixels();
-            var ResultTexutres = new Texture2D(Base.width, Base.height);
-            var ResultPixels = new Color[BaesPixels.Length];
+            var ResultTextures = new Texture2D(Base.width, Base.height);
+            var ResultPixels = new Color[BasePixels.Length];
 
-            var PileTasks = new ConfiguredTaskAwaitable<Color>[BaesPixels.Length];
+            var PileTasks = new ConfiguredTaskAwaitable<Color>[BasePixels.Length];
 
-            var indexEnumretor = Enumerable.Range(0, BaesPixels.Length);
+            var indexEnumerator = Enumerable.Range(0, BasePixels.Length);
             switch (blendType)
             {
                 default:
                 case BlendType.Normal:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorNormal(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorNormal(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Mul:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorMul(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorMul(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Screen:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorScreen(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorScreen(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Overlay:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorOverlay(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorOverlay(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.HardLight:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorHardLight(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorHardLight(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.SoftLight:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorSoftLight(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorSoftLight(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.ColorDodge:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorColorDodge(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorColorDodge(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.ColorBurn:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorColorBurn(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorColorBurn(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.LinearBurn:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorLinearBurn(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorLinearBurn(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.VividLight:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorVividLight(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorVividLight(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.LinearLight:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorLinearLight(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorLinearLight(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Divide:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorDivide(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorDivide(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Addition:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorAddition(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorAddition(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Subtract:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorSubtract(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorSubtract(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Difference:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorDifference(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorDifference(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.DarkenOnly:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorDarkenOnly(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorDarkenOnly(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.LightenOnly:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorLightenOnly(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorLightenOnly(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Hue:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorHue(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorHue(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Saturation:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColoSaturation(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColoSaturation(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Color:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorColor(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorColor(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.Luminosity:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorLuminosity(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorLuminosity(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
                     }
                 case BlendType.AlphaLerp:
                     {
-                        foreach (var Index in indexEnumretor)
+                        foreach (var Index in indexEnumerator)
                         {
-                            var PileTask = Task.Run<Color>(() => BlendColorAlphaLerp(BaesPixels[Index], AddPixels[Index])).ConfigureAwait(false);
+                            var PileTask = Task.Run<Color>(() => BlendColorAlphaLerp(BasePixels[Index], AddPixels[Index])).ConfigureAwait(false);
                             PileTasks[Index] = PileTask;
                         }
                         break;
@@ -314,14 +314,14 @@ namespace net.rs64.TexTransTool
 
             }
 
-            foreach (var Index in indexEnumretor)
+            foreach (var Index in indexEnumerator)
             {
                 ResultPixels[Index] = await PileTasks[Index];
             }
 
-            ResultTexutres.SetPixels(ResultPixels);
+            ResultTextures.SetPixels(ResultPixels);
 
-            return ResultTexutres;
+            return ResultTextures;
         }
         public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, Texture2D Base, Texture2D Add, BlendType PileType)
         {
@@ -333,19 +333,19 @@ namespace net.rs64.TexTransTool
             var FirstTex = Textures[0];
             var Size = FirstTex.NativeSize();
             if (Textures.Any(i => i.NativeSize() != Size)) throw new System.ArgumentException("Textureの解像度が同一ではありません。");
-            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPaht);
+            if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(BlendTextureCSPath);
 
 
             Compiler.NotFIlterAndReadWritTexture2D(ref FirstTex);
-            var BaesPixels = FirstTex.GetPixels();
-            var ResultTexutres = new Texture2D(Size.x, Size.y);
+            var BasePixels = FirstTex.GetPixels();
+            var ResultTextures = new Texture2D(Size.x, Size.y);
             int KarnelId = CS.FindKernel(PileType.ToString());
 
             CS.SetInt("Size", Size.x);
 
-            var BaseTexCB = new ComputeBuffer(BaesPixels.Length, 16);
-            var AddTexCB = new ComputeBuffer(BaesPixels.Length, 16);
-            BaseTexCB.SetData(BaesPixels);
+            var BaseTexCB = new ComputeBuffer(BasePixels.Length, 16);
+            var AddTexCB = new ComputeBuffer(BasePixels.Length, 16);
+            BaseTexCB.SetData(BasePixels);
             CS.SetBuffer(KarnelId, "BaseTex", BaseTexCB);
 
             foreach (var tex in Textures.Skip(1))
@@ -360,13 +360,13 @@ namespace net.rs64.TexTransTool
 
             }
 
-            BaseTexCB.GetData(BaesPixels);
-            ResultTexutres.SetPixels(BaesPixels);
+            BaseTexCB.GetData(BasePixels);
+            ResultTextures.SetPixels(BasePixels);
 
             BaseTexCB.Release();
             AddTexCB.Release();
 
-            return ResultTexutres;
+            return ResultTextures;
         }
         static (float, float) FinalAlphaAndReversCal(float Base, float Add)
         {

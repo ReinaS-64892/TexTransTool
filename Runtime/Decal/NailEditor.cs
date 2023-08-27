@@ -38,8 +38,8 @@ namespace net.rs64.TexTransTool.Decal
                             NailTexSpaseFilter.Item1,
                             NailTexSpaseFilter.Item2,
                             NailTexSpaseFilter.Item3,
-                            TargetPropatyName,
-                            GetOutRengeTexture,
+                            TargetPropertyName,
+                            GetOutRangeTexture,
                             Pading
                         );
                     }
@@ -67,8 +67,8 @@ namespace net.rs64.TexTransTool.Decal
                                     NailTexSpaseFilter.Item1,
                                     NailTexSpaseFilter.Item2,
                                     NailTexSpaseFilter.Item3,
-                                    TargetPropatyName,
-                                    GetOutRengeTexture,
+                                    TargetPropertyName,
+                                    GetOutRangeTexture,
                                     Pading
                                 ));
                     }
@@ -120,9 +120,9 @@ namespace net.rs64.TexTransTool.Decal
             return Spases;
         }
 
-        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> GetFilter()
         {
-            return new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>
+            return new List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>>
             {
                 new TrainagelFilterUtility.FarStruct(1, false),
                 new TrainagelFilterUtility.NearStruct(0, true),

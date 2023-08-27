@@ -4,7 +4,7 @@ using System.Linq;
 using System;
 using net.rs64.TexTransTool.ShaderSupport;
 
-namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
 {
     public interface IFineSetting
     {
@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
         void FineSetting(List<PropAndTexture2D> propAndTextures);
     }
 
-    public enum PropatySelect
+    public enum PropertySelect
     {
         Equal,
         NotEqual,
@@ -20,20 +20,20 @@ namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
 
     public static class FineSettingUtil
     {
-        public static IEnumerable<PropAndTexture2D> FiltTarget(string PropatyNames, PropatySelect select, List<PropAndTexture2D> propAndTextures)
+        public static IEnumerable<PropAndTexture2D> FiltTarget(string PropertyNames, PropertySelect select, List<PropAndTexture2D> propAndTextures)
         {
-            var PropatyNameList = PropatyNames.Split(' ');
+            var PropertyNameList = PropertyNames.Split(' ');
             switch (select)
             {
                 default:
-                case PropatySelect.Equal:
+                case PropertySelect.Equal:
                     {
-                        return propAndTextures.Where(x => PropatyNameList.Contains(x.PropertyName));
+                        return propAndTextures.Where(x => PropertyNameList.Contains(x.PropertyName));
 
                     }
-                case PropatySelect.NotEqual:
+                case PropertySelect.NotEqual:
                     {
-                        return propAndTextures.Where(x => !PropatyNameList.Contains(x.PropertyName));
+                        return propAndTextures.Where(x => !PropertyNameList.Contains(x.PropertyName));
 
                     }
             }

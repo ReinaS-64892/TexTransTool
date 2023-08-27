@@ -8,14 +8,14 @@ namespace net.rs64.TexTransTool.Decal
 {
     public static class TrainagelFilterUtility
     {
-        public interface ITraiangleFiltaring<InterObject>
+        public interface ITriangleFiltaring<InterObject>
         {
-            bool Filtering(TraiangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
+            bool Filtering(TriangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
         }
-        public static List<TraiangleIndex> FiltaringTraiangle<InterSpace, Filter>(List<TraiangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filter> Filtars)
-        where Filter : ITraiangleFiltaring<InterSpace>
+        public static List<TriangleIndex> FiltaringTriangle<InterSpace, Filter>(List<TriangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filter> Filtars)
+        where Filter : ITriangleFiltaring<InterSpace>
         {
-            var FiltalingTraingles = new List<TraiangleIndex>(Target.Count);
+            var FiltalingTraingles = new List<TriangleIndex>(Target.Count);
             var Filted = new bool[Target.Count];
             foreach (var filter in Filtars)
             {
@@ -23,8 +23,8 @@ namespace net.rs64.TexTransTool.Decal
                 {
                     if (Filted[i] == false)
                     {
-                        var Traiangle = Target[i];
-                        Filted[i] = filter.Filtering(Traiangle, InterObjects);
+                        var Triangle = Target[i];
+                        Filted[i] = filter.Filtering(Triangle, InterObjects);
                     }
                 }
             }
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Decal
             return FiltalingTraingles;
         }
 
-        public struct SideStruct : ITraiangleFiltaring<List<Vector3>>
+        public struct SideStruct : ITriangleFiltaring<List<Vector3>>
         {
             public bool IsReverse;
 
@@ -49,24 +49,24 @@ namespace net.rs64.TexTransTool.Decal
                 IsReverse = isReverse;
             }
 
-            public bool Filtering(TraiangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
             {
                 return SideChek(TargetTri, Vartex, IsReverse);
             }
 
-            public static bool SideChek(TraiangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse = false)
+            public static bool SideChek(TriangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse = false)
             {
                 var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
                 var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
-                var TraiangleSide = Vector3.Cross(ba, ac).z;
-                if (!IsReverse) return TraiangleSide < 0;
-                else return TraiangleSide > 0;
+                var TriangleSide = Vector3.Cross(ba, ac).z;
+                if (!IsReverse) return TriangleSide < 0;
+                else return TriangleSide > 0;
             }
 
 
         }
 
-        public struct FarStruct : ITraiangleFiltaring<List<Vector3>>
+        public struct FarStruct : ITriangleFiltaring<List<Vector3>>
         {
             public float Far;
             public bool IsAllVartex;
@@ -77,11 +77,11 @@ namespace net.rs64.TexTransTool.Decal
                 IsAllVartex = isAllVartex;
             }
 
-            public bool Filtering(TraiangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
             {
                 return FarClip(TargetTri, Vartex, Far, IsAllVartex);
             }
-            public static bool FarClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
+            public static bool FarClip(TriangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
             {
                 if (IsAllVartex)
                 {
@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public struct NearStruct : TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>
+        public struct NearStruct : TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>
         {
             public float Near;
             public bool IsAllVartex;
@@ -105,11 +105,11 @@ namespace net.rs64.TexTransTool.Decal
                 IsAllVartex = isAllVartex;
             }
 
-            public bool Filtering(TraiangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
             {
                 return NearClip(TargetTri, Vartex, Near, IsAllVartex);
             }
-            public static bool NearClip(TraiangleIndex TargetTri, List<Vector3> Vartex, float Near, bool IsAllVartex)
+            public static bool NearClip(TriangleIndex TargetTri, List<Vector3> Vartex, float Near, bool IsAllVartex)
             {
                 if (IsAllVartex)
                 {
@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public struct OutOfPorigonStruct : ITraiangleFiltaring<List<Vector3>>
+        public struct OutOfPorigonStruct : ITriangleFiltaring<List<Vector3>>
         {
             public PolygonCulling PolygonCaling;
             public float MinRange;
@@ -137,7 +137,7 @@ namespace net.rs64.TexTransTool.Decal
                 IsAllVartex = isAllVartex;
             }
 
-            public bool Filtering(TraiangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
             {
                 switch (PolygonCaling)
                 {
@@ -152,7 +152,7 @@ namespace net.rs64.TexTransTool.Decal
 
             }
 
-            public static bool OutOfPorigonVartexBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+            public static bool OutOfPorigonVartexBase(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
             {
                 bool[] OutOfPrygon = new bool[3] { false, false, false };
                 foreach (var Index in Enumerable.Range(0, 3))
@@ -164,7 +164,7 @@ namespace net.rs64.TexTransTool.Decal
                 if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
                 else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
             }
-            public static bool OutOfPorigonEdgeBase(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+            public static bool OutOfPorigonEdgeBase(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
             {
                 float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
                 var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
@@ -180,7 +180,7 @@ namespace net.rs64.TexTransTool.Decal
                 if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
                 else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
             }
-            public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TraiangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+            public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
             {
                 float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
                 var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
@@ -190,7 +190,7 @@ namespace net.rs64.TexTransTool.Decal
                 }
                 else
                 {
-                    var ClossT = TransMapper.ClossTraiangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
+                    var ClossT = TransMapper.ClossTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
                     return TransMapper.IsInCal(ClossT.x, ClossT.y, ClossT.z);
                 }
             }

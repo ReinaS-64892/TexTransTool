@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool
                 if (OverrideAssetContainer == null)
                 {
                     Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                    AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenereatAssetPath("AvatarDomainAsset", ".asset"));
+                    AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset"));
                 }
                 else
                 {
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool
         [SerializeField] List<Material> _initialMaterials;
         [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
         FlatMapDict<Material> _MapDict;
-        [SerializeField] List<MatPea> MatModifids = new List<MatPea>();
+        [SerializeField] List<MatPair> MatModifids = new List<MatPair>();
         [SerializeField] bool _genereatCustomMipMap;
         Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialPropertys;
 
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
         public void ResetMaterial()
         {
             var RevarsdMatModifaidDict = new Dictionary<Material, Material>();
-            foreach (var MatPea in MatModifids) { RevarsdMatModifaidDict.Add(MatPea.SecndMaterial, MatPea.Material); }
+            foreach (var MatPair in MatModifids) { RevarsdMatModifaidDict.Add(MatPair.SecondMaterial, MatPair.Material); }
 
             Utils.ChangeMaterialPropetys(RevarsdMatModifaidDict, _avatarRoot, IgnoreTypes);
 
@@ -101,11 +101,11 @@ namespace net.rs64.TexTransTool
             transferAsset(SetMat);
         }
 
-        public void SetMaterial(MatPea Pea, bool isPaird)
+        public void SetMaterial(MatPair Pair, bool isPaird)
         {
-            SetMaterial(Pea.Material, Pea.SecndMaterial, isPaird);
+            SetMaterial(Pair.Material, Pair.SecondMaterial, isPaird);
         }
-        public void SetMaterials(IEnumerable<MatPea> peas, bool isPaird)
+        public void SetMaterials(IEnumerable<MatPair> peas, bool isPaird)
         {
             foreach (var pea in peas)
             {
@@ -119,10 +119,10 @@ namespace net.rs64.TexTransTool
         /// </summary>
         /// <param name="Target">差し替え元</param>
         /// <param name="SetTex">差し替え先</param>
-        public List<MatPea> SetTexture(Texture2D Target, Texture2D SetTex)
+        public List<MatPair> SetTexture(Texture2D Target, Texture2D SetTex)
         {
             var Mats = GetFiltedMaterials();
-            var TargetAndSet = new List<MatPea>();
+            var TargetAndSet = new List<MatPair>();
             foreach (var Mat in Mats)
             {
                 var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
@@ -139,7 +139,7 @@ namespace net.rs64.TexTransTool
                         }
                     }
 
-                    TargetAndSet.Add(new MatPea(Mat, NewMat));
+                    TargetAndSet.Add(new MatPair(Mat, NewMat));
                 }
             }
 
@@ -151,7 +151,7 @@ namespace net.rs64.TexTransTool
         /// ドメイン内のすべてのマテリアルのtextureをKeyからValueに変更する
         /// </summary>
         /// <param name="TargetAndSet"></param>
-        public List<MatPea> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
+        public List<MatPair> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
         {
             Dictionary<Material, Material> KeyAndNotSavedMat = new Dictionary<Material, Material>();
             foreach (var KVP in TargetAndSet)
@@ -162,15 +162,15 @@ namespace net.rs64.TexTransTool
                 {
                     if (KeyAndNotSavedMat.ContainsKey(MatPar.Material) == false)
                     {
-                        KeyAndNotSavedMat.Add(MatPar.Material, MatPar.SecndMaterial);
+                        KeyAndNotSavedMat.Add(MatPar.Material, MatPar.SecondMaterial);
                     }
                     else
                     {
-                        KeyAndNotSavedMat[MatPar.Material] = MatPar.SecndMaterial;
+                        KeyAndNotSavedMat[MatPar.Material] = MatPar.SecondMaterial;
                     }
                 }
             }
-            return KeyAndNotSavedMat.Select(i => new MatPea(i.Key, i.Value)).ToList();
+            return KeyAndNotSavedMat.Select(i => new MatPair(i.Key, i.Value)).ToList();
         }
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
@@ -210,8 +210,8 @@ namespace net.rs64.TexTransTool
 
                     var PrimeTex = PrimeRT.CopyTexture2D();
 
-                    var DistMip = SetTex.GenereatMiplist();
-                    var SetTexMip = PrimeTex.GenereatMiplist();
+                    var DistMip = SetTex.GenerateMiplist();
+                    var SetTexMip = PrimeTex.GenerateMiplist();
                     MipMapUtili.MargeMip(DistMip, SetTexMip);
 
                     Mip = DistMip;
@@ -226,7 +226,7 @@ namespace net.rs64.TexTransTool
 
             var matModifaidDict = _MapDict.GetMapping;
             Utils.ChangeMaterialPropetys(matModifaidDict, _avatarRoot, IgnoreTypes);
-            MatModifids = matModifaidDict.Select(i => new MatPea(i.Key, i.Value)).ToList();
+            MatModifids = matModifaidDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
         }
 
         private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)

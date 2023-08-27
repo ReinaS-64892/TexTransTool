@@ -12,13 +12,13 @@ namespace net.rs64.TexTransTool.Decal
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
-        public PropertyName TargetPropatyName = new PropertyName("_MainTex");
+        public PropertyName TargetPropertyName = new PropertyName("_MainTex");
         public bool MultiRendereMode = false;
         public float Pading = 0.5f;
         public bool FastMode = true;
         public bool IsSeparateMatAndTexture;
 
-        public virtual Vector2? GetOutRengeTexture { get => Vector2.zero; }
+        public virtual Vector2? GetOutRangeTexture { get => Vector2.zero; }
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.Decal
                     var Materials = Utils.GetMaterials(TargetRenderers).Distinct();
                     CopyTexdiscription(DecaleBlendTexteres);
 
-                    var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropatyName);
+                    var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropertyName);
                     Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
                 }
             }
@@ -53,12 +53,12 @@ namespace net.rs64.TexTransTool.Decal
             {
                 var DecaleBlendTexteres = DecalBlend(DecalCompiledTextures, BlendType);
                 var Materials = Utils.GetMaterials(TargetRenderers).Distinct();
-                var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropatyName);
+                var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropertyName);
 
                 Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
-                var ListMatpe = MatPea.GeneratMatPeaList(DictMat);
+                var ListMatpe = MatPair.GeneratMatPairList(DictMat);
                 LocalSave = new DecalDataContainer();
-                LocalSave.GenereatMaterials = ListMatpe;
+                LocalSave.GenerateMaterials = ListMatpe;
                 LocalSave.DecaleBlendTexteres = DecaleBlendTexteres.Values.ToList();
             }
             _IsApply = true;
@@ -72,13 +72,13 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public static Dictionary<Material, Material> TextureSwapdMaterial(Dictionary<Texture2D, Texture2D> DecaleBlendTexteres, IEnumerable<Material> Materials, string TargetPropatyName)
+        public static Dictionary<Material, Material> TextureSwapdMaterial(Dictionary<Texture2D, Texture2D> DecaleBlendTexteres, IEnumerable<Material> Materials, string TargetPropertyName)
         {
             var DictMat = new Dictionary<Material, Material>();
             foreach (var Material in Materials)
             {
-                if (!Material.HasProperty(TargetPropatyName)) { continue; }
-                var OldTex = Material.GetTexture(TargetPropatyName) as Texture2D;
+                if (!Material.HasProperty(TargetPropertyName)) { continue; }
+                var OldTex = Material.GetTexture(TargetPropertyName) as Texture2D;
 
                 if (OldTex == null) continue;
                 if (!DecaleBlendTexteres.ContainsKey(OldTex)) continue;
@@ -86,7 +86,7 @@ namespace net.rs64.TexTransTool.Decal
                 var NewMat = UnityEngine.Object.Instantiate(Material);
 
                 var NewTex = DecaleBlendTexteres[OldTex];
-                NewMat.SetTexture(TargetPropatyName, NewTex);
+                NewMat.SetTexture(TargetPropertyName, NewTex);
                 DictMat.Add(Material, NewMat);
             }
 
@@ -110,7 +110,7 @@ namespace net.rs64.TexTransTool.Decal
 
         DecalDataContainer LocalSave;
 
-        public override void Revart(AvatarDomain avatarMaterialDomain = null)
+        public override void Revert(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             else
             {
-                var RevarList = MatPea.GeneratMatDict(MatPea.SwitchingdList(LocalSave.GenereatMaterials));
+                var RevarList = MatPair.GeneratMatDict(MatPair.SwitchingList(LocalSave.GenerateMaterials));
                 Utils.ChangeMaterialsRendereas(TargetRenderers, RevarList);
                 LocalSave = null;
             }

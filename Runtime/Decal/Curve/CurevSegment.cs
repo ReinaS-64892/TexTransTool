@@ -7,8 +7,8 @@ using VRC.SDKBase;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
-    [AddComponentMenu("TexTransTool/Experimental/CurevSegment")]
-    public class CurevSegment : MonoBehaviour, ITexTransToolTag
+    [AddComponentMenu("TexTransTool/Experimental/CurveSegment")]
+    public class CurveSegment : MonoBehaviour, ITexTransToolTag
 #if VRC_BASE
     , IEditorOnly
 #endif
@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
         [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public Vector3 position => transform.position;
-        public float Rool = 0f;
+        public float Roll = 0f;
 
     }
 }

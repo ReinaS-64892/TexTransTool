@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool
                 EditorUtility.SetDirty(tf);
             }
         }
-        public override void Revart(AvatarDomain AvatarMaterialDomain = null)
+        public override void Revert(AvatarDomain AvatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool
             {
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
-                tf.Revart(AvatarMaterialDomain);
+                tf.Revert(AvatarMaterialDomain);
                 EditorUtility.SetDirty(tf);
             }
         }

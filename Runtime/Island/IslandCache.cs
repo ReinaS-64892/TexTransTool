@@ -18,20 +18,20 @@ namespace net.rs64.TexTransTool.Island
             Hash = hash;
             Islands = islands;
         }
-        public IslandCacheObject(List<TraiangleIndex> Triange, List<Vector2> UV, List<Island> Island)
+        public IslandCacheObject(List<TriangleIndex> Triange, List<Vector2> UV, List<Island> Island)
         {
             SetData(Triange, UV, Island);
         }
-        public void SetData(List<TraiangleIndex> Triange, List<Vector2> UV, List<Island> Island)
+        public void SetData(List<TriangleIndex> Triange, List<Vector2> UV, List<Island> Island)
         {
             Islands = Island;
 
-            Hash = GenereatHash(Triange, UV);
+            Hash = GenerateHash(Triange, UV);
         }
 
-        public static byte[] GenereatHash(IReadOnlyList<TraiangleIndex> Triange, IReadOnlyList<Vector2> UV)
+        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> Triange, IReadOnlyList<Vector2> UV)
         {
-            var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(new List<TraiangleIndex>(Triange), UV));
+            var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(new List<TriangleIndex>(Triange), UV));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(datajson);
 
             return SHA1.Create().ComputeHash(data);
@@ -40,20 +40,20 @@ namespace net.rs64.TexTransTool.Island
         [Serializable]
         class TrainagleAndUVpeas
         {
-            public List<TraiangleIndex> Triange;
+            public List<TriangleIndex> Triange;
             public List<Vector2> UV;
 
-            public TrainagleAndUVpeas(List<TraiangleIndex> triange, List<Vector2> uV)
+            public TrainagleAndUVpeas(List<TriangleIndex> triange, List<Vector2> uV)
             {
                 Triange = triange;
                 UV = uV;
             }
-            public TrainagleAndUVpeas(IReadOnlyList<TraiangleIndex> triange, IReadOnlyList<Vector2> uV)
+            public TrainagleAndUVpeas(IReadOnlyList<TriangleIndex> triange, IReadOnlyList<Vector2> uV)
             {
                 Triange = triange.ToList();
                 UV = uV.ToList();
             }
-        
+
 
         }
     }

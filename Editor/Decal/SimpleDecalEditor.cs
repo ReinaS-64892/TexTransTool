@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
 
-            AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
+            AbstructSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
 
@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
             AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
-            TextureTransformerEditor.DrowProperty(s_FixedAspect, (bool FixdAspectValue) =>
+            TextureTransformerEditor.DrawerProperty(s_FixedAspect, (bool FixdAspectValue) =>
             {
                 Undo.RecordObject(ThisObject, "ApplyScaile - Size");
                 ThisObject.FixedAspect = FixdAspectValue;
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             });
 
             var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
-            TextureTransformerEditor.DrowProperty(s_MaxDistans, (float MaxDistansValue) =>
+            TextureTransformerEditor.DrawerProperty(s_MaxDistans, (float MaxDistansValue) =>
             {
                 Undo.RecordObject(ThisObject, "ApplyScaile - MaxDistans");
                 ThisObject.MaxDistans = MaxDistansValue;
@@ -91,15 +91,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
             EditorGUI.EndDisabledGroup();
-            DrowRealTimePreviewEditor(ThisObject);
+            DrawerRealTimePreviewEditor(ThisObject);
             EditorGUI.BeginDisabledGroup(ThisObject.IsRealTimePreview);
-            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
+            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
             EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
         }
 
-        private static void DrowRealTimePreviewEditor(SimpleDecal Target)
+        private static void DrawerRealTimePreviewEditor(SimpleDecal Target)
         {
             if (Target == null) return;
             {

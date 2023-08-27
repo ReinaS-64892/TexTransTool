@@ -9,12 +9,12 @@ namespace net.rs64.TexTransTool
     public class TTDataContainer
     {
         public bool IsPossibleApply = false;
-        [SerializeField] List<MatPea> _GenereatMatPears = new List<MatPea>();
+        [SerializeField] List<MatPair> _GenerateMatPairs = new List<MatPair>();
 
-        public List<MatPea> GenereatMaterials
+        public List<MatPair> GenerateMaterials
         {
-            set => _GenereatMatPears = value;
-            get => _GenereatMatPears;
+            set => _GenerateMatPairs = value;
+            get => _GenerateMatPairs;
         }
 
     }
@@ -49,41 +49,41 @@ namespace net.rs64.TexTransTool
         }
     }
     [System.Serializable]
-    public struct MatPea
+    public struct MatPair
     {
         public Material Material;
-        public Material SecndMaterial;
+        public Material SecondMaterial;
 
-        public MatPea(Material material, Material secndMaterial)
+        public MatPair(Material material, Material secondMaterial)
         {
             Material = material;
-            SecndMaterial = secndMaterial;
+            SecondMaterial = secondMaterial;
         }
 
-        public static List<MatPea> GeneratMatPeaList(Dictionary<Material, Material> MatDict)
+        public static List<MatPair> GeneratMatPairList(Dictionary<Material, Material> MatDict)
         {
-            var ret = new List<MatPea>();
+            var ret = new List<MatPair>();
             foreach (var item in MatDict)
             {
-                ret.Add(new MatPea(item.Key, item.Value));
+                ret.Add(new MatPair(item.Key, item.Value));
             }
             return ret;
         }
-        public static Dictionary<Material, Material> GeneratMatDict(List<MatPea> MatPeas)
+        public static Dictionary<Material, Material> GeneratMatDict(List<MatPair> MatPairs)
         {
             var ret = new Dictionary<Material, Material>();
-            foreach (var item in MatPeas)
+            foreach (var item in MatPairs)
             {
-                ret.Add(item.Material, item.SecndMaterial);
+                ret.Add(item.Material, item.SecondMaterial);
             }
             return ret;
         }
-        public static List<MatPea> SwitchingdList(List<MatPea> MatPeas)
+        public static List<MatPair> SwitchingList(List<MatPair> MatPairs)
         {
-            var ret = new List<MatPea>();
-            foreach (var item in MatPeas)
+            var ret = new List<MatPair>();
+            foreach (var item in MatPairs)
             {
-                ret.Add(new MatPea(item.SecndMaterial, item.Material));
+                ret.Add(new MatPair(item.SecondMaterial, item.Material));
             }
             return ret;
         }

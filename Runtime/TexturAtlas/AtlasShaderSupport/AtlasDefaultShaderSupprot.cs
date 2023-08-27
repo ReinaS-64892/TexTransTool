@@ -6,13 +6,13 @@ using UnityEngine;
 using net.rs64.TexTransTool;
 using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
     public class AtlasDefaultShaderSupprot : IAtlasShaderSupport
     {
         public void AddRecord(Material material) { }
         public void ClearRecord() { }
-        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropatyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting)
         {
             if (material.HasProperty("_MainTex")) { return new List<PropAndTexture>() { new PropAndTexture("_MainTex", material.GetTexture("_MainTex")) }; }
             else { return new List<PropAndTexture>(); }

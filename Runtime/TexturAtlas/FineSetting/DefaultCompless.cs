@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
 {
     public struct DefaultCompless : IFineSetting
     {

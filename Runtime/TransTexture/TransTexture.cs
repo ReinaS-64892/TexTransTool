@@ -12,18 +12,18 @@ namespace net.rs64.TexTransTool
     {
         public struct TransUVData
         {
-            public IReadOnlyList<TraiangleIndex> TrianglesToIndex;
+            public IReadOnlyList<TriangleIndex> TrianglesToIndex;
             public IReadOnlyList<Vector2> TargetUV;
             public IReadOnlyList<Vector2> SourceUV;
 
-            public TransUVData(IReadOnlyList<TraiangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetUV, IReadOnlyList<Vector2> SourceUV)
+            public TransUVData(IReadOnlyList<TriangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetUV, IReadOnlyList<Vector2> SourceUV)
             {
                 this.TrianglesToIndex = TrianglesToIndex;
                 this.TargetUV = TargetUV;
                 this.SourceUV = SourceUV;
             }
 
-            public Mesh GenereateTransMesh()
+            public Mesh GenerateTransMesh()
             {
                 var Mesh = new Mesh();
                 var Vertices = TargetUV.Select(I => new Vector3(I.x, I.y, 0)).ToArray();
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool
             TexWrapMode wrapMode = TexWrapMode.Stretch
             )
         {
-            var Mesh = TransUVData.GenereateTransMesh();
+            var Mesh = TransUVData.GenerateTransMesh();
 
             var PreBias = SouseTexture.mipMapBias;
             SouseTexture.mipMapBias = SouseTexture.mipmapCount * -1;

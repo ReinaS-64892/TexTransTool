@@ -7,7 +7,7 @@ using net.rs64.TexTransTool;
 using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
     public class liltoonAtlasSupport : IAtlasShaderSupport
     {
@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
             material.SetTexture("_BaseColorMap", MainTex);
         }
 
-        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropatyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting)
         {
             var propEnvsDict = new Dictionary<string, Texture>();
 
@@ -112,7 +112,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 propEnvsDict.Add("_OutlineWidthMask", material.GetTexture("_OutlineWidthMask") as Texture2D);
                 propEnvsDict.Add("_OutlineVectorTex", material.GetTexture("_OutlineVectorTex") as Texture2D);
             }
-            if (bakeSetting == PropatyBakeSetting.NotBake)
+            if (bakeSetting == PropertyBakeSetting.NotBake)
             {
                 var propAndTexture2 = new List<PropAndTexture>();
                 foreach (var PropEnv in propEnvsDict)
@@ -129,7 +129,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 var MainTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                 if (MainTex == null)
                 {
-                    if (AradeyTex || bakeSetting == PropatyBakeSetting.BakeAllPropaty)
+                    if (AradeyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
                         propEnvsDict[TexPropName] = TexLU.CreateColorTex(Color);
                     }
@@ -146,7 +146,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 var PropTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                 if (PropTex == null)
                 {
-                    if (AradeyTex || bakeSetting == PropatyBakeSetting.BakeAllPropaty)
+                    if (AradeyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
                         propEnvsDict[TexPropName] = TexLU.CreateColorTex(new Color(Propfloat, Propfloat, Propfloat, Propfloat));
                     }
@@ -302,7 +302,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                     var OutlinewidthMask = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
                     if (OutlinewidthMask == null)
                     {
-                        if (lilDifferenceRecordI.IsAredyTex_OutlineWidth || bakeSetting == PropatyBakeSetting.BakeAllPropaty)
+                        if (lilDifferenceRecordI.IsAredyTex_OutlineWidth || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                         {
                             var newtex = TexLU.CreateColorTex(new Color(Outlinewidth, Outlinewidth, Outlinewidth, Outlinewidth));
                             if (propEnvsDict.ContainsKey(TexPropName))

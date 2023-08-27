@@ -17,14 +17,14 @@ namespace net.rs64.TexTransTool.ShaderSupport
             _shaderSupports = ShaderSupportUtili.GetInterfaseInstans<IShaderSupport>(new Type[] { typeof(DefaultShaderSupprot) });
         }
 
-        public Dictionary<string, PropertyNameAndDisplayName[]> GetPropatyNames()
+        public Dictionary<string, PropertyNameAndDisplayName[]> GetPropertyNames()
         {
-            var PropatyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.ShaderName, _defaultShaderSupprot.GetPropatyNames } };
+            var PropertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.ShaderName, _defaultShaderSupprot.GetPropertyNames } };
             foreach (var i in _shaderSupports)
             {
-                PropatyNames.Add(i.ShaderName, i.GetPropatyNames);
+                PropertyNames.Add(i.ShaderName, i.GetPropertyNames);
             }
-            return PropatyNames;
+            return PropertyNames;
         }
 
         public static List<T> GetInterfaseInstans<T>(Type[] IgnorType = null)

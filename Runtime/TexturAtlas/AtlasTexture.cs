@@ -6,7 +6,7 @@ using System;
 using net.rs64.TexTransTool.Island;
 using static net.rs64.TexTransTool.TransTexture;
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
 
     public class AtlasTexture : TextureTransformer
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
             var SelectRefsMat = new OrderdHashSet<Material>(SelectRefarensMat);
 
             var TargetRenderers = Renderers;
-            var AtlasDatas = GenereatAtlasMeshDatas(TargetRenderers);
+            var AtlasDatas = GenerateAtlasMeshDatas(TargetRenderers);
             var ShaderSupports = new AtlasShaderSupportUtili();
             var OriginIslandPool = AtlasDatas.GeneratedIslandPool(UseIslandCash);
             var AtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 var TargetMatSerectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlsChannel == Channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-                ShaderSupports.BakeSetting = atlasSetting.IsMargeMaterial ? atlasSetting.PropatyBakeSetting : PropatyBakeSetting.NotBake;
+                ShaderSupports.BakeSetting = atlasSetting.IsMargeMaterial ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
                 var Matdatas = new List<MatData>();
                 foreach (var MatSelector in TargetMatSerectors)
                 {
@@ -110,23 +110,23 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 }
 
 
-                IslandSorting.GenereatMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool, atlasSetting.GetTexScailPading);
+                IslandSorting.GenerateMovedIlands(atlasSetting.SortingType, NawChannnelAtlasIslandPool, atlasSetting.GetTexScailPading);
                 AtlasIslandPool.AddRangeIsland(NawChannnelAtlasIslandPool);
 
 
                 //アトラス化したテクスチャーを生成するフェーズ
                 var CompiledAtlasTextures = new List<PropAndTexture2D>();
 
-                var PropatyNames = new HashSet<string>();
+                var PropertyNames = new HashSet<string>();
                 foreach (var matdata in Matdatas)
                 {
-                    PropatyNames.UnionWith(matdata.PropAndTextures.ConvertAll(PaT => PaT.PropertyName));
+                    PropertyNames.UnionWith(matdata.PropAndTextures.ConvertAll(PaT => PaT.PropertyName));
                 }
 
 
                 var Tags = NawChannnelAtlasIslandPool.GetTag();
 
-                foreach (var Porp in PropatyNames)
+                foreach (var Porp in PropertyNames)
                 {
                     var TargetRT = new RenderTexture(atlasSetting.AtlasTextureSize.x, atlasSetting.AtlasTextureSize.y, 32, RenderTextureFormat.ARGB32);
                     TargetRT.name = "AtlasTex" + Porp;
@@ -136,16 +136,16 @@ namespace net.rs64.TexTransTool.TexturAtlas
                         if (SousePorp2Tex == null) continue;
 
 
-                        var IslandPeas = new List<(Island.Island, Island.Island)>();
+                        var IslandPairs = new List<(Island.Island, Island.Island)>();
                         foreach (var TargetIndexTag in Tags.Where(tag => AtlasDatas.GetMaterialRefarens(tag) == matdata.MaterialRefarens))
                         {
                             var Origin = OriginIslandPool.FindTag(TargetIndexTag);
                             var Moved = NawChannnelAtlasIslandPool.FindTag(TargetIndexTag);
 
-                            if (Origin != null && Moved != null) { IslandPeas.Add((Origin, Moved)); }
+                            if (Origin != null && Moved != null) { IslandPairs.Add((Origin, Moved)); }
                         }
 
-                        TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPeas, atlasSetting.GetTexScailPading);
+                        TransMoveRectIsland(SousePorp2Tex.Texture2D, TargetRT, IslandPairs, atlasSetting.GetTexScailPading);
                     }
 
                     CompiledAtlasTextures.Add(new PropAndTexture2D(Porp, TargetRT.CopyTexture2D()));
@@ -214,13 +214,13 @@ namespace net.rs64.TexTransTool.TexturAtlas
             //保存するフェーズ
             Container.ChannnelsMatRef = ChannnelsMatRef;
             Container.AtlasTextures = CompiledAllAtlasTextures;
-            Container.GenereatMeshs = CompiledMeshs;
+            Container.GenerateMeshs = CompiledMeshs;
             Container.IsPossibleApply = true;
             return true;
         }
 
-        public AvatarDomain RevartDomain;
-        public List<MeshPea> RevartMeshs;
+        public AvatarDomain RevertDomain;
+        public List<MeshPair> RevertMeshs;
         public override void Apply(AvatarDomain avatarMaterialDomain = null)
         {
             var result = CompileAtlasTextures();
@@ -228,16 +228,16 @@ namespace net.rs64.TexTransTool.TexturAtlas
             if (!Container.IsPossibleApply) { return; }
 
             var NawRendares = Renderers;
-            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevartDomain = avatarMaterialDomain; }
-            else { RevartDomain = avatarMaterialDomain.GetBackUp(); }
-            Container.GenereatMaterials = null;
+            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevertDomain = avatarMaterialDomain; }
+            else { RevertDomain = avatarMaterialDomain.GetBackUp(); }
+            Container.GenerateMaterials = null;
 
-            var GenereatMaterials = new List<List<Material>>();
+            var GenerateMaterials = new List<List<Material>>();
 
             var ShaderSupport = new AtlasShaderSupportUtili();
 
             var ChannnelMatRef = Container.ChannnelsMatRef;
-            var GenereatMeshs = Container.GenereatMeshs;
+            var GenerateMeshs = Container.GenerateMeshs;
             var AtlasTexs = Container.AtlasTextures;
             var Materials = GetMaterials(NawRendares);
             var RefarensMesh = GetMeshes(NawRendares);
@@ -245,7 +245,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
             if (AtlasSettings.Count != AtlasTexs.Count || AtlasSettings.Count != ChannnelMatRef.Count) { return; }
 
 
-            var nawchannelrevartmeshs = new List<MeshPea>();
+            var nawchannelrevartmeshs = new List<MeshPair>();
             var MMref = ChannnelMatRef.SelectMany(I => I).ToList();
             foreach (var Rendare in NawRendares)
             {
@@ -253,13 +253,13 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 var RefMesh = RefarensMesh.IndexOf(Mehs);
                 var MatRefs = Rendare.sharedMaterials.Select(Mat => Materials.IndexOf(Mat)).ToArray();
 
-                var TargetMeshdatas = GenereatMeshs.FindAll(MD => MD.RefMesh == RefMesh);
+                var TargetMeshdatas = GenerateMeshs.FindAll(MD => MD.RefMesh == RefMesh);
                 var TargetMeshdata = TargetMeshdatas.Find(MD => MD.MatRefs.SequenceEqual(MatRefs));
 
                 if (TargetMeshdata == null) continue;
 
                 Rendare.SetMesh(TargetMeshdata.Mesh);
-                nawchannelrevartmeshs.Add(new MeshPea(Mehs, TargetMeshdata.Mesh));
+                nawchannelrevartmeshs.Add(new MeshPair(Mehs, TargetMeshdata.Mesh));
             }
 
 
@@ -286,47 +286,47 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 if (AtlasSetting.IsMargeMaterial)
                 {
                     var MargeMat = AtlasSetting.MargeRefarensMaterial != null ? AtlasSetting.MargeRefarensMaterial : Materials[ChannnelMatRefs.First()];
-                    Material GenereatMat = GenereatAtlasMat(MargeMat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
+                    Material GenerateMat = GenerateAtlasMat(MargeMat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
 
                     var DistMats = ChannnelMatRefs.Select(Matref => Materials[Matref]).ToList();
-                    avatarMaterialDomain.SetMaterials(DistMats.ConvertAll(Mat => new MatPea(Mat, GenereatMat)), false);
+                    avatarMaterialDomain.SetMaterials(DistMats.ConvertAll(Mat => new MatPair(Mat, GenerateMat)), false);
 
-                    GenereatMaterials.Add(new List<Material>(1) { GenereatMat });
+                    GenerateMaterials.Add(new List<Material>(1) { GenerateMat });
                 }
                 else
                 {
-                    List<MatPea> MaterialMap = new List<MatPea>();
+                    List<MatPair> MaterialMap = new List<MatPair>();
                     foreach (var Matref in ChannnelMatRefs)
                     {
                         var Mat = Materials[Matref];
-                        var GenereatMat = GenereatAtlasMat(Mat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
+                        var GenerateMat = GenerateAtlasMat(Mat, AtlasTex, ShaderSupport, AtlasSetting.ForseSetTexture);
 
-                        MaterialMap.Add(new MatPea(Mat, GenereatMat));
+                        MaterialMap.Add(new MatPair(Mat, GenerateMat));
                     }
 
                     avatarMaterialDomain.SetMaterials(MaterialMap, true);
-                    GenereatMaterials.Add(MaterialMap.ConvertAll(MP => MP.SecndMaterial));
+                    GenerateMaterials.Add(MaterialMap.ConvertAll(MP => MP.SecondMaterial));
                 }
             }
 
-            Container.GenereatMaterials = GenereatMaterials;
-            RevartMeshs = nawchannelrevartmeshs;
+            Container.GenerateMaterials = GenerateMaterials;
+            RevertMeshs = nawchannelrevartmeshs;
             _isApply = true;
         }
 
-        public override void Revart(AvatarDomain avatarMaterialDomain = null)
+        public override void Revert(AvatarDomain avatarMaterialDomain = null)
         {
             if (!IsApply) return;
             _isApply = false;
             IsSelfCallApply = false;
 
-            RevartDomain.ResetMaterial();
-            RevartDomain = null;
+            RevertDomain.ResetMaterial();
+            RevertDomain = null;
 
             var NawRendares = Renderers;
 
             var revartmeshdict = new Dictionary<Mesh, Mesh>();
-            foreach (var meshpea in RevartMeshs)
+            foreach (var meshpea in RevertMeshs)
             {
                 if (!revartmeshdict.ContainsKey(meshpea.SecondMesh))
                 {
@@ -345,30 +345,30 @@ namespace net.rs64.TexTransTool.TexturAtlas
             }
         }
 
-        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPeas, float pading)
+        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPairs, float pading)
         {
             pading *= 0.5f;
             var SUV = new List<Vector2>();
             var TUV = new List<Vector2>();
-            var Traiangles = new List<TraiangleIndex>();
+            var Triangles = new List<TriangleIndex>();
 
             var NawIndex = 0;
-            foreach ((var Origin, var Moved) in islandPeas)
+            foreach ((var Origin, var Moved) in islandPairs)
             {
-                var Originvarts = Origin.GenereatRectVart(pading);
-                var Movedvarts = Moved.GenereatRectVart(pading);
-                var Tris = new List<TraiangleIndex>(6)
+                var Originvarts = Origin.GenerateRectVart(pading);
+                var Movedvarts = Moved.GenerateRectVart(pading);
+                var Tris = new List<TriangleIndex>(6)
                 {
-                    new TraiangleIndex(NawIndex + 0, NawIndex + 1, NawIndex + 2),
-                    new TraiangleIndex( NawIndex + 0, NawIndex + 2, NawIndex + 3)
+                    new TriangleIndex(NawIndex + 0, NawIndex + 1, NawIndex + 2),
+                    new TriangleIndex( NawIndex + 0, NawIndex + 2, NawIndex + 3)
                 };
                 NawIndex += 4;
-                Traiangles.AddRange(Tris);
+                Triangles.AddRange(Tris);
                 SUV.AddRange(Originvarts);
                 TUV.AddRange(Movedvarts);
             }
 
-            TransTexture.TransTextureToRenderTexture(targetRT, SouseTex, new TransUVData(Traiangles, TUV, SUV), wrapMode: TexWrapMode.Loop);
+            TransTexture.TransTextureToRenderTexture(targetRT, SouseTex, new TransUVData(Triangles, TUV, SUV), wrapMode: TexWrapMode.Loop);
 
         }
 
@@ -394,14 +394,14 @@ namespace net.rs64.TexTransTool.TexturAtlas
 
         public static Dictionary<MatData, TagIslandPool<IndexTagPlusIslandIndex>> GetMatDataPool(AtlasDatas AtlasDatas, TagIslandPool<IndexTagPlusIslandIndex> OriginIslandPool, List<MatData> Matdatas)
         {
-            var MatDataPeaPool = new Dictionary<MatData, TagIslandPool<IndexTagPlusIslandIndex>>();
+            var MatDataPairPool = new Dictionary<MatData, TagIslandPool<IndexTagPlusIslandIndex>>();
             foreach (var Matdata in Matdatas)
             {
                 var SepalatePool = AtlasDatas.FindMatIslandPool(OriginIslandPool, Matdata.MaterialRefarens);
-                MatDataPeaPool.Add(Matdata, SepalatePool);
+                MatDataPairPool.Add(Matdata, SepalatePool);
             }
 
-            return MatDataPeaPool;
+            return MatDataPairPool;
         }
 
         public static HashSet<IndexTag> ToIndexTags(HashSet<IndexTagPlusIslandIndex> Tags)
@@ -415,7 +415,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
             return IndexTag;
         }
 
-        private static Material GenereatAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtili ShaderSupport, bool ForseSetTexture)
+        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtili ShaderSupport, bool ForseSetTexture)
         {
             var EditableTMat = UnityEngine.Object.Instantiate(TargetMat);
 
@@ -440,7 +440,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
             }
             return result;
         }
-        public static AtlasDatas GenereatAtlasMeshDatas(IReadOnlyList<Renderer> renderers)
+        public static AtlasDatas GenerateAtlasMeshDatas(IReadOnlyList<Renderer> renderers)
         {
             OrderdHashSet<Mesh> Meshs = GetMeshes(renderers);
             OrderdHashSet<Material> Materials = GetMaterials(renderers);
@@ -523,13 +523,13 @@ namespace net.rs64.TexTransTool.TexturAtlas
             if (Container != null)
             {
                 Container.AtlasTextures = null;
-                Container.GenereatMeshs = null;
+                Container.GenerateMeshs = null;
                 Container.ChannnelsMatRef = null;
                 Container.IsPossibleApply = false;
-                Container.GenereatMaterials = null;
+                Container.GenerateMaterials = null;
             }
-            RevartMeshs = null;
-            RevartDomain = null;
+            RevertMeshs = null;
+            RevertDomain = null;
         }
     }
     public class AtlasDatas
@@ -573,7 +573,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
                 for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
                     var Tag = new IndexTag(AMDIndex, SlotIndex);
-                    var Islands = IslandUtils.UVtoIsland(AMD.Traiangles[SlotIndex], AMD.UV, islandCache);
+                    var Islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
                     IslandPool.AddRangeIsland(Islands, Tag);
                 }
             }
@@ -735,21 +735,21 @@ namespace net.rs64.TexTransTool.TexturAtlas
     public class AtlasMeshData
     {
         public int RefarensMesh;
-        public IReadOnlyList<IReadOnlyList<TraiangleIndex>> Traiangles;
+        public IReadOnlyList<IReadOnlyList<TriangleIndex>> Triangles;
         public List<Vector2> UV;
         public List<Vector2> GeneratedUV;
         public int[] MaterialIndex;
 
-        public AtlasMeshData(int refarensMesh, IReadOnlyList<IReadOnlyList<TraiangleIndex>> traiangles, List<Vector2> uV, int[] materialIndex)
+        public AtlasMeshData(int refarensMesh, IReadOnlyList<IReadOnlyList<TriangleIndex>> traiangles, List<Vector2> uV, int[] materialIndex)
         {
             RefarensMesh = refarensMesh;
-            Traiangles = traiangles;
+            Triangles = traiangles;
             UV = uV;
             MaterialIndex = materialIndex;
         }
         public AtlasMeshData()
         {
-            Traiangles = new List<List<TraiangleIndex>>();
+            Triangles = new List<List<TriangleIndex>>();
             UV = new List<Vector2>();
         }
     }
@@ -769,11 +769,11 @@ namespace net.rs64.TexTransTool.TexturAtlas
         public List<PropAndTexture> PropAndTextures;
     }
     [Serializable]
-    public struct MeshPea
+    public struct MeshPair
     {
         public Mesh Mesh;
         public Mesh SecondMesh;
-        public MeshPea(Mesh mesh, Mesh secondMesh)
+        public MeshPair(Mesh mesh, Mesh secondMesh)
         {
             Mesh = mesh;
             SecondMesh = secondMesh;

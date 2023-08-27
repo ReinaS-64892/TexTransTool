@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool
     {
         public const string TransMapperPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
 
-        public static (Vector2, float) UVMapingCalculat(List<TraiangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PadingType padingType, float DefaultDistans)
+        public static (Vector2, float) UVMapingCalculat(List<TriangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PadingType padingType, float DefaultDistans)
         {
             Vector2 Targetpixself = TargetPixsel;// + new Vector2(0.5f, 0.5f);
             float Distans = DefaultDistans;
@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
             foreach (var TriangleToIndex in TrianglesToIndex)
             {
                 var TargetUVTriangle = new List<Vector2> { TargetTexScaleTargetUV[TriangleToIndex[0]], TargetTexScaleTargetUV[TriangleToIndex[1]], TargetTexScaleTargetUV[TriangleToIndex[2]] };
-                var ClossT = ClossTraiangle(TargetUVTriangle, Targetpixself);
+                var ClossT = ClossTriangle(TargetUVTriangle, Targetpixself);
                 float Distansnew;
                 switch (padingType)
                 {
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool
             }
             return (SourceUVPosition, Distans);
         }
-        public static Vector4 ClossTraiangle(IList<Vector2> Triangle, Vector2 TargetPoint)
+        public static Vector4 ClossTriangle(IList<Vector2> Triangle, Vector2 TargetPoint)
         {
             var w = Vector3.Cross(Triangle[2] - Triangle[1], TargetPoint - Triangle[1]).z;
             var u = Vector3.Cross(Triangle[0] - Triangle[2], TargetPoint - Triangle[2]).z;
@@ -139,7 +139,7 @@ namespace net.rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, IReadOnlyList<TraiangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetTexScaleTargetUV, IReadOnlyList<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
+        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, IReadOnlyList<TriangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetTexScaleTargetUV, IReadOnlyList<Vector2> SourceUV, PadingType padingType = PadingType.EdgeBase)
         {
             if (Shader == null) Shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             Vector2Int ThredGropSize = TransMap.Map.MapSize / 32;
@@ -171,7 +171,7 @@ namespace net.rs64.TexTransTool
                 TriangleList.Add(SourceUV[TriangleToIndex[2]]);
             }
             TriBuffer.SetData<Vector2>(TriangleList);
-            Shader.SetBuffer(karnelindex, "Traiangles", TriBuffer);
+            Shader.SetBuffer(karnelindex, "Triangles", TriBuffer);
             Shader.SetInt("Size", TransMap.Map.MapSize.x);
 
             Shader.Dispatch(karnelindex, ThredGropSize.x, ThredGropSize.y, TrianglesToIndex.Count);
@@ -233,13 +233,13 @@ namespace net.rs64.TexTransTool
         CPU,
     }
     [Serializable]
-    public struct TraiangleIndex : IEnumerable<int>
+    public struct TriangleIndex : IEnumerable<int>
     {
         public int zero;
         public int one;
         public int two;
 
-        public TraiangleIndex(int zero, int one, int two)
+        public TriangleIndex(int zero, int one, int two)
         {
             this.zero = zero;
             this.one = one;
@@ -289,14 +289,14 @@ namespace net.rs64.TexTransTool
             return ToArray().GetEnumerator();
         }
 
-        public List<T> GetTraiangle<T>(List<T> List)
+        public List<T> GetTriangle<T>(List<T> List)
         {
             return new List<T> { List[zero], List[one], List[two] };
         }
 
         public override bool Equals(object obj)
         {
-            return obj is TraiangleIndex index &&
+            return obj is TriangleIndex index &&
                    zero == index.zero &&
                    one == index.one &&
                    two == index.two;
@@ -311,12 +311,12 @@ namespace net.rs64.TexTransTool
             return hashCode;
         }
 
-        public static bool operator ==(TraiangleIndex left, TraiangleIndex right)
+        public static bool operator ==(TriangleIndex left, TriangleIndex right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(TraiangleIndex left, TraiangleIndex right)
+        public static bool operator !=(TriangleIndex left, TriangleIndex right)
         {
             return !(left == right);
         }

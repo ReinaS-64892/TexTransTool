@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
 {
     public struct Compless : IFineSetting
     {
         public int Order => 0;
         public FromatQuality fromatQuality;
         public TextureCompressionQuality compressionQuality;
-        public string PropatyNames;
-        public PropatySelect select;
+        public string PropertyNames;
+        public PropertySelect select;
 
-        public Compless(FromatQuality compless_fromatQuality, TextureCompressionQuality compless_compressionQuality, string compless_PropatyNames, PropatySelect compless_select)
+        public Compless(FromatQuality compless_fromatQuality, TextureCompressionQuality compless_compressionQuality, string compless_PropertyNames, PropertySelect compless_select)
         {
             fromatQuality = compless_fromatQuality;
             compressionQuality = compless_compressionQuality;
-            PropatyNames = compless_PropatyNames;
+            PropertyNames = compless_PropertyNames;
             select = compless_select;
 
         }
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TexturAtlas.FineSettng
         public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
             TextureFormat textureFormat = GetTextureFormat(fromatQuality);
-            foreach (var target in FineSettingUtil.FiltTarget(PropatyNames, select, propAndTextures))
+            foreach (var target in FineSettingUtil.FiltTarget(PropertyNames, select, propAndTextures))
             {
                 if (target.Texture2D.format == textureFormat) { continue; }
                 EditorUtility.CompressTexture(target.Texture2D, textureFormat, compressionQuality);

@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 
-            AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
+            AbstructSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
+            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

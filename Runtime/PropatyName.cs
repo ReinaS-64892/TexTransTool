@@ -10,26 +10,26 @@ namespace net.rs64.TexTransTool
     [Serializable]
     public struct PropertyName
     {
-        [SerializeField] string _propatyName;
+        [SerializeField] string _propertyName;
 
 #pragma warning disable CS0414 , IDE0052
         [SerializeField] bool _useCustomProperty;
 
         [SerializeField] string _shaderName;
-        [SerializeField] int _propatyIndex;
+        [SerializeField] int _propertyIndex;
 #pragma warning restore CS0414 , IDE0052
 
 
-        public PropertyName(string propatyName)
+        public PropertyName(string propertyName)
         {
-            _propatyName = propatyName;
+            _propertyName = propertyName;
             _useCustomProperty = false;
             _shaderName = "";
-            _propatyIndex = 0;
+            _propertyIndex = 0;
         }
 
 
-        public static implicit operator string(PropertyName p) => p._propatyName;
+        public static implicit operator string(PropertyName p) => p._propertyName;
     }
 }
 #endif

@@ -16,12 +16,12 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
         {
             var This_S_Object = serializedObject;
 
-            DrowCurveDecalEditor(This_S_Object);
+            DrawerCurveDecalEditor(This_S_Object);
 
             This_S_Object.ApplyModifiedProperties();
         }
 
-        public static void DrowCurveDecalEditor(SerializedObject This_S_Object)
+        public static void DrawerCurveDecalEditor(SerializedObject This_S_Object)
         {
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
@@ -47,12 +47,12 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
             }
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
-            var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            EditorGUILayout.PropertyField(S_TargetPropatyName);
+            var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
+            EditorGUILayout.PropertyField(S_TargetPropertyName);
 
 
             var S_Segments = This_S_Object.FindProperty("Segments");
-            DrowSegmentFiled(S_Segments);
+            DrawerSegmentFiled(S_Segments);
 
             var S_CylindricalCoordinatesSystem = This_S_Object.FindProperty("CylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(S_CylindricalCoordinatesSystem);
@@ -66,14 +66,14 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
             var S_CurveStartOffset = This_S_Object.FindProperty("CurveStartOffset");
             EditorGUILayout.PropertyField(S_CurveStartOffset);
 
-            var S_RoolMode = This_S_Object.FindProperty("RoolMode");
-            EditorGUILayout.PropertyField(S_RoolMode);
+            var S_RollMode = This_S_Object.FindProperty("RollMode");
+            EditorGUILayout.PropertyField(S_RollMode);
 
             var S_DorwGizmoAwiys = This_S_Object.FindProperty("DorwGizmoAwiys");
             EditorGUILayout.PropertyField(S_DorwGizmoAwiys);
         }
 
-        public static void DrowSegmentFiled(SerializedProperty Segment)
+        public static void DrawerSegmentFiled(SerializedProperty Segment)
         {
             EditorGUILayout.LabelField("Segments");
             var arrysize = Segment.arraySize;
@@ -84,15 +84,15 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PropertyField(S_Segment);
                 /*
-                var S_SegmentRool = S_Segment.FindPropertyRelative("Rool");
-                if (S_SegmentRool != null) S_SegmentRool.floatValue = EditorGUI.Slider(EditorGUILayout.GetControlRect(), S_SegmentRool.floatValue, -360, 360);
+                var S_SegmentRoll = S_Segment.FindPropertyRelative("Roll");
+                if (S_SegmentRoll != null) S_SegmentRoll.floatValue = EditorGUI.Slider(EditorGUILayout.GetControlRect(), S_SegmentRoll.floatValue, -360, 360);
                 */
                 EditorGUILayout.EndHorizontal();
 
                 Count += 1;
             }
 
-            TextureTransformerEditor.DrowArryResizeButton(Segment);
+            TextureTransformerEditor.DrawerArryResizeButton(Segment);
 
         }
     }

@@ -6,14 +6,14 @@ using System.Reflection;
 using net.rs64.TexTransTool.ShaderSupport;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
     public class AtlasShaderSupportUtili
     {
         AtlasDefaultShaderSupprot _defaultShaderSupprot;
         List<IAtlasShaderSupport> _shaderSupports;
 
-        public PropatyBakeSetting BakeSetting = PropatyBakeSetting.NotBake;
+        public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
         public AtlasShaderSupportUtili()
         {
             _defaultShaderSupprot = new AtlasDefaultShaderSupprot();

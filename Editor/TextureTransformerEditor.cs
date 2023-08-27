@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor
 
     [CustomEditor(typeof(TextureTransformer))]
     public class TextureTransformerEditor : UnityEditor.Editor
-    {        public static void DrowApplyAndRevart(TextureTransformer Target)
+    {        public static void DrawerApplyAndRevert(TextureTransformer Target)
         {
             if (Target == null) return;
             EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
@@ -26,9 +26,9 @@ namespace net.rs64.TexTransTool.Editor
                 else
                 {
                     EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
-                    if (GUILayout.Button("Revart"))
+                    if (GUILayout.Button("Revert"))
                     {
-                        Target.Revart();
+                        Target.Revert();
                         EditorUtility.SetDirty(Target);
 
                     }
@@ -55,7 +55,7 @@ namespace net.rs64.TexTransTool.Editor
 
             return FiltalingdRendarer;
         }
-        public static void DrowArryResizeButton(SerializedProperty ArrayPorpatye)
+        public static void DrawerArryResizeButton(SerializedProperty ArrayPorpatye)
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+")) ArrayPorpatye.arraySize += 1;
@@ -95,54 +95,54 @@ namespace net.rs64.TexTransTool.Editor
                     }
                 }
 
-                DrowArryResizeButton(RendererListSP);
+                DrawerArryResizeButton(RendererListSP);
             }
         }
 
-        #region DrowProperty
-        public static void DrowProperty(SerializedProperty Prop, Action<bool> EditCollBack = null)
+        #region DrawerProperty
+        public static void DrawerProperty(SerializedProperty Prop, Action<bool> EditCollBack = null)
         {
             var Vulue = Prop.boolValue;
             var EditVulue = EditorGUILayout.Toggle(Prop.displayName, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(string label, bool Prop, Action<bool> EditCollBack = null)
+        public static void DrawerProperty(string label, bool Prop, Action<bool> EditCollBack = null)
         {
             var Vulue = Prop;
             var EditVulue = EditorGUILayout.Toggle(label, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(SerializedProperty Prop, Action<float> EditCollBack = null, bool WithoutLabel = false)
+        public static void DrawerProperty(SerializedProperty Prop, Action<float> EditCollBack = null, bool WithoutLabel = false)
         {
             var Vulue = Prop.floatValue;
             var EditVulue = WithoutLabel ? EditorGUILayout.FloatField(Vulue) : EditorGUILayout.FloatField(Prop.displayName, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(string label, float Prop, Action<float> EditCollBack = null)
+        public static void DrawerProperty(string label, float Prop, Action<float> EditCollBack = null)
         {
             var Vulue = Prop;
             var EditVulue = EditorGUILayout.FloatField(label, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(SerializedProperty Prop, Action<Vector2> EditCollBack = null)
+        public static void DrawerProperty(SerializedProperty Prop, Action<Vector2> EditCollBack = null)
         {
             var Vulue = Prop.vector2Value;
             var EditVulue = EditorGUILayout.Vector2Field(Prop.displayName, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(string label, Vector2 Prop, Action<Vector2> EditCollBack = null)
+        public static void DrawerProperty(string label, Vector2 Prop, Action<Vector2> EditCollBack = null)
         {
             var Vulue = Prop;
             var EditVulue = EditorGUILayout.Vector2Field(label, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(SerializedProperty Prop, Action<int> EditCollBack = null, bool WithoutLabel = false)
+        public static void DrawerProperty(SerializedProperty Prop, Action<int> EditCollBack = null, bool WithoutLabel = false)
         {
             var Vulue = Prop.intValue;
             var EditVulue = WithoutLabel ? EditorGUILayout.IntField(Vulue) : EditorGUILayout.IntField(Prop.displayName, Vulue);
             if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
         }
-        public static void DrowProperty(string label, int Prop, Action<int> EditCollBack = null)
+        public static void DrawerProperty(string label, int Prop, Action<int> EditCollBack = null)
         {
             var Vulue = Prop;
             var EditVulue = EditorGUILayout.IntField(label, Vulue);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using net.rs64.TexTransTool.ShaderSupport;
 
-namespace net.rs64.TexTransTool.TexturAtlas
+namespace net.rs64.TexTransTool.TextureAtlas
 {
     public interface IAtlasShaderSupport
     {
@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TexturAtlas
         void AddRecord(Material material);
         void ClearRecord();
 
-        List<PropAndTexture> GetPropertyAndTextures(Material material, PropatyBakeSetting bakeSetting);
+        List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting);
         void MaterialCustomSetting(Material material);
     }
 }
