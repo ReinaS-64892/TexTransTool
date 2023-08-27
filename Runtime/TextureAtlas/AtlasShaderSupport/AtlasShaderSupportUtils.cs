@@ -8,16 +8,16 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class AtlasShaderSupportUtili
+    public class AtlasShaderSupportUtils
     {
-        AtlasDefaultShaderSupprot _defaultShaderSupprot;
+        AtlasDefaultShaderSupport _defaultShaderSupport;
         List<IAtlasShaderSupport> _shaderSupports;
 
         public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
-        public AtlasShaderSupportUtili()
+        public AtlasShaderSupportUtils()
         {
-            _defaultShaderSupprot = new AtlasDefaultShaderSupprot();
-            _shaderSupports = ShaderSupportUtili.GetInterfaseInstans<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupprot) });
+            _defaultShaderSupport = new AtlasDefaultShaderSupport();
+            _shaderSupports = ShaderSupportUtils.GetInterfaseInstans<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) });
         }
 
         public void AddRecord(Material material)
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var supportShederI = FindSupportI(material);
 
             if (supportShederI != null) { allTexs = supportShederI.GetPropertyAndTextures(material, BakeSetting); }
-            else { allTexs = _defaultShaderSupprot.GetPropertyAndTextures(material, BakeSetting); }
+            else { allTexs = _defaultShaderSupport.GetPropertyAndTextures(material, BakeSetting); }
 
             var textures = new List<PropAndTexture>();
             foreach (var tex in allTexs)

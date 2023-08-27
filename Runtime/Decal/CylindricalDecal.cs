@@ -20,9 +20,9 @@ namespace net.rs64.TexTransTool.Decal
         public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
         public override DecalUtil.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
 
-        private List<TrainagelFilterUtility.ITriangleFiltaring<CCSSpace>> GetFilters()
+        private List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> GetFilters()
         {
-            var Filters = new List<TrainagelFilterUtility.ITriangleFiltaring<CCSSpace>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(),
                 new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)

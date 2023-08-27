@@ -2,12 +2,12 @@
 using System;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.Bulige
+namespace net.rs64.TexTransTool.Build
 {
-    public static class AvatarBuligeUtili
+    public static class AvatarBuildUtils
     {
 
-        public static bool ProcesAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false)
+        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false)
         {
             try
             {

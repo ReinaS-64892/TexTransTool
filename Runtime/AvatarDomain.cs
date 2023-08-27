@@ -5,7 +5,7 @@ using UnityEngine;
 using static net.rs64.TexTransTool.TextureLayerUtil;
 using UnityEditor;
 using System;
-using net.rs64.TexTransTool.Bulige;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool
 {
@@ -212,7 +212,7 @@ namespace net.rs64.TexTransTool
 
                     var DistMip = SetTex.GenerateMiplist();
                     var SetTexMip = PrimeTex.GenerateMiplist();
-                    MipMapUtili.MargeMip(DistMip, SetTexMip);
+                    MipMapUtils.MargeMip(DistMip, SetTexMip);
 
                     Mip = DistMip;
                 }

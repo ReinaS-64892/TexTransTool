@@ -9,7 +9,7 @@ using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public class DefaultShaderSupprot : IShaderSupport
+    public class DefaultShaderSupport : IShaderSupport
     {
         public string ShaderName => "DefaultShader";
 

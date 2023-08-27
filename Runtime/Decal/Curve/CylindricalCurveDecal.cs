@@ -105,9 +105,9 @@ namespace net.rs64.TexTransTool.Decal.Curve
             return DecalCompiledTextures;
         }
 
-        public List<TrainagelFilterUtility.ITriangleFiltaring<CCSSpace>> GetFilers()
+        public List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> GetFilers()
         {
-            var Filters = new List<TrainagelFilterUtility.ITriangleFiltaring<CCSSpace>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(150),
                 new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)

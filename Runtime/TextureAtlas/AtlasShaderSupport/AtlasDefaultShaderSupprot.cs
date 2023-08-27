@@ -8,7 +8,7 @@ using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class AtlasDefaultShaderSupprot : IAtlasShaderSupport
+    public class AtlasDefaultShaderSupport : IAtlasShaderSupport
     {
         public void AddRecord(Material material) { }
         public void ClearRecord() { }

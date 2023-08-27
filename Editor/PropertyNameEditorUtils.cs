@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (ShaderNameAndProperties == null || ShadersNames == null || ShaderNameAndDisplayNames == null)
             {
-                ShaderNameAndProperties = new ShaderSupportUtili().GetPropertyNames();
+                ShaderNameAndProperties = new ShaderSupportUtils().GetPropertyNames();
                 ShadersNames = ShaderNameAndProperties.Keys.ToArray();
                 ShaderNameAndDisplayNames = new Dictionary<string, string[]>();
                 foreach (var item in ShaderNameAndProperties) { ShaderNameAndDisplayNames.Add(item.Key, item.Value.Select(x => x.DisplayName).ToArray()); }

@@ -5,7 +5,7 @@ using VRC.SDKBase;
 using System.Linq;
 using VRC.SDK3.Avatars.Components;
 
-namespace net.rs64.TexTransTool.Bulige.VRC
+namespace net.rs64.TexTransTool.Build.VRC
 {
     [AddComponentMenu("TexTransTool/AvatarBuildApplyHook"), RequireComponent(typeof(AbstractTexTransGroup)), DefaultExecutionOrder(-11024)]
     public class AvatarBuildApplyHook : AvatarDomainDefinition, IEditorOnly

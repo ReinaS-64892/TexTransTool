@@ -120,14 +120,14 @@ namespace net.rs64.TexTransTool.Decal
             return Spases;
         }
 
-        public List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> GetFilter()
         {
-            return new List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>>
+            return new List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>>
             {
-                new TrainagelFilterUtility.FarStruct(1, false),
-                new TrainagelFilterUtility.NearStruct(0, true),
-                new TrainagelFilterUtility.SideStruct(),
-                new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
+                new TriangleFilterUtils.FarStruct(1, false),
+                new TriangleFilterUtils.NearStruct(0, true),
+                new TriangleFilterUtils.SideStruct(),
+                new TriangleFilterUtils.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
             };
         }
 

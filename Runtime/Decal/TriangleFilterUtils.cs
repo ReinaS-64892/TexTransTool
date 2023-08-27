@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public static class TrainagelFilterUtility
+    public static class TriangleFilterUtils
     {
         public interface ITriangleFiltaring<InterObject>
         {
@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public struct NearStruct : TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>
+        public struct NearStruct : TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>
         {
             public float Near;
             public bool IsAllVartex;

@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Bulige;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.Editor
 {

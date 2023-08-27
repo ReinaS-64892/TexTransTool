@@ -37,15 +37,15 @@ namespace net.rs64.TexTransTool.Decal
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
         }
-        public List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> GetFilter()
         {
-            var Filters = new List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>>
             {
-                new TrainagelFilterUtility.FarStruct(1, false),
-                new TrainagelFilterUtility.NearStruct(0, true)
+                new TriangleFilterUtils.FarStruct(1, false),
+                new TriangleFilterUtils.NearStruct(0, true)
             };
-            if (SideCulling) Filters.Add(new TrainagelFilterUtility.SideStruct());
-            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling, 0, 1, true));
+            if (SideCulling) Filters.Add(new TriangleFilterUtils.SideStruct());
+            Filters.Add(new TriangleFilterUtils.OutOfPorigonStruct(PolygonCulling, 0, 1, true));
 
             return Filters;
         }
@@ -245,16 +245,16 @@ namespace net.rs64.TexTransTool.Decal
 
     public class ParallelProjectionFilter : DecalUtil.ITrianglesFilter<ParallelProjectionSpase>
     {
-        public List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> Filters;
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters;
 
-        public ParallelProjectionFilter(List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> Filters)
+        public ParallelProjectionFilter(List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters)
         {
             this.Filters = Filters;
         }
 
         public virtual List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Traiangeles)
         {
-            return TrainagelFilterUtility.FiltaringTriangle(Traiangeles, Spase.PPSVarts, Filters);
+            return TriangleFilterUtils.FiltaringTriangle(Traiangeles, Spase.PPSVarts, Filters);
         }
     }
 
@@ -262,7 +262,7 @@ namespace net.rs64.TexTransTool.Decal
     {
         public List<IslandSelector> IslandSelectors;
 
-        public IslandCullingPPFilter(List<TrainagelFilterUtility.ITriangleFiltaring<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
+        public IslandCullingPPFilter(List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
         {
             this.IslandSelectors = IslandSelectors;
         }

@@ -7,19 +7,19 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public class ShaderSupportUtili
+    public class ShaderSupportUtils
     {
-        DefaultShaderSupprot _defaultShaderSupprot;
+        DefaultShaderSupport _defaultShaderSupport;
         List<IShaderSupport> _shaderSupports;
-        public ShaderSupportUtili()
+        public ShaderSupportUtils()
         {
-            _defaultShaderSupprot = new DefaultShaderSupprot();
-            _shaderSupports = ShaderSupportUtili.GetInterfaseInstans<IShaderSupport>(new Type[] { typeof(DefaultShaderSupprot) });
+            _defaultShaderSupport = new DefaultShaderSupport();
+            _shaderSupports = ShaderSupportUtils.GetInterfaseInstans<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) });
         }
 
         public Dictionary<string, PropertyNameAndDisplayName[]> GetPropertyNames()
         {
-            var PropertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupprot.ShaderName, _defaultShaderSupprot.GetPropertyNames } };
+            var PropertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupport.ShaderName, _defaultShaderSupport.GetPropertyNames } };
             foreach (var i in _shaderSupports)
             {
                 PropertyNames.Add(i.ShaderName, i.GetPropertyNames);

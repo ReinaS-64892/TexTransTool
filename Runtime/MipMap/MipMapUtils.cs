@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public static class MipMapUtili
+    public static class MipMapUtils
     {
         public static SortedList<int, Color[]> GenerateMiplist(this Texture2D Texture)
         {

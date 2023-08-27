@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
 
-namespace net.rs64.TexTransTool.Bulige.VRC
+namespace net.rs64.TexTransTool.Build.VRC
 {
 
     [InitializeOnLoad]
@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Bulige.VRC
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            return AvatarBuligeUtili.ProcesAvatar(avatarGameObject, null, true);
+            return AvatarBuildUtils.ProcessAvatar(avatarGameObject, null, true);
         }
         public void OnPostprocessAvatar()
         {

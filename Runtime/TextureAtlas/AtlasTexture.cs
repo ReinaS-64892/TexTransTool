@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var TargetRenderers = Renderers;
             var AtlasDatas = GenerateAtlasMeshDatas(TargetRenderers);
-            var ShaderSupports = new AtlasShaderSupportUtili();
+            var ShaderSupports = new AtlasShaderSupportUtils();
             var OriginIslandPool = AtlasDatas.GeneratedIslandPool(UseIslandCash);
             var AtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
 
@@ -234,7 +234,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var GenerateMaterials = new List<List<Material>>();
 
-            var ShaderSupport = new AtlasShaderSupportUtili();
+            var ShaderSupport = new AtlasShaderSupportUtils();
 
             var ChannnelMatRef = Container.ChannnelsMatRef;
             var GenerateMeshs = Container.GenerateMeshs;
@@ -415,7 +415,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return IndexTag;
         }
 
-        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtili ShaderSupport, bool ForseSetTexture)
+        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtils ShaderSupport, bool ForseSetTexture)
         {
             var EditableTMat = UnityEngine.Object.Instantiate(TargetMat);
 
