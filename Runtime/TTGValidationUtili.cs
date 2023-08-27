@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool
     {
         public static void ValidatTTG(AbstractTexTransGroup texTransGroup)
         {
-            var tTFs = texTransGroup.Targets.ToList();
+            var tTFs = AbstractTexTransGroup.TTFFilter(texTransGroup.Targets);
             var rendarasPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
             CollectTexTransForms(tTFs, rendarasPeaTTFsDict);
 
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool
                         }
                     case AbstractTexTransGroup abstractTexTransGroup:
                         {
-                            CollectTexTransForms(abstractTexTransGroup.Targets, rendarasPeaTTFsDict);
+                            CollectTexTransForms(AbstractTexTransGroup.TTFFilter(abstractTexTransGroup.Targets), rendarasPeaTTFsDict);
                             break;
                         }
 
