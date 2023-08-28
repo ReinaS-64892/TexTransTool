@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         public static void DrawerDecalEditor(SerializedObject This_S_Object)
         {
-            EditorGUILayout.LabelField("RenderesSettings",EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("RenderesSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var s_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(s_MultiRendereMode);
 
             EditorGUI.indentLevel -= 1;
-            EditorGUILayout.LabelField("TextureSettings",EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("TextureSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
 
@@ -45,8 +45,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         public static void DorwScaleEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
-            EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
             if (S_FixedAspect.boolValue)
             {
                 TextureTransformerEditor.DrawerProperty(S_Scale.displayName, S_Scale.vector2Value.x, EditVulue =>
@@ -68,8 +66,13 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     ThisObject.ScaleApply();
                 });
             }
-            EditorGUILayout.PropertyField(S_FixedAspect);
-            EditorGUI.indentLevel -= 1;
+            TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
+            {
+                S_FixedAspect.boolValue = FixdAspectValue;
+                This_S_Object.ApplyModifiedProperties();
+                Undo.RecordObject(ThisObject, "ApplyScaile - Size");
+                ThisObject.ScaleApply();
+            });
         }
 
 
