@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
             foreach (var TriangleToIndex in TrianglesToIndex)
             {
                 var TargetUVTriangle = new List<Vector2> { TargetTexScaleTargetUV[TriangleToIndex[0]], TargetTexScaleTargetUV[TriangleToIndex[1]], TargetTexScaleTargetUV[TriangleToIndex[2]] };
-                var CloseT =CloseTriangle(TargetUVTriangle, Targetpixself);
+                var CloseT =CrossTriangle(TargetUVTriangle, Targetpixself);
                 float Distansnew;
                 switch (paddingType)
                 {
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool
             }
             return (SourceUVPosition, Distans);
         }
-        public static Vector4 CloseTriangle(IList<Vector2> Triangle, Vector2 TargetPoint)
+        public static Vector4 CrossTriangle(IList<Vector2> Triangle, Vector2 TargetPoint)
         {
             var w = Vector3.Cross(Triangle[2] - Triangle[1], TargetPoint - Triangle[1]).z;
             var u = Vector3.Cross(Triangle[0] - Triangle[2], TargetPoint - Triangle[2]).z;
@@ -62,11 +62,11 @@ namespace net.rs64.TexTransTool
             return Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
         }
 
-        public static Vector3 ToBCS(Vector4 ClassT)
+        public static Vector3 ToBCS(Vector4 CrossT)
         {
-            var a = ClassT.x / ClassT.w;
-            var b = ClassT.y / ClassT.w;
-            var c = ClassT.z / ClassT.w;
+            var a = CrossT.x / CrossT.w;
+            var b = CrossT.y / CrossT.w;
+            var c = CrossT.z / CrossT.w;
 
             return new Vector3(a, b, c);
         }

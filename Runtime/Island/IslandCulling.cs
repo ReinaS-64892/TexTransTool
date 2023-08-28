@@ -74,7 +74,7 @@ namespace net.rs64.TexTransTool.Island
                 var B = RayMatrixPoss[Triangle.one];
                 var C = RayMatrixPoss[Triangle.two];
 
-                var Close = TransMapper.CloseTriangle(new Vector2[] { A, B, C }, Vector2.zero);
+                var Close = TransMapper.CrossTriangle(new Vector2[] { A, B, C }, Vector2.zero);
                 var TBC = TransMapper.ToBCS(Close);
                 if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
                 var IsIn = TransMapper.IsInCal(Close.x,Close.y,Close.z);

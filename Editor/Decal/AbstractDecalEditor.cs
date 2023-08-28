@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel -= 1;
         }
 
-        public static void DorwScaleEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
+        public static void DrawerScaleEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
             if (S_FixedAspect.boolValue)
             {
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     ThisObject.ScaleApply();
                 });
             }
-            TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
+            TextureTransformerEditor.DrawerProperty(S_FixedAspect, (bool FixdAspectValue) =>
             {
                 S_FixedAspect.boolValue = FixdAspectValue;
                 This_S_Object.ApplyModifiedProperties();

@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool
 {
     public static class MipMapUtils
     {
-        public static SortedList<int, Color[]> GenerateMiplist(this Texture2D Texture)
+        public static SortedList<int, Color[]> GenerateMipList(this Texture2D Texture)
         {
             var Mips = new SortedList<int, Color[]>();
             var MipMapper = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>("Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/MipMapper.compute");

@@ -133,9 +133,9 @@ namespace net.rs64.TexTransTool.Decal.Curve
             if (!IsPossibleSegments) return;
             Gizmos.color = Color.black;
             var Quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
-            GizmosUtility.DrawerGizmoQuad(Quads);
-            GizmosUtility.DrawerGimzLine(Segments.ConvertAll(i => i.position));
-            GizmosUtility.DrawerGimzLine(BezierCurve.GetLine());
+            GizmosUtility.DrawGizmoQuad(Quads);
+            GizmosUtility.DrawGizmoLine(Segments.ConvertAll(i => i.position));
+            GizmosUtility.DrawGizmoLine(BezierCurve.GetLine());
 
 
             var bej = BezierCurve;

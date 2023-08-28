@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel += 1;
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstructSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             EditorGUI.indentLevel -= 1;
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);

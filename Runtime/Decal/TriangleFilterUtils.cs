@@ -190,8 +190,8 @@ namespace net.rs64.TexTransTool.Decal
                 }
                 else
                 {
-                    var CloseT = TransMapper.CloseTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
-                    return TransMapper.IsInCal(CloseT.x,CloseT.y,CloseT.z);
+                    var CrossT = TransMapper.CrossTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
+                    return TransMapper.IsInCal(CrossT.x,CrossT.y,CrossT.z);
                 }
             }
         }

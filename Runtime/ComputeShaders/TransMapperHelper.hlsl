@@ -43,7 +43,7 @@ float3 DistansEdgeBase(float2 t1, float2 t2, float2 t3, float2 tp)
     return float3(DistansA, DistansB, DistansC);
 }
 
-float4 CloseTriangle(float3 t1, float3 t2, float3 t3, float3 tp)
+float4 CrossTriangle(float3 t1, float3 t2, float3 t3, float3 tp)
 {
 
     float w = cross(t3 - t2, tp - t2).z;

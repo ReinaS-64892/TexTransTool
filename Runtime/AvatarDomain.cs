@@ -210,8 +210,8 @@ namespace net.rs64.TexTransTool
 
                     var PrimeTex = PrimeRT.CopyTexture2D();
 
-                    var DistMip = SetTex.GenerateMiplist();
-                    var SetTexMip = PrimeTex.GenerateMiplist();
+                    var DistMip = SetTex.GenerateMipList();
+                    var SetTexMip = PrimeTex.GenerateMipList();
                     MipMapUtils.MergeMip(DistMip, SetTexMip);
 
                     Mip = DistMip;

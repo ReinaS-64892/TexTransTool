@@ -25,13 +25,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel += 1;
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
-            TextureTransformerEditor.DrawerProperty(s_FixedAspect, (bool FixdAspectValue) =>
-            {
-                Undo.RecordObject(ThisObject, "ApplyScale - Size");
-                ThisObject.FixedAspect = FixdAspectValue;
-                ThisObject.ScaleApply();
-            });
+            AbstructSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
 
             var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
             TextureTransformerEditor.DrawerProperty(s_MaxDistans, (float MaxDistansValue) =>

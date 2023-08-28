@@ -11,13 +11,13 @@ RWStructuredBuffer<float3> Result;
 [numthreads(32, 32, 1)] void TransMapGeneratPaddingEdgeBase(uint3 id: SV_DispatchThreadID)
 {
   float3 TargetPos = float3(id.x , id.y , 0);
-  float4 CloseT =CloseTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
+  float4 CrossT = CrossTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansEdgeBase(Triangles[SelectTriangle(id.z,0)],Triangles[SelectTriangle(id.z,1)],Triangles[SelectTriangle(id.z,2)],(float2)TargetPos);
-  float IsIn = IsInCal(CloseT.x,CloseT.y,CloseT.z);
+  float IsIn = IsInCal(CrossT.x,CrossT.y,CrossT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBCS(CloseT));
+  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBCS(CrossT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
@@ -28,13 +28,13 @@ RWStructuredBuffer<float3> Result;
 [numthreads(32, 32, 1)] void TransMapGeneratPaddingVartexBase(uint3 id: SV_DispatchThreadID)
 {
   float3 TargetPos = float3(id.x , id.y , 0);
-  float4 CloseT =CloseTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
+  float4 CrossT = CrossTriangle(AsFloat3(Triangles[SelectTriangle(id.z,0)]),AsFloat3(Triangles[SelectTriangle(id.z,1)]),AsFloat3(Triangles[SelectTriangle(id.z,2)]),TargetPos);
 
   float3 Distans = DistansVartBase(Triangles[SelectTriangle(id.z,0)],Triangles[SelectTriangle(id.z,1)],Triangles[SelectTriangle(id.z,2)],(float2)TargetPos);
-  float IsIn = IsInCal(CloseT.x,CloseT.y,CloseT.z);
+  float IsIn = IsInCal(CrossT.x,CrossT.y,CrossT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBCS(CloseT));
+  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBCS(CrossT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);

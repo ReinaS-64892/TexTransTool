@@ -454,15 +454,15 @@ namespace net.rs64.TexTransTool
     }
     public static class GizmosUtility
     {
-        public static void DrawerGizmoQuad(IEnumerable<List<Vector3>> Quads)
+        public static void DrawGizmoQuad(IEnumerable<List<Vector3>> Quads)
         {
             foreach (var Quad in Quads)
             {
-                DrawerQuad(Quad);
+                DrawQuad(Quad);
             }
         }
 
-        public static void DrawerQuad(IReadOnlyList<Vector3> Quad)
+        public static void DrawQuad(IReadOnlyList<Vector3> Quad)
         {
             Gizmos.DrawLine(Quad[0], Quad[1]);
             Gizmos.DrawLine(Quad[0], Quad[2]);
@@ -470,7 +470,7 @@ namespace net.rs64.TexTransTool
             Gizmos.DrawLine(Quad[1], Quad[3]);
         }
 
-        public static void DrawerGimzLine(List<Vector3> Line)
+        public static void DrawGizmoLine(List<Vector3> Line)
         {
             var LineCount = Line.Count;
             if (LineCount < 1) return;
