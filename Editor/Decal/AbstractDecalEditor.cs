@@ -10,12 +10,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public override void OnInspectorGUI()
         {
             var This_S_Object = serializedObject;
-            DrowDecalEditor(This_S_Object);
+            DrawerDecalEditor(This_S_Object);
 
             This_S_Object.ApplyModifiedProperties();
         }
 
-        public static void DrowDecalEditor(SerializedObject This_S_Object)
+        public static void DrawerDecalEditor(SerializedObject This_S_Object)
         {
             EditorGUILayout.LabelField("RenderesSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
@@ -38,16 +38,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_BlendType = This_S_Object.FindProperty("BlendType");
             EditorGUILayout.PropertyField(s_BlendType);
 
-            var s_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            PropatyNameEditor.DrawInspectorGUI(s_TargetPropatyName);
+            var s_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
+            PropertyNameEditor.DrawInspectorGUI(s_TargetPropertyName);
             EditorGUI.indentLevel -= 1;
         }
 
-        public static void DorwScaileEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
+        public static void DrawerScaleEditor<T>(AbstructSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
         {
             if (S_FixedAspect.boolValue)
             {
-                TextureTransformerEditor.DrowProperty(S_Scale.displayName, S_Scale.vector2Value.x, EditVulue =>
+                TextureTransformerEditor.DrawerProperty(S_Scale.displayName, S_Scale.vector2Value.x, EditVulue =>
                 {
                     S_Scale.vector2Value = new Vector2(EditVulue, EditVulue);
                     This_S_Object.ApplyModifiedProperties();
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }
             else
             {
-                TextureTransformerEditor.DrowProperty(S_Scale, (Vector2 EditVulue) =>
+                TextureTransformerEditor.DrawerProperty(S_Scale, (Vector2 EditVulue) =>
                 {
                     S_Scale.vector2Value = EditVulue;
                     This_S_Object.ApplyModifiedProperties();
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     ThisObject.ScaleApply();
                 });
             }
-            TextureTransformerEditor.DrowProperty(S_FixedAspect, (bool FixdAspectValue) =>
+            TextureTransformerEditor.DrawerProperty(S_FixedAspect, (bool FixdAspectValue) =>
             {
                 S_FixedAspect.boolValue = FixdAspectValue;
                 This_S_Object.ApplyModifiedProperties();

@@ -15,12 +15,12 @@ namespace net.rs64.TexTransTool.Decal.Curve
 #endif
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
-        public bool FiltedBackSide = true;
+        public bool FilteredBackSide = true;
 
-        public RoolMode RoolMode = RoolMode.WorldUp;
+        public RollMode RollMode = RollMode.WorldUp;
 
 
-        public BezierCurve BezierCurve => new BezierCurve(Segments, RoolMode);
+        public BezierCurve BezierCurve => new BezierCurve(Segments, RollMode);
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {
@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
             Vector2? TexWarpRenage = null;
             if (IsTextureWarp)
             {
-                TexWarpRenage = TextureWarpRenge;
+                TexWarpRenage = TextureWarpRange;
             }
 
             Dictionary<Texture2D, RenderTexture> FastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
@@ -63,9 +63,9 @@ namespace net.rs64.TexTransTool.Decal.Curve
                                                     TargetDecalTexture,
                                                     CCSspase,
                                                     CCSfilter,
-                                                    TargetPropatyName,
-                                                    TextureOutRenge: TexWarpRenage,
-                                                    DefoaltPading: Pading
+                                                    TargetPropertyName,
+                                                    TextureOutRange: TexWarpRenage,
+                                                    DefoaltPadding: Padding
                                                     );
                     }
                     else
@@ -74,9 +74,9 @@ namespace net.rs64.TexTransTool.Decal.Curve
                                                                              TargetDecalTexture,
                                                                              CCSspase,
                                                                              CCSfilter,
-                                                                             TargetPropatyName,
-                                                                             TextureOutRenge: TexWarpRenage,
-                                                                             DefoaltPading: Pading
+                                                                             TargetPropertyName,
+                                                                             TextureOutRange: TexWarpRenage,
+                                                                             DefoaltPadding: Padding
                                                                             ));
                     }
 
@@ -105,9 +105,9 @@ namespace net.rs64.TexTransTool.Decal.Curve
             return DecalCompiledTextures;
         }
 
-        public List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilers()
+        public List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> GetFilers()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(150),
                 new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
@@ -120,22 +120,22 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         private void OnDrawGizmosSelected()
         {
-            DrowGizmo();
+            DrawerGizmo();
         }
 
         private void OnDrawGizmos()
         {
-            if (DorwGizmoAwiys) DrowGizmo();
+            if (DorwGizmoAwiys) DrawerGizmo();
         }
 
-        protected virtual void DrowGizmo()
+        protected virtual void DrawerGizmo()
         {
             if (!IsPossibleSegments) return;
             Gizmos.color = Color.black;
             var Quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
-            GizmosUtility.DrowGizmoQuad(Quads);
-            GizmosUtility.DrowGimzLine(Segments.ConvertAll(i => i.position));
-            GizmosUtility.DrowGimzLine(BezierCurve.GetLine());
+            GizmosUtility.DrawGizmoQuad(Quads);
+            GizmosUtility.DrawGizmoLine(Segments.ConvertAll(i => i.position));
+            GizmosUtility.DrawGizmoLine(BezierCurve.GetLine());
 
 
             var bej = BezierCurve;

@@ -6,42 +6,42 @@ namespace net.rs64.TexTransTool.Decal.Curve
 {
     public class BezierCurve : ICurve
     {
-        public List<CurevSegment> Segments = new List<CurevSegment>();
-        public RoolMode RoolMode;
+        public List<CurveSegment> Segments = new List<CurveSegment>();
+        public RollMode RollMode;
 
         float _DefaultWightStep = 0.1f;
         public float DefaultWightStep { get => _DefaultWightStep; set => _DefaultWightStep = value > 0 ? value : 0.1f; }
-        public BezierCurve(List<CurevSegment> segments, RoolMode roolMode = RoolMode.WorldUp, float defaultWightStep = 0.1f)
+        public BezierCurve(List<CurveSegment> segments, RollMode rollMode = RollMode.WorldUp, float defaultWightStep = 0.1f)
         {
             Segments = segments;
             DefaultWightStep = defaultWightStep;
-            RoolMode = roolMode;
+            RollMode = rollMode;
         }
         public Vector3 GetPoint(float wight)
         {
             var SegmentIndexMax = Segments.Count - 1;
-            var MidollIndex = Mathf.RoundToInt(wight);
-            if (MidollIndex < 1)
+            var MiddleIndex = Mathf.RoundToInt(wight);
+            if (MiddleIndex < 1)
             {
                 return Vector3.LerpUnclamped(Segments[0].position, Segments[1].position, wight);
             }
-            else if (MidollIndex >= SegmentIndexMax)
+            else if (MiddleIndex >= SegmentIndexMax)
             {
                 return Vector3.LerpUnclamped(Segments[SegmentIndexMax - 1].position, Segments[SegmentIndexMax].position, wight - (SegmentIndexMax - 1));
             }
 
-            var FromIndex = MidollIndex - 1;
-            var ToIndex = MidollIndex + 1;
+            var FromIndex = MiddleIndex - 1;
+            var ToIndex = MiddleIndex + 1;
 
-            var PointPoint = Segments[MidollIndex].position;
+            var PointPoint = Segments[MiddleIndex].position;
             var FromPoint = Vector3.Lerp(Segments[FromIndex].position, PointPoint, 0.5f);
             var ToPoint = Vector3.Lerp(PointPoint, Segments[ToIndex].position, 0.5f);
 
-            var FromWightRenge = FromIndex + 0.5f;
-            var ToWightRenge = ToIndex - 0.5f;
+            var FromWightRange = FromIndex + 0.5f;
+            var ToWightRange = ToIndex - 0.5f;
 
-            var RelativeWight = (wight - FromWightRenge) / (ToWightRenge - FromWightRenge);
-            var GetPoint = CalculatBezier(FromPoint, PointPoint, ToPoint, RelativeWight);
+            var RelativeWight = (wight - FromWightRange) / (ToWightRange - FromWightRange);
+            var GetPoint = CalculateBezier(FromPoint, PointPoint, ToPoint, RelativeWight);
 
             return GetPoint;
 
@@ -80,23 +80,23 @@ namespace net.rs64.TexTransTool.Decal.Curve
             return (GetPoint(reswight), reswight);
         }
 
-        public float GetRool(float wight)
+        public float GetRoll(float wight)
         {
             var SegmentIndexMax = Segments.Count - 1;
             var FloorIndex = Mathf.FloorToInt(wight);
             var CeilIndex = Mathf.CeilToInt(wight);
             if (FloorIndex < 1)
             {
-                return Mathf.LerpUnclamped(Segments[0].Rool, Segments[1].Rool, wight);
+                return Mathf.LerpUnclamped(Segments[0].Roll, Segments[1].Roll, wight);
             }
             else if (CeilIndex > SegmentIndexMax)
             {
-                return Mathf.LerpUnclamped(Segments[SegmentIndexMax - 1].Rool, Segments[SegmentIndexMax].Rool, wight - (SegmentIndexMax - 1));
+                return Mathf.LerpUnclamped(Segments[SegmentIndexMax - 1].Roll, Segments[SegmentIndexMax].Roll, wight - (SegmentIndexMax - 1));
             }
-            return Mathf.Lerp(Segments[FloorIndex].Rool, Segments[CeilIndex].Rool, wight - FloorIndex);
+            return Mathf.Lerp(Segments[FloorIndex].Roll, Segments[CeilIndex].Roll, wight - FloorIndex);
         }
 
-        public static Vector3 CalculatBezier(Vector3 From, Vector3 Point, Vector3 To, float wight)
+        public static Vector3 CalculateBezier(Vector3 From, Vector3 Point, Vector3 To, float wight)
         {
             var fp = Vector3.Lerp(From, Point, wight);
             var pt = Vector3.Lerp(Point, To, wight);
@@ -131,38 +131,38 @@ namespace net.rs64.TexTransTool.Decal.Curve
         public (Vector3, Vector3) GetEdge(float wight, float Size)
         {
             var Point = GetPoint(wight);
-            var Rool = GetRool(wight);
+            var Roll = GetRoll(wight);
 
-            switch (RoolMode)
+            switch (RollMode)
             {
                 default:
-                case RoolMode.WorldUp:
+                case RollMode.WorldUp:
                     {
-                        var foward = GetPoint(wight + DefaultWightStep);
-                        var ToLook = Quaternion.FromToRotation(foward, Point);
-                        ToLook *= Quaternion.AngleAxis(Rool, Point - foward);
+                        var forward = GetPoint(wight + DefaultWightStep);
+                        var ToLook = Quaternion.FromToRotation(forward, Point);
+                        ToLook *= Quaternion.AngleAxis(Roll, Point - forward);
                         var ToEdge = (
                                 Point + ToLook * Vector3.left * (Size * 0.5f),
                                 Point + ToLook * Vector3.right * (Size * 0.5f)
                             );
                         return ToEdge;
                     }
-                case RoolMode.Cross:
+                case RollMode.Cross:
                     {
                         var Back = GetPoint(wight - DefaultWightStep);
-                        var foward = GetPoint(wight + DefaultWightStep);
+                        var forward = GetPoint(wight + DefaultWightStep);
 
-                        var RoolAsix = foward - Back;
+                        var RollAsix = forward - Back;
 
-                        var Clossvec = Vector3.Cross(Back - Point, foward - Point);
-                        Clossvec *= Vector3.left.magnitude / Clossvec.magnitude;
+                        var Closevec = Vector3.Cross(Back - Point, forward - Point);
+                       Closevec *= Vector3.left.magnitude /Closevec.magnitude;
 
-                        Clossvec = Quaternion.AngleAxis(Rool, RoolAsix) * Clossvec;
+                       Closevec = Quaternion.AngleAxis(Roll, RollAsix) *Closevec;
 
-                        Clossvec *= (Size * 0.5f);
-                        var Invers = Clossvec * -1;
+                       Closevec *= (Size * 0.5f);
+                        var Invers =Closevec * -1;
 
-                        var Left = Point + Clossvec;
+                        var Left = Point +Closevec;
                         var Right = Point + Invers;
 
                         return (Left, Right);
@@ -194,11 +194,11 @@ namespace net.rs64.TexTransTool.Decal.Curve
     public interface ICurve
     {
         Vector3 GetPoint(float wight);
-        float GetRool(float wight);
+        float GetRoll(float wight);
         (Vector3, float) GetOfLeng(float FormWight, float Lengs);
     }
 
-    public enum RoolMode
+    public enum RollMode
     {
         WorldUp,
         Cross,

@@ -10,8 +10,8 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
-            var thsitarget = target as AbstractTexTransGroup;
-            TextureTransformerEditor.DrowApplyAndRevart(thsitarget);
+            var thistarget = target as AbstractTexTransGroup;
+            TextureTransformerEditor.DrawerApplyAndRevert(thistarget);
         }
     }
 }

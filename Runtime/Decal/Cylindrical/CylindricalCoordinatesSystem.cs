@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         }
 
 
-        public static int GetPositiveCount(TraiangleIndex Tri, List<Vector3> Varts)
+        public static int GetPositiveCount(TriangleIndex Tri, List<Vector3> Varts)
         {
             var PositiveCount = 0;
             for (int i = 0; i < 3; i++)
@@ -156,21 +156,21 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         }
     }
 
-    public class CCSFilter : DecalUtil.ITraianglesFilter<CCSSpace>
+    public class CCSFilter : DecalUtil.ITrianglesFilter<CCSSpace>
     {
-        public IReadOnlyList<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> Filters;
+        public IReadOnlyList<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> Filters;
 
-        public CCSFilter(IReadOnlyList<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> filters)
+        public CCSFilter(IReadOnlyList<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> filters)
         {
             Filters = filters;
         }
-        public List<TraiangleIndex> Filtering(CCSSpace Spase, List<TraiangleIndex> Traiangeles)
+        public List<TriangleIndex> Filtering(CCSSpace Spase, List<TriangleIndex> Trianglees)
         {
-            return TrainagelFilterUtility.FiltaringTraiangle(Traiangeles, Spase, Filters);
+            return TriangleFilterUtils.FiltaringTriangle(Trianglees, Spase, Filters);
         }
 
 
-        public struct InDistansStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct InDistansStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
         {
             public float Near;
             public bool IsAllVartex;
@@ -182,13 +182,13 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             }
 
 
-            public bool Filtering(TraiangleIndex tri, CCSSpace Space)
+            public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TrainagelFilterUtility.NearStruct.NearClip(tri, Space.QuadNormalizedVarts, Near, IsAllVartex);
+                return TriangleFilterUtils.NearStruct.NearClip(tri, Space.QuadNormalizedVarts, Near, IsAllVartex);
             }
         }
 
-        public struct OutDistansStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct OutDistansStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
         {
             public float Far;
             public bool IsAllVartex;
@@ -199,13 +199,13 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 this.IsAllVartex = IsAllVartex;
             }
 
-            public bool Filtering(TraiangleIndex tri, CCSSpace Space)
+            public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TrainagelFilterUtility.FarStruct.FarClip(tri, Space.QuadNormalizedVarts, Far, IsAllVartex);
+                return TriangleFilterUtils.FarStruct.FarClip(tri, Space.QuadNormalizedVarts, Far, IsAllVartex);
             }
         }
 
-        public struct SideStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct SideStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
         {
             public bool IsRevaers;
 
@@ -214,13 +214,13 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 IsRevaers = isRevaers;
             }
 
-            public bool Filtering(TraiangleIndex tri, CCSSpace Space)
+            public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TrainagelFilterUtility.SideStruct.SideChek(tri, Space.QuadNormalizedVarts, IsRevaers);
+                return TriangleFilterUtils.SideStruct.SideChek(tri, Space.QuadNormalizedVarts, IsRevaers);
             }
         }
 
-        public struct BorderOnPorygonStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct BorderOnPorygonStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
         {
             public float Threshold /*= 150f */;
 
@@ -229,14 +229,14 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 Threshold = threshold;
             }
 
-            public bool Filtering(TraiangleIndex tri, CCSSpace Space)
+            public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
                 return BorderOnPorygon(tri, Space.CCSvarts, Threshold);
             }
 
-            public static bool BorderOnPorygon(TraiangleIndex tri, List<Vector3> CCSvarts, float threshold = 150)
+            public static bool BorderOnPorygon(TriangleIndex tri, List<Vector3> CCSvarts, float threshold = 150)
             {
-                var CCStri = tri.GetTraiangle(CCSvarts);
+                var CCStri = tri.GetTriangle(CCSvarts);
 
                 var PosiCount = CylindricalCoordinatesSystem.GetPositiveCount(tri, CCSvarts);
 
@@ -248,7 +248,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 return (max - min) > threshold;
             }
         }
-        public struct OutOfPorigonStruct : TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>
+        public struct OutOfPorigonStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
         {
             public PolygonCulling PolygonCaling;
             public float MinRange;
@@ -264,17 +264,17 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
             }
 
-            public bool Filtering(TraiangleIndex TargetTri, CCSSpace CCSSpase)
+            public bool Filtering(TriangleIndex TargetTri, CCSSpace CCSSpase)
             {
                 switch (PolygonCaling)
                 {
                     default:
                     case PolygonCulling.Vartex:
-                        return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonVartexBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonVartexBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
                     case PolygonCulling.Edge:
-                        return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonEdgeBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonEdgeBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
                     case PolygonCulling.EdgeAndCenterRay:
-                        return TrainagelFilterUtility.OutOfPorigonStruct.OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
                 }
 
             }

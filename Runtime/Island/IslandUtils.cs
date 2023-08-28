@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using net.rs64.TexTransTool.TexturAtlas;
+using net.rs64.TexTransTool.TextureAtlas;
 using System.Collections;
 using net.rs64.TexTransTool;
 
@@ -12,11 +12,11 @@ namespace net.rs64.TexTransTool.Island
 
     public static class IslandUtils
     {
-        public static List<Island> CachengUVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV)
+        public static List<Island> CachingUVtoIsland(IReadOnlyList<TriangleIndex> triangles, IReadOnlyList<Vector2> UV)
         {
             CacheGet(out var CacheIslands, out var diffCacheIslands);
 
-            var IslandPool = UVtoIsland(traiangles, UV, CacheIslands);
+            var IslandPool = UVtoIsland(triangles, UV, CacheIslands);
 
             CacheSave(CacheIslands, diffCacheIslands);
             return IslandPool;
@@ -37,9 +37,9 @@ namespace net.rs64.TexTransTool.Island
             }));
         }
 
-        public static List<Island> UVtoIsland(IReadOnlyList<TraiangleIndex> traiangles, IReadOnlyList<Vector2> UV, List<IslandCacheObject> Caches = null)
+        public static List<Island> UVtoIsland(IReadOnlyList<TriangleIndex> triangles, IReadOnlyList<Vector2> UV, List<IslandCacheObject> Caches = null)
         {
-            var NawHash = IslandCacheObject.GenereatHash(traiangles, UV);
+            var NawHash = IslandCacheObject.GenerateHash(triangles, UV);
             if (Caches != null)
             {
                 foreach (var Cache in Caches)
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Island
                 }
             }
 
-            var Islands = traiangles.Select(i => new Island(i)).ToList();
+            var Islands = triangles.Select(i => new Island(i)).ToList();
 
             bool Continue = true;
             while (Continue)
@@ -106,7 +106,7 @@ namespace net.rs64.TexTransTool.Island
                 }
                 else
                 {
-                    CrawlingdIslandPool[IlandJoinIndex].trainagels.AddRange(Iland.trainagels);
+                    CrawlingdIslandPool[IlandJoinIndex].triangles.AddRange(Iland.triangles);
                     IsJoin = true;
                 }
 
@@ -120,17 +120,17 @@ namespace net.rs64.TexTransTool.Island
                 var mSize = MovedIsland.Size;
                 var nmSize = OriginIsland.Size;
 
-                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-                RelativeScaile.x = float.IsNaN(RelativeScaile.x) ? 0 : RelativeScaile.x;
-                RelativeScaile.y = float.IsNaN(RelativeScaile.y) ? 0 : RelativeScaile.y;
+                var RelativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+                RelativeScale.x = float.IsNaN(RelativeScale.x) ? 0 : RelativeScale.x;
+                RelativeScale.y = float.IsNaN(RelativeScale.y) ? 0 : RelativeScale.y;
 
                 foreach (var VartIndex in OriginIsland.GetVertexIndex())
                 {
                     var VertPos = UV[VartIndex];
                     var RelativeVertPos = VertPos - OriginIsland.Pivot;
 
-                    RelativeVertPos.x *= RelativeScaile.x;
-                    RelativeVertPos.y *= RelativeScaile.y;
+                    RelativeVertPos.x *= RelativeScale.x;
+                    RelativeVertPos.y *= RelativeScale.y;
 
                     var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
                     MoveUV[VartIndex] = MovedVertPos;
@@ -141,7 +141,7 @@ namespace net.rs64.TexTransTool.Island
                 var mSize = MovedIsland.Is90Ratation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
                 var nmSize = OriginIsland.Is90Ratation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
 
-                var RelativeScaile = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
+                var RelativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
                 var IsRotRight = MovedIsland.Is90Ratation;
                 var Rotate = Quaternion.Euler(0, 0, IsRotRight ? -90 : 90);
 
@@ -150,8 +150,8 @@ namespace net.rs64.TexTransTool.Island
                     var VertPos = UV[VartIndex];
                     var RelativeVertPos = VertPos - OriginIsland.Pivot;
 
-                    RelativeVertPos.x *= RelativeScaile.x;
-                    RelativeVertPos.y *= RelativeScaile.y;
+                    RelativeVertPos.x *= RelativeScale.x;
+                    RelativeVertPos.y *= RelativeScale.y;
 
                     RelativeVertPos = Rotate * RelativeVertPos;
 
@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.Island
             NextFitDecreasingHeight,
             NextFitDecreasingHeightPlusFloorCeilineg,
         }
-        public static void GenereatMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Pading = 0.01f)
+        public static void GenerateMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Padding = 0.01f)
         {
             switch (SortingType)
             {
@@ -205,26 +205,26 @@ namespace net.rs64.TexTransTool.Island
                     }
                 case IslandSortingType.NextFitDecreasingHeight:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool, Pading);
+                        IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool, Padding);
                         break;
                     }
                 case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool, Pading);
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool, Padding);
                         break;
                     }
 
                 default: throw new ArgumentException();
             }
         }
-        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(TagIslandPool<T> TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(TagIslandPool<T> TargetPool, float IslanadsPadding = 0.01f, float ClorreScale = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
             Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
-            float NawScaile = 1f;
+            float NawScale = 1f;
             int loopCount = -1;
 
             while (!Success && MaxLoopCount > loopCount)
@@ -232,68 +232,68 @@ namespace net.rs64.TexTransTool.Island
                 loopCount += 1;
                 Success = true;
 
-                var NawPos = new Vector2(IslanadsPading, IslanadsPading);
+                var NawPos = new Vector2(IslanadsPadding, IslanadsPadding);
                 float FirstHeight = Islands[0].island.Size.y;
-                var NawHeight = IslanadsPading + FirstHeight + IslanadsPading;
+                var NawHeight = IslanadsPadding + FirstHeight + IslanadsPadding;
 
                 foreach (var islandandIndex in Islands)
                 {
                     var Island = islandandIndex.island;
                     var NawSize = Island.Size;
                     var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x + IslanadsPading) > 1;
+                    var IsOutOfX = (NawMaxPos.x + IslanadsPadding) > 1;
 
                     if (IsOutOfX)
                     {
                         NawPos.y = NawHeight;
-                        NawPos.x = IslanadsPading;
+                        NawPos.x = IslanadsPadding;
 
-                        NawHeight += IslanadsPading + NawSize.y;
+                        NawHeight += IslanadsPadding + NawSize.y;
 
                         if (NawHeight > 1)
                         {
 
                             Success = false;
 
-                            ScaileAppry(1 - ClorreScaile);
+                            ScaleAppry(1 - ClorreScale);
                             break;
                         }
                     }
 
                     Island.Pivot = NawPos;
 
-                    NawPos.x += IslanadsPading + NawSize.x;
+                    NawPos.x += IslanadsPadding + NawSize.x;
                 }
 
                 if (Success && MinHeight > NawHeight)
                 {
                     Success = false;
-                    ScaileAppry(1 + ClorreScaile);
+                    ScaleAppry(1 + ClorreScale);
                 }
 
             }
 
             return TargetPool;
 
-            void ScaileAppry(float Scaile)
+            void ScaleAppry(float Scale)
             {
                 foreach (var islandandIndex in Islands)
                 {
                     var Island = islandandIndex.island;
-                    Island.Size *= Scaile;
+                    Island.Size *= Scale;
                 }
-                NawScaile *= Scaile;
+                NawScale *= Scale;
             }
         }
 
-        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeightPlusFloorCeilineg<T>(TagIslandPool<T> TargetPool, float IslanadsPading = 0.01f, float ClorreScaile = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeightPlusFloorCeilineg<T>(TagIslandPool<T> TargetPool, float IslanadsPadding = 0.01f, float ClorreScale = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
             Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
             bool Success = false;
-            float NawScaile = 1f;
+            float NawScale = 1f;
             int loopCount = -1;
 
             while (!Success && MaxLoopCount > loopCount)
@@ -315,26 +315,26 @@ namespace net.rs64.TexTransTool.Island
                     }
                     if (!Result)
                     {
-                        var Floor = Boxs.Any() ? Boxs.Last().Ceil + IslanadsPading : IslanadsPading;
+                        var Floor = Boxs.Any() ? Boxs.Last().Ceil + IslanadsPadding : IslanadsPadding;
                         var Ceil = islandandIndex.island.Size.y + Floor;
-                        var newWithBox = new UVWithBox(Ceil, Floor, IslanadsPading);
+                        var newWithBox = new UVWithBox(Ceil, Floor, IslanadsPadding);
                         var res = newWithBox.TrySetBox(islandandIndex);
                         Boxs.Add(newWithBox);
                     }
                 }
 
-                var LastHeigt = Boxs.Last().Ceil + IslanadsPading;
+                var LastHeigt = Boxs.Last().Ceil + IslanadsPadding;
                 Success = LastHeigt < 1;
 
                 if (!Success)
                 {
-                    ScaileAppry(1 - ClorreScaile);
+                    ScaleAppry(1 - ClorreScale);
                 }
 
                 if (Success && MinHeight > LastHeigt)
                 {
                     Success = false;
-                    ScaileAppry(1 + ClorreScaile);
+                    ScaleAppry(1 + ClorreScale);
                 }
 
 
@@ -342,32 +342,32 @@ namespace net.rs64.TexTransTool.Island
 
             return TargetPool;
 
-            void ScaileAppry(float Scaile)
+            void ScaleAppry(float Scale)
             {
                 foreach (var islandandIndex in Islands)
                 {
                     var Island = islandandIndex.island;
-                    Island.Size *= Scaile;
+                    Island.Size *= Scale;
                 }
-                NawScaile *= Scaile;
+                NawScale *= Scale;
             }
         }
 
         private class UVWithBox
         {
             public float with = 1;
-            public float Pading;
+            public float Padding;
             public float Ceil;
             public float Floor;
             public float Haight => Ceil - Floor;
             public List<Island> Upper = new List<Island>();
             public List<Island> Lower = new List<Island>();
 
-            public UVWithBox(float height, float floor, float pading)
+            public UVWithBox(float height, float floor, float padding)
             {
                 Ceil = height;
                 Floor = floor;
-                Pading = pading;
+                Padding = padding;
             }
 
             public bool TrySetBox(Island Box)
@@ -377,22 +377,22 @@ namespace net.rs64.TexTransTool.Island
 
 
                 var withMin = Lower.Any() ? Lower.Last().GetMaxPos.x : 0;
-                var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + Island.Size.y + Pading, Floor, Ceil));
+                var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + Island.Size.y + Padding, Floor, Ceil));
                 var withSize = withMax - withMin;
-                if (withSize > Pading + Island.Size.x + Pading)
+                if (withSize > Padding + Island.Size.x + Padding)
                 {
-                    Island.Pivot = new Vector2(withMin + Pading, Floor);
+                    Island.Pivot = new Vector2(withMin + Padding, Floor);
                     Lower.Add(Box);
                     return true;
                 }
 
 
-                withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - Island.Size.y - Pading, Floor, Ceil));
+                withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - Island.Size.y - Padding, Floor, Ceil));
                 withMax = Upper.Any() ? Upper.Last().Pivot.x : with;
                 withSize = withMax - withMin;
-                if (withSize > Pading + Island.Size.x + Pading)
+                if (withSize > Padding + Island.Size.x + Padding)
                 {
-                    Island.Pivot = new Vector2(withMax - Island.Size.x - Pading, Ceil - Island.Size.y);
+                    Island.Pivot = new Vector2(withMax - Island.Size.x - Padding, Ceil - Island.Size.y);
                     Upper.Add(Box);
                     return true;
                 }
@@ -586,11 +586,11 @@ namespace net.rs64.TexTransTool.Island
         {
             if (DeepClone)
             {
-                trainagels = new List<TraiangleIndex>(Souse.trainagels);
+                triangles = new List<TriangleIndex>(Souse.triangles);
             }
             else
             {
-                trainagels = Souse.trainagels;
+                triangles = Souse.triangles;
             }
             Pivot = Souse.Pivot;
             Size = Souse.Size;
@@ -600,11 +600,11 @@ namespace net.rs64.TexTransTool.Island
         {
             if (DeepClone)
             {
-                trainagels = new List<TraiangleIndex>(Souse.trainagels);
+                triangles = new List<TriangleIndex>(Souse.triangles);
             }
             else
             {
-                trainagels = Souse.trainagels;
+                triangles = Souse.triangles;
             }
             Pivot = Souse.Pivot;
             Size = Souse.Size;
@@ -619,7 +619,7 @@ namespace net.rs64.TexTransTool.Island
     [Serializable]
     public class Island
     {
-        public List<TraiangleIndex> trainagels = new List<TraiangleIndex>();
+        public List<TriangleIndex> triangles = new List<TriangleIndex>();
         public Vector2 Pivot;
         public Vector2 Size;
         public bool Is90Ratation;
@@ -628,14 +628,14 @@ namespace net.rs64.TexTransTool.Island
 
         public Island(Island Souse)
         {
-            trainagels = new List<TraiangleIndex>(Souse.trainagels);
+            triangles = new List<TriangleIndex>(Souse.triangles);
             Pivot = Souse.Pivot;
             Size = Souse.Size;
             Is90Ratation = Souse.Is90Ratation;
         }
-        public Island(TraiangleIndex traiangleIndex)
+        public Island(TriangleIndex triangleIndex)
         {
-            trainagels.Add(traiangleIndex);
+            triangles.Add(triangleIndex);
         }
         public Island()
         {
@@ -644,9 +644,9 @@ namespace net.rs64.TexTransTool.Island
         public List<int> GetVertexIndex()
         {
             var IndexList = new List<int>();
-            foreach (var traiangle in trainagels)
+            foreach (var triangle in triangles)
             {
-                IndexList.AddRange(traiangle.ToArray());
+                IndexList.AddRange(triangle.ToArray());
             }
             return IndexList;
         }
@@ -668,23 +668,23 @@ namespace net.rs64.TexTransTool.Island
             var RelaTargetPos = TargetPos - Pivot;
             return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
         }
-        public List<Vector2> GenereatRectVart(float pading = 0)
+        public List<Vector2> GenerateRectVart(float padding = 0)
         {
-            pading = Mathf.Abs(pading);
+            padding = Mathf.Abs(padding);
             var Varts = new List<Vector2>();
             if (!Is90Ratation)
             {
-                Varts.Add(Pivot + new Vector2(-pading, -pading));
-                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
-                Varts.Add(Pivot + Size + new Vector2(pading, pading));
-                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
+                Varts.Add(Pivot + new Vector2(-padding, -padding));
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                Varts.Add(Pivot + Size + new Vector2(padding, padding));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
             }
             else
             {
-                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-pading, pading));
-                Varts.Add(Pivot + Size + new Vector2(pading, pading));
-                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(pading, -pading));
-                Varts.Add(Pivot + new Vector2(-pading, -pading));
+                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                Varts.Add(Pivot + Size + new Vector2(padding, padding));
+                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                Varts.Add(Pivot + new Vector2(-padding, -padding));
             }
             return Varts;
         }
@@ -710,7 +710,7 @@ namespace net.rs64.TexTransTool.Island
                 TargetTextur.SetPixel(x, y, WriteColor);
             }
         }
-        public static void DrowIlandBox<T>(TagIslandPool<T> Pool, Texture2D TargetTextur, Color WriteColor)
+        public static void DrawerIlandBox<T>(TagIslandPool<T> Pool, Texture2D TargetTextur, Color WriteColor)
         {
             foreach (var island in Pool.Islands)
             {

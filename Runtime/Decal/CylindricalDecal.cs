@@ -18,11 +18,11 @@ namespace net.rs64.TexTransTool.Decal
         public float OutOfRangeOffset = 1f;
 
         public override CCSSpace GetSpaseConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-        public override DecalUtil.ITraianglesFilter<CCSSpace> GetTraiangleFilter => new CCSFilter(GetFilters());
+        public override DecalUtil.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
 
-        private List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>> GetFilters()
+        private List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> GetFilters()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<CCSSpace>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>>
             {
                 new CCSFilter.BorderOnPorygonStruct(),
                 new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)

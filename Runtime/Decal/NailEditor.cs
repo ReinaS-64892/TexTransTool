@@ -38,9 +38,9 @@ namespace net.rs64.TexTransTool.Decal
                             NailTexSpaseFilter.Item1,
                             NailTexSpaseFilter.Item2,
                             NailTexSpaseFilter.Item3,
-                            TargetPropatyName,
-                            GetOutRengeTexture,
-                            Pading
+                            TargetPropertyName,
+                            GetOutRangeTexture,
+                            Padding
                         );
                     }
                 }
@@ -67,9 +67,9 @@ namespace net.rs64.TexTransTool.Decal
                                     NailTexSpaseFilter.Item1,
                                     NailTexSpaseFilter.Item2,
                                     NailTexSpaseFilter.Item3,
-                                    TargetPropatyName,
-                                    GetOutRengeTexture,
-                                    Pading
+                                    TargetPropertyName,
+                                    GetOutRangeTexture,
+                                    Padding
                                 ));
                     }
                 }
@@ -100,34 +100,34 @@ namespace net.rs64.TexTransTool.Decal
 
             void CompileNail(NailSet nailSet, bool IsRight)
             {
-                foreach (var NaileDD in nailSet)
+                foreach (var NailDD in nailSet)
                 {
-                    var Finger = NaileDD.Item1;
-                    var naileDecalDescripstion = NaileDD.Item2;
-                    if (naileDecalDescripstion.DecalTexture == null) continue;
+                    var Finger = NailDD.Item1;
+                    var naileDecalDescription = NailDD.Item2;
+                    if (naileDecalDescription.DecalTexture == null) continue;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector, IsRight);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescription, nailSet.FingerUpvector, IsRight);
 
                     var islandSelecotr = new IslandSelector(new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward)), Matlix.lossyScale.z * 1);
 
                     var SpaseConverter = new ParallelProjectionSpase(Matlix.inverse);
                     var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelecotr });
 
-                    Spases.Add((naileDecalDescripstion.DecalTexture, SpaseConverter, Filter));
+                    Spases.Add((naileDecalDescription.DecalTexture, SpaseConverter, Filter));
                 }
             }
 
             return Spases;
         }
 
-        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> GetFilter()
         {
-            return new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>
+            return new List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>>
             {
-                new TrainagelFilterUtility.FarStruct(1, false),
-                new TrainagelFilterUtility.NearStruct(0, true),
-                new TrainagelFilterUtility.SideStruct(),
-                new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
+                new TriangleFilterUtils.FarStruct(1, false),
+                new TriangleFilterUtils.NearStruct(0, true),
+                new TriangleFilterUtils.SideStruct(),
+                new TriangleFilterUtils.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
             };
         }
 
@@ -142,12 +142,12 @@ namespace net.rs64.TexTransTool.Decal
 
             void DrawNailGizm(NailSet nailSet, bool IsRight)
             {
-                foreach (var NaileDD in nailSet)
+                foreach (var NailDD in nailSet)
                 {
-                    var Finger = NaileDD.Item1;
-                    var naileDecalDescripstion = NaileDD.Item2;
+                    var Finger = NailDD.Item1;
+                    var naileDecalDescription = NailDD.Item2;
                     var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescripstion, nailSet.FingerUpvector, IsRight);
+                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescription, nailSet.FingerUpvector, IsRight);
 
                     Gizmos.matrix = Matlix;
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
@@ -156,7 +156,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NaileDecalDescripstion naileDecalDescripstion, Upvector FingerUpvector, bool InvaersdRight)
+        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NailDecalDescription naileDecalDescription, Upvector FingerUpvector, bool InvaersdRight)
         {
             var FingerSize = SorsFingetTF.localPosition.magnitude;
             var SRot = SorsFingetTF.rotation;
@@ -187,11 +187,11 @@ namespace net.rs64.TexTransTool.Decal
             var NailPos = SorsFingetTF.position;
             NailPos += SRot * (SorsFingetTF.localPosition * 0.9f);
             NailPos += SRot * new Vector3(0, 0, FingerSize * -0.25f);
-            NailPos += SRot * (!InvaersdRight ? naileDecalDescripstion.PositionOffset : PosOffsetInverseRight(naileDecalDescripstion.PositionOffset));
-            var NailRot = SRot * Quaternion.Euler(!InvaersdRight ? naileDecalDescripstion.RotationOffset : RotOffsetInverseRight(naileDecalDescripstion.RotationOffset));
-            var NailSize = naileDecalDescripstion.ScaileOffset * FingerSize * 0.75f;
+            NailPos += SRot * (!InvaersdRight ? naileDecalDescription.PositionOffset : PosOffsetInverseRight(naileDecalDescription.PositionOffset));
+            var NailRot = SRot * Quaternion.Euler(!InvaersdRight ? naileDecalDescription.RotationOffset : RotOffsetInverseRight(naileDecalDescription.RotationOffset));
+            var NailSize = naileDecalDescription.ScaleOffset * FingerSize * 0.75f;
 
-            if (UseTextureAspect && naileDecalDescripstion.DecalTexture != null) { NailSize.y *= (float)naileDecalDescripstion.DecalTexture.height / (float)naileDecalDescripstion.DecalTexture.width; }
+            if (UseTextureAspect && naileDecalDescription.DecalTexture != null) { NailSize.y *= (float)naileDecalDescription.DecalTexture.height / (float)naileDecalDescription.DecalTexture.width; }
 
             return Matrix4x4.TRS(NailPos, NailRot, NailSize);
         }
@@ -229,26 +229,26 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NailSet : IEnumerable<(Finger, NaileDecalDescripstion)>
+    public class NailSet : IEnumerable<(Finger, NailDecalDescription)>
     {
         public Upvector FingerUpvector;
 
-        public NaileDecalDescripstion Thumb;
-        public NaileDecalDescripstion Index;
-        public NaileDecalDescripstion Middle;
-        public NaileDecalDescripstion Ring;
-        public NaileDecalDescripstion Little;
+        public NailDecalDescription Thumb;
+        public NailDecalDescription Index;
+        public NailDecalDescription Middle;
+        public NailDecalDescription Ring;
+        public NailDecalDescription Little;
 
         public NailSet()
         {
-            Thumb = new NaileDecalDescripstion();
-            Index = new NaileDecalDescripstion();
-            Middle = new NaileDecalDescripstion();
-            Ring = new NaileDecalDescripstion();
-            Little = new NaileDecalDescripstion();
+            Thumb = new NailDecalDescription();
+            Index = new NailDecalDescription();
+            Middle = new NailDecalDescription();
+            Ring = new NailDecalDescription();
+            Little = new NailDecalDescription();
         }
 
-        IEnumerator<(Finger, NaileDecalDescripstion)> IEnumerable<(Finger, NaileDecalDescripstion)>.GetEnumerator()
+        IEnumerator<(Finger, NailDecalDescription)> IEnumerable<(Finger, NailDecalDescription)>.GetEnumerator()
         {
             yield return (Finger.Thumb, Thumb);
             yield return (Finger.Index, Index);
@@ -294,32 +294,32 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NaileDecalDescripstion
+    public class NailDecalDescription
     {
         public Texture2D DecalTexture;
 
         public Vector3 PositionOffset = Vector3.zero;
-        public Vector3 ScaileOffset = Vector3.one;
+        public Vector3 ScaleOffset = Vector3.one;
         public Vector3 RotationOffset = Vector3.zero;
 
-        public void Copy(NaileDecalDescripstion Souse)
+        public void Copy(NailDecalDescription Souse)
         {
             DecalTexture = Souse.DecalTexture;
             PositionOffset = Souse.PositionOffset;
-            ScaileOffset = Souse.ScaileOffset;
+            ScaleOffset = Souse.ScaleOffset;
             RotationOffset = Souse.RotationOffset;
         }
-        public NaileDecalDescripstion Clone()
+        public NailDecalDescription Clone()
         {
-            var New = new NaileDecalDescripstion();
+            var New = new NailDecalDescription();
             New.Copy(this);
             return New;
         }
 
-        public void Copy(NaileOffset Souse)
+        public void Copy(NailOffset Souse)
         {
             PositionOffset = Souse.PositionOffset;
-            ScaileOffset = Souse.ScaileOffset;
+            ScaleOffset = Souse.ScaleOffset;
             RotationOffset = Souse.RotationOffset;
         }
     }

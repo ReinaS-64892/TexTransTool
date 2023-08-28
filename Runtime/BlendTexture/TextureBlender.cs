@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool
         public int MaterialSelect = 0;
         public Texture2D BlendTexture;
         public BlendType BlendType = BlendType.Normal;
-        public string TargetPropatyName = "_MainTex";
+        public string TargetPropertyName = "_MainTex";
 
         public TextureBlenderDataContainer Container = new TextureBlenderDataContainer();
 
@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool
 
             var DistMat = DistMaterials[MaterialSelect];
 
-            var DistTex = DistMat.GetTexture(TargetPropatyName) as Texture2D;
+            var DistTex = DistMat.GetTexture(TargetPropertyName) as Texture2D;
             var AddTex = BlendTexture;
             if (DistTex == null) return;
 
@@ -53,18 +53,18 @@ namespace net.rs64.TexTransTool
             Container.BlendTexteres = SavedTex;
 
             var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, SavedTex);
-            Container.GenereatMaterials = ChangeDict;
+            Container.GenerateMaterials = ChangeDict;
         }
 
 
-        public override void Revart(AvatarDomain avatarMaterialDomain = null)
+        public override void Revert(AvatarDomain avatarMaterialDomain = null)
         {
             if (!_IsApply) return;
             _IsApply = false;
             if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
             IsSelfCallApply = false;
 
-            avatarMaterialDomain.SetMaterials(MatPea.SwitchingdList(Container.GenereatMaterials), true);
+            avatarMaterialDomain.SetMaterials(MatPair.SwitchingList(Container.GenerateMaterials), true);
         }
     }
 

@@ -24,13 +24,13 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 
-            AbstructSingleDecalEditor.DrowDecalEditor(This_S_Object);
+            AbstructSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DorwScaileEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstructSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             EditorGUI.indentLevel -= 1;
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
@@ -51,8 +51,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var s_FastMode = This_S_Object.FindProperty("FastMode");
                 EditorGUILayout.PropertyField(s_FastMode, new GUIContent("FastMode"));
 
-                var s_Pading = This_S_Object.FindProperty("Pading");
-                EditorGUILayout.PropertyField(s_Pading, new GUIContent("Pading"));
+                var s_Padding = This_S_Object.FindProperty("Padding");
+                EditorGUILayout.PropertyField(s_Padding, new GUIContent("Padding"));
 
                 var s_IsSeparateMatAndTexture = This_S_Object.FindProperty("IsSeparateMatAndTexture");
                 EditorGUILayout.PropertyField(s_IsSeparateMatAndTexture, new GUIContent("SeparateMaterialAndTexture"));
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
+            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

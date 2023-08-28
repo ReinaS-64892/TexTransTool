@@ -110,29 +110,29 @@ namespace net.rs64.TexTransTool
             }
             return Array;
         }
-        public static List<TraiangleIndex> ToList(int[] triangleIndexs)
+        public static List<TriangleIndex> ToList(int[] triangleIndexs)
         {
-            var TraianglesList = new List<TraiangleIndex>();
+            var TrianglesList = new List<TriangleIndex>();
             int count = 0;
             while (triangleIndexs.Length > count)
             {
-                TraianglesList.Add(new TraiangleIndex(triangleIndexs[count], triangleIndexs[count += 1], triangleIndexs[count += 1]));
+                TrianglesList.Add(new TriangleIndex(triangleIndexs[count], triangleIndexs[count += 1], triangleIndexs[count += 1]));
                 count += 1;
             }
-            return TraianglesList;
+            return TrianglesList;
         }
-        public static List<List<TraiangleIndex>> GetSubTraiangel(this Mesh mesh)
+        public static List<List<TriangleIndex>> GetSubTriangle(this Mesh mesh)
         {
             var SubMeshCount = mesh.subMeshCount;
-            List<List<TraiangleIndex>> SubTraiangles = new List<List<TraiangleIndex>>(SubMeshCount);
+            List<List<TriangleIndex>> SubTriangles = new List<List<TriangleIndex>>(SubMeshCount);
 
             for (int i = 0; i < SubMeshCount; i++)
             {
-                SubTraiangles.Add(mesh.GetSubTraiangle(i));
+                SubTriangles.Add(mesh.GetSubTriangle(i));
             }
-            return SubTraiangles;
+            return SubTriangles;
         }
-        public static List<TraiangleIndex> GetSubTraiangle(this Mesh mesh, int SubMesh)
+        public static List<TriangleIndex> GetSubTriangle(this Mesh mesh, int SubMesh)
         {
             return ToList(mesh.GetTriangles(SubMesh));
         }
@@ -177,7 +177,7 @@ namespace net.rs64.TexTransTool
                 StartOffset += TakeLengs;
             }
         }
-        public static void ChangeMaterialsRendereas(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPeas)
+        public static void ChangeMaterialsRendereas(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPairs)
         {
             foreach (var Renderer in Rendres)
             {
@@ -186,9 +186,9 @@ namespace net.rs64.TexTransTool
                 foreach (var Index in Enumerable.Range(0, Materials.Length))
                 {
                     var DistMat = Materials[Index];
-                    if (MatPeas.ContainsKey(DistMat))
+                    if (MatPairs.ContainsKey(DistMat))
                     {
-                        Materials[Index] = MatPeas[DistMat];
+                        Materials[Index] = MatPairs[DistMat];
                         IsEdit = true;
                     }
                 }
@@ -429,7 +429,7 @@ namespace net.rs64.TexTransTool
         {
             return (min <= target && target <= max);
         }
-        public static bool OutRenge(float min, float max, float target)
+        public static bool OutRange(float min, float max, float target)
         {
             return (target < min || max < target);
         }
@@ -454,15 +454,15 @@ namespace net.rs64.TexTransTool
     }
     public static class GizmosUtility
     {
-        public static void DrowGizmoQuad(IEnumerable<List<Vector3>> Quads)
+        public static void DrawGizmoQuad(IEnumerable<List<Vector3>> Quads)
         {
             foreach (var Quad in Quads)
             {
-                DrowQuad(Quad);
+                DrawQuad(Quad);
             }
         }
 
-        public static void DrowQuad(IReadOnlyList<Vector3> Quad)
+        public static void DrawQuad(IReadOnlyList<Vector3> Quad)
         {
             Gizmos.DrawLine(Quad[0], Quad[1]);
             Gizmos.DrawLine(Quad[0], Quad[2]);
@@ -470,7 +470,7 @@ namespace net.rs64.TexTransTool
             Gizmos.DrawLine(Quad[1], Quad[3]);
         }
 
-        public static void DrowGimzLine(List<Vector3> Line)
+        public static void DrawGizmoLine(List<Vector3> Line)
         {
             var LineCount = Line.Count;
             if (LineCount < 1) return;

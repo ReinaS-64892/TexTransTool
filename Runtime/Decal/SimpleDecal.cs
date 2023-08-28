@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.Decal
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vartex;
 
         public override ParallelProjectionSpase GetSpaseConverter => new ParallelProjectionSpase(transform.worldToLocalMatrix);
-        public override DecalUtil.ITraianglesFilter<ParallelProjectionSpase> GetTraiangleFilter
+        public override DecalUtil.ITrianglesFilter<ParallelProjectionSpase> GetTriangleFilter
         {
             get
             {
@@ -37,15 +37,15 @@ namespace net.rs64.TexTransTool.Decal
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistans), FixedAspect);
         }
-        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> GetFilter()
         {
-            var Filters = new List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>>
+            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>>
             {
-                new TrainagelFilterUtility.FarStruct(1, false),
-                new TrainagelFilterUtility.NearStruct(0, true)
+                new TriangleFilterUtils.FarStruct(1, false),
+                new TriangleFilterUtils.NearStruct(0, true)
             };
-            if (SideCulling) Filters.Add(new TrainagelFilterUtility.SideStruct());
-            Filters.Add(new TrainagelFilterUtility.OutOfPorigonStruct(PolygonCulling, 0, 1, true));
+            if (SideCulling) Filters.Add(new TriangleFilterUtils.SideStruct());
+            Filters.Add(new TriangleFilterUtils.OutOfPorigonStruct(PolygonCulling, 0, 1, true));
 
             return Filters;
         }
@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.Decal
 
             if (DecalTexture != null)
             {
-                if (DisplayDecalMat == null || Quad == null) GizmInstans();
+                if (DisplayDecalMat == null || Quad == null) GizmInstance();
                 DisplayDecalMat.SetPass(0);
                 Graphics.DrawMeshNow(Quad, Matrix);
             }
@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public void GizmInstans()
+        public void GizmInstance()
         {
             DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
             DisplayDecalMat.mainTexture = DecalTexture;
@@ -101,7 +101,7 @@ namespace net.rs64.TexTransTool.Decal
         Dictionary<RenderTexture, RenderTexture> _RealTimePreviewDecalTextureCompile;
         Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTextureBlend;
 
-        public List<MatPea> PreViewMaterials = new List<MatPea>();
+        public List<MatPair> PreViewMaterials = new List<MatPair>();
 
         public void EnableRealTimePreview()
         {
@@ -121,17 +121,17 @@ namespace net.rs64.TexTransTool.Decal
                 var Materials = Rendarer.sharedMaterials;
                 for (int i = 0; i < Materials.Length; i += 1)
                 {
-                    if (!Materials[i].HasProperty(TargetPropatyName)) { continue; }
-                    if (Materials[i].GetTexture(TargetPropatyName) is RenderTexture) { continue; }
+                    if (!Materials[i].HasProperty(TargetPropertyName)) { continue; }
+                    if (Materials[i].GetTexture(TargetPropertyName) is RenderTexture) { continue; }
                     if (PreViewMaterials.Any(i2 => i2.Material == Materials[i]))
                     {
-                        Materials[i] = PreViewMaterials.Find(i2 => i2.Material == Materials[i]).SecndMaterial;
+                        Materials[i] = PreViewMaterials.Find(i2 => i2.Material == Materials[i]).SecondMaterial;
                     }
                     else
                     {
                         var DistMat = Materials[i];
                         var NewMat = Instantiate<Material>(Materials[i]);
-                        var srostex = NewMat.GetTexture(TargetPropatyName);
+                        var srostex = NewMat.GetTexture(TargetPropertyName);
 
                         if (srostex is Texture2D tex2d && tex2d != null)
                         {
@@ -141,14 +141,14 @@ namespace net.rs64.TexTransTool.Decal
                                 var NewTexCompiled = new RenderTexture(tex2d.width, tex2d.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
                                 _RealTimePreviewDecalTextureCompile.Add(NewTexBlend, NewTexCompiled);
                                 _RealTimePreviewDecalTextureBlend.Add(tex2d, NewTexBlend);
-                                NewMat.SetTexture(TargetPropatyName, NewTexBlend);
+                                NewMat.SetTexture(TargetPropertyName, NewTexBlend);
                             }
                             else
                             {
-                                NewMat.SetTexture(TargetPropatyName, _RealTimePreviewDecalTextureBlend[tex2d]);
+                                NewMat.SetTexture(TargetPropertyName, _RealTimePreviewDecalTextureBlend[tex2d]);
                             }
                             Materials[i] = NewMat;
-                            PreViewMaterials.Add(new MatPea(DistMat, NewMat));
+                            PreViewMaterials.Add(new MatPair(DistMat, NewMat));
                         }
 
 
@@ -167,7 +167,7 @@ namespace net.rs64.TexTransTool.Decal
                 var Materials = Rendarer.sharedMaterials;
                 for (int i = 0; i < Materials.Length; i += 1)
                 {
-                    var DistMat = PreViewMaterials.Find(i2 => i2.SecndMaterial == Materials[i]).Material;
+                    var DistMat = PreViewMaterials.Find(i2 => i2.SecondMaterial == Materials[i]).Material;
                     if (DistMat != null) Materials[i] = DistMat;
 
                 }
@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var render in TargetRenderers)
             {
-                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTraiangleFilter, TargetPropatyName, GetOutRengeTexture, Pading);
+                DecalUtil.CreatDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRendereTexture, GetSpaseConverter, GetTriangleFilter, TargetPropertyName, GetOutRangeTexture, Padding);
             }
             foreach (var Stex in _RealTimePreviewDecalTextureBlend.Keys)
             {
@@ -243,18 +243,18 @@ namespace net.rs64.TexTransTool.Decal
 
     }
 
-    public class ParallelProjectionFilter : DecalUtil.ITraianglesFilter<ParallelProjectionSpase>
+    public class ParallelProjectionFilter : DecalUtil.ITrianglesFilter<ParallelProjectionSpase>
     {
-        public List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters;
+        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters;
 
-        public ParallelProjectionFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters)
+        public ParallelProjectionFilter(List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters)
         {
             this.Filters = Filters;
         }
 
-        public virtual List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
+        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Trianglees)
         {
-            return TrainagelFilterUtility.FiltaringTraiangle(Traiangeles, Spase.PPSVarts, Filters);
+            return TriangleFilterUtils.FiltaringTriangle(Trianglees, Spase.PPSVarts, Filters);
         }
     }
 
@@ -262,15 +262,15 @@ namespace net.rs64.TexTransTool.Decal
     {
         public List<IslandSelector> IslandSelectors;
 
-        public IslandCullingPPFilter(List<TrainagelFilterUtility.ITraiangleFiltaring<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
+        public IslandCullingPPFilter(List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
         {
             this.IslandSelectors = IslandSelectors;
         }
 
-        public override List<TraiangleIndex> Filtering(ParallelProjectionSpase Spase, List<TraiangleIndex> Traiangeles)
+        public override List<TriangleIndex> Filtering(ParallelProjectionSpase Spase, List<TriangleIndex> Trianglees)
         {
-            Traiangeles = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Traiangeles);
-            return base.Filtering(Spase, Traiangeles);
+            Trianglees = Island.IslandCulling.Culling(IslandSelectors, Spase.MeshData.Varticals, Spase.MeshData.UV, Trianglees);
+            return base.Filtering(Spase, Trianglees);
         }
 
     }

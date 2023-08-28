@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Bulige;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -12,12 +12,12 @@ namespace net.rs64.TexTransTool.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("GenereatCustomMipMap"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("GenerateCustomMipMap"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("TexTransGroup"));
 
-            var thsitarget = target as AvatarDomainDefinition;
+            var thistarget = target as AvatarDomainDefinition;
 
-            if (thsitarget.TexTransGroup == null)
+            if (thistarget.TexTransGroup == null)
             {
                 EditorGUI.BeginDisabledGroup(true);
                 GUILayout.Button("TexTransGroup is null");
@@ -27,24 +27,24 @@ namespace net.rs64.TexTransTool.Editor
                 return;
             }
 
-            EditorGUI.BeginDisabledGroup(!thsitarget.TexTransGroup.IsPossibleApply);
-            if (thsitarget.TexTransGroup.IsApply == false)
+            EditorGUI.BeginDisabledGroup(!thistarget.TexTransGroup.IsPossibleApply);
+            if (thistarget.TexTransGroup.IsApply == false)
             {
                 if (GUILayout.Button("MaterialDomainUse - Apply"))
                 {
-                    thsitarget.Apply();
-                    EditorUtility.SetDirty(thsitarget);
-                    EditorUtility.SetDirty(thsitarget.TexTransGroup);
+                    thistarget.Apply();
+                    EditorUtility.SetDirty(thistarget);
+                    EditorUtility.SetDirty(thistarget.TexTransGroup);
                 }
             }
             else
             {
-                EditorGUI.BeginDisabledGroup(!thsitarget.IsSelfCallApply);
-                if (GUILayout.Button("Revart"))
+                EditorGUI.BeginDisabledGroup(!thistarget.IsSelfCallApply);
+                if (GUILayout.Button("Revert"))
                 {
-                    thsitarget.Revart();
-                    EditorUtility.SetDirty(thsitarget);
-                    EditorUtility.SetDirty(thsitarget.TexTransGroup);
+                    thistarget.Revert();
+                    EditorUtility.SetDirty(thistarget);
+                    EditorUtility.SetDirty(thistarget.TexTransGroup);
                 }
                 EditorGUI.EndDisabledGroup();
             }

@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Decal
         public Texture2D DecalTexture;
         public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null);
         public abstract SpaseConverter GetSpaseConverter { get; }
-        public abstract DecalUtil.ITraianglesFilter<SpaseConverter> GetTraiangleFilter { get; }
+        public abstract DecalUtil.ITrianglesFilter<SpaseConverter> GetTriangleFilter { get; }
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {
@@ -28,10 +28,10 @@ namespace net.rs64.TexTransTool.Decal
                         DecalCompiledRenderTextures,
                         muldDecalTexture,
                         GetSpaseConverter,
-                        GetTraiangleFilter,
-                        TargetPropatyName,
-                        GetOutRengeTexture,
-                        Pading
+                        GetTriangleFilter,
+                        TargetPropertyName,
+                        GetOutRangeTexture,
+                        Padding
                     );
                 }
 
@@ -50,10 +50,10 @@ namespace net.rs64.TexTransTool.Decal
                         Rendarer,
                         muldDecalTexture2D,
                         GetSpaseConverter,
-                        GetTraiangleFilter,
-                        TargetPropatyName,
-                        GetOutRengeTexture,
-                        Pading
+                        GetTriangleFilter,
+                        TargetPropertyName,
+                        GetOutRangeTexture,
+                        Padding
                     );
                     DecalsCompoleTexs.Add(DecalsCompoleds);
                 }

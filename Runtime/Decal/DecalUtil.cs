@@ -16,21 +16,21 @@ namespace net.rs64.TexTransTool.Decal
             void Input(MeshDatas meshDatas);
             List<Vector2> OutPutUV();
         }
-        public interface ITraianglesFilter<SpaseConverter>
+        public interface ITrianglesFilter<SpaseConverter>
         {
-            List<TraiangleIndex> Filtering(SpaseConverter Spase, List<TraiangleIndex> Traiangeles);
+            List<TriangleIndex> Filtering(SpaseConverter Spase, List<TriangleIndex> Trianglees);
         }
         public class MeshDatas
         {
             public IReadOnlyList<Vector3> Varticals;
             public IReadOnlyList<Vector2> UV;
-            public IReadOnlyList<IReadOnlyList<TraiangleIndex>> TraiangelsSubMesh;
+            public IReadOnlyList<IReadOnlyList<TriangleIndex>> TrianglesSubMesh;
 
-            public MeshDatas(List<Vector3> varticals, List<Vector2> uV, List<List<TraiangleIndex>> traiangelsSubMesh)
+            public MeshDatas(List<Vector3> varticals, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
             {
                 Varticals = varticals;
                 UV = uV;
-                TraiangelsSubMesh = traiangelsSubMesh.Cast<IReadOnlyList<TraiangleIndex>>().ToList();
+                TrianglesSubMesh = trianglesSubMesh.Cast<IReadOnlyList<TriangleIndex>>().ToList();
             }
         }
         public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture, SpaseConverter>(
@@ -38,28 +38,28 @@ namespace net.rs64.TexTransTool.Decal
             Dictionary<KeyTexture, RenderTexture> RenderTextures,
             Texture SousTextures,
             SpaseConverter ConvertSpase,
-            ITraianglesFilter<SpaseConverter> Filter,
+            ITrianglesFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
-            Vector2? TextureOutRenge = null,
+            Vector2? TextureOutRange = null,
             //TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
-            float DefoaltPading = 0.5f
+            float DefoaltPadding = 0.5f
         )
         where KeyTexture : Texture
         where SpaseConverter : IConvertSpace
         {
             if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
 
-            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
-            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            var Vraticals = GetWorldSpairsVertices(TargetRenderer);
+            (var tUV, var TrianglesSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
 
-            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
+            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TrianglesSubMesh));
             var sUV = ConvertSpase.OutPutUV();
 
             var Materials = TargetRenderer.sharedMaterials;
 
-            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
+            for (int i = 0; i < TrianglesSubMesh.Count; i++)
             {
-                var Traiangel = TraiangelsSubMesh[i];
+                var Triangle = TrianglesSubMesh[i];
                 var TargetMat = Materials[i];
 
                 if (!TargetMat.HasProperty(TargetProptyeName)) { continue; };
@@ -67,8 +67,8 @@ namespace net.rs64.TexTransTool.Decal
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);
 
-                var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
-                if (FiltaringdTrainagle.Any() == false) { continue; }
+                var FiltaringdTriangle = Filter != null ? Filter.Filtering(ConvertSpase, Triangle) : Triangle;
+                if (FiltaringdTriangle.Any() == false) { continue; }
 
 
 
@@ -82,9 +82,9 @@ namespace net.rs64.TexTransTool.Decal
                 TransTexture.TransTextureToRenderTexture(
                     RenderTextures[TargetTexture],
                     SousTextures,
-                    new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV),
-                    DefoaltPading,
-                    TextureOutRenge
+                    new TransTexture.TransUVData(FiltaringdTriangle, tUV, sUV),
+                    DefoaltPadding,
+                    TextureOutRange
                 );
 
 
@@ -96,47 +96,47 @@ namespace net.rs64.TexTransTool.Decal
             Renderer TargetRenderer,
             Texture2D SousTextures,
             SpaseConverter ConvertSpase,
-            ITraianglesFilter<SpaseConverter> Filter,
+            ITrianglesFilter<SpaseConverter> Filter,
             string TargetProptyeName = "_MainTex",
-            Vector2? TextureOutRenge = null,
-            float DefoaltPading = 1f
+            Vector2? TextureOutRange = null,
+            float DefoaltPadding = 1f
         )
         where SpaseConverter : IConvertSpace
         {
-            var ResultTexutres = new Dictionary<Texture2D, List<Texture2D>>();
+            var ResultTextures = new Dictionary<Texture2D, List<Texture2D>>();
 
-            var Vraticals = GetWorldSpeasVertices(TargetRenderer);
-            (var tUV, var TraiangelsSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            var Vraticals = GetWorldSpairsVertices(TargetRenderer);
+            (var tUV, var TrianglesSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
 
-            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TraiangelsSubMesh));
+            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TrianglesSubMesh));
             var sUV = ConvertSpase.OutPutUV();
 
             var Materials = TargetRenderer.sharedMaterials;
 
-            for (int i = 0; i < TraiangelsSubMesh.Count; i++)
+            for (int i = 0; i < TrianglesSubMesh.Count; i++)
             {
-                var Traiangel = TraiangelsSubMesh[i];
+                var Triangle = TrianglesSubMesh[i];
                 var TargetMat = Materials[i];
 
                 var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
                 if (TargetTexture == null) { continue; }
                 var TargetTexSize = TargetTexture.NativeSize();
 
-                var FiltaringdTrainagle = Filter != null ? Filter.Filtering(ConvertSpase, Traiangel) : Traiangel;
-                if (FiltaringdTrainagle.Any() == false) { continue; }
+                var FiltaringdTriangle = Filter != null ? Filter.Filtering(ConvertSpase, Triangle) : Triangle;
+                if (FiltaringdTriangle.Any() == false) { continue; }
 
 
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPading(DefoaltPading), TargetTexSize));
-                TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTrainagle, tUV, sUV), DefoaltPading, TextureOutRenge);
+                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPadding(DefoaltPadding), TargetTexSize));
+                TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTriangle, tUV, sUV), DefoaltPadding, TextureOutRange);
 
 
-                if (ResultTexutres.ContainsKey(TargetTexture) == false) { ResultTexutres.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
-                else { ResultTexutres[TargetTexture].Add(AtlasTex.Texture2D); }
+                if (ResultTextures.ContainsKey(TargetTexture) == false) { ResultTextures.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
+                else { ResultTextures[TargetTexture].Add(AtlasTex.Texture2D); }
             }
 
-            return ResultTexutres;
+            return ResultTextures;
         }
-        public static List<Vector3> GetWorldSpeasVertices(Renderer Target)
+        public static List<Vector3> GetWorldSpairsVertices(Renderer Target)
         {
             List<Vector3> Vertices = new List<Vector3>();
             switch (Target)
@@ -175,7 +175,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             return Vertices;
         }
-        public static (List<Vector2>, List<List<TraiangleIndex>>) RendererMeshToGetUVAndTariangel(Renderer Target)
+        public static (List<Vector2>, List<List<TriangleIndex>>) RendererMeshToGetUVAndTariangel(Renderer Target)
         {
             Mesh Mesh;
             switch (Target)
@@ -197,10 +197,10 @@ namespace net.rs64.TexTransTool.Decal
             }
             List<Vector2> UV = new List<Vector2>();
             Mesh.GetUVs(0, UV);
-            List<List<TraiangleIndex>> TraingleIndexs = new List<List<TraiangleIndex>>();
+            List<List<TriangleIndex>> TraingleIndexs = new List<List<TriangleIndex>>();
             foreach (var Index in Enumerable.Range(0, Mesh.subMeshCount))
             {
-                List<TraiangleIndex> TraingleIndex = Utils.ToList(Mesh.GetTriangles(Index));
+                List<TriangleIndex> TraingleIndex = Utils.ToList(Mesh.GetTriangles(Index));
                 TraingleIndexs.Add(TraingleIndex);
             }
             return (UV, TraingleIndexs);

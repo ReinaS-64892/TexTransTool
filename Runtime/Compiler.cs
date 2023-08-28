@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
         public const string TransCompilerPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
         [Obsolete]
-        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRenge = null)
+        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRange = null)
         {
             var TargetTexSize = TargetTex.DistansMap.MapSize;
             if (TargetTexSize.x != AtralsMap.Map.MapSize.x && TargetTexSize.y != AtralsMap.Map.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -33,13 +33,13 @@ namespace net.rs64.TexTransTool
             for (int i = 0; i < lengs; i += 1)
             {
                 var NawDistans = AtralsMap[i].Distans;
-                if (NawDistans > AtralsMap.DefaultPading && NawDistans > TargetTex.DistansMap[i])
+                if (NawDistans > AtralsMap.DefaultPadding && NawDistans > TargetTex.DistansMap[i])
                 {
                     Vector2 SouseTexPos = AtralsMap[i].Pos;
 
                     Vector2? WarpdPos = GetWarpdPos(wrapMode, SouseTexPos);
 
-                    WarpdPos = IsOutRenge(OutRenge, SouseTexPos) ? null : WarpdPos;
+                    WarpdPos = IsOutRange(OutRange, SouseTexPos) ? null : WarpdPos;
 
                     SetPixsl(TargetPixsel, SouseTex, i, WarpdPos);
                     TargetTex.DistansMap[i] = NawDistans;
@@ -81,11 +81,11 @@ namespace net.rs64.TexTransTool
             return WarpdPos;
         }
 
-        private static bool IsOutRenge(Vector2? OutRenge, Vector2 SouseTexPos)
+        private static bool IsOutRange(Vector2? OutRange, Vector2 SouseTexPos)
         {
-            if (OutRenge.HasValue)
+            if (OutRange.HasValue)
             {
-                var outReng = OutRenge.Value;
+                var outReng = OutRange.Value;
                 var OutOfolag = false;
                 if (!((outReng.x * -1) < SouseTexPos.x && SouseTexPos.x < (outReng.x + 1))) { OutOfolag = true; }
                 if (!((outReng.y * -1) < SouseTexPos.y && SouseTexPos.y < (outReng.y + 1))) { OutOfolag = true; }
@@ -268,11 +268,11 @@ namespace net.rs64.TexTransTool
             return new Vector2Int((int)with, (int)height);
         }
 
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRenge = null, ComputeShader CS = null)
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
-            return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { AtralsMaps }, targetTex, wrapMode, OutRenge, CS);
+            return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { AtralsMaps }, targetTex, wrapMode, OutRange, CS);
         }
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRenge = null, ComputeShader CS = null)
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
             var TexSize = targetTex.DistansMap.MapSize;
             if (AtralsMaps.Any(i => i.Map.MapSize != TexSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
@@ -310,10 +310,10 @@ namespace net.rs64.TexTransTool
 
 
             CS.SetInts("TargetTexSize", new int[2] { TexSize.x, TexSize.y });
-            CS.SetBool("IsOutRange", OutRenge.HasValue);
-            if (OutRenge.HasValue)
+            CS.SetBool("IsOutRange", OutRange.HasValue);
+            if (OutRange.HasValue)
             {
-                CS.SetFloats("OutRange", new float[2] { OutRenge.Value.x, OutRenge.Value.y });
+                CS.SetFloats("OutRange", new float[2] { OutRange.Value.x, OutRange.Value.y });
             }
 
             foreach (var AtralsMap in AtralsMaps)

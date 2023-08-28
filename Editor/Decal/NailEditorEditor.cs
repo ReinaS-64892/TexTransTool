@@ -25,8 +25,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var S_BlendType = This_S_Object.FindProperty("BlendType");
             EditorGUILayout.PropertyField(S_BlendType);
 
-            var S_TargetPropatyName = This_S_Object.FindProperty("TargetPropatyName");
-            PropatyNameEditor.DrawInspectorGUI(S_TargetPropatyName);
+            var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
+            PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
 
             var S_UseTextureAspect = This_S_Object.FindProperty("UseTextureAspect");
             EditorGUILayout.PropertyField(S_UseTextureAspect);
@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             DrawOffsetSaveAndLoadser(ThisObject);
 
 
-            TextureTransformerEditor.DrowApplyAndRevart(ThisObject);
+            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }
@@ -79,14 +79,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var S_DecalTexture = serializedProperty.FindPropertyRelative("DecalTexture");
             var S_PositionOffset = serializedProperty.FindPropertyRelative("PositionOffset");
-            var S_ScaileOffset = serializedProperty.FindPropertyRelative("ScaileOffset");
+            var S_ScaleOffset = serializedProperty.FindPropertyRelative("ScaleOffset");
             var S_RotationOffset = serializedProperty.FindPropertyRelative("RotationOffset");
 
             EditorGUI.indentLevel += 1;
 
             EditorGUILayout.PropertyField(S_DecalTexture);
             DrawPositionOffset(S_PositionOffset);
-            EditorGUILayout.PropertyField(S_ScaileOffset);
+            EditorGUILayout.PropertyField(S_ScaleOffset);
             EditorGUILayout.PropertyField(S_RotationOffset);
 
             EditorGUI.indentLevel -= 1;

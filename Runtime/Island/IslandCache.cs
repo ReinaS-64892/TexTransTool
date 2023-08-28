@@ -18,42 +18,42 @@ namespace net.rs64.TexTransTool.Island
             Hash = hash;
             Islands = islands;
         }
-        public IslandCacheObject(List<TraiangleIndex> Triange, List<Vector2> UV, List<Island> Island)
+        public IslandCacheObject(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
         {
-            SetData(Triange, UV, Island);
+            SetData(Triangle, UV, Island);
         }
-        public void SetData(List<TraiangleIndex> Triange, List<Vector2> UV, List<Island> Island)
+        public void SetData(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
         {
             Islands = Island;
 
-            Hash = GenereatHash(Triange, UV);
+            Hash = GenerateHash(Triangle, UV);
         }
 
-        public static byte[] GenereatHash(IReadOnlyList<TraiangleIndex> Triange, IReadOnlyList<Vector2> UV)
+        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> Triangle, IReadOnlyList<Vector2> UV)
         {
-            var datajson = JsonUtility.ToJson(new TrainagleAndUVpeas(new List<TraiangleIndex>(Triange), UV));
+            var datajson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(Triangle), UV));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(datajson);
 
             return SHA1.Create().ComputeHash(data);
         }
 
         [Serializable]
-        class TrainagleAndUVpeas
+        class TriangleAndUVpairs
         {
-            public List<TraiangleIndex> Triange;
+            public List<TriangleIndex> Triangle;
             public List<Vector2> UV;
 
-            public TrainagleAndUVpeas(List<TraiangleIndex> triange, List<Vector2> uV)
+            public TriangleAndUVpairs(List<TriangleIndex> triangle, List<Vector2> uV)
             {
-                Triange = triange;
+                Triangle = triangle;
                 UV = uV;
             }
-            public TrainagleAndUVpeas(IReadOnlyList<TraiangleIndex> triange, IReadOnlyList<Vector2> uV)
+            public TriangleAndUVpairs(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uV)
             {
-                Triange = triange.ToList();
+                Triangle = triangle.ToList();
                 UV = uV.ToList();
             }
-        
+
 
         }
     }
