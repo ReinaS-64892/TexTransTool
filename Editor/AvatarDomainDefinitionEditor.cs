@@ -11,25 +11,16 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("GenerateCustomMipMap"));
 
             var thisTarget = target as AvatarDomainDefinition;
 
-            if (thisTarget.TexTransGroup == null)
-            {
-                EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("TexTransGroup is null");
-                EditorGUI.EndDisabledGroup();
-
-                serializedObject.ApplyModifiedProperties();
-                return;
-            }
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"), new GUIContent("Preview Avatar"));
 
             EditorGUI.BeginDisabledGroup(!thisTarget.TexTransGroup.IsPossibleApply || thisTarget.Avatar == null);
             if (thisTarget.TexTransGroup.IsApply == false)
             {
-                if (GUILayout.Button("MaterialDomainUse - Apply"))
+                if (GUILayout.Button("Preview - AvatarDomain-Apply"))
                 {
                     thisTarget.Apply();
                     EditorUtility.SetDirty(thisTarget);
