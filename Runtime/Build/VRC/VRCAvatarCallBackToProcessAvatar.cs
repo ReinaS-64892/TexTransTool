@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.Build.VRC
 {
 
     [InitializeOnLoad]
-    public class TTGApplyToVRCAvatarCallBack : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
+    public class VRCAvatarCallBackToProcessAvatar : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
         public int callbackOrder => -2048;//この値についてはもうすこし考えるべきだが -1024で IEditorOnlyは消滅するらしい。
 
