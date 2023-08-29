@@ -132,7 +132,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size"));
                             PropertyNameEditor.DrawInspectorGUI(S_Resize_PropertyNames);
-                            EditorGUILayout.PropertyField(S_Resize_select, new GUIContent("select"));
+                            EditorGUILayout.PropertyField(S_Resize_select, new GUIContent("Select"));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
@@ -146,7 +146,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             EditorGUILayout.PropertyField(S_Compless_fromatQuality, new GUIContent("fromatQuality"));
                             EditorGUILayout.PropertyField(S_Compless_compressionQuality, new GUIContent("compressionQuality"));
                             PropertyNameEditor.DrawInspectorGUI(S_Compless_PropertyNames);
-                            EditorGUILayout.PropertyField(S_Compless_select, new GUIContent("select"));
+                            EditorGUILayout.PropertyField(S_Compless_select, new GUIContent("Select"));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
@@ -166,7 +166,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             var S_Remove_select = S_fineSettingData.FindPropertyRelative("Remove_select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(S_Remove_PropertyNames);
-                            EditorGUILayout.PropertyField(S_Remove_select, new GUIContent("select"));
+                            EditorGUILayout.PropertyField(S_Remove_select, new GUIContent("Select"));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
@@ -176,7 +176,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             var S_MipMapRemove_select = S_fineSettingData.FindPropertyRelative("MipMapRemove_select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(S_MipMapRemove_PropertyNames);
-                            EditorGUILayout.PropertyField(S_MipMapRemove_select, new GUIContent("select"));
+                            EditorGUILayout.PropertyField(S_MipMapRemove_select, new GUIContent("Select"));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
