@@ -8,7 +8,7 @@ using static net.rs64.TexTransTool.TransTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-
+    [AddComponentMenu("TexTransTool/AtlasTexture")]
     public class AtlasTexture : TextureTransformer
     {
         public GameObject TargetRoot;
