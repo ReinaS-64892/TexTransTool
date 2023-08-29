@@ -29,10 +29,10 @@ namespace net.rs64.TexTransTool.TestCode
             var targetRt = new UnityEngine.RenderTexture(512, 512, 0, UnityEngine.RenderTextureFormat.ARGB32);
 
             var transData = new TransTexture.TransUVData(
-                new List<TraiangleIndex>()
+                new List<TriangleIndex>()
                 {
-                    new TraiangleIndex(0,1,2),
-                    new TraiangleIndex(0,2,3),
+                    new TriangleIndex(0,1,2),
+                    new TriangleIndex(0,2,3),
                 },
                 new List<Vector2>()
                 {
