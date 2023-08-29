@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-#if VRC_BASE
-using VRC.SDKBase;
-#endif
+
 namespace net.rs64.TexTransTool.Decal.Cylindrical
 {
     [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
     public class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
-#if VRC_BASE
-    , IEditorOnly
-#endif
     {
         public float GizmoRadius = 0.25f;
         public float GizmoHeight = 1f;

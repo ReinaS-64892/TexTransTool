@@ -2,17 +2,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Decal.Cylindrical;
-#if VRC_BASE
-using VRC.SDKBase;
-#endif
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/CylindricalCurveDecal")]
     public class CylindricalCurveDecal : CurveDecal
-#if VRC_BASE
-    , IEditorOnly
-#endif
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FilteredBackSide = true;
