@@ -15,8 +15,7 @@ namespace net.rs64.TexTransTool.Build
                 var aDDs = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
                 foreach (var aDD in aDDs)
                 {
-                    aDD.SetAvatar(avatarGameObject);
-                    aDD.Apply(OverrideAssetContainer);
+                    aDD.Apply(avatarGameObject, OverrideAssetContainer);
                 }
                 foreach (var aDD in aDDs) { RemoveAvatarDomainDefinition(aDD); }
                 foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true)) { if (tf is MonoBehaviour mb && mb != null) MonoBehaviour.DestroyImmediate(mb.gameObject); }

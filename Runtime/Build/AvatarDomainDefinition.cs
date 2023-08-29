@@ -11,45 +11,40 @@ namespace net.rs64.TexTransTool.Build
     {
         public GameObject Avatar;
         public bool GenerateCustomMipMap;
-        [SerializeField] public AbstractTexTransGroup TexTransGroup;
+        public AbstractTexTransGroup TexTransGroup => GetComponent<AbstractTexTransGroup>();
         [SerializeField] protected AvatarDomain CacheDomain;
 
         [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
         [HideInInspector, SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
-        public virtual AvatarDomain GetDomain(UnityEngine.Object OverrideAssetContainer = null)
+        public virtual AvatarDomain GetDomain(GameObject avatar, UnityEngine.Object OverrideAssetContainer = null)
         {
-            return new AvatarDomain(Avatar, true, GenerateCustomMipMap, OverrideAssetContainer);
+            return new AvatarDomain(avatar, true, GenerateCustomMipMap, OverrideAssetContainer);
         }
-        public virtual void SetAvatar(GameObject gameObject)
+        public virtual void Apply(GameObject avatar = null, UnityEngine.Object OverrideAssetContainer = null)
         {
-            Avatar = gameObject;
-        }
-        protected void Reset()
-        {
-            TexTransGroup = GetComponent<AbstractTexTransGroup>();
-        }
-        public virtual void Apply(UnityEngine.Object OverrideAssetContainer = null)
-        {
-            if (TexTransGroup == null) Reset();
-            if (TexTransGroup.IsApply) return;
-            if (Avatar == null) return;
-            TTGValidationUtili.ValidatTTG(TexTransGroup);
-            CacheDomain = GetDomain(OverrideAssetContainer);
+            var texTransGroup = TexTransGroup;
+            if (texTransGroup == null) return;
+            if (texTransGroup.IsApply) return;
+            if (avatar == null && Avatar == null) return;
+            if (avatar == null) avatar = Avatar;
+            TTGValidationUtili.ValidatTTG(texTransGroup);
+            CacheDomain = GetDomain(avatar, OverrideAssetContainer);
             _IsSelfCallApply = true;
-            TexTransGroup.Apply(CacheDomain);
+            texTransGroup.Apply(CacheDomain);
             CacheDomain.SaveTexture();
         }
 
         public virtual void Revert()
         {
             if (_IsSelfCallApply == false) return;
-            if (TexTransGroup == null) Reset();
-            if (!TexTransGroup.IsApply) return;
+            var texTransGroup = TexTransGroup;
+            if (texTransGroup == null) return;
+            if (!texTransGroup.IsApply) return;
             _IsSelfCallApply = false;
             CacheDomain.ResetMaterial();
-            TexTransGroup.Revert(CacheDomain);
+            texTransGroup.Revert(CacheDomain);
             AssetSaveHelper.DeletAsset(CacheDomain.Asset);
             CacheDomain = null;
         }
