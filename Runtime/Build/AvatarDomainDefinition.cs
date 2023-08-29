@@ -5,6 +5,7 @@ using System;
 
 namespace net.rs64.TexTransTool.Build
 {
+    [AddComponentMenu("TexTransTool/AvatarDomainDefinition")]
     [RequireComponent(typeof(AbstractTexTransGroup))]
     public class AvatarDomainDefinition : MonoBehaviour, ITexTransToolTag
     {
