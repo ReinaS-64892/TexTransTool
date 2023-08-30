@@ -49,8 +49,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 MaterialSelectEditor(S_MatSelectors, ChannelCount);
             }
 
-            var s_UseIslandCash = This_S_Object.FindProperty("UseIslandCash");
-            EditorGUILayout.PropertyField(s_UseIslandCash);
+            var s_UseIslandCache = This_S_Object.FindProperty("UseIslandCache");
+            EditorGUILayout.PropertyField(s_UseIslandCache);
 
 
             DrawAtlasSettings(S_AtlasSettings);

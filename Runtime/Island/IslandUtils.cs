@@ -565,14 +565,14 @@ namespace net.rs64.TexTransTool.Island
         {
             int getIndex = -1;
             int count = -1;
-            Vector2 cash = new Vector2(0, 0);
+            Vector2 cache = new Vector2(0, 0);
             foreach (var islandAndTag in Islands)
             {
                 count += 1;
                 var Island = islandAndTag;
-                if (cash.sqrMagnitude < Island.Size.sqrMagnitude)
+                if (cache.sqrMagnitude < Island.Size.sqrMagnitude)
                 {
-                    cash = islandAndTag.Size;
+                    cache = islandAndTag.Size;
                     getIndex = count;
                 }
             }
