@@ -9,15 +9,15 @@ namespace net.rs64.TexTransTool.DebugUtils
 {
     public static class TriangleDebug
     {
-        public static string TriangleToString(IEnumerable<TriangleIndex> filtedTriangle, IReadOnlyList<Vector3> debugvarts)
+        public static string TriangleToString(IEnumerable<TriangleIndex> triangle, IReadOnlyList<Vector3> vertex)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-            foreach (var I in filtedTriangle)
+            foreach (var I in triangle)
             {
-                sb.Append($"{debugvarts[I[0]].x},{debugvarts[I[0]].y},{debugvarts[I[0]].z},");
-                sb.Append($"{debugvarts[I[1]].x},{debugvarts[I[1]].y},{debugvarts[I[1]].z},");
-                sb.Append($"{debugvarts[I[2]].x},{debugvarts[I[2]].y},{debugvarts[I[2]].z}\n");
+                sb.Append($"{vertex[I[0]].x},{vertex[I[0]].y},{vertex[I[0]].z},");
+                sb.Append($"{vertex[I[1]].x},{vertex[I[1]].y},{vertex[I[1]].z},");
+                sb.Append($"{vertex[I[2]].x},{vertex[I[2]].y},{vertex[I[2]].z}\n");
             }
             return sb.ToString();
         }
@@ -36,27 +36,27 @@ namespace net.rs64.TexTransTool.DebugUtils
             _StepStopwatch.Start();
         }
 
-        public void Log(string messeg = "")
+        public void Log(string message = "")
         {
             _StepStopwatch.Stop();
             _Stopwatch.Stop();
 
-            ELtoLog(_StepStopwatch.Elapsed, messeg);
+            ELtoLog(_StepStopwatch.Elapsed, message);
 
             _StepStopwatch.Restart();
             _Stopwatch.Start();
         }
 
-        public void EndLog(string messeg = "")
+        public void EndLog(string message = "")
         {
-            Log(messeg);
+            Log(message);
             _Stopwatch.Stop();
             ELtoLog(_Stopwatch.Elapsed, "Total");
         }
 
-        public static void ELtoLog(TimeSpan el, string messeg = "")
+        public static void ELtoLog(TimeSpan el, string message = "")
         {
-            UnityEngine.Debug.Log($"{messeg} {el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
+            UnityEngine.Debug.Log($"{message} {el.Hours}h {el.Minutes}m {el.Seconds}s {el.Milliseconds}ms");
         }
     }
 }

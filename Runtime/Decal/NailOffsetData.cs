@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Decal
     [Serializable]
     public class NailOffSets
     {
-        public Upvector Upvector;
+        public UpVector UpVector;
 
         public NailOffset Thumb = new NailOffset();
         public NailOffset Index = new NailOffset();
@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public void Copy(NailOffSets Souse)
         {
-            Upvector = Souse.Upvector;
+            UpVector = Souse.UpVector;
 
             Thumb.Copy(Souse.Thumb);
             Index.Copy(Souse.Index);
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Decal
         }
         public void Copy(NailSet Souse)
         {
-            Upvector = Souse.FingerUpvector;
+            UpVector = Souse.FingerUpVector;
 
             Thumb.Copy(Souse.Thumb);
             Index.Copy(Souse.Index);

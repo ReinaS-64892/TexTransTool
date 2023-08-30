@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool
     public static class TransMapper
     {
         public const string TransMapperPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransMapper.compute";
-
+        [Obsolete]
         public static (Vector2, float) UVMapingCalculat(List<TriangleIndex> TrianglesToIndex, List<Vector2> TargetTexScaleTargetUV, List<Vector2> SourceUV, Vector2Int TargetPixsel, PaddingType paddingType, float DefaultDistans)
         {
             Vector2 Targetpixself = TargetPixsel;// + new Vector2(0.5f, 0.5f);
@@ -139,7 +139,7 @@ namespace net.rs64.TexTransTool
             return Mathf.Min(Vector.x, Mathf.Min(Vector.y, Vector.z));
         }
 
-        public static TransMapData TransMapGeneratUseComputeSheder(ComputeShader Shader, TransMapData TransMap, IReadOnlyList<TriangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetTexScaleTargetUV, IReadOnlyList<Vector2> SourceUV, PaddingType paddingType = PaddingType.EdgeBase)
+        public static TransMapData TransMapGenerateUseComputeShader(ComputeShader Shader, TransMapData TransMap, IReadOnlyList<TriangleIndex> TrianglesToIndex, IReadOnlyList<Vector2> TargetTexScaleTargetUV, IReadOnlyList<Vector2> SourceUV, PaddingType paddingType = PaddingType.EdgeBase)
         {
             if (Shader == null) Shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath);
             Vector2Int ThredGropSize = TransMap.Map.MapSize / 32;

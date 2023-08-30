@@ -13,77 +13,77 @@ namespace net.rs64.TexTransTool.Decal
     {
         public interface IConvertSpace
         {
-            void Input(MeshDatas meshDatas);
+            void Input(MeshData meshData);
             List<Vector2> OutPutUV();
         }
-        public interface ITrianglesFilter<SpaseConverter>
+        public interface ITrianglesFilter<SpaceConverter>
         {
-            List<TriangleIndex> Filtering(SpaseConverter Spase, List<TriangleIndex> Trianglees);
+            List<TriangleIndex> Filtering(SpaceConverter Space, List<TriangleIndex> Triangles);
         }
-        public class MeshDatas
+        public class MeshData
         {
-            public IReadOnlyList<Vector3> Varticals;
+            public IReadOnlyList<Vector3> Vertex;
             public IReadOnlyList<Vector2> UV;
             public IReadOnlyList<IReadOnlyList<TriangleIndex>> TrianglesSubMesh;
 
-            public MeshDatas(List<Vector3> varticals, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
+            public MeshData(List<Vector3> vertex, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
             {
-                Varticals = varticals;
+                Vertex = vertex;
                 UV = uV;
                 TrianglesSubMesh = trianglesSubMesh.Cast<IReadOnlyList<TriangleIndex>>().ToList();
             }
         }
-        public static Dictionary<KeyTexture, RenderTexture> CreatDecalTexture<KeyTexture, SpaseConverter>(
+        public static Dictionary<KeyTexture, RenderTexture> CreateDecalTexture<KeyTexture, SpaceConverter>(
             Renderer TargetRenderer,
             Dictionary<KeyTexture, RenderTexture> RenderTextures,
             Texture SousTextures,
-            SpaseConverter ConvertSpase,
-            ITrianglesFilter<SpaseConverter> Filter,
-            string TargetProptyeName = "_MainTex",
+            SpaceConverter ConvertSpace,
+            ITrianglesFilter<SpaceConverter> Filter,
+            string TargetPropertyName = "_MainTex",
             Vector2? TextureOutRange = null,
             //TexWrapMode TexWrapMode = TexWrapMode.NotWrap,
-            float DefoaltPadding = 0.5f
+            float DefaultPadding = 0.5f
         )
         where KeyTexture : Texture
-        where SpaseConverter : IConvertSpace
+        where SpaceConverter : IConvertSpace
         {
             if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
 
-            var Vraticals = GetWorldSpairsVertices(TargetRenderer);
-            (var tUV, var TrianglesSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            var vertices = GetWorldSpaceVertices(TargetRenderer);
+            var (tUV, trianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
 
-            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TrianglesSubMesh));
-            var sUV = ConvertSpase.OutPutUV();
+            ConvertSpace.Input(new MeshData(vertices, tUV, trianglesSubMesh));
+            var sUV = ConvertSpace.OutPutUV();
 
-            var Materials = TargetRenderer.sharedMaterials;
+            var materials = TargetRenderer.sharedMaterials;
 
-            for (int i = 0; i < TrianglesSubMesh.Count; i++)
+            for (int i = 0; i < trianglesSubMesh.Count; i++)
             {
-                var Triangle = TrianglesSubMesh[i];
-                var TargetMat = Materials[i];
+                var triangle = trianglesSubMesh[i];
+                var targetMat = materials[i];
 
-                if (!TargetMat.HasProperty(TargetProptyeName)) { continue; };
-                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as KeyTexture;
-                if (TargetTexture == null) { continue; }
-                var TargetTexSize = TargetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(TargetTexture.width, TargetTexture.height);
+                if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
+                var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
+                if (targetTexture == null) { continue; }
+                var targetTexSize = targetTexture is Texture2D tex2d ? tex2d.NativeSize() : new Vector2Int(targetTexture.width, targetTexture.height);
 
-                var FiltaringdTriangle = Filter != null ? Filter.Filtering(ConvertSpase, Triangle) : Triangle;
-                if (FiltaringdTriangle.Any() == false) { continue; }
-
-
+                var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
+                if (filteredTriangle.Any() == false) { continue; }
 
 
-                if (!RenderTextures.ContainsKey(TargetTexture))
+
+
+                if (!RenderTextures.ContainsKey(targetTexture))
                 {
-                    var RendererTexture = new RenderTexture(TargetTexSize.x, TargetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-                    RenderTextures.Add(TargetTexture, RendererTexture);
+                    var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    RenderTextures.Add(targetTexture, rendererTexture);
                 }
 
                 TransTexture.TransTextureToRenderTexture(
-                    RenderTextures[TargetTexture],
+                    RenderTextures[targetTexture],
                     SousTextures,
-                    new TransTexture.TransUVData(FiltaringdTriangle, tUV, sUV),
-                    DefoaltPadding,
+                    new TransTexture.TransUVData(filteredTriangle, tUV, sUV),
+                    DefaultPadding,
                     TextureOutRange
                 );
 
@@ -92,80 +92,80 @@ namespace net.rs64.TexTransTool.Decal
 
             return RenderTextures;
         }
-        public static Dictionary<Texture2D, List<Texture2D>> CreatDecalTextureCS<SpaseConverter>(
+        public static Dictionary<Texture2D, List<Texture2D>> CreateDecalTextureCS<SpaceConverter>(
             Renderer TargetRenderer,
             Texture2D SousTextures,
-            SpaseConverter ConvertSpase,
-            ITrianglesFilter<SpaseConverter> Filter,
-            string TargetProptyeName = "_MainTex",
+            SpaceConverter ConvertSpace,
+            ITrianglesFilter<SpaceConverter> Filter,
+            string TargetPropertyName = "_MainTex",
             Vector2? TextureOutRange = null,
-            float DefoaltPadding = 1f
+            float DefaultPadding = 1f
         )
-        where SpaseConverter : IConvertSpace
+        where SpaceConverter : IConvertSpace
         {
-            var ResultTextures = new Dictionary<Texture2D, List<Texture2D>>();
+            var resultTextures = new Dictionary<Texture2D, List<Texture2D>>();
 
-            var Vraticals = GetWorldSpairsVertices(TargetRenderer);
-            (var tUV, var TrianglesSubMesh) = RendererMeshToGetUVAndTariangel(TargetRenderer);
+            var vertices = GetWorldSpaceVertices(TargetRenderer);
+            var (tUV, TrianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
 
-            ConvertSpase.Input(new MeshDatas(Vraticals, tUV, TrianglesSubMesh));
-            var sUV = ConvertSpase.OutPutUV();
+            ConvertSpace.Input(new MeshData(vertices, tUV, TrianglesSubMesh));
+            var sUV = ConvertSpace.OutPutUV();
 
-            var Materials = TargetRenderer.sharedMaterials;
+            var materials = TargetRenderer.sharedMaterials;
 
             for (int i = 0; i < TrianglesSubMesh.Count; i++)
             {
-                var Triangle = TrianglesSubMesh[i];
-                var TargetMat = Materials[i];
+                var triangle = TrianglesSubMesh[i];
+                var targetMat = materials[i];
 
-                var TargetTexture = TargetMat.GetTexture(TargetProptyeName) as Texture2D;
-                if (TargetTexture == null) { continue; }
-                var TargetTexSize = TargetTexture.NativeSize();
+                var targetTexture = targetMat.GetTexture(TargetPropertyName) as Texture2D;
+                if (targetTexture == null) { continue; }
+                var targetTexSize = targetTexture.NativeSize();
 
-                var FiltaringdTriangle = Filter != null ? Filter.Filtering(ConvertSpase, Triangle) : Triangle;
-                if (FiltaringdTriangle.Any() == false) { continue; }
-
-
-                var AtlasTex = new TransTargetTexture(Utils.CreateFillTexture(TargetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPadding(DefoaltPadding), TargetTexSize));
-                TransTexture.TransTextureUseCS(AtlasTex, SousTextures, new TransTexture.TransUVData(FiltaringdTriangle, tUV, sUV), DefoaltPadding, TextureOutRange);
+                var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
+                if (filteredTriangle.Any() == false) { continue; }
 
 
-                if (ResultTextures.ContainsKey(TargetTexture) == false) { ResultTextures.Add(TargetTexture, new List<Texture2D>() { AtlasTex.Texture2D }); }
-                else { ResultTextures[TargetTexture].Add(AtlasTex.Texture2D); }
+                var atlasTex = new TransTargetTexture(Utils.CreateFillTexture(targetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPadding(DefaultPadding), targetTexSize));
+                TransTexture.TransTextureUseCS(atlasTex, SousTextures, new TransTexture.TransUVData(filteredTriangle, tUV, sUV), DefaultPadding, TextureOutRange);
+
+
+                if (resultTextures.ContainsKey(targetTexture) == false) { resultTextures.Add(targetTexture, new List<Texture2D>() { atlasTex.Texture2D }); }
+                else { resultTextures[targetTexture].Add(atlasTex.Texture2D); }
             }
 
-            return ResultTextures;
+            return resultTextures;
         }
-        public static List<Vector3> GetWorldSpairsVertices(Renderer Target)
+        public static List<Vector3> GetWorldSpaceVertices(Renderer Target)
         {
             List<Vector3> Vertices = new List<Vector3>();
             switch (Target)
             {
                 case SkinnedMeshRenderer SMR:
                     {
-                        Mesh Mesh = new Mesh();
-                        SMR.BakeMesh(Mesh);
-                        Mesh.GetVertices(Vertices);
-                        Matrix4x4 matlix;
+                        Mesh mesh = new Mesh();
+                        SMR.BakeMesh(mesh);
+                        mesh.GetVertices(Vertices);
+                        Matrix4x4 matrix;
                         if (SMR.bones.Any())
                         {
-                            matlix = Matrix4x4.TRS(SMR.transform.position, SMR.transform.rotation, Vector3.one);
+                            matrix = Matrix4x4.TRS(SMR.transform.position, SMR.transform.rotation, Vector3.one);
                         }
                         else if (SMR.rootBone == null)
                         {
-                            matlix = SMR.localToWorldMatrix;
+                            matrix = SMR.localToWorldMatrix;
                         }
                         else
                         {
-                            matlix = SMR.rootBone.localToWorldMatrix;
+                            matrix = SMR.rootBone.localToWorldMatrix;
                         }
-                        ConvartVerticesInMatlix(matlix, Vertices, Vector3.zero);
+                        ConvertVerticesInMatrix(matrix, Vertices, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
                     {
                         MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
-                        ConvartVerticesInMatlix(MR.localToWorldMatrix, Vertices, Vector3.zero);
+                        ConvertVerticesInMatrix(MR.localToWorldMatrix, Vertices, Vector3.zero);
                         break;
                     }
                 default:
@@ -175,19 +175,19 @@ namespace net.rs64.TexTransTool.Decal
             }
             return Vertices;
         }
-        public static (List<Vector2>, List<List<TriangleIndex>>) RendererMeshToGetUVAndTariangel(Renderer Target)
+        public static (List<Vector2>, List<List<TriangleIndex>>) RendererMeshToGetUVAndTriangle(Renderer Target)
         {
-            Mesh Mesh;
+            Mesh mesh;
             switch (Target)
             {
                 case SkinnedMeshRenderer SMR:
                     {
-                        Mesh = SMR.sharedMesh;
+                        mesh = SMR.sharedMesh;
                         break;
                     }
                 case MeshRenderer MR:
                     {
-                        Mesh = MR.GetComponent<MeshFilter>().sharedMesh;
+                        mesh = MR.GetComponent<MeshFilter>().sharedMesh;
                         break;
                     }
                 default:
@@ -196,62 +196,62 @@ namespace net.rs64.TexTransTool.Decal
                     }
             }
             List<Vector2> UV = new List<Vector2>();
-            Mesh.GetUVs(0, UV);
-            List<List<TriangleIndex>> TraingleIndexs = new List<List<TriangleIndex>>();
-            foreach (var Index in Enumerable.Range(0, Mesh.subMeshCount))
+            mesh.GetUVs(0, UV);
+            List<List<TriangleIndex>> triangleIndex2DList = new List<List<TriangleIndex>>();
+            foreach (var Index in Enumerable.Range(0, mesh.subMeshCount))
             {
-                List<TriangleIndex> TraingleIndex = Utils.ToList(Mesh.GetTriangles(Index));
-                TraingleIndexs.Add(TraingleIndex);
+                List<TriangleIndex> triangleIndexList = Utils.ToList(mesh.GetTriangles(Index));
+                triangleIndex2DList.Add(triangleIndexList);
             }
-            return (UV, TraingleIndexs);
+            return (UV, triangleIndex2DList);
         }
-        public static List<Vector3> ConvartVerticesInMatlix(Matrix4x4 matrix, IEnumerable<Vector3> Vertices, Vector3 Offset)
+        public static List<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, IEnumerable<Vector3> Vertices, Vector3 Offset)
         {
-            var ConvertVertices = new List<Vector3>();
-            foreach (var Vertice in Vertices)
+            var convertVertices = new List<Vector3>();
+            foreach (var vert in Vertices)
             {
-                var Pos = matrix.MultiplyPoint3x4(Vertice) + Offset;
-                ConvertVertices.Add(Pos);
+                var pos = matrix.MultiplyPoint3x4(vert) + Offset;
+                convertVertices.Add(pos);
             }
-            return ConvertVertices;
+            return convertVertices;
         }
-        public static void ConvartVerticesInMatlix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
+        public static void ConvertVerticesInMatrix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
         {
             for (int i = 0; i < Vertices.Count; i++)
             {
                 Vertices[i] = matrix.MultiplyPoint3x4(Vertices[i]) + Offset;
             }
         }
-        public static Vector2 QuadNormaliz(IReadOnlyList<Vector2> Quad, Vector2 TargetPos)
+        public static Vector2 QuadNormalize(IReadOnlyList<Vector2> Quad, Vector2 TargetPos)
         {
-            var OneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
-            var OneCross = Vector3.Cross(Quad[2] - Quad[0], TargetPos - Quad[0]).z > 0 ? -1 : 1;
+            var oneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
+            var oneCross = Vector3.Cross(Quad[2] - Quad[0], TargetPos - Quad[0]).z > 0 ? -1 : 1;
 
-            var TwoNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[1], TargetPos);
-            var TwoCross = Vector3.Cross(Quad[1] - Quad[0], TargetPos - Quad[0]).z > 0 ? 1 : -1;
+            var twoNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[1], TargetPos);
+            var twoCross = Vector3.Cross(Quad[1] - Quad[0], TargetPos - Quad[0]).z > 0 ? 1 : -1;
 
-            var ThreeNeaPoint = TransMapper.NeaPoint(Quad[1], Quad[3], TargetPos);
-            var ThreeCross = Vector3.Cross(Quad[3] - Quad[1], TargetPos - Quad[1]).z > 0 ? 1 : -1;
+            var threeNeaPoint = TransMapper.NeaPoint(Quad[1], Quad[3], TargetPos);
+            var threeCross = Vector3.Cross(Quad[3] - Quad[1], TargetPos - Quad[1]).z > 0 ? 1 : -1;
 
-            var ForNeaPoint = TransMapper.NeaPoint(Quad[2], Quad[3], TargetPos);
-            var ForCross = Vector3.Cross(Quad[3] - Quad[2], TargetPos - Quad[2]).z > 0 ? -1 : 1;
+            var forNeaPoint = TransMapper.NeaPoint(Quad[2], Quad[3], TargetPos);
+            var forCross = Vector3.Cross(Quad[3] - Quad[2], TargetPos - Quad[2]).z > 0 ? -1 : 1;
 
-            var OneDistans = Vector2.Distance(OneNeaPoint, TargetPos) * OneCross;
-            var TowDistans = Vector2.Distance(TwoNeaPoint, TargetPos) * TwoCross;
-            var ThreeDistnas = Vector2.Distance(ThreeNeaPoint, TargetPos) * ThreeCross;
-            var ForDistans = Vector2.Distance(ForNeaPoint, TargetPos) * ForCross;
+            var oneDistance = Vector2.Distance(oneNeaPoint, TargetPos) * oneCross;
+            var towDistance = Vector2.Distance(twoNeaPoint, TargetPos) * twoCross;
+            var threeDistance = Vector2.Distance(threeNeaPoint, TargetPos) * threeCross;
+            var forDistance = Vector2.Distance(forNeaPoint, TargetPos) * forCross;
 
-            var x = OneDistans / (OneDistans + ThreeDistnas);
-            var y = TowDistans / (TowDistans + ForDistans);
+            var x = oneDistance / (oneDistance + threeDistance);
+            var y = towDistance / (towDistance + forDistance);
 
             return new Vector2(x, y);
         }
-        public static List<Vector2> QuadNormaliz(IReadOnlyList<Vector2> Quad, List<Vector2> TargetPoss)
+        public static List<Vector2> QuadNormalize(IReadOnlyList<Vector2> Quad, List<Vector2> TargetPoss)
         {
             List<Vector2> NormalizedPos = new List<Vector2>(TargetPoss.Count);
-            foreach (var TargetPos in TargetPoss)
+            foreach (var targetPos in TargetPoss)
             {
-                NormalizedPos.Add(QuadNormaliz(Quad, TargetPos));
+                NormalizedPos.Add(QuadNormalize(Quad, targetPos));
             }
             return NormalizedPos;
         }
@@ -259,7 +259,7 @@ namespace net.rs64.TexTransTool.Decal
 
     public enum PolygonCulling
     {
-        Vartex,
+        Vertex,
         Edge,
         EdgeAndCenterRay,
     }

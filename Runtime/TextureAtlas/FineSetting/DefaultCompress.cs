@@ -2,15 +2,15 @@
 
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct DefaultCompless : IFineSetting
+    public struct DefaultCompress : IFineSetting
     {
         public int Order => 1;
 
         public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
-            var format = Compless.GetTextureFormat(Compless.FromatQuality.Normal);
+            var format = Compress.GetTextureFormat(Compress.FormatQuality.Normal);
             foreach (var target in propAndTextures)
             {
                 if (target.Texture2D.format == format) { continue; }

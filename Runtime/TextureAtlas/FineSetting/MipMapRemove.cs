@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
     public struct MipMapRemove : IFineSetting
     {
         public int Order => -32;
         public string PropertyNames;
-        public PropertySelect select;
+        public PropertySelect Select;
 
-        public MipMapRemove(string mipMapRemove_PropertyNames, PropertySelect mipMapRemove_select)
+        public MipMapRemove(string propertyNames, PropertySelect select)
         {
-            PropertyNames = mipMapRemove_PropertyNames;
-            select = mipMapRemove_select;
+            PropertyNames = propertyNames;
+            Select = select;
 
         }
 
         public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FiltTarget(PropertyNames, select, propAndTextures))
+            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var newTex = new Texture2D(target.Texture2D.width, target.Texture2D.height, TextureFormat.RGBA32, false);
                 newTex.SetPixels32(target.Texture2D.GetPixels32());

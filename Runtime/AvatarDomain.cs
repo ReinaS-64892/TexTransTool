@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
         基本テクスチャは圧縮して渡す
         ただし、スタックに入れるものは圧縮の必要はない。
         */
-        public AvatarDomain(GameObject avatarRoot, bool AssetSaver = false, bool genereatCustomMipMap = false, UnityEngine.Object OverrideAssetContainer = null)
+        public AvatarDomain(GameObject avatarRoot, bool AssetSaver = false, bool generateCustomMipMap = false, UnityEngine.Object OverrideAssetContainer = null)
         {
             _avatarRoot = avatarRoot;
             _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
@@ -43,16 +43,16 @@ namespace net.rs64.TexTransTool
                     Asset.AddSubObject(Asset);
                 }
             };
-            _genereatCustomMipMap = genereatCustomMipMap;
+            _generateCustomMipMap = generateCustomMipMap;
         }
         [SerializeField] GameObject _avatarRoot;
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] List<Material> _initialMaterials;
         [SerializeField] List<TextureStack> _textureStacks = new List<TextureStack>();
-        FlatMapDict<Material> _MapDict;
-        [SerializeField] List<MatPair> MatModifids = new List<MatPair>();
-        [SerializeField] bool _genereatCustomMipMap;
-        Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialPropertys;
+        FlatMapDict<Material> _mapDict;
+        [SerializeField] List<MatPair> _matModifies = new List<MatPair>();
+        [SerializeField] bool _generateCustomMipMap;
+        Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialProperty;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
@@ -61,12 +61,12 @@ namespace net.rs64.TexTransTool
         }
         public void ResetMaterial()
         {
-            var RevarsdMatModifaidDict = new Dictionary<Material, Material>();
-            foreach (var MatPair in MatModifids) { RevarsdMatModifaidDict.Add(MatPair.SecondMaterial, MatPair.Material); }
+            var reversedMatModifiesDict = new Dictionary<Material, Material>();
+            foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
 
-            Utils.ChangeMaterialPropetys(RevarsdMatModifaidDict, _avatarRoot, IgnoreTypes);
+            Utils.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
 
-            MatModifids.Clear();
+            _matModifies.Clear();
 
             Utils.SetMaterials(_renderers, _initialMaterials);
         }
@@ -80,36 +80,36 @@ namespace net.rs64.TexTransTool
         }
         public void transferAsset(IEnumerable<UnityEngine.Object> UnityObjects)
         {
-            foreach (var UnityObject in UnityObjects)
+            foreach (var unityObject in UnityObjects)
             {
-                transferAsset(UnityObject);
+                transferAsset(unityObject);
             }
         }
-        public void SetMaterial(Material Target, Material SetMat, bool isPaird)
+        public void SetMaterial(Material Target, Material SetMat, bool isPaired)
         {
-            if (isPaird)
+            if (isPaired)
             {
-                Utils.ChangeMaterialRendereas(_renderers, Target, SetMat);
-                if(_MapDict == null) _MapDict = new FlatMapDict<Material>();
-                _MapDict.Add(Target, SetMat);
+                Utils.ChangeMaterialForRenderers(_renderers, Target, SetMat);
+                if(_mapDict == null) _mapDict = new FlatMapDict<Material>();
+                _mapDict.Add(Target, SetMat);
             }
             else
             {
-                Utils.ChangeMaterialRendereas(_renderers, Target, SetMat);
+                Utils.ChangeMaterialForRenderers(_renderers, Target, SetMat);
             }
 
             transferAsset(SetMat);
         }
 
-        public void SetMaterial(MatPair Pair, bool isPaird)
+        public void SetMaterial(MatPair Pair, bool isPaired)
         {
-            SetMaterial(Pair.Material, Pair.SecondMaterial, isPaird);
+            SetMaterial(Pair.Material, Pair.SecondMaterial, isPaired);
         }
-        public void SetMaterials(IEnumerable<MatPair> pairs, bool isPaird)
+        public void SetMaterials(IEnumerable<MatPair> pairs, bool isPaired)
         {
             foreach (var pair in pairs)
             {
-                SetMaterial(pair, isPaird);
+                SetMaterial(pair, isPaired);
             }
         }
 
@@ -121,15 +121,15 @@ namespace net.rs64.TexTransTool
         /// <param name="SetTex">差し替え先</param>
         public List<MatPair> SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            var Mats = GetFilteredMaterials();
-            var TargetAndSet = new List<MatPair>();
-            foreach (var Mat in Mats)
+            var mats = GetFilteredMaterials();
+            var targetAndSet = new List<MatPair>();
+            foreach (var mat in mats)
             {
-                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
+                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(mat), mat);
 
                 if (Textures.ContainsValue(Target))
                 {
-                    var NewMat = UnityEngine.Object.Instantiate<Material>(Mat);
+                    var NewMat = UnityEngine.Object.Instantiate<Material>(mat);
 
                     foreach (var KVP in Textures)
                     {
@@ -139,13 +139,13 @@ namespace net.rs64.TexTransTool
                         }
                     }
 
-                    TargetAndSet.Add(new MatPair(Mat, NewMat));
+                    targetAndSet.Add(new MatPair(mat, NewMat));
                 }
             }
 
-            SetMaterials(TargetAndSet, true);
+            SetMaterials(targetAndSet, true);
 
-            return TargetAndSet;
+            return targetAndSet;
         }
         /// <summary>
         /// ドメイン内のすべてのマテリアルのtextureをKeyからValueに変更する
@@ -153,80 +153,80 @@ namespace net.rs64.TexTransTool
         /// <param name="TargetAndSet"></param>
         public List<MatPair> SetTexture(Dictionary<Texture2D, Texture2D> TargetAndSet)
         {
-            Dictionary<Material, Material> KeyAndNotSavedMat = new Dictionary<Material, Material>();
+            Dictionary<Material, Material> keyAndNotSavedMat = new Dictionary<Material, Material>();
             foreach (var KVP in TargetAndSet)
             {
-                var NotSavedMat = SetTexture(KVP.Key, KVP.Value);
+                var notSavedMat = SetTexture(KVP.Key, KVP.Value);
 
-                foreach (var MatPar in NotSavedMat)
+                foreach (var matPar in notSavedMat)
                 {
-                    if (KeyAndNotSavedMat.ContainsKey(MatPar.Material) == false)
+                    if (keyAndNotSavedMat.ContainsKey(matPar.Material) == false)
                     {
-                        KeyAndNotSavedMat.Add(MatPar.Material, MatPar.SecondMaterial);
+                        keyAndNotSavedMat.Add(matPar.Material, matPar.SecondMaterial);
                     }
                     else
                     {
-                        KeyAndNotSavedMat[MatPar.Material] = MatPar.SecondMaterial;
+                        keyAndNotSavedMat[matPar.Material] = matPar.SecondMaterial;
                     }
                 }
             }
-            return KeyAndNotSavedMat.Select(i => new MatPair(i.Key, i.Value)).ToList();
+            return keyAndNotSavedMat.Select(i => new MatPair(i.Key, i.Value)).ToList();
         }
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
-            var Stack = _textureStacks.Find(i => i.FirstTexture == Dist);
-            if (Stack == null)
+            var stack = _textureStacks.Find(i => i.FirstTexture == Dist);
+            if (stack == null)
             {
-                Stack = new TextureStack { FirstTexture = Dist };
-                Stack.Stack = SetTex;
-                _textureStacks.Add(Stack);
+                stack = new TextureStack { FirstTexture = Dist };
+                stack.Stack = SetTex;
+                _textureStacks.Add(stack);
             }
             else
             {
-                Stack.Stack = SetTex;
+                stack.Stack = SetTex;
             }
 
         }
 
         public void SaveTexture()
         {
-            foreach (var Stack in _textureStacks)
+            foreach (var stack in _textureStacks)
             {
-                var Dist = Stack.FirstTexture;
-                var SetTex = Stack.MergeStack();
-                if (Dist == null || SetTex == null) continue;
+                var dist = stack.FirstTexture;
+                var setTex = stack.MergeStack();
+                if (dist == null || setTex == null) continue;
 
 
-                SortedList<int, Color[]> Mip = null;
-                if (_genereatCustomMipMap)
+                SortedList<int, Color[]> mip = null;
+                if (_generateCustomMipMap)
                 {
-                    var UsingUVdata = new List<TransTexture.TransUVData>();
-                    foreach (var Mat in FindUseMaterials(Dist))
+                    var usingUVdata = new List<TransTexture.TransUVData>();
+                    foreach (var mat in FindUseMaterials(dist))
                     {
-                        MatUseUvDataGet(UsingUVdata, Mat);
+                        MatUseUvDataGet(usingUVdata, mat);
                     }
-                    var PrimeRT = new RenderTexture(SetTex.width, SetTex.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-                    TransTexture.TransTextureToRenderTexture(PrimeRT, SetTex, UsingUVdata);
+                    var primeRT = new RenderTexture(setTex.width, setTex.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    TransTexture.TransTextureToRenderTexture(primeRT, setTex, usingUVdata);
 
-                    var PrimeTex = PrimeRT.CopyTexture2D();
+                    var primeTex = primeRT.CopyTexture2D();
 
-                    var DistMip = SetTex.GenerateMipList();
-                    var SetTexMip = PrimeTex.GenerateMipList();
-                    MipMapUtils.MergeMip(DistMip, SetTexMip);
+                    var distMip = setTex.GenerateMipList();
+                    var setTexMip = primeTex.GenerateMipList();
+                    MipMapUtils.MergeMip(distMip, setTexMip);
 
-                    Mip = DistMip;
+                    mip = distMip;
                 }
 
 
-                var CopySetTex = SetTex.CopySetting(Dist, Mip);
-                SetTexture(Dist, CopySetTex);
+                var copySetTex = setTex.CopySetting(dist, mip);
+                SetTexture(dist, copySetTex);
 
-                transferAsset(CopySetTex);
+                transferAsset(copySetTex);
             }
 
-            var matModifaidDict = _MapDict.GetMapping;
-            Utils.ChangeMaterialPropetys(matModifaidDict, _avatarRoot, IgnoreTypes);
-            MatModifids = matModifaidDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
+            var matModifiedDict = _mapDict.GetMapping;
+            Utils.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
+            _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
         }
 
         private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)
@@ -252,18 +252,18 @@ namespace net.rs64.TexTransTool
 
         public List<Material> FindUseMaterials(Texture2D Texture)
         {
-            var Mats = GetFilteredMaterials();
-            List<Material> UseMats = new List<Material>();
-            foreach (var Mat in Mats)
+            var mats = GetFilteredMaterials();
+            List<Material> useMats = new List<Material>();
+            foreach (var mat in mats)
             {
-                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(Mat), Mat);
+                var textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(mat), mat);
 
-                if (Textures.ContainsValue(Texture))
+                if (textures.ContainsValue(Texture))
                 {
-                    UseMats.Add(Mat);
+                    useMats.Add(mat);
                 }
             }
-            return UseMats;
+            return useMats;
         }
 
         public class TextureStack
@@ -278,39 +278,39 @@ namespace net.rs64.TexTransTool
 
             public Texture2D MergeStack()
             {
-                var Size = FirstTexture.NativeSize();
-                var RendererTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-                Graphics.Blit(FirstTexture, RendererTexture);
+                var size = FirstTexture.NativeSize();
+                var rendererTexture = new RenderTexture(size.x, size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                Graphics.Blit(FirstTexture, rendererTexture);
 
-                RendererTexture.BlendBlit(StackTextures);
+                rendererTexture.BlendBlit(StackTextures);
 
-                RendererTexture.name = FirstTexture.name + "_MergedStack";
-                return RendererTexture.CopyTexture2D();
+                rendererTexture.name = FirstTexture.name + "_MergedStack";
+                return rendererTexture.CopyTexture2D();
             }
 
         }
     }
 
-    public class FlatMapDict<TkeyValu>
+    public class FlatMapDict<TKeyValue>
     {
-        Dictionary<TkeyValu, TkeyValu> _dict = new Dictionary<TkeyValu, TkeyValu>();
-        Dictionary<TkeyValu, TkeyValu> _revastDict = new Dictionary<TkeyValu, TkeyValu>();
+        Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
+        Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();
 
-        public void Add(TkeyValu key, TkeyValu value)
+        public void Add(TKeyValue key, TKeyValue value)
         {
-            if (_revastDict.TryGetValue(key, out var tkey))
+            if (_reverseDict.TryGetValue(key, out var tKey))
             {
-                _dict[tkey] = value;
-                _revastDict.Remove(key);
-                _revastDict.Add(value, tkey);
+                _dict[tKey] = value;
+                _reverseDict.Remove(key);
+                _reverseDict.Add(value, tKey);
             }
             else
             {
                 _dict.Add(key, value);
-                _revastDict.Add(value, key);
+                _reverseDict.Add(value, key);
             }
         }
-        public IReadOnlyDictionary<TkeyValu, TkeyValu> GetMapping => _dict;
+        public IReadOnlyDictionary<TKeyValue, TKeyValue> GetMapping => _dict;
     }
 }
 #endif

@@ -37,47 +37,43 @@ namespace net.rs64.TexTransTool.Editor
             }
             EditorGUI.EndDisabledGroup();
         }
-        public static IEnumerable<Renderer> RendererFiltaling(IEnumerable<Renderer> TargetRenderers)
+        public static Renderer RendererFiltering(Renderer TargetRendererEditValue)
         {
-            return TargetRenderers.Where(Renderer => RendererFiltaling(Renderer) != null);
-        }
-        public static Renderer RendererFiltaling(Renderer TargetRendererEditValue)
-        {
-            Renderer FiltalingdRendarer;
+            Renderer FilteredRenderer;
             if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
             {
-                FiltalingdRendarer = TargetRendererEditValue;
+                FilteredRenderer = TargetRendererEditValue;
             }
             else
             {
-                FiltalingdRendarer = null;
+                FilteredRenderer = null;
             }
 
-            return FiltalingdRendarer;
+            return FilteredRenderer;
         }
-        public static void DrawerArryResizeButton(SerializedProperty ArrayPorpatye)
+        public static void DrawerArrayResizeButton(SerializedProperty ArrayProperty)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+")) ArrayPorpatye.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(ArrayPorpatye.arraySize <= 1);
-            if (GUILayout.Button("-")) ArrayPorpatye.arraySize -= 1;
+            if (GUILayout.Button("+")) ArrayProperty.arraySize += 1;
+            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize <= 1);
+            if (GUILayout.Button("-")) ArrayProperty.arraySize -= 1;
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void DorwRendarar(SerializedProperty RendererListSP, bool MultiRendararMode)
+        public static void DrawerRenderer(SerializedProperty RendererListSP, bool MultiRendererMode)
         {
 
-            if (!MultiRendararMode)
+            if (!MultiRendererMode)
             {
                 RendererListSP.arraySize = 1;
-                var S_TRArryElemt = RendererListSP.GetArrayElementAtIndex(0);
-                var TRArryElemetValue = S_TRArryElemt.objectReferenceValue;
-                var TRArryElemetEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArryElemetValue, typeof(Renderer), true) as Renderer;
-                if (TRArryElemetValue != TRArryElemetEditValue)
+                var S_TRArrayElement = RendererListSP.GetArrayElementAtIndex(0);
+                var TRArrayElementValue = S_TRArrayElement.objectReferenceValue;
+                var TRArrayElementEditValue = EditorGUILayout.ObjectField("TargetRenderer", TRArrayElementValue, typeof(Renderer), true) as Renderer;
+                if (TRArrayElementValue != TRArrayElementEditValue)
                 {
-                    Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TRArryElemetEditValue);
-                    S_TRArryElemt.objectReferenceValue = FiltalingdRendarer;
+                    Renderer FlatlingRenderer = TextureTransformerEditor.RendererFiltering(TRArrayElementEditValue);
+                    S_TRArrayElement.objectReferenceValue = FlatlingRenderer;
                 }
             }
             else
@@ -90,84 +86,84 @@ namespace net.rs64.TexTransTool.Editor
                     var TargetRendererEditValue = EditorGUILayout.ObjectField("Target " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
                     if (TargetRendererValue != TargetRendererEditValue)
                     {
-                        Renderer FiltalingdRendarer = TextureTransformerEditor.RendererFiltaling(TargetRendererEditValue);
-                        S_TargetRendererValue.objectReferenceValue = FiltalingdRendarer;
+                        Renderer FilteredRenderer = TextureTransformerEditor.RendererFiltering(TargetRendererEditValue);
+                        S_TargetRendererValue.objectReferenceValue = FilteredRenderer;
                     }
                 }
 
-                DrawerArryResizeButton(RendererListSP);
+                DrawerArrayResizeButton(RendererListSP);
             }
         }
 
         #region DrawerProperty
         public static void DrawerProperty(SerializedProperty Prop, Action<bool> EditCollBack = null)
         {
-            var Vulue = Prop.boolValue;
-            var EditVulue = EditorGUILayout.Toggle(Prop.displayName, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop.boolValue;
+            var EditValue = EditorGUILayout.Toggle(Prop.displayName, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(string label, bool Prop, Action<bool> EditCollBack = null)
         {
-            var Vulue = Prop;
-            var EditVulue = EditorGUILayout.Toggle(label, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop;
+            var EditValue = EditorGUILayout.Toggle(label, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(SerializedProperty Prop, Action<float> EditCollBack = null, bool WithoutLabel = false)
         {
-            var Vulue = Prop.floatValue;
-            var EditVulue = WithoutLabel ? EditorGUILayout.FloatField(Vulue) : EditorGUILayout.FloatField(Prop.displayName, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop.floatValue;
+            var EditValue = WithoutLabel ? EditorGUILayout.FloatField(Value) : EditorGUILayout.FloatField(Prop.displayName, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(string label, float Prop, Action<float> EditCollBack = null)
         {
-            var Vulue = Prop;
-            var EditVulue = EditorGUILayout.FloatField(label, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop;
+            var EditValue = EditorGUILayout.FloatField(label, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(SerializedProperty Prop, Action<Vector2> EditCollBack = null)
         {
-            var Vulue = Prop.vector2Value;
-            var EditVulue = EditorGUILayout.Vector2Field(Prop.displayName, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop.vector2Value;
+            var EditValue = EditorGUILayout.Vector2Field(Prop.displayName, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(string label, Vector2 Prop, Action<Vector2> EditCollBack = null)
         {
-            var Vulue = Prop;
-            var EditVulue = EditorGUILayout.Vector2Field(label, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop;
+            var EditValue = EditorGUILayout.Vector2Field(label, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(SerializedProperty Prop, Action<int> EditCollBack = null, bool WithoutLabel = false)
         {
-            var Vulue = Prop.intValue;
-            var EditVulue = WithoutLabel ? EditorGUILayout.IntField(Vulue) : EditorGUILayout.IntField(Prop.displayName, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop.intValue;
+            var EditValue = WithoutLabel ? EditorGUILayout.IntField(Value) : EditorGUILayout.IntField(Prop.displayName, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
         public static void DrawerProperty(string label, int Prop, Action<int> EditCollBack = null)
         {
-            var Vulue = Prop;
-            var EditVulue = EditorGUILayout.IntField(label, Vulue);
-            if (EditCollBack != null && Vulue != EditVulue) { EditCollBack.Invoke(EditVulue); };
+            var Value = Prop;
+            var EditValue = EditorGUILayout.IntField(label, Value);
+            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
         }
-        public static void ObjectReferencePorpty<T>(SerializedProperty Prop, Action<T> EditCollBack) where T : UnityEngine.Object
+        public static void DrawerObjectReference<T>(SerializedProperty Prop, Action<T> EditCollBack) where T : UnityEngine.Object
         {
-            var valu = Prop.objectReferenceValue as T;
-            var Editvalu = EditorGUILayout.ObjectField(Prop.name, valu, typeof(T), true) as T;
-            if (valu != Editvalu)
+            var Value = Prop.objectReferenceValue as T;
+            var EditValue = EditorGUILayout.ObjectField(Prop.name, Value, typeof(T), true) as T;
+            if (Value != EditValue)
             {
-                EditCollBack.Invoke(Editvalu);
+                EditCollBack.Invoke(EditValue);
             }
         }
         public delegate T Filter<T>(T Target);
-        public static void ObjectReferencePorpty<T>(SerializedProperty Prop, Filter<T> EditAndFilterCollBack) where T : UnityEngine.Object
+        public static void DrawerObjectReference<T>(SerializedProperty Prop, Filter<T> EditAndFilterCollBack) where T : UnityEngine.Object
         {
-            var valu = Prop.objectReferenceValue as T;
-            var Editvalu = EditorGUILayout.ObjectField(Prop.name, valu, typeof(T), true) as T;
-            if (valu != Editvalu)
+            var Value = Prop.objectReferenceValue as T;
+            var EditValue = EditorGUILayout.ObjectField(Prop.name, Value, typeof(T), true) as T;
+            if (Value != EditValue)
             {
-                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Editvalu);
+                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(EditValue);
             }
         }
-        public static void ObjectReferencePorpty<T>(SerializedProperty Prop) where T : UnityEngine.Object
+        public static void DrawerObjectReference<T>(SerializedProperty Prop) where T : UnityEngine.Object
         {
             Prop.objectReferenceValue = EditorGUILayout.ObjectField(Prop.name, Prop.objectReferenceValue, typeof(T), true) as T;
         }

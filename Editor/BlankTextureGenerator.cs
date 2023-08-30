@@ -27,8 +27,8 @@ namespace net.rs64.TexTransTool.Editor
         {
             var tex = Utils.CreateFillTexture(size, new Color(0, 0, 0, 0));
             var path = AssetDatabase.GenerateUniqueAssetPath("Assets/BlankTexture2K.png");
-            var pngbyte = tex.EncodeToPNG();
-            System.IO.File.WriteAllBytes(path, pngbyte);
+            var pngByte = tex.EncodeToPNG();
+            System.IO.File.WriteAllBytes(path, pngByte);
             AssetDatabase.ImportAsset(path);
         }
     }

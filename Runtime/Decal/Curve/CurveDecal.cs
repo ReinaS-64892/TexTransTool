@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
         public bool IsTextureWarp = true;
         public Vector2 TextureWarpRange = new Vector2(0, 0.05f);
         public List<CurveSegment> Segments = new List<CurveSegment>();
-        public bool DorwGizmoAwiys = false;
+        public bool DrawGizmoAlways = false;
         public bool UseFirstAndEnd = false;
         public Texture2D DecalTexture;
         public Texture2D FirstTexture;

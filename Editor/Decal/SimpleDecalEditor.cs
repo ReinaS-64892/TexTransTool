@@ -19,19 +19,19 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
 
-            AbstructSingleDecalEditor.DrawerDecalEditor(This_S_Object);
+            AbstractSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
+            AbstractSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
 
-            var s_MaxDistans = This_S_Object.FindProperty("MaxDistans");
-            TextureTransformerEditor.DrawerProperty(s_MaxDistans, (float MaxDistansValue) =>
+            var s_MaxDistance = This_S_Object.FindProperty("MaxDistance");
+            TextureTransformerEditor.DrawerProperty(s_MaxDistance, (float MaxDistanceValue) =>
             {
-                Undo.RecordObject(ThisObject, "ApplyScale - MaxDistans");
-                ThisObject.MaxDistans = MaxDistansValue;
+                Undo.RecordObject(ThisObject, "ApplyScale - MaxDistance");
+                ThisObject.MaxDistance = MaxDistanceValue;
                 ThisObject.ScaleApply();
             });
             EditorGUI.indentLevel -= 1;

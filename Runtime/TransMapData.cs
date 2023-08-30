@@ -9,27 +9,26 @@ namespace net.rs64.TexTransTool
 {
     public class TransMapData
     {
-        public TowDMap<PosAndDistans> Map;
+        public TowDMap<PosAndDistance> Map;
         public float DefaultPadding;
 
-        public PosAndDistans this[int i] => Map.Array[i];
+        public PosAndDistance this[int i] => Map.Array[i];
 
-        public TransMapData(TowDMap<PosAndDistans> map, float defaultPadding)
+        public TransMapData(TowDMap<PosAndDistance> map, float defaultPadding)
         {
             Map = map;
             DefaultPadding = defaultPadding;
         }
         public TransMapData(float defaultPadding, Vector2Int mapSize)
         {
-            var arrey = Utils.FilledArray(new PosAndDistans(Vector2.zero, defaultPadding), mapSize.x * mapSize.y);
+            var array = Utils.FilledArray(new PosAndDistance(Vector2.zero, defaultPadding), mapSize.x * mapSize.y);
             DefaultPadding = defaultPadding;
-            var mapsize = mapSize;
-            Map = new TowDMap<PosAndDistans>(arrey, mapsize);
+            Map = new TowDMap<PosAndDistance>(array, mapSize);
         }
-        public TransMapData(SerialaizableMap Smap)
+        public TransMapData(SerializableMap sMap)
         {
-            Map = new TowDMap<PosAndDistans>(Smap.Map.Select(I => new PosAndDistans(I.x, I.y, I.z)).ToArray(), Smap.MapSize);
-            DefaultPadding = Smap.DefaultPadding;
+            Map = new TowDMap<PosAndDistance>(sMap.Map.Select(I => new PosAndDistance(I.x, I.y, I.z)).ToArray(), sMap.MapSize);
+            DefaultPadding = sMap.DefaultPadding;
 
         }
         public TransMapData()
@@ -53,15 +52,15 @@ namespace net.rs64.TexTransTool
             }
         }
         [Serializable]
-        public struct SerialaizableMap
+        public struct SerializableMap
         {
             public Vector3[] Map;
             public Vector2Int MapSize;
             public float DefaultPadding;
         }
-        public SerialaizableMap ToSerialaizable()
+        public SerializableMap ToSerializable()
         {
-            return new SerialaizableMap()
+            return new SerializableMap()
             {
                 Map = GetVector3s(),
                 MapSize = Map.MapSize,
@@ -100,17 +99,17 @@ namespace net.rs64.TexTransTool
         /// <summary>
         /// テクスチャーの本当の加増解像度と同じサイズのマップ
         /// </summary>
-        public TowDMap<float> DistansMap;
+        public TowDMap<float> DistanceMap;
 
-        public TransTargetTexture(Texture2D texture2D, TowDMap<float> distansMap)
+        public TransTargetTexture(Texture2D texture2D, TowDMap<float> distanceMap)
         {
             Texture2D = texture2D;
-            DistansMap = distansMap;
+            DistanceMap = distanceMap;
         }
-        public TransTargetTexture(Vector2Int Size, Color DefautColor, float DefaultPadding)
+        public TransTargetTexture(Vector2Int Size, Color DefaultColor, float DefaultPadding)
         {
-            Texture2D = Utils.CreateFillTexture(Size, DefautColor);
-            DistansMap = new TowDMap<float>(DefaultPadding, Size);
+            Texture2D = Utils.CreateFillTexture(Size, DefaultColor);
+            DistanceMap = new TowDMap<float>(DefaultPadding, Size);
         }
 
     }
@@ -157,35 +156,35 @@ namespace net.rs64.TexTransTool
         }
     }
 
-    public struct PosAndDistans
+    public struct PosAndDistance
     {
         public Vector2 Pos;
-        public float Distans;
+        public float Distance;
 
-        public PosAndDistans(Vector2 pos, float distans)
+        public PosAndDistance(Vector2 pos, float distance)
         {
             Pos = pos;
-            Distans = distans;
+            Distance = distance;
         }
 
-        public PosAndDistans(float Posx, float Posy, float distans)
+        public PosAndDistance(float PosX, float PosY, float distance)
         {
-            Pos = new Vector2(Posx, Posy);
-            Distans = distans;
+            Pos = new Vector2(PosX, PosY);
+            Distance = distance;
         }
-        public PosAndDistans(Vector3 Valu)
+        public PosAndDistance(Vector3 Value)
         {
-            Pos = new Vector2(Valu.x, Valu.y);
-            Distans = Valu.z;
+            Pos = new Vector2(Value.x, Value.y);
+            Distance = Value.z;
         }
 
-        public static implicit operator Vector3(PosAndDistans v)
+        public static implicit operator Vector3(PosAndDistance v)
         {
-            return new Vector3(v.Pos.x, v.Pos.y, v.Distans);
+            return new Vector3(v.Pos.x, v.Pos.y, v.Distance);
         }
-        public static implicit operator PosAndDistans(Vector3 v)
+        public static implicit operator PosAndDistance(Vector3 v)
         {
-            return new PosAndDistans(v);
+            return new PosAndDistance(v);
         }
     }
 

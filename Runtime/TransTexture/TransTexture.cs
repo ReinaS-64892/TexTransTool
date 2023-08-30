@@ -45,80 +45,78 @@ namespace net.rs64.TexTransTool
             TexWrapMode wrapMode = TexWrapMode.Stretch
             )
         {
-            var Mesh = TransUVData.GenerateTransMesh();
+            var mesh = TransUVData.GenerateTransMesh();
 
-            var PreBias = SouseTexture.mipMapBias;
+            var preBias = SouseTexture.mipMapBias;
             SouseTexture.mipMapBias = SouseTexture.mipmapCount * -1;
-            var PreWarp = SouseTexture.wrapMode;
+            var preWarp = SouseTexture.wrapMode;
             SouseTexture.wrapMode = wrapMode == TexWrapMode.Stretch ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
 
 
 
 
-            var Material = new Material(Shader.Find("Hidden/TransTexture"));
-            Material.SetTexture("_MainTex", SouseTexture);
-            if (Padding != null) Material.SetFloat("_Padding", Padding.Value);
+            var material = new Material(Shader.Find("Hidden/TransTexture"));
+            material.SetTexture("_MainTex", SouseTexture);
+            if (Padding != null) material.SetFloat("_Padding", Padding.Value);
 
             if (WarpRange != null)
             {
-                Material.EnableKeyword("WarpRange");
-                Material.SetFloat("_WarpRangeX", WarpRange.Value.x);
-                Material.SetFloat("_WarpRangeY", WarpRange.Value.y);
+                material.EnableKeyword("WarpRange");
+                material.SetFloat("_WarpRangeX", WarpRange.Value.x);
+                material.SetFloat("_WarpRangeY", WarpRange.Value.y);
             }
 
 
 
 
-            var Pre = RenderTexture.active;
+            var preRt = RenderTexture.active;
 
             try
             {
                 RenderTexture.active = TargetTexture;
-                Material.SetPass(0);
-                Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
+                material.SetPass(0);
+                Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                 if (Padding != null)
                 {
-                    Material.SetPass(1);
-                    Graphics.DrawMeshNow(Mesh, Matrix4x4.identity);
+                    material.SetPass(1);
+                    Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                 }
 
             }
             finally
             {
-                RenderTexture.active = Pre;
+                RenderTexture.active = preRt;
+                SouseTexture.mipMapBias = preBias;
+                SouseTexture.wrapMode = preWarp;
             }
-
-            SouseTexture.mipMapBias = PreBias;
-            SouseTexture.wrapMode = PreWarp;
-
         }
         public static void TransTextureToRenderTexture(
             RenderTexture TargetTexture,
             Texture SouseTexture,
-            IEnumerable<TransUVData> TransUVData,
+            IEnumerable<TransUVData> TransUVDataEnumerable,
             float? Padding = null,
             Vector2? WarpRange = null)
         {
-            foreach (var TUVD in TransUVData)
+            foreach (var transUVData in TransUVDataEnumerable)
             {
-                TransTextureToRenderTexture(TargetTexture, SouseTexture, TUVD, Padding, WarpRange);
+                TransTextureToRenderTexture(TargetTexture, SouseTexture, transUVData, Padding, WarpRange);
             }
         }
         public static Texture2D CopyTexture2D(this RenderTexture Rt)
         {
-            var Pre = RenderTexture.active;
+            var preRt = RenderTexture.active;
             try
             {
                 RenderTexture.active = Rt;
-                var Texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat,Rt.useMipMap ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-                Texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
-                Texture.Apply();
-                Texture.name = Rt.name + "_CopyTex2D";
-                return Texture;
+                var texture = new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, Rt.useMipMap ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+                texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
+                texture.Apply();
+                texture.name = Rt.name + "_CopyTex2D";
+                return texture;
             }
             finally
             {
-                RenderTexture.active = Pre;
+                RenderTexture.active = preRt;
             }
         }
 
@@ -133,10 +131,10 @@ namespace net.rs64.TexTransTool
             )
         {
             Padding = CSPadding(Padding);
-            var TransMap = new TransMapData(Padding.Value, targetTexture.DistansMap.MapSize);
-            var TargetScaleUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(TargetScaleUV, targetTexture.DistansMap.MapSize);
-            TransMapper.TransMapGeneratUseComputeSheder(null, TransMap, TransUVData.TrianglesToIndex, TargetScaleUV, TransUVData.SourceUV);
-            Compiler.TransCompileUseComputeSheder(SouseTexture, TransMap, targetTexture, wrapMode, WarpRange);
+            var transMap = new TransMapData(Padding.Value, targetTexture.DistanceMap.MapSize);
+            var targetScaleUV = new List<Vector2>(TransUVData.TargetUV); TransMapper.UVtoTexScale(targetScaleUV, targetTexture.DistanceMap.MapSize);
+            TransMapper.TransMapGenerateUseComputeShader(null, transMap, TransUVData.TrianglesToIndex, targetScaleUV, TransUVData.SourceUV);
+            Compiler.TransCompileUseComputeShader(SouseTexture, transMap, targetTexture, wrapMode, WarpRange);
         }
 
         public static float CSPadding(float? Padding)

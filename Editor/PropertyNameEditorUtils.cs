@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Editor
         static Dictionary<string, PropertyNameAndDisplayName[]> ShaderNameAndProperties;
 
 
-        public static void DrawInspectorGUI(SerializedProperty serializedProperty)
+        public static void DrawInspectorGUI(SerializedProperty serializedProperty, string Label = null)
         {
             if (ShaderNameAndProperties == null || ShadersNames == null || ShaderNameAndDisplayNames == null)
             {
@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.Editor
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, "TargetPropertyName");
+            EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName" : Label);
             rect.x += rect.width;
 
             if (s_useCustomProperty.boolValue)

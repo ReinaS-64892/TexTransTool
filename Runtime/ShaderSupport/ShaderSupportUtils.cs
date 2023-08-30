@@ -19,21 +19,21 @@ namespace net.rs64.TexTransTool.ShaderSupport
 
         public Dictionary<string, PropertyNameAndDisplayName[]> GetPropertyNames()
         {
-            var PropertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupport.ShaderName, _defaultShaderSupport.GetPropertyNames } };
+            var propertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupport.ShaderName, _defaultShaderSupport.GetPropertyNames } };
             foreach (var i in _shaderSupports)
             {
-                PropertyNames.Add(i.ShaderName, i.GetPropertyNames);
+                propertyNames.Add(i.ShaderName, i.GetPropertyNames);
             }
-            return PropertyNames;
+            return propertyNames;
         }
 
-        public static List<T> GetInterfaceInstance<T>(Type[] IgnorType = null)
+        public static List<T> GetInterfaceInstance<T>(Type[] IgnoreType = null)
         {
             var shaderSupport = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(I => I.GetTypes())
                 //.Where(I => I != typeof(IShaderSupport) && I != typeof(object)  && I.IsAssignableFrom(typeof(IShaderSupport))) // なぜか...この方法だとうまくいかなかった...
                 .Where(I => I.GetInterfaces().Any(I2 => I2 == typeof(T)))
-                .Where(I => !I.IsAbstract && IgnorType.Any(I2 => I2 != I))
+                .Where(I => !I.IsAbstract && IgnoreType.Any(I2 => I2 != I))
                 .Select(I =>
                 {
                     try

@@ -14,41 +14,41 @@ namespace net.rs64.TexTransTool
     public static class Utils
     {
         public const int ThiSaveDataVersion = 0;
-        public static void ForEach2D(Vector2Int Reange, Action<int, int> action)
+        public static void ForEach2D(Vector2Int Range, Action<int, int> action)
         {
-            int countx = 0;
-            int county = 0;
+            int countX = 0;
+            int countyY = 0;
             while (true)
             {
-                if (!(Reange.x > countx))
+                if (!(Range.x > countX))
                 {
-                    countx = 0;
-                    county += 1;
+                    countX = 0;
+                    countyY += 1;
                 }
-                if (!(Reange.y > county))
+                if (!(Range.y > countyY))
                 {
                     break;
                 }
 
-                action.Invoke(countx, county);
+                action.Invoke(countX, countyY);
 
-                countx += 1;
+                countX += 1;
             }
         }
-        public static List<Vector2Int> Reange2d(Vector2Int Reange)
+        public static List<Vector2Int> Range2d(Vector2Int Range)
         {
-            var List = new List<Vector2Int>();
-            ForEach2D(Reange, (x, y) => List.Add(new Vector2Int(x, y)));
-            return List;
+            var list = new List<Vector2Int>();
+            ForEach2D(Range, (x, y) => list.Add(new Vector2Int(x, y)));
+            return list;
         }
 
         public static int TwoDToOneDIndex(Vector2Int TowDIndex, int Size)
         {
             return (TowDIndex.y * Size) + TowDIndex.x;
         }
-        public static Vector2Int ConvertIndex2D(int Index1D, int withLengs)
+        public static Vector2Int ConvertIndex2D(int Index1D, int width)
         {
-            return new Vector2Int(Index1D % withLengs, Index1D / withLengs);
+            return new Vector2Int(Index1D % width, Index1D / width);
         }
         public static Texture2D CreateFillTexture(int Size, Color FillColor)
         {
@@ -75,10 +75,10 @@ namespace net.rs64.TexTransTool
             if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
             if (tex.mipmapCount > 1 != CopySouse.mipmapCount > 1)
             {
-                var newtex = new Texture2D(tex.width, tex.height, tex.format, CopySouse.mipmapCount > 1);
-                newtex.SetPixels32(tex.GetPixels32());
-                newtex.name = tex.name;
-                tex = newtex;
+                var newTex = new Texture2D(tex.width, tex.height, tex.format, CopySouse.mipmapCount > 1);
+                newTex.SetPixels32(tex.GetPixels32());
+                newTex.name = tex.name;
+                tex = newTex;
             }
             tex.filterMode = CopySouse.filterMode;
             tex.anisoLevel = CopySouse.anisoLevel;
@@ -103,147 +103,147 @@ namespace net.rs64.TexTransTool
         }
         public static T[] FilledArray<T>(T DefaultValue, int Length)
         {
-            var Array = new T[Length];
-            for (int i = 0; i < Array.Length; i++)
+            var array = new T[Length];
+            for (int i = 0; i < array.Length; i++)
             {
-                Array[i] = DefaultValue;
+                array[i] = DefaultValue;
             }
-            return Array;
+            return array;
         }
-        public static List<TriangleIndex> ToList(int[] triangleIndexs)
+        public static List<TriangleIndex> ToList(int[] triangleIndexes)
         {
-            var TrianglesList = new List<TriangleIndex>();
+            var trianglesList = new List<TriangleIndex>();
             int count = 0;
-            while (triangleIndexs.Length > count)
+            while (triangleIndexes.Length > count)
             {
-                TrianglesList.Add(new TriangleIndex(triangleIndexs[count], triangleIndexs[count += 1], triangleIndexs[count += 1]));
+                trianglesList.Add(new TriangleIndex(triangleIndexes[count], triangleIndexes[count += 1], triangleIndexes[count += 1]));
                 count += 1;
             }
-            return TrianglesList;
+            return trianglesList;
         }
         public static List<List<TriangleIndex>> GetSubTriangle(this Mesh mesh)
         {
-            var SubMeshCount = mesh.subMeshCount;
-            List<List<TriangleIndex>> SubTriangles = new List<List<TriangleIndex>>(SubMeshCount);
+            var subMeshCount = mesh.subMeshCount;
+            List<List<TriangleIndex>> subTriangles = new List<List<TriangleIndex>>(subMeshCount);
 
-            for (int i = 0; i < SubMeshCount; i++)
+            for (int i = 0; i < subMeshCount; i++)
             {
-                SubTriangles.Add(mesh.GetSubTriangle(i));
+                subTriangles.Add(mesh.GetSubTriangle(i));
             }
-            return SubTriangles;
+            return subTriangles;
         }
         public static List<TriangleIndex> GetSubTriangle(this Mesh mesh, int SubMesh)
         {
             return ToList(mesh.GetTriangles(SubMesh));
         }
 
-        public static T[] TowDtoOneD<T>(T[,] SouseArry, Vector2Int Size)
+        public static T[] TowDtoOneD<T>(T[,] SouseArray, Vector2Int Size)
         {
-            T[] OneDArry = new T[Size.x * Size.y];
-            foreach (var Index in Utils.Reange2d(Size))
+            T[] oneDArray = new T[Size.x * Size.y];
+            foreach (var index in Utils.Range2d(Size))
             {
-                OneDArry[TwoDToOneDIndex(Index, Size.x)] = SouseArry[Index.x, Index.y];
+                oneDArray[TwoDToOneDIndex(index, Size.x)] = SouseArray[index.x, index.y];
             }
-            return OneDArry;
+            return oneDArray;
         }
-        public static T[,] OneDToTowD<T>(T[] SouseArry, Vector2Int Size)
+        public static T[,] OneDToTowD<T>(T[] SouseArray, Vector2Int Size)
         {
-            T[,] TowDArry = new T[Size.x, Size.y];
+            T[,] towDArray = new T[Size.x, Size.y];
             int count = -1;
-            foreach (var value in SouseArry)
+            foreach (var value in SouseArray)
             {
                 count += 1;
-                var Index = ConvertIndex2D(count, Size.x);
-                TowDArry[Index.x, Index.y] = value;
+                var index = ConvertIndex2D(count, Size.x);
+                towDArray[index.x, index.y] = value;
             }
-            return TowDArry;
+            return towDArray;
         }
-        public static List<Material> GetMaterials(IEnumerable<Renderer> Rendres)
+        public static List<Material> GetMaterials(IEnumerable<Renderer> Renderers)
         {
-            List<Material> MatS = new List<Material>();
-            foreach (var Rendera in Rendres)
+            List<Material> matList = new List<Material>();
+            foreach (var renderer in Renderers)
             {
-                MatS.AddRange(Rendera.sharedMaterials);
+                matList.AddRange(renderer.sharedMaterials);
             }
-            return MatS;
+            return matList;
         }
-        public static void SetMaterials(IEnumerable<Renderer> Rendres, IReadOnlyList<Material> Mat)
+        public static void SetMaterials(IEnumerable<Renderer> Renderers, IReadOnlyList<Material> Mat)
         {
-            int StartOffset = 0;
-            foreach (var Rendera in Rendres)
+            int startOffset = 0;
+            foreach (var renderer in Renderers)
             {
-                int TakeLengs = Rendera.sharedMaterials.Length;
-                Rendera.sharedMaterials = Mat.Skip(StartOffset).Take(TakeLengs).ToArray();
-                StartOffset += TakeLengs;
+                int takeLength = renderer.sharedMaterials.Length;
+                renderer.sharedMaterials = Mat.Skip(startOffset).Take(takeLength).ToArray();
+                startOffset += takeLength;
             }
         }
-        public static void ChangeMaterialsRendereas(IEnumerable<Renderer> Rendres, IReadOnlyDictionary<Material, Material> MatPairs)
+        public static void ChangeMaterialForRenderers(IEnumerable<Renderer> Renderer, IReadOnlyDictionary<Material, Material> MatPairs)
         {
-            foreach (var Renderer in Rendres)
+            foreach (var renderer in Renderer)
             {
-                var Materials = Renderer.sharedMaterials;
-                var IsEdit = false;
-                foreach (var Index in Enumerable.Range(0, Materials.Length))
+                var materials = renderer.sharedMaterials;
+                var isEdit = false;
+                foreach (var Index in Enumerable.Range(0, materials.Length))
                 {
-                    var DistMat = Materials[Index];
-                    if (MatPairs.ContainsKey(DistMat))
+                    var distMat = materials[Index];
+                    if (MatPairs.ContainsKey(distMat))
                     {
-                        Materials[Index] = MatPairs[DistMat];
-                        IsEdit = true;
+                        materials[Index] = MatPairs[distMat];
+                        isEdit = true;
                     }
                 }
-                if (IsEdit)
+                if (isEdit)
                 {
-                    Renderer.sharedMaterials = Materials;
+                    renderer.sharedMaterials = materials;
                 }
             }
         }
-        public static void ChangeMaterialRendereas(IEnumerable<Renderer> Rendres, Material target, Material set)
+        public static void ChangeMaterialForRenderers(IEnumerable<Renderer> Renderers, Material target, Material set)
         {
-            foreach (var Renderer in Rendres)
+            foreach (var renderer in Renderers)
             {
-                var Materials = Renderer.sharedMaterials;
-                var IsEdit = false;
-                foreach (var Index in Enumerable.Range(0, Materials.Length))
+                var materials = renderer.sharedMaterials;
+                var isEdit = false;
+                foreach (var index in Enumerable.Range(0, materials.Length))
                 {
-                    var DistMat = Materials[Index];
-                    if (target == DistMat)
+                    var distMat = materials[index];
+                    if (target == distMat)
                     {
-                        Materials[Index] = set;
-                        IsEdit = true;
+                        materials[index] = set;
+                        isEdit = true;
                     }
                 }
-                if (IsEdit)
+                if (isEdit)
                 {
-                    Renderer.sharedMaterials = Materials;
+                    renderer.sharedMaterials = materials;
                 }
             }
         }
-        public static void ChangeMaterialPropetys(IReadOnlyDictionary<Material, Material> MatMapping, GameObject targetRoot, Type[] IgnoreTypes = null)
+        public static void ChangeMaterialForSerializedProperty(IReadOnlyDictionary<Material, Material> MatMapping, GameObject targetRoot, Type[] IgnoreTypes = null)
         {
             var allComponent = targetRoot.GetComponentsInChildren<Component>();
-            IEnumerable<Component> componets;
+            IEnumerable<Component> components;
             if (IgnoreTypes.Any())
             {
-                var filtedComponents = new List<Component>(allComponent.Length);
-                foreach (var comoponent in allComponent)
+                var filteredComponents = new List<Component>(allComponent.Length);
+                foreach (var component in allComponent)
                 {
-                    var type = comoponent.GetType();
-                    if (!IgnoreTypes.Any(J => J.IsAssignableFrom(type))) { filtedComponents.Add(comoponent); }
+                    var type = component.GetType();
+                    if (!IgnoreTypes.Any(J => J.IsAssignableFrom(type))) { filteredComponents.Add(component); }
                 }
-                componets = filtedComponents;
+                components = filteredComponents;
             }
             else
             {
-                componets = allComponent;
+                components = allComponent;
             }
 
-            foreach (var component in componets)
+            foreach (var component in components)
             {
                 var type = component.GetType();
 
-                var serializeobj = new SerializedObject(component);
-                var iter = serializeobj.GetIterator();
+                var serializeObj = new SerializedObject(component);
+                var iter = serializeObj.GetIterator();
                 while (iter.Next(true))
                 {
                     var s_Obj = iter;
@@ -252,7 +252,7 @@ namespace net.rs64.TexTransTool
                         if (s_Obj.objectReferenceValue is Material mat && MatMapping.ContainsKey(mat))
                         {
                             s_Obj.objectReferenceValue = MatMapping[mat];
-                            serializeobj.ApplyModifiedProperties();
+                            serializeObj.ApplyModifiedProperties();
                         }
                     }
                 }
@@ -260,13 +260,13 @@ namespace net.rs64.TexTransTool
         }
         public static List<Mesh> GetMeshes(IEnumerable<Renderer> renderers, bool NullInsertion = false)
         {
-            List<Mesh> Meshs = new List<Mesh>();
-            foreach (var Rendera in renderers)
+            List<Mesh> meshes = new List<Mesh>();
+            foreach (var renderer in renderers)
             {
-                var mesh = Rendera.GetMesh();
-                if (mesh != null || NullInsertion) Meshs.Add(mesh);
+                var mesh = renderer.GetMesh();
+                if (mesh != null || NullInsertion) meshes.Add(mesh);
             }
-            return Meshs;
+            return meshes;
         }
         public static Mesh GetMesh(this Renderer Target)
         {
@@ -307,11 +307,11 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static void SetMeshs(IEnumerable<Renderer> renderers, IReadOnlyList<Mesh> DistMesh, IReadOnlyList<Mesh> SetMesh)
+        public static void SetMeshes(IEnumerable<Renderer> renderers, IReadOnlyList<Mesh> DistMesh, IReadOnlyList<Mesh> SetMesh)
         {
-            foreach (var Rendera in renderers)
+            foreach (var renderer in renderers)
             {
-                switch (Rendera)
+                switch (renderer)
                 {
                     case SkinnedMeshRenderer SMR:
                         {
@@ -339,91 +339,91 @@ namespace net.rs64.TexTransTool
 
         public static List<Vector3> ZipListVector3(IReadOnlyList<Vector2> XY, IReadOnlyList<float> Z)
         {
-            var Count = XY.Count;
-            if (Count != Z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
+            var count = XY.Count;
+            if (count != Z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
 
-            List<Vector3> Result = new List<Vector3>(Count);
+            List<Vector3> result = new List<Vector3>(count);
 
-            for (int Index = 0; Index < Count; Index += 1)
+            for (int index = 0; index < count; index += 1)
             {
-                Result.Add(new Vector3(XY[Index].x, XY[Index].y, Z[Index]));
+                result.Add(new Vector3(XY[index].x, XY[index].y, Z[index]));
             }
 
-            return Result;
+            return result;
         }
 
         public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(IReadOnlyDictionary<T, List<T2>> Souse, IReadOnlyDictionary<T, List<T2>> Add)
         {
-            var Result = ReadOnlyDictClone(Souse);
-            foreach (var Key in Add.Keys)
+            var result = ReadOnlyDictClone(Souse);
+            foreach (var key in Add.Keys)
             {
-                if (Result.ContainsKey(Key))
+                if (result.ContainsKey(key))
                 {
-                    Result[Key].AddRange(Add[Key]);
+                    result[key].AddRange(Add[key]);
                 }
                 else
                 {
-                    Result.Add(Key, Add[Key]);
+                    result.Add(key, Add[key]);
                 }
             }
-            return Result;
+            return result;
         }
 
         public static Dictionary<T, T2> ReadOnlyDictClone<T, T2>(IReadOnlyDictionary<T, T2> Souse)
         {
-            var Result = new Dictionary<T, T2>();
-            foreach (var KeyValue in Souse)
+            var result = new Dictionary<T, T2>();
+            foreach (var keyValue in Souse)
             {
-                Result.Add(KeyValue.Key, KeyValue.Value);
+                result.Add(keyValue.Key, keyValue.Value);
             }
-            return Result;
+            return result;
         }
 
         public static Dictionary<T, List<T2>> ZipToDictionaryOnList<T, T2>(IReadOnlyList<Dictionary<T, List<T2>>> Target)
         {
-            var Result = new Dictionary<T, List<T2>>();
-            foreach (var ZiptargetDict in Target)
+            var result = new Dictionary<T, List<T2>>();
+            foreach (var zipTargetDict in Target)
             {
-                foreach (var Key in ZiptargetDict.Keys)
+                foreach (var key in zipTargetDict.Keys)
                 {
-                    if (Result.ContainsKey(Key))
+                    if (result.ContainsKey(key))
                     {
-                        Result[Key].AddRange(ZiptargetDict[Key]);
+                        result[key].AddRange(zipTargetDict[key]);
                     }
                     else
                     {
-                        Result.Add(Key, ZiptargetDict[Key]);
+                        result.Add(key, zipTargetDict[key]);
                     }
                 }
             }
-            return Result;
+            return result;
         }
 
-        public static List<Texture2D> GeneratTexturesList(IReadOnlyList<Material> SouseMaterials, IReadOnlyDictionary<Material, Texture2D> MatAndTexs)
+        public static List<Texture2D> GenerateTexturesList(IReadOnlyList<Material> SouseMaterials, IReadOnlyDictionary<Material, Texture2D> MatAndTexDict)
         {
-            List<Texture2D> Result = new List<Texture2D>();
-            foreach (var Mat in SouseMaterials)
+            List<Texture2D> result = new List<Texture2D>();
+            foreach (var mat in SouseMaterials)
             {
-                if (MatAndTexs.ContainsKey(Mat))
+                if (MatAndTexDict.ContainsKey(mat))
                 {
-                    Result.Add(MatAndTexs[Mat]);
+                    result.Add(MatAndTexDict[mat]);
                 }
                 else
                 {
-                    Result.Add(null);
+                    result.Add(null);
                 }
             }
-            return Result;
+            return result;
         }
 
-        public static Dictionary<T, T2> GeneretFromKvP<T, T2>(IReadOnlyList<KeyValuePair<T, T2>> KvPList)
+        public static Dictionary<T, T2> GenerateFromKvP<T, T2>(IReadOnlyList<KeyValuePair<T, T2>> KvPList)
         {
-            Dictionary<T, T2> Result = new Dictionary<T, T2>();
+            Dictionary<T, T2> result = new Dictionary<T, T2>();
             foreach (var KvP in KvPList)
             {
-                Result.Add(KvP.Key, KvP.Value);
+                result.Add(KvP.Key, KvP.Value);
             }
-            return Result;
+            return result;
         }
         public static bool InRange(float min, float max, float target)
         {
@@ -436,7 +436,7 @@ namespace net.rs64.TexTransTool
 
 
     }
-    public static class IReadOnylUtility
+    public static class IReadOnlyUtility
     {
         public static int IndexOf<T>(this IReadOnlyList<T> ROList, T item)
         {
@@ -486,34 +486,34 @@ namespace net.rs64.TexTransTool
 
             }
         }
-        public static List<Transform> GetChilds(this Transform Parent)
+        public static List<Transform> GetChildren(this Transform Parent)
         {
-            var List = new List<Transform>();
+            var list = new List<Transform>();
             foreach (Transform child in Parent)
             {
-                List.Add(child);
+                list.Add(child);
             }
-            return List;
+            return list;
         }
 
-        public static List<int> AllIndexOf(this List<Mesh> DistMesh, Mesh Mesh)
+        public static List<int> AllIndexOf(this List<Mesh> Meshes, Mesh Mesh)
         {
-            List<int> Indexs = new List<int>();
+            List<int> indexes = new List<int>();
             int I = 0;
-            foreach (var FindatMesh in DistMesh)
+            foreach (var findTargetMesh in Meshes)
             {
-                if (FindatMesh == Mesh) Indexs.Add(I);
+                if (findTargetMesh == Mesh) indexes.Add(I);
                 I += 1;
             }
 
-            return Indexs;
+            return indexes;
         }
 
 
     }
 
     [Serializable]
-    public class OrderdHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
+    public class OrderedHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
     {
         [SerializeField] List<T> List;
         public T this[int index] => List[index];
@@ -564,13 +564,13 @@ namespace net.rs64.TexTransTool
 
 
 
-        public OrderdHashSet(IEnumerable<T> enumreat)
+        public OrderedHashSet(IEnumerable<T> enumreat)
         {
             List = new List<T>();
             List.AddRange(enumreat);
         }
 
-        public OrderdHashSet()
+        public OrderedHashSet()
         {
             List = new List<T>();
         }

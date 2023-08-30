@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.Build
         {
             try
             {
-                if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTmplaly = true; }
+                if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
                 var aDDs = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
                 foreach (var aDD in aDDs)
                 {

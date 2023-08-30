@@ -26,18 +26,18 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (FastMode)
             {
-                var DecalCompiledTextures = new Dictionary<Texture2D, RenderTexture>();
+                var decalCompiledTextures = new Dictionary<Texture2D, RenderTexture>();
 
-                foreach (var NailTexSpaseFilter in GetNailTexSpaseFilters())
+                foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
                 {
-                    foreach (var Rendarer in TargetRenderers)
+                    foreach (var renderer in TargetRenderers)
                     {
-                        DecalUtil.CreatDecalTexture(
-                            Rendarer,
-                            DecalCompiledTextures,
-                            NailTexSpaseFilter.Item1,
-                            NailTexSpaseFilter.Item2,
-                            NailTexSpaseFilter.Item3,
+                        DecalUtil.CreateDecalTexture(
+                            renderer,
+                            decalCompiledTextures,
+                            nailTexSpaceFilter.Item1,
+                            nailTexSpaceFilter.Item2,
+                            nailTexSpaceFilter.Item3,
                             TargetPropertyName,
                             GetOutRangeTexture,
                             Padding
@@ -45,28 +45,28 @@ namespace net.rs64.TexTransTool.Decal
                     }
                 }
 
-                var DecalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
-                foreach (var Texture in DecalCompiledTextures)
+                var decalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
+                foreach (var texture in decalCompiledTextures)
                 {
-                    DecalCompiledRenderTextures.Add(Texture.Key, Texture.Value);
+                    decalCompiledRenderTextures.Add(texture.Key, texture.Value);
                 }
-                return DecalCompiledRenderTextures;
+                return decalCompiledRenderTextures;
             }
             else
             {
-                var DecalsCompoleTexs = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                var decalsCompileTexListDict = new List<Dictionary<Texture2D, List<Texture2D>>>();
 
 
-                foreach (var NailTexSpaseFilter in GetNailTexSpaseFilters())
+                foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
                 {
-                    foreach (var Rendarer in TargetRenderers)
+                    foreach (var renderer in TargetRenderers)
                     {
-                        DecalsCompoleTexs.Add(
-                                DecalUtil.CreatDecalTextureCS(
-                                    Rendarer,
-                                    NailTexSpaseFilter.Item1,
-                                    NailTexSpaseFilter.Item2,
-                                    NailTexSpaseFilter.Item3,
+                        decalsCompileTexListDict.Add(
+                                DecalUtil.CreateDecalTextureCS(
+                                    renderer,
+                                    nailTexSpaceFilter.Item1,
+                                    nailTexSpaceFilter.Item2,
+                                    nailTexSpaceFilter.Item3,
                                     TargetPropertyName,
                                     GetOutRangeTexture,
                                     Padding
@@ -74,24 +74,24 @@ namespace net.rs64.TexTransTool.Decal
                     }
                 }
 
-                var DecalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
+                var decalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
 
-                var ZipDecit = Utils.ZipToDictionaryOnList(DecalsCompoleTexs);
+                var zipDict = Utils.ZipToDictionaryOnList(decalsCompileTexListDict);
 
-                foreach (var Texture in ZipDecit)
+                foreach (var texture in zipDict)
                 {
-                    var BlendTexture = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
-                    BlendTexture.Apply();
-                    DecalCompiledRenderTextures.Add(Texture.Key, BlendTexture);
+                    var blendTexture = TextureLayerUtil.BlendTextureUseComputeShader(null, texture.Value, BlendType.AlphaLerp);
+                    blendTexture.Apply();
+                    decalCompiledRenderTextures.Add(texture.Key, blendTexture);
                 }
 
-                return DecalCompiledRenderTextures;
+                return decalCompiledRenderTextures;
             }
         }
 
-        List<(Texture2D, ParallelProjectionSpase, ParallelProjectionFilter)> GetNailTexSpaseFilters()
+        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter)> GetNailTexSpaceFilters()
         {
-            var Spases = new List<(Texture2D, ParallelProjectionSpase, ParallelProjectionFilter)>();
+            var spaceList = new List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter)>();
 
 
             CompileNail(LeftHand, false);
@@ -102,32 +102,32 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var NailDD in nailSet)
                 {
-                    var Finger = NailDD.Item1;
-                    var naileDecalDescription = NailDD.Item2;
-                    if (naileDecalDescription.DecalTexture == null) continue;
-                    var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescription, nailSet.FingerUpvector, IsRight);
+                    var finger = NailDD.Item1;
+                    var nailDecalDescription = NailDD.Item2;
+                    if (nailDecalDescription.DecalTexture == null) continue;
+                    var souseFingerTF = GetFinger(finger, IsRight);
+                    var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
 
-                    var islandSelecotr = new IslandSelector(new Ray(Matlix.MultiplyPoint(Vector3.zero), Matlix.MultiplyVector(Vector3.forward)), Matlix.lossyScale.z * 1);
+                    var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
 
-                    var SpaseConverter = new ParallelProjectionSpase(Matlix.inverse);
-                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelecotr });
+                    var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
+                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelector });
 
-                    Spases.Add((naileDecalDescription.DecalTexture, SpaseConverter, Filter));
+                    spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }
             }
 
-            return Spases;
+            return spaceList;
         }
 
-        public List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
-            return new List<TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>>
+            return new List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>>
             {
                 new TriangleFilterUtils.FarStruct(1, false),
                 new TriangleFilterUtils.NearStruct(0, true),
                 new TriangleFilterUtils.SideStruct(),
-                new TriangleFilterUtils.OutOfPorigonStruct(PolygonCulling.Edge, 0, 1, true)
+                new TriangleFilterUtils.OutOfPolygonStruct(PolygonCulling.Edge, 0, 1, true)
             };
         }
 
@@ -135,65 +135,65 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (TargetAvatar == null) return;
 
-            DrawNailGizm(LeftHand, false);
-            DrawNailGizm(RightHand, true);
+            DrawNailGizmo(LeftHand, false);
+            DrawNailGizmo(RightHand, true);
 
 
 
-            void DrawNailGizm(NailSet nailSet, bool IsRight)
+            void DrawNailGizmo(NailSet nailSet, bool IsRight)
             {
                 foreach (var NailDD in nailSet)
                 {
                     var Finger = NailDD.Item1;
-                    var naileDecalDescription = NailDD.Item2;
-                    var SorsFingetTF = GetFinger(Finger, IsRight);
-                    Matrix4x4 Matlix = GetNailMatrix(SorsFingetTF, naileDecalDescription, nailSet.FingerUpvector, IsRight);
+                    var nailDecalDescription = NailDD.Item2;
+                    var souseFingerTF = GetFinger(Finger, IsRight);
+                    var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
 
-                    Gizmos.matrix = Matlix;
+                    Gizmos.matrix = matrix;
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
                     Gizmos.DrawLine(Vector3.zero, Vector3.forward);
                 }
             }
         }
 
-        private Matrix4x4 GetNailMatrix(Transform SorsFingetTF, NailDecalDescription naileDecalDescription, Upvector FingerUpvector, bool InvaersdRight)
+        private Matrix4x4 GetNailMatrix(Transform souseFingerTF, NailDecalDescription nailDecalDescription, UpVector FingerUpVector, bool InvarsRight)
         {
-            var FingerSize = SorsFingetTF.localPosition.magnitude;
-            var SRot = SorsFingetTF.rotation;
+            var fingerSize = souseFingerTF.localPosition.magnitude;
+            var sRot = souseFingerTF.rotation;
 
-            switch (FingerUpvector)
+            switch (FingerUpVector)
             {
                 default:
-                case Upvector.Zminus:
+                case UpVector.ZMinus:
                     break;
-                case Upvector.Zplus:
-                    SRot *= Quaternion.Euler(0, 180, 0);
+                case UpVector.ZPlus:
+                    sRot *= Quaternion.Euler(0, 180, 0);
                     break;
-                case Upvector.Yminus:
-                    SRot *= Quaternion.Euler(90, 0, 0);
+                case UpVector.YMinus:
+                    sRot *= Quaternion.Euler(90, 0, 0);
                     break;
-                case Upvector.Yplus:
-                    SRot *= Quaternion.Euler(-90, 0, 0);
+                case UpVector.YPlus:
+                    sRot *= Quaternion.Euler(-90, 0, 0);
                     break;
-                case Upvector.Xminus:
-                    SRot *= Quaternion.Euler(0, 90, 0);
+                case UpVector.XMinus:
+                    sRot *= Quaternion.Euler(0, 90, 0);
                     break;
-                case Upvector.Xplus:
-                    SRot *= Quaternion.Euler(0, -90, 0);
+                case UpVector.XPlus:
+                    sRot *= Quaternion.Euler(0, -90, 0);
                     break;
 
             }
 
-            var NailPos = SorsFingetTF.position;
-            NailPos += SRot * (SorsFingetTF.localPosition * 0.9f);
-            NailPos += SRot * new Vector3(0, 0, FingerSize * -0.25f);
-            NailPos += SRot * (!InvaersdRight ? naileDecalDescription.PositionOffset : PosOffsetInverseRight(naileDecalDescription.PositionOffset));
-            var NailRot = SRot * Quaternion.Euler(!InvaersdRight ? naileDecalDescription.RotationOffset : RotOffsetInverseRight(naileDecalDescription.RotationOffset));
-            var NailSize = naileDecalDescription.ScaleOffset * FingerSize * 0.75f;
+            var nailPos = souseFingerTF.position;
+            nailPos += sRot * (souseFingerTF.localPosition * 0.9f);
+            nailPos += sRot * new Vector3(0, 0, fingerSize * -0.25f);
+            nailPos += sRot * (!InvarsRight ? nailDecalDescription.PositionOffset : PosOffsetInverseRight(nailDecalDescription.PositionOffset));
+            var nailRot = sRot * Quaternion.Euler(!InvarsRight ? nailDecalDescription.RotationOffset : RotOffsetInverseRight(nailDecalDescription.RotationOffset));
+            var nailSize = nailDecalDescription.ScaleOffset * fingerSize * 0.75f;
 
-            if (UseTextureAspect && naileDecalDescription.DecalTexture != null) { NailSize.y *= (float)naileDecalDescription.DecalTexture.height / (float)naileDecalDescription.DecalTexture.width; }
+            if (UseTextureAspect && nailDecalDescription.DecalTexture != null) { nailSize.y *= (float)nailDecalDescription.DecalTexture.height / (float)nailDecalDescription.DecalTexture.width; }
 
-            return Matrix4x4.TRS(NailPos, NailRot, NailSize);
+            return Matrix4x4.TRS(nailPos, nailRot, nailSize);
         }
 
         public Vector3 PosOffsetInverseRight(Vector3 positionOffset)
@@ -222,7 +222,7 @@ namespace net.rs64.TexTransTool.Decal
                     return !IsRight ? HumanBodyBones.LeftMiddleDistal : HumanBodyBones.RightMiddleDistal;
                 case Finger.Ring:
                     return !IsRight ? HumanBodyBones.LeftRingDistal : HumanBodyBones.RightRingDistal;
-                case Finger.Littl:
+                case Finger.Little:
                     return !IsRight ? HumanBodyBones.LeftLittleDistal : HumanBodyBones.RightLittleDistal;
             }
         }
@@ -231,7 +231,7 @@ namespace net.rs64.TexTransTool.Decal
     [Serializable]
     public class NailSet : IEnumerable<(Finger, NailDecalDescription)>
     {
-        public Upvector FingerUpvector;
+        public UpVector FingerUpVector;
 
         public NailDecalDescription Thumb;
         public NailDecalDescription Index;
@@ -254,7 +254,7 @@ namespace net.rs64.TexTransTool.Decal
             yield return (Finger.Index, Index);
             yield return (Finger.Middle, Middle);
             yield return (Finger.Ring, Ring);
-            yield return (Finger.Littl, Little);
+            yield return (Finger.Little, Little);
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -262,12 +262,12 @@ namespace net.rs64.TexTransTool.Decal
             yield return (Finger.Index, Index);
             yield return (Finger.Middle, Middle);
             yield return (Finger.Ring, Ring);
-            yield return (Finger.Littl, Little);
+            yield return (Finger.Little, Little);
         }
 
         public void Copy(NailSet Souse)
         {
-            FingerUpvector = Souse.FingerUpvector;
+            FingerUpVector = Souse.FingerUpVector;
             Thumb.Copy(Souse.Thumb);
             Index.Copy(Souse.Index);
             Middle.Copy(Souse.Middle);
@@ -276,7 +276,7 @@ namespace net.rs64.TexTransTool.Decal
         }
         public void Copy(NailOffSets Souse)
         {
-            FingerUpvector = Souse.Upvector;
+            FingerUpVector = Souse.UpVector;
             Thumb.Copy(Souse.Thumb);
             Index.Copy(Souse.Index);
             Middle.Copy(Souse.Middle);
@@ -286,9 +286,9 @@ namespace net.rs64.TexTransTool.Decal
         }
         public NailSet Clone()
         {
-            var New = new NailSet();
-            New.Copy(this);
-            return New;
+            var newI = new NailSet();
+            newI.Copy(this);
+            return newI;
         }
 
     }
@@ -311,9 +311,9 @@ namespace net.rs64.TexTransTool.Decal
         }
         public NailDecalDescription Clone()
         {
-            var New = new NailDecalDescription();
-            New.Copy(this);
-            return New;
+            var newI = new NailDecalDescription();
+            newI.Copy(this);
+            return newI;
         }
 
         public void Copy(NailOffset Souse)
@@ -330,17 +330,17 @@ namespace net.rs64.TexTransTool.Decal
         Index,
         Middle,
         Ring,
-        Littl,
+        Little,
     }
 
-    public enum Upvector
+    public enum UpVector
     {
-        Zminus,
-        Zplus,
-        Yminus,
-        Yplus,
-        Xminus,
-        Xplus,
+        ZMinus,
+        ZPlus,
+        YMinus,
+        YPlus,
+        XMinus,
+        XPlus,
     }
 
 }

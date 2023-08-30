@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
         [Obsolete]
         public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRange = null)
         {
-            var TargetTexSize = TargetTex.DistansMap.MapSize;
+            var TargetTexSize = TargetTex.DistanceMap.MapSize;
             if (TargetTexSize.x != AtralsMap.Map.MapSize.x && TargetTexSize.y != AtralsMap.Map.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
 
             var lengs = AtralsMap.Map.Array.Length;
@@ -32,8 +32,8 @@ namespace net.rs64.TexTransTool
 
             for (int i = 0; i < lengs; i += 1)
             {
-                var NawDistans = AtralsMap[i].Distans;
-                if (NawDistans > AtralsMap.DefaultPadding && NawDistans > TargetTex.DistansMap[i])
+                var NawDistans = AtralsMap[i].Distance;
+                if (NawDistans > AtralsMap.DefaultPadding && NawDistans > TargetTex.DistanceMap[i])
                 {
                     Vector2 SouseTexPos = AtralsMap[i].Pos;
 
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool
                     WarpdPos = IsOutRange(OutRange, SouseTexPos) ? null : WarpdPos;
 
                     SetPixsl(TargetPixsel, SouseTex, i, WarpdPos);
-                    TargetTex.DistansMap[i] = NawDistans;
+                    TargetTex.DistanceMap[i] = NawDistans;
                 }
             }
             TargetTex.Texture2D.SetPixels(TargetPixsel);
@@ -125,52 +125,52 @@ namespace net.rs64.TexTransTool
 
         public static Vector2Int NativeSize(this Texture2D SouseTex)
         {
-            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            Stream Stream;
-            bool IsJPG = false;
-            if (string.IsNullOrEmpty(SouseTexPath) || AssetDatabase.IsSubAsset(SouseTex))
+            var souseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+            Stream stream;
+            bool isJPG = false;
+            if (string.IsNullOrEmpty(souseTexPath) || AssetDatabase.IsSubAsset(SouseTex))
             {
                 //メモリに直接乗っかってる場合かunityアセットの場合、Texture2Dが誤った値を返さない。
                 return new Vector2Int(SouseTex.width, SouseTex.height);
             }
-            else if (Path.GetExtension(SouseTexPath) == ".png")
+            else if (Path.GetExtension(souseTexPath) == ".png")
             {
-                Stream = File.OpenRead(SouseTexPath);
+                stream = File.OpenRead(souseTexPath);
             }
-            else if (Path.GetExtension(SouseTexPath) == ".jpg" || Path.GetExtension(SouseTexPath) == ".jpeg")
+            else if (Path.GetExtension(souseTexPath) == ".jpg" || Path.GetExtension(souseTexPath) == ".jpeg")
             {
-                Stream = File.OpenRead(SouseTexPath);
-                IsJPG = true;
+                stream = File.OpenRead(souseTexPath);
+                isJPG = true;
             }
-            else if (Path.GetExtension(SouseTexPath) == ".asset")
+            else if (Path.GetExtension(souseTexPath) == ".asset")
             {
                 return new Vector2Int(SouseTex.width, SouseTex.height);
             }
             else
             {
-                Stream = new MemoryStream(SouseTex.EncodeToPNG());
+                stream = new MemoryStream(SouseTex.EncodeToPNG());
             }
 
 
 
-            return !IsJPG ? PNGtoSize(Stream) : JPGtoSize(Stream);
+            return !isJPG ? PNGtoSize(stream) : JPGtoSize(stream);
         }
 
 
-        public static Vector2Int JPGtoSize(Stream Stream)
+        public static Vector2Int JPGtoSize(Stream stream)
         {
             var SOI = new byte[2] { 0xFF, 0xD8 };
 
-            var ReadSOI = new byte[2];
-            Stream.Read(ReadSOI, 0, 2);
+            var readSOI = new byte[2];
+            stream.Read(readSOI, 0, 2);
 
-            if (!ReadSOI.SequenceEqual(SOI))
+            if (!readSOI.SequenceEqual(SOI))
             {
                 throw new Exception("JPGファイルではありません");
             }
 
             var SOFFirstByte = 0xFF;
-            var SOFSeconndBytes = new byte[] {
+            var SOFSecondBytes = new byte[] {
                      0xC0 ,  0xC1 , 0xC2 , 0xC3 ,
                      0xC5 , 0xC6 , 0xC7 ,
                      0xC9 , 0xCA , 0xCB ,
@@ -182,14 +182,14 @@ namespace net.rs64.TexTransTool
 
             while (!SOFHit)
             {
-                if ((Byte)Stream.ReadByte() == SOFFirstByte)
+                if ((Byte)stream.ReadByte() == SOFFirstByte)
                 {
-                    var SecoondByte = (Byte)Stream.ReadByte();
-                    if (SOFSeconndBytes.Contains(SecoondByte))
+                    var SecondByte = (Byte)stream.ReadByte();
+                    if (SOFSecondBytes.Contains(SecondByte))
                     {
                         SOFHit = true;
                     }
-                    else if (SOS == SecoondByte)
+                    else if (SOS == SecondByte)
                     {
                         throw new Exception("JPGデータから画像サイズを取得できませんでした。");
                     }
@@ -197,35 +197,35 @@ namespace net.rs64.TexTransTool
                 }
             }
             var LFP = new byte[3];
-            Stream.Read(LFP, 0, 3);
+            stream.Read(LFP, 0, 3);
 
 
-            var HeightByte = new byte[2];
-            var WithByte = new byte[2];
+            var heightByte = new byte[2];
+            var withByte = new byte[2];
 
-            Stream.Read(HeightByte, 0, 2);
-            Stream.Read(WithByte, 0, 2);
+            stream.Read(heightByte, 0, 2);
+            stream.Read(withByte, 0, 2);
 
             if (BitConverter.IsLittleEndian)
             {
-                HeightByte = HeightByte.Reverse().ToArray();
-                WithByte = WithByte.Reverse().ToArray();
+                heightByte = heightByte.Reverse().ToArray();
+                withByte = withByte.Reverse().ToArray();
             }
 
-            var height = BitConverter.ToUInt16(HeightByte, 0);
-            var with = BitConverter.ToUInt16(WithByte, 0);
+            var height = BitConverter.ToUInt16(heightByte, 0);
+            var with = BitConverter.ToUInt16(withByte, 0);
 
             return new Vector2Int((int)with, (int)height);
         }
 
-        public static Vector2Int PNGtoSize(Stream Stream)
+        public static Vector2Int PNGtoSize(Stream stream)
         {
             var PNGHeader = new byte[8] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
-            var ReadByte = new byte[8];
-            Stream.Read(ReadByte, 0, 8);
+            var readByte = new byte[8];
+            stream.Read(readByte, 0, 8);
 
-            if (!ReadByte.SequenceEqual(PNGHeader))
+            if (!readByte.SequenceEqual(PNGHeader))
             {
                 throw new Exception("PNGファイルではありません");
             }
@@ -237,7 +237,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var IHDRByte in IHDRBytes)
                 {
-                    var Byte = (Byte)Stream.ReadByte();
+                    var Byte = (Byte)stream.ReadByte();
                     if (IHDRByte == Byte)
                     {
                         IHDRHit = true;
@@ -250,90 +250,90 @@ namespace net.rs64.TexTransTool
                 }
             }
 
-            var WithByte = new byte[4];
-            var HeightByte = new byte[4];
+            var withByte = new byte[4];
+            var heightByte = new byte[4];
 
-            Stream.Read(WithByte, 0, 4);
-            Stream.Read(HeightByte, 0, 4);
+            stream.Read(withByte, 0, 4);
+            stream.Read(heightByte, 0, 4);
 
             if (BitConverter.IsLittleEndian)
             {
-                WithByte = WithByte.Reverse().ToArray();
-                HeightByte = HeightByte.Reverse().ToArray();
+                withByte = withByte.Reverse().ToArray();
+                heightByte = heightByte.Reverse().ToArray();
             }
 
-            var with = BitConverter.ToUInt32(WithByte, 0);
-            var height = BitConverter.ToUInt32(HeightByte, 0);
+            var with = BitConverter.ToUInt32(withByte, 0);
+            var height = BitConverter.ToUInt32(heightByte, 0);
 
             return new Vector2Int((int)with, (int)height);
         }
 
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
+        public static TransTargetTexture TransCompileUseComputeShader(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
             return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { AtralsMaps }, targetTex, wrapMode, OutRange, CS);
         }
         public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
-            var TexSize = targetTex.DistansMap.MapSize;
-            if (AtralsMaps.Any(i => i.Map.MapSize != TexSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            var texSize = targetTex.DistanceMap.MapSize;
+            if (AtralsMaps.Any(i => i.Map.MapSize != texSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
 
             var sTexSize = SouseTex.NativeSize();
 
             NotFIlterAndReadWritTexture2D(ref SouseTex);
 
-            var SColors = SouseTex.GetPixels();
-            var TColors = targetTex.Texture2D.GetPixels();
+            var sColors = SouseTex.GetPixels();
+            var tColors = targetTex.Texture2D.GetPixels();
 
-            Vector2Int ThredGropSize = TexSize / 32;
-            var KernelIndex = CS.FindKernel(wrapMode.ToString());
+            Vector2Int thredGropSize = texSize / 32;
+            var kernelIndex = CS.FindKernel(wrapMode.ToString());
 
 
-            var SouseTexCB = new ComputeBuffer(SColors.Length, 16);
-            SouseTexCB.SetData(SColors);
-            CS.SetBuffer(KernelIndex, "Source", SouseTexCB);
+            var souseTexCB = new ComputeBuffer(sColors.Length, 16);
+            souseTexCB.SetData(sColors);
+            CS.SetBuffer(kernelIndex, "Source", souseTexCB);
 
 
             CS.SetInts("SourceTexSize", new int[2] { sTexSize.x, sTexSize.y });
 
 
-            var AtlasMapBuffer = new ComputeBuffer(TColors.Length, 12);
+            var atlasMapBuffer = new ComputeBuffer(tColors.Length, 12);
 
-            var TargetBuffer = new ComputeBuffer(TColors.Length, 16);
-            TargetBuffer.SetData(TColors);
-            CS.SetBuffer(KernelIndex, "Target", TargetBuffer);
-
-
-            var TargetDistansBuffer = new ComputeBuffer(TColors.Length, 4);
-            TargetDistansBuffer.SetData(targetTex.DistansMap.Array);
-            CS.SetBuffer(KernelIndex, "TargetDistansMap", TargetDistansBuffer);
+            var targetBuffer = new ComputeBuffer(tColors.Length, 16);
+            targetBuffer.SetData(tColors);
+            CS.SetBuffer(kernelIndex, "Target", targetBuffer);
 
 
-            CS.SetInts("TargetTexSize", new int[2] { TexSize.x, TexSize.y });
+            var targetDistansBuffer = new ComputeBuffer(tColors.Length, 4);
+            targetDistansBuffer.SetData(targetTex.DistanceMap.Array);
+            CS.SetBuffer(kernelIndex, "TargetDistansMap", targetDistansBuffer);
+
+
+            CS.SetInts("TargetTexSize", new int[2] { texSize.x, texSize.y });
             CS.SetBool("IsOutRange", OutRange.HasValue);
             if (OutRange.HasValue)
             {
                 CS.SetFloats("OutRange", new float[2] { OutRange.Value.x, OutRange.Value.y });
             }
 
-            foreach (var AtralsMap in AtralsMaps)
+            foreach (var atralsMap in AtralsMaps)
             {
-                AtlasMapBuffer.SetData(AtralsMap.Map.Array);
-                CS.SetBuffer(KernelIndex, "AtlasMap", AtlasMapBuffer);
+                atlasMapBuffer.SetData(atralsMap.Map.Array);
+                CS.SetBuffer(kernelIndex, "AtlasMap", atlasMapBuffer);
 
-                CS.Dispatch(KernelIndex, ThredGropSize.x, ThredGropSize.y, 1);
+                CS.Dispatch(kernelIndex, thredGropSize.x, thredGropSize.y, 1);
             }
 
 
-            TargetBuffer.GetData(TColors);
-            targetTex.Texture2D.SetPixels(TColors);
+            targetBuffer.GetData(tColors);
+            targetTex.Texture2D.SetPixels(tColors);
 
-            TargetDistansBuffer.GetData(targetTex.DistansMap.Array);
+            targetDistansBuffer.GetData(targetTex.DistanceMap.Array);
 
-            AtlasMapBuffer.Release();
-            TargetDistansBuffer.Release();
-            TargetBuffer.Release();
-            SouseTexCB.Release();
+            atlasMapBuffer.Release();
+            targetDistansBuffer.Release();
+            targetBuffer.Release();
+            souseTexCB.Release();
 
             return targetTex;
         }

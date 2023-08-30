@@ -19,81 +19,81 @@ namespace net.rs64.TexTransTool.Decal.Curve
         }
         public Vector3 GetPoint(float wight)
         {
-            var SegmentIndexMax = Segments.Count - 1;
-            var MiddleIndex = Mathf.RoundToInt(wight);
-            if (MiddleIndex < 1)
+            var segmentIndexMax = Segments.Count - 1;
+            var middleIndex = Mathf.RoundToInt(wight);
+            if (middleIndex < 1)
             {
                 return Vector3.LerpUnclamped(Segments[0].position, Segments[1].position, wight);
             }
-            else if (MiddleIndex >= SegmentIndexMax)
+            else if (middleIndex >= segmentIndexMax)
             {
-                return Vector3.LerpUnclamped(Segments[SegmentIndexMax - 1].position, Segments[SegmentIndexMax].position, wight - (SegmentIndexMax - 1));
+                return Vector3.LerpUnclamped(Segments[segmentIndexMax - 1].position, Segments[segmentIndexMax].position, wight - (segmentIndexMax - 1));
             }
 
-            var FromIndex = MiddleIndex - 1;
-            var ToIndex = MiddleIndex + 1;
+            var fromIndex = middleIndex - 1;
+            var toIndex = middleIndex + 1;
 
-            var PointPoint = Segments[MiddleIndex].position;
-            var FromPoint = Vector3.Lerp(Segments[FromIndex].position, PointPoint, 0.5f);
-            var ToPoint = Vector3.Lerp(PointPoint, Segments[ToIndex].position, 0.5f);
+            var pointPoint = Segments[middleIndex].position;
+            var fromPoint = Vector3.Lerp(Segments[fromIndex].position, pointPoint, 0.5f);
+            var toPoint = Vector3.Lerp(pointPoint, Segments[toIndex].position, 0.5f);
 
-            var FromWightRange = FromIndex + 0.5f;
-            var ToWightRange = ToIndex - 0.5f;
+            var fromWightRange = fromIndex + 0.5f;
+            var toWightRange = toIndex - 0.5f;
 
-            var RelativeWight = (wight - FromWightRange) / (ToWightRange - FromWightRange);
-            var GetPoint = CalculateBezier(FromPoint, PointPoint, ToPoint, RelativeWight);
+            var relativeWight = (wight - fromWightRange) / (toWightRange - fromWightRange);
+            var getPoint = CalculateBezier(fromPoint, pointPoint, toPoint, relativeWight);
 
-            return GetPoint;
+            return getPoint;
 
         }
-        public (Vector3, float) GetOfLeng(float FormWight, float Lengs)
+        public (Vector3, float) GetOfLength(float FormWight, float Length)
         {
-            var FromPoint = GetPoint(FormWight);
+            var fromPoint = GetPoint(FormWight);
 
-            var Point2 = new (Vector3, float, float)?[2] { null, (FromPoint, 0f, FormWight) };
-            var NawWight = FormWight;
+            var point2 = new (Vector3, float, float)?[2] { null, (fromPoint, 0f, FormWight) };
+            var nawWight = FormWight;
             while (true)
             {
-                NawWight += DefaultWightStep;
-                var NawPoint = GetPoint(NawWight);
-                var NawLeng = Vector3.Distance(FromPoint, NawPoint);
+                nawWight += DefaultWightStep;
+                var nawPoint = GetPoint(nawWight);
+                var nawLength = Vector3.Distance(fromPoint, nawPoint);
 
-                Point2[0] = Point2[1];
-                Point2[1] = (NawPoint, NawLeng, NawWight);
+                point2[0] = point2[1];
+                point2[1] = (nawPoint, nawLength, nawWight);
 
-                if (NawLeng > Lengs)
+                if (nawLength > Length)
                 {
                     break;
                 }
             }
 
-            var Minv = Point2[0].Value;
-            var Maxv = Point2[1].Value;
-            var Minleng = Minv.Item2;
-            var Maxleng = Maxv.Item2;
-            var Minwight = Minv.Item3;
-            var Maxwight = Maxv.Item3;
+            var minV = point2[0].Value;
+            var maxV = point2[1].Value;
+            var minLength = minV.Item2;
+            var maxLength = maxV.Item2;
+            var minWight = minV.Item3;
+            var maxWight = maxV.Item3;
 
-            var wight = (Lengs - Minleng) / (Maxleng - Minleng);
-            var reswight = Mathf.LerpUnclamped(Minwight, Maxwight, wight);
+            var wight = (Length - minLength) / (maxLength - minLength);
+            var resWight = Mathf.LerpUnclamped(minWight, maxWight, wight);
 
-            return (GetPoint(reswight), reswight);
+            return (GetPoint(resWight), resWight);
         }
 
         public float GetRoll(float wight)
         {
-            var SegmentIndexMax = Segments.Count - 1;
-            var FloorIndex = Mathf.FloorToInt(wight);
-            var CeilIndex = Mathf.CeilToInt(wight);
-            if (FloorIndex < 1)
+            var segmentIndexMax = Segments.Count - 1;
+            var floorIndex = Mathf.FloorToInt(wight);
+            var ceilIndex = Mathf.CeilToInt(wight);
+            if (floorIndex < 1)
             {
                 return Mathf.LerpUnclamped(Segments[0].Roll, Segments[1].Roll, wight);
             }
-            else if (CeilIndex > SegmentIndexMax)
+            else if (ceilIndex > segmentIndexMax)
             {
-                return Mathf.LerpUnclamped(Segments[SegmentIndexMax - 1].Roll, Segments[SegmentIndexMax].Roll, wight - (SegmentIndexMax - 1));
+                return Mathf.LerpUnclamped(Segments[segmentIndexMax - 1].Roll, Segments[segmentIndexMax].Roll, wight - (segmentIndexMax - 1));
             }
-            return Mathf.Lerp(Segments[FloorIndex].Roll, Segments[CeilIndex].Roll, wight - FloorIndex);
+            return Mathf.Lerp(Segments[floorIndex].Roll, Segments[ceilIndex].Roll, wight - floorIndex);
         }
 
         public static Vector3 CalculateBezier(Vector3 From, Vector3 Point, Vector3 To, float wight)
@@ -107,31 +107,31 @@ namespace net.rs64.TexTransTool.Decal.Curve
         {
             if (!Segments.Any()) throw new System.Exception("Segments is null");
 
-            var Quads = new List<List<Vector3>>();
-            var FromWight = StartWight;
-            var FromPoint = GetPoint(FromWight);
-            var FromEdge = GetEdge(FromWight, Size);
+            var quads = new List<List<Vector3>>();
+            var fromWight = StartWight;
+            // var fromPoint = GetPoint(fromWight);
+            var fromEdge = GetEdge(fromWight, Size);
 
 
-            foreach (var Index in Enumerable.Range(0, (int)Quad))
+            foreach (var index in Enumerable.Range(0, (int)Quad))
             {
-                Vector3 ToPoint; float ToWight; (ToPoint, ToWight) = GetOfLeng(FromWight, Size);
+                Vector3 toPoint; float toWight; (toPoint, toWight) = GetOfLength(fromWight, Size);
 
-                var ToEdge = GetEdge(ToWight, Size);
+                var toEdge = GetEdge(toWight, Size);
 
-                Quads.Add(new List<Vector3>(4) { FromEdge.Item1, FromEdge.Item2, ToEdge.Item1, ToEdge.Item2 });
+                quads.Add(new List<Vector3>(4) { fromEdge.Item1, fromEdge.Item2, toEdge.Item1, toEdge.Item2 });
 
-                FromWight = ToWight;
-                FromPoint = ToPoint;
-                FromEdge = ToEdge;
+                fromWight = toWight;
+                // fromPoint = ToPoint;
+                fromEdge = toEdge;
             }
-            return Quads;
+            return quads;
         }
 
         public (Vector3, Vector3) GetEdge(float wight, float Size)
         {
-            var Point = GetPoint(wight);
-            var Roll = GetRoll(wight);
+            var point = GetPoint(wight);
+            var roll = GetRoll(wight);
 
             switch (RollMode)
             {
@@ -139,50 +139,50 @@ namespace net.rs64.TexTransTool.Decal.Curve
                 case RollMode.WorldUp:
                     {
                         var forward = GetPoint(wight + DefaultWightStep);
-                        var ToLook = Quaternion.FromToRotation(forward, Point);
-                        ToLook *= Quaternion.AngleAxis(Roll, Point - forward);
-                        var ToEdge = (
-                                Point + ToLook * Vector3.left * (Size * 0.5f),
-                                Point + ToLook * Vector3.right * (Size * 0.5f)
+                        var toLook = Quaternion.FromToRotation(forward, point);
+                        toLook *= Quaternion.AngleAxis(roll, point - forward);
+                        var toEdge = (
+                                point + toLook * Vector3.left * (Size * 0.5f),
+                                point + toLook * Vector3.right * (Size * 0.5f)
                             );
-                        return ToEdge;
+                        return toEdge;
                     }
                 case RollMode.Cross:
                     {
-                        var Back = GetPoint(wight - DefaultWightStep);
+                        var back = GetPoint(wight - DefaultWightStep);
                         var forward = GetPoint(wight + DefaultWightStep);
 
-                        var RollAsix = forward - Back;
+                        var RollAxis = forward - back;
 
-                        var Closevec = Vector3.Cross(Back - Point, forward - Point);
-                       Closevec *= Vector3.left.magnitude /Closevec.magnitude;
+                        var crossVec = Vector3.Cross(back - point, forward - point);
+                        crossVec *= Vector3.left.magnitude / crossVec.magnitude;
 
-                       Closevec = Quaternion.AngleAxis(Roll, RollAsix) *Closevec;
+                        crossVec = Quaternion.AngleAxis(roll, RollAxis) * crossVec;
 
-                       Closevec *= (Size * 0.5f);
-                        var Invers =Closevec * -1;
+                        crossVec *= (Size * 0.5f);
+                        var Inverse = crossVec * -1;
 
-                        var Left = Point +Closevec;
-                        var Right = Point + Invers;
+                        var Left = point + crossVec;
+                        var right = point + Inverse;
 
-                        return (Left, Right);
+                        return (Left, right);
                     }
             }
 
         }
 
-        public List<Vector3> GetLine(float StartWight, float Endwight)
+        public List<Vector3> GetLine(float StartWight, float EndWight)
         {
-            var NawWight = StartWight;
-            var Line = new List<Vector3>();
+            var nawWight = StartWight;
+            var line = new List<Vector3>();
 
-            while (NawWight < Endwight)
+            while (nawWight < EndWight)
             {
-                Line.Add(GetPoint(NawWight));
-                NawWight += DefaultWightStep;
+                line.Add(GetPoint(nawWight));
+                nawWight += DefaultWightStep;
             }
 
-            return Line;
+            return line;
         }
 
         public List<Vector3> GetLine()
@@ -195,7 +195,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
     {
         Vector3 GetPoint(float wight);
         float GetRoll(float wight);
-        (Vector3, float) GetOfLeng(float FormWight, float Lengs);
+        (Vector3, float) GetOfLength(float FormWight, float Lengs);
     }
 
     public enum RollMode

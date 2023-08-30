@@ -57,61 +57,61 @@ namespace net.rs64.TexTransTool.Island
 
         public static List<RayCastHitTriangle> RayCast(Ray Ray, IReadOnlyList<Vector3> Positions, IReadOnlyList<TriangleIndex> Triangles, out List<Vector3> RayMatrixPoss)
         {
-            var Rot = Quaternion.LookRotation(Ray.direction);
-            var RayMatrix = Matrix4x4.TRS(Ray.origin, Rot, Vector3.one).inverse;
+            var rot = Quaternion.LookRotation(Ray.direction);
+            var rayMatrix = Matrix4x4.TRS(Ray.origin, rot, Vector3.one).inverse;
 
             RayMatrixPoss = new List<Vector3>();
             foreach (var i in Positions)
             {
-                RayMatrixPoss.Add(RayMatrix.MultiplyPoint3x4(i));
+                RayMatrixPoss.Add(rayMatrix.MultiplyPoint3x4(i));
             }
 
-            var Hits = new List<(int, float, Vector4)>();
+            var hits = new List<(int, float, Vector4)>();
             for (int i = 0; i < Triangles.Count; i++)
             {
-                var Triangle = Triangles[i];
-                var A = RayMatrixPoss[Triangle.zero];
-                var B = RayMatrixPoss[Triangle.one];
-                var C = RayMatrixPoss[Triangle.two];
+                var triangle = Triangles[i];
+                var A = RayMatrixPoss[triangle.zero];
+                var B = RayMatrixPoss[triangle.one];
+                var C = RayMatrixPoss[triangle.two];
 
-                var Close = TransMapper.CrossTriangle(new Vector2[] { A, B, C }, Vector2.zero);
-                var TBC = TransMapper.ToBCS(Close);
+                var CrossT = TransMapper.CrossTriangle(new Vector2[] { A, B, C }, Vector2.zero);
+                var TBC = TransMapper.ToBCS(CrossT);
                 if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
-                var IsIn = TransMapper.IsInCal(Close.x,Close.y,Close.z);
+                var IsIn = TransMapper.IsInCal(CrossT.x,CrossT.y,CrossT.z);
                 if (IsIn)
                 {
-                    var Distans = TransMapper.FromBCS(new Vector3[] { A, B, C }, TBC).z;
+                    var Distance = TransMapper.FromBCS(new Vector3[] { A, B, C }, TBC).z;
 
-                    Hits.Add((i, Distans, Close));
+                    hits.Add((i, Distance, CrossT));
                 }
             }
-            Hits.Sort((a, b) => a.Item2.CompareTo(b.Item2));
+            hits.Sort((a, b) => a.Item2.CompareTo(b.Item2));
 
-            var Out = new List<RayCastHitTriangle>(Hits.Capacity);
-            foreach (var i in Hits)
+            var Out = new List<RayCastHitTriangle>(hits.Capacity);
+            foreach (var i in hits)
             {
                 Out.Add(new RayCastHitTriangle(Triangles[i.Item1], i.Item3, i.Item2));
             }
             return Out;
         }
-        public static void FilteredBackTriangle(List<RayCastHitTriangle> RCHTaris)
+        public static void FilteredBackTriangle(List<RayCastHitTriangle> RCHTri)
         {
-            RCHTaris.RemoveAll(I => I.Distans < 0);
+            RCHTri.RemoveAll(I => I.Distance < 0);
         }
-        public static void FilteredRangeTriangle(List<RayCastHitTriangle> RCHTaris, float Range)
+        public static void FilteredRangeTriangle(List<RayCastHitTriangle> RCHTri, float Range)
         {
-            RCHTaris.RemoveAll(I => I.Distans > Range);
+            RCHTri.RemoveAll(I => I.Distance > Range);
         }
         public struct RayCastHitTriangle
         {
             public TriangleIndex Triangle;
             public Vector4 Close;
-            public float Distans;
-            public RayCastHitTriangle(TriangleIndex triangle, Vector4 close, float distans)
+            public float Distance;
+            public RayCastHitTriangle(TriangleIndex triangle, Vector4 close, float distance)
             {
                 this.Triangle = triangle;
                 this.Close = close;
-                this.Distans = distans;
+                this.Distance = distance;
             }
         }
 

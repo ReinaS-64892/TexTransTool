@@ -1,19 +1,19 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class RefarensCopy : IFineSetting
+    public class ReferenceCopy : IFineSetting
     {
         public int Order => 1024;
 
         public string SousePropertyName;
         public string TargetPropertyName;
 
-        public RefarensCopy(string refarensCopy_SousePropertyName, string refarensCopy_TargetPropertyName)
+        public ReferenceCopy(string sousePropertyName, string targetPropertyName)
         {
-            SousePropertyName = refarensCopy_SousePropertyName;
-            TargetPropertyName = refarensCopy_TargetPropertyName;
+            SousePropertyName = sousePropertyName;
+            TargetPropertyName = targetPropertyName;
         }
 
         public void FineSetting(List<PropAndTexture2D> propAndTextures)

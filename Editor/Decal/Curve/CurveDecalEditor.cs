@@ -24,8 +24,8 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
         public static void DrawerCurveDecalEditor(SerializedObject This_S_Object)
         {
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var S_MultiRendereMode = This_S_Object.FindProperty("MultiRendereMode");
-            TextureTransformerEditor.DorwRendarar(S_TargetRenderers, S_MultiRendereMode.boolValue);
+            var S_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(S_TargetRenderers, S_MultiRendererMode.boolValue);
 
             var S_isUseStartAndEnd = This_S_Object.FindProperty("UseFirstAndEnd");
             EditorGUILayout.PropertyField(S_isUseStartAndEnd);
@@ -34,16 +34,16 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
             if (isUseStartAndEnd)
             {
                 var S_End = This_S_Object.FindProperty("EndTexture");
-                TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_End);
+                TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_End);
             }
 
             var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_DecalTexture);
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_DecalTexture);
 
             if (isUseStartAndEnd)
             {
                 var S_Start = This_S_Object.FindProperty("FirstTexture");
-                TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_Start);
+                TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_Start);
             }
             var S_BlendType = This_S_Object.FindProperty("BlendType");
 
@@ -69,18 +69,18 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
             var S_RollMode = This_S_Object.FindProperty("RollMode");
             EditorGUILayout.PropertyField(S_RollMode);
 
-            var S_DorwGizmoAwiys = This_S_Object.FindProperty("DorwGizmoAwiys");
-            EditorGUILayout.PropertyField(S_DorwGizmoAwiys);
+            var S_DrawGizmoAlways = This_S_Object.FindProperty("DrawGizmoAlways");
+            EditorGUILayout.PropertyField(S_DrawGizmoAlways);
         }
 
         public static void DrawerSegmentFiled(SerializedProperty Segment)
         {
             EditorGUILayout.LabelField("Segments");
-            var arrysize = Segment.arraySize;
-            int Count = 0;
-            while (arrysize > Count)
+            var arraySize = Segment.arraySize;
+            int count = 0;
+            while (arraySize > count)
             {
-                var S_Segment = Segment.GetArrayElementAtIndex(Count);
+                var S_Segment = Segment.GetArrayElementAtIndex(count);
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PropertyField(S_Segment);
                 /*
@@ -89,10 +89,10 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
                 */
                 EditorGUILayout.EndHorizontal();
 
-                Count += 1;
+                count += 1;
             }
 
-            TextureTransformerEditor.DrawerArryResizeButton(Segment);
+            TextureTransformerEditor.DrawerArrayResizeButton(Segment);
 
         }
     }

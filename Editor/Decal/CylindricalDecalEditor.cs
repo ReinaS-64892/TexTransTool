@@ -24,23 +24,23 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 
-            AbstructSingleDecalEditor.DrawerDecalEditor(This_S_Object);
+            AbstractSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstructSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstractSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             EditorGUI.indentLevel -= 1;
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var s_SideCulling = This_S_Object.FindProperty("SideCulling");
             EditorGUILayout.PropertyField(s_SideCulling);
-            var s_FarCulling = This_S_Object.FindProperty("OutDistansCulling");
+            var s_FarCulling = This_S_Object.FindProperty("OutDistanceCulling");
             EditorGUILayout.PropertyField(s_FarCulling, new GUIContent("Far Culling OffSet"));
-            var s_NierCullingOffSet = This_S_Object.FindProperty("InDistansCulling");
-            EditorGUILayout.PropertyField(s_NierCullingOffSet, new GUIContent("Nier Culling OffSet"));
+            var s_NearCullingOffSet = This_S_Object.FindProperty("InDistanceCulling");
+            EditorGUILayout.PropertyField(s_NearCullingOffSet, new GUIContent("Near Culling OffSet"));
             EditorGUI.indentLevel -= 1;
 
 

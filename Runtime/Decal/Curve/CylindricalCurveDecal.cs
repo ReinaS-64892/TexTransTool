@@ -20,94 +20,94 @@ namespace net.rs64.TexTransTool.Decal.Curve
         {
 
 
-            Vector2? TexWarpRenage = null;
+            Vector2? texWarpRange = null;
             if (IsTextureWarp)
             {
-                TexWarpRenage = TextureWarpRange;
+                texWarpRange = TextureWarpRange;
             }
 
-            Dictionary<Texture2D, RenderTexture> FastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
-            List<Dictionary<Texture2D, List<Texture2D>>> SlowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<Texture2D>>>();
+            Dictionary<Texture2D, RenderTexture> fastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
+            List<Dictionary<Texture2D, List<Texture2D>>> slowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<Texture2D>>>();
 
-            var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
-            int Count = 0;
-            foreach (var Quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
+            var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
+            int count = 0;
+            foreach (var quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
             {
-                var TargetDecalTexture = DecalTexture;
+                var targetDecalTexture = DecalTexture;
                 if (UseFirstAndEnd)
                 {
-                    if (Count == 0)
+                    if (count == 0)
                     {
-                        TargetDecalTexture = FirstTexture;
+                        targetDecalTexture = FirstTexture;
                     }
-                    else if (Count == LoopCount - 1)
+                    else if (count == LoopCount - 1)
                     {
-                        TargetDecalTexture = EndTexture;
+                        targetDecalTexture = EndTexture;
                     }
                 }
                 foreach (var Renderer in TargetRenderers)
                 {
-                    var CCSspase = new CCSSpace(CylindricalCoordinatesSystem, Quad);
+                    var CCSSpace = new CCSSpace(CylindricalCoordinatesSystem, quad);
                     var CCSfilter = new CCSFilter(GetFilers());
 
                     if (FastMode)
                     {
-                        DecalUtil.CreatDecalTexture(Renderer,
-                                                    FastDictCompiledTextures,
-                                                    TargetDecalTexture,
-                                                    CCSspase,
+                        DecalUtil.CreateDecalTexture(Renderer,
+                                                    fastDictCompiledTextures,
+                                                    targetDecalTexture,
+                                                    CCSSpace,
                                                     CCSfilter,
                                                     TargetPropertyName,
-                                                    TextureOutRange: TexWarpRenage,
-                                                    DefoaltPadding: Padding
+                                                    TextureOutRange: texWarpRange,
+                                                    DefaultPadding: Padding
                                                     );
                     }
                     else
                     {
-                        SlowDictCompiledTextures.Add(DecalUtil.CreatDecalTextureCS(Renderer,
-                                                                             TargetDecalTexture,
-                                                                             CCSspase,
+                        slowDictCompiledTextures.Add(DecalUtil.CreateDecalTextureCS(Renderer,
+                                                                             targetDecalTexture,
+                                                                             CCSSpace,
                                                                              CCSfilter,
                                                                              TargetPropertyName,
-                                                                             TextureOutRange: TexWarpRenage,
-                                                                             DefoaltPadding: Padding
+                                                                             TextureOutRange: texWarpRange,
+                                                                             DefaultPadding: Padding
                                                                             ));
                     }
 
-                    Count += 1;
+                    count += 1;
                 }
             }
 
             if (FastMode)
             {
-                foreach (var Texture in FastDictCompiledTextures)
+                foreach (var Texture in fastDictCompiledTextures)
                 {
-                    DecalCompiledTextures.Add(Texture.Key, Texture.Value);
+                    decalCompiledTextures.Add(Texture.Key, Texture.Value);
                 }
             }
             else
             {
-                var zipd = Utils.ZipToDictionaryOnList(SlowDictCompiledTextures);
-                foreach (var Texture in zipd)
+                var zipDict = Utils.ZipToDictionaryOnList(slowDictCompiledTextures);
+                foreach (var texture in zipDict)
                 {
-                    var CompiledTex = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
-                    CompiledTex.Apply();
-                    DecalCompiledTextures.Add(Texture.Key, CompiledTex);
+                    var compiledTex = TextureLayerUtil.BlendTextureUseComputeShader(null, texture.Value, BlendType.AlphaLerp);
+                    compiledTex.Apply();
+                    decalCompiledTextures.Add(texture.Key, compiledTex);
                 }
             }
 
-            return DecalCompiledTextures;
+            return decalCompiledTextures;
         }
 
-        public List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> GetFilers()
+        public List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> GetFilers()
         {
-            var Filters = new List<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>>
+            var filters = new List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>>
             {
-                new CCSFilter.BorderOnPorygonStruct(150),
-                new CCSFilter.OutOfPorigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
+                new CCSFilter.BorderOnPolygonStruct(150),
+                new CCSFilter.OutOfPerigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
             };
 
-            return Filters;
+            return filters;
         }
 
 
@@ -119,24 +119,24 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         private void OnDrawGizmos()
         {
-            if (DorwGizmoAwiys) DrawerGizmo();
+            if (DrawGizmoAlways) DrawerGizmo();
         }
 
         protected virtual void DrawerGizmo()
         {
             if (!IsPossibleSegments) return;
             Gizmos.color = Color.black;
-            var Quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
-            GizmosUtility.DrawGizmoQuad(Quads);
+            var quads = BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset);
+            GizmosUtility.DrawGizmoQuad(quads);
             GizmosUtility.DrawGizmoLine(Segments.ConvertAll(i => i.position));
             GizmosUtility.DrawGizmoLine(BezierCurve.GetLine());
 
 
             var bej = BezierCurve;
-            Quads.ForEach(i => i.ForEach(j =>
+            quads.ForEach(i => i.ForEach(j =>
             {
-                var ccsp = CylindricalCoordinatesSystem.GetCCSPoint(j);
-                var pos = CylindricalCoordinatesSystem.GetWorldPoint(new Vector3(ccsp.x, ccsp.y, 0));
+                var ccsPint = CylindricalCoordinatesSystem.GetCCSPoint(j);
+                var pos = CylindricalCoordinatesSystem.GetWorldPoint(new Vector3(ccsPint.x, ccsPint.y, 0));
                 Gizmos.DrawLine(j, pos);
             }));
 

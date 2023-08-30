@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool
             SecondMaterial = secondMaterial;
         }
 
-        public static List<MatPair> GeneratMatPairList(Dictionary<Material, Material> MatDict)
+        public static List<MatPair> ConvertMatPairList(Dictionary<Material, Material> MatDict)
         {
             var ret = new List<MatPair>();
             foreach (var item in MatDict)
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool
             }
             return ret;
         }
-        public static Dictionary<Material, Material> GeneratMatDict(List<MatPair> MatPairs)
+        public static Dictionary<Material, Material> ConvertMatDict(List<MatPair> MatPairs)
         {
             var ret = new Dictionary<Material, Material>();
             foreach (var item in MatPairs)

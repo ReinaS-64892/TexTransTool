@@ -6,28 +6,28 @@ using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public abstract class AbstructSingleDecal<SpaseConverter> : AbstractDecal
-    where SpaseConverter : DecalUtil.IConvertSpace
+    public abstract class AbstractSingleDecal<SpaceConverter> : AbstractDecal
+    where SpaceConverter : DecalUtil.IConvertSpace
     {
         public Texture2D DecalTexture;
         public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null);
-        public abstract SpaseConverter GetSpaseConverter { get; }
-        public abstract DecalUtil.ITrianglesFilter<SpaseConverter> GetTriangleFilter { get; }
+        public abstract SpaceConverter GetSpaceConverter { get; }
+        public abstract DecalUtil.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {
-            var muldDecalTexture = TextureLayerUtil.CreatMuldRenderTexture(DecalTexture, Color);
-            var DecalCompiledTextures = new Dictionary<Texture2D, Texture>();
+            var mulDecalTexture = TextureLayerUtil.CreateMultipliedRenderTexture(DecalTexture, Color);
+            var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
             if (FastMode)
             {
-                var DecalCompiledRenderTextures = new Dictionary<Texture2D, RenderTexture>();
-                foreach (var Rendarer in TargetRenderers)
+                var decalCompiledRenderTextures = new Dictionary<Texture2D, RenderTexture>();
+                foreach (var renderer in TargetRenderers)
                 {
-                    DecalUtil.CreatDecalTexture(
-                        Rendarer,
-                        DecalCompiledRenderTextures,
-                        muldDecalTexture,
-                        GetSpaseConverter,
+                    DecalUtil.CreateDecalTexture(
+                        renderer,
+                        decalCompiledRenderTextures,
+                        mulDecalTexture,
+                        GetSpaceConverter,
                         GetTriangleFilter,
                         TargetPropertyName,
                         GetOutRangeTexture,
@@ -35,41 +35,41 @@ namespace net.rs64.TexTransTool.Decal
                     );
                 }
 
-                foreach (var Texture in DecalCompiledRenderTextures)
+                foreach (var texture in decalCompiledRenderTextures)
                 {
-                    DecalCompiledTextures.Add(Texture.Key, Texture.Value);
+                    decalCompiledTextures.Add(texture.Key, texture.Value);
                 }
             }
             else
             {
-                var muldDecalTexture2D = muldDecalTexture.CopyTexture2D();
-                List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompoleTexs = new List<Dictionary<Texture2D, List<Texture2D>>>();
-                foreach (var Rendarer in TargetRenderers)
+                var mulDecalTexture2D = mulDecalTexture.CopyTexture2D();
+                List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompileTexListDict = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                foreach (var renderer in TargetRenderers)
                 {
-                    var DecalsCompoleds = DecalUtil.CreatDecalTextureCS(
-                        Rendarer,
-                        muldDecalTexture2D,
-                        GetSpaseConverter,
+                    var DecalsCompile = DecalUtil.CreateDecalTextureCS(
+                        renderer,
+                        mulDecalTexture2D,
+                        GetSpaceConverter,
                         GetTriangleFilter,
                         TargetPropertyName,
                         GetOutRangeTexture,
                         Padding
                     );
-                    DecalsCompoleTexs.Add(DecalsCompoleds);
+                    DecalsCompileTexListDict.Add(DecalsCompile);
                 }
 
-                var ZipDecit = Utils.ZipToDictionaryOnList(DecalsCompoleTexs);
+                var zipDict = Utils.ZipToDictionaryOnList(DecalsCompileTexListDict);
 
-                foreach (var Texture in ZipDecit)
+                foreach (var texture in zipDict)
                 {
-                    var BlendTexture = TextureLayerUtil.BlendTextureUseComputeSheder(null, Texture.Value, BlendType.AlphaLerp);
-                    BlendTexture.Apply();
-                    DecalCompiledTextures.Add(Texture.Key, BlendTexture);
+                    var blendTexture = TextureLayerUtil.BlendTextureUseComputeShader(null, texture.Value, BlendType.AlphaLerp);
+                    blendTexture.Apply();
+                    decalCompiledTextures.Add(texture.Key, blendTexture);
                 }
             }
 
 
-            return DecalCompiledTextures;
+            return decalCompiledTextures;
         }
 
         public virtual void ScaleApply() { throw new NotImplementedException(); }
