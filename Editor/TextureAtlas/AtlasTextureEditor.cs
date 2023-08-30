@@ -205,16 +205,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_SortingType = serializedProperty.FindPropertyRelative("SortingType");
             S_SortingType.enumValueIndex = 2;
         }
-        static void RefreshMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectRefarensMatList, SerializedProperty S_MatSelectors, int ChannelCount)
+        static void RefreshMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectReferenceMatList, SerializedProperty S_MatSelectors, int ChannelCount)
         {
             s_TargetRoot.objectReferenceValue = NewRoot;
             if (NewRoot == null) { return; }
             var NewRefSouseMats = AtlasTexture.GetMaterials(AtlasTexture.FilteredRenderers(NewRoot.GetComponentsInChildren<Renderer>(true))).ToList(false);
-            S_SelectRefarensMatList.arraySize = NewRefSouseMats.Count;
+            S_SelectReferenceMatList.arraySize = NewRefSouseMats.Count;
             for (var Index = 0; Index < NewRefSouseMats.Count; Index += 1)
             {
                 var Mat = NewRefSouseMats[Index];
-                S_SelectRefarensMatList.GetArrayElementAtIndex(Index).objectReferenceValue = Mat;
+                S_SelectReferenceMatList.GetArrayElementAtIndex(Index).objectReferenceValue = Mat;
             }
 
             S_MatSelectors.arraySize = NewRefSouseMats.Count;
