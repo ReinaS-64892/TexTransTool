@@ -235,7 +235,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             if (ChannelCount < 1) { return; }
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("IsTarget  (Offset) (Channel) Material");
+            GUILayout.Label("Atlas?        Scale         Channel                Material");
             foreach (var Index in Enumerable.Range(0, TargetMaterial.arraySize))
             {
                 var MatSelect = TargetMaterial.GetArrayElementAtIndex(Index);
