@@ -279,10 +279,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     AtlasTex.Add(new PropAndTexture2D(propTex.PropertyName, propTex.Texture2D));
                 }
-                var fineSettings = atlasSetting.GetFineSettings();
-                foreach (var fineSetting in fineSettings)
+                var advancedSettings = atlasSetting.GetAdvancedSettings();
+                foreach (var advancedSetting in advancedSettings)
                 {
-                    fineSetting.FineSetting(AtlasTex);
+                    advancedSetting.AdvancedSetting(AtlasTex);
                 }
                 avatarMaterialDomain.transferAsset(AtlasTex.Select(PaT => PaT.Texture2D));
 

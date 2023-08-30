@@ -2,7 +2,7 @@
 using UnityEngine;
 using System;
 using net.rs64.TexTransTool.Island;
-using net.rs64.TexTransTool.TextureAtlas.FineSetting;
+using net.rs64.TexTransTool.TextureAtlas.AdvancedSetting;
 using UnityEditor;
 using System.Collections.Generic;
 
@@ -19,22 +19,22 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PaddingType PaddingType = PaddingType.EdgeBase;
         public float Padding = 10;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
-        public List<FineSettingData> fineSettings;
+        public List<AdvancedSettingData> advancedSettings;
         public float GetTexScalePadding => Padding / AtlasTextureSize.x;
 
-        public List<IFineSetting> GetFineSettings()
+        public List<IAdvancedSetting> GetAdvancedSettings()
         {
-            var IFineSettings = new List<IFineSetting>
+            var IAdvancedSettings = new List<IAdvancedSetting>
             {
                 new Initialize(),
                 new DefaultCompress()
             };
-            foreach (var fineSetting in fineSettings)
+            foreach (var advancedSetting in advancedSettings)
             {
-                IFineSettings.Add(fineSetting.GetFineSetting());
+                IAdvancedSettings.Add(advancedSetting.GetAdvancedSetting());
             }
-            IFineSettings.Sort((L, R) => L.Order - R.Order);
-            return IFineSettings;
+            IAdvancedSettings.Sort((L, R) => L.Order - R.Order);
+            return IAdvancedSettings;
         }
 
     }
@@ -45,10 +45,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         BakeAllProperty,
     }
     [Serializable]
-    public class FineSettingData
+    public class AdvancedSettingData
     {
-        public FineSettingSelect select;
-        public enum FineSettingSelect
+        public AdvancedSettingSelect select;
+        public enum AdvancedSettingSelect
         {
             Resize,
             Compress,
@@ -76,19 +76,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
-        public IFineSetting GetFineSetting()
+        public IAdvancedSetting GetAdvancedSetting()
         {
             switch (select)
             {
-                case FineSettingSelect.Resize:
+                case AdvancedSettingSelect.Resize:
                     return new Resize(Resize_Size, Resize_PropertyNames, Resize_Select);
-                case FineSettingSelect.Compress:
+                case AdvancedSettingSelect.Compress:
                     return new Compress(Compress_FormatQuality, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
-                case FineSettingSelect.ReferenceCopy:
+                case AdvancedSettingSelect.ReferenceCopy:
                     return new ReferenceCopy(ReferenceCopy_SousePropertyName, ReferenceCopy_TargetPropertyName);
-                case FineSettingSelect.Remove:
+                case AdvancedSettingSelect.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
-                case FineSettingSelect.MipMapRemove:
+                case AdvancedSettingSelect.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
 
                 default:

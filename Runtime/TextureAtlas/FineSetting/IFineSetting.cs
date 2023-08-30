@@ -4,12 +4,12 @@ using System.Linq;
 using System;
 using net.rs64.TexTransTool.ShaderSupport;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public interface IFineSetting
+    public interface IAdvancedSetting
     {
         int Order { get; }
-        void FineSetting(List<PropAndTexture2D> propAndTextures);
+        void AdvancedSetting(List<PropAndTexture2D> propAndTextures);
     }
 
     public enum PropertySelect
@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         NotEqual,
     }
 
-    public static class FineSettingUtil
+    public static class AdvancedSettingUtil
     {
         public static IEnumerable<PropAndTexture2D> FilteredTarget(string PropertyNames, PropertySelect select, List<PropAndTexture2D> propAndTextures)
         {

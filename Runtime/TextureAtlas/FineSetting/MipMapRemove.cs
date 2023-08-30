@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public struct MipMapRemove : IFineSetting
+    public struct MipMapRemove : IAdvancedSetting
     {
         public int Order => -32;
         public string PropertyNames;
@@ -18,9 +18,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         }
 
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AdvancedSetting(List<PropAndTexture2D> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in AdvancedSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var newTex = new Texture2D(target.Texture2D.width, target.Texture2D.height, TextureFormat.RGBA32, false);
                 newTex.SetPixels32(target.Texture2D.GetPixels32());

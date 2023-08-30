@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public struct Compress : IFineSetting
+    public struct Compress : IAdvancedSetting
     {
         public int Order => 0;
         public FormatQuality FormatQualityValue;
@@ -29,10 +29,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             Normal,
             High,
         }
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AdvancedSetting(List<PropAndTexture2D> propAndTextures)
         {
             TextureFormat textureFormat = GetTextureFormat(FormatQualityValue);
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in AdvancedSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 if (target.Texture2D.format == textureFormat) { continue; }
                 EditorUtility.CompressTexture(target.Texture2D, textureFormat, CompressionQuality);

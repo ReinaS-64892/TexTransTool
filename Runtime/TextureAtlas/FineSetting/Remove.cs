@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public class Remove : IFineSetting
+    public class Remove : IAdvancedSetting
     {
         public int Order => -1025;
         public string PropertyNames;
@@ -16,9 +16,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             Select = select;
         }
 
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AdvancedSetting(List<PropAndTexture2D> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures).ToArray())
+            foreach (var target in AdvancedSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures).ToArray())
             {
                 propAndTextures.Remove(target);
             }

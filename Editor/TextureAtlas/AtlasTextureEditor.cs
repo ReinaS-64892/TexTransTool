@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 var S_PaddingType = S_Channel.FindPropertyRelative("PaddingType");
                 var S_Padding = S_Channel.FindPropertyRelative("Padding");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
-                var S_fineSettings = S_Channel.FindPropertyRelative("fineSettings");
+                var S_advancedSettings = S_Channel.FindPropertyRelative("advancedSettings");
 
 
 
@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(S_PaddingType);
                 EditorGUILayout.PropertyField(S_Padding);
                 EditorGUILayout.PropertyField(S_SortingType);
-                DrawFineSettings(S_fineSettings);
+                DrawAdvancedSettings(S_advancedSettings);
 
             }
             EditorGUI.indentLevel -= 1;
@@ -112,16 +112,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawFineSettings(SerializedProperty s_fineSettings)
+        private static void DrawAdvancedSettings(SerializedProperty s_advancedSettings)
         {
-            EditorGUILayout.LabelField("Fine Settings");
+            EditorGUILayout.LabelField("Advanced Settings");
             EditorGUI.indentLevel += 1;
 
-            for (int i = 0; s_fineSettings.arraySize > i; i += 1)
+            for (int i = 0; s_advancedSettings.arraySize > i; i += 1)
             {
-                var S_fineSettingData = s_fineSettings.GetArrayElementAtIndex(i);
-                var S_select = S_fineSettingData.FindPropertyRelative("select");
-                EditorGUILayout.PropertyField(S_select, new GUIContent("FineSetting " + i));
+                var S_advancedSettingData = s_advancedSettings.GetArrayElementAtIndex(i);
+                var S_select = S_advancedSettingData.FindPropertyRelative("select");
+                EditorGUILayout.PropertyField(S_select, new GUIContent("Advanced Settings " + i));
                 switch (S_select.enumValueIndex)
                 {
                     default:
@@ -131,9 +131,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 0:
                         {
-                            var S_Resize_Size = S_fineSettingData.FindPropertyRelative("Resize_Size");
-                            var S_Resize_PropertyNames = S_fineSettingData.FindPropertyRelative("Resize_PropertyNames");
-                            var S_Resize_select = S_fineSettingData.FindPropertyRelative("Resize_Select");
+                            var S_Resize_Size = S_advancedSettingData.FindPropertyRelative("Resize_Size");
+                            var S_Resize_PropertyNames = S_advancedSettingData.FindPropertyRelative("Resize_PropertyNames");
+                            var S_Resize_select = S_advancedSettingData.FindPropertyRelative("Resize_Select");
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(S_Resize_Size, new GUIContent("Size"));
                             PropertyNameEditor.DrawInspectorGUI(S_Resize_PropertyNames);
@@ -143,10 +143,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 1:
                         {
-                            var S_Compress_FormatQuality = S_fineSettingData.FindPropertyRelative("Compress_FormatQuality");
-                            var S_Compress_CompressionQuality = S_fineSettingData.FindPropertyRelative("Compress_CompressionQuality");
-                            var S_Compress_PropertyNames = S_fineSettingData.FindPropertyRelative("Compress_PropertyNames");
-                            var S_Compress_Select = S_fineSettingData.FindPropertyRelative("Compress_Select");
+                            var S_Compress_FormatQuality = S_advancedSettingData.FindPropertyRelative("Compress_FormatQuality");
+                            var S_Compress_CompressionQuality = S_advancedSettingData.FindPropertyRelative("Compress_CompressionQuality");
+                            var S_Compress_PropertyNames = S_advancedSettingData.FindPropertyRelative("Compress_PropertyNames");
+                            var S_Compress_Select = S_advancedSettingData.FindPropertyRelative("Compress_Select");
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(S_Compress_FormatQuality, new GUIContent("FormatQuality"));
                             EditorGUILayout.PropertyField(S_Compress_CompressionQuality, new GUIContent("CompressionQuality"));
@@ -157,8 +157,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 2:
                         {
-                            var S_ReferenceCopy_SousePropertyName = S_fineSettingData.FindPropertyRelative("ReferenceCopy_SousePropertyName");
-                            var S_ReferenceCopy_TargetPropertyName = S_fineSettingData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
+                            var S_ReferenceCopy_SousePropertyName = S_advancedSettingData.FindPropertyRelative("ReferenceCopy_SousePropertyName");
+                            var S_ReferenceCopy_TargetPropertyName = S_advancedSettingData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(S_ReferenceCopy_SousePropertyName, "Souse Property Name");
                             PropertyNameEditor.DrawInspectorGUI(S_ReferenceCopy_TargetPropertyName, "Target Property Name");
@@ -167,8 +167,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 3:
                         {
-                            var S_Remove_PropertyNames = S_fineSettingData.FindPropertyRelative("Remove_PropertyNames");
-                            var S_Remove_Select = S_fineSettingData.FindPropertyRelative("Remove_Select");
+                            var S_Remove_PropertyNames = S_advancedSettingData.FindPropertyRelative("Remove_PropertyNames");
+                            var S_Remove_Select = S_advancedSettingData.FindPropertyRelative("Remove_Select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(S_Remove_PropertyNames);
                             EditorGUILayout.PropertyField(S_Remove_Select, new GUIContent("Select"));
@@ -177,8 +177,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 4:
                         {
-                            var S_MipMapRemove_PropertyNames = S_fineSettingData.FindPropertyRelative("MipMapRemove_PropertyNames");
-                            var S_MipMapRemove_Select = S_fineSettingData.FindPropertyRelative("MipMapRemove_Select");
+                            var S_MipMapRemove_PropertyNames = S_advancedSettingData.FindPropertyRelative("MipMapRemove_PropertyNames");
+                            var S_MipMapRemove_Select = S_advancedSettingData.FindPropertyRelative("MipMapRemove_Select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(S_MipMapRemove_PropertyNames);
                             EditorGUILayout.PropertyField(S_MipMapRemove_Select, new GUIContent("Select"));
@@ -189,7 +189,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 }
             }
 
-            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
+            TextureTransformerEditor.DrawerArrayResizeButton(s_advancedSettings);
             EditorGUI.indentLevel -= 1;
         }
 

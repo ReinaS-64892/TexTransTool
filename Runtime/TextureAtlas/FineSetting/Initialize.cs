@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public struct Initialize : IFineSetting
+    public struct Initialize : IAdvancedSetting
     {
         public int Order => -1024;
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AdvancedSetting(List<PropAndTexture2D> propAndTextures)
         {
             foreach (var target in propAndTextures)
             {

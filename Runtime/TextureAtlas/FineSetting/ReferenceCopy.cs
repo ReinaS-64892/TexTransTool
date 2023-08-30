@@ -1,9 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.AdvancedSetting
 {
-    public class ReferenceCopy : IFineSetting
+    public class ReferenceCopy : IAdvancedSetting
     {
         public int Order => 1024;
 
@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             TargetPropertyName = targetPropertyName;
         }
 
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AdvancedSetting(List<PropAndTexture2D> propAndTextures)
         {
             var Texture = propAndTextures.Find(x => x.PropertyName == SousePropertyName);
             if (Texture == null) return;
