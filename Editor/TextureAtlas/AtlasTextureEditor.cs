@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.LabelField("Channel " + Index);
                 var S_Channel = s_AtlasSettings.GetArrayElementAtIndex(Index);
                 var S_AtlasTextureSize = S_Channel.FindPropertyRelative("AtlasTextureSize");
-                var S_IsMergeMaterial = S_Channel.FindPropertyRelative("IsMergeMaterial");
+                var S_MergeMaterials = S_Channel.FindPropertyRelative("MergeMaterials");
                 var S_MergeReferenceMaterial = S_Channel.FindPropertyRelative("MergeReferenceMaterial");
                 var S_ForceSetTexture = S_Channel.FindPropertyRelative("ForceSetTexture");
                 var S_PropertyBakeSetting = S_Channel.FindPropertyRelative("PropertyBakeSetting");
@@ -83,8 +83,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
                 EditorGUILayout.PropertyField(S_AtlasTextureSize);
-                EditorGUILayout.PropertyField(S_IsMergeMaterial);
-                if (S_IsMergeMaterial.boolValue)
+                EditorGUILayout.PropertyField(S_MergeMaterials);
+                if (S_MergeMaterials.boolValue)
                 {
                     EditorGUILayout.PropertyField(S_PropertyBakeSetting);
                     EditorGUILayout.PropertyField(S_MergeReferenceMaterial);
