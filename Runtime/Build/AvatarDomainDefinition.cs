@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Build
             if (texTransGroup.IsApply) return;
             if (avatar == null && Avatar == null) return;
             if (avatar == null) avatar = Avatar;
-            TTGValidationUtili.ValidatTTG(texTransGroup);
+            TTGValidationUtils.ValidateTTG(texTransGroup);
             CacheDomain = GetDomain(avatar, OverrideAssetContainer);
             _IsSelfCallApply = true;
             texTransGroup.Apply(CacheDomain);
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.Build
             _IsSelfCallApply = false;
             CacheDomain.ResetMaterial();
             texTransGroup.Revert(CacheDomain);
-            AssetSaveHelper.DeletAsset(CacheDomain.Asset);
+            AssetSaveHelper.DeleteAsset(CacheDomain.Asset);
             CacheDomain = null;
         }
     }

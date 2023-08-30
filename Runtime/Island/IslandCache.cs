@@ -31,8 +31,8 @@ namespace net.rs64.TexTransTool.Island
 
         public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> Triangle, IReadOnlyList<Vector2> UV)
         {
-            var datajson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(Triangle), UV));
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(datajson);
+            var dataJson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(Triangle), UV));
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(dataJson);
 
             return SHA1.Create().ComputeHash(data);
         }

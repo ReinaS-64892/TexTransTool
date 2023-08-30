@@ -54,13 +54,13 @@ namespace net.rs64.TexTransTool.Island
 
             var Islands = triangles.Select(i => new Island(i)).ToList();
 
-            bool Continue = true;
-            while (Continue)
+            bool isContinue = true;
+            while (isContinue)
             {
-                Continue = false;
-                Islands = IslandCrawling(Islands, UV, ref Continue);
+                isContinue = false;
+                Islands = IslandCrawling(Islands, UV, out isContinue);
             }
-            Islands.ForEach(i => i.BoxCurriculation(UV));
+            Islands.ForEach(i => i.BoxCalculation(UV));
 
             if (Caches != null)
             {
@@ -72,105 +72,111 @@ namespace net.rs64.TexTransTool.Island
             return Islands;
         }
 
-        public static List<Island> IslandCrawling(IReadOnlyList<Island> IslandPool, IReadOnlyList<Vector2> UV, ref bool IsJoin)
+        public static List<Island> IslandCrawling(IReadOnlyList<Island> IslandPool, IReadOnlyList<Vector2> UV, out bool IsJoin)
         {
+            IsJoin = false;
+            var crawlingIslandPool = new List<Island>();
 
-            var CrawlingdIslandPool = new List<Island>();
-
-            foreach (var Iland in IslandPool)
+            foreach (var island in IslandPool)
             {
-                var IslandVartPos = Iland.GetVertexPos(UV);
+                var islandVertPos = island.GetVertexPos(UV);
 
 
-                int IlandCout = -1;
-                int IlandJoinIndex = -1;
+                int islandCount = -1;
+                int islandJoinIndex = -1;
 
-                foreach (var CrawlingdIsland in CrawlingdIslandPool)
+                foreach (var crawlingIsland in crawlingIslandPool)
                 {
-                    IlandCout += 1;
+                    islandCount += 1;
 
-                    var CrawlingIslandVartPos = CrawlingdIsland.GetVertexPos(UV);
+                    var CrawlingIslandVertPos = crawlingIsland.GetVertexPos(UV);
 
 
-                    if (IslandVartPos.Intersect(CrawlingIslandVartPos).Any())
+                    if (islandVertPos.Intersect(CrawlingIslandVertPos).Any())
                     {
-                        IlandJoinIndex = IlandCout;
+                        islandJoinIndex = islandCount;
                         break;
                     }
 
                 }
 
-                if (IlandJoinIndex == -1)
+                if (islandJoinIndex == -1)
                 {
-                    CrawlingdIslandPool.Add(Iland);
+                    crawlingIslandPool.Add(island);
                 }
                 else
                 {
-                    CrawlingdIslandPool[IlandJoinIndex].triangles.AddRange(Iland.triangles);
+                    crawlingIslandPool[islandJoinIndex].triangles.AddRange(island.triangles);
                     IsJoin = true;
                 }
 
             }
-            return CrawlingdIslandPool;
+            return crawlingIslandPool;
         }
         public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
         {
-            if (OriginIsland.Is90Ratation == MovedIsland.Is90Ratation)
+            if (OriginIsland.Is90Rotation == MovedIsland.Is90Rotation)
             {
                 var mSize = MovedIsland.Size;
                 var nmSize = OriginIsland.Size;
 
-                var RelativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-                RelativeScale.x = float.IsNaN(RelativeScale.x) ? 0 : RelativeScale.x;
-                RelativeScale.y = float.IsNaN(RelativeScale.y) ? 0 : RelativeScale.y;
+                var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
 
-                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                foreach (var vertIndex in OriginIsland.GetVertexIndex())
                 {
-                    var VertPos = UV[VartIndex];
-                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+                    var vertPos = UV[vertIndex];
+                    var relativeVertPos = vertPos - OriginIsland.Pivot;
 
-                    RelativeVertPos.x *= RelativeScale.x;
-                    RelativeVertPos.y *= RelativeScale.y;
+                    relativeVertPos.x *= relativeScale.x;
+                    relativeVertPos.y *= relativeScale.y;
 
-                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
-                    MoveUV[VartIndex] = MovedVertPos;
+                    var movedVertPos = MovedIsland.Pivot + relativeVertPos;
+                    MoveUV[vertIndex] = movedVertPos;
                 }
             }
             else
             {
-                var mSize = MovedIsland.Is90Ratation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
-                var nmSize = OriginIsland.Is90Ratation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
+                var mSize = MovedIsland.Is90Rotation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
+                var nmSize = OriginIsland.Is90Rotation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
 
-                var RelativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y);
-                var IsRotRight = MovedIsland.Is90Ratation;
-                var Rotate = Quaternion.Euler(0, 0, IsRotRight ? -90 : 90);
+                var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
+                var isRotRight = MovedIsland.Is90Rotation;
+                var rotate = Quaternion.Euler(0, 0, isRotRight ? -90 : 90);
 
-                foreach (var VartIndex in OriginIsland.GetVertexIndex())
+                foreach (var vertIndex in OriginIsland.GetVertexIndex())
                 {
-                    var VertPos = UV[VartIndex];
-                    var RelativeVertPos = VertPos - OriginIsland.Pivot;
+                    var vertPos = UV[vertIndex];
+                    var relativeVertPos = vertPos - OriginIsland.Pivot;
 
-                    RelativeVertPos.x *= RelativeScale.x;
-                    RelativeVertPos.y *= RelativeScale.y;
+                    relativeVertPos.x *= relativeScale.x;
+                    relativeVertPos.y *= relativeScale.y;
 
-                    RelativeVertPos = Rotate * RelativeVertPos;
+                    relativeVertPos = rotate * relativeVertPos;
 
-                    var MovedVertPos = MovedIsland.Pivot + RelativeVertPos;
+                    var movedVertPos = MovedIsland.Pivot + relativeVertPos;
 
-                    if (IsRotRight) { MovedVertPos.y += MovedIsland.Size.y; }
-                    else { MovedVertPos.x += MovedIsland.Size.x; }
+                    if (isRotRight) { movedVertPos.y += MovedIsland.Size.y; }
+                    else { movedVertPos.x += MovedIsland.Size.x; }
 
-                    MoveUV[VartIndex] = MovedVertPos;
+                    MoveUV[vertIndex] = movedVertPos;
                 }
             }
         }
+
+        private static Vector2 ValidateNaN(this Vector2 relativeScale)
+        {
+            relativeScale.x = float.IsNaN(relativeScale.x) ? 0 : relativeScale.x;
+            relativeScale.y = float.IsNaN(relativeScale.y) ? 0 : relativeScale.y;
+            return relativeScale;
+        }
+
         public static void IslandPoolMoveUV<T>(List<Vector2> UV, List<Vector2> MoveUV, TagIslandPool<T> OriginPool, TagIslandPool<T> MovedPool)
         {
             if (UV.Count != MoveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
             foreach (var island in MovedPool)
             {
-                var OriginIsland = OriginPool.FindTag(island.tag);
-                IslandMoveUV(UV, MoveUV, OriginIsland.island, island.island);
+                var originIsland = OriginPool.FindTag(island.tag);
+                IslandMoveUV(UV, MoveUV, originIsland.island, island.island);
             }
         }
 
@@ -192,9 +198,9 @@ namespace net.rs64.TexTransTool.Island
         {
             EvenlySpaced,
             NextFitDecreasingHeight,
-            NextFitDecreasingHeightPlusFloorCeilineg,
+            NextFitDecreasingHeightPlusFloorCeiling,
         }
-        public static void GenerateMovedIlands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Padding = 0.01f)
+        public static void GenerateMovedIslands<T>(IslandSortingType SortingType, TagIslandPool<T> IslandPool, float Padding = 0.01f)
         {
             switch (SortingType)
             {
@@ -208,133 +214,141 @@ namespace net.rs64.TexTransTool.Island
                         IslandSorting.IslandPoolNextFitDecreasingHeight(IslandPool, Padding);
                         break;
                     }
-                case IslandSortingType.NextFitDecreasingHeightPlusFloorCeilineg:
+                case IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling:
                     {
-                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeilineg(IslandPool, Padding);
+                        IslandSorting.IslandPoolNextFitDecreasingHeightPlusFloorCeiling(IslandPool, Padding);
                         break;
                     }
 
                 default: throw new ArgumentException();
             }
         }
-        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(TagIslandPool<T> TargetPool, float IslanadsPadding = 0.01f, float ClorreScale = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeight<T>(
+            TagIslandPool<T> TargetPool,
+            float IslandsPadding = 0.01f,
+            float CrawlingStep = 0.01f,
+            float MinHeight = 0.75f,
+            int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
             Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
-            bool Success = false;
+            bool success = false;
             float NawScale = 1f;
             int loopCount = -1;
 
-            while (!Success && MaxLoopCount > loopCount)
+            while (!success && MaxLoopCount > loopCount)
             {
                 loopCount += 1;
-                Success = true;
+                success = true;
 
-                var NawPos = new Vector2(IslanadsPadding, IslanadsPadding);
-                float FirstHeight = Islands[0].island.Size.y;
-                var NawHeight = IslanadsPadding + FirstHeight + IslanadsPadding;
+                var nawPos = new Vector2(IslandsPadding, IslandsPadding);
+                float firstHeight = Islands[0].island.Size.y;
+                var nawHeight = IslandsPadding + firstHeight + IslandsPadding;
 
-                foreach (var islandandIndex in Islands)
+                foreach (var islandAndTag in Islands)
                 {
-                    var Island = islandandIndex.island;
-                    var NawSize = Island.Size;
-                    var NawMaxPos = NawPos + NawSize;
-                    var IsOutOfX = (NawMaxPos.x + IslanadsPadding) > 1;
+                    var nawSize = islandAndTag.Size;
+                    var nawMaxPos = nawPos + nawSize;
+                    var isOutOfX = (nawMaxPos.x + IslandsPadding) > 1;
 
-                    if (IsOutOfX)
+                    if (isOutOfX)
                     {
-                        NawPos.y = NawHeight;
-                        NawPos.x = IslanadsPadding;
+                        nawPos.y = nawHeight;
+                        nawPos.x = IslandsPadding;
 
-                        NawHeight += IslanadsPadding + NawSize.y;
+                        nawHeight += IslandsPadding + nawSize.y;
 
-                        if (NawHeight > 1)
+                        if (nawHeight > 1)
                         {
 
-                            Success = false;
+                            success = false;
 
-                            ScaleAppry(1 - ClorreScale);
+                            ScaleApply(1 - CrawlingStep);
                             break;
                         }
                     }
 
-                    Island.Pivot = NawPos;
+                    islandAndTag.Pivot = nawPos;
 
-                    NawPos.x += IslanadsPadding + NawSize.x;
+                    nawPos.x += IslandsPadding + nawSize.x;
                 }
 
-                if (Success && MinHeight > NawHeight)
+                if (success && MinHeight > nawHeight)
                 {
-                    Success = false;
-                    ScaleAppry(1 + ClorreScale);
+                    success = false;
+                    ScaleApply(1 + CrawlingStep);
                 }
 
             }
 
             return TargetPool;
 
-            void ScaleAppry(float Scale)
+            void ScaleApply(float Scale)
             {
-                foreach (var islandandIndex in Islands)
+                foreach (var islandAndTag in Islands)
                 {
-                    var Island = islandandIndex.island;
-                    Island.Size *= Scale;
+                    islandAndTag.Size *= Scale;
                 }
                 NawScale *= Scale;
             }
         }
 
-        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeightPlusFloorCeilineg<T>(TagIslandPool<T> TargetPool, float IslanadsPadding = 0.01f, float ClorreScale = 0.01f, float MinHeight = 0.75f, int MaxLoopCount = 128)//NFDH
+        public static TagIslandPool<T> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<T>(
+            TagIslandPool<T> TargetPool,
+            float IslandPadding = 0.01f,
+            float CrawlingStep = 0.01f,
+            float MinHeight = 0.75f,
+            int MaxLoopCount = 128)//NFDH
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
             Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
-            bool Success = false;
-            float NawScale = 1f;
+            bool success = false;
+            float nawScale = 1f;
             int loopCount = -1;
 
-            while (!Success && MaxLoopCount > loopCount)
+            while (!success && MaxLoopCount > loopCount)
             {
                 loopCount += 1;
-                Success = true;
+                success = true;
 
-                var Boxs = new List<UVWithBox>();
+                var boxList = new List<UVWithBox>();
 
 
-                foreach (var islandandIndex in Islands)
+                foreach (var islandAndTag in Islands)
                 {
                     var Result = false;
-                    foreach (var withbox in Boxs)
+                    foreach (var withBox in boxList)
                     {
-                        Result = withbox.TrySetBox(islandandIndex);
+                        Result = withBox.TrySetBox(islandAndTag);
                         if (Result) { break; }
 
                     }
                     if (!Result)
                     {
-                        var Floor = Boxs.Any() ? Boxs.Last().Ceil + IslanadsPadding : IslanadsPadding;
-                        var Ceil = islandandIndex.island.Size.y + Floor;
-                        var newWithBox = new UVWithBox(Ceil, Floor, IslanadsPadding);
-                        var res = newWithBox.TrySetBox(islandandIndex);
-                        Boxs.Add(newWithBox);
+                        var Floor = boxList.Any() ? boxList.Last().Ceil + IslandPadding : IslandPadding;
+                        var Ceil = islandAndTag.island.Size.y + Floor;
+                        var newWithBox = new UVWithBox(Ceil, Floor, IslandPadding);
+                        var res = newWithBox.TrySetBox(islandAndTag);
+                        boxList.Add(newWithBox);
                     }
                 }
 
-                var LastHeigt = Boxs.Last().Ceil + IslanadsPadding;
-                Success = LastHeigt < 1;
+                var lastHeight = boxList.Last().Ceil + IslandPadding;
+                success = lastHeight < 1;
 
-                if (!Success)
+                if (!success)
                 {
-                    ScaleAppry(1 - ClorreScale);
+                    ScaleApply(1 - CrawlingStep);
                 }
 
-                if (Success && MinHeight > LastHeigt)
+                if (success && MinHeight > lastHeight)
                 {
-                    Success = false;
-                    ScaleAppry(1 + ClorreScale);
+                    success = false;
+                    ScaleApply(1 + CrawlingStep);
                 }
 
 
@@ -342,14 +356,13 @@ namespace net.rs64.TexTransTool.Island
 
             return TargetPool;
 
-            void ScaleAppry(float Scale)
+            void ScaleApply(float Scale)
             {
-                foreach (var islandandIndex in Islands)
+                foreach (var islandAndTag in Islands)
                 {
-                    var Island = islandandIndex.island;
-                    Island.Size *= Scale;
+                    islandAndTag.Size *= Scale;
                 }
-                NawScale *= Scale;
+                nawScale *= Scale;
             }
         }
 
@@ -359,7 +372,7 @@ namespace net.rs64.TexTransTool.Island
             public float Padding;
             public float Ceil;
             public float Floor;
-            public float Haight => Ceil - Floor;
+            public float Height => Ceil - Floor;
             public List<Island> Upper = new List<Island>();
             public List<Island> Lower = new List<Island>();
 
@@ -373,7 +386,7 @@ namespace net.rs64.TexTransTool.Island
             public bool TrySetBox(Island Box)
             {
                 var Island = Box;
-                if (Haight + 0.01f < Island.Size.y) return false;
+                if (Height + 0.01f < Island.Size.y) return false;
 
 
                 var withMin = Lower.Any() ? Lower.Last().GetMaxPos.x : 0;
@@ -441,36 +454,36 @@ namespace net.rs64.TexTransTool.Island
 
         public static TagIslandPool<T> IslandPoolEvenlySpaced<T>(TagIslandPool<T> TargetPool)
         {
-            Vector2 MaxIslandSize = TargetPool.GetLargest().island.Size;
-            var GridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.Islands.Count));
-            var CellSize = 1f / GridSize;
-            int Count = 0;
-            foreach (var CellIndex in Utils.Reange2d(new Vector2Int(GridSize, GridSize)))
+            Vector2 maxIslandSize = TargetPool.GetLargest().island.Size;
+            var gridSize = Mathf.CeilToInt(Mathf.Sqrt(TargetPool.Islands.Count));
+            var cellSize = 1f / gridSize;
+            int count = 0;
+            foreach (var CellIndex in Utils.Range2d(new Vector2Int(gridSize, gridSize)))
             {
-                var CellPos = (Vector2)CellIndex / GridSize;
-                Island Island;
-                if (TargetPool.Islands.Count > Count)
+                var CellPos = (Vector2)CellIndex / gridSize;
+                Island island;
+                if (TargetPool.Islands.Count > count)
                 {
-                    var Target = TargetPool.Islands[Count];
-                    Island = Target.island;
+                    var Target = TargetPool.Islands[count];
+                    island = Target.island;
                 }
                 else
                 {
                     break;
                 }
 
-                var IslandBox = Island.Size;
-                Island.Pivot = CellPos;
+                var islandBox = island.Size;
+                island.Pivot = CellPos;
 
-                var IslandMaxRanege = IslandBox.y < IslandBox.x ? IslandBox.x : IslandBox.y;
-                if (IslandMaxRanege > CellSize)
+                var islandMaxRange = islandBox.y < islandBox.x ? islandBox.x : islandBox.y;
+                if (islandMaxRange > cellSize)
                 {
-                    IslandBox *= (CellSize / IslandMaxRanege);
-                    IslandBox *= 0.95f;
+                    islandBox *= (cellSize / islandMaxRange);
+                    islandBox *= 0.95f;
                 }
-                Island.Size = IslandBox;
+                island.Size = islandBox;
 
-                Count += 1;
+                count += 1;
             }
             return TargetPool;
         }
@@ -479,7 +492,7 @@ namespace net.rs64.TexTransTool.Island
     {
         public List<TagIsland<Tag>> Islands = new List<TagIsland<Tag>>();
 
-        public TagIsland<Tag> this[int Index] => Islands[Index];
+        public TagIsland<Tag> this[int index] => Islands[index];
 
         public HashSet<Tag> GetTag()
         {
@@ -512,9 +525,9 @@ namespace net.rs64.TexTransTool.Island
                 AddIsland(item, tag);
             }
         }
-        public void AddRangeIsland(TagIslandPool<Tag> nawChannnelAtlasIslandPool)
+        public void AddRangeIsland(TagIslandPool<Tag> AddPool)
         {
-            foreach (var item in nawChannnelAtlasIslandPool)
+            foreach (var item in AddPool)
             {
                 AddIsland(item);
             }
@@ -550,22 +563,22 @@ namespace net.rs64.TexTransTool.Island
 
         public TagIsland<Tag> GetLargest()
         {
-            int GetIndex = -1;
-            int Count = -1;
-            Vector2 Cash = new Vector2(0, 0);
-            foreach (var islandandI in Islands)
+            int getIndex = -1;
+            int count = -1;
+            Vector2 cash = new Vector2(0, 0);
+            foreach (var islandAndTag in Islands)
             {
-                Count += 1;
-                var Island = islandandI;
-                if (Cash.sqrMagnitude < Island.Size.sqrMagnitude)
+                count += 1;
+                var Island = islandAndTag;
+                if (cash.sqrMagnitude < Island.Size.sqrMagnitude)
                 {
-                    Cash = islandandI.Size;
-                    GetIndex = Count;
+                    cash = islandAndTag.Size;
+                    getIndex = count;
                 }
             }
-            if (GetIndex != -1)
+            if (getIndex != -1)
             {
-                return Islands[GetIndex];
+                return Islands[getIndex];
             }
             else
             {
@@ -622,7 +635,7 @@ namespace net.rs64.TexTransTool.Island
         public List<TriangleIndex> triangles = new List<TriangleIndex>();
         public Vector2 Pivot;
         public Vector2 Size;
-        public bool Is90Ratation;
+        public bool Is90Rotation;
 
         public Vector2 GetMaxPos => Pivot + Size;
 
@@ -631,7 +644,7 @@ namespace net.rs64.TexTransTool.Island
             triangles = new List<TriangleIndex>(Souse.triangles);
             Pivot = Souse.Pivot;
             Size = Souse.Size;
-            Is90Ratation = Souse.Is90Ratation;
+            Is90Rotation = Souse.Is90Rotation;
         }
         public Island(TriangleIndex triangleIndex)
         {
@@ -652,46 +665,46 @@ namespace net.rs64.TexTransTool.Island
         }
         public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> SouseUV)
         {
-            var VIndexs = GetVertexIndex();
-            return VIndexs.ConvertAll<Vector2>(i => SouseUV[i]);
+            var vertIndexes = GetVertexIndex();
+            return vertIndexes.ConvertAll<Vector2>(i => SouseUV[i]);
         }
-        public void BoxCurriculation(IReadOnlyList<Vector2> SouseUV)
+        public void BoxCalculation(IReadOnlyList<Vector2> SouseUV)
         {
-            var VartPoss = GetVertexPos(SouseUV);
-            var Box = TransMapper.BoxCal(VartPoss);
+            var vertPoss = GetVertexPos(SouseUV);
+            var Box = TransMapper.BoxCal(vertPoss);
             Pivot = Box.Item1;
             Size = Box.Item2 - Box.Item1;
         }
 
         public bool BoxInOut(Vector2 TargetPos)
         {
-            var RelaTargetPos = TargetPos - Pivot;
-            return !((RelaTargetPos.x < 0 || RelaTargetPos.y < 0) || (RelaTargetPos.x > Size.x || RelaTargetPos.y > Size.y));
+            var relativeTargetPos = TargetPos - Pivot;
+            return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
         }
-        public List<Vector2> GenerateRectVart(float padding = 0)
+        public List<Vector2> GenerateRectVertexes(float padding = 0)
         {
             padding = Mathf.Abs(padding);
-            var Varts = new List<Vector2>();
-            if (!Is90Ratation)
+            var quad = new List<Vector2>();
+            if (!Is90Rotation)
             {
-                Varts.Add(Pivot + new Vector2(-padding, -padding));
-                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                Varts.Add(Pivot + Size + new Vector2(padding, padding));
-                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                quad.Add(Pivot + new Vector2(-padding, -padding));
+                quad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                quad.Add(Pivot + Size + new Vector2(padding, padding));
+                quad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
             }
             else
             {
-                Varts.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                Varts.Add(Pivot + Size + new Vector2(padding, padding));
-                Varts.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
-                Varts.Add(Pivot + new Vector2(-padding, -padding));
+                quad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                quad.Add(Pivot + Size + new Vector2(padding, padding));
+                quad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                quad.Add(Pivot + new Vector2(-padding, -padding));
             }
-            return Varts;
+            return quad;
         }
 
         public void Rotate90()
         {
-            Is90Ratation = !Is90Ratation;
+            Is90Rotation = !Is90Rotation;
             (Size.x, Size.y) = (Size.y, Size.x);
         }
 
@@ -700,47 +713,47 @@ namespace net.rs64.TexTransTool.Island
 
     public static class IslandUtilsDebug
     {
-        public static void DorwUV(List<Vector2> UV, Texture2D TargetTextur, Color WriteColor)
+        public static void DrawUV(List<Vector2> UV, Texture2D TargetTexture, Color WriteColor)
         {
-            foreach (var uvpos in UV)
+            foreach (var uvPos in UV)
             {
-                if (0 <= uvpos.x && uvpos.x <= 1 && 0 <= uvpos.y && uvpos.y <= 1) continue;
-                int x = Mathf.RoundToInt(uvpos.x * TargetTextur.width);
-                int y = Mathf.RoundToInt(uvpos.y * TargetTextur.height);
-                TargetTextur.SetPixel(x, y, WriteColor);
+                if (0 <= uvPos.x && uvPos.x <= 1 && 0 <= uvPos.y && uvPos.y <= 1) continue;
+                int x = Mathf.RoundToInt(uvPos.x * TargetTexture.width);
+                int y = Mathf.RoundToInt(uvPos.y * TargetTexture.height);
+                TargetTexture.SetPixel(x, y, WriteColor);
             }
         }
-        public static void DrawerIlandBox<T>(TagIslandPool<T> Pool, Texture2D TargetTextur, Color WriteColor)
+        public static void DrawerIslandBox<T>(TagIslandPool<T> Pool, Texture2D TargetTexture, Color WriteColor)
         {
             foreach (var island in Pool.Islands)
             {
-                var minpos = new Vector2Int(Mathf.RoundToInt(island.island.Pivot.x * TargetTextur.width), Mathf.RoundToInt(island.island.Pivot.y * TargetTextur.height));
-                var maxpos = new Vector2Int(Mathf.RoundToInt(island.island.GetMaxPos.x * TargetTextur.width), Mathf.RoundToInt(island.island.GetMaxPos.y * TargetTextur.height));
-                Vector2Int pos = minpos;
-                while (maxpos.x > pos.x)
+                var minPos = new Vector2Int(Mathf.RoundToInt(island.island.Pivot.x * TargetTexture.width), Mathf.RoundToInt(island.island.Pivot.y * TargetTexture.height));
+                var maxPos = new Vector2Int(Mathf.RoundToInt(island.island.GetMaxPos.x * TargetTexture.width), Mathf.RoundToInt(island.island.GetMaxPos.y * TargetTexture.height));
+                Vector2Int pos = minPos;
+                while (maxPos.x > pos.x)
                 {
-                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    TargetTexture.SetPixel(pos.x, pos.y, WriteColor);
                     pos.x += 1;
                 }
-                pos.x = minpos.x;
-                pos.y = maxpos.y;
-                while (maxpos.x > pos.x)
+                pos.x = minPos.x;
+                pos.y = maxPos.y;
+                while (maxPos.x > pos.x)
                 {
-                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    TargetTexture.SetPixel(pos.x, pos.y, WriteColor);
                     pos.x += 1;
                 }
 
-                pos = minpos;
-                while (maxpos.y > pos.y)
+                pos = minPos;
+                while (maxPos.y > pos.y)
                 {
-                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    TargetTexture.SetPixel(pos.x, pos.y, WriteColor);
                     pos.y += 1;
                 }
-                pos.x = maxpos.x;
-                pos.y = minpos.y;
-                while (maxpos.y > pos.y)
+                pos.x = maxPos.x;
+                pos.y = minPos.y;
+                while (maxPos.y > pos.y)
                 {
-                    TargetTextur.SetPixel(pos.x, pos.y, WriteColor);
+                    TargetTexture.SetPixel(pos.x, pos.y, WriteColor);
                     pos.y += 1;
                 }
             }

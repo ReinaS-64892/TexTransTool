@@ -22,10 +22,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public void AddRecord(Material material)
         {
-            var supportShederI = FindSupportI(material);
-            if (supportShederI != null)
+            var supportShaderI = FindSupportI(material);
+            if (supportShaderI != null)
             {
-                supportShederI.AddRecord(material);
+                supportShaderI.AddRecord(material);
             }
         }
         public void ClearRecord()
@@ -38,14 +38,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public List<PropAndTexture> GetTextures(Material material)
         {
-            List<PropAndTexture> allTexs;
-            var supportShederI = FindSupportI(material);
+            List<PropAndTexture> allTex;
+            var supportShaderI = FindSupportI(material);
 
-            if (supportShederI != null) { allTexs = supportShederI.GetPropertyAndTextures(material, BakeSetting); }
-            else { allTexs = _defaultShaderSupport.GetPropertyAndTextures(material, BakeSetting); }
+            if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(material, BakeSetting); }
+            else { allTex = _defaultShaderSupport.GetPropertyAndTextures(material, BakeSetting); }
 
             var textures = new List<PropAndTexture>();
-            foreach (var tex in allTexs)
+            foreach (var tex in allTex)
             {
                 if (tex.Texture2D != null)
                 {
@@ -57,10 +57,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         public void MaterialCustomSetting(Material material)
         {
-            var supportShederI = FindSupportI(material);
-            if (supportShederI != null)
+            var supportShaderI = FindSupportI(material);
+            if (supportShaderI != null)
             {
-                supportShederI.MaterialCustomSetting(material);
+                supportShaderI.MaterialCustomSetting(material);
             }
         }
         public IAtlasShaderSupport FindSupportI(Material material)

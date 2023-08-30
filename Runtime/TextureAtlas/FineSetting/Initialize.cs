@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
+namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
     public struct Initialize : IFineSetting
     {
@@ -11,11 +11,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSettng
         {
             foreach (var target in propAndTextures)
             {
-                var Editabletex = new Texture2D(target.Texture2D.width, target.Texture2D.height, TextureFormat.RGBA32, true);
-                Editabletex.SetPixels32(target.Texture2D.GetPixels32());
-                Editabletex.Apply(true);
-                Editabletex.name = target.Texture2D.name;
-                target.Texture2D = Editabletex;
+                var EditableTex = new Texture2D(target.Texture2D.width, target.Texture2D.height, TextureFormat.RGBA32, true);
+                EditableTex.SetPixels32(target.Texture2D.GetPixels32());
+                EditableTex.Apply(true);
+                EditableTex.name = target.Texture2D.name;
+                target.Texture2D = EditableTex;
             }
         }
     }

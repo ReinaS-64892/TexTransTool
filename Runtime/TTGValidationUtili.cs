@@ -9,20 +9,20 @@ using net.rs64.TexTransTool.TextureAtlas;
 
 namespace net.rs64.TexTransTool
 {
-    public static class TTGValidationUtili
+    public static class TTGValidationUtils
     {
-        public static void ValidatTTG(AbstractTexTransGroup texTransGroup)
+        public static void ValidateTTG(AbstractTexTransGroup texTransGroup)
         {
             var tTFs = AbstractTexTransGroup.TTFFilter(texTransGroup.Targets);
-            var rendarasPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
-            CollectTexTransForms(tTFs, rendarasPeaTTFsDict);
+            var renderersPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
+            CollectTexTransForms(tTFs, renderersPeaTTFsDict);
 
             var warnTarget = new List<TextureTransformer>();
 
-            foreach (var rptf in rendarasPeaTTFsDict)
+            foreach (var rendererPadTTF in renderersPeaTTFsDict)
             {
-                var allowSepaleatFlag = true;
-                foreach (var tf in rptf.Value)
+                var allowSeparateFlag = true;
+                foreach (var tf in rendererPadTTF.Value)
                 {
                     switch (tf)
                     {
@@ -30,17 +30,17 @@ namespace net.rs64.TexTransTool
                             {
                                 if (!abstractDecal.IsSeparateMatAndTexture)
                                 {
-                                    allowSepaleatFlag = false;
+                                    allowSeparateFlag = false;
                                 }
                                 else
                                 {
-                                    if (!allowSepaleatFlag) { warnTarget.Add(abstractDecal); }
+                                    if (!allowSeparateFlag) { warnTarget.Add(abstractDecal); }
                                 }
                                 break;
                             }
                         case AtlasTexture atlasTexture:
                             {
-                                if (!allowSepaleatFlag) { warnTarget.Add(atlasTexture); }
+                                if (!allowSeparateFlag) { warnTarget.Add(atlasTexture); }
 
                                 break;
                             }
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool
 
         }
 
-        private static void CollectTexTransForms(IEnumerable<TextureTransformer> tTFs, Dictionary<Renderer, List<TextureTransformer>> rendarasPeaTTFsDict)
+        private static void CollectTexTransForms(IEnumerable<TextureTransformer> tTFs, Dictionary<Renderer, List<TextureTransformer>> renderersPeaTTFsDict)
         {
             foreach (var ttf in tTFs)
             {
@@ -79,37 +79,37 @@ namespace net.rs64.TexTransTool
                 {
                     case AbstractDecal abstractDecal:
                         {
-                            foreach (var trendaras in abstractDecal.TargetRenderers)
+                            foreach (var tRenderer in abstractDecal.TargetRenderers)
                             {
-                                if (rendarasPeaTTFsDict.ContainsKey(trendaras))
+                                if (renderersPeaTTFsDict.ContainsKey(tRenderer))
                                 {
-                                    rendarasPeaTTFsDict[trendaras].Add(abstractDecal);
+                                    renderersPeaTTFsDict[tRenderer].Add(abstractDecal);
                                 }
                                 else
                                 {
-                                    rendarasPeaTTFsDict.Add(trendaras, new List<TextureTransformer>() { abstractDecal });
+                                    renderersPeaTTFsDict.Add(tRenderer, new List<TextureTransformer>() { abstractDecal });
                                 }
                             }
                             break;
                         }
                     case AtlasTexture atlasTexture:
                         {
-                            foreach (var trendaras in atlasTexture.Renderers)
+                            foreach (var tRenderer in atlasTexture.Renderers)
                             {
-                                if (rendarasPeaTTFsDict.ContainsKey(trendaras))
+                                if (renderersPeaTTFsDict.ContainsKey(tRenderer))
                                 {
-                                    rendarasPeaTTFsDict[trendaras].Add(atlasTexture);
+                                    renderersPeaTTFsDict[tRenderer].Add(atlasTexture);
                                 }
                                 else
                                 {
-                                    rendarasPeaTTFsDict.Add(trendaras, new List<TextureTransformer>() { atlasTexture });
+                                    renderersPeaTTFsDict.Add(tRenderer, new List<TextureTransformer>() { atlasTexture });
                                 }
                             }
                             break;
                         }
                     case AbstractTexTransGroup abstractTexTransGroup:
                         {
-                            CollectTexTransForms(AbstractTexTransGroup.TTFFilter(abstractTexTransGroup.Targets), rendarasPeaTTFsDict);
+                            CollectTexTransForms(AbstractTexTransGroup.TTFFilter(abstractTexTransGroup.Targets), renderersPeaTTFsDict);
                             break;
                         }
 

@@ -8,12 +8,12 @@ namespace net.rs64.TexTransTool.Decal
     [System.Serializable]
     public class DecalDataContainer : TTDataContainer
     {
-        [SerializeField] List<Texture2D> _DecaleBlendTexteres;
+        [SerializeField] List<Texture2D> _DecalBlendTextures;
 
-        public List<Texture2D> DecaleBlendTexteres
+        public List<Texture2D> DecalBlendTextures
         {
-            set => _DecaleBlendTexteres = value;
-            get => _DecaleBlendTexteres;
+            set => _DecalBlendTextures = value;
+            get => _DecalBlendTextures;
         }
 
     }

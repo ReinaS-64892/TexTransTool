@@ -14,21 +14,21 @@ namespace net.rs64.TexTransTool.Editor
             var This_S_Object = serializedObject;
 
             EditorGUI.BeginDisabledGroup(Target.IsApply);
-            var S_TargetRendare = This_S_Object.FindProperty("TargetRenderer");
-            TextureTransformerEditor.ObjectReferencePorpty<Renderer>(S_TargetRendare, TextureTransformerEditor.RendererFiltaling);
+            var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderer");
+            TextureTransformerEditor.DrawerObjectReference<Renderer>(S_TargetRenderer, TextureTransformerEditor.RendererFiltering);
 
 
             var S_MaterialSelect = This_S_Object.FindProperty("MaterialSelect");
 
-            var TargetRendare = S_TargetRendare.objectReferenceValue as Renderer;
-            var TargetMaterials = TargetRendare?.sharedMaterials;
+            var TargetRenderer = S_TargetRenderer.objectReferenceValue as Renderer;
+            var TargetMaterials = TargetRenderer?.sharedMaterials;
 
             var MaterialSelect = S_MaterialSelect.intValue;
             S_MaterialSelect.intValue = ArraySelector(MaterialSelect, TargetMaterials);
 
 
             var S_BlendTexture = This_S_Object.FindProperty("BlendTexture");
-            TextureTransformerEditor.ObjectReferencePorpty<Texture2D>(S_BlendTexture);
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_BlendTexture);
 
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");
@@ -47,22 +47,22 @@ namespace net.rs64.TexTransTool.Editor
         public static int ArraySelector<T>(int Select, T[] Array) where T : UnityEngine.Object
         {
             if (Array == null) return Select;
-            int SelecCount = 0;
+            int SelectCount = 0;
             int DistSelect = Select;
             int NewSelect = Select;
-            foreach (var ArryValue in Array)
+            foreach (var ArrayValue in Array)
             {
                 EditorGUILayout.BeginHorizontal();
 
-                if (EditorGUILayout.Toggle(SelecCount == Select, GUILayout.Width(20)) && DistSelect != SelecCount) NewSelect = SelecCount;
+                if (EditorGUILayout.Toggle(SelectCount == Select, GUILayout.Width(20)) && DistSelect != SelectCount) NewSelect = SelectCount;
 
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.ObjectField(ArryValue, typeof(Material), true);
+                EditorGUILayout.ObjectField(ArrayValue, typeof(Material), true);
                 EditorGUI.EndDisabledGroup();
 
                 EditorGUILayout.EndHorizontal();
 
-                SelecCount += 1;
+                SelectCount += 1;
             }
             return NewSelect;
         }

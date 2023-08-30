@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.Build.VRC
         }
         public void OnPostprocessAvatar()
         {
-            AssetSaveHelper.IsTmplaly = false;
+            AssetSaveHelper.IsTemporary = false;
         }
 
     }

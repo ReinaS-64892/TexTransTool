@@ -8,16 +8,16 @@ namespace net.rs64.TexTransTool.Decal
 {
     public static class TriangleFilterUtils
     {
-        public interface ITriangleFiltaring<InterObject>
+        public interface ITriangleFiltering<InterObject>
         {
-            bool Filtering(TriangleIndex TargetTri, InterObject Vartex);//対象の三角形を通せない場合True
+            bool Filtering(TriangleIndex TargetTri, InterObject Vertex);//対象の三角形を通せない場合True
         }
-        public static List<TriangleIndex> FiltaringTriangle<InterSpace, Filter>(List<TriangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filter> Filtars)
-        where Filter : ITriangleFiltaring<InterSpace>
+        public static List<TriangleIndex> FilteringTriangle<InterSpace, Filter>(List<TriangleIndex> Target, InterSpace InterObjects, IReadOnlyList<Filter> Filters)
+        where Filter : ITriangleFiltering<InterSpace>
         {
-            var FiltalingTraingles = new List<TriangleIndex>(Target.Count);
+            var FilteringTriangles = new List<TriangleIndex>(Target.Count);
             var Filtered = new bool[Target.Count];
-            foreach (var filter in Filtars)
+            foreach (var filter in Filters)
             {
                 for (int i = 0; i < Target.Count; i++)
                 {
@@ -33,14 +33,14 @@ namespace net.rs64.TexTransTool.Decal
             {
                 if (Filtered[i] == false)
                 {
-                    FiltalingTraingles.Add(Target[i]);
+                    FilteringTriangles.Add(Target[i]);
                 }
             }
 
-            return FiltalingTraingles;
+            return FilteringTriangles;
         }
 
-        public struct SideStruct : ITriangleFiltaring<List<Vector3>>
+        public struct SideStruct : ITriangleFiltering<List<Vector3>>
         {
             public bool IsReverse;
 
@@ -49,15 +49,15 @@ namespace net.rs64.TexTransTool.Decal
                 IsReverse = isReverse;
             }
 
-            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vertex)
             {
-                return SideChek(TargetTri, Vartex, IsReverse);
+                return SideCheck(TargetTri, Vertex, IsReverse);
             }
 
-            public static bool SideChek(TriangleIndex TargetTri, List<Vector3> Vartex, bool IsReverse = false)
+            public static bool SideCheck(TriangleIndex TargetTri, List<Vector3> Vertex, bool IsReverse = false)
             {
-                var ba = Vartex[TargetTri[1]] - Vartex[TargetTri[0]];
-                var ac = Vartex[TargetTri[0]] - Vartex[TargetTri[2]];
+                var ba = Vertex[TargetTri[1]] - Vertex[TargetTri[0]];
+                var ac = Vertex[TargetTri[0]] - Vertex[TargetTri[2]];
                 var TriangleSide = Vector3.Cross(ba, ac).z;
                 if (!IsReverse) return TriangleSide < 0;
                 else return TriangleSide > 0;
@@ -66,132 +66,131 @@ namespace net.rs64.TexTransTool.Decal
 
         }
 
-        public struct FarStruct : ITriangleFiltaring<List<Vector3>>
+        public struct FarStruct : ITriangleFiltering<List<Vector3>>
         {
             public float Far;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public FarStruct(float far, bool isAllVartex)
+            public FarStruct(float far, bool isAllVertex)
             {
                 Far = far;
-                IsAllVartex = isAllVartex;
+                IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vertex)
             {
-                return FarClip(TargetTri, Vartex, Far, IsAllVartex);
+                return FarClip(TargetTri, Vertex, Far, IsAllVertex);
             }
-            public static bool FarClip(TriangleIndex TargetTri, List<Vector3> Vartex, float Far, bool IsAllVartex)//IsAllVartexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
+            public static bool FarClip(TriangleIndex TargetTri, List<Vector3> Vertex, float Far, bool IsAllVertex)//IsAllVertexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
             {
-                if (IsAllVartex)
+                if (IsAllVertex)
                 {
-                    return Vartex[TargetTri[0]].z > Far && Vartex[TargetTri[1]].z > Far && Vartex[TargetTri[2]].z > Far;
+                    return Vertex[TargetTri[0]].z > Far && Vertex[TargetTri[1]].z > Far && Vertex[TargetTri[2]].z > Far;
                 }
                 else
                 {
-                    return Vartex[TargetTri[0]].z > Far || Vartex[TargetTri[1]].z > Far || Vartex[TargetTri[2]].z > Far;
+                    return Vertex[TargetTri[0]].z > Far || Vertex[TargetTri[1]].z > Far || Vertex[TargetTri[2]].z > Far;
                 }
             }
         }
 
-        public struct NearStruct : TriangleFilterUtils.ITriangleFiltaring<List<Vector3>>
+        public struct NearStruct : TriangleFilterUtils.ITriangleFiltering<List<Vector3>>
         {
             public float Near;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public NearStruct(float near, bool isAllVartex)
+            public NearStruct(float near, bool isAllVertex)
             {
                 Near = near;
-                IsAllVartex = isAllVartex;
+                IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vertex)
             {
-                return NearClip(TargetTri, Vartex, Near, IsAllVartex);
+                return NearClip(TargetTri, Vertex, Near, IsAllVertex);
             }
-            public static bool NearClip(TriangleIndex TargetTri, List<Vector3> Vartex, float Near, bool IsAllVartex)
+            public static bool NearClip(TriangleIndex TargetTri, List<Vector3> Vertex, float Near, bool IsAllVertex)
             {
-                if (IsAllVartex)
+                if (IsAllVertex)
                 {
-                    return Vartex[TargetTri[0]].z < Near && Vartex[TargetTri[1]].z < Near && Vartex[TargetTri[2]].z < Near;
+                    return Vertex[TargetTri[0]].z < Near && Vertex[TargetTri[1]].z < Near && Vertex[TargetTri[2]].z < Near;
                 }
                 else
                 {
-                    return Vartex[TargetTri[0]].z < Near || Vartex[TargetTri[1]].z < Near || Vartex[TargetTri[2]].z < Near;
+                    return Vertex[TargetTri[0]].z < Near || Vertex[TargetTri[1]].z < Near || Vertex[TargetTri[2]].z < Near;
                 }
             }
         }
 
-        public struct OutOfPorigonStruct : ITriangleFiltaring<List<Vector3>>
+        public struct OutOfPolygonStruct : ITriangleFiltering<List<Vector3>>
         {
-            public PolygonCulling PolygonCaling;
+            public PolygonCulling PolygonCulling;
             public float MinRange;
             public float MaxRange;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public OutOfPorigonStruct(PolygonCulling polygonCaling, float minRange, float maxRange, bool isAllVartex)
+            public OutOfPolygonStruct(PolygonCulling polygonCulling, float minRange, float maxRange, bool isAllVertex)
             {
-                PolygonCaling = polygonCaling;
+                PolygonCulling = polygonCulling;
                 MinRange = minRange;
                 MaxRange = maxRange;
-                IsAllVartex = isAllVartex;
+                IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vartex)
+            public bool Filtering(TriangleIndex TargetTri, List<Vector3> Vertex)
             {
-                switch (PolygonCaling)
+                switch (PolygonCulling)
                 {
                     default:
-                    case PolygonCulling.Vartex:
-                        return OutOfPorigonVartexBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
+                    case PolygonCulling.Vertex:
+                        return OutOfPolygonVertexBase(TargetTri, Vertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.Edge:
-                        return OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
+                        return OutOfPolygonEdgeBase(TargetTri, Vertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.EdgeAndCenterRay:
-                        return OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex);
+                        return OutOfPolygonEdgeEdgeAndCenterRayCast(TargetTri, Vertex, MaxRange, MinRange, IsAllVertex);
                 }
 
             }
 
-            public static bool OutOfPorigonVartexBase(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+            public static bool OutOfPolygonVertexBase(TriangleIndex TargetTri, List<Vector3> Vertex, float MaxRange, float MinRange, bool IsAllVertex)
             {
-                bool[] OutOfPrygon = new bool[3] { false, false, false };
-                foreach (var Index in Enumerable.Range(0, 3))
+                bool[] outOfPolygon = new bool[3] { false, false, false };
+                foreach (var index in Enumerable.Range(0, 3))
+                {
+                    var targetVertex = Vertex[TargetTri[index]];
+                    outOfPolygon[index] = !(targetVertex.x < MaxRange && targetVertex.x > MinRange && targetVertex.y < MaxRange && targetVertex.y > MinRange);
+                }
+                if (IsAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
+                else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
+            }
+            public static bool OutOfPolygonEdgeBase(TriangleIndex TargetTri, List<Vector3> Vertex, float MaxRange, float MinRange, bool IsAllVertex)
+            {
+                float centerPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
+                var centerPosVec2 = new Vector2(centerPos, centerPos);
+                bool[] outOfPolygon = new bool[3] { false, false, false };
+                foreach (var index in new Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) })
                 {
 
-                    var Tvartex = Vartex[TargetTri[Index]];
-                    OutOfPrygon[Index] = !(Tvartex.x < MaxRange && Tvartex.x > MinRange && Tvartex.y < MaxRange && Tvartex.y > MinRange);
+                    var a = Vertex[TargetTri[index.x]];
+                    var b = Vertex[TargetTri[index.y]];
+                    var nerPoint = TransMapper.NeaPointOnLine(a, b, centerPosVec2);
+                    outOfPolygon[index.x] = !( MinRange < nerPoint.x && nerPoint.x < MaxRange  &&  MinRange < nerPoint.y &&  nerPoint.y < MaxRange );
                 }
-                if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
-                else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
+                if (IsAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
+                else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
             }
-            public static bool OutOfPorigonEdgeBase(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
+            public static bool OutOfPolygonEdgeEdgeAndCenterRayCast(TriangleIndex TargetTri, List<Vector3> Vertex, float MaxRange, float MinRange, bool IsAllVertex)
             {
-                float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
-                var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
-                bool[] OutOfPrygon = new bool[3] { false, false, false };
-                foreach (var Index in new Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) })
-                {
-
-                    var a = Vartex[TargetTri[Index.x]];
-                    var b = Vartex[TargetTri[Index.y]];
-                    var NerPoint = TransMapper.NeaPointOnLine(a, b, ConterPosVec2);
-                    OutOfPrygon[Index.x] = !( MinRange < NerPoint.x && NerPoint.x < MaxRange  &&  MinRange < NerPoint.y &&  NerPoint.y < MaxRange );
-                }
-                if (IsAllVartex) return OutOfPrygon[0] && OutOfPrygon[1] && OutOfPrygon[2];
-                else return OutOfPrygon[0] || OutOfPrygon[1] || OutOfPrygon[2];
-            }
-            public static bool OutOfPorigonEdgeEdgeAndCenterRayCast(TriangleIndex TargetTri, List<Vector3> Vartex, float MaxRange, float MinRange, bool IsAllVartex)
-            {
-                float CenterPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
-                var ConterPosVec2 = new Vector2(CenterPos, CenterPos);
-                if (!OutOfPorigonEdgeBase(TargetTri, Vartex, MaxRange, MinRange, IsAllVartex))
+                float centerPos = Mathf.Lerp(MaxRange, MinRange, 0.5f);
+                var centerPosVec2 = new Vector2(centerPos, centerPos);
+                if (!OutOfPolygonEdgeBase(TargetTri, Vertex, MaxRange, MinRange, IsAllVertex))
                 {
                     return false;
                 }
                 else
                 {
-                    var CrossT = TransMapper.CrossTriangle(new List<Vector2>(3) { Vartex[TargetTri[0]], Vartex[TargetTri[1]], Vartex[TargetTri[2]] }, ConterPosVec2);
-                    return TransMapper.IsInCal(CrossT.x,CrossT.y,CrossT.z);
+                    var crossT = TransMapper.CrossTriangle(new List<Vector2>(3) { Vertex[TargetTri[0]], Vertex[TargetTri[1]], Vertex[TargetTri[2]] }, centerPosVec2);
+                    return TransMapper.IsInCal(crossT.x,crossT.y,crossT.z);
                 }
             }
         }

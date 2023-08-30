@@ -46,11 +46,11 @@ namespace net.rs64.TexTransTool
                 AddTex = TextureLayerUtil.ResizeTexture(AddTex, DistSize);
             }
 
-            var Newtex = TextureLayerUtil.BlendTextureUseComputeSheder(null, DistTex, AddTex, BlendType);
-            var SavedTex = AssetSaveHelper.SavePng(Newtex);
+            var newTex = TextureLayerUtil.BlendTextureUseComputeShader(null, DistTex, AddTex, BlendType);
+            var SavedTex = AssetSaveHelper.SavePng(newTex);
 
 
-            Container.BlendTexteres = SavedTex;
+            Container.BlendTextures = SavedTex;
 
             var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, SavedTex);
             Container.GenerateMaterials = ChangeDict;
@@ -70,16 +70,12 @@ namespace net.rs64.TexTransTool
 
     public class TextureBlenderDataContainer : TTDataContainer
     {
-        [SerializeField] Texture2D _BlendTexteres;
+        [SerializeField] Texture2D _BlendTextures;
 
-        public Texture2D BlendTexteres
+        public Texture2D BlendTextures
         {
-            set
-            {
-                if (_BlendTexteres != null) AssetSaveHelper.DeletAsset(_BlendTexteres);
-                _BlendTexteres = value;
-            }
-            get => _BlendTexteres;
+            set => _BlendTextures = value;
+            get => _BlendTextures;
         }
 
     }

@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
         List<MeshAndMatRef> _meshes;
-        public List<MeshAndMatRef> GenerateMeshs
+        public List<MeshAndMatRef> GenerateMeshes
         {
             get => _meshes;
             set
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
         List<List<int>> _matRefarens;
-        public List<List<int>> ChannnelsMatRef { get => _matRefarens; set => _matRefarens = value; }
+        public List<List<int>> ChannelsMatRef { get => _matRefarens; set => _matRefarens = value; }
 
 
 

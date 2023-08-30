@@ -28,24 +28,24 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
         public Vector3 GetCCSPoint(Vector3 Point)
         {
-            var LoaclaPoint = transform.worldToLocalMatrix.MultiplyPoint(Point);
-            var Height = LoaclaPoint.y;
-            var Angle = Mathf.Atan2(LoaclaPoint.x, LoaclaPoint.z) * Mathf.Rad2Deg;
-            var Distance = new Vector2(LoaclaPoint.x, LoaclaPoint.z).magnitude;
+            var localPoint = transform.worldToLocalMatrix.MultiplyPoint(Point);
+            var height = localPoint.y;
+            var angle = Mathf.Atan2(localPoint.x, localPoint.z) * Mathf.Rad2Deg;
+            var distance = new Vector2(localPoint.x, localPoint.z).magnitude;
 
-            return new Vector3(Height, Angle, Distance);
+            return new Vector3(height, angle, distance);
         }
 
         public Vector3 GetWorldPoint(Vector3 CCSPoint)
         {
-            var Height = CCSPoint.x;
-            var Angle = CCSPoint.y * Mathf.Deg2Rad;
-            var Distance = CCSPoint.z;
+            var height = CCSPoint.x;
+            var angle = CCSPoint.y * Mathf.Deg2Rad;
+            var distance = CCSPoint.z;
 
-            var x = Mathf.Sin(Angle) * Distance;
-            var z = Mathf.Cos(Angle) * Distance;
+            var x = Mathf.Sin(angle) * distance;
+            var z = Mathf.Cos(angle) * distance;
 
-            return transform.localToWorldMatrix.MultiplyPoint(new Vector3(x, Height, z));
+            return transform.localToWorldMatrix.MultiplyPoint(new Vector3(x, height, z));
         }
 
         public static float OffsetAngle(float angle, float offset)
@@ -56,48 +56,48 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             return a;
         }
 
-        public static float InversPosiNega(float angle)
+        public static float PositiveNegativeInversion(float angle)
         {
             return angle + (Mathf.Sign(angle) * -360);
         }
 
-        public List<Vector3> VartexsConvertCCS(IReadOnlyList<Vector3> Vartexs, float OffSetAngle = 0)
+        public List<Vector3> VertexConvertCCS(IReadOnlyList<Vector3> Vertex, float OffSetAngle = 0)
         {
-            List<Vector3> Convertvarts = new List<Vector3>();
-            foreach (var i in Vartexs)
+            List<Vector3> convertVertex = new List<Vector3>();
+            foreach (var i in Vertex)
             {
                 var CCSPoint = GetCCSPoint(i);
-                Convertvarts.Add(new Vector3(CCSPoint.x, OffsetAngle(CCSPoint.y, OffSetAngle), CCSPoint.z));
+                convertVertex.Add(new Vector3(CCSPoint.x, OffsetAngle(CCSPoint.y, OffSetAngle), CCSPoint.z));
             }
 
-            return Convertvarts;
+            return convertVertex;
         }
 
-        public static void OffSetApply(List<Vector3> Varts, float Offset)
+        public static void OffSetApply(List<Vector3> vertex, float Offset)
         {
-            for (int i = 0; i < Varts.Count; i++)
+            for (int i = 0; i < vertex.Count; i++)
             {
-                Varts[i] = new Vector3(Varts[i].x, OffsetAngle(Varts[i].y, Offset), Varts[i].z);
+                vertex[i] = new Vector3(vertex[i].x, OffsetAngle(vertex[i].y, Offset), vertex[i].z);
             }
         }
 
 
-        public static int GetPositiveCount(TriangleIndex Tri, List<Vector3> Varts)
+        public static int GetPositiveCount(TriangleIndex Tri, List<Vector3> vertex)
         {
-            var PositiveCount = 0;
+            var positiveCount = 0;
             for (int i = 0; i < 3; i++)
             {
-                if (Varts[Tri[i]].y > 0) PositiveCount += 1;
+                if (vertex[Tri[i]].y > 0) positiveCount += 1;
             }
 
-            return PositiveCount;
+            return positiveCount;
         }
 
-        public static void HeightScaleFactor(List<Vector3> CCSVarts, float factor = 100)
+        public static void HeightScaleFactor(List<Vector3> CCSVertex, float factor = 100)
         {
-            for (int i = 0; i < CCSVarts.Count; i++)
+            for (int i = 0; i < CCSVertex.Count; i++)
             {
-                CCSVarts[i] = new Vector3(CCSVarts[i].x * factor, CCSVarts[i].y, CCSVarts[i].z);
+                CCSVertex[i] = new Vector3(CCSVertex[i].x * factor, CCSVertex[i].y, CCSVertex[i].z);
             }
         }
 
@@ -108,10 +108,10 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
     {
         public CylindricalCoordinatesSystem CCS;
         public IReadOnlyList<Vector3> Quad;
-        public List<Vector3> CCSvarts;
+        public List<Vector3> CCSVertex;
         public List<Vector3> CCSQuad;
         public float Offset;
-        public List<Vector3> QuadNormalizedVarts;
+        public List<Vector3> QuadNormalizedVertex;
 
         public CCSSpace(CylindricalCoordinatesSystem CCS, IReadOnlyList<Vector3> Quad)
         {
@@ -119,31 +119,31 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             this.Quad = Quad;
         }
 
-        public void Input(DecalUtil.MeshDatas Meshdatas)
+        public void Input(DecalUtil.MeshData MeshData)
         {
-            var cCSQuad = CCS.VartexsConvertCCS(Quad);
-            var cCSVartexs = CCS.VartexsConvertCCS(Meshdatas.Varticals);
-            var offset = cCSQuad.Min(I => I.y) * -1;
+            var CCSQuad = CCS.VertexConvertCCS(Quad);
+            var CCSVertex = CCS.VertexConvertCCS(MeshData.Vertex);
+            var offset = CCSQuad.Min(I => I.y) * -1;
 
-            CylindricalCoordinatesSystem.OffSetApply(cCSQuad, offset);
-            CylindricalCoordinatesSystem.OffSetApply(cCSVartexs, offset);
+            CylindricalCoordinatesSystem.OffSetApply(CCSQuad, offset);
+            CylindricalCoordinatesSystem.OffSetApply(CCSVertex, offset);
 
-            //円柱座標系での高さの値を大きくするとQuadNormalaizeの精度が上がる。
-            CylindricalCoordinatesSystem.HeightScaleFactor(cCSVartexs);
-            CylindricalCoordinatesSystem.HeightScaleFactor(cCSQuad);
+            //円柱座標系での高さの値を大きくするとQuadNormalizeの精度が上がる。
+            CylindricalCoordinatesSystem.HeightScaleFactor(CCSVertex);
+            CylindricalCoordinatesSystem.HeightScaleFactor(CCSQuad);
 
             Offset = offset;
-            var Normalized = DecalUtil.QuadNormaliz(cCSQuad.ConvertAll(i => (Vector2)i), cCSVartexs.ConvertAll(i => (Vector2)i));
-            QuadNormalizedVarts = Utils.ZipListVector3(Normalized, cCSVartexs.ConvertAll(i => i.z));
+            var Normalized = DecalUtil.QuadNormalize(CCSQuad.ConvertAll(i => (Vector2)i), CCSVertex.ConvertAll(i => (Vector2)i));
+            QuadNormalizedVertex = Utils.ZipListVector3(Normalized, CCSVertex.ConvertAll(i => i.z));
 
-            CCSvarts = cCSVartexs;
-            CCSQuad = cCSQuad;
+            this.CCSVertex = CCSVertex;
+            this.CCSQuad = CCSQuad;
         }
 
         public List<Vector2> OutPutUV()
         {
-            var UV = new List<Vector2>(QuadNormalizedVarts.Capacity);
-            foreach (var i in QuadNormalizedVarts)
+            var UV = new List<Vector2>(QuadNormalizedVertex.Capacity);
+            foreach (var i in QuadNormalizedVertex)
             {
                 UV.Add(i);
             }
@@ -153,89 +153,89 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
     public class CCSFilter : DecalUtil.ITrianglesFilter<CCSSpace>
     {
-        public IReadOnlyList<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> Filters;
+        public IReadOnlyList<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> Filters;
 
-        public CCSFilter(IReadOnlyList<TriangleFilterUtils.ITriangleFiltaring<CCSSpace>> filters)
+        public CCSFilter(IReadOnlyList<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> filters)
         {
             Filters = filters;
         }
-        public List<TriangleIndex> Filtering(CCSSpace Spase, List<TriangleIndex> Trianglees)
+        public List<TriangleIndex> Filtering(CCSSpace Space, List<TriangleIndex> Triangles)
         {
-            return TriangleFilterUtils.FiltaringTriangle(Trianglees, Spase, Filters);
+            return TriangleFilterUtils.FilteringTriangle(Triangles, Space, Filters);
         }
 
 
-        public struct InDistansStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
+        public struct InDistanceStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
         {
             public float Near;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public InDistansStruct(float Near, bool IsAllVartex)
+            public InDistanceStruct(float Near, bool IsAllVertex)
             {
                 this.Near = Near;
-                this.IsAllVartex = IsAllVartex;
+                this.IsAllVertex = IsAllVertex;
             }
 
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.NearStruct.NearClip(tri, Space.QuadNormalizedVarts, Near, IsAllVartex);
+                return TriangleFilterUtils.NearStruct.NearClip(tri, Space.QuadNormalizedVertex, Near, IsAllVertex);
             }
         }
 
-        public struct OutDistansStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
+        public struct OutDistanceStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
         {
             public float Far;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public OutDistansStruct(float Far, bool IsAllVartex)
+            public OutDistanceStruct(float Far, bool IsAllVertex)
             {
                 this.Far = Far;
-                this.IsAllVartex = IsAllVartex;
+                this.IsAllVertex = IsAllVertex;
             }
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.FarStruct.FarClip(tri, Space.QuadNormalizedVarts, Far, IsAllVartex);
+                return TriangleFilterUtils.FarStruct.FarClip(tri, Space.QuadNormalizedVertex, Far, IsAllVertex);
             }
         }
 
-        public struct SideStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
+        public struct SideStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
         {
-            public bool IsRevaers;
+            public bool IsReverse;
 
-            public SideStruct(bool isRevaers)
+            public SideStruct(bool isReverse)
             {
-                IsRevaers = isRevaers;
+                IsReverse = isReverse;
             }
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.SideStruct.SideChek(tri, Space.QuadNormalizedVarts, IsRevaers);
+                return TriangleFilterUtils.SideStruct.SideCheck(tri, Space.QuadNormalizedVertex, IsReverse);
             }
         }
 
-        public struct BorderOnPorygonStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
+        public struct BorderOnPolygonStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
         {
             public float Threshold /*= 150f */;
 
-            public BorderOnPorygonStruct(float threshold)
+            public BorderOnPolygonStruct(float threshold)
             {
                 Threshold = threshold;
             }
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return BorderOnPorygon(tri, Space.CCSvarts, Threshold);
+                return BorderOnPolygon(tri, Space.CCSVertex, Threshold);
             }
 
-            public static bool BorderOnPorygon(TriangleIndex tri, List<Vector3> CCSvarts, float threshold = 150)
+            public static bool BorderOnPolygon(TriangleIndex tri, List<Vector3> CCSVertex, float threshold = 150)
             {
-                var CCStri = tri.GetTriangle(CCSvarts);
+                var CCStri = tri.GetTriangle(CCSVertex);
 
-                var PosiCount = CylindricalCoordinatesSystem.GetPositiveCount(tri, CCSvarts);
+                var positiveCount = CylindricalCoordinatesSystem.GetPositiveCount(tri, CCSVertex);
 
-                if (PosiCount == 0 || PosiCount == 3) return false;
+                if (positiveCount == 0 || positiveCount == 3) return false;
 
                 var min = CCStri.Min(I => I.y);
                 var max = CCStri.Max(I => I.y);
@@ -243,33 +243,33 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 return (max - min) > threshold;
             }
         }
-        public struct OutOfPorigonStruct : TriangleFilterUtils.ITriangleFiltaring<CCSSpace>
+        public struct OutOfPerigonStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
         {
-            public PolygonCulling PolygonCaling;
+            public PolygonCulling PolygonCulling;
             public float MinRange;
             public float MaxRange;
-            public bool IsAllVartex;
+            public bool IsAllVertex;
 
-            public OutOfPorigonStruct(PolygonCulling polygonCaling, float OutOfRangeOffset, bool isAllVartex)
+            public OutOfPerigonStruct(PolygonCulling polygonCulling, float OutOfRangeOffset, bool isAllVertex)
             {
-                PolygonCaling = polygonCaling;
+                PolygonCulling = polygonCulling;
                 MinRange = 0 - OutOfRangeOffset;
                 MaxRange = 1 + OutOfRangeOffset;
-                IsAllVartex = isAllVartex;
+                IsAllVertex = isAllVertex;
 
             }
 
-            public bool Filtering(TriangleIndex TargetTri, CCSSpace CCSSpase)
+            public bool Filtering(TriangleIndex TargetTri, CCSSpace CCSSpace)
             {
-                switch (PolygonCaling)
+                switch (PolygonCulling)
                 {
                     default:
-                    case PolygonCulling.Vartex:
-                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonVartexBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                    case PolygonCulling.Vertex:
+                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonVertexBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.Edge:
-                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonEdgeBase(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonEdgeBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.EdgeAndCenterRay:
-                        return TriangleFilterUtils.OutOfPorigonStruct.OutOfPorigonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpase.QuadNormalizedVarts, MaxRange, MinRange, IsAllVartex);
+                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                 }
 
             }

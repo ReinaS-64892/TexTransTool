@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Decal
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = new PropertyName("_MainTex");
-        public bool MultiRendereMode = false;
+        public bool MultiRendererMode = false;
         public float Padding = 0.5f;
         public bool FastMode = true;
         public bool IsSeparateMatAndTexture;
@@ -28,87 +28,87 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
-            Dictionary<Texture2D, Texture> DecalCompiledTextures = CompileDecal();
+            Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
 
             if (avatarDomain != null)
             {
                 if (!IsSeparateMatAndTexture)
                 {
-                    foreach (var trp in DecalCompiledTextures)
+                    foreach (var trp in decalCompiledTextures)
                     {
                         avatarDomain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
                     }
                 }
                 else
                 {
-                    var DecaleBlendTexteres = DecalBlend(DecalCompiledTextures, BlendType);
-                    var Materials = Utils.GetMaterials(TargetRenderers).Distinct();
-                    CopyTexdiscription(DecaleBlendTexteres);
+                    var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
+                    var materials = Utils.GetMaterials(TargetRenderers).Distinct();
+                    CopyTexDescription(decalBlendTextures);
 
-                    var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropertyName);
-                    Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
+                    var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
+                    Utils.ChangeMaterialForRenderers(TargetRenderers, dictMat);
                 }
             }
             else
             {
-                var DecaleBlendTexteres = DecalBlend(DecalCompiledTextures, BlendType);
-                var Materials = Utils.GetMaterials(TargetRenderers).Distinct();
-                var DictMat = TextureSwapdMaterial(DecaleBlendTexteres, Materials, TargetPropertyName);
+                var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
+                var materials = Utils.GetMaterials(TargetRenderers).Distinct();
+                var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
 
-                Utils.ChangeMaterialsRendereas(TargetRenderers, DictMat);
-                var ListMatpe = MatPair.GeneratMatPairList(DictMat);
-                LocalSave = new DecalDataContainer();
-                LocalSave.GenerateMaterials = ListMatpe;
-                LocalSave.DecaleBlendTexteres = DecaleBlendTexteres.Values.ToList();
+                Utils.ChangeMaterialForRenderers(TargetRenderers, dictMat);
+                var listMatPea = MatPair.ConvertMatPairList(dictMat);
+                localSave = new DecalDataContainer();
+                localSave.GenerateMaterials = listMatPea;
+                localSave.DecalBlendTextures = decalBlendTextures.Values.ToList();
             }
             _IsApply = true;
         }
 
-        private static void CopyTexdiscription(Dictionary<Texture2D, Texture2D> DecaleBlendTexteres)
+        private static void CopyTexDescription(Dictionary<Texture2D, Texture2D> DecalBlendTextures)
         {
-            foreach (var Dist in DecaleBlendTexteres.Keys.ToArray())
+            foreach (var dist in DecalBlendTextures.Keys.ToArray())
             {
-                DecaleBlendTexteres[Dist] = DecaleBlendTexteres[Dist].CopySetting(DecaleBlendTexteres[Dist]);
+                DecalBlendTextures[dist] = DecalBlendTextures[dist].CopySetting(DecalBlendTextures[dist]);
             }
         }
 
-        public static Dictionary<Material, Material> TextureSwapdMaterial(Dictionary<Texture2D, Texture2D> DecaleBlendTexteres, IEnumerable<Material> Materials, string TargetPropertyName)
+        public static Dictionary<Material, Material> GetDecalTextureSetMaterial(Dictionary<Texture2D, Texture2D> DecalsBlendTextures, IEnumerable<Material> Materials, string TargetPropertyName)
         {
-            var DictMat = new Dictionary<Material, Material>();
-            foreach (var Material in Materials)
+            var dictMat = new Dictionary<Material, Material>();
+            foreach (var material in Materials)
             {
-                if (!Material.HasProperty(TargetPropertyName)) { continue; }
-                var OldTex = Material.GetTexture(TargetPropertyName) as Texture2D;
+                if (!material.HasProperty(TargetPropertyName)) { continue; }
+                var oldTex = material.GetTexture(TargetPropertyName) as Texture2D;
 
-                if (OldTex == null) continue;
-                if (!DecaleBlendTexteres.ContainsKey(OldTex)) continue;
+                if (oldTex == null) continue;
+                if (!DecalsBlendTextures.ContainsKey(oldTex)) continue;
 
-                var NewMat = UnityEngine.Object.Instantiate(Material);
+                var newMat = UnityEngine.Object.Instantiate(material);
 
-                var NewTex = DecaleBlendTexteres[OldTex];
-                NewMat.SetTexture(TargetPropertyName, NewTex);
-                DictMat.Add(Material, NewMat);
+                var NewTex = DecalsBlendTextures[oldTex];
+                newMat.SetTexture(TargetPropertyName, NewTex);
+                dictMat.Add(material, newMat);
             }
 
-            return DictMat;
+            return dictMat;
         }
 
         public static Dictionary<Texture2D, Texture2D> DecalBlend(Dictionary<Texture2D, Texture> DecalCompiledTextures, BlendType BlendType)
         {
-            var DecaleBlendTexteres = new Dictionary<Texture2D, Texture2D>();
-            foreach (var Texture in DecalCompiledTextures)
+            var decalBlendTextures = new Dictionary<Texture2D, Texture2D>();
+            foreach (var texture in DecalCompiledTextures)
             {
-                var BlendTexture = TextureLayerUtil.BlendBlit(Texture.Key, Texture.Value, BlendType).CopyTexture2D();
-                BlendTexture.Apply();
-                DecaleBlendTexteres.Add(Texture.Key, BlendTexture);
+                var blendTexture = TextureLayerUtil.BlendBlit(texture.Key, texture.Value, BlendType).CopyTexture2D();
+                blendTexture.Apply();
+                decalBlendTextures.Add(texture.Key, blendTexture);
             }
 
-            return DecaleBlendTexteres;
+            return decalBlendTextures;
         }
 
         public abstract Dictionary<Texture2D, Texture> CompileDecal();
 
-        DecalDataContainer LocalSave;
+        DecalDataContainer localSave;
 
         public override void Revert(AvatarDomain avatarMaterialDomain = null)
         {
@@ -121,9 +121,9 @@ namespace net.rs64.TexTransTool.Decal
             }
             else
             {
-                var RevarList = MatPair.GeneratMatDict(MatPair.SwitchingList(LocalSave.GenerateMaterials));
-                Utils.ChangeMaterialsRendereas(TargetRenderers, RevarList);
-                LocalSave = null;
+                var revertList = MatPair.ConvertMatDict(MatPair.SwitchingList(localSave.GenerateMaterials));
+                Utils.ChangeMaterialForRenderers(TargetRenderers, revertList);
+                localSave = null;
             }
             IsSelfCallApply = false;
 
@@ -138,12 +138,12 @@ namespace net.rs64.TexTransTool.Decal
             var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
             if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
 
-            var DecalCompiledTextures = CompileDecal();
-            foreach (var Texturepair in DecalCompiledTextures)
+            var decalCompiledTextures = CompileDecal();
+            foreach (var TexturePair in decalCompiledTextures)
             {
-                var Name = Texturepair.Key.name;
+                var name = TexturePair.Key.name;
                 Texture2D extractDCtex;
-                switch (Texturepair.Value)
+                switch (TexturePair.Value)
                 {
                     case RenderTexture rt:
                         extractDCtex = rt.CopyTexture2D();
@@ -154,9 +154,9 @@ namespace net.rs64.TexTransTool.Decal
                     default:
                         continue;
                 }
-                var PngByte = extractDCtex.EncodeToPNG();
+                var pngByte = extractDCtex.EncodeToPNG();
 
-                System.IO.File.WriteAllBytes(Path.Combine(path, Name + ".png"), PngByte);
+                System.IO.File.WriteAllBytes(Path.Combine(path, name + ".png"), pngByte);
 
             }
         }

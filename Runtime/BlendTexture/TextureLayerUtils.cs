@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
+using System;
+
 namespace net.rs64.TexTransTool
 {
     public enum BlendType
@@ -40,50 +42,50 @@ namespace net.rs64.TexTransTool
 
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
         {
-            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
-            var Swap = new RenderTexture(Base.descriptor);
-            Graphics.CopyTexture(Base, Swap);
-            Material.SetTexture("_DistTex", Swap);
-            Material.EnableKeyword(blendType.ToString());
+            var material = new Material(Shader.Find("Hidden/BlendTexture"));
+            var swap = new RenderTexture(Base.descriptor);
+            Graphics.CopyTexture(Base, swap);
+            material.SetTexture("_DistTex", swap);
+            material.EnableKeyword(blendType.ToString());
 
-            Graphics.Blit(Add, Base, Material);
+            Graphics.Blit(Add, Base, material);
 
 
         }
         public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
         {
-            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
-            var Swap = new RenderTexture(Base.descriptor);//GrabPassが使えないためスワップしている。
+            var material = new Material(Shader.Find("Hidden/BlendTexture"));
+            var swap = new RenderTexture(Base.descriptor);//GrabPassが使えないためスワップしている。
 
-            var IsSwap = false;
+            var isSwap = false;
             foreach (var Add in Adds)
             {
-                Material.shaderKeywords = new string[] { Add.BlendType.ToString() };
-                Material.SetTexture("_DistTex", IsSwap ? Swap : Base);
-                Graphics.Blit(Add.Texture, IsSwap ? Base : Swap, Material);
-                IsSwap = !IsSwap;
+                material.shaderKeywords = new string[] { Add.BlendType.ToString() };
+                material.SetTexture("_DistTex", isSwap ? swap : Base);
+                Graphics.Blit(Add.Texture, isSwap ? Base : swap, material);
+                isSwap = !isSwap;
             }
 
-            if (IsSwap)
+            if (isSwap)
             {
-                Graphics.CopyTexture(Swap, Base);
+                Graphics.CopyTexture(swap, Base);
             }
         }
         public static RenderTexture BlendBlit(Texture2D Base, Texture Add, BlendType blendType)
         {
-            var Size = Base.NativeSize();
-            var RenderTexture = new RenderTexture(Size.x, Size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-            Graphics.Blit(Base, RenderTexture);
+            var size = Base.NativeSize();
+            var renderTexture = new RenderTexture(size.x, size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+            Graphics.Blit(Base, renderTexture);
 
-            var Material = new Material(Shader.Find("Hidden/BlendTexture"));
-            Material.SetTexture("_DistTex", Base);
-            Material.EnableKeyword(blendType.ToString());
+            var material = new Material(Shader.Find("Hidden/BlendTexture"));
+            material.SetTexture("_DistTex", Base);
+            material.EnableKeyword(blendType.ToString());
 
-            Graphics.Blit(Add, RenderTexture, Material);
+            Graphics.Blit(Add, renderTexture, material);
 
 
 
-            return RenderTexture;
+            return renderTexture;
         }
         public struct BlendTextures
         {
@@ -96,6 +98,7 @@ namespace net.rs64.TexTransTool
                 BlendType = blendType;
             }
         }
+        [Obsolete]
         public static async Task<Texture2D> BlendTexture(Texture2D Base, Texture2D Add, BlendType blendType)
         {
             if (Base.width != Add.width && Base.height != Add.height) throw new System.ArgumentException("Textureの解像度が同一ではありません。。");
@@ -323,11 +326,11 @@ namespace net.rs64.TexTransTool
 
             return ResultTextures;
         }
-        public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, Texture2D Base, Texture2D Add, BlendType PileType)
+        public static Texture2D BlendTextureUseComputeShader(ComputeShader CS, Texture2D Base, Texture2D Add, BlendType PileType)
         {
-            return BlendTextureUseComputeSheder(CS, new Texture2D[] { Base, Add }, PileType);
+            return BlendTextureUseComputeShader(CS, new Texture2D[] { Base, Add }, PileType);
         }
-        public static Texture2D BlendTextureUseComputeSheder(ComputeShader CS, IReadOnlyList<Texture2D> Textures, BlendType PileType)
+        public static Texture2D BlendTextureUseComputeShader(ComputeShader CS, IReadOnlyList<Texture2D> Textures, BlendType PileType)
         {
             if (!Textures.Any()) throw new System.ArgumentException("対象が存在しません");
             var FirstTex = Textures[0];
@@ -339,14 +342,14 @@ namespace net.rs64.TexTransTool
             Compiler.NotFIlterAndReadWritTexture2D(ref FirstTex);
             var BasePixels = FirstTex.GetPixels();
             var ResultTextures = new Texture2D(Size.x, Size.y);
-            int KarnelId = CS.FindKernel(PileType.ToString());
+            int KernelId = CS.FindKernel(PileType.ToString());
 
             CS.SetInt("Size", Size.x);
 
             var BaseTexCB = new ComputeBuffer(BasePixels.Length, 16);
             var AddTexCB = new ComputeBuffer(BasePixels.Length, 16);
             BaseTexCB.SetData(BasePixels);
-            CS.SetBuffer(KarnelId, "BaseTex", BaseTexCB);
+            CS.SetBuffer(KernelId, "BaseTex", BaseTexCB);
 
             foreach (var tex in Textures.Skip(1))
             {
@@ -354,9 +357,9 @@ namespace net.rs64.TexTransTool
                 Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
                 var AddPixels = AddTex.GetPixels();
                 AddTexCB.SetData(AddPixels);
-                CS.SetBuffer(KarnelId, "AddTex", AddTexCB);
+                CS.SetBuffer(KernelId, "AddTex", AddTexCB);
 
-                CS.Dispatch(KarnelId, Size.x / 32, Size.y / 32, 1);
+                CS.Dispatch(KernelId, Size.x / 32, Size.y / 32, 1);
 
             }
 
@@ -444,7 +447,7 @@ namespace net.rs64.TexTransTool
             BlendColor.r = Mathf.Clamp01(Base.r / (1 - Add.r));
             BlendColor.g = Mathf.Clamp01(Base.g / (1 - Add.g));
             BlendColor.b = Mathf.Clamp01(Base.b / (1 - Add.b));
-            NaNCheak(ref BlendColor);
+            NaNCheck(ref BlendColor);
             var ResultColor = Color.Lerp(Base, BlendColor, Add.a);
             ResultColor.a = FinalAlpha;
             return ResultColor;
@@ -456,7 +459,7 @@ namespace net.rs64.TexTransTool
             BlendColor.r = 1 - Mathf.Clamp01((1 - Base.r) / Add.r);
             BlendColor.g = 1 - Mathf.Clamp01((1 - Base.g) / Add.g);
             BlendColor.b = 1 - Mathf.Clamp01((1 - Base.b) / Add.b);
-            NaNCheak(ref BlendColor);
+            NaNCheck(ref BlendColor);
             var ResultColor = Color.Lerp(Base, BlendColor, Add.a);
             ResultColor.a = FinalAlpha;
             return ResultColor;
@@ -478,8 +481,8 @@ namespace net.rs64.TexTransTool
                 Add.b < 0.5 ? 1 - (1 - Base.b) / (2 * Add.b) : Base.b / (1 - 2 * (Add.b - 0.5f)),
                 1f
             );
-            NaNCheak(ref BlendColor);
-            InfinityCheak(ref BlendColor);
+            NaNCheck(ref BlendColor);
+            InfinityCheck(ref BlendColor);
             var ResultColor = Color.Lerp(Base, BlendColor, Add.a);
             ResultColor.a = FinalAlpha;
             return ResultColor;
@@ -501,8 +504,8 @@ namespace net.rs64.TexTransTool
                    Base.b / Add.b,
                    1f
             );
-            NaNCheak(ref BlendColor);
-            InfinityCheak(ref BlendColor);
+            NaNCheck(ref BlendColor);
+            InfinityCheck(ref BlendColor);
             var ResultColor = Color.Lerp(Base, BlendColor, Add.a);
             ResultColor.a = FinalAlpha;
             return ResultColor;
@@ -611,14 +614,14 @@ namespace net.rs64.TexTransTool
             ResultColor.a = FinalAlpha;
             return ResultColor;
         }
-        public static void NaNCheak(ref Color Color)
+        public static void NaNCheck(ref Color Color)
         {
             if (float.IsNaN(Color.r)) Color.r = 0f;
             if (float.IsNaN(Color.g)) Color.g = 0f;
             if (float.IsNaN(Color.b)) Color.b = 0f;
             if (float.IsNaN(Color.a)) Color.a = 0f;
         }
-        public static void InfinityCheak(ref Color Color)
+        public static void InfinityCheck(ref Color Color)
         {
             if (float.IsNegativeInfinity(Color.r)) Color.r = 0f;
             else if (float.IsPositiveInfinity(Color.r)) Color.r = 1f;
@@ -638,46 +641,46 @@ namespace net.rs64.TexTransTool
         }
         public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
         {
-            var ResizedTexture = new Texture2D(Size.x, Size.y, Souse.graphicsFormat, Souse.mipmapCount > 1 ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+            var resizedTexture = new Texture2D(Size.x, Size.y, Souse.graphicsFormat, Souse.mipmapCount > 1 ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
 
-            var Pixsels = new Color[Size.x * Size.y];
+            var pixels = new Color[Size.x * Size.y];
 
-            foreach (var Index in Enumerable.Range(0, Pixsels.Length))
+            foreach (var Index in Enumerable.Range(0, pixels.Length))
             {
-                Pixsels[Index] = GetColorOnTexture(Souse, Index, Size);
+                pixels[Index] = GetColorOnTexture(Souse, Index, Size);
             }
 
-            ResizedTexture.SetPixels(Pixsels);
-            ResizedTexture.Apply();
-            ResizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
+            resizedTexture.SetPixels(pixels);
+            resizedTexture.Apply();
+            resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
 
-            return ResizedTexture;
+            return resizedTexture;
         }
-        public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SorsSize)
+        public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SouseSize)
         {
-            var Pos = Utils.ConvertIndex2D(Index, SorsSize.x);
-            return Texture.GetPixelBilinear(Pos.x / (float)SorsSize.x, Pos.y / (float)SorsSize.y);
+            var pos = Utils.ConvertIndex2D(Index, SouseSize.x);
+            return Texture.GetPixelBilinear(pos.x / (float)SouseSize.x, pos.y / (float)SouseSize.y);
         }
 
-        public static RenderTexture CreatMuldRenderTexture(Texture MainTex, Color Color)
+        public static RenderTexture CreateMultipliedRenderTexture(Texture MainTex, Color Color)
         {
-            var MainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
-            MuldRenderTexture(MainTexRt, MainTex, Color);
-            return MainTexRt;
+            var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
+            MultipleRenderTexture(mainTexRt, MainTex, Color);
+            return mainTexRt;
         }
-        public static void MuldRenderTexture(RenderTexture MainTexRt, Texture MainTex, Color Color)
+        public static void MultipleRenderTexture(RenderTexture MainTexRt, Texture MainTex, Color Color)
         {
-            var Mat = new Material(Shader.Find("Hidden/ColorMulShader"));
-            Mat.SetColor("_Color", Color);
-            Graphics.Blit(MainTex, MainTexRt, Mat);
+            var mat = new Material(Shader.Find("Hidden/ColorMulShader"));
+            mat.SetColor("_Color", Color);
+            Graphics.Blit(MainTex, MainTexRt, mat);
         }
 
         public static Texture2D CreateColorTex(Color Color)
         {
-            var MainTex2d = new Texture2D(1, 1);
-            MainTex2d.SetPixel(0, 0, Color);
-            MainTex2d.Apply();
-            return MainTex2d;
+            var mainTex2d = new Texture2D(1, 1);
+            mainTex2d.SetPixel(0, 0, Color);
+            mainTex2d.Apply();
+            return mainTex2d;
         }
 
     }
