@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var This_S_Object = serializedObject;
 
             var S_AtlasSettings = This_S_Object.FindProperty("AtlasSettings");
-            var ChannelCount = S_AtlasSettings.arraySize;
+            var ShaderCount = S_AtlasSettings.arraySize;
 
             var S_TargetRoot = This_S_Object.FindProperty("TargetRoot");
 
@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, NewRoot =>
             {
                 Undo.RecordObject(ThisTarget, "AtlasTexture - TargetRoot");
-                ResearchMaterials(S_TargetRoot, NewRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
+                ResearchMaterials(S_TargetRoot, NewRoot, S_SelectReferenceMatList, S_MatSelectors, ShaderCount);
                 This_S_Object.ApplyModifiedProperties();
             });
             if (S_TargetRoot.objectReferenceValue != null)
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (GUILayout.Button("Research Materials"))
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    ResearchMaterials(S_TargetRoot, ThisTarget.TargetRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
+                    ResearchMaterials(S_TargetRoot, ThisTarget.TargetRoot, S_SelectReferenceMatList, S_MatSelectors, ShaderCount);
                     This_S_Object.ApplyModifiedProperties();
                 }
                 if (GUILayout.Button("Automatic OffSet Setting"))
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     Undo.RecordObject(ThisTarget, "AtlasTexture - Automatic OffSet Setting");
                     ThisTarget.AutomaticOffSetSetting();
                 }
-                MaterialSelectEditor(S_MatSelectors, ChannelCount);
+                MaterialSelectEditor(S_MatSelectors, ShaderCount);
             }
 
             var s_UseIslandCash = This_S_Object.FindProperty("UseIslandCash");
@@ -68,17 +68,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             for (var Index = 0; Index < s_AtlasSettings.arraySize; Index += 1)
             {
 
-                EditorGUILayout.LabelField("Channel " + Index);
-                var S_Channel = s_AtlasSettings.GetArrayElementAtIndex(Index);
-                var S_AtlasTextureSize = S_Channel.FindPropertyRelative("AtlasTextureSize");
-                var S_IsMergeMaterial = S_Channel.FindPropertyRelative("IsMergeMaterial");
-                var S_MergeReferenceMaterial = S_Channel.FindPropertyRelative("MergeReferenceMaterial");
-                var S_ForceSetTexture = S_Channel.FindPropertyRelative("ForceSetTexture");
-                var S_PropertyBakeSetting = S_Channel.FindPropertyRelative("PropertyBakeSetting");
-                var S_PaddingType = S_Channel.FindPropertyRelative("PaddingType");
-                var S_Padding = S_Channel.FindPropertyRelative("Padding");
-                var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
-                var S_fineSettings = S_Channel.FindPropertyRelative("fineSettings");
+                EditorGUILayout.LabelField("Shader " + Index);
+                var S_Shader = s_AtlasSettings.GetArrayElementAtIndex(Index);
+                var S_AtlasTextureSize = S_Shader.FindPropertyRelative("AtlasTextureSize");
+                var S_IsMergeMaterial = S_Shader.FindPropertyRelative("IsMergeMaterial");
+                var S_MergeReferenceMaterial = S_Shader.FindPropertyRelative("MergeReferenceMaterial");
+                var S_ForceSetTexture = S_Shader.FindPropertyRelative("ForceSetTexture");
+                var S_PropertyBakeSetting = S_Shader.FindPropertyRelative("PropertyBakeSetting");
+                var S_PaddingType = S_Shader.FindPropertyRelative("PaddingType");
+                var S_Padding = S_Shader.FindPropertyRelative("Padding");
+                var S_SortingType = S_Shader.FindPropertyRelative("SortingType");
+                var S_fineSettings = S_Shader.FindPropertyRelative("fineSettings");
 
 
 
@@ -99,14 +99,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUI.indentLevel -= 1;
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+"))
+            if (GUILayout.Button("Add Shader Style"))
             {
                 var LastIndex = s_AtlasSettings.arraySize;
                 s_AtlasSettings.arraySize += 1;
                 SetDefault(s_AtlasSettings.GetArrayElementAtIndex(LastIndex));
             }
             EditorGUI.BeginDisabledGroup(s_AtlasSettings.arraySize <= 1);
-            if (GUILayout.Button("-")) { s_AtlasSettings.arraySize -= 1; }
+            if (GUILayout.Button("Remove Shader Style")) { s_AtlasSettings.arraySize -= 1; }
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
 
@@ -188,7 +188,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
                 }
             }
-
             TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
             EditorGUI.indentLevel -= 1;
         }
@@ -205,7 +204,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_SortingType = serializedProperty.FindPropertyRelative("SortingType");
             S_SortingType.enumValueIndex = 2;
         }
-        static void ResearchMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectRefarensMatList, SerializedProperty S_MatSelectors, int ChannelCount)
+        static void ResearchMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectRefarensMatList, SerializedProperty S_MatSelectors, int ShaderCount)
         {
             s_TargetRoot.objectReferenceValue = NewRoot;
             if (NewRoot == null) { return; }
@@ -223,32 +222,32 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 var MatSelect = S_MatSelectors.GetArrayElementAtIndex(Index);
                 var SMat = MatSelect.FindPropertyRelative("Material");
-                var SChannel = MatSelect.FindPropertyRelative("AtlasChannel");
+                var SShader = MatSelect.FindPropertyRelative("AtlasShader");
 
 
                 SMat.objectReferenceValue = NewRefSouseMats[Index];
-                SChannel.intValue = Mathf.Clamp(SChannel.intValue, 0, ChannelCount - 1);
+                SShader.intValue = Mathf.Clamp(SShader.intValue, 0, ShaderCount - 1);
             }
         }
 
-        public static void MaterialSelectEditor(SerializedProperty TargetMaterial, int ChannelCount)
+        public static void MaterialSelectEditor(SerializedProperty TargetMaterial, int ShaderCount)
         {
-            if (ChannelCount < 1) { return; }
+            if (ShaderCount < 1) { return; }
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("IsTarget  (Offset) (Channel) Material");
+            GUILayout.Label("IsTarget  (Offset) (Shader) Material");
             foreach (var Index in Enumerable.Range(0, TargetMaterial.arraySize))
             {
                 var MatSelect = TargetMaterial.GetArrayElementAtIndex(Index);
                 var SMat = MatSelect.FindPropertyRelative("Material");
                 var SISelect = MatSelect.FindPropertyRelative("IsTarget");
-                var SAtlsChannel = MatSelect.FindPropertyRelative("AtlasChannel");
+                var SAtlsShader = MatSelect.FindPropertyRelative("AtlasShader");
                 var SOffset = MatSelect.FindPropertyRelative("TextureSizeOffSet");
                 EditorGUILayout.BeginHorizontal();
                 SISelect.boolValue = EditorGUILayout.Toggle(SISelect.boolValue);
                 if (SISelect.boolValue)
                 {
                     var floatValue = EditorGUILayout.FloatField(SOffset.floatValue); SOffset.floatValue = floatValue > 0.01 ? floatValue : 1;
-                    SAtlsChannel.intValue = Mathf.Clamp(EditorGUILayout.IntField(SAtlsChannel.intValue), 0, ChannelCount - 1);
+                    SAtlsShader.intValue = Mathf.Clamp(EditorGUILayout.IntField(SAtlsShader.intValue), 0, ShaderCount - 1);
                 }
                 EditorGUILayout.ObjectField(SMat.objectReferenceValue, typeof(Material), false, GUILayout.MaxWidth(1000));
                 EditorGUILayout.EndHorizontal();

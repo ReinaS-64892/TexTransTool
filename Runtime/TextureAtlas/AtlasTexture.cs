@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         AtlasMeshData すべてのレンダラーをMeshReferenceとMaterialReferenceに変換し、まったく同じReferenceを持つものを消した物
 
-        Channel アトラス化するテクスチャーのチャンネルという感じで、channelごとにUVが違うものになる。
+        Shader アトラス化するテクスチャーのチャンネルという感じで、channelごとにUVが違うものになる。
         channel周りではメッシュとマテリアルで扱いが違っていて、
         メッシュはchannel分けでUVを整列するが、サブメッシュ区切りで、別のチャンネルでいじられたUVを持つことになることがあるため、メッシュの情報はchannelごとにならない。
         マテリアルの場合はchannelごとに完全に分かれるため、コンテナの中身は二次元リストとなっている。(テクスチャはマテリアルとほぼ同様の扱い)
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         AtlasSettings アトラス化するときのまとめたテクスチャーの大きさなどの情報を持つ。
 
         SelectRefsMat インスペクター上で表示されているマテリアルたちの配列。
-        MatSelectors SelectRefsMatに含まれているマテリアルの参照を持ち マテリアルがターゲットであるか、大きさのオフセットやどのChannelに属しているかの情報を持っている。
+        MatSelectors SelectRefsMatに含まれているマテリアルの参照を持ち マテリアルがターゲットであるか、大きさのオフセットやどのShaderに属しているかの情報を持っている。
 
         MatData MatSelectorsをMaterialReferenceとTextureSizeOffSet、PropAndTexturesにしたもの。
         このMaterialReferenceはSelectRefsMatを使ってインデックスに変換している。
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             for (int channel = 0; channel < channelCount; channel += 1)
             {
                 var atlasSetting = AtlasSettings[channel];
-                var targetMatSelectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlasChannel == channel).ToArray();
+                var targetMatSelectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlasShader == channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
                 shaderSupports.BakeSetting = atlasSetting.IsMergeMaterial ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
@@ -107,16 +107,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 //アイランドを並び替えるフェーズ
                 var matDataPools = GetMatDataPool(atlasData, originIslandPool, matDataList);
-                var nawChannelAtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
+                var nawShaderAtlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
                 foreach (var matDataPool in matDataPools)
                 {
                     matDataPool.Value.IslandPoolSizeOffset(matDataPool.Key.TextureSizeOffSet);
-                    nawChannelAtlasIslandPool.AddRangeIsland(matDataPool.Value);
+                    nawShaderAtlasIslandPool.AddRangeIsland(matDataPool.Value);
                 }
 
 
-                IslandSorting.GenerateMovedIslands(atlasSetting.SortingType, nawChannelAtlasIslandPool, atlasSetting.GetTexScalePadding);
-                atlasIslandPool.AddRangeIsland(nawChannelAtlasIslandPool);
+                IslandSorting.GenerateMovedIslands(atlasSetting.SortingType, nawShaderAtlasIslandPool, atlasSetting.GetTexScalePadding);
+                atlasIslandPool.AddRangeIsland(nawShaderAtlasIslandPool);
 
 
                 //アトラス化したテクスチャーを生成するフェーズ
@@ -129,7 +129,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
 
-                var tags = nawChannelAtlasIslandPool.GetTag();
+                var tags = nawShaderAtlasIslandPool.GetTag();
 
                 foreach (var propName in propertyNames)
                 {
@@ -145,7 +145,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         foreach (var TargetIndexTag in tags.Where(tag => atlasData.GetMaterialReference(tag) == matData.MaterialReference))
                         {
                             var Origin = originIslandPool.FindTag(TargetIndexTag);
-                            var Moved = nawChannelAtlasIslandPool.FindTag(TargetIndexTag);
+                            var Moved = nawShaderAtlasIslandPool.FindTag(TargetIndexTag);
 
                             if (Origin != null && Moved != null) { islandPairs.Add((Origin, Moved)); }
                         }
@@ -162,11 +162,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //すべてのチャンネルを加味した新しいUVを持つMeshを生成するフェーズ
-            var allChannelMatRefs = channelsMatRef.SelectMany(I => I).Distinct().ToList();
+            var allShaderMatRefs = channelsMatRef.SelectMany(I => I).Distinct().ToList();
             for (int I = 0; I < atlasData.AtlasMeshData.Count; I += 1)
             {
                 var AMD = atlasData.AtlasMeshData[I];
-                if (AMD.MaterialIndex.Intersect(allChannelMatRefs).Count() == 0) continue;
+                if (AMD.MaterialIndex.Intersect(allShaderMatRefs).Count() == 0) continue;
 
 
                 var generateMeshAndMatRef = new AtlasTextureDataContainer.MeshAndMatRef(
@@ -217,7 +217,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             //保存するフェーズ
-            Container.ChannelsMatRef = channelsMatRef;
+            Container.ShadersMatRef = channelsMatRef;
             Container.AtlasTextures = compiledAllAtlasTextures;
             Container.GenerateMeshes = compiledMeshes;
             Container.IsPossibleApply = true;
@@ -241,7 +241,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var ShaderSupport = new AtlasShaderSupportUtils();
 
-            var channelMatRef = Container.ChannelsMatRef;
+            var channelMatRef = Container.ShadersMatRef;
             var generateMeshes = Container.GenerateMeshes;
             var atlasTextures = Container.AtlasTextures;
             var materials = GetMaterials(nawRenderers);
@@ -250,7 +250,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (AtlasSettings.Count != atlasTextures.Count || AtlasSettings.Count != channelMatRef.Count) { return; }
 
 
-            var nawChannelRevertMeshes = new List<MeshPair>();
+            var nawShaderRevertMeshes = new List<MeshPair>();
             foreach (var renderer in nawRenderers)
             {
                 var mesh = renderer.GetMesh();
@@ -263,7 +263,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (targetMeshData == null) continue;
 
                 renderer.SetMesh(targetMeshData.Mesh);
-                nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
+                nawShaderRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
             }
 
 
@@ -314,7 +314,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             Container.GenerateMaterials = generateMaterials;
-            RevertMeshes = nawChannelRevertMeshes;
+            RevertMeshes = nawShaderRevertMeshes;
             _isApply = true;
         }
 
@@ -528,7 +528,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 Container.AtlasTextures = null;
                 Container.GenerateMeshes = null;
-                Container.ChannelsMatRef = null;
+                Container.ShadersMatRef = null;
                 Container.IsPossibleApply = false;
                 Container.GenerateMaterials = null;
             }
@@ -762,7 +762,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         public Material Material;
         public bool IsTarget = false;
-        public int AtlasChannel = 0;
+        public int AtlasShader = 0;
         public float TextureSizeOffSet = 1;
     }
     [Serializable]
