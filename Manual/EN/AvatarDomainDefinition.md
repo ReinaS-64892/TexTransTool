@@ -10,6 +10,8 @@ This makes a big difference for [TextureBlender] (TextureBlender.md) and other r
 
 ### Getting Started
 
+You must first add [TexTransGroup](TexTransGroup.md) or [TexTransParentGroup](TexTransParentGroup.md) to your GameObject.
+
 From AvatarDomainDefinition.cs in TexTransTool/Runtime/Build,
 or from the Inspector component in the additional TexTransTool/AvatarDomainDefinition.
 You can add it to your game object.
