@@ -1,4 +1,4 @@
-float2 NeaPointOnLine(float2 a, float2 b, float2 p)
+float2 NearPointOnLine(float2 a, float2 b, float2 p)
 {
     float2 ab = b - a;
     float Leng = length(ab);
@@ -37,9 +37,9 @@ float3 DistansVartBase(float2 t1, float2 t2, float2 t3, float2 tp)
 }
 float3 DistansEdgeBase(float2 t1, float2 t2, float2 t3, float2 tp)
 {
-    float DistansA = distance(NeaPointOnLine(t1, t2, tp), tp);
-    float DistansB = distance(NeaPointOnLine(t2, t3, tp), tp);
-    float DistansC = distance(NeaPointOnLine(t3, t1, tp), tp);
+    float DistansA = distance(NearPointOnLine(t1, t2, tp), tp);
+    float DistansB = distance(NearPointOnLine(t2, t3, tp), tp);
+    float DistansC = distance(NearPointOnLine(t3, t1, tp), tp);
     return float3(DistansA, DistansB, DistansC);
 }
 

@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Threading.Tasks;
 using System;
 using System.IO;
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool
             return new Vector3(w, u, v);
         }
 
-        public static Vector2 NeaPointOnLine(Vector2 a, Vector2 b, Vector2 p)
+        public static Vector2 NearPointOnLine(Vector2 a, Vector2 b, Vector2 p)
         {
             Vector2 ab = b - a;
             float Leng = ab.magnitude;
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool
             float lp = Mathf.Clamp(Vector2.Dot(p - a, ab), 0, Leng);
             return a + (lp * ab);
         }
-        public static Vector2 NeaPoint(Vector2 a, Vector2 b, Vector2 p)
+        public static Vector2 NearPoint(Vector2 a, Vector2 b, Vector2 p)
         {
             Vector2 ab = b - a;
             ab.Normalize();
@@ -127,9 +127,9 @@ namespace net.rs64.TexTransTool
 
         public static Vector3 DistansEdgeBase(List<Vector2> Triangle, Vector2 TargetPoint)
         {
-            float DistansA = Vector2.Distance(NeaPointOnLine(Triangle[0], Triangle[1], TargetPoint), TargetPoint);
-            float DistansB = Vector2.Distance(NeaPointOnLine(Triangle[1], Triangle[2], TargetPoint), TargetPoint);
-            float DistansC = Vector2.Distance(NeaPointOnLine(Triangle[2], Triangle[0], TargetPoint), TargetPoint);
+            float DistansA = Vector2.Distance(NearPointOnLine(Triangle[0], Triangle[1], TargetPoint), TargetPoint);
+            float DistansB = Vector2.Distance(NearPointOnLine(Triangle[1], Triangle[2], TargetPoint), TargetPoint);
+            float DistansC = Vector2.Distance(NearPointOnLine(Triangle[2], Triangle[0], TargetPoint), TargetPoint);
             return new Vector3(DistansA, DistansB, DistansC);
         }
 
