@@ -65,11 +65,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             EditorGUILayout.LabelField("Atlas Settings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
-            EditorGUILayout.LabelField("[Channel]", EditorStyles.boldLabel);
             for (var Index = 0; Index < s_AtlasSettings.arraySize; Index += 1)
             {
 
-                EditorGUILayout.LabelField("Channel " + Index);
+                EditorGUILayout.LabelField($"[Channel {Index}]", EditorStyles.boldLabel);
                 var S_Channel = s_AtlasSettings.GetArrayElementAtIndex(Index);
                 var S_AtlasTextureSize = S_Channel.FindPropertyRelative("AtlasTextureSize");
                 var S_MergeMaterials = S_Channel.FindPropertyRelative("MergeMaterials");
@@ -99,6 +98,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             EditorGUI.indentLevel -= 1;
 
+            EditorGUILayout.LabelField("[New Channel]", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+"))
             {
@@ -190,9 +190,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 }
             }
 
-            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
             EditorGUI.indentLevel -= 1;
-            EditorGUILayout.LabelField("[Channel]", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("[New Fine Tuning Setting]");
+            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
         }
 
         static void SetDefault(SerializedProperty serializedProperty)
