@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName Compress_PropertyNames;
         public PropertySelect Compress_Select = PropertySelect.Equal;
         //ReferenceCopy
-        public PropertyName ReferenceCopy_SousePropertyName;
+        public PropertyName ReferenceCopy_SourcePropertyName;
         public PropertyName ReferenceCopy_TargetPropertyName;
         //Remove
         public PropertyName Remove_PropertyNames;
@@ -85,7 +85,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case FineSettingSelect.Compress:
                     return new Compress(Compress_FormatQuality, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
                 case FineSettingSelect.ReferenceCopy:
-                    return new ReferenceCopy(ReferenceCopy_SousePropertyName, ReferenceCopy_TargetPropertyName);
+                    return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
                 case FineSettingSelect.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
                 case FineSettingSelect.MipMapRemove:

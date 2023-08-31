@@ -44,7 +44,7 @@ sourceとtargetを指定し、targetにsourceのテクスチャを割り当て�
 
 メインテクスチャーをアウトラインテクスチャーに割り当てればアウトラインテクスチャーの分VRAMが節約できる...のような場合に使う設定です。
 
-### Souse Property Name , Target Property Name
+### Source Property Name , Target Property Name
 
 それぞれコピーする元と、コピーされる先です。
 

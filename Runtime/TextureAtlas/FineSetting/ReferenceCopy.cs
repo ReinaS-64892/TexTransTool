@@ -7,18 +7,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
     {
         public int Order => 1024;
 
-        public string SousePropertyName;
+        public string SourcePropertyName;
         public string TargetPropertyName;
 
-        public ReferenceCopy(string sousePropertyName, string targetPropertyName)
+        public ReferenceCopy(string sourcePropertyName, string targetPropertyName)
         {
-            SousePropertyName = sousePropertyName;
+            SourcePropertyName = sourcePropertyName;
             TargetPropertyName = targetPropertyName;
         }
 
         public void FineSetting(List<PropAndTexture2D> propAndTextures)
         {
-            var Texture = propAndTextures.Find(x => x.PropertyName == SousePropertyName);
+            var Texture = propAndTextures.Find(x => x.PropertyName == SourcePropertyName);
             if (Texture == null) return;
             var propAndTex = propAndTextures.Find(x => x.PropertyName == TargetPropertyName);
             if (propAndTex == null) propAndTex = new PropAndTexture2D(TargetPropertyName, null);
