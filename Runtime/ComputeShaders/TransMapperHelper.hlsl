@@ -7,7 +7,7 @@ float2 NearPointOnLine(float2 a, float2 b, float2 p)
     return a + (lp * ab);
 }
 
-float2 FromBCS(float2 t1, float2 t2, float2 t3, float3 BCS)
+float2 FromBarycentricCoordinateSystem(float2 t1, float2 t2, float2 t3, float3 BCS)
 {
     float2 RevPos2 = float2(0, 0);
     RevPos2 += t1 * BCS.x;
@@ -63,7 +63,7 @@ float MinVector(float3 Vector)
     return min(Vector.x, min(Vector.y, Vector.z));
 }
 
-float3 ToBCS(float4 CloseT)
+float3 ToBarycentricCoordinateSystem(float4 CloseT)
 {
     return float3((CloseT.x/CloseT.w),(CloseT.y/CloseT.w),(CloseT.z/CloseT.w));
 }

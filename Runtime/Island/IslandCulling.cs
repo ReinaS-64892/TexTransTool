@@ -75,12 +75,12 @@ namespace net.rs64.TexTransTool.Island
                 var C = RayMatrixPoss[triangle.two];
 
                 var CrossT = TransMapper.CrossTriangle(new Vector2[] { A, B, C }, Vector2.zero);
-                var TBC = TransMapper.ToBCS(CrossT);
+                var TBC = TransMapper.ToBarycentricCoordinateSystem(CrossT);
                 if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
                 var IsIn = TransMapper.IsInCal(CrossT.x,CrossT.y,CrossT.z);
                 if (IsIn)
                 {
-                    var Distance = TransMapper.FromBCS(new Vector3[] { A, B, C }, TBC).z;
+                    var Distance = TransMapper.FromBarycentricCoordinateSystem(new Vector3[] { A, B, C }, TBC).z;
 
                     hits.Add((i, Distance, CrossT));
                 }

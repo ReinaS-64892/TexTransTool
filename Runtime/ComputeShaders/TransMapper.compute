@@ -17,7 +17,7 @@ RWStructuredBuffer<float3> Result;
   float IsIn = IsInCal(CrossT.x,CrossT.y,CrossT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBCS(CrossT));
+  float2 RevPos2 = FromBarycentricCoordinateSystem(Triangles[SelectTriangle(id.z,3)], Triangles[SelectTriangle(id.z,4)], Triangles[SelectTriangle(id.z,5)],ToBarycentricCoordinateSystem(CrossT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
@@ -34,7 +34,7 @@ RWStructuredBuffer<float3> Result;
   float IsIn = IsInCal(CrossT.x,CrossT.y,CrossT.z);
   float IsDistans = isDistansCla(Distans, IsIn);
 
-  float2 RevPos2 = FromBCS(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBCS(CrossT));
+  float2 RevPos2 = FromBarycentricCoordinateSystem(Triangles[SelectTriangle(id.z,3)],Triangles[SelectTriangle(id.z,4)],Triangles[SelectTriangle(id.z,5)],ToBarycentricCoordinateSystem(CrossT));
   float3 RevPos3 = float3(RevPos2.x, RevPos2.y, IsDistans);
 
   uint resindex = TwoDToOneDIndex((uint2)id,Size);
