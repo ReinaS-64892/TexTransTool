@@ -10,6 +10,8 @@
 
 ### 始めに
 
+先に[TexTransGroup](TexTransGroup.md)か、[TexTransParentGroup](TexTransParentGroup.md)をGameObjectに追加しておく必要があります。
+
 TexTransTool/Runtime/Build にある AvatarDomainDefinition.cs から、
 またはインスペクターのコンポーネントを追加の TexTransTool/AvatarDomainDefinition から
 ゲームオブジェクトに追加できます。
