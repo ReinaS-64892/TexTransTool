@@ -31,8 +31,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        List<List<int>> _matRefarens;
-        public List<List<int>> ChannelsMatRef { get => _matRefarens; set => _matRefarens = value; }
+        List<List<int>> _matReference;
+        public List<List<int>> ChannelsMatRef { get => _matReference; set => _matReference = value; }
 
 
 

@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var targetMatSelectors = MatSelectors.Where(MS => MS.IsTarget && MS.AtlasChannel == channel).ToArray();
 
                 //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-                shaderSupports.BakeSetting = atlasSetting.IsMergeMaterial ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
+                shaderSupports.BakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
                 var matDataList = new List<MatData>();
                 foreach (var MatSelector in targetMatSelectors)
                 {
@@ -288,7 +288,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 avatarMaterialDomain.transferAsset(AtlasTex.Select(PaT => PaT.Texture2D));
 
 
-                if (atlasSetting.IsMergeMaterial)
+                if (atlasSetting.MergeMaterials)
                 {
                     var mergeMat = atlasSetting.MergeReferenceMaterial != null ? atlasSetting.MergeReferenceMaterial : materials[channelMatRefs.First()];
                     Material generateMat = GenerateAtlasMat(mergeMat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
