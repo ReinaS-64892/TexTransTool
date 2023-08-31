@@ -52,7 +52,6 @@ namespace net.rs64.TexTransTool
         FlatMapDict<Material> _mapDict;
         [SerializeField] List<MatPair> _matModifies = new List<MatPair>();
         [SerializeField] bool _generateCustomMipMap;
-        Dictionary<SerializedObject, SerializedProperty[]> _cashMaterialProperty;
 
         public AvatarDomainAsset Asset;
         public AvatarDomain GetBackUp()
