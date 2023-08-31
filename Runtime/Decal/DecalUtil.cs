@@ -126,7 +126,7 @@ namespace net.rs64.TexTransTool.Decal
                 if (filteredTriangle.Any() == false) { continue; }
 
 
-                var atlasTex = new TransTargetTexture(Utils.CreateFillTexture(targetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPadding(DefaultPadding), targetTexSize));
+                var atlasTex = new TransTargetTexture(Utils.CreateFillTexture(targetTexSize, new Color(0, 0, 0, 0)), new TwoDimensionalMap<float>(TransTexture.CSPadding(DefaultPadding), targetTexSize));
                 TransTexture.TransTextureUseCS(atlasTex, SousTextures, new TransTexture.TransUVData(filteredTriangle, tUV, sUV), DefaultPadding, TextureOutRange);
 
 

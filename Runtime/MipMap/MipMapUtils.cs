@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
             var texSize = new Vector2Int(Texture.width, Texture.height);
             var mipCount = MipCount(Mathf.Min(texSize.x, texSize.y));
 
-            var FirstTexArray = new TowDMap<Color>(Texture.GetPixels(), texSize);
+            var FirstTexArray = new TwoDimensionalMap<Color>(Texture.GetPixels(), texSize);
             var KernelIndex = mipMapper.FindKernel("MipMapper");
 
 
@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool
         }
         public static SortedList<int, Color[]> GenerateMipListInCPU(this Texture2D Texture)
         {
-            var Tex = new TowDMap<Color>(Texture.GetPixels(), new Vector2Int(Texture.width, Texture.height));
+            var Tex = new TwoDimensionalMap<Color>(Texture.GetPixels(), new Vector2Int(Texture.width, Texture.height));
             var Mips = new SortedList<int, Color[]>();
 
             var MipCount = 0;
@@ -97,14 +97,14 @@ namespace net.rs64.TexTransTool
             }
             return Mips;
         }
-        public static TowDMap<Color> OneLevelMip(TowDMap<Color> Texture)
+        public static TwoDimensionalMap<Color> OneLevelMip(TwoDimensionalMap<Color> Texture)
         {
             var MipSize = Texture.MapSize / 2;
 
             if (MipSize.x <= 0 || MipSize.y <= 0) { return null; }
 
             var box = new Vector2Int(2, 2);
-            var mip = new TowDMap<Color>(MipSize);
+            var mip = new TwoDimensionalMap<Color>(MipSize);
 
             for (int X = 0; X < MipSize.x; X++)
             {
@@ -120,7 +120,7 @@ namespace net.rs64.TexTransTool
 
 
 
-        private static Color GetMipPixel(TowDMap<Color> Tex, Vector2Int texel, Vector2Int Box)
+        private static Color GetMipPixel(TwoDimensionalMap<Color> Tex, Vector2Int texel, Vector2Int Box)
         {
             var color = new Color(0, 0, 0, 0);
             var pixelCount = 0;
