@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     [Serializable]
     public class AtlasSetting
     {
-        public bool IsMergeMaterial;
+        public bool MergeMaterials;
         public Material MergeReferenceMaterial;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
