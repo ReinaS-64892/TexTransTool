@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
         public List<MatSelector> MatSelectors = new List<MatSelector>();
         public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
-        public bool UseIslandCash = true;
+        public bool UseIslandCache = true;
         public AtlasTextureDataContainer Container = new AtlasTextureDataContainer();
 
         [SerializeField] bool _isApply = false;
@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var targetRenderers = Renderers;
             var atlasData = GenerateAtlasMeshData(targetRenderers);
             var shaderSupports = new AtlasShaderSupportUtils();
-            var originIslandPool = atlasData.GeneratedIslandPool(UseIslandCash);
+            var originIslandPool = atlasData.GeneratedIslandPool(UseIslandCache);
             var atlasIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
 
             if (selectRefsMat.Count != atlasData.Materials.Count)
@@ -550,9 +550,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             AtlasMeshData = atlasMeshData;
         }
 
-        public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(bool UseIslandCash)
+        public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(bool UseIslandCache)
         {
-            if (UseIslandCash)
+            if (UseIslandCache)
             {
                 IslandUtils.CacheGet(out var CacheIslands, out var diffCacheIslands);
                 var islandPool = GeneratedIslandPool(CacheIslands);
