@@ -55,7 +55,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+")) ArrayProperty.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize <= 1);
+            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize < 1);
             if (GUILayout.Button("-")) ArrayProperty.arraySize -= 1;
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
