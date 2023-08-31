@@ -63,8 +63,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private static void DrawAtlasSettings(SerializedProperty s_AtlasSettings)
         {
-            EditorGUILayout.LabelField("Atlas Settings");
+            EditorGUILayout.LabelField("Atlas Settings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
+            EditorGUILayout.LabelField("[Channel]", EditorStyles.boldLabel);
             for (var Index = 0; Index < s_AtlasSettings.arraySize; Index += 1)
             {
 
@@ -114,14 +115,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private static void DrawFineSettings(SerializedProperty s_fineSettings)
         {
-            EditorGUILayout.LabelField("Fine Settings");
+            EditorGUILayout.LabelField("Texture Fine Tuning", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
             for (int i = 0; s_fineSettings.arraySize > i; i += 1)
             {
                 var S_fineSettingData = s_fineSettings.GetArrayElementAtIndex(i);
                 var S_select = S_fineSettingData.FindPropertyRelative("select");
-                EditorGUILayout.PropertyField(S_select, new GUIContent("FineSetting " + i));
+                EditorGUILayout.PropertyField(S_select, new GUIContent("Setting " + i));
                 switch (S_select.enumValueIndex)
                 {
                     default:
@@ -191,6 +192,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
             EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("[Channel]", EditorStyles.boldLabel);
         }
 
         static void SetDefault(SerializedProperty serializedProperty)
