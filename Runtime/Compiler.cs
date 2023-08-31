@@ -21,21 +21,21 @@ namespace net.rs64.TexTransTool
         public const string TransCompilerPath = "Packages/net.rs64.tex-trans-tool/Runtime/ComputeShaders/TransCompiler.compute";
 
         [Obsolete]
-        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData AtralsMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRange = null)
+        public static TransTargetTexture TransCompileUseGetPixsel(Texture2D SouseTex, TransMapData TransMap, TransTargetTexture TargetTex, TexWrapMode wrapMode, Vector2? OutRange = null)
         {
             var TargetTexSize = TargetTex.DistanceMap.MapSize;
-            if (TargetTexSize.x != AtralsMap.Map.MapSize.x && TargetTexSize.y != AtralsMap.Map.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            if (TargetTexSize.x != TransMap.Map.MapSize.x && TargetTexSize.y != TransMap.Map.MapSize.y) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
 
-            var lengs = AtralsMap.Map.Array.Length;
+            var lengs = TransMap.Map.Array.Length;
             NotFIlterAndReadWritTexture2D(ref SouseTex);
             var TargetPixsel = TargetTex.Texture2D.GetPixels();
 
             for (int i = 0; i < lengs; i += 1)
             {
-                var NawDistans = AtralsMap[i].Distance;
-                if (NawDistans > AtralsMap.DefaultPadding && NawDistans > TargetTex.DistanceMap[i])
+                var NawDistans = TransMap[i].Distance;
+                if (NawDistans > TransMap.DefaultPadding && NawDistans > TargetTex.DistanceMap[i])
                 {
-                    Vector2 SouseTexPos = AtralsMap[i].Pos;
+                    Vector2 SouseTexPos = TransMap[i].Pos;
 
                     Vector2? WarpdPos = GetWarpdPos(wrapMode, SouseTexPos);
 
@@ -273,14 +273,14 @@ namespace net.rs64.TexTransTool
             return new Vector2Int((int)with, (int)height);
         }
 
-        public static TransTargetTexture TransCompileUseComputeShader(Texture2D SouseTex, TransMapData AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
+        public static TransTargetTexture TransCompileUseComputeShader(Texture2D SouseTex, TransMapData TransMap, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
-            return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { AtralsMaps }, targetTex, wrapMode, OutRange, CS);
+            return TransCompileUseComputeSheder(SouseTex, new TransMapData[1] { TransMap }, targetTex, wrapMode, OutRange, CS);
         }
-        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> AtralsMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
+        public static TransTargetTexture TransCompileUseComputeSheder(Texture2D SouseTex, IEnumerable<TransMapData> TransMaps, TransTargetTexture targetTex, TexWrapMode wrapMode, Vector2? OutRange = null, ComputeShader CS = null)
         {
             var texSize = targetTex.DistanceMap.MapSize;
-            if (AtralsMaps.Any(i => i.Map.MapSize != texSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
+            if (TransMaps.Any(i => i.Map.MapSize != texSize)) throw new ArgumentException("ターゲットテクスチャとアトラスマップのサイズが一致しません。");
             if (CS == null) CS = AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath);
 
             var sTexSize = SouseTex.NativeSize();
@@ -321,7 +321,7 @@ namespace net.rs64.TexTransTool
                 CS.SetFloats("OutRange", new float[2] { OutRange.Value.x, OutRange.Value.y });
             }
 
-            foreach (var atralsMap in AtralsMaps)
+            foreach (var atralsMap in TransMaps)
             {
                 atlasMapBuffer.SetData(atralsMap.Map.Array);
                 CS.SetBuffer(kernelIndex, "AtlasMap", atlasMapBuffer);
