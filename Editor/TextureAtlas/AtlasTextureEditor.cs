@@ -157,10 +157,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 2:
                         {
-                            var S_ReferenceCopy_SousePropertyName = S_fineSettingData.FindPropertyRelative("ReferenceCopy_SousePropertyName");
+                            var S_ReferenceCopy_SousePropertyName = S_fineSettingData.FindPropertyRelative("ReferenceCopy_SourcePropertyName");
                             var S_ReferenceCopy_TargetPropertyName = S_fineSettingData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
                             EditorGUI.indentLevel += 1;
-                            PropertyNameEditor.DrawInspectorGUI(S_ReferenceCopy_SousePropertyName, "Souse Property Name");
+                            PropertyNameEditor.DrawInspectorGUI(S_ReferenceCopy_SousePropertyName, "Source Property Name");
                             PropertyNameEditor.DrawInspectorGUI(S_ReferenceCopy_TargetPropertyName, "Target Property Name");
                             EditorGUI.indentLevel -= 1;
                             break;

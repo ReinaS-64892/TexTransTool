@@ -9,12 +9,12 @@ namespace net.rs64.TexTransTool
 {
     public class TransMapData
     {
-        public TowDMap<PosAndDistance> Map;
+        public TwoDimensionalMap<PosAndDistance> Map;
         public float DefaultPadding;
 
         public PosAndDistance this[int i] => Map.Array[i];
 
-        public TransMapData(TowDMap<PosAndDistance> map, float defaultPadding)
+        public TransMapData(TwoDimensionalMap<PosAndDistance> map, float defaultPadding)
         {
             Map = map;
             DefaultPadding = defaultPadding;
@@ -23,11 +23,11 @@ namespace net.rs64.TexTransTool
         {
             var array = Utils.FilledArray(new PosAndDistance(Vector2.zero, defaultPadding), mapSize.x * mapSize.y);
             DefaultPadding = defaultPadding;
-            Map = new TowDMap<PosAndDistance>(array, mapSize);
+            Map = new TwoDimensionalMap<PosAndDistance>(array, mapSize);
         }
         public TransMapData(SerializableMap sMap)
         {
-            Map = new TowDMap<PosAndDistance>(sMap.Map.Select(I => new PosAndDistance(I.x, I.y, I.z)).ToArray(), sMap.MapSize);
+            Map = new TwoDimensionalMap<PosAndDistance>(sMap.Map.Select(I => new PosAndDistance(I.x, I.y, I.z)).ToArray(), sMap.MapSize);
             DefaultPadding = sMap.DefaultPadding;
 
         }
@@ -99,9 +99,9 @@ namespace net.rs64.TexTransTool
         /// <summary>
         /// テクスチャーの本当の加増解像度と同じサイズのマップ
         /// </summary>
-        public TowDMap<float> DistanceMap;
+        public TwoDimensionalMap<float> DistanceMap;
 
-        public TransTargetTexture(Texture2D texture2D, TowDMap<float> distanceMap)
+        public TransTargetTexture(Texture2D texture2D, TwoDimensionalMap<float> distanceMap)
         {
             Texture2D = texture2D;
             DistanceMap = distanceMap;
@@ -109,12 +109,12 @@ namespace net.rs64.TexTransTool
         public TransTargetTexture(Vector2Int Size, Color DefaultColor, float DefaultPadding)
         {
             Texture2D = Utils.CreateFillTexture(Size, DefaultColor);
-            DistanceMap = new TowDMap<float>(DefaultPadding, Size);
+            DistanceMap = new TwoDimensionalMap<float>(DefaultPadding, Size);
         }
 
     }
 
-    public class TowDMap<T>
+    public class TwoDimensionalMap<T>
     {
         public T[] Array;
         public Vector2Int MapSize;
@@ -122,22 +122,22 @@ namespace net.rs64.TexTransTool
         public T this[int i] { get => Array[i]; set => Array[i] = value; }
         public T this[int x, int y] { get => Array[GetIndexOn1D(new Vector2Int(x, y))]; set => Array[GetIndexOn1D(new Vector2Int(x, y))] = value; }
 
-        public TowDMap(T[] array, Vector2Int mapSize)
+        public TwoDimensionalMap(T[] array, Vector2Int mapSize)
         {
             Array = array;
             MapSize = mapSize;
         }
-        public TowDMap(T defaultValue, Vector2Int mapSize)
+        public TwoDimensionalMap(T defaultValue, Vector2Int mapSize)
         {
             Array = Utils.FilledArray(defaultValue, mapSize.x * mapSize.y);
             MapSize = mapSize;
         }
-        public TowDMap( Vector2Int mapSize)
+        public TwoDimensionalMap( Vector2Int mapSize)
         {
             Array = new T[mapSize.x * mapSize.y];
             MapSize = mapSize;
         }
-        public TowDMap()
+        public TwoDimensionalMap()
         {
         }
 

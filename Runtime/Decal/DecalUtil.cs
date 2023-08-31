@@ -126,7 +126,7 @@ namespace net.rs64.TexTransTool.Decal
                 if (filteredTriangle.Any() == false) { continue; }
 
 
-                var atlasTex = new TransTargetTexture(Utils.CreateFillTexture(targetTexSize, new Color(0, 0, 0, 0)), new TowDMap<float>(TransTexture.CSPadding(DefaultPadding), targetTexSize));
+                var atlasTex = new TransTargetTexture(Utils.CreateFillTexture(targetTexSize, new Color(0, 0, 0, 0)), new TwoDimensionalMap<float>(TransTexture.CSPadding(DefaultPadding), targetTexSize));
                 TransTexture.TransTextureUseCS(atlasTex, SousTextures, new TransTexture.TransUVData(filteredTriangle, tUV, sUV), DefaultPadding, TextureOutRange);
 
 
@@ -224,22 +224,22 @@ namespace net.rs64.TexTransTool.Decal
         }
         public static Vector2 QuadNormalize(IReadOnlyList<Vector2> Quad, Vector2 TargetPos)
         {
-            var oneNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[2], TargetPos);
+            var oneNearPoint = TransMapper.NearPoint(Quad[0], Quad[2], TargetPos);
             var oneCross = Vector3.Cross(Quad[2] - Quad[0], TargetPos - Quad[0]).z > 0 ? -1 : 1;
 
-            var twoNeaPoint = TransMapper.NeaPoint(Quad[0], Quad[1], TargetPos);
+            var twoNearPoint = TransMapper.NearPoint(Quad[0], Quad[1], TargetPos);
             var twoCross = Vector3.Cross(Quad[1] - Quad[0], TargetPos - Quad[0]).z > 0 ? 1 : -1;
 
-            var threeNeaPoint = TransMapper.NeaPoint(Quad[1], Quad[3], TargetPos);
+            var threeNearPoint = TransMapper.NearPoint(Quad[1], Quad[3], TargetPos);
             var threeCross = Vector3.Cross(Quad[3] - Quad[1], TargetPos - Quad[1]).z > 0 ? 1 : -1;
 
-            var forNeaPoint = TransMapper.NeaPoint(Quad[2], Quad[3], TargetPos);
+            var forNearPoint = TransMapper.NearPoint(Quad[2], Quad[3], TargetPos);
             var forCross = Vector3.Cross(Quad[3] - Quad[2], TargetPos - Quad[2]).z > 0 ? -1 : 1;
 
-            var oneDistance = Vector2.Distance(oneNeaPoint, TargetPos) * oneCross;
-            var towDistance = Vector2.Distance(twoNeaPoint, TargetPos) * twoCross;
-            var threeDistance = Vector2.Distance(threeNeaPoint, TargetPos) * threeCross;
-            var forDistance = Vector2.Distance(forNeaPoint, TargetPos) * forCross;
+            var oneDistance = Vector2.Distance(oneNearPoint, TargetPos) * oneCross;
+            var towDistance = Vector2.Distance(twoNearPoint, TargetPos) * twoCross;
+            var threeDistance = Vector2.Distance(threeNearPoint, TargetPos) * threeCross;
+            var forDistance = Vector2.Distance(forNearPoint, TargetPos) * forCross;
 
             var x = oneDistance / (oneDistance + threeDistance);
             var y = towDistance / (towDistance + forDistance);

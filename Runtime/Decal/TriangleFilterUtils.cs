@@ -173,7 +173,7 @@ namespace net.rs64.TexTransTool.Decal
 
                     var a = Vertex[TargetTri[index.x]];
                     var b = Vertex[TargetTri[index.y]];
-                    var nerPoint = TransMapper.NeaPointOnLine(a, b, centerPosVec2);
+                    var nerPoint = TransMapper.NearPointOnLine(a, b, centerPosVec2);
                     outOfPolygon[index.x] = !( MinRange < nerPoint.x && nerPoint.x < MaxRange  &&  MinRange < nerPoint.y &&  nerPoint.y < MaxRange );
                 }
                 if (IsAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];

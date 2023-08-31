@@ -9,11 +9,11 @@ using net.rs64.TexTransTool.TextureAtlas;
 
 namespace net.rs64.TexTransTool
 {
-    public static class TTGValidationUtils
+    public static class TexTransGroupValidationUtils
     {
-        public static void ValidateTTG(AbstractTexTransGroup texTransGroup)
+        public static void ValidateTexTransGroup(AbstractTexTransGroup texTransGroup)
         {
-            var tTFs = AbstractTexTransGroup.TTFFilter(texTransGroup.Targets);
+            var tTFs = AbstractTexTransGroup.TextureTransformerFilter(texTransGroup.Targets);
             var renderersPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
             CollectTexTransForms(tTFs, renderersPeaTTFsDict);
 
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool
                         }
                     case AbstractTexTransGroup abstractTexTransGroup:
                         {
-                            CollectTexTransForms(AbstractTexTransGroup.TTFFilter(abstractTexTransGroup.Targets), renderersPeaTTFsDict);
+                            CollectTexTransForms(AbstractTexTransGroup.TextureTransformerFilter(abstractTexTransGroup.Targets), renderersPeaTTFsDict);
                             break;
                         }
 

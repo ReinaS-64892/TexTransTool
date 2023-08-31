@@ -20,13 +20,13 @@ namespace net.rs64.TexTransTool
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            foreach (var tf in TTFFilter(Targets))
+            foreach (var tf in TextureTransformerFilter(Targets))
             {
                 tf.Apply(AvatarMaterialDomain);
                 EditorUtility.SetDirty(tf);
             }
         }
-        public static IEnumerable<TextureTransformer> TTFFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
+        public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
         public override void Revert(AvatarDomain AvatarMaterialDomain = null)
         {
             if (!_IsApply) return;

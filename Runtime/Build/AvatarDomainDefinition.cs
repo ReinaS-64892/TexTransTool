@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Build
             if (texTransGroup.IsApply) return;
             if (avatar == null && Avatar == null) return;
             if (avatar == null) avatar = Avatar;
-            TTGValidationUtils.ValidateTTG(texTransGroup);
+            TexTransGroupValidationUtils.ValidateTexTransGroup(texTransGroup);
             CacheDomain = GetDomain(avatar, OverrideAssetContainer);
             _IsSelfCallApply = true;
             texTransGroup.Apply(CacheDomain);

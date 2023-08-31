@@ -232,7 +232,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (!result) { return; }
             if (!Container.IsPossibleApply) { return; }
 
-            var nawRenderers = Renderers;
+            var nowRenderers = Renderers;
             if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevertDomain = avatarMaterialDomain; }
             else { RevertDomain = avatarMaterialDomain.GetBackUp(); }
             Container.GenerateMaterials = null;
@@ -244,14 +244,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var channelMatRef = Container.ChannelsMatRef;
             var generateMeshes = Container.GenerateMeshes;
             var atlasTextures = Container.AtlasTextures;
-            var materials = GetMaterials(nawRenderers);
-            var referenceMesh = GetMeshes(nawRenderers);
+            var materials = GetMaterials(nowRenderers);
+            var referenceMesh = GetMeshes(nowRenderers);
 
             if (AtlasSettings.Count != atlasTextures.Count || AtlasSettings.Count != channelMatRef.Count) { return; }
 
 
             var nawChannelRevertMeshes = new List<MeshPair>();
-            foreach (var renderer in nawRenderers)
+            foreach (var renderer in nowRenderers)
             {
                 var mesh = renderer.GetMesh();
                 var refMesh = referenceMesh.IndexOf(mesh);
@@ -328,7 +328,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             RevertDomain.ResetMaterial();
             RevertDomain = null;
 
-            var nawRenderers = Renderers;
+            var nowRenderers = Renderers;
 
             var revertMeshDict = new Dictionary<Mesh, Mesh>();
             foreach (var meshPair in RevertMeshes)
@@ -340,7 +340,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
 
-            foreach (var renderer in nawRenderers)
+            foreach (var renderer in nowRenderers)
             {
                 var mesh = renderer.GetMesh();
                 if (revertMeshDict.ContainsKey(mesh))

@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool
                 if (Distans < Distansnew)
                 {
                     var SourceUVTriangle = new List<Vector2> { SourceUV[TriangleToIndex[0]], SourceUV[TriangleToIndex[1]], SourceUV[TriangleToIndex[2]] };
-                    SourceUVPosition = FromBCS(SourceUVTriangle, ToBCS(CloseT));
+                    SourceUVPosition = FromBarycentricCoordinateSystem(SourceUVTriangle, ToBarycentricCoordinateSystem(CloseT));
                     Distans = Distansnew;
                 }
             }
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
             return Vector3.Cross(Triangle[1] - Triangle[0], Triangle[2] - Triangle[0]).z;
         }
 
-        public static Vector3 ToBCS(Vector4 CrossT)
+        public static Vector3 ToBarycentricCoordinateSystem(Vector4 CrossT)
         {
             var a = CrossT.x / CrossT.w;
             var b = CrossT.y / CrossT.w;
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool
             return new Vector3(a, b, c);
         }
 
-        public static Vector2 FromBCS(IList<Vector2> Triangle, Vector3 SourceTBC)
+        public static Vector2 FromBarycentricCoordinateSystem(IList<Vector2> Triangle, Vector3 SourceTBC)
         {
             var ConversionPos = Vector2.zero;
             ConversionPos += Triangle[0] * SourceTBC.x;
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool
             ConversionPos += Triangle[2] * SourceTBC.z;
             return ConversionPos;
         }
-        public static Vector3 FromBCS(IList<Vector3> Triangle, Vector3 SourceTBC)
+        public static Vector3 FromBarycentricCoordinateSystem(IList<Vector3> Triangle, Vector3 SourceTBC)
         {
             var ConversionPos = Vector3.zero;
             ConversionPos += Triangle[0] * SourceTBC.x;
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool
             return new Vector3(w, u, v);
         }
 
-        public static Vector2 NeaPointOnLine(Vector2 a, Vector2 b, Vector2 p)
+        public static Vector2 NearPointOnLine(Vector2 a, Vector2 b, Vector2 p)
         {
             Vector2 ab = b - a;
             float Leng = ab.magnitude;
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool
             float lp = Mathf.Clamp(Vector2.Dot(p - a, ab), 0, Leng);
             return a + (lp * ab);
         }
-        public static Vector2 NeaPoint(Vector2 a, Vector2 b, Vector2 p)
+        public static Vector2 NearPoint(Vector2 a, Vector2 b, Vector2 p)
         {
             Vector2 ab = b - a;
             ab.Normalize();
@@ -127,9 +127,9 @@ namespace net.rs64.TexTransTool
 
         public static Vector3 DistansEdgeBase(List<Vector2> Triangle, Vector2 TargetPoint)
         {
-            float DistansA = Vector2.Distance(NeaPointOnLine(Triangle[0], Triangle[1], TargetPoint), TargetPoint);
-            float DistansB = Vector2.Distance(NeaPointOnLine(Triangle[1], Triangle[2], TargetPoint), TargetPoint);
-            float DistansC = Vector2.Distance(NeaPointOnLine(Triangle[2], Triangle[0], TargetPoint), TargetPoint);
+            float DistansA = Vector2.Distance(NearPointOnLine(Triangle[0], Triangle[1], TargetPoint), TargetPoint);
+            float DistansB = Vector2.Distance(NearPointOnLine(Triangle[1], Triangle[2], TargetPoint), TargetPoint);
+            float DistansC = Vector2.Distance(NearPointOnLine(Triangle[2], Triangle[0], TargetPoint), TargetPoint);
             return new Vector3(DistansA, DistansB, DistansC);
         }
 
