@@ -85,12 +85,12 @@ namespace net.rs64.TexTransTool
         {
             if (OutRange.HasValue)
             {
-                var outReng = OutRange.Value;
-                var OutOfolag = false;
-                if (!((outReng.x * -1) < SouseTexPos.x && SouseTexPos.x < (outReng.x + 1))) { OutOfolag = true; }
-                if (!((outReng.y * -1) < SouseTexPos.y && SouseTexPos.y < (outReng.y + 1))) { OutOfolag = true; }
+                var outRange = OutRange.Value;
+                var outOfRangeFlag = false;
+                if (!((outRange.x * -1) < SouseTexPos.x && SouseTexPos.x < (outRange.x + 1))) { outOfRangeFlag = true; }
+                if (!((outRange.y * -1) < SouseTexPos.y && SouseTexPos.y < (outRange.y + 1))) { outOfRangeFlag = true; }
 
-                return OutOfolag;
+                return outOfRangeFlag;
             }
 
             return false;
