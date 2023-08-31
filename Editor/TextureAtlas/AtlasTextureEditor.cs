@@ -30,15 +30,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, NewRoot =>
             {
                 Undo.RecordObject(ThisTarget, "AtlasTexture - TargetRoot");
-                ResearchMaterials(S_TargetRoot, NewRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
+                RefreshMaterials(S_TargetRoot, NewRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
                 This_S_Object.ApplyModifiedProperties();
             });
             if (S_TargetRoot.objectReferenceValue != null)
             {
-                if (GUILayout.Button("Research Materials"))
+                if (GUILayout.Button("Refresh Materials"))
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    ResearchMaterials(S_TargetRoot, ThisTarget.TargetRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
+                    RefreshMaterials(S_TargetRoot, ThisTarget.TargetRoot, S_SelectReferenceMatList, S_MatSelectors, ChannelCount);
                     This_S_Object.ApplyModifiedProperties();
                 }
                 if (GUILayout.Button("Automatic OffSet Setting"))
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.LabelField("Channel " + Index);
                 var S_Channel = s_AtlasSettings.GetArrayElementAtIndex(Index);
                 var S_AtlasTextureSize = S_Channel.FindPropertyRelative("AtlasTextureSize");
-                var S_IsMergeMaterial = S_Channel.FindPropertyRelative("IsMergeMaterial");
+                var S_MergeMaterials = S_Channel.FindPropertyRelative("MergeMaterials");
                 var S_MergeReferenceMaterial = S_Channel.FindPropertyRelative("MergeReferenceMaterial");
                 var S_ForceSetTexture = S_Channel.FindPropertyRelative("ForceSetTexture");
                 var S_PropertyBakeSetting = S_Channel.FindPropertyRelative("PropertyBakeSetting");
@@ -83,8 +83,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
                 EditorGUILayout.PropertyField(S_AtlasTextureSize);
-                EditorGUILayout.PropertyField(S_IsMergeMaterial);
-                if (S_IsMergeMaterial.boolValue)
+                EditorGUILayout.PropertyField(S_MergeMaterials);
+                if (S_MergeMaterials.boolValue)
                 {
                     EditorGUILayout.PropertyField(S_PropertyBakeSetting);
                     EditorGUILayout.PropertyField(S_MergeReferenceMaterial);
@@ -205,16 +205,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_SortingType = serializedProperty.FindPropertyRelative("SortingType");
             S_SortingType.enumValueIndex = 2;
         }
-        static void ResearchMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectRefarensMatList, SerializedProperty S_MatSelectors, int ChannelCount)
+        static void RefreshMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot, SerializedProperty S_SelectReferenceMatList, SerializedProperty S_MatSelectors, int ChannelCount)
         {
             s_TargetRoot.objectReferenceValue = NewRoot;
             if (NewRoot == null) { return; }
             var NewRefSouseMats = AtlasTexture.GetMaterials(AtlasTexture.FilteredRenderers(NewRoot.GetComponentsInChildren<Renderer>(true))).ToList(false);
-            S_SelectRefarensMatList.arraySize = NewRefSouseMats.Count;
+            S_SelectReferenceMatList.arraySize = NewRefSouseMats.Count;
             for (var Index = 0; Index < NewRefSouseMats.Count; Index += 1)
             {
                 var Mat = NewRefSouseMats[Index];
-                S_SelectRefarensMatList.GetArrayElementAtIndex(Index).objectReferenceValue = Mat;
+                S_SelectReferenceMatList.GetArrayElementAtIndex(Index).objectReferenceValue = Mat;
             }
 
             S_MatSelectors.arraySize = NewRefSouseMats.Count;
@@ -235,7 +235,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             if (ChannelCount < 1) { return; }
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("IsTarget  (Offset) (Channel) Material");
+            GUILayout.Label("Atlas?        Scale         Channel                Material");
             foreach (var Index in Enumerable.Range(0, TargetMaterial.arraySize))
             {
                 var MatSelect = TargetMaterial.GetArrayElementAtIndex(Index);

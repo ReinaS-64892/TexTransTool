@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool
 
                     WarpdPos = IsOutRange(OutRange, SouseTexPos) ? null : WarpdPos;
 
-                    SetPixsl(TargetPixsel, SouseTex, i, WarpdPos);
+                    SetPixel(TargetPixsel, SouseTex, i, WarpdPos);
                     TargetTex.DistanceMap[i] = NawDistans;
                 }
             }
@@ -96,11 +96,11 @@ namespace net.rs64.TexTransTool
             return false;
         }
 
-        static void SetPixsl(Color[] TargetPixsel, Texture2D SouseTex, int index, Vector2? SouseTexPos)
+        static void SetPixel(Color[] TargetPixel, Texture2D SouseTex, int index, Vector2? SouseTexPos)
         {
             if (!SouseTexPos.HasValue) return;
-            var souspixselcloro = SouseTex.GetPixelBilinear(SouseTexPos.Value.x, SouseTexPos.Value.y);
-            TargetPixsel[index] = souspixselcloro;
+            var sousPixelColor = SouseTex.GetPixelBilinear(SouseTexPos.Value.x, SouseTexPos.Value.y);
+            TargetPixel[index] = sousPixelColor;
         }
 
         public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex)
@@ -119,8 +119,13 @@ namespace net.rs64.TexTransTool
             }
 
             byte[] ImageBytes = IsEmpty ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
-            SouseTex = new Texture2D(2, 2);
-            SouseTex.LoadImage(ImageBytes);
+            var pngTex = new Texture2D(2, 2);
+            pngTex.LoadImage(ImageBytes);
+
+            var newTex = new Texture2D(pngTex.width, pngTex.height, TextureFormat.RGBA32, false);
+            newTex.SetPixels32(pngTex.GetPixels32());
+            newTex.Apply();
+            SouseTex = newTex;
         }
 
         public static Vector2Int NativeSize(this Texture2D SouseTex)
