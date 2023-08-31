@@ -2,7 +2,7 @@
 
 ## このコンポーネントの概要
 
-このコンポーネントは、各々の TextureTranformar が対象としているレンダラーのマテリアルしか変えれず、アバターとしての総マテリアル数(マテリアルスロット数ではない)やテクスチャーの枚数が増加してしまうのを防ぐためのコンポーネントです。
+このコンポーネントは、各々の [TextureTransformer](TextureTransformer.md) が対象としているレンダラーのマテリアルしか変えれず、アバターとしての総マテリアル数(マテリアルスロット数ではない)やテクスチャーの枚数が増加してしまうのを防ぐ機能と、VRChatAvatar の場合は Build 時に適応する[TexTransGroup](TexTransGroup.md)を指定するマーカーの機能も持ちます。
 
 これは、これまで各々の対象のレンダラーまでしか影響できなかったものが他のレンダラーにも影響するようになるため、[TextureBlender](TextureBlender.md)などは大きな違いが出るようになります。
 
@@ -10,21 +10,21 @@
 
 ### 始めに
 
-TexTransTool/Runtime にある AvatarMaterialDmain.cs から
+先に[TexTransGroup](TexTransGroup.md)か、[TexTransParentGroup](TexTransParentGroup.md)をGameObjectに追加しておく必要があります。
+
+TexTransTool/Runtime/Build にある AvatarDomainDefinition.cs から、
+またはインスペクターのコンポーネントを追加の TexTransTool/AvatarDomainDefinition から
 ゲームオブジェクトに追加できます。
-
-### MaterialDomainUse - Apply
-
-このコンポーネントに表示されている、この Apply を使用すると、MaterialDmain を使用し、TextureTranformar がマテリアルを変更するとき、TextureTranformar が参照しているレンダラー以外のマテリアルも同時に変更されるようになります。
 
 ## プロパティ
 
-### Avatar
+### Generate Custom Mip Map
 
-アバターの範囲となる GameObject をセットできるプロパティです。
+このツール独自のミップマップを生成するプロパティで、UVの境目で、色がにじまないMipMapを生成します。
 
-MaterialDomainUse - Apply を使用した場合、各々の TextureTranformer がマテリアルを変更したときの影響範囲がこの GameObject の配下のレンダラーになります。
+ただし、MipMapの生成はあまり早くないので、にじむのが気になる場合にのみチェックを入れましょう。
 
-### TexTransGrop
+### PreviewAvatar
 
-TexTransGrop の参照をセットできるプロパティです。
+プレビューの時アバターの範囲となる GameObject を指定するプロパティです。
+

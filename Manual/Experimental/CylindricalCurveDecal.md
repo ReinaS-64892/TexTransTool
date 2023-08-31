@@ -22,7 +22,6 @@ TexTransTool/Runtime/Decal/Curve/Cylindrical にある CylindricalCurveDecal.cs 
 - 腕の中心などに配置した [CylindricalCoordinatesSystem](CylindricalCoordinatesSystem.md)をセットします
 - カーブとなる[セグメント](CurevSegment.md)を作成して Segments に追加し、セグメントの位置やロールを調整
 - サイズとループカウントをお好みの値に設定
-- Compile ボタンを押し、カーブ状に貼り付けられたテクスチャを生成
 
 Apply ボタンを押すとそのカーブデカールをプレビューすることができます。
 
@@ -48,7 +47,7 @@ Apply ボタンを押すとそのカーブデカールをプレビューする�
 
 貼り付けるデカールをセットするプロパティ。
 
-### TargetPropatyName
+### TargetPropertyName
 
 デカールを張るテクスチャーをマテリアルのどのプロパティにするかを選択するプロパティです。
 
@@ -64,11 +63,15 @@ Apply ボタンを押すとそのカーブデカールをプレビューする�
 
 カーブのに沿っていくデカールの一マスのサイズのプロパティ。
 
-### LoopCount
+### Loop Count
 
 カーブのに沿っていくデカールのマス目数のプロパティ。
 
-### DrowGizmoAwiys
+### Roll Mode
+
+カーブの傾きの計算方法を指定するプロパティ。
+
+### Draw Gizmo Always
 
 ベジュ曲線やマス目のギズモを選択中でないときも表示するチェックのプロパティ。
 
