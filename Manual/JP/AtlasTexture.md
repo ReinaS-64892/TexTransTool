@@ -37,11 +37,11 @@ TargetRoot に追加したゲームオブジェクトの子にあるすべての
 
 レンダラーの親のオブジェクトをセットするプロパティ。
 
-### MaterialSelector And Offset , Channel
+### MaterialSelector And Scale , Channel
 
-IsTarget の下にあるチェックボックスがアトラス化するかどうかの選択
+左から アトラス化の対象かどうか、そのテクスチャの大きさの調整、アトラス化するチャンネル。
 
-存在しないはずのマテリアルが表示されている場合や、存在するはずのマテリアルがない場合は「ResearchRenders」を実行しましょう。
+存在しないはずのマテリアルが表示されている場合や、存在するはずのマテリアルがない場合は「Refresh Materials」を実行しましょう。
 
 ### Offset
 
