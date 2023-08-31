@@ -2,6 +2,8 @@
 
 このツールは非破壊的でデカールによる直感的なテクスチャの貼り付けや色改変、アトラス化による VRAM 削減ができるツールです！
 
+[English readme](README_EN.md)
+
 ## Install
 
 VRChatAvatar で使用する場合は VPM を推奨しています。[Add-VPM-Link](https://vpm.rs64.net/add-repo)
