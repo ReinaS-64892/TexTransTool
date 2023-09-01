@@ -17,8 +17,7 @@ namespace net.rs64.TexTransTool.Build
                 {
                     aDD.Apply(avatarGameObject, OverrideAssetContainer);
                 }
-                foreach (var aDD in aDDs) { RemoveAvatarDomainDefinition(aDD); }
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true)) { if (tf is MonoBehaviour mb && mb != null) MonoBehaviour.DestroyImmediate(mb.gameObject); }
+                DestroyITexTransToolTags(avatarGameObject);
                 return true;
             }
             catch (Exception e)
@@ -28,34 +27,13 @@ namespace net.rs64.TexTransTool.Build
             }
         }
 
-        public static void RemoveAvatarDomainDefinition(AvatarDomainDefinition avatarDomainDefinition)
+        private static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
-            foreach (var tf in avatarDomainDefinition.TexTransGroup.Targets)
+            foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
-                switch (tf)
-                {
-                    case AbstractTexTransGroup abstractTexTransGroup:
-                        RemoveTexTransGroup(abstractTexTransGroup);
-                        break;
-                }
-                MonoBehaviour.DestroyImmediate(tf.gameObject);
+                if (tf != null && tf is MonoBehaviour mb && mb != null && mb.gameObject != null)
+                { MonoBehaviour.DestroyImmediate(mb.gameObject); }
             }
-            MonoBehaviour.DestroyImmediate(avatarDomainDefinition.gameObject);
-        }
-        public static void RemoveTexTransGroup(AbstractTexTransGroup texTransGroup)
-        {
-            foreach (var tf in texTransGroup.Targets)
-            {
-                switch (tf)
-                {
-                    case AbstractTexTransGroup abstractTexTransGroup:
-                        RemoveTexTransGroup(abstractTexTransGroup);
-                        break;
-
-                }
-                MonoBehaviour.DestroyImmediate(tf.gameObject);
-            }
-            MonoBehaviour.DestroyImmediate(texTransGroup.gameObject);
         }
     }
 }
