@@ -10,8 +10,9 @@ namespace net.rs64.TexTransTool
         public Renderer TargetRenderer;
         public int MaterialSelect = 0;
         public Texture2D BlendTexture;
+        public Color Color = Color.white;
         public BlendType BlendType = BlendType.Normal;
-        public string TargetPropertyName = "_MainTex";
+        public PropertyName TargetPropertyName;
 
         public TextureBlenderDataContainer Container = new TextureBlenderDataContainer();
 
@@ -26,34 +27,42 @@ namespace net.rs64.TexTransTool
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
 
             var DistMaterials = TargetRenderer.sharedMaterials;
 
             if (DistMaterials.Length <= MaterialSelect) return;
-
             var DistMat = DistMaterials[MaterialSelect];
 
             var DistTex = DistMat.GetTexture(TargetPropertyName) as Texture2D;
-            var AddTex = BlendTexture;
+            var AddTex = TextureLayerUtil.CreateMultipliedRenderTexture(BlendTexture, Color);
             if (DistTex == null) return;
 
-
-            var DistSize = DistTex.NativeSize();
-            if (DistSize != AddTex.NativeSize())
+            if (avatarMaterialDomain == null)
             {
-                Compiler.NotFIlterAndReadWritTexture2D(ref AddTex);
-                AddTex = TextureLayerUtil.ResizeTexture(AddTex, DistSize);
+                avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
+
+
+                var AddTex2d = AddTex.CopyTexture2D();
+                var DistSize = DistTex.NativeSize();
+                if (DistSize != AddTex2d.NativeSize())
+                {
+                    Compiler.NotFIlterAndReadWritTexture2D(ref AddTex2d);
+                    AddTex2d = TextureLayerUtil.ResizeTexture(AddTex2d, DistSize);
+                }
+
+                var newTex = TextureLayerUtil.BlendTextureUseComputeShader(null, DistTex, AddTex2d, BlendType);
+                newTex.Apply();
+
+
+                Container.BlendTextures = newTex;
+
+                var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, newTex);
+                Container.GenerateMaterials = ChangeDict;
             }
-
-            var newTex = TextureLayerUtil.BlendTextureUseComputeShader(null, DistTex, AddTex, BlendType);
-            var SavedTex = AssetSaveHelper.SavePng(newTex);
-
-
-            Container.BlendTextures = SavedTex;
-
-            var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, SavedTex);
-            Container.GenerateMaterials = ChangeDict;
+            else
+            {
+                avatarMaterialDomain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
+            }
         }
 
 

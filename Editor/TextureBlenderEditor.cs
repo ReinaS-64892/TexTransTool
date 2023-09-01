@@ -30,13 +30,15 @@ namespace net.rs64.TexTransTool.Editor
             var S_BlendTexture = This_S_Object.FindProperty("BlendTexture");
             TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_BlendTexture);
 
+            var S_Color = This_S_Object.FindProperty("Color");
+            EditorGUILayout.PropertyField(S_Color);
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");
             EditorGUILayout.PropertyField(S_BlendType);
 
 
             var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(S_TargetPropertyName);
+            PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
             EditorGUI.EndDisabledGroup();
 
 
