@@ -192,7 +192,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("[New Fine Tuning Setting]");
-            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings);
+            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings, true);
         }
 
         static void SetDefault(SerializedProperty serializedProperty)

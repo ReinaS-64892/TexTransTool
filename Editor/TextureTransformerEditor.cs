@@ -10,7 +10,8 @@ namespace net.rs64.TexTransTool.Editor
 
     [CustomEditor(typeof(TextureTransformer))]
     public class TextureTransformerEditor : UnityEditor.Editor
-    {        public static void DrawerApplyAndRevert(TextureTransformer Target)
+    {
+        public static void DrawerApplyAndRevert(TextureTransformer Target)
         {
             if (Target == null) return;
             EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
@@ -51,11 +52,11 @@ namespace net.rs64.TexTransTool.Editor
 
             return FilteredRenderer;
         }
-        public static void DrawerArrayResizeButton(SerializedProperty ArrayProperty)
+        public static void DrawerArrayResizeButton(SerializedProperty ArrayProperty, bool AllowZero = false)
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+")) ArrayProperty.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize <= 1);
+            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize <= (AllowZero ? 0 : 1));
             if (GUILayout.Button("-")) ArrayProperty.arraySize -= 1;
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
