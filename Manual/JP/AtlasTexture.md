@@ -108,6 +108,6 @@ UV 同士の距離です。
 
 もっと効率的な UV の並び替えアルゴリズムを実装できる方はは Issues を立てるか PullRequest を投げてくれると助かります。
 
-### FineSettings
+### TextureFineTuning
 
-[FineSettingManual](AtlasTextureFineSetting.md)
+[TextureFineTuningのマニュアル](TextureFineTuning.md)

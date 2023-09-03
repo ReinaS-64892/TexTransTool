@@ -108,6 +108,6 @@ Specifies how to sort the auto-generated UVs when creating an atlas.
 
 If you can implement a more efficient UV reordering algorithm, please submit an Issue or PullRequest.
 
-### FineSettings
+### TextureFineTuning
 
-[FineSettingManual](AtlasTextureFineSetting.md)
+[TextureFineTuningManual](AtlasTextureFineSetting.md)

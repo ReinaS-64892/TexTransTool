@@ -1,4 +1,4 @@
-# FineSetting について
+# TextureFineTuning について
 
 ## 存在意義
 
