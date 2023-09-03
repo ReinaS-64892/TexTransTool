@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public interface IFineSetting
+    public interface ITextureFineTuning
     {
         int Order { get; }
         void FineSetting(List<PropAndTexture2D> propAndTextures);

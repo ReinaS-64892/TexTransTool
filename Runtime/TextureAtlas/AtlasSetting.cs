@@ -5,6 +5,7 @@ using net.rs64.TexTransTool.Island;
 using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 using UnityEditor;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -19,17 +20,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PaddingType PaddingType = PaddingType.EdgeBase;
         public float Padding = 10;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
-        public List<FineSettingData> fineSettings;
+        [FormerlySerializedAs("fineSettings")] public List<TextureFineTuningData> TextureFineTuningDataList;
         public float GetTexScalePadding => Padding / AtlasTextureSize.x;
 
-        public List<IFineSetting> GetFineSettings()
+        public List<ITextureFineTuning> GetFineSettings()
         {
-            var IFineSettings = new List<IFineSetting>
+            var IFineSettings = new List<ITextureFineTuning>
             {
                 new Initialize(),
                 new DefaultCompress()
             };
-            foreach (var fineSetting in fineSettings)
+            foreach (var fineSetting in TextureFineTuningDataList)
             {
                 IFineSettings.Add(fineSetting.GetFineSetting());
             }
@@ -45,10 +46,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         BakeAllProperty,
     }
     [Serializable]
-    public class FineSettingData
+    public class TextureFineTuningData
     {
-        public FineSettingSelect select;
-        public enum FineSettingSelect
+        [FormerlySerializedAs("select")] public select Select;
+        public enum select
         {
             Resize,
             Compress,
@@ -76,19 +77,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
-        public IFineSetting GetFineSetting()
+        public ITextureFineTuning GetFineSetting()
         {
-            switch (select)
+            switch (Select)
             {
-                case FineSettingSelect.Resize:
+                case select.Resize:
                     return new Resize(Resize_Size, Resize_PropertyNames, Resize_Select);
-                case FineSettingSelect.Compress:
+                case select.Compress:
                     return new Compress(Compress_FormatQuality, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
-                case FineSettingSelect.ReferenceCopy:
+                case select.ReferenceCopy:
                     return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
-                case FineSettingSelect.Remove:
+                case select.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
-                case FineSettingSelect.MipMapRemove:
+                case select.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
 
                 default:

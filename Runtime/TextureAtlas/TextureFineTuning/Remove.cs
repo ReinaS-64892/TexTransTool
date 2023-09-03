@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class Remove : IFineSetting
+    public class Remove : ITextureFineTuning
     {
         public int Order => -1025;
         public string PropertyNames;

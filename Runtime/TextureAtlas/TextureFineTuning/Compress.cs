@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Compress : IFineSetting
+    public struct Compress : ITextureFineTuning
     {
         public int Order => 0;
         public FormatQuality FormatQualityValue;

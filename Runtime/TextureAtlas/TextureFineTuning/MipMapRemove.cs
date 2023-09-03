@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct MipMapRemove : IFineSetting
+    public struct MipMapRemove : ITextureFineTuning
     {
         public int Order => -32;
         public string PropertyNames;

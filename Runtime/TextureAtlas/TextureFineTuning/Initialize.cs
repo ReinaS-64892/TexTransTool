@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Initialize : IFineSetting
+    public struct Initialize : ITextureFineTuning
     {
         public int Order => -1024;
         public void FineSetting(List<PropAndTexture2D> propAndTextures)

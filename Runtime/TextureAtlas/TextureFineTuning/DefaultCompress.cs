@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct DefaultCompress : IFineSetting
+    public struct DefaultCompress : ITextureFineTuning
     {
         public int Order => 1;
 

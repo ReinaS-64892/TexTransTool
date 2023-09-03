@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Resize : IFineSetting
+    public struct Resize : ITextureFineTuning
     {
         public int Order => -64;
         public int Size;

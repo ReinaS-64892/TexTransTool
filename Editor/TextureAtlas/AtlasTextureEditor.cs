@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 var S_PaddingType = S_Channel.FindPropertyRelative("PaddingType");
                 var S_Padding = S_Channel.FindPropertyRelative("Padding");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
-                var S_fineSettings = S_Channel.FindPropertyRelative("fineSettings");
+                var S_TextureFineTuningDataList = S_Channel.FindPropertyRelative("TextureFineTuningDataList");
 
 
 
@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(S_PaddingType);
                 EditorGUILayout.PropertyField(S_Padding);
                 EditorGUILayout.PropertyField(S_SortingType);
-                DrawFineSettings(S_fineSettings);
+                DrawTextureFineTuningDataList(S_TextureFineTuningDataList);
 
             }
             EditorGUI.indentLevel -= 1;
@@ -113,7 +113,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawFineSettings(SerializedProperty s_fineSettings)
+        private static void DrawTextureFineTuningDataList(SerializedProperty s_fineSettings)
         {
             EditorGUILayout.LabelField("Texture Fine Tuning", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             for (int i = 0; s_fineSettings.arraySize > i; i += 1)
             {
                 var S_fineSettingData = s_fineSettings.GetArrayElementAtIndex(i);
-                var S_select = S_fineSettingData.FindPropertyRelative("select");
+                var S_select = S_fineSettingData.FindPropertyRelative("Select");
                 EditorGUILayout.PropertyField(S_select, new GUIContent("Setting " + i));
                 switch (S_select.enumValueIndex)
                 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class ReferenceCopy : IFineSetting
+    public class ReferenceCopy : ITextureFineTuning
     {
         public int Order => 1024;
 
