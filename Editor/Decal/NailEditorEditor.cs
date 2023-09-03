@@ -134,18 +134,20 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 if (nailOffsetData != null)
                 {
-                    EditorUtility.SetDirty(nailOffsetData);
                     thisObject.LeftHand.Copy(nailOffsetData.LeftHand);
                     thisObject.RightHand.Copy(nailOffsetData.RightHand);
+                    EditorUtility.SetDirty(thisObject);
+                    EditorUtility.SetDirty(nailOffsetData);
                 }
             }
             if (GUILayout.Button("Save"))
             {
                 if (nailOffsetData != null)
                 {
-                    EditorUtility.SetDirty(nailOffsetData);
                     nailOffsetData.LeftHand.Copy(thisObject.LeftHand);
                     nailOffsetData.RightHand.Copy(thisObject.RightHand);
+                    EditorUtility.SetDirty(thisObject);
+                    EditorUtility.SetDirty(nailOffsetData);
                 }
             }
             EditorGUILayout.EndHorizontal();
