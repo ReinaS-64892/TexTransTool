@@ -14,7 +14,7 @@ VRChatAvatar で使用する場合は VPM を推奨しています。[Add-VPM-Li
 
 ### Init Setup
 
-アバター直下に新しい GameObject を生成し、[TexTransParentGroup](Manual/JP/TexTransParentGroup.md)と[AvatarDomainDefinition](Manual/JP/AvatarMaterialDmain.md)追加してください。
+アバター直下に新しい GameObject を生成し、[TexTransParentGroup](Manual/JP/TexTransParentGroup.md)と[AvatarDomainDefinition](Manual/JP/AvatarDomainDefinition.md)追加してください。
 
 ### Modification Setup
 
