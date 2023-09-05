@@ -9,6 +9,8 @@ using net.rs64.TexTransTool.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
+
+    [AddComponentMenu("TexTransTool/NailEditor")]
     public class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;
