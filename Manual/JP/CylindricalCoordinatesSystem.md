@@ -2,7 +2,7 @@
 
 ## このコンポーネントの概要
 
-このコンポーネントは、[CylindricalCurveDecal](CylindricalCurveDecal.md)のためにあるコンポーネントで、
+このコンポーネントは、[CylindricalCurveDecal](Experimental/CylindricalCurveDecal.md)のためにあるコンポーネントで、
 円柱座標系を定義するために存在します。
 
 ## 使い方

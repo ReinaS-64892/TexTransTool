@@ -19,8 +19,8 @@ TexTransTool/Runtime/Decal/Curve/Cylindrical にある CylindricalCurveDecal.cs 
 - 対象となる TargetRenderer をセット
 - DecalTexture をセット
 - 必要であれば UseFirsAndEnd にチェックを入れ夫々をセット
-- 腕の中心などに配置した [CylindricalCoordinatesSystem](CylindricalCoordinatesSystem.md)をセットします
-- カーブとなる[セグメント](CurevSegment.md)を作成して Segments に追加し、セグメントの位置やロールを調整
+- 腕の中心などに配置した [CylindricalCoordinatesSystem](../CylindricalCoordinatesSystem.md)をセットします
+- カーブとなる[セグメント](CurveSegment.md)を作成して Segments に追加し、セグメントの位置やロールを調整
 - サイズとループカウントをお好みの値に設定
 
 Apply ボタンを押すとそのカーブデカールをプレビューすることができます。

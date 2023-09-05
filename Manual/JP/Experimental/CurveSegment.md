@@ -1,4 +1,4 @@
-# CurevSegment について
+# CurveSegment について
 
 ## このコンポーネントの概要
 
