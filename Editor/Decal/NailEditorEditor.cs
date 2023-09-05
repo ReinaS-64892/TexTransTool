@@ -17,6 +17,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var This_S_Object = serializedObject;
             var ThisObject = target as NailEditor;
 
+            var S_TargetAvatar = This_S_Object.FindProperty("TargetAvatar");
+            EditorGUILayout.PropertyField(S_TargetAvatar);
+
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
             TextureTransformerEditor.DrawerRenderer(S_TargetRenderers, S_MultiRendererMode.boolValue);
@@ -94,7 +97,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public static void DrawerPositionOffset(SerializedProperty serializedProperty)
         {
             var DrawValue = serializedProperty.vector3Value * 100;
-            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "PositionOffset", DrawValue) * 0.01f;
+            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "Position Offset", DrawValue) * 0.01f;
 
         }
 
