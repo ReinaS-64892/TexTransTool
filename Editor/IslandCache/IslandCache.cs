@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.EditorIsland
@@ -8,4 +7,3 @@ namespace net.rs64.TexTransTool.EditorIsland
         public IslandCacheObject CacheObject;
     }
 }
-#endif

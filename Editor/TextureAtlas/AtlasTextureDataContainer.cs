@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using System.Collections.Generic;
@@ -91,4 +90,3 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
     }
 }
-#endif

@@ -1,9 +1,4 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-
+﻿
 namespace net.rs64.TexTransTool.ShaderSupport
 {
     public interface IShaderSupport
@@ -26,4 +21,3 @@ namespace net.rs64.TexTransTool.ShaderSupport
 
 
 }
-#endif

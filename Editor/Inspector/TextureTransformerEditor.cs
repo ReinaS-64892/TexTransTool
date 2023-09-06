@@ -1,8 +1,6 @@
-#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace net.rs64.TexTransTool.Editor
@@ -174,4 +172,3 @@ namespace net.rs64.TexTransTool.Editor
 
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Decal;
@@ -281,4 +280,3 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         }
     }
 }
-#endif

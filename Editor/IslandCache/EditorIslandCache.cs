@@ -1,9 +1,7 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
-using UnityEditor;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.Island;
 using System.Security.Cryptography;
@@ -105,4 +103,3 @@ namespace net.rs64.TexTransTool.EditorIsland
         }
     }
 }
-#endif

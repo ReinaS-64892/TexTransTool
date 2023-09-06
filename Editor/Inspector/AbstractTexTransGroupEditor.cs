@@ -1,6 +1,3 @@
-#if UNITY_EDITOR
-using System.Net.Mime;
-using UnityEngine;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor
@@ -15,4 +12,3 @@ namespace net.rs64.TexTransTool.Editor
         }
     }
 }
-#endif

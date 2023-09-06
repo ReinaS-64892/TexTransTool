@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System.Diagnostics.SymbolStore;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -216,7 +214,3 @@ namespace net.rs64.TexTransTool.Decal
         }
     }
 }
-
-
-
-#endif

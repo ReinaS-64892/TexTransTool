@@ -1,4 +1,4 @@
-﻿#if (UNITY_EDITOR && VRC_BASE)
+﻿#if  VRC_BASE
 using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;

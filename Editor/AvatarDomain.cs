@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -315,4 +314,3 @@ namespace net.rs64.TexTransTool
         public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;
     }
 }
-#endif

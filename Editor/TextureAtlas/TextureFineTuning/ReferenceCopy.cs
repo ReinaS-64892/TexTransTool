@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
@@ -28,4 +27,3 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
 
 }
-#endif

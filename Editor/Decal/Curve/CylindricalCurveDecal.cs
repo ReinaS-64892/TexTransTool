@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Decal.Cylindrical;
@@ -155,4 +154,3 @@ namespace net.rs64.TexTransTool.Decal.Curve
         }
     }
 }
-#endif

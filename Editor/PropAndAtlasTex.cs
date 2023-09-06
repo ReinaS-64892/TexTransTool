@@ -1,6 +1,4 @@
-#if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 
 namespace net.rs64.TexTransTool
@@ -29,4 +27,3 @@ namespace net.rs64.TexTransTool
     }
 
 }
-#endif
