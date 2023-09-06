@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -43,7 +44,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel -= 1;
         }
 
-        public static void DrawerScaleEditor<T>(AbstractSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtil.IConvertSpace
+        public static void DrawerScaleEditor<T>(AbstractSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtility.IConvertSpace
         {
             if (S_FixedAspect.boolValue)
             {

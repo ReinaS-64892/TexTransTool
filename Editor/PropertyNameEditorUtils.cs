@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool.Editor
                 bool editorFlag = false;
 
                 rect.width = PropWith;
-                var notEditShaderIndex = Mathf.Clamp(ShadersNames.IndexOf(s_shaderName.stringValue), 0, ShadersNames.Length - 1);
+                var notEditShaderIndex = Mathf.Clamp(Array.IndexOf(ShadersNames, s_shaderName.stringValue), 0, ShadersNames.Length - 1);
                 var editShaderIndex = EditorGUI.Popup(rect, notEditShaderIndex, ShadersNames);
                 rect.x += rect.width;
                 if (editShaderIndex != notEditShaderIndex)
