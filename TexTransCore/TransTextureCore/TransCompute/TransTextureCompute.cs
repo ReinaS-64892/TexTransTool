@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
 using System.Collections.Generic;

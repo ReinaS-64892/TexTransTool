@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using System;
 using UnityEngine;
@@ -200,4 +199,3 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
     }
 
 }
-#endif
