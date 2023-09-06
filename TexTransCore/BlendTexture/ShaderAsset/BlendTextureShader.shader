@@ -18,7 +18,7 @@ Shader "Hidden/BlendTexture"
             #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp NotBlend
 
             #include "UnityCG.cginc"
-            #include "../ComputeShaders/BlendTextureHelper.hlsl"
+            #include "../../TransTextureCore/ShaderAsset/Compute/BlendTextureHelper.hlsl"
 
             struct appdata
             {

@@ -17,7 +17,7 @@ Shader "Hidden/ColorMulShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../ComputeShaders/BlendTextureHelper.hlsl"
+            #include "../../TransTextureCore/ShaderAsset/Compute/BlendTextureHelper.hlsl"
 
             struct appdata
             {
