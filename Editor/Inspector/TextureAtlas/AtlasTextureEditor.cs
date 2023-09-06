@@ -75,7 +75,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 var S_MergeReferenceMaterial = S_Channel.FindPropertyRelative("MergeReferenceMaterial");
                 var S_ForceSetTexture = S_Channel.FindPropertyRelative("ForceSetTexture");
                 var S_PropertyBakeSetting = S_Channel.FindPropertyRelative("PropertyBakeSetting");
-                var S_PaddingType = S_Channel.FindPropertyRelative("PaddingType");
                 var S_Padding = S_Channel.FindPropertyRelative("Padding");
                 var S_SortingType = S_Channel.FindPropertyRelative("SortingType");
                 var S_TextureFineTuningDataList = S_Channel.FindPropertyRelative("TextureFineTuningDataList");
@@ -90,7 +89,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     EditorGUILayout.PropertyField(S_MergeReferenceMaterial);
                 }
                 EditorGUILayout.PropertyField(S_ForceSetTexture);
-                EditorGUILayout.PropertyField(S_PaddingType);
                 EditorGUILayout.PropertyField(S_Padding);
                 EditorGUILayout.PropertyField(S_SortingType);
                 DrawTextureFineTuningDataList(S_TextureFineTuningDataList);
