@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.Decal
                 var mulDecalTexture2D = mulDecalTexture.CopyTexture2D();
                 var mulDecalTexTowDimensionMap = new TwoDimensionalMap<Color>(mulDecalTexture2D.GetPixels(), new Vector2Int(mulDecalTexture2D.width, mulDecalTexture2D.height));
                 var TransTextureCompute = TransMapper.TransTextureCompute;
-                List<Dictionary<Texture2D, List<Texture2D>>> DecalsCompileTexListDict = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>> DecalsCompileTexListDict = new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
                 foreach (var renderer in TargetRenderers)
                 {
                     var DecalsCompile = DecalUtility.CreateDecalTextureCS(
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.Decal
                 var blendTextureCS = TransMapper.BlendTextureCS;
                 foreach (var texture in zipDict)
                 {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.Select(tex => new TwoDimensionalMap<Color>(tex.GetPixels(), tex.NativeSize())).ToList(), BlendType.AlphaLerp);
+                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value, BlendType.AlphaLerp);
                     var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
                     blendTexture.SetPixels(blendColorMap.Array);
                     blendTexture.Apply();

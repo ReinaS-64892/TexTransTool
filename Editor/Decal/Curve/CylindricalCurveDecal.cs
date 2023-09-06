@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
             }
 
             Dictionary<Texture2D, RenderTexture> fastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
-            List<Dictionary<Texture2D, List<Texture2D>>> slowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<Texture2D>>>();
+            List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>> slowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
             var transTextureCompute = TransMapper.TransTextureCompute;
 
             var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
@@ -100,7 +100,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                 var blendTextureCS = TransMapper.BlendTextureCS;
                 foreach (var texture in zipDict)
                 {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.Select(tex => new TwoDimensionalMap<Color>(tex.GetPixels(), tex.NativeSize())).ToList(), BlendType.AlphaLerp);
+                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value, BlendType.AlphaLerp);
                     var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
                     blendTexture.SetPixels(blendColorMap.Array);
                     blendTexture.Apply();

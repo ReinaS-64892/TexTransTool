@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             else
             {
-                var decalsCompileTexListDict = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                var decalsCompileTexListDict = new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
                 var transTextureCompute = TransMapper.TransTextureCompute;
 
 
@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool.Decal
                 var blendTextureCS = TransMapper.BlendTextureCS;
                 foreach (var texture in zipDict)
                 {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.Select(tex => new TwoDimensionalMap<Color>(tex.GetPixels(), tex.NativeSize())).ToList(), BlendType.AlphaLerp);
+                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.ToList(), BlendType.AlphaLerp);
                     var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
                     blendTexture.SetPixels(blendColorMap.Array);
                     blendTexture.Apply();

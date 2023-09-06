@@ -90,7 +90,7 @@ namespace net.rs64.TexTransCore.Decal
 
             return RenderTextures;
         }
-        public static Dictionary<Texture2D, List<Texture2D>> CreateDecalTextureCS<SpaceConverter>(
+        public static Dictionary<Texture2D, List<TwoDimensionalMap<Color>>> CreateDecalTextureCS<SpaceConverter>(
             TransTextureCompute transTextureCompute,
             Renderer TargetRenderer,
             TwoDimensionalMap<Color> SousTextures,
@@ -102,7 +102,7 @@ namespace net.rs64.TexTransCore.Decal
         )
         where SpaceConverter : IConvertSpace
         {
-            var resultTextures = new Dictionary<Texture2D, List<Texture2D>>();
+            var resultTextures = new Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>();
 
             var vertices = GetWorldSpaceVertices(TargetRenderer);
             var (tUV, TrianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
@@ -129,8 +129,8 @@ namespace net.rs64.TexTransCore.Decal
                 transTextureCompute.TransTextureUseCS(atlasTex, SousTextures, new TransTexture.TransData(filteredTriangle, tUV, sUV), DefaultPadding, TextureWarp);
 
 
-                if (resultTextures.ContainsKey(targetTexture) == false) { resultTextures.Add(targetTexture, new List<Texture2D>() { TransColor.ConvertTexture2D(atlasTex) }); }
-                else { resultTextures[targetTexture].Add(TransColor.ConvertTexture2D(atlasTex)); }
+                if (resultTextures.ContainsKey(targetTexture) == false) { resultTextures.Add(targetTexture, new List<TwoDimensionalMap<Color>>() { new TwoDimensionalMap<Color>(TransColor.GetColorArray(atlasTex.Array), atlasTex.MapSize) }); }
+                else { resultTextures[targetTexture].Add(new TwoDimensionalMap<Color>(TransColor.GetColorArray(atlasTex.Array), atlasTex.MapSize)); }
             }
 
             return resultTextures;

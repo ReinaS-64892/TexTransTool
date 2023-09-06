@@ -155,7 +155,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
         public static float[] GetDistanceArray(TransColor[] map)
         {
             var distanceArray = new float[map.Length];
-            for (int i = 0; i < map.Length; i += 1)
+            for (int i = 0; map.Length > i; i += 1)
             {
                 distanceArray[i] = map[i].Distance;
             }
@@ -164,15 +164,15 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
         public static void SetDistanceArray(TransColor[] map, float[] distanceArray)
         {
             if (map.Length != distanceArray.Length) { return; }
-            for (int i = 0; i < map.Length; i += 1)
+            for (int i = 0; map.Length > i; i += 1)
             {
-                map[i].Distance = distanceArray[i];
+                map[i] = new TransColor(map[i].Color, distanceArray[i]);
             }
         }
         public static Color[] GetColorArray(TransColor[] map)
         {
             var colorArray = new Color[map.Length];
-            for (int i = 0; i < map.Length; i += 1)
+            for (int i = 0; map.Length > i; i += 1)
             {
                 colorArray[i] = map[i].Color;
             }
@@ -181,9 +181,9 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
         public static void SetColorArray(TransColor[] map, Color[] colorArray)
         {
             if (colorArray.Length != map.Length) { return; }
-            for (int i = 0; i < map.Length; i += 1)
+            for (int i = 0; map.Length > i; i += 1)
             {
-                map[i].Color = colorArray[i];
+                map[i] = new TransColor(colorArray[i], map[i].Distance);
             }
         }
 

@@ -11,8 +11,8 @@ namespace net.rs64.TexTransTool
         public const string TransMapperPath = "Packages/net.rs64.tex-trans-tool/TexTransCore/TransTextureCore/ShaderAsset/Compute/TransMapper.compute";
 
         public static TransTextureCompute TransTextureCompute => new TransTextureCompute(
-            AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath),
-            AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath));
+            AssetDatabase.LoadAssetAtPath<ComputeShader>(TransMapperPath),
+            AssetDatabase.LoadAssetAtPath<ComputeShader>(TransCompilerPath));
 
         public const string BlendTextureCSPath = "Packages/net.rs64.tex-trans-tool/TexTransCore/TransTextureCore/ShaderAsset/Compute/BlendTexture.compute";
 

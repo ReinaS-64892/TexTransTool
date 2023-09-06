@@ -129,7 +129,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
             var tDistance = TransColor.GetDistanceArray(targetTex.Array);
 
             Vector2Int threadGroupSize = texSize / 32;
-            var kernelIndex = TransCompilerCS.FindKernel(wrapMode.ToString());
+            var kernelIndex = TransCompilerCS.FindKernel(wrapMode.Mode.ToString());
 
 
             var souseTexCB = new ComputeBuffer(sColors.Length, 16);
