@@ -6,6 +6,9 @@ using static net.rs64.TexTransTool.TextureLayerUtil;
 using UnityEditor;
 using System;
 using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool
 {
@@ -27,7 +30,7 @@ namespace net.rs64.TexTransTool
         {
             _avatarRoot = avatarRoot;
             _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
-            _initialMaterials = Utils.GetMaterials(_renderers);
+            _initialMaterials = RendererUtility.GetMaterials(_renderers);
             if (AssetSaver)
             {
                 if (OverrideAssetContainer == null)
@@ -63,15 +66,15 @@ namespace net.rs64.TexTransTool
             var reversedMatModifiesDict = new Dictionary<Material, Material>();
             foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
 
-            Utils.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
+            RendererUtility.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
 
             _matModifies.Clear();
 
-            Utils.SetMaterials(_renderers, _initialMaterials);
+            RendererUtility.SetMaterials(_renderers, _initialMaterials);
         }
         private List<Material> GetFilteredMaterials()
         {
-            return Utils.GetMaterials(_renderers).Distinct().Where(I => I != null).ToList();
+            return RendererUtility.GetMaterials(_renderers).Distinct().Where(I => I != null).ToList();
         }
         public void transferAsset(UnityEngine.Object UnityObject)
         {
@@ -88,13 +91,13 @@ namespace net.rs64.TexTransTool
         {
             if (isPaired)
             {
-                Utils.ChangeMaterialForRenderers(_renderers, Target, SetMat);
-                if(_mapDict == null) _mapDict = new FlatMapDict<Material>();
+                RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
+                if (_mapDict == null) _mapDict = new FlatMapDict<Material>();
                 _mapDict.Add(Target, SetMat);
             }
             else
             {
-                Utils.ChangeMaterialForRenderers(_renderers, Target, SetMat);
+                RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
             }
 
             transferAsset(SetMat);
@@ -124,7 +127,7 @@ namespace net.rs64.TexTransTool
             var targetAndSet = new List<MatPair>();
             foreach (var mat in mats)
             {
-                var Textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(mat), mat);
+                var Textures = MaterialUtility.FiltalingUnused(MaterialUtility.GetPropAndTextures(mat), mat);
 
                 if (Textures.ContainsValue(Target))
                 {
@@ -199,7 +202,7 @@ namespace net.rs64.TexTransTool
                 SortedList<int, Color[]> mip = null;
                 if (_generateCustomMipMap)
                 {
-                    var usingUVdata = new List<TransTexture.TransUVData>();
+                    var usingUVdata = new List<TransTexture.TransData>();
                     foreach (var mat in FindUseMaterials(dist))
                     {
                         MatUseUvDataGet(usingUVdata, mat);
@@ -224,11 +227,11 @@ namespace net.rs64.TexTransTool
             }
 
             var matModifiedDict = _mapDict.GetMapping;
-            Utils.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
+            RendererUtility.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
             _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
         }
 
-        private void MatUseUvDataGet(List<TransTexture.TransUVData> UsingUVdata, Material Mat)
+        private void MatUseUvDataGet(List<TransTexture.TransData> UsingUVdata, Material Mat)
         {
             for (int i = 0; _renderers.Count > i; i++)
             {
@@ -238,10 +241,10 @@ namespace net.rs64.TexTransTool
                     if (render.sharedMaterials[j] == Mat)
                     {
                         var mesh = render.GetMesh();
-                        UsingUVdata.Add(new TransTexture.TransUVData(
-                            Utils.ToList(mesh.GetTriangles(j)),
-                            mesh.uv,
-                            mesh.uv
+                        UsingUVdata.Add(new TransTexture.TransData(
+                            mesh.GetSubTriangleIndex(j),
+                            mesh.GetUVList(),
+                            mesh.GetUVList(0)
                             )
                         );
                     }
@@ -255,7 +258,7 @@ namespace net.rs64.TexTransTool
             List<Material> useMats = new List<Material>();
             foreach (var mat in mats)
             {
-                var textures = MaterialUtil.FiltalingUnused(MaterialUtil.GetPropAndTextures(mat), mat);
+                var textures = MaterialUtility.FiltalingUnused(MaterialUtility.GetPropAndTextures(mat), mat);
 
                 if (textures.ContainsValue(Texture))
                 {
@@ -309,7 +312,7 @@ namespace net.rs64.TexTransTool
                 _reverseDict.Add(value, key);
             }
         }
-        public IReadOnlyDictionary<TKeyValue, TKeyValue> GetMapping => _dict;
+        public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;
     }
 }
 #endif

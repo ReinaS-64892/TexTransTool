@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine.Serialization;
-using net.rs64.TexTransTool.Island;
+using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -21,11 +22,11 @@ namespace net.rs64.TexTransTool.Decal
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;
 
         public override ParallelProjectionSpace GetSpaceConverter => new ParallelProjectionSpace(transform.worldToLocalMatrix);
-        public override DecalUtil.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter
+        public override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter
         {
             get
             {
-                if (IslandCulling) { return new IslandCullingPPFilter(GetFilter(), GetIslandSelector()); }
+                if (IslandCulling) { return new IslandCullingPPFilter(GetFilter(), GetIslandSelector(), new EditorIsland.EditorIslandCache()); }
                 else { return new ParallelProjectionFilter(GetFilter()); }
             }
         }
@@ -37,15 +38,15 @@ namespace net.rs64.TexTransTool.Decal
         {
             ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistance), FixedAspect);
         }
-        public List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
-            var filters = new List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>>
+            var filters = new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
             {
-                new TriangleFilterUtils.FarStruct(1, false),
-                new TriangleFilterUtils.NearStruct(0, true)
+                new TriangleFilterUtility.FarStruct(1, false),
+                new TriangleFilterUtility.NearStruct(0, true)
             };
-            if (SideCulling) filters.Add(new TriangleFilterUtils.SideStruct());
-            filters.Add(new TriangleFilterUtils.OutOfPolygonStruct(PolygonCulling, 0, 1, true));
+            if (SideCulling) filters.Add(new TriangleFilterUtility.SideStruct());
+            filters.Add(new TriangleFilterUtility.OutOfPolygonStruct(PolygonCulling, 0, 1, true));
 
             return filters;
         }
@@ -194,7 +195,7 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var render in TargetRenderers)
             {
-                DecalUtil.CreateDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRenderTexture, GetSpaceConverter, GetTriangleFilter, TargetPropertyName, GetOutRangeTexture, Padding);
+                DecalUtility.CreateDecalTexture(render, _RealTimePreviewDecalTextureCompile, DecalRenderTexture, GetSpaceConverter, GetTriangleFilter, TargetPropertyName, GetTextureWarp, Padding);
             }
             foreach (var sTex in _RealTimePreviewDecalTextureBlend.Keys)
             {
@@ -213,66 +214,6 @@ namespace net.rs64.TexTransTool.Decal
         {
             UpdateRealTimePreview();
         }
-    }
-
-    public class ParallelProjectionSpace : DecalUtil.IConvertSpace
-    {
-        public Matrix4x4 ParallelProjectionMatrix;
-        public List<Vector3> PPSVert;
-        public DecalUtil.MeshData MeshData;
-        public ParallelProjectionSpace(Matrix4x4 ParallelProjectionMatrix)
-        {
-            this.ParallelProjectionMatrix = ParallelProjectionMatrix;
-
-        }
-        public void Input(DecalUtil.MeshData meshData)
-        {
-            MeshData = meshData;
-            PPSVert = DecalUtil.ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData.Vertex, new Vector3(0.5f, 0.5f, 0));
-        }
-
-        public List<Vector2> OutPutUV()
-        {
-            var UV = new List<Vector2>(PPSVert.Capacity);
-            foreach (var vert in PPSVert)
-            {
-                UV.Add(vert);
-            }
-            return UV;
-        }
-
-    }
-
-    public class ParallelProjectionFilter : DecalUtil.ITrianglesFilter<ParallelProjectionSpace>
-    {
-        public List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> Filters;
-
-        public ParallelProjectionFilter(List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> Filters)
-        {
-            this.Filters = Filters;
-        }
-
-        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles)
-        {
-            return TriangleFilterUtils.FilteringTriangle(Triangles, Space.PPSVert, Filters);
-        }
-    }
-
-    public class IslandCullingPPFilter : ParallelProjectionFilter
-    {
-        public List<IslandSelector> IslandSelectors;
-
-        public IslandCullingPPFilter(List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors) : base(Filters)
-        {
-            this.IslandSelectors = IslandSelectors;
-        }
-
-        public override List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles)
-        {
-            Triangles = Island.IslandCulling.Culling(IslandSelectors, Space.MeshData.Vertex, Space.MeshData.UV, Triangles);
-            return base.Filtering(Space, Triangles);
-        }
-
     }
 }
 

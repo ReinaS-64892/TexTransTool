@@ -2,6 +2,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Decal.Cylindrical;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.TransCompute;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
@@ -20,14 +25,15 @@ namespace net.rs64.TexTransTool.Decal.Curve
         {
 
 
-            Vector2? texWarpRange = null;
+            TextureWrap texWarpRange = TextureWrap.NotWrap;
             if (IsTextureWarp)
             {
-                texWarpRange = TextureWarpRange;
+                texWarpRange.WarpRange = TextureWarpRange;
             }
 
             Dictionary<Texture2D, RenderTexture> fastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
             List<Dictionary<Texture2D, List<Texture2D>>> slowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<Texture2D>>>();
+            var transTextureCompute = TransMapper.TransTextureCompute;
 
             var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
             int count = 0;
@@ -52,24 +58,26 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
                     if (FastMode)
                     {
-                        DecalUtil.CreateDecalTexture(Renderer,
+                        DecalUtility.CreateDecalTexture(Renderer,
                                                     fastDictCompiledTextures,
                                                     targetDecalTexture,
                                                     CCSSpace,
                                                     CCSfilter,
                                                     TargetPropertyName,
-                                                    TextureOutRange: texWarpRange,
+                                                    TextureWarp: texWarpRange,
                                                     DefaultPadding: Padding
                                                     );
                     }
                     else
                     {
-                        slowDictCompiledTextures.Add(DecalUtil.CreateDecalTextureCS(Renderer,
-                                                                             targetDecalTexture,
+                        var decalTexTowDimensionMap = new TwoDimensionalMap<Color>(targetDecalTexture.GetPixels(), new Vector2Int(targetDecalTexture.width, targetDecalTexture.height));
+                        slowDictCompiledTextures.Add(DecalUtility.CreateDecalTextureCS(transTextureCompute,
+                                                                             Renderer,
+                                                                             decalTexTowDimensionMap,
                                                                              CCSSpace,
                                                                              CCSfilter,
                                                                              TargetPropertyName,
-                                                                             TextureOutRange: texWarpRange,
+                                                                             TextureWarp: texWarpRange,
                                                                              DefaultPadding: Padding
                                                                             ));
                     }
@@ -87,21 +95,25 @@ namespace net.rs64.TexTransTool.Decal.Curve
             }
             else
             {
-                var zipDict = Utils.ZipToDictionaryOnList(slowDictCompiledTextures);
+                var zipDict = CollectionsUtility.ZipToDictionaryOnList(slowDictCompiledTextures);
+
+                var blendTextureCS = TransMapper.BlendTextureCS;
                 foreach (var texture in zipDict)
                 {
-                    var compiledTex = TextureLayerUtil.BlendTextureUseComputeShader(null, texture.Value, BlendType.AlphaLerp);
-                    compiledTex.Apply();
-                    decalCompiledTextures.Add(texture.Key, compiledTex);
+                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.Select(tex => new TwoDimensionalMap<Color>(tex.GetPixels(), tex.NativeSize())).ToList(), BlendType.AlphaLerp);
+                    var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
+                    blendTexture.SetPixels(blendColorMap.Array);
+                    blendTexture.Apply();
+                    decalCompiledTextures.Add(texture.Key, blendTexture);
                 }
             }
 
             return decalCompiledTextures;
         }
 
-        public List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> GetFilers()
+        public List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilers()
         {
-            var filters = new List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>>
+            var filters = new List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>>
             {
                 new CCSFilter.BorderOnPolygonStruct(150),
                 new CCSFilter.OutOfPerigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)

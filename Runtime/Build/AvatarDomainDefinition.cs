@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using System;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Build
 {
@@ -16,7 +17,7 @@ namespace net.rs64.TexTransTool.Build
 
         [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply => _IsSelfCallApply;
-        [HideInInspector, SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
+        [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public virtual AvatarDomain GetDomain(GameObject avatar, UnityEngine.Object OverrideAssetContainer = null)
         {

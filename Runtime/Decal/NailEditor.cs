@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections;
-using net.rs64.TexTransTool.Island;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -34,14 +37,14 @@ namespace net.rs64.TexTransTool.Decal
                 {
                     foreach (var renderer in TargetRenderers)
                     {
-                        DecalUtil.CreateDecalTexture(
+                        DecalUtility.CreateDecalTexture(
                             renderer,
                             decalCompiledTextures,
                             nailTexSpaceFilter.Item1,
                             nailTexSpaceFilter.Item2,
                             nailTexSpaceFilter.Item3,
                             TargetPropertyName,
-                            GetOutRangeTexture,
+                            GetTextureWarp,
                             Padding
                         );
                     }
@@ -57,6 +60,7 @@ namespace net.rs64.TexTransTool.Decal
             else
             {
                 var decalsCompileTexListDict = new List<Dictionary<Texture2D, List<Texture2D>>>();
+                var transTextureCompute = TransMapper.TransTextureCompute;
 
 
                 foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
@@ -64,13 +68,14 @@ namespace net.rs64.TexTransTool.Decal
                     foreach (var renderer in TargetRenderers)
                     {
                         decalsCompileTexListDict.Add(
-                                DecalUtil.CreateDecalTextureCS(
+                                DecalUtility.CreateDecalTextureCS(
+                                    transTextureCompute,
                                     renderer,
-                                    nailTexSpaceFilter.Item1,
+                                    new TwoDimensionalMap<Color>(nailTexSpaceFilter.Item1.GetPixels(), nailTexSpaceFilter.Item1.NativeSize()),
                                     nailTexSpaceFilter.Item2,
                                     nailTexSpaceFilter.Item3,
                                     TargetPropertyName,
-                                    GetOutRangeTexture,
+                                    GetTextureWarp,
                                     Padding
                                 ));
                     }
@@ -78,11 +83,13 @@ namespace net.rs64.TexTransTool.Decal
 
                 var decalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
 
-                var zipDict = Utils.ZipToDictionaryOnList(decalsCompileTexListDict);
-
+                var zipDict = CollectionsUtility.ZipToDictionaryOnList(decalsCompileTexListDict);
+                var blendTextureCS = TransMapper.BlendTextureCS;
                 foreach (var texture in zipDict)
                 {
-                    var blendTexture = TextureLayerUtil.BlendTextureUseComputeShader(null, texture.Value, BlendType.AlphaLerp);
+                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.Select(tex => new TwoDimensionalMap<Color>(tex.GetPixels(), tex.NativeSize())).ToList(), BlendType.AlphaLerp);
+                    var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
+                    blendTexture.SetPixels(blendColorMap.Array);
                     blendTexture.Apply();
                     decalCompiledRenderTextures.Add(texture.Key, blendTexture);
                 }
@@ -113,7 +120,7 @@ namespace net.rs64.TexTransTool.Decal
                     var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
 
                     var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
-                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelector });
+                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelector }, new EditorIsland.EditorIslandCache());
 
                     spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }
@@ -122,14 +129,14 @@ namespace net.rs64.TexTransTool.Decal
             return spaceList;
         }
 
-        public List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>> GetFilter()
+        public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
-            return new List<TriangleFilterUtils.ITriangleFiltering<List<Vector3>>>
+            return new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
             {
-                new TriangleFilterUtils.FarStruct(1, false),
-                new TriangleFilterUtils.NearStruct(0, true),
-                new TriangleFilterUtils.SideStruct(),
-                new TriangleFilterUtils.OutOfPolygonStruct(PolygonCulling.Edge, 0, 1, true)
+                new TriangleFilterUtility.FarStruct(1, false),
+                new TriangleFilterUtility.NearStruct(0, true),
+                new TriangleFilterUtility.SideStruct(),
+                new TriangleFilterUtility.OutOfPolygonStruct(PolygonCulling.Edge, 0, 1, true)
             };
         }
 

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using System.IO;
+using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -18,7 +20,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool FastMode = true;
         public bool IsSeparateMatAndTexture;
 
-        public virtual Vector2? GetOutRangeTexture { get => Vector2.zero; }
+        public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
         [SerializeField] protected bool _IsApply = false;
         public override bool IsApply => _IsApply;
@@ -42,20 +44,20 @@ namespace net.rs64.TexTransTool.Decal
                 else
                 {
                     var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
-                    var materials = Utils.GetMaterials(TargetRenderers).Distinct();
+                    var materials = RendererUtility.GetMaterials(TargetRenderers).Distinct();
                     CopyTexDescription(decalBlendTextures);
 
                     var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
-                    Utils.ChangeMaterialForRenderers(TargetRenderers, dictMat);
+                    RendererUtility.ChangeMaterialForRenderers(TargetRenderers, dictMat);
                 }
             }
             else
             {
                 var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
-                var materials = Utils.GetMaterials(TargetRenderers).Distinct();
+                var materials = RendererUtility.GetMaterials(TargetRenderers).Distinct();
                 var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
 
-                Utils.ChangeMaterialForRenderers(TargetRenderers, dictMat);
+                RendererUtility.ChangeMaterialForRenderers(TargetRenderers, dictMat);
                 var listMatPea = MatPair.ConvertMatPairList(dictMat);
                 localSave = new DecalDataContainer();
                 localSave.GenerateMaterials = listMatPea;
@@ -122,7 +124,7 @@ namespace net.rs64.TexTransTool.Decal
             else
             {
                 var revertList = MatPair.ConvertMatDict(MatPair.SwitchingList(localSave.GenerateMaterials));
-                Utils.ChangeMaterialForRenderers(TargetRenderers, revertList);
+                RendererUtility.ChangeMaterialForRenderers(TargetRenderers, revertList);
                 localSave = null;
             }
             IsSelfCallApply = false;
@@ -132,7 +134,7 @@ namespace net.rs64.TexTransTool.Decal
         [ContextMenu("ExtractDecalCompiledTexture")]
         public void ExtractDecalCompiledTexture()
         {
-            if(!IsPossibleApply) {Debug.LogError("Applyできないためデカールをコンパイルできません。");return;}
+            if (!IsPossibleApply) { Debug.LogError("Applyできないためデカールをコンパイルできません。"); return; }
 
 
             var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");

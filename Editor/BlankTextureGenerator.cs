@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.Editor
         }
         private static void GenerateAndSaveBlankTexture(int size)
         {
-            var tex = Utils.CreateFillTexture(size, new Color(0, 0, 0, 0));
+            var tex = ToolUtils.CreateFillTexture(size, new Color(0, 0, 0, 0));
             var path = AssetDatabase.GenerateUniqueAssetPath("Assets/BlankTexture2K.png");
             var pngByte = tex.EncodeToPNG();
             System.IO.File.WriteAllBytes(path, pngByte);

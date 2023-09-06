@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool
@@ -10,7 +11,7 @@ namespace net.rs64.TexTransTool
         public abstract bool IsPossibleApply { get; }
         [SerializeField] bool _IsSelfCallApply;
         public virtual bool IsSelfCallApply { get => _IsSelfCallApply; protected set => _IsSelfCallApply = value; }
-        [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
+        [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public abstract void Apply(AvatarDomain avatarMaterialDomain = null);
         public abstract void Revert(AvatarDomain avatarMaterialDomain = null);

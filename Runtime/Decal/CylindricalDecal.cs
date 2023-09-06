@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using net.rs64.TexTransTool.Decal.Cylindrical;
+using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -18,11 +19,11 @@ namespace net.rs64.TexTransTool.Decal
         public float OutOfRangeOffset = 1f;
 
         public override CCSSpace GetSpaceConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
-        public override DecalUtil.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
+        public override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
 
-        private List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> GetFilters()
+        private List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilters()
         {
-            var filters = new List<TriangleFilterUtils.ITriangleFiltering<CCSSpace>>
+            var filters = new List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>>
             {
                 new CCSFilter.BorderOnPolygonStruct(),
                 new CCSFilter.OutOfPerigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)

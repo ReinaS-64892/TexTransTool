@@ -1,11 +1,12 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System;
-using net.rs64.TexTransTool.Island;
+using net.rs64.TexTransTool.EditorIsland;
 using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -17,7 +18,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
-        public PaddingType PaddingType = PaddingType.EdgeBase;
         public float Padding = 10;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
         [FormerlySerializedAs("fineSettings")] public List<TextureFineTuningData> TextureFineTuningDataList;

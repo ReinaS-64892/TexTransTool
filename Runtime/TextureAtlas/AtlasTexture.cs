@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using net.rs64.TexTransTool.Island;
-using static net.rs64.TexTransTool.TransTexture;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.Island;
+using Island = net.rs64.TexTransCore.Island.Island;
+using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.EditorIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
+
     [AddComponentMenu("TexTransTool/AtlasTexture")]
     public class AtlasTexture : TextureTransformer
     {
@@ -141,7 +147,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         if (souseProp2Tex == null) continue;
 
 
-                        var islandPairs = new List<(Island.Island, Island.Island)>();
+                        var islandPairs = new List<(Island, Island)>();
                         foreach (var TargetIndexTag in tags.Where(tag => atlasData.GetMaterialReference(tag) == matData.MaterialReference))
                         {
                             var Origin = originIslandPool.FindTag(TargetIndexTag);
@@ -208,7 +214,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
                 var MovedUV = new List<Vector2>(AMD.UV);
-                IslandUtils.IslandPoolMoveUV(AMD.UV, MovedUV, originIslandPool, MovedPool);
+                IslandUtility.IslandPoolMoveUV(AMD.UV, MovedUV, originIslandPool, MovedPool);
 
                 generateMeshAndMatRef.Mesh.SetUVs(0, MovedUV);
                 generateMeshAndMatRef.Mesh.SetUVs(1, AMD.UV);
@@ -350,7 +356,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island.Island, Island.Island)> islandPairs, float padding)
+        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island, Island)> islandPairs, float padding)
         {
             padding *= 0.5f;
             var SUV = new List<Vector2>();
@@ -373,7 +379,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TUV.AddRange(movedVertexes);
             }
 
-            TransTexture.TransTextureToRenderTexture(targetRT, SouseTex, new TransUVData(triangles, TUV, SUV), wrapMode: TexWrapMode.Loop);
+            TransTexture.TransTextureToRenderTexture(targetRT, SouseTex, new TransData(triangles, TUV, SUV), TexWrap: TextureWrap.Loop);
 
         }
 
@@ -465,7 +471,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     atlasMeshData.Add(new AtlasMeshData(
                         refMesh,
-                        mesh.GetSubTriangle(),
+                        mesh.GetSubTriangleIndex(),
                         UV,
                         materialIndex
                         ));
@@ -554,11 +560,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             if (UseIslandCache)
             {
-                IslandUtils.CacheGet(out var CacheIslands, out var diffCacheIslands);
-                var islandPool = GeneratedIslandPool(CacheIslands);
-                IslandUtils.CacheSave(CacheIslands, diffCacheIslands);
-
-                return islandPool;
+                using (var cache = new EditorIslandCache())
+                {
+                    var islandPool = GeneratedIslandPool(cache);
+                    return islandPool;
+                }
             }
             else
             {
@@ -567,7 +573,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(List<IslandCacheObject> islandCache)
+        public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(IIslandCache islandCache)
         {
             var islandPool = new TagIslandPool<IndexTag>();
             var AMDCount = AtlasMeshData.Count;
@@ -578,7 +584,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
                     var tag = new IndexTag(AMDIndex, SlotIndex);
-                    var islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
+                    var islands = IslandUtility.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
                     islandPool.AddRangeIsland(islands, tag);
                 }
             }
@@ -740,12 +746,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
     public class AtlasMeshData
     {
         public int ReferenceMesh;
-        public IReadOnlyList<IReadOnlyList<TriangleIndex>> Triangles;
+        public readonly List<List<TriangleIndex>> Triangles;
         public List<Vector2> UV;
         public List<Vector2> GeneratedUV;
         public int[] MaterialIndex;
 
-        public AtlasMeshData(int referenceMesh, IReadOnlyList<IReadOnlyList<TriangleIndex>> triangles, List<Vector2> uV, int[] materialIndex)
+        public AtlasMeshData(int referenceMesh, List<List<TriangleIndex>> triangles, List<Vector2> uV, int[] materialIndex)
         {
             ReferenceMesh = referenceMesh;
             Triangles = triangles;

@@ -1,6 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Cylindrical
@@ -11,7 +14,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         public float GizmoRadius = 0.25f;
         public float GizmoHeight = 1f;
 
-        [HideInInspector,SerializeField] int _saveDataVersion = Utils.ThiSaveDataVersion;
+        [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
 
         private void OnDrawGizmosSelected()
@@ -104,7 +107,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
     }
 
 
-    public class CCSSpace : DecalUtil.IConvertSpace
+    public class CCSSpace : DecalUtility.IConvertSpace
     {
         public CylindricalCoordinatesSystem CCS;
         public IReadOnlyList<Vector3> Quad;
@@ -119,7 +122,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             this.Quad = Quad;
         }
 
-        public void Input(DecalUtil.MeshData MeshData)
+        public void Input(DecalUtility.MeshData MeshData)
         {
             var CCSQuad = CCS.VertexConvertCCS(Quad);
             var CCSVertex = CCS.VertexConvertCCS(MeshData.Vertex);
@@ -133,8 +136,8 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             CylindricalCoordinatesSystem.HeightScaleFactor(CCSQuad);
 
             Offset = offset;
-            var Normalized = DecalUtil.QuadNormalize(CCSQuad.ConvertAll(i => (Vector2)i), CCSVertex.ConvertAll(i => (Vector2)i));
-            QuadNormalizedVertex = Utils.ZipListVector3(Normalized, CCSVertex.ConvertAll(i => i.z));
+            var Normalized = DecalUtility.QuadNormalize(CCSQuad.ConvertAll(i => (Vector2)i), CCSVertex.ConvertAll(i => (Vector2)i));
+            QuadNormalizedVertex = CollectionsUtility.ZipListVector3(Normalized, CCSVertex.ConvertAll(i => i.z));
 
             this.CCSVertex = CCSVertex;
             this.CCSQuad = CCSQuad;
@@ -151,21 +154,21 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         }
     }
 
-    public class CCSFilter : DecalUtil.ITrianglesFilter<CCSSpace>
+    public class CCSFilter : DecalUtility.ITrianglesFilter<CCSSpace>
     {
-        public IReadOnlyList<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> Filters;
+        public IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> Filters;
 
-        public CCSFilter(IReadOnlyList<TriangleFilterUtils.ITriangleFiltering<CCSSpace>> filters)
+        public CCSFilter(IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> filters)
         {
             Filters = filters;
         }
         public List<TriangleIndex> Filtering(CCSSpace Space, List<TriangleIndex> Triangles)
         {
-            return TriangleFilterUtils.FilteringTriangle(Triangles, Space, Filters);
+            return TriangleFilterUtility.FilteringTriangle(Triangles, Space, Filters);
         }
 
 
-        public struct InDistanceStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
+        public struct InDistanceStruct : TriangleFilterUtility.ITriangleFiltering<CCSSpace>
         {
             public float Near;
             public bool IsAllVertex;
@@ -179,11 +182,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.NearStruct.NearClip(tri, Space.QuadNormalizedVertex, Near, IsAllVertex);
+                return TriangleFilterUtility.NearStruct.NearClip(tri, Space.QuadNormalizedVertex, Near, IsAllVertex);
             }
         }
 
-        public struct OutDistanceStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
+        public struct OutDistanceStruct : TriangleFilterUtility.ITriangleFiltering<CCSSpace>
         {
             public float Far;
             public bool IsAllVertex;
@@ -196,11 +199,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.FarStruct.FarClip(tri, Space.QuadNormalizedVertex, Far, IsAllVertex);
+                return TriangleFilterUtility.FarStruct.FarClip(tri, Space.QuadNormalizedVertex, Far, IsAllVertex);
             }
         }
 
-        public struct SideStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
+        public struct SideStruct : TriangleFilterUtility.ITriangleFiltering<CCSSpace>
         {
             public bool IsReverse;
 
@@ -211,11 +214,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
 
             public bool Filtering(TriangleIndex tri, CCSSpace Space)
             {
-                return TriangleFilterUtils.SideStruct.SideCheck(tri, Space.QuadNormalizedVertex, IsReverse);
+                return TriangleFilterUtility.SideStruct.SideCheck(tri, Space.QuadNormalizedVertex, IsReverse);
             }
         }
 
-        public struct BorderOnPolygonStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
+        public struct BorderOnPolygonStruct : TriangleFilterUtility.ITriangleFiltering<CCSSpace>
         {
             public float Threshold /*= 150f */;
 
@@ -243,7 +246,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 return (max - min) > threshold;
             }
         }
-        public struct OutOfPerigonStruct : TriangleFilterUtils.ITriangleFiltering<CCSSpace>
+        public struct OutOfPerigonStruct : TriangleFilterUtility.ITriangleFiltering<CCSSpace>
         {
             public PolygonCulling PolygonCulling;
             public float MinRange;
@@ -265,11 +268,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
                 {
                     default:
                     case PolygonCulling.Vertex:
-                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonVertexBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
+                        return TriangleFilterUtility.OutOfPolygonStruct.OutOfPolygonVertexBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.Edge:
-                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonEdgeBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
+                        return TriangleFilterUtility.OutOfPolygonStruct.OutOfPolygonEdgeBase(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                     case PolygonCulling.EdgeAndCenterRay:
-                        return TriangleFilterUtils.OutOfPolygonStruct.OutOfPolygonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
+                        return TriangleFilterUtility.OutOfPolygonStruct.OutOfPolygonEdgeEdgeAndCenterRayCast(TargetTri, CCSSpace.QuadNormalizedVertex, MaxRange, MinRange, IsAllVertex);
                 }
 
             }
