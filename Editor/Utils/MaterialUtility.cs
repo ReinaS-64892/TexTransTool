@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -86,3 +87,4 @@ namespace net.rs64.TexTransTool.Utils
 
     }
 }
+#endif

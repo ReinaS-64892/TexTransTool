@@ -1,6 +1,10 @@
+#if UNITY_EDITOR
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.Editor;
+using System;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -155,4 +159,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
     }
 
+
 }
+#endif

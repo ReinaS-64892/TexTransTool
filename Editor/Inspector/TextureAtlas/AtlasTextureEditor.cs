@@ -1,7 +1,12 @@
+
+#if UNITY_EDITOR
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using net.rs64.TexTransTool.Editor;
+using System.Collections.Generic;
+using System;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -256,3 +261,4 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
     }
 }
+#endif

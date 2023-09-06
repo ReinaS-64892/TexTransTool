@@ -1,4 +1,6 @@
+#if UNITY_EDITOR
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,3 +35,4 @@ namespace net.rs64.TexTransTool.Editor
         }
     }
 }
+#endif

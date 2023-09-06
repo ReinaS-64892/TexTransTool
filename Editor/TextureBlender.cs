@@ -1,4 +1,7 @@
+#if UNITY_EDITOR
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore;
 namespace net.rs64.TexTransTool
 {
@@ -75,3 +78,4 @@ namespace net.rs64.TexTransTool
 
     }
 }
+#endif

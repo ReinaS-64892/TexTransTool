@@ -1,5 +1,7 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
+using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -13,3 +15,4 @@ namespace net.rs64.TexTransTool.TextureAtlas
         void MaterialCustomSetting(Material material);
     }
 }
+#endif

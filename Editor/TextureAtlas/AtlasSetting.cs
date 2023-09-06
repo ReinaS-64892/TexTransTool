@@ -1,5 +1,7 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using System;
+using net.rs64.TexTransTool.EditorIsland;
 using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 using UnityEditor;
 using System.Collections.Generic;
@@ -98,3 +100,4 @@ namespace net.rs64.TexTransTool.TextureAtlas
     }
 
 }
+#endif

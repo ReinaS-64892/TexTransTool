@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -27,3 +29,4 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
     }
 }
+#endif

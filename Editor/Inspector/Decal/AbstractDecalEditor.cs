@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
@@ -78,3 +79,4 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
     }
 }
+#endif

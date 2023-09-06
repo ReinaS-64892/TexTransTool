@@ -1,59 +1,12 @@
-#if UNITY_EDITOR
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using UnityEngine;
-using UnityEditor;
-using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.Island;
 using System.Security.Cryptography;
+using System.Collections.Generic;
+using System;
+using System.Linq;
+using UnityEngine;
+using net.rs64.TexTransCore.TransTextureCore;
 
-namespace net.rs64.TexTransTool.EditorIsland
+namespace net.rs64.TexTransCore.Island
 {
-    public class EditorIslandCache : IIslandCache, IDisposable
-    {
-        private List<IslandCacheObject> CacheIslands;
-        private readonly List<IslandCacheObject> diffCacheIslands;
-
-        public EditorIslandCache()
-        {
-            CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
-            diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
-        }
-        public bool TryCache(List<Vector2> UV, List<TriangleIndex> Triangle, out List<Island> island)
-        {
-            var NawHash = IslandCacheObject.GenerateHash(Triangle, UV);
-
-            foreach (var Cache in CacheIslands)
-            {
-                if (Cache.Hash.SequenceEqual(NawHash))
-                {
-                    island = Cache.Islands;
-                    return true;
-                }
-            }
-
-            island = null;
-            return false;
-        }
-        public void AddCache(List<Vector2> UV, List<TriangleIndex> Triangle, List<Island> island)
-        {
-            CacheIslands.Add(new IslandCacheObject(Triangle, UV, island));
-        }
-
-        public void Dispose()
-        {
-            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
-            {
-                var NI = ScriptableObject.CreateInstance<IslandCache>();
-                NI.CacheObject = i; NI.name = "IslandCache";
-                return NI;
-            }));
-        }
-
-    }
-
-
     [Serializable]
     public class IslandCacheObject
     {
@@ -104,5 +57,6 @@ namespace net.rs64.TexTransTool.EditorIsland
 
         }
     }
+
+
 }
-#endif

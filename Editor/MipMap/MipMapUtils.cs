@@ -1,4 +1,7 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 
@@ -154,3 +157,4 @@ namespace net.rs64.TexTransTool
         }
     }
 }
+#endif

@@ -1,3 +1,11 @@
+#if UNITY_EDITOR
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using net.rs64.TexTransTool;
+using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
+
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
@@ -8,3 +16,4 @@ namespace net.rs64.TexTransTool.ShaderSupport
         public PropertyNameAndDisplayName[] GetPropertyNames => new PropertyNameAndDisplayName[] { new PropertyNameAndDisplayName("_MainTex", "MainTexture") };
     }
 }
+#endif

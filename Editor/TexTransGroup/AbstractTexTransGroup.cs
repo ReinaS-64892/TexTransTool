@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
@@ -57,3 +58,4 @@ namespace net.rs64.TexTransTool
         }
     }
 }
+#endif

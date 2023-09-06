@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,3 +12,4 @@ namespace net.rs64.TexTransTool
         public override IEnumerable<TextureTransformer> Targets => transform.GetChildren().ConvertAll(x => x.GetComponent<TextureTransformer>()).Where(x => x != null);
     }
 }
+#endif

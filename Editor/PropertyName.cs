@@ -1,5 +1,9 @@
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace net.rs64.TexTransTool
 {
@@ -28,3 +32,4 @@ namespace net.rs64.TexTransTool
         public static implicit operator string(PropertyName p) => p._propertyName;
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
 
@@ -17,3 +18,5 @@ namespace net.rs64.TexTransTool
     }
 
 }
+
+#endif

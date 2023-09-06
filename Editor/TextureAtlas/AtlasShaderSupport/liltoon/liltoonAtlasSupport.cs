@@ -1,5 +1,9 @@
+#if UNITY_EDITOR
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using net.rs64.TexTransTool;
 using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
 
 
@@ -755,3 +759,4 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
     }
 }
+#endif
