@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
+using System;
 
 namespace net.rs64.TexTransTool
 {
@@ -20,10 +21,18 @@ namespace net.rs64.TexTransTool
             if (!IsPossibleApply) return;
             if (_IsApply) return;
             _IsApply = true;
-            foreach (var tf in TextureTransformerFilter(Targets))
+            try
             {
-                tf.Apply(AvatarMaterialDomain);
-                EditorUtility.SetDirty(tf);
+                foreach (var tf in TextureTransformerFilter(Targets))
+                {
+                    tf.Apply(AvatarMaterialDomain);
+                    EditorUtility.SetDirty(tf);
+                }
+            }
+            catch (Exception ex)
+            {
+                Revert(AvatarMaterialDomain);
+                throw ex;
             }
         }
         public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
