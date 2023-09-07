@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using net.rs64.TexTransTool.Island;
 using static net.rs64.TexTransTool.TransTexture;
+using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
