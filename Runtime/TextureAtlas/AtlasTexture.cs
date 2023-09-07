@@ -440,6 +440,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (item.tag == "EditorOnly") continue;
                 if (item.enabled == false) continue;
                 if (item.GetMesh() == null) continue;
+                if (item.GetMesh().uv.Any() == false) continue;
                 if (item.sharedMaterials.Length == 0) continue;
                 if (item.sharedMaterials.Any(Mat => Mat == null)) continue;
 
