@@ -32,8 +32,16 @@ namespace net.rs64.TexTransTool.Build
             TexTransGroupValidationUtils.ValidateTexTransGroup(texTransGroup);
             CacheDomain = GetDomain(avatar, OverrideAssetContainer);
             _IsSelfCallApply = true;
-            texTransGroup.Apply(CacheDomain);
-            CacheDomain.SaveTexture();
+            try
+            {
+                texTransGroup.Apply(CacheDomain);
+                CacheDomain.SaveTexture();
+            }
+            catch (Exception e)
+            {
+                texTransGroup.Revert(CacheDomain);
+                throw e;
+            }
         }
 
         public virtual void Revert()
