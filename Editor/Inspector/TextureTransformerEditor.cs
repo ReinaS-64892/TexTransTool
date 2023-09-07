@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (!Target.IsApply)
                 {
-                    if (GUILayout.Button("Apply"))
+                    if (GUILayout.Button("Preview"))
                     {
                         Target.SelfCallApply();
                         EditorUtility.SetDirty(Target);
