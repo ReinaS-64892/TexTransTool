@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace net.rs64.TexTransTool.EditorIsland
 {
-    public class EditorIslandCache : IIslandCache, IDisposable
+    public class EditorIslandCache : IIslandCache
     {
         private List<IslandCacheObject> CacheIslands;
         private readonly List<IslandCacheObject> diffCacheIslands;
@@ -38,18 +38,14 @@ namespace net.rs64.TexTransTool.EditorIsland
         }
         public void AddCache(List<Vector2> UV, List<TriangleIndex> Triangle, List<Island> island)
         {
-            CacheIslands.Add(new IslandCacheObject(Triangle, UV, island));
+            var NewCache = new IslandCacheObject(Triangle, UV, island);
+            CacheIslands.Add(NewCache);
+
+            var SerializableNewCache = ScriptableObject.CreateInstance<IslandCache>();
+            SerializableNewCache.CacheObject = NewCache; SerializableNewCache.name = "IslandCache";
+            AssetSaveHelper.SaveAsset(SerializableNewCache);
         }
 
-        public void Dispose()
-        {
-            AssetSaveHelper.SaveAssets(CacheIslands.Except(diffCacheIslands).Select(i =>
-            {
-                var NI = ScriptableObject.CreateInstance<IslandCache>();
-                NI.CacheObject = i; NI.name = "IslandCache";
-                return NI;
-            }));
-        }
 
     }
 

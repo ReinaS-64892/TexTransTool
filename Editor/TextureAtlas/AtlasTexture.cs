@@ -561,19 +561,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(bool UseIslandCache)
         {
-            if (UseIslandCache)
-            {
-                using (var cache = new EditorIslandCache())
-                {
-                    var islandPool = GeneratedIslandPool(cache);
-                    return islandPool;
-                }
-            }
-            else
-            {
-                return GeneratedIslandPool(null);
-            }
-
+            return GeneratedIslandPool(UseIslandCache ? new EditorIslandCache() : null);
         }
 
         public TagIslandPool<IndexTagPlusIslandIndex> GeneratedIslandPool(IIslandCache islandCache)
