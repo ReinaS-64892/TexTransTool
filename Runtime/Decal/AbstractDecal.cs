@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public abstract Dictionary<Texture2D, Texture> CompileDecal();
 
-        DecalDataContainer localSave;
+        [SerializeField] DecalDataContainer localSave;
 
         public override void Revert(AvatarDomain avatarMaterialDomain = null)
         {

@@ -19,9 +19,9 @@ TexTransTool/Runtime/Decal にある NailEditor.cs から、
 - LeftHand,RightHandのDecalTextureに入れたいネイルのテクスチャをセット
 - 適宜爪に合うように、オフセットや回転サイズを調整。
 
-Apply ボタンを押すとそのネイルをプレビューすることができます。
+Preview ボタンを押すとそのネイルをプレビューすることができます。
 
-このNailEditorは[AtlasTexture](AtlasTexture.md)と同じように、初回のApplyが非常に遅く、フリーズする場合もあります。
+このNailEditorは[AtlasTexture](AtlasTexture.md)と同じように、初回のPreviewが非常に遅く、フリーズする場合もあります。
 
 ## プロパティ
 
