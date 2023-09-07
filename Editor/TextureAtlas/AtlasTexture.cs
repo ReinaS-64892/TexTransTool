@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     public class AtlasTexture : TextureTransformer
     {
         public GameObject TargetRoot;
-        public List<Renderer> Renderers => FilteredRenderers(TargetRoot.GetComponentsInChildren<Renderer>(true));
+        public List<Renderer> Renderers => FilteredRenderers(TargetRoot.GetComponentsInChildren<Renderer>());
         public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
         public List<MatSelector> MatSelectors = new List<MatSelector>();
         public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
@@ -443,7 +443,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var result = new List<Renderer>();
             foreach (var item in renderers)
             {
+                if (item.tag == "EditorOnly") continue;
+                if (item.enabled == false) continue;
                 if (item.GetMesh() == null) continue;
+                if (item.GetMesh().uv.Any() == false) continue;
                 if (item.sharedMaterials.Length == 0) continue;
                 if (item.sharedMaterials.Any(Mat => Mat == null)) continue;
 
