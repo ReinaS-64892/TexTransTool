@@ -56,8 +56,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
         */
         public bool CompileAtlasTextures()
         {
-            if (!IsPossibleApply) return false;
-            if (IsApply) return false;
+            if (!IsPossibleApply)
+            {
+                Debug.LogWarning("AtlasTexture : アトラス化可能な状態ではないのためアトラス化ができません。ターゲットルートなどが設定されているかどうかご確認ください。");
+                return false;
+            }
+            if (IsApply)
+            {
+                Debug.LogWarning("AtlasTexture : すでにこのコンポーネントでアトラス化が適応されているため、アトラス化ができません。");
+                return false;
+            }
             ClearContainer();
 
             //情報を集めるフェーズ
@@ -236,7 +244,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var result = CompileAtlasTextures();
             if (!result) { return; }
-            if (!Container.IsPossibleApply) { return; }
+            if (!Container.IsPossibleApply)
+            {
+                Debug.LogWarning("AtlasTexture : アトラス化したデータの適応ができない状態です。何か不明なエラーが起きている可能性があります。");
+                return;
+            }
 
             var nowRenderers = Renderers;
             if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevertDomain = avatarMaterialDomain; }
