@@ -26,9 +26,22 @@ namespace net.rs64.TexTransTool.Decal
 
         public override void Apply(AvatarDomain avatarDomain)
         {
-            if (!IsPossibleApply) return;
-            if (_IsApply) return;
+            if (!IsPossibleApply)
+            {
+                Debug.LogWarning("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
+                return;
+            }
+            if (_IsApply)
+            {
+                Debug.LogWarning("Decal : すでにこのコンポーネントで デカールが貼られているため、デカールを張ることができません。");
+                return;
+            }
             Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
+
+            if (decalCompiledTextures.Count == 0)
+            {
+                Debug.Log("Decal : デカールが張られた箇所が存在しないようです。意図的でない場合は、デカールのついたオブジェクトの位置や大きさなどの設定を見直しましょう。");
+            }
 
             if (avatarDomain != null)
             {
@@ -132,7 +145,7 @@ namespace net.rs64.TexTransTool.Decal
         [ContextMenu("ExtractDecalCompiledTexture")]
         public void ExtractDecalCompiledTexture()
         {
-            if(!IsPossibleApply) {Debug.LogError("Applyできないためデカールをコンパイルできません。");return;}
+            if (!IsPossibleApply) { Debug.LogError("Applyできないためデカールをコンパイルできません。"); return; }
 
 
             var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
