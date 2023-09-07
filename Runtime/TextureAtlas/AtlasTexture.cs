@@ -571,16 +571,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var islandPool = new TagIslandPool<IndexTag>();
             var AMDCount = AtlasMeshData.Count;
-            for (int AMDIndex = 0; AMDIndex < AMDCount; AMDIndex += 1)
+            try
             {
-                var AMD = AtlasMeshData[AMDIndex];
-
-                for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
+                EditorUtility.DisplayProgressBar("GeneratedIsland", "", 0);
+                for (int AMDIndex = 0; AMDIndex < AMDCount; AMDIndex += 1)
                 {
-                    var tag = new IndexTag(AMDIndex, SlotIndex);
-                    var islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
-                    islandPool.AddRangeIsland(islands, tag);
+                    var AMD = AtlasMeshData[AMDIndex];
+
+                    for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
+                    {
+                        var tag = new IndexTag(AMDIndex, SlotIndex);
+                        var islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
+                        islandPool.AddRangeIsland(islands, tag);
+                    }
+                    EditorUtility.DisplayProgressBar("GeneratedIsland", "", AMDIndex / (float)AMDCount);
                 }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
             }
 
             var tagSet = islandPool.GetTag();
