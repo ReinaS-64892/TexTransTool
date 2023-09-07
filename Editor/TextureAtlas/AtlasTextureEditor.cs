@@ -211,7 +211,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             s_TargetRoot.objectReferenceValue = NewRoot;
             if (NewRoot == null) { return; }
-            var NewRefSouseMats = AtlasTexture.GetMaterials(AtlasTexture.FilteredRenderers(NewRoot.GetComponentsInChildren<Renderer>(true))).ToList(false);
+            var NewRefSouseMats = AtlasTexture.GetMaterials(AtlasTexture.FilteredRenderers(NewRoot.GetComponentsInChildren<Renderer>())).ToList(false);
             S_SelectReferenceMatList.arraySize = NewRefSouseMats.Count;
             for (var Index = 0; Index < NewRefSouseMats.Count; Index += 1)
             {
