@@ -154,6 +154,12 @@ namespace net.rs64.TexTransTool.Decal
 
                     }
                 }
+                if (_RealTimePreviewDecalTextureCompile.Count == 0)
+                {
+                    _IsRealTimePreview = false;
+                    Debug.LogWarning("SimpleDecal : ほかのSimpleDecalのコンポーネントがリアルタイムプレビューをしているか、Texture2D以外のテクスチャがセットされているマテリアルのためリアルタイムプレビューができませんでした。");
+                    return;
+                }
                 renderer.sharedMaterials = materials;
             }
         }
@@ -183,6 +189,13 @@ namespace net.rs64.TexTransTool.Decal
         public void UpdateRealTimePreview()
         {
             if (!_IsRealTimePreview) return;
+            if (_RealTimePreviewDecalTextureCompile == null)
+            {
+                DisableRealTimePreview();
+                EditorUtility.SetDirty(this);
+                Debug.Log("SimpleDecal : シーンのリロードやスクリプトのリロードなどでリアルタイムプレビューが継続できなくなったため中断します。");
+                return;
+            }
 
             DecalRenderTexture.Release();
             TextureLayerUtil.MultipleRenderTexture(DecalRenderTexture, DecalTexture, Color);
