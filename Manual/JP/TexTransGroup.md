@@ -2,9 +2,9 @@
 
 ## このコンポーネントの概要
 
-このコンポーネントは TextureTransformers に入った [TextureTransformer](TextureTransformer.md) を一括で Apply することができるコンポーネントです。
+このコンポーネントは TextureTransformers に入った [TextureTransformer](TextureTransformer.md) を一括で Preview することができるコンポーネントです。
 
-基本的に上から順に Apply され、[TextureTransformer](TextureTransformer.md) のついた GameObject が無効化されている場合、無視されます。
+基本的に上から順に Preview され、[TextureTransformer](TextureTransformer.md) のついた GameObject が無効化されている場合、無視されます。
 
 ## 使い方
 
@@ -18,11 +18,11 @@ TexTransTool/TexTransGroup/Runtime にある TexTransGroup.cs から、
 
 - 一斉に実行したい [TextureTransformer](TextureTransformer.md) を TextureTransformers という配列のプロパティにセット
 
-Apply でそれらすべてのプレビューができます。
+Preview でそれらすべてのプレビューができます。
 
 ## プロパティ
 
 ### TextureTransformers
 
-[TextureTransformer](TextureTransformer.md) の配列で、ここにセットしたものが Apply の対象となります。
+[TextureTransformer](TextureTransformer.md) の配列で、ここにセットしたものが Preview の対象となります。
 
