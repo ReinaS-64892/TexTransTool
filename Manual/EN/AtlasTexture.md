@@ -51,6 +51,8 @@ The "Automatic OffSet Setting" shown above will set the ratio based on the resol
 
 ### Channel
 
+### *Caution ! : This function is deprecated. If you have been using [Channel 1] or higher, the next version will have a migration that will significantly rewrite the state of the component.*
+
 This is like an atlasing channel, and is used to atlas two textures from those materials.
 
 It is usually used for combining materials into one piece, so it may not be used very often.
