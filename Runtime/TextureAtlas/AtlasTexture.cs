@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using net.rs64.TexTransTool.Island;
 using static net.rs64.TexTransTool.TransTexture;
+using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -12,7 +13,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     public class AtlasTexture : TextureTransformer
     {
         public GameObject TargetRoot;
-        public List<Renderer> Renderers => FilteredRenderers(TargetRoot.GetComponentsInChildren<Renderer>(true));
+        public List<Renderer> Renderers => FilteredRenderers(TargetRoot.GetComponentsInChildren<Renderer>());
         public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
         public List<MatSelector> MatSelectors = new List<MatSelector>();
         public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
@@ -437,7 +438,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var result = new List<Renderer>();
             foreach (var item in renderers)
             {
+                if (item.tag == "EditorOnly") continue;
+                if (item.enabled == false) continue;
                 if (item.GetMesh() == null) continue;
+                if (item.GetMesh().uv.Any() == false) continue;
                 if (item.sharedMaterials.Length == 0) continue;
                 if (item.sharedMaterials.Any(Mat => Mat == null)) continue;
 
@@ -571,16 +575,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var islandPool = new TagIslandPool<IndexTag>();
             var AMDCount = AtlasMeshData.Count;
-            for (int AMDIndex = 0; AMDIndex < AMDCount; AMDIndex += 1)
+            try
             {
-                var AMD = AtlasMeshData[AMDIndex];
-
-                for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
+                EditorUtility.DisplayProgressBar("GeneratedIsland", "", 0);
+                for (int AMDIndex = 0; AMDIndex < AMDCount; AMDIndex += 1)
                 {
-                    var tag = new IndexTag(AMDIndex, SlotIndex);
-                    var islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
-                    islandPool.AddRangeIsland(islands, tag);
+                    var AMD = AtlasMeshData[AMDIndex];
+
+                    for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
+                    {
+                        var tag = new IndexTag(AMDIndex, SlotIndex);
+                        var islands = IslandUtils.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
+                        islandPool.AddRangeIsland(islands, tag);
+                    }
+                    EditorUtility.DisplayProgressBar("GeneratedIsland", "", AMDIndex / (float)AMDCount);
                 }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
             }
 
             var tagSet = islandPool.GetTag();
