@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool
         {
             if (isPaired)
             {
-                Utils.ChangeMaterialForRenderers(_renderers, Target, SetMat);
+                RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
                 if(_mapDict == null) _mapDict = new FlatMapDict<Material>();
                 _mapDict.Add(Target, SetMat);
             }
