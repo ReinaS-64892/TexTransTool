@@ -13,12 +13,10 @@ namespace net.rs64.TexTransTool.EditorIsland
     public class EditorIslandCache : IIslandCache
     {
         private List<IslandCacheObject> CacheIslands;
-        private readonly List<IslandCacheObject> diffCacheIslands;
 
         public EditorIslandCache()
         {
             CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
-            diffCacheIslands = new List<IslandCacheObject>(CacheIslands);
         }
         public bool TryCache(List<Vector2> UV, List<TriangleIndex> Triangle, out List<Island> island)
         {
