@@ -7,3 +7,7 @@
 ## TextureTransformer は一つの GameObject に一つまで、
 
 例えば、[SimpleDecal](SimpleDecal.md)はつけられたゲームオブジェクトのスケールを直接調整したりすることがあります。この時ほかの Decal の類のコンポーネントがついていると正常な挙動になりませんし、[TexTransParentGroup](TexTransParentGroup.md)は GameObject 一つ目の　TextureTransformer だけを実行します。
+
+## Preview の解除を忘れないように
+
+Previewはあくまで一時的です、プレビューしたままの状態で、アップロードなどを行うと正常にアップロードできない可能性があります。
