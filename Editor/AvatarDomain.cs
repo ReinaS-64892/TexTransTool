@@ -63,12 +63,15 @@ namespace net.rs64.TexTransTool
         }
         public void ResetMaterial()
         {
-            var reversedMatModifiesDict = new Dictionary<Material, Material>();
-            foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
+            if (_matModifies.Any())
+            {
+                var reversedMatModifiesDict = new Dictionary<Material, Material>();
+                foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
 
             RendererUtility.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
 
-            _matModifies.Clear();
+                _matModifies.Clear();
+            }
 
             RendererUtility.SetMaterials(_renderers, _initialMaterials);
         }
@@ -92,7 +95,7 @@ namespace net.rs64.TexTransTool
             if (isPaired)
             {
                 RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
-                if (_mapDict == null) _mapDict = new FlatMapDict<Material>();
+                if(_mapDict == null) _mapDict = new FlatMapDict<Material>();
                 _mapDict.Add(Target, SetMat);
             }
             else
@@ -226,9 +229,12 @@ namespace net.rs64.TexTransTool
                 transferAsset(copySetTex);
             }
 
-            var matModifiedDict = _mapDict.GetMapping;
-            RendererUtility.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
-            _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
+            if (_mapDict != null)
+            {
+                var matModifiedDict = _mapDict.GetMapping;
+                RendererUtility.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
+                _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
+            }
         }
 
         private void MatUseUvDataGet(List<TransTexture.TransData> UsingUVdata, Material Mat)
