@@ -3,7 +3,7 @@
 ## このコンポーネントの概要
 
 このコンポーネントは 子の GameObject の [TextureTransformer](TextureTransformer.md)を一括で
-Apply することができるコンポーネントです。
+Preview することができるコンポーネントです。
 
 基本的に上から順に Apply されますが、[TextureTransformer](TextureTransformer.md) のついた GameObject が無効化されている場合、無視されます。
 
@@ -19,4 +19,4 @@ TexTransTool/TexTransGroup/Runtime にある TexTransParentGroup.cs から、
 
 - 一斉に実行したい TextureTransformer 子のオブジェクトにする。
 
-Apply でそれらすべてのプレビューができます。
+Preview でそれらすべてのプレビューができます。
