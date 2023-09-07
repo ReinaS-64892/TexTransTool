@@ -19,6 +19,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var ThisTarget = target as AtlasTexture;
             var This_S_Object = serializedObject;
 
+            EditorGUI.BeginDisabledGroup(ThisTarget.IsApply);
+
             var S_AtlasSettings = This_S_Object.FindProperty("AtlasSettings");
             var ChannelCount = S_AtlasSettings.arraySize;
 
@@ -55,6 +57,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             DrawAtlasSettings(S_AtlasSettings);
 
+
+            EditorGUI.EndDisabledGroup();
 
             TextureTransformerEditor.DrawerApplyAndRevert(ThisTarget);
             serializedObject.ApplyModifiedProperties();
