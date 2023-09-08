@@ -12,8 +12,20 @@ namespace net.rs64.TexTransCore.Island
     {
         public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> UV, IIslandCache Caches = null)
         {
-            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands)) { return cacheHitIslands; }
+            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands)) 
+                return cacheHitIslands;
 
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var Islands = UVToIslandImpl(triangles, UV);
+            Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}");
+
+            if (Caches != null) { Caches.AddCache(UV, triangles, Islands); }
+
+            return Islands;
+        }
+
+        private static List<Island> UVToIslandImpl(List<TriangleIndex> triangles, List<Vector2> UV)
+        {
             var Islands = triangles.Select(i => new Island(i)).ToList();
 
             bool isContinue = true;
@@ -23,9 +35,6 @@ namespace net.rs64.TexTransCore.Island
                 Islands = IslandCrawling(Islands, UV, out isContinue);
             }
             Islands.ForEach(i => i.BoxCalculation(UV));
-
-
-            if (Caches != null) { Caches.AddCache(UV, triangles, Islands); }
 
             return Islands;
         }
