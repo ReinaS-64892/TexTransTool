@@ -19,6 +19,11 @@ jobs:
          withoutvtagstr=`echo ${{ github.event.inputs.tag }} | sed -e "s/^v//"`
          jq ".version|=\"${withoutvtagstr}\"" ./package.json > $tempjson
          mv $tempjson ./package.json
+      - name: Upload-artifact
+        uses: actions/upload-artifact@v3
+        with:
+           name: package.json
+           path: ./package.json
       - name: git commit
         run: |
           git config user.name  "GitHub Action"
