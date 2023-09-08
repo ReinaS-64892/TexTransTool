@@ -12,65 +12,79 @@ namespace net.rs64.TexTransCore.Island
     {
         public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> UV, IIslandCache Caches = null)
         {
-            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands)) { return cacheHitIslands; }
+            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands)) 
+                return cacheHitIslands;
 
-            var Islands = triangles.Select(i => new Island(i)).ToList();
-
-            bool isContinue = true;
-            while (isContinue)
-            {
-                isContinue = false;
-                Islands = IslandCrawling(Islands, UV, out isContinue);
-            }
-            Islands.ForEach(i => i.BoxCalculation(UV));
-
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var Islands = UVToIslandImpl(triangles, UV);
+            Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}: {Islands.Count}");
 
             if (Caches != null) { Caches.AddCache(UV, triangles, Islands); }
 
             return Islands;
         }
 
-        public static List<Island> IslandCrawling(IReadOnlyList<Island> IslandPool, IReadOnlyList<Vector2> UV, out bool IsJoin)
+        private static List<Island> UVToIslandImpl(IEnumerable<TriangleIndex> trianglesIn, List<Vector2> uvs)
         {
-            IsJoin = false;
-            var crawlingIslandPool = new List<Island>();
+            var triangles = new HashSet<TriangleIndex>(trianglesIn);
+            var trianglesByUv = new Dictionary<Vector2, HashSet<TriangleIndex>>(uvs.Count);
 
-            foreach (var island in IslandPool)
+            // initialize dictionary for less jumps
+            foreach (var uv in uvs)
+                if (!trianglesByUv.ContainsKey(uv))
+                    trianglesByUv.Add(uv, new HashSet<TriangleIndex>());
+
+            // collect all triangles by each triangle
+            foreach (var triangle in triangles)
             {
-                var islandVertPos = island.GetVertexPos(UV);
-
-
-                int islandCount = -1;
-                int islandJoinIndex = -1;
-
-                foreach (var crawlingIsland in crawlingIslandPool)
-                {
-                    islandCount += 1;
-
-                    var CrawlingIslandVertPos = crawlingIsland.GetVertexPos(UV);
-
-
-                    if (islandVertPos.Intersect(CrawlingIslandVertPos).Any())
-                    {
-                        islandJoinIndex = islandCount;
-                        break;
-                    }
-
-                }
-
-                if (islandJoinIndex == -1)
-                {
-                    crawlingIslandPool.Add(island);
-                }
-                else
-                {
-                    crawlingIslandPool[islandJoinIndex].triangles.AddRange(island.triangles);
-                    IsJoin = true;
-                }
-
+                trianglesByUv[uvs[triangle.zero]].Add(triangle);
+                trianglesByUv[uvs[triangle.one]].Add(triangle);
+                trianglesByUv[uvs[triangle.two]].Add(triangle);
             }
-            return crawlingIslandPool;
+
+            var islands = new List<Island>();
+
+            while (triangles.Count != 0)
+            {
+                var entryPoint = triangles.First();
+                triangles.Remove(entryPoint);
+                var trianglesOfIsland = new List<TriangleIndex> { entryPoint };
+
+                var proceedUvs = new HashSet<Vector2>();
+                var processUvQueue = new Queue<Vector2>();
+
+                if (proceedUvs.Add(uvs[entryPoint.zero])) processUvQueue.Enqueue(uvs[entryPoint.zero]);
+                if (proceedUvs.Add(uvs[entryPoint.one])) processUvQueue.Enqueue(uvs[entryPoint.one]);
+                if (proceedUvs.Add(uvs[entryPoint.two])) processUvQueue.Enqueue(uvs[entryPoint.two]);
+
+                while (processUvQueue.Count != 0)
+                {
+                    var uv = processUvQueue.Dequeue();
+                    var trianglesCandidate = trianglesByUv[uv];
+
+                    foreach (var triangle in trianglesCandidate)
+                    {
+                        // already the triangle is proceed
+                        if (!triangles.Remove(triangle)) continue;
+
+                        trianglesOfIsland.Add(triangle);
+                        if (proceedUvs.Add(uvs[triangle.zero])) processUvQueue.Enqueue(uvs[triangle.zero]);
+                        if (proceedUvs.Add(uvs[triangle.one])) processUvQueue.Enqueue(uvs[triangle.one]);
+                        if (proceedUvs.Add(uvs[triangle.two])) processUvQueue.Enqueue(uvs[triangle.two]);
+                    }
+                }
+
+                islands.Add(new Island(trianglesOfIsland));
+            }
+
+            foreach (var island in islands)
+            {
+                island.BoxCalculation(uvs);
+            }
+
+            return islands;
         }
+
         public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
         {
             if (OriginIsland.Is90Rotation == MovedIsland.Is90Rotation)
@@ -612,6 +626,12 @@ namespace net.rs64.TexTransCore.Island
         {
 
         }
+
+        public Island(List<TriangleIndex> trianglesOfIsland)
+        {
+            triangles = trianglesOfIsland;
+        }
+
         public List<int> GetVertexIndex()
         {
             var IndexList = new List<int>();
