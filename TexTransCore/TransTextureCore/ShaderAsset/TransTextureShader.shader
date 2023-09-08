@@ -23,6 +23,7 @@ Shader "Hidden/TransTexture"
             }
 
             HLSLPROGRAM
+            #pragma exclude_renderers metal
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
@@ -40,8 +41,33 @@ Shader "Hidden/TransTexture"
                 Comp NotEqual
             }
             HLSLPROGRAM
+            #pragma exclude_renderers metal
             #pragma vertex vert
             #pragma geometry geom
+            #pragma fragment frag
+            #pragma shader_feature_local_fragment WarpRange
+
+            #include "./TransTextureHelper.hlsl"
+
+            ENDHLSL
+        }
+    }
+    SubShader
+    {
+        Tags { "RenderType"="Geometry" }
+        LOD 100
+        Pass
+        {
+            Cull Off
+            Stencil
+            {
+                ref 2
+                Comp Always
+                Pass Replace
+            }
+
+            HLSLPROGRAM
+            #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
 
