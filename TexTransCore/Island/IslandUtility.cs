@@ -77,6 +77,11 @@ namespace net.rs64.TexTransCore.Island
                 islands.Add(new Island(trianglesOfIsland));
             }
 
+            foreach (var island in islands)
+            {
+                island.BoxCalculation(uvs);
+            }
+
             return islands;
         }
 
