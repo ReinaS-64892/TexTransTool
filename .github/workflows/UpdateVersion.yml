@@ -7,33 +7,36 @@ on:
         type: string
 
 jobs:
-  StartPoint:
-    runs-on: ubuntu-20.04
-    steps:
-      - run: echo "HELLO MAIN"
-  call-Update:
-    needs: [StartPoint]
+  call-Update-Tag:
     uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
     with:
       tag: ${{ github.event.inputs.tag }}
+
   call-TagToZip:
-    needs: [call-Update]
+    needs: [call-Update-Tag]
     uses: ./.github/workflows/TagToZip.yml
     with:
       tag: ${{ github.event.inputs.tag }}
-  Create-Release-Draft:
+
+  Create-Release-Draft-On-Tag:
     needs: [call-TagToZip]
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/download-artifact@v3
       with:
         name:
-        path: ./
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+      with:
+        fetch-tags: true
+        ref: ${{ github.event.inputs.tag }}
+
     - uses: softprops/action-gh-release@v1
       with:
         name: ${{ github.event.inputs.tag }}
         tag_name: ${{ github.event.inputs.tag }}
         draft: true
         files: |
-          ./tex-trans-tool-${{ github.event.inputs.tag }}
-          ./package.json
+          tex-trans-tool-${{ github.event.inputs.tag }}
+          TexTransTool/package.json
