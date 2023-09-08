@@ -12,12 +12,28 @@ jobs:
     steps:
       - run: echo "HELLO MAIN"
   call-Update:
-      needs: [StartPoint]
-      uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
-      with:
-        tag: ${{ github.event.inputs.tag }}
+    needs: [StartPoint]
+    uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+    with:
+      tag: ${{ github.event.inputs.tag }}
   call-TagToZip:
-      needs: [call-Update]
-      uses: ./.github/workflows/TagToZip.yml
+    needs: [call-Update]
+    uses: ./.github/workflows/TagToZip.yml
+    with:
+      tag: ${{ github.event.inputs.tag }}
+  Create-Release-Draft:
+    needs: [call-TagToZip]
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/download-artifact@v3
       with:
-        tag: ${{ github.event.inputs.tag }}
+        name:
+        path: ./
+    - uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ github.event.inputs.tag }}
+        tag_name: ${{ github.event.inputs.tag }}
+        draft: true
+        files: |
+          ./tex-trans-tool-${{ github.event.inputs.tag }}
+          ./package.json
