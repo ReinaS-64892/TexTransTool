@@ -26,8 +26,26 @@ namespace net.rs64.TexTransTool.Build
         public virtual void Apply(GameObject avatar = null, UnityEngine.Object OverrideAssetContainer = null)
         {
             var texTransGroup = TexTransGroup;
-            if (texTransGroup == null) return;
-            if (texTransGroup.IsApply) return;
+            if (texTransGroup == null)
+            {
+                Debug.LogWarning("AvatarDomainDefinition : texTransGroupが存在しません。通常ではありえないエラーです。");
+                return;
+            }
+            if (!texTransGroup.IsPossibleApply)
+            {
+                Debug.LogWarning("AvatarDomainDefinition : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
+                return;
+            }
+            if (texTransGroup.IsApply)
+            {
+                Debug.LogWarning("AvatarDomainDefinition : すでにこのコンポーネントでプレビュー状態のため実行できません。");
+                return;
+            }
+            if (TexTransGroupValidationUtils.SelfCallApplyExists(texTransGroup.Targets))
+            {
+                Debug.LogWarning("AvatarDomainDefinition : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
+                return;
+            }
             if (avatar == null && Avatar == null) return;
             if (avatar == null) avatar = Avatar;
             TexTransGroupValidationUtils.ValidateTexTransGroup(texTransGroup);
