@@ -12,11 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
-      - name: Checkout-tag-and-zip
-        run: |
-          git fetch --tags
-          git checkout ${{ github.event.inputs.tag }}
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ github.event.inputs.tag }}
       - name: RemoveDotgit
         run: |
           rm -r ./.git
