@@ -6,7 +6,7 @@ using UnityEngine;
 namespace net.rs64.TexTransCore.TransTextureCore
 {
     [Serializable]
-    public struct TriangleIndex : IEnumerable<int>
+    public struct TriangleIndex : IEnumerable<int>, IEquatable<TriangleIndex>
     {
         public int zero;
         public int one;
@@ -69,10 +69,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
         public override bool Equals(object obj)
         {
-            return obj is TriangleIndex index &&
-                   zero == index.zero &&
-                   one == index.one &&
-                   two == index.two;
+            return obj is TriangleIndex other && Equals(other);
         }
 
         public override int GetHashCode()
@@ -94,9 +91,9 @@ namespace net.rs64.TexTransCore.TransTextureCore
             return !(left == right);
         }
 
-
-
-
-
+        public bool Equals(TriangleIndex other)
+        {
+            return zero == other.zero && one == other.one && two == other.two;
+        }
     }
 }
