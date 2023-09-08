@@ -17,7 +17,7 @@ namespace net.rs64.TexTransCore.Island
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var Islands = UVToIslandImpl(triangles, UV);
-            Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}");
+            Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}: {Islands.Count}");
 
             if (Caches != null) { Caches.AddCache(UV, triangles, Islands); }
 
