@@ -1,7 +1,7 @@
 {
   "name": "net.rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "unity": "2019.4",
   "description": "TextureTransformTool!",
   "author": {
