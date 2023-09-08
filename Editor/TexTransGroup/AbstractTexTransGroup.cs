@@ -18,8 +18,21 @@ namespace net.rs64.TexTransTool
 
         public override void Apply(AvatarDomain AvatarMaterialDomain = null)
         {
-            if (!IsPossibleApply) return;
-            if (_IsApply) return;
+            if (!IsPossibleApply)
+            {
+                Debug.LogWarning("TexTransGroup : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
+                return;
+            }
+            if (_IsApply)
+            {
+                Debug.LogWarning("TexTransGroup : すでにこのコンポーネントでプレビュー状態のため実行できません。");
+                return;
+            }
+            if (TexTransGroupValidationUtils.SelfCallApplyExists(Targets))
+            {
+                Debug.LogWarning("TexTransGroup : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
+                return;
+            }
             _IsApply = true;
             try
             {
