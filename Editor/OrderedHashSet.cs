@@ -58,10 +58,10 @@ namespace net.rs64.TexTransTool.Utils
 
 
 
-        public OrderedHashSet(IEnumerable<T> enumreat)
+        public OrderedHashSet(IEnumerable<T> enumerate)
         {
             List = new List<T>();
-            List.AddRange(enumreat);
+            List.AddRange(enumerate);
         }
 
         public OrderedHashSet()
