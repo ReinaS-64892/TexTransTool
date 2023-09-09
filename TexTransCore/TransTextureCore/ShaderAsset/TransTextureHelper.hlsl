@@ -25,6 +25,7 @@
                 o.vertex.y *= 2;
                 o.vertex.x -=1;
                 o.vertex.y -=1;
+                o.vertex.z = 1;
 #if UNITY_UV_STARTS_AT_TOP
                 o.vertex.y = -1 * o.vertex.y;
 #endif
@@ -34,14 +35,16 @@
 
             UVandVart PaddingCal(UVandVart center , UVandVart input,float Padding)
             {
-                float lerpValue = -1 * Padding;
+                float PixelStep  = length(input.vertex - center.vertex) /(1 / length(_ScreenParams.xy));
+                float PaddingValue =  (Padding / PixelStep) * -1;
                 UVandVart o;
-                o.uv = lerp(input.uv ,center.uv ,lerpValue);
-                o.vertex = lerp(input.vertex ,center.vertex ,lerpValue);
+                o.uv = lerp(input.uv ,center.uv ,PaddingValue);
+                o.vertex = lerp(input.vertex ,center.vertex ,PaddingValue);
+                o.vertex.z = 0;
                 return o;
             }
 
-            [maxvertexcount(3)]
+            [maxvertexcount(18)]
             void geom (triangle UVandVart input[3], inout TriangleStream<UVandVart> stream)
             {
                 UVandVart center;
@@ -53,8 +56,33 @@
                 UVandVart g2 = PaddingCal(center ,input[2] ,_Padding);
 
                 stream.Append(g0);
+                stream.Append(input[0]);
+                stream.Append(g1);
+                stream.RestartStrip();
+
+                stream.Append(input[0]);
+                stream.Append(input[1]);
+                stream.Append(g1);
+                stream.RestartStrip();
+
+                stream.Append(input[1]);
                 stream.Append(g1);
                 stream.Append(g2);
+                stream.RestartStrip();
+
+                stream.Append(input[1]);
+                stream.Append(input[2]);
+                stream.Append(g2);
+                stream.RestartStrip();
+
+                stream.Append(input[2]);
+                stream.Append(g0);
+                stream.Append(g2);
+                stream.RestartStrip();
+
+                stream.Append(input[0]);
+                stream.Append(g0);
+                stream.Append(input[2]);
                 stream.RestartStrip();
             }
 
