@@ -6,9 +6,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.Utils{
+namespace net.rs64.TexTransTool.Utils
+{
 
-    public static class TextureUtility {
+    public static class TextureUtility
+    {
 
 
         /// <summary>
@@ -20,7 +22,7 @@ namespace net.rs64.TexTransTool.Utils{
         /// <param name="tex"></param>
         /// <param name="CopySouse"></param>
         /// <returns></returns>
-        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, SortedList<int, Color[]> MipMap = null)
+        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse)
         {
             var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
             if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
@@ -39,11 +41,7 @@ namespace net.rs64.TexTransTool.Utils{
             tex.wrapModeU = CopySouse.wrapModeU;
             tex.wrapModeV = CopySouse.wrapModeV;
             tex.wrapMode = CopySouse.wrapMode;
-            if (tex.mipmapCount > 1)
-            {
-                if (MipMap != null) { tex.ApplyMip(MipMap); }
-                else { tex.Apply(true); }
-            }
+            if (tex.mipmapCount > 1) { tex.Apply(true); }
             EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
 
             return tex;
