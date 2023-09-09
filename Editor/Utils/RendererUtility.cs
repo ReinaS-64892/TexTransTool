@@ -190,6 +190,33 @@ namespace net.rs64.TexTransTool.Utils
                 }
             }
         }
+        public static OrderedHashSet<Material> GetOrderedHashSetMaterials(IEnumerable<Renderer> renderers)
+        {
+            OrderedHashSet<Material> materials = new OrderedHashSet<Material>();
+
+            foreach (var renderer in renderers)
+            {
+                foreach (var mat in renderer.sharedMaterials)
+                {
+                    materials.Add(mat);
+                }
+            }
+
+            return materials;
+        }
+
+        public static OrderedHashSet<Mesh> GetOrderedHashSetMeshes(IEnumerable<Renderer> renderers)
+        {
+            OrderedHashSet<Mesh> meshes = new OrderedHashSet<Mesh>();
+
+            foreach (var renderer in renderers)
+            {
+                var mesh = renderer.GetMesh();
+                meshes.Add(mesh);
+            }
+
+            return meshes;
+        }
 
 
 
