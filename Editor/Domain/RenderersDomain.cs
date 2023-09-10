@@ -59,9 +59,10 @@ namespace net.rs64.TexTransTool
             property.objectReferenceValue = value;
         }
 
-        public virtual void ReplaceMaterial(Material target, Material replacement, bool rendererOnly = false)
+        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
-            TransferAsset(replacement);
+            foreach (var replacement in mapping.Values)
+                TransferAsset(replacement);
 
             foreach (var renderer in _renderers)
             {
@@ -70,7 +71,7 @@ namespace net.rs64.TexTransTool
                 for (var index = 0; index < materials.Length; index++)
                 {
                     var originalMaterial = materials[index];
-                    if (target == originalMaterial)
+                    if (mapping.TryGetValue(originalMaterial, out var replacement))
                     {
                         AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
 
