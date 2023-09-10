@@ -5,9 +5,13 @@ using static net.rs64.TexTransTool.TextureLayerUtil;
 
 namespace net.rs64.TexTransTool
 {
-    public interface IDomain
+    public interface IAssetSaver
     {
         void transferAsset(UnityEngine.Object Asset);
+    }
+
+    public interface IDomain : IAssetSaver
+    {
         void SetMaterial(Material Target, Material SetMat, bool isPaired);
         void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D Dist, BlendTextures SetTex);
