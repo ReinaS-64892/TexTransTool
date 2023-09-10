@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    public class PreviewDomain : IDomain, IDisposable
+    public class PreviewDomain : IDomain
     {
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] TextureStacks _textureStacks = new TextureStacks();
@@ -110,11 +110,6 @@ namespace net.rs64.TexTransTool
         {
             ExecuteBatchedModifications();
             AnimationMode.EndSampling();
-        }
-
-        public void Dispose()
-        {
-            AnimationMode.StopAnimationMode();
         }
     }
 }

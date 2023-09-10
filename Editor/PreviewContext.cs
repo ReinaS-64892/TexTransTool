@@ -1,6 +1,8 @@
+using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool
 {
@@ -8,10 +10,6 @@ namespace net.rs64.TexTransTool
     {
         [SerializeField]
         private Object previweing = null;
-        [SerializeField]
-        private PreviewDomain previewDomain;
-        [SerializeField]
-        private PreviewAvatarDomain previewAvatarDomain;
 
         protected PreviewContext()
         {
@@ -20,29 +18,23 @@ namespace net.rs64.TexTransTool
         public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
         public static bool IsPreviewing(AvatarDomainDefinition domainDefinition) => domainDefinition == instance.previweing;
 
-        public void DrawApplyAndRevert(TextureTransformer target)
+        private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
+            where T : Object 
         {
             if (target == null) return;
             if (previweing == null)
             {
-                if (GUILayout.Button("Preview"))
+                if (GUILayout.Button(previewMessage))
                 {
                     previweing = target;
-                    previewDomain = new PreviewDomain(target.GetRenderers);
                     try
                     {
-                        try
-                        {
-                            target.Apply(previewDomain);
-                        }
-                        finally
-                        {
-                            previewDomain.EditFinish();
-                        }
+                        apply(target);
                     }
                     catch
                     {
-                        previewDomain.Dispose();
+                        AnimationMode.StopAnimationMode();
+                        previweing = null;
                         throw;
                     }
                 }
@@ -52,8 +44,7 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button("Revert"))
                 {
                     previweing = null;
-                    previewDomain.Dispose();
-                    previewDomain = null;
+                    AnimationMode.StopAnimationMode();
                 }
             }
             else
@@ -63,49 +54,38 @@ namespace net.rs64.TexTransTool
                 EditorGUI.EndDisabledGroup();
             }
         }
+
+        public void DrawApplyAndRevert(TextureTransformer target)
+        {
+            DrawApplyAndRevert(target, "Preview", target1 =>
+            {
+                var previewDomain = new PreviewDomain(target.GetRenderers);
+
+                try
+                {
+                    target1.Apply(previewDomain);
+                }
+                finally
+                {
+                    previewDomain.EditFinish();
+                }
+            });
+        }
         
         public void DrawApplyAndRevert(AvatarDomainDefinition target)
         {
-            if (target == null) return;
-            if (previweing == null)
+            DrawApplyAndRevert(target, "Preview - AvatarDomain-Apply", target1 =>
             {
-                if (GUILayout.Button("Preview - AvatarDomain-Apply"))
+                var previewAvatarDomain = new PreviewAvatarDomain(target.Avatar);
+                try
                 {
-                    previweing = target;
-                    previewAvatarDomain = new PreviewAvatarDomain(target.Avatar);
-                    try
-                    {
-                        try
-                        {
-                            target.Apply(previewAvatarDomain);
-                        }
-                        finally
-                        {
-                            previewAvatarDomain.EditFinish();
-                        }
-                    }
-                    catch
-                    {
-                        previewAvatarDomain.Dispose();
-                        throw;
-                    }
+                    target.Apply(previewAvatarDomain);
                 }
-            }
-            else if (previweing == target)
-            {
-                if (GUILayout.Button("Revert"))
+                finally
                 {
-                    previweing = null;
-                    previewAvatarDomain.Dispose();
-                    previewAvatarDomain = null;
+                    previewAvatarDomain.EditFinish();
                 }
-            }
-            else
-            {
-                EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("Preview (Other Previewing)");
-                EditorGUI.EndDisabledGroup();
-            }
+            });
         }
     }
 }
