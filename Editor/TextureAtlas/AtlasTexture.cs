@@ -265,7 +265,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (targetMeshData == null) continue;
 
                 Domain.SetMesh(renderer, targetMeshData.Mesh);
-                Domain.transferAsset(targetMeshData.Mesh);
+                Domain.TransferAsset(targetMeshData.Mesh);
                 nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
             }
 

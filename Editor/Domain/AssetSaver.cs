@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public void transferAsset(UnityEngine.Object UnityObject)
+        public void TransferAsset(UnityEngine.Object UnityObject)
         {
             Asset.AddSubObject(UnityObject);
         }

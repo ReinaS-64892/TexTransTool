@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool
 {
     public interface IAssetSaver
     {
-        void transferAsset(UnityEngine.Object Asset);
+        void TransferAsset(UnityEngine.Object Asset);
     }
 
     public interface IDomain : IAssetSaver
@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
         {
             foreach (var unityObject in UnityObjects)
             {
-                domain.transferAsset(unityObject);
+                domain.TransferAsset(unityObject);
             }
         }
     }
