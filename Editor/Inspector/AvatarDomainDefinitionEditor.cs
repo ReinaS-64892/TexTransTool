@@ -11,8 +11,6 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("GenerateCustomMipMap"));
-
             var thisTarget = target as AvatarDomainDefinition;
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"), new GUIContent("Preview Avatar"));

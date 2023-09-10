@@ -26,8 +26,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public AtlasTextureDataContainer Container = new AtlasTextureDataContainer();
 
         [SerializeField] bool _isApply = false;
-        public override bool IsApply => _isApply;
+        public override bool IsApply { get => _isApply; set => _isApply = value; }
         public override bool IsPossibleApply => TargetRoot != null && AtlasSettings.Count > 0;
+
+        public override List<Renderer> GetRenderers => Renderers;
+
+
         // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
         /*
         TargetRenderers 対象となるのはメッシュが存在しマテリアルスロットにNullが含まれていないもの。
@@ -66,7 +70,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Debug.LogWarning("AtlasTexture : すでにこのコンポーネントでアトラス化が適応されているため、アトラス化ができません。");
                 return false;
             }
-            ClearContainer();
 
             //情報を集めるフェーズ
             var selectRefsMat = new OrderedHashSet<Material>(SelectReferenceMat);
@@ -238,9 +241,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
         }
 
-        public AvatarDomain RevertDomain;
-        public List<MeshPair> RevertMeshes;
-        public override void Apply(AvatarDomain avatarMaterialDomain = null)
+        public override void Apply(IDomain Domain = null)
         {
             var result = CompileAtlasTextures();
             if (!result) { return; }
@@ -251,8 +252,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             var nowRenderers = Renderers;
-            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevertDomain = avatarMaterialDomain; }
-            else { RevertDomain = avatarMaterialDomain.GetBackUp(); }
+
             Container.GenerateMaterials = null;
 
             var generateMaterials = new List<List<Material>>();
@@ -281,7 +281,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (targetMeshData == null) continue;
 
                 renderer.SetMesh(targetMeshData.Mesh);
-                avatarMaterialDomain.transferAsset(targetMeshData.Mesh);
+                Domain.transferAsset(targetMeshData.Mesh);
                 nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
             }
 
@@ -303,7 +303,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     fineSetting.FineSetting(AtlasTex);
                 }
-                avatarMaterialDomain.transferAsset(AtlasTex.Select(PaT => PaT.Texture2D));
+                Domain.transferAssets(AtlasTex.Select(PaT => PaT.Texture2D));
 
 
                 if (atlasSetting.MergeMaterials)
@@ -312,7 +312,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     Material generateMat = GenerateAtlasMat(mergeMat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
                     var distMats = channelMatRefs.Select(MatRef => materials[MatRef]).ToList();
-                    avatarMaterialDomain.SetMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), false);
+                    Domain.SetMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), false);
 
                     generateMaterials.Add(new List<Material>(1) { generateMat });
                 }
@@ -327,45 +327,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         materialMap.Add(new MatPair(mat, generateMat));
                     }
 
-                    avatarMaterialDomain.SetMaterials(materialMap, true);
+                    Domain.SetMaterials(materialMap, true);
                     generateMaterials.Add(materialMap.ConvertAll(MP => MP.SecondMaterial));
                 }
             }
-
-            Container.GenerateMaterials = generateMaterials;
-            RevertMeshes = nawChannelRevertMeshes;
             _isApply = true;
-        }
-
-        public override void Revert(AvatarDomain avatarMaterialDomain = null)
-        {
-            if (!IsApply) return;
-            _isApply = false;
-            IsSelfCallApply = false;
-
-            RevertDomain.ResetMaterial();
-            RevertDomain = null;
-
-            var nowRenderers = Renderers;
-
-            var revertMeshDict = new Dictionary<Mesh, Mesh>();
-            foreach (var meshPair in RevertMeshes)
-            {
-                if (!revertMeshDict.ContainsKey(meshPair.SecondMesh))
-                {
-                    revertMeshDict.Add(meshPair.SecondMesh, meshPair.Mesh);
-                }
-            }
-
-
-            foreach (var renderer in nowRenderers)
-            {
-                var mesh = renderer.GetMesh();
-                if (revertMeshDict.ContainsKey(mesh))
-                {
-                    renderer.SetMesh(revertMeshDict[mesh]);
-                }
-            }
         }
 
         private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island, Island)> islandPairs, float padding)
@@ -541,21 +507,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var tex = matSelect.Material.mainTexture;
                 matSelect.TextureSizeOffSet = (tex.width * tex.height) / (float)maxTexPixel;
             }
-        }
-
-        public void ClearContainer()
-        {
-            if (IsApply) return;
-            if (Container != null)
-            {
-                Container.AtlasTextures = null;
-                Container.GenerateMeshes = null;
-                Container.ChannelsMatRef = null;
-                Container.IsPossibleApply = false;
-                Container.GenerateMaterials = null;
-            }
-            RevertMeshes = null;
-            RevertDomain = null;
         }
     }
     public class AtlasData

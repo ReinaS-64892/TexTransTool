@@ -15,15 +15,15 @@ namespace net.rs64.TexTransTool
         public BlendType BlendType = BlendType.Normal;
         public PropertyName TargetPropertyName;
 
-        public TextureBlenderDataContainer Container = new TextureBlenderDataContainer();
 
         [SerializeField] protected bool _IsApply = false;
-        public override bool IsApply => _IsApply;
+        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
+        public override List<Renderer> GetRenderers => new List<Renderer>() { TargetRenderer };
 
         public override bool IsPossibleApply => TargetRenderer != null && BlendTexture != null;
 
 
-        public override void Apply(AvatarDomain avatarMaterialDomain = null)
+        public override void Apply(IDomain Domain = null)
         {
             if (!IsPossibleApply) return;
             if (_IsApply) return;
@@ -36,33 +36,14 @@ namespace net.rs64.TexTransTool
 
             var DistTex = DistMat.GetTexture(TargetPropertyName) as Texture2D;
             var AddTex = TextureLayerUtil.CreateMultipliedRenderTexture(BlendTexture, Color);
-            if (DistTex == null) return;
-
-            if (avatarMaterialDomain == null)
+            if (DistTex == null)
             {
-                avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
-
-                var newBlendTex = TextureLayerUtil.BlendBlit(DistTex, BlendTexture, BlendType).CopyTexture2D();
-                Container.BlendTextures = newBlendTex;
-
-                var ChangeDict = avatarMaterialDomain.SetTexture(DistTex, newBlendTex);
-                Container.GenerateMaterials = ChangeDict;
+                return;
             }
-            else
-            {
-                avatarMaterialDomain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
-            }
-        }
 
 
-        public override void Revert(AvatarDomain avatarMaterialDomain = null)
-        {
-            if (!_IsApply) return;
-            _IsApply = false;
-            if (avatarMaterialDomain == null) avatarMaterialDomain = new AvatarDomain(TargetRenderer.gameObject);
-            IsSelfCallApply = false;
+            Domain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
 
-            avatarMaterialDomain.SetMaterials(MatPair.SwitchingList(Container.GenerateMaterials), true);
         }
     }
 

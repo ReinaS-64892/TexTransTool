@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool
         {
             foreach (var tf in tTFs)
             {
-                if (tf.IsApply && tf.IsSelfCallApply)
+                if (tf.IsApply && tf.IsPreviewApply)
                 {
                     return true;
                 }
