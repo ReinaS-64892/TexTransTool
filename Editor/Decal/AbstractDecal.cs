@@ -23,46 +23,53 @@ namespace net.rs64.TexTransTool.Decal
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
         [SerializeField] protected bool _IsApply = false;
-        public override bool IsApply => _IsApply;
+        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
+        public override List<Renderer> GetRenderers => TargetRenderers;
 
 
-        public override void Apply(AvatarDomain avatarDomain)
+        public override void Apply(IDomain Domain)
         {
-            if (!IsPossibleApply) return;
-            if (_IsApply) return;
+            if (Domain == null)
+            {
+                Debug.LogWarning("Decal : ドメインが存在しません。通常ではありえないエラーです。");
+                return;
+            }
+            if (!IsPossibleApply)
+            {
+                Debug.LogWarning("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
+                return;
+            }
+            if (_IsApply)
+            {
+                Debug.LogWarning("Decal : すでにこのコンポーネントで デカールが貼られているため、デカールを張ることができません。");
+                return;
+            }
             Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
 
-            if (avatarDomain != null)
-            {
-                if (!IsSeparateMatAndTexture)
-                {
-                    foreach (var trp in decalCompiledTextures)
-                    {
-                        avatarDomain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
-                    }
-                }
-                else
-                {
-                    var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
-                    var materials = RendererUtility.GetMaterials(TargetRenderers).Distinct();
-                    CopyTexDescription(decalBlendTextures);
 
-                    var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
-                    RendererUtility.ChangeMaterialForRenderers(TargetRenderers, dictMat);
+
+
+            if (!IsSeparateMatAndTexture)
+            {
+                foreach (var trp in decalCompiledTextures)
+                {
+                    Domain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
                 }
             }
             else
             {
+                //分割する場合は特別処理。
                 var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
                 var materials = RendererUtility.GetMaterials(TargetRenderers).Distinct();
-                var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
+                CopyTexDescription(decalBlendTextures);
 
+                var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
                 RendererUtility.ChangeMaterialForRenderers(TargetRenderers, dictMat);
-                var listMatPea = MatPair.ConvertMatPairList(dictMat);
-                localSave = new DecalDataContainer();
-                localSave.GenerateMaterials = listMatPea;
-                localSave.DecalBlendTextures = decalBlendTextures.Values.ToList();
+
+                Domain.transferAssets(decalBlendTextures.Values);
+                Domain.transferAssets(dictMat.Values);
             }
+
             _IsApply = true;
         }
 
@@ -110,26 +117,6 @@ namespace net.rs64.TexTransTool.Decal
 
         public abstract Dictionary<Texture2D, Texture> CompileDecal();
 
-        [SerializeField] DecalDataContainer localSave;
-
-        public override void Revert(AvatarDomain avatarMaterialDomain = null)
-        {
-            if (!_IsApply) return;
-            _IsApply = false;
-
-            if (avatarMaterialDomain != null)
-            {
-                //何もすることはない。
-            }
-            else
-            {
-                var revertList = MatPair.ConvertMatDict(MatPair.SwitchingList(localSave.GenerateMaterials));
-                RendererUtility.ChangeMaterialForRenderers(TargetRenderers, revertList);
-                localSave = null;
-            }
-            IsSelfCallApply = false;
-
-        }
 
         [ContextMenu("ExtractDecalCompiledTexture")]
         public void ExtractDecalCompiledTexture()

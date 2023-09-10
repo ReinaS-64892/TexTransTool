@@ -20,16 +20,16 @@ namespace net.rs64.TexTransTool.Editor
                 {
                     if (GUILayout.Button("Preview"))
                     {
-                        Target.SelfCallApply();
+                        Target.PreviewApply();
                         EditorUtility.SetDirty(Target);
                     }
                 }
                 else
                 {
-                    EditorGUI.BeginDisabledGroup(!Target.IsSelfCallApply);
+                    EditorGUI.BeginDisabledGroup(!Target.IsPreviewApply);
                     if (GUILayout.Button("Revert"))
                     {
-                        Target.Revert();
+                        Target.PreviewRevert();
                         EditorUtility.SetDirty(Target);
 
                     }

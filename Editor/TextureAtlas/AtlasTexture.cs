@@ -21,8 +21,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<MatSelector> SelectMatList = new List<MatSelector>();
         public AtlasSetting AtlasSetting = new AtlasSetting();
         [SerializeField] bool _isApply = false;
-        public override bool IsApply => _isApply;
+        public override bool IsApply { get => _isApply; set => _isApply = value; }
         public override bool IsPossibleApply => TargetRoot != null;
+
+        public override List<Renderer> GetRenderers => Renderers;
+
+
         // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
         /*
         TargetRenderers 対象となるのはメッシュが存在しマテリアルスロットにNullが含まれていないかつ、無効化されておらず、エディターオンリーではないもの。
@@ -238,8 +242,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (!result) { return; }
 
             var nowRenderers = Renderers;
-            if (avatarMaterialDomain == null) { avatarMaterialDomain = new AvatarDomain(TargetRoot); RevertDomain = avatarMaterialDomain; }
-            else { RevertDomain = avatarMaterialDomain.GetBackUp(); }
+
             var ShaderSupport = new AtlasShaderSupportUtils();
 
             //Mesh Change
@@ -254,7 +257,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var atlasMesh = atlasMeshAndDist.AtlasMesh;
                 renderer.SetMesh(atlasMesh);
                 avatarMaterialDomain.transferAsset(atlasMesh);
-                RevertMeshes.Add(new MeshPair(mesh, atlasMesh));
+                Domain.Add(new MeshPair(mesh, atlasMesh));
             }
 
             //Texture Fine Tuning
@@ -272,7 +275,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : SelectMatList.First().Material;
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);
 
-                avatarMaterialDomain.SetMaterials(SelectMatList.ConvertAll(Mat => new MatPair(Mat.Material, generateMat)), false);
+                Domain.SetMaterials(SelectMatList.ConvertAll(Mat => new MatPair(Mat.Material, generateMat)), false);
             }
             else
             {
@@ -283,40 +286,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     var generateMat = GenerateAtlasMat(DistMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);
                     materialMap.Add(new MatPair(DistMat, generateMat));
                 }
-                avatarMaterialDomain.SetMaterials(materialMap, true);
+                Domain.SetMaterials(materialMap, true);
             }
 
             _isApply = true;
-        }
-
-        public override void Revert(AvatarDomain avatarMaterialDomain = null)
-        {
-            if (!IsApply) return;
-            _isApply = false;
-            IsSelfCallApply = false;
-
-            RevertDomain.ResetMaterial();
-            RevertDomain = null;
-
-            var nowRenderers = Renderers;
-            var revertMeshDict = new Dictionary<Mesh, Mesh>();
-            foreach (var meshPair in RevertMeshes)
-            {
-                if (!revertMeshDict.ContainsKey(meshPair.SecondMesh))
-                {
-                    revertMeshDict.Add(meshPair.SecondMesh, meshPair.Mesh);
-                }
-            }
-
-
-            foreach (var renderer in nowRenderers)
-            {
-                var mesh = renderer.GetMesh();
-                if (revertMeshDict.ContainsKey(mesh))
-                {
-                    renderer.SetMesh(revertMeshDict[mesh]);
-                }
-            }
         }
 
         private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island, Island)> islandPairs, float padding)
