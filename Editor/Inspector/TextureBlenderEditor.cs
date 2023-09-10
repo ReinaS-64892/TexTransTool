@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUI.EndDisabledGroup();
 
 
-            TextureTransformerEditor.DrawerApplyAndRevert(Target);
+            PreviewContext.instance.DrawApplyAndRevert(Target);
             This_S_Object.ApplyModifiedProperties();
         }
 

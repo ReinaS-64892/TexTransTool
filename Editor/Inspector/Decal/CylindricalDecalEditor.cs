@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

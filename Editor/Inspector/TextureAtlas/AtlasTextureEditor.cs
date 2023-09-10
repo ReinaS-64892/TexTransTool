@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisTarget);
+            PreviewContext.instance.DrawApplyAndRevert(ThisTarget);
             serializedObject.ApplyModifiedProperties();
 
         }

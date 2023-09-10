@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.EndDisabledGroup();
             DrawerRealTimePreviewEditor(ThisObject);
             EditorGUI.BeginDisabledGroup(ThisObject.IsRealTimePreview);
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
             EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
