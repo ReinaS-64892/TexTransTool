@@ -18,11 +18,10 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    [Serializable]
     public class RenderersDomain : IDomain
     {
-        [SerializeField] List<Renderer> _renderers;
-        [SerializeField] TextureStacks _textureStacks = new TextureStacks();
+        List<Renderer> _renderers;
+        TextureStacks _textureStacks = new TextureStacks();
 
         public readonly bool Previewing;
         [CanBeNull] private readonly IAssetSaver _saver;

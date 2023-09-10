@@ -17,10 +17,9 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    [System.Serializable]
     public class AvatarDomain : RenderersDomain
     {
-        static HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
+        static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
 
         public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
