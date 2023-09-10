@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
-using System.Linq;
 using UnityEngine;
 using System;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Build
@@ -12,18 +12,13 @@ namespace net.rs64.TexTransTool.Build
     {
         public GameObject Avatar;
         public AbstractTexTransGroup TexTransGroup => GetComponent<AbstractTexTransGroup>();
-        [SerializeField] protected AvatarDomain lastDomain;
 
-        [SerializeField] bool _IsSelfCallApply;
-        public virtual bool IsSelfCallApply => _IsSelfCallApply;
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
-        public virtual AvatarDomain GenerateDomain(GameObject avatar, UnityEngine.Object OverrideAssetContainer = null)
+
+        public virtual void Apply([NotNull] IDomain domain)
         {
-            return new AvatarDomain(avatar, true, OverrideAssetContainer);
-        }
-        public virtual void Apply(GameObject avatar = null, UnityEngine.Object OverrideAssetContainer = null)
-        {
+            if (domain == null) throw new ArgumentNullException(nameof(domain));
             var texTransGroup = TexTransGroup;
             if (texTransGroup == null)
             {
@@ -45,29 +40,10 @@ namespace net.rs64.TexTransTool.Build
                 Debug.LogWarning("AvatarDomainDefinition : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
                 return;
             }
-            if (avatar == null && Avatar == null) return;
-            if (avatar == null) avatar = Avatar;
+
             TexTransGroupValidationUtils.ValidateTexTransGroup(texTransGroup);
-            var Domain = GenerateDomain(avatar, OverrideAssetContainer);
 
-            _IsSelfCallApply = true;
-
-            texTransGroup.Apply(Domain);
-
-            Domain.EditFinish();
-            lastDomain = Domain;
-        }
-
-        public virtual void Revert()
-        {
-            if (_IsSelfCallApply == false) return;
-            var texTransGroup = TexTransGroup;
-            if (texTransGroup == null) return;
-            if (!PreviewContext.IsPreviewing(texTransGroup)) return;
-            _IsSelfCallApply = false;
-
-            lastDomain.Dispose();
-            lastDomain = null;
+            texTransGroup.Apply(domain);
         }
     }
 }

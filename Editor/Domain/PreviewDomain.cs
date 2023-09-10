@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool
             _textureStacks.AddTextureStack(Dist, SetTex);
         }
 
-        private static void AddPropertyModification(Object component, string property, Object value)
+        protected static void AddPropertyModification(Object component, string property, Object value)
         {
             AnimationMode.AddPropertyModification(
                 EditorCurveBinding.PPtrCurve("", component.GetType(), ""),
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool
 
         }
 
-        public void SetMaterial(Material target, Material set, bool isPaired)
+        public virtual void SetMaterial(Material target, Material set, bool isPaired)
         {
             foreach (var renderer in _renderers)
             {
@@ -98,12 +98,17 @@ namespace net.rs64.TexTransTool
             this.SetMaterials(matPair, true);
         }
 
+        protected virtual void ExecuteBatchedModifications()
+        {
+            foreach (var mergeResult in _textureStacks.MargeStacks())
+            {
+                SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
+            }
+        }
+
         public void EditFinish()
         {
-            foreach (var MargeResult in _textureStacks.MargeStacks())
-            {
-                SetTexture(MargeResult.FirstTexture, MargeResult.MargeTexture);
-            }
+            ExecuteBatchedModifications();
             AnimationMode.EndSampling();
         }
 

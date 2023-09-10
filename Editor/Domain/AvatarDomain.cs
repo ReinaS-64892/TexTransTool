@@ -12,7 +12,7 @@ using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 namespace net.rs64.TexTransTool
 {
     [System.Serializable]
-    public class AvatarDomain : IDomain, IDisposable
+    public class AvatarDomain : IDomain
     {
         static Type[] IgnoreTypes = new Type[] { typeof(Transform), typeof(AvatarDomainDefinition) };
         /*
@@ -29,7 +29,6 @@ namespace net.rs64.TexTransTool
         {
             _avatarRoot = avatarRoot;
             _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
-            _renderersBackup = new RenderersBackup(_renderers);
             if (AssetSaver)
             {
                 if (OverrideAssetContainer == null)
@@ -48,10 +47,8 @@ namespace net.rs64.TexTransTool
         }
         [SerializeField] GameObject _avatarRoot;
         [SerializeField] List<Renderer> _renderers;
-        [SerializeField] RenderersBackup _renderersBackup;
         [SerializeField] TextureStacks _textureStacks = new TextureStacks();
         FlatMapDict<Material> _mapDict;
-        [SerializeField] List<MatPair> _matModifies = new List<MatPair>();
 
         public AvatarDomainAsset Asset;
 
@@ -119,21 +116,7 @@ namespace net.rs64.TexTransTool
             {
                 var matModifiedDict = _mapDict.GetMapping;
                 RendererUtility.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
-                _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
             }
-        }
-
-        public void Dispose()
-        {
-            if (_matModifies.Any())
-            {
-                var reversedMatModifiesDict = new Dictionary<Material, Material>();
-                foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
-                RendererUtility.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
-                _matModifies.Clear();
-            }
-            _renderersBackup.Dispose();
-            AssetSaveHelper.DeleteAsset(Asset);
         }
     }
 
