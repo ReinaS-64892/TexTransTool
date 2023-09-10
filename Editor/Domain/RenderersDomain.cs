@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -24,11 +25,13 @@ namespace net.rs64.TexTransTool
         [SerializeField] TextureStacks _textureStacks = new TextureStacks();
 
         public readonly bool Previewing;
+        [CanBeNull] private readonly IAssetSaver _saver;
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
+            _saver = saver;
         }
 
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
@@ -99,10 +102,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public void transferAsset(UnityEngine.Object Asset)
-        {
-            //なにもしなくていい
-        }
+        public void transferAsset(Object Asset) => _saver?.transferAsset(Asset);
 
         public void SetTexture(Texture2D Target, Texture2D SetTex)
         {

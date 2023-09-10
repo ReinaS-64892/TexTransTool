@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool
@@ -17,8 +18,8 @@ namespace net.rs64.TexTransTool
     {
         static HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
 
-        public AvatarDomain1(GameObject avatarRoot, bool previewing)
-            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing)
+        public AvatarDomain1(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
+            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
         {
             _avatarRoot = avatarRoot;
         }
