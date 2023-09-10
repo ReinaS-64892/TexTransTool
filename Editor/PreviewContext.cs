@@ -81,7 +81,7 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewAvatarDomain = new AvatarDomain1(target.Avatar, previewing: true);
+                    var previewAvatarDomain = new AvatarDomain(target.Avatar, previewing: true);
                     target.Apply(previewAvatarDomain);
                     previewAvatarDomain.EditFinish();
                 }

@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Build
                 var aDDs = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
                 foreach (var aDD in aDDs)
                 {
-                    var domain = new AvatarDomain1(avatarGameObject, previewing: false, saver: assetSaver);
+                    var domain = new AvatarDomain(avatarGameObject, previewing: false, saver: assetSaver);
                     aDD.Apply(domain);
                     domain.EditFinish();
                 }

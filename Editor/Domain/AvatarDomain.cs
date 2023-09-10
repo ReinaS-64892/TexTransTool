@@ -18,11 +18,11 @@ namespace net.rs64.TexTransTool
     /// so user must call those if needed.
     /// </summary>
     [System.Serializable]
-    public class AvatarDomain1 : RenderersDomain
+    public class AvatarDomain : RenderersDomain
     {
         static HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
 
-        public AvatarDomain1(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
         {
             _avatarRoot = avatarRoot;

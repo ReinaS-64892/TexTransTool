@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(AvatarDomainDefinition), true)]
     public class AvatarDomainDefinitionEditor : UnityEditor.Editor
     {
-        private AvatarDomain1 _domain1;
+        private AvatarDomain _domain;
         private bool isPreviewing;
 
         public override void OnInspectorGUI()
