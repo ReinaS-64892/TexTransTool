@@ -24,6 +24,25 @@ namespace net.rs64.TexTransTool
 
                 File.WriteAllText(SaveDataVersionPath, jsonStr);
             }
+            else
+            {
+                var jsonStr = File.ReadAllText(SaveDataVersionPath);
+                var SaveDataVersionJson = JsonUtility.FromJson<SaveDataVersionJson>(jsonStr);
+
+                if (SaveDataVersionJson.SaveDataVersion == (ToolUtils.ThiSaveDataVersion - 1))
+                {
+                    MigrationExecute();
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
+        public static void MigrationExecute()
+        {
+                    throw new NotImplementedException();
         }
 
 

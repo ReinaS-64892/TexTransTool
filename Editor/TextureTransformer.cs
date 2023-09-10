@@ -33,6 +33,12 @@ namespace net.rs64.TexTransTool
             _lastPreviewDomain.Dispose();
             _lastPreviewDomain = null;
         }
+
+        [ContextMenu("Debug::ViewSaveDataVersion")]
+        public void ViewSaveDataVersion()
+        {
+            Debug.Log(_saveDataVersion);
+        }
     }
 }
 #endif
