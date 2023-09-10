@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool
 
         public override bool IsPossibleApply => PossibleApplyCheck();
 
-        public override void Apply(IDomain Domain = null)
+        public override void Apply(IDomain Domain)
         {
             if (!IsPossibleApply)
             {

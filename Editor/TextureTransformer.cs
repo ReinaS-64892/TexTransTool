@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool
         /// You MUST NOT modify state of this component.
         /// </summary>
         /// <param name="domain">The domain</param>
-        public abstract void Apply(IDomain domain = null);
+        public abstract void Apply([NotNull] IDomain domain);
     }
 }
 #endif

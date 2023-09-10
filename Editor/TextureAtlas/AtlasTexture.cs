@@ -232,7 +232,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             };
         }
 
-        public override void Apply(IDomain Domain = null)
+        public override void Apply(IDomain Domain)
         {
             var container = CompileAtlasTextures();
             if (container == null) { return; }
