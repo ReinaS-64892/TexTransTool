@@ -9,6 +9,10 @@ using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool
 {
+    /// <summary>
+    /// This is an IDomain implementation with calling AddPropertyModification every time.
+    /// The caller must call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// </summary>
     [Serializable]
     public class PreviewDomain : IDomain
     {

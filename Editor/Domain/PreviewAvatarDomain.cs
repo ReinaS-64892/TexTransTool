@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool
 {
     /// <summary>
     /// This class almost same as <see cref="AvatarDomain"/> but this class does support reverting
+    /// The caller must call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// </summary>
     [System.Serializable]
     public class PreviewAvatarDomain : PreviewDomain
