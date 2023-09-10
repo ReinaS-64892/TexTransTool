@@ -15,6 +15,14 @@ namespace net.rs64.TexTransTool
         {
         }
 
+        private void OnEnable()
+        {
+            EditorApplication.update += () =>
+            {
+                if (!AnimationMode.InAnimationMode()) previweing = null;
+            };
+        }
+
         public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
         public static bool IsPreviewing(AvatarDomainDefinition domainDefinition) => domainDefinition == instance.previweing;
 
