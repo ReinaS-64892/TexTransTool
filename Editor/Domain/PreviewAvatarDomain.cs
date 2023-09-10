@@ -36,9 +36,9 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        protected override void ExecuteBatchedModifications()
+        public override void EditFinish()
         {
-            base.ExecuteBatchedModifications();
+            base.EditFinish();
 
             if (_mapDict == null) return;
 

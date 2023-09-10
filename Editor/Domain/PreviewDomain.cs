@@ -100,17 +100,12 @@ namespace net.rs64.TexTransTool
             this.SetMaterials(matPair, true);
         }
 
-        protected virtual void ExecuteBatchedModifications()
+        public virtual void EditFinish()
         {
             foreach (var mergeResult in _textureStacks.MargeStacks())
             {
                 SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
             }
-        }
-
-        public void EditFinish()
-        {
-            ExecuteBatchedModifications();
         }
     }
 }
