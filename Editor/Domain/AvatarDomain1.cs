@@ -10,8 +10,12 @@ using net.rs64.TexTransTool.Build;
 namespace net.rs64.TexTransTool
 {
     /// <summary>
-    /// This class almost same as <see cref="AvatarDomain"/> but this class does support reverting
-    /// The caller must call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// This is an IDomain implementation that applies to whole the specified GameObject.
+    ///
+    /// If <see cref="Previewing"/> is true, This will call <see cref="AnimationMode.AddPropertyModification"/>
+    /// everytime modifies some property so you can revert those changes with <see cref="AnimationMode.StopAnimationMode"/>.
+    /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// so user must call those if needed.
     /// </summary>
     [System.Serializable]
     public class AvatarDomain1 : RenderersDomain
