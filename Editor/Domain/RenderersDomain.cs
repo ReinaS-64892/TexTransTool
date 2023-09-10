@@ -65,10 +65,17 @@ namespace net.rs64.TexTransTool
                 TransferAsset(replacement);
 
             foreach (var renderer in _renderers)
+            {
                 using (var serialized = new SerializedObject(renderer))
+                {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                        if (property.objectReferenceValue is Material material && mapping.TryGetValue(material, out var replacement))
+                        if (property.objectReferenceValue is Material material &&
+                            mapping.TryGetValue(material, out var replacement))
                             SetSerializedProperty(property, replacement);
+
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                }
+            }
         }
 
         public virtual void SetMaterial(Material target, Material replacement, bool isPaired)

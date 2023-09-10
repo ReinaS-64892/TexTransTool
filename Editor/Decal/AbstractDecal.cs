@@ -56,10 +56,17 @@ namespace net.rs64.TexTransTool.Decal
                 var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
                 
                 foreach (var renderer in TargetRenderers)
+                {
                     using (var serialized = new SerializedObject(renderer))
+                    {
                         foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                            if (property.objectReferenceValue is Material material && dictMat.TryGetValue(material, out var replacement))
+                            if (property.objectReferenceValue is Material material &&
+                                dictMat.TryGetValue(material, out var replacement))
                                 Domain.SetSerializedProperty(property, replacement);
+
+                        serialized.ApplyModifiedPropertiesWithoutUndo();
+                    }
+                }
 
                 Domain.transferAssets(decalBlendTextures.Values);
                 Domain.transferAssets(dictMat.Values);
