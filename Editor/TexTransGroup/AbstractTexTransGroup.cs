@@ -41,21 +41,6 @@ namespace net.rs64.TexTransTool
                 tf.Apply(Domain);
                 EditorUtility.SetDirty(tf);
             }
-
-        }
-        public void Revert()
-        {
-            _IsApply = false;
-            foreach (var tf in TextureTransformerFilter(Targets))
-            {
-                tf.IsApply = false;
-                EditorUtility.SetDirty(tf);
-            }
-        }
-        public override void PreviewRevert()
-        {
-            Revert();
-            base.PreviewRevert();
         }
         public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
 

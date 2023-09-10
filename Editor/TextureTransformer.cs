@@ -17,22 +17,6 @@ namespace net.rs64.TexTransTool
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public abstract void Apply(IDomain Domain = null);
-
-        [SerializeField] PreviewDomain _lastPreviewDomain;
-        public virtual void PreviewApply()
-        {
-            IsPreviewApply = true;
-            _lastPreviewDomain = new PreviewDomain(GetRenderers);
-            Apply(_lastPreviewDomain);
-            _lastPreviewDomain.EditFinish();
-        }
-        public virtual void PreviewRevert()
-        {
-            IsPreviewApply = false;
-            IsApply = false;
-            _lastPreviewDomain.Dispose();
-            _lastPreviewDomain = null;
-        }
     }
 }
 #endif

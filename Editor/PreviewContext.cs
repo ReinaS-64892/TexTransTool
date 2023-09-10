@@ -5,7 +5,10 @@ namespace net.rs64.TexTransTool
 {
     public class PreviewContext : ScriptableSingleton<PreviewContext>
     {
+        [SerializeField]
         private TextureTransformer previweing = null;
+        [SerializeField]
+        private PreviewDomain previewDomain;
 
         protected PreviewContext()
         {
@@ -19,20 +22,22 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button("Preview"))
                 {
                     previweing = target;
-                    target.PreviewApply();
+                    previewDomain = new PreviewDomain(target.GetRenderers);
+                    target.Apply(previewDomain);
+                    previewDomain.EditFinish();
                     EditorUtility.SetDirty(target);
                 }
             }
             else if (previweing == target)
             {
-                EditorGUI.BeginDisabledGroup(!target.IsPreviewApply);
                 if (GUILayout.Button("Revert"))
                 {
-                    target.PreviewRevert();
                     previweing = null;
+                    target.IsApply = false;
+                    previewDomain.Dispose();
+                    previewDomain = null;
                     EditorUtility.SetDirty(target);
                 }
-                EditorGUI.EndDisabledGroup();
             }
             else
             {
