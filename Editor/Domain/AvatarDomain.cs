@@ -3,11 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using static net.rs64.TexTransTool.TextureLayerUtil;
-using UnityEditor;
 using System;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Utils;
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using JetBrains.Annotations;
 
 namespace net.rs64.TexTransTool
 {
@@ -25,37 +24,22 @@ namespace net.rs64.TexTransTool
         基本テクスチャは圧縮して渡す
         ただし、スタックに入れるものは圧縮の必要はない。
         */
-        public AvatarDomain(GameObject avatarRoot, bool AssetSaver = false, UnityEngine.Object OverrideAssetContainer = null)
+        public AvatarDomain(GameObject avatarRoot, bool saveAssets = false, UnityEngine.Object OverrideAssetContainer = null)
         {
             _avatarRoot = avatarRoot;
             _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
-            if (AssetSaver)
-            {
-                if (OverrideAssetContainer == null)
-                {
-                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                    AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset"));
-                }
-                else
-                {
-                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                    Asset.OverrideContainer = OverrideAssetContainer;
-                    Asset.name = "net.rs64.TexTransTool.AssetContainer";
-                    Asset.AddSubObject(Asset);
-                }
-            };
+            if (saveAssets) AssetSaver = new AssetSaver(OverrideAssetContainer);
         }
         [SerializeField] GameObject _avatarRoot;
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] TextureStacks _textureStacks = new TextureStacks();
         FlatMapDict<Material> _mapDict;
-
-        public AvatarDomainAsset Asset;
+        [CanBeNull] public AssetSaver AssetSaver;
 
 
         public void transferAsset(UnityEngine.Object UnityObject)
         {
-            if (Asset != null) Asset.AddSubObject(UnityObject);
+            AssetSaver?.transferAsset(UnityObject);
         }
 
         public void SetMaterial(Material Target, Material SetMat, bool isPaired)
