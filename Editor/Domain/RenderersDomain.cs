@@ -10,26 +10,35 @@ using Object = UnityEngine.Object;
 namespace net.rs64.TexTransTool
 {
     /// <summary>
-    /// This is an IDomain implementation with calling AddPropertyModification every time.
-    /// The caller must call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// This is an IDomain implementation that applies to specified renderers.
+    ///
+    /// If <see cref="Previewing"/> is true, This will call <see cref="AnimationMode.AddPropertyModification"/>
+    /// everytime modifies some property so you can revert those changes with <see cref="AnimationMode.StopAnimationMode"/>.
+    /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// so user must call those if needed.
     /// </summary>
     [Serializable]
-    public class PreviewDomain : IDomain
+    public class RenderersDomain : IDomain
     {
         [SerializeField] List<Renderer> _renderers;
         [SerializeField] TextureStacks _textureStacks = new TextureStacks();
 
-        public PreviewDomain(List<Renderer> previewRenderers)
+        public readonly bool Previewing;
+
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing)
         {
             _renderers = previewRenderers;
+            Previewing = previewing;
         }
+
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
             _textureStacks.AddTextureStack(Dist, SetTex);
         }
 
-        protected static void AddPropertyModification(Object component, string property, Object value)
+        protected void AddPropertyModification(Object component, string property, Object value)
         {
+            if (!Previewing) return;
             AnimationMode.AddPropertyModification(
                 EditorCurveBinding.PPtrCurve("", component.GetType(), ""),
                 new PropertyModification
@@ -39,7 +48,6 @@ namespace net.rs64.TexTransTool
                     objectReference = value,
                 },
                 true);
-
         }
 
         public virtual void SetMaterial(Material target, Material set, bool isPaired)

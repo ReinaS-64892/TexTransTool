@@ -13,12 +13,12 @@ namespace net.rs64.TexTransTool
     /// The caller must call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// </summary>
     [System.Serializable]
-    public class PreviewAvatarDomain : PreviewDomain
+    public class AvatarDomain1 : RenderersDomain
     {
         static HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
 
-        public PreviewAvatarDomain(GameObject avatarRoot)
-            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList())
+        public AvatarDomain1(GameObject avatarRoot, bool previewing)
+            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing)
         {
             _avatarRoot = avatarRoot;
         }

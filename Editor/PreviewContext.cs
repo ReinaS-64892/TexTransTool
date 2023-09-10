@@ -63,7 +63,7 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewDomain = new PreviewDomain(target.GetRenderers);
+                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true);
                     target1.Apply(previewDomain);
                     previewDomain.EditFinish();
                 }
@@ -81,7 +81,7 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewAvatarDomain = new PreviewAvatarDomain(target.Avatar);
+                    var previewAvatarDomain = new AvatarDomain1(target.Avatar, previewing: true);
                     target.Apply(previewAvatarDomain);
                     previewAvatarDomain.EditFinish();
                 }
