@@ -17,21 +17,19 @@ namespace net.rs64.TexTransTool.Deprecated.V0.TextureAtlas
         public bool UseIslandCache = true;
 
         [SerializeField] bool _isApply = false;
-        public override bool IsApply => _isApply;
         public override bool IsPossibleApply => TargetRoot != null && AtlasSettings.Count > 0;
+
+        public override List<Renderer> GetRenderers => throw new NotImplementedException();
+
+        public override bool IsApply { get => _isApply; set => _isApply = value; }
 
         public AvatarDomain RevertDomain;
         public List<MeshPair> RevertMeshes;
 
-        public override void Apply(AvatarDomain avatarMaterialDomain = null)
+        public override void Apply(IDomain avatarMaterialDomain = null)
         {
-            throw new NotImplementedException();
         }
 
-        public override void Revert(AvatarDomain avatarMaterialDomain = null)
-        {
-            throw new NotImplementedException();
-        }
     }
     [Serializable]
     public class MatSelector
