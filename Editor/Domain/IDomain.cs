@@ -20,8 +20,6 @@ namespace net.rs64.TexTransTool
         void SetMaterial(Material target, Material replacement, bool isPaired);
         void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D dist, BlendTextures setTex);
-        // TODO: this might be out of scope of this tool?
-        void ChangeMaterialForRenderers(IEnumerable<Renderer> renderers, Dictionary<Material,Material> mapping);
     }
 
     public static class DomainUtility

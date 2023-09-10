@@ -85,30 +85,6 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public void ChangeMaterialForRenderers(IEnumerable<Renderer> renderers, Dictionary<Material, Material> mapping)
-        {
-            foreach (var renderer in renderers)
-            {
-                var materials = renderer.sharedMaterials;
-                var modified = false;
-
-                for (var index = 0; index < materials.Length; index++)
-                {
-                    var originalMaterial = materials[index];
-                    if (mapping.TryGetValue(materials[index], out var replacement))
-                    {
-                        AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
-
-                        materials[index] = replacement;
-                        modified = true;
-                    }
-                }
-
-                if (modified)
-                    renderer.sharedMaterials = materials;
-            }
-        }
-
         public void SetMesh(Renderer renderer, Mesh mesh)
         {
             switch (renderer)
