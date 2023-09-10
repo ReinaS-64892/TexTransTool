@@ -59,6 +59,32 @@ namespace net.rs64.TexTransTool
             property.objectReferenceValue = value;
         }
 
+        public virtual void ReplaceMaterial(Material target, Material replacement, bool rendererOnly = false)
+        {
+            TransferAsset(replacement);
+
+            foreach (var renderer in _renderers)
+            {
+                var materials = renderer.sharedMaterials;
+                var modified = false;
+                for (var index = 0; index < materials.Length; index++)
+                {
+                    var originalMaterial = materials[index];
+                    if (target == originalMaterial)
+                    {
+                        AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
+
+                        materials[index] = replacement;
+                        modified = true;
+                    }
+                }
+                if (modified)
+                {
+                    renderer.sharedMaterials = materials;
+                }
+            }
+        }
+
         public virtual void SetMaterial(Material target, Material replacement, bool isPaired)
         {
             TransferAsset(replacement);
@@ -112,7 +138,7 @@ namespace net.rs64.TexTransTool
         public void SetTexture(Texture2D Target, Texture2D SetTex)
         {
             var matPair = RendererUtility.SetTexture(_renderers, Target, SetTex);
-            this.SetMaterials(matPair, true);
+            this.ReplaceMaterials(matPair);
         }
 
         public virtual void EditFinish()

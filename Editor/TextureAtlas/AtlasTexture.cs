@@ -296,7 +296,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     Material generateMat = GenerateAtlasMat(mergeMat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
                     var distMats = channelMatRefs.Select(MatRef => materials[MatRef]).ToList();
-                    Domain.SetMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), false);
+                    Domain.ReplaceMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), rendererOnly: true);
 
                     generateMaterials.Add(new List<Material>(1) { generateMat });
                 }
@@ -311,7 +311,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         materialMap.Add(new MatPair(mat, generateMat));
                     }
 
-                    Domain.SetMaterials(materialMap, true);
+                    Domain.ReplaceMaterials(materialMap);
                     generateMaterials.Add(materialMap.ConvertAll(MP => MP.SecondMaterial));
                 }
             }
