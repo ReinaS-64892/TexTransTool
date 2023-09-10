@@ -25,9 +25,22 @@ namespace net.rs64.TexTransTool
                 {
                     previweing = target;
                     previewDomain = new PreviewDomain(target.GetRenderers);
-                    target.Apply(previewDomain);
-                    previewDomain.EditFinish();
-                    EditorUtility.SetDirty(target);
+                    try
+                    {
+                        try
+                        {
+                            target.Apply(previewDomain);
+                        }
+                        finally
+                        {
+                            previewDomain.EditFinish();
+                        }
+                    }
+                    catch
+                    {
+                        previewDomain.Dispose();
+                        throw;
+                    }
                 }
             }
             else if (previweing == target)
@@ -37,7 +50,6 @@ namespace net.rs64.TexTransTool
                     previweing = null;
                     previewDomain.Dispose();
                     previewDomain = null;
-                    EditorUtility.SetDirty(target);
                 }
             }
             else
