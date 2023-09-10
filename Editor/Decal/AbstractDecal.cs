@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.Decal
                 CopyTexDescription(decalBlendTextures);
 
                 var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
-                RendererUtility.ChangeMaterialForRenderers(TargetRenderers, dictMat);
+                Domain.ChangeMaterialForRenderers(TargetRenderers, dictMat);
 
                 Domain.transferAssets(decalBlendTextures.Values);
                 Domain.transferAssets(dictMat.Values);

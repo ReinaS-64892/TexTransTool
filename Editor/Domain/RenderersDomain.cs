@@ -65,10 +65,9 @@ namespace net.rs64.TexTransTool
                     var originalMaterial = materials[index];
                     if (target == originalMaterial)
                     {
-                        materials[index] = replacement;
-
                         AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
 
+                        materials[index] = replacement;
                         modified = true;
                     }
                 }
@@ -76,6 +75,30 @@ namespace net.rs64.TexTransTool
                 {
                     renderer.sharedMaterials = materials;
                 }
+            }
+        }
+
+        public void ChangeMaterialForRenderers(IEnumerable<Renderer> renderers, Dictionary<Material, Material> mapping)
+        {
+            foreach (var renderer in renderers)
+            {
+                var materials = renderer.sharedMaterials;
+                var modified = false;
+
+                for (var index = 0; index < materials.Length; index++)
+                {
+                    var originalMaterial = materials[index];
+                    if (mapping.TryGetValue(materials[index], out var replacement))
+                    {
+                        AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
+
+                        materials[index] = replacement;
+                        modified = true;
+                    }
+                }
+
+                if (modified)
+                    renderer.sharedMaterials = materials;
             }
         }
 
