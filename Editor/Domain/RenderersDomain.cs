@@ -52,9 +52,9 @@ namespace net.rs64.TexTransTool
                 true);
         }
 
-        public virtual void SetMaterial(Material target, Material set, bool isPaired)
+        public virtual void SetMaterial(Material target, Material replacement, bool isPaired)
         {
-            TransferAsset(set);
+            TransferAsset(replacement);
 
             foreach (var renderer in _renderers)
             {
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool
                     var originalMaterial = materials[index];
                     if (target == originalMaterial)
                     {
-                        materials[index] = set;
+                        materials[index] = replacement;
 
                         AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
 

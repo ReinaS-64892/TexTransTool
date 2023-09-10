@@ -30,13 +30,13 @@ namespace net.rs64.TexTransTool
         [SerializeField] GameObject _avatarRoot;
         FlatMapDict<Material> _mapDict;
 
-        public override void SetMaterial(Material target, Material set, bool isPaired)
+        public override void SetMaterial(Material target, Material replacement, bool isPaired)
         {
-            base.SetMaterial(target, set, isPaired);
+            base.SetMaterial(target, replacement, isPaired);
             if (isPaired)
             {
                 if (_mapDict == null) _mapDict = new FlatMapDict<Material>();
-                _mapDict.Add(target, set);
+                _mapDict.Add(target, replacement);
             }
         }
 

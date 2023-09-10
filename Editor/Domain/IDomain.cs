@@ -12,9 +12,9 @@ namespace net.rs64.TexTransTool
 
     public interface IDomain : IAssetSaver
     {
-        void SetMaterial(Material Target, Material SetMat, bool isPaired);
+        void SetMaterial(Material target, Material replacement, bool isPaired);
         void SetMesh(Renderer renderer, Mesh mesh);
-        void AddTextureStack(Texture2D Dist, BlendTextures SetTex);
+        void AddTextureStack(Texture2D dist, BlendTextures setTex);
     }
 
     public static class DomainUtility
