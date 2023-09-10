@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var ThisTarget = target as AtlasTexture;
             var This_S_Object = serializedObject;
 
-            EditorGUI.BeginDisabledGroup(ThisTarget.IsApply);
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisTarget));
 
             var S_AtlasSettings = This_S_Object.FindProperty("AtlasSettings");
             var ChannelCount = S_AtlasSettings.arraySize;
@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisTarget);
+            PreviewContext.instance.DrawApplyAndRevert(ThisTarget);
             serializedObject.ApplyModifiedProperties();
 
         }

@@ -2,122 +2,71 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureLayerUtil;
 using UnityEditor;
 using System;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransTool.Utils;
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 
 namespace net.rs64.TexTransTool
 {
-    [System.Serializable]
-    public class AvatarDomain : IDomain, IDisposable
+    /// <summary>
+    /// This is an IDomain implementation that applies to whole the specified GameObject.
+    ///
+    /// If <see cref="Previewing"/> is true, This will call <see cref="AnimationMode.AddPropertyModification"/>
+    /// everytime modifies some property so you can revert those changes with <see cref="AnimationMode.StopAnimationMode"/>.
+    /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
+    /// so user must call those if needed.
+    /// </summary>
+    public class AvatarDomain : RenderersDomain
     {
-        static Type[] IgnoreTypes = new Type[] { typeof(Transform), typeof(AvatarDomainDefinition) };
-        /*
-        AssetSaverがtrueのとき
-        渡されたアセットはすべて保存する。
-        アセットに保存されていない物を渡すのが前提。
+        static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
 
-        マテリアルで渡された場合、マテリアルは保存するが、マテリアルの持つテクスチャーは保存しないため、保存の必要がある場合個別でテクスチャーを渡す必要がある。
-
-        基本テクスチャは圧縮して渡す
-        ただし、スタックに入れるものは圧縮の必要はない。
-        */
-        public AvatarDomain(GameObject avatarRoot, bool AssetSaver = false, UnityEngine.Object OverrideAssetContainer = null)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
+            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
         {
             _avatarRoot = avatarRoot;
-            _renderers = avatarRoot.GetComponentsInChildren<Renderer>(true).ToList();
-            _renderersBackup = new RenderersBackup(_renderers);
-            if (AssetSaver)
-            {
-                if (OverrideAssetContainer == null)
-                {
-                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                    AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset"));
-                }
-                else
-                {
-                    Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                    Asset.OverrideContainer = OverrideAssetContainer;
-                    Asset.name = "net.rs64.TexTransTool.AssetContainer";
-                    Asset.AddSubObject(Asset);
-                }
-            };
         }
+
         [SerializeField] GameObject _avatarRoot;
-        [SerializeField] List<Renderer> _renderers;
-        [SerializeField] RenderersBackup _renderersBackup;
-        [SerializeField] TextureStacks _textureStacks = new TextureStacks();
-        FlatMapDict<Material> _mapDict;
-        [SerializeField] List<MatPair> _matModifies = new List<MatPair>();
+        [NotNull] FlatMapDict<Material> _mapDict = new FlatMapDict<Material>();
 
-        public AvatarDomainAsset Asset;
-
-
-        public void transferAsset(UnityEngine.Object UnityObject)
+        public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
-            if (Asset != null) Asset.AddSubObject(UnityObject);
+            base.ReplaceMaterials(mapping, rendererOnly);
+            
+            if (!rendererOnly)
+                foreach (var keyValuePair in mapping)
+                    _mapDict.Add(keyValuePair.Key, keyValuePair.Value);
         }
 
-        public void SetMaterial(Material Target, Material SetMat, bool isPaired)
+        public override void EditFinish()
         {
-            if (isPaired)
-            {
-                RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
-                if (_mapDict == null) _mapDict = new FlatMapDict<Material>();
-                _mapDict.Add(Target, SetMat);
-            }
-            else
-            {
-                RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
-            }
+            base.EditFinish();
 
-            transferAsset(SetMat);
-        }
+            var matModifiedDict = _mapDict.GetMapping;
 
-        public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
-        {
-            _textureStacks.AddTextureStack(Dist, SetTex);
-        }
-        public void SetTexture(Texture2D Target, Texture2D SetTex)
-        {
-            var matPeas = RendererUtility.SetTexture(_renderers, Target, SetTex);
-            this.SetMaterials(matPeas, true);
-        }
-
-        public void EditFinish()
-        {
-            foreach (var stackResult in _textureStacks.MargeStacks())
+            foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
             {
-                if (stackResult.FirstTexture == null || stackResult.MargeTexture == null) continue;
-                SetTexture(stackResult.FirstTexture, stackResult.MargeTexture);
-                transferAsset(stackResult.MargeTexture);
-            }
+                if (IgnoreTypes.Contains(component.GetType())) continue;
 
-            if (_mapDict != null)
-            {
-                var matModifiedDict = _mapDict.GetMapping;
-                RendererUtility.ChangeMaterialForSerializedProperty(matModifiedDict, _avatarRoot, IgnoreTypes);
-                _matModifies = matModifiedDict.Select(i => new MatPair(i.Key, i.Value)).ToList();
-            }
-        }
+                using (var serializeObj = new SerializedObject(component))
+                {
+                    var iter = serializeObj.GetIterator();
+                    while (iter.Next(true))
+                    {
+                        if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
+                        if (!(iter.objectReferenceValue is Material originalMat)) continue;
+                        if (!matModifiedDict.TryGetValue(originalMat, out var value)) continue;
 
-        public void Dispose()
-        {
-            if (_matModifies.Any())
-            {
-                var reversedMatModifiesDict = new Dictionary<Material, Material>();
-                foreach (var MatPair in _matModifies) { reversedMatModifiesDict.Add(MatPair.SecondMaterial, MatPair.Material); }
-                RendererUtility.ChangeMaterialForSerializedProperty(reversedMatModifiesDict, _avatarRoot, IgnoreTypes);
-                _matModifies.Clear();
+                        SetSerializedProperty(iter, value);
+                    }
+
+                    serializeObj.ApplyModifiedPropertiesWithoutUndo();
+                }
             }
-            _renderersBackup.Dispose();
-            AssetSaveHelper.DeleteAsset(Asset);
         }
     }
-
+    
     public class FlatMapDict<TKeyValue>
     {
         Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();

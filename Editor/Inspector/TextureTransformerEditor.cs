@@ -11,33 +11,6 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(TextureTransformer))]
     public class TextureTransformerEditor : UnityEditor.Editor
     {
-        public static void DrawerApplyAndRevert(TextureTransformer Target)
-        {
-            if (Target == null) return;
-            EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply);
-            {
-                if (!Target.IsApply)
-                {
-                    if (GUILayout.Button("Preview"))
-                    {
-                        Target.PreviewApply();
-                        EditorUtility.SetDirty(Target);
-                    }
-                }
-                else
-                {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPreviewApply);
-                    if (GUILayout.Button("Revert"))
-                    {
-                        Target.PreviewRevert();
-                        EditorUtility.SetDirty(Target);
-
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
-            }
-            EditorGUI.EndDisabledGroup();
-        }
         public static Renderer RendererFiltering(Renderer TargetRendererEditValue)
         {
             Renderer FilteredRenderer;

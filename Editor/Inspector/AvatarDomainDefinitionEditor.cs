@@ -16,26 +16,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"), new GUIContent("Preview Avatar"));
 
             EditorGUI.BeginDisabledGroup(!thisTarget.TexTransGroup.IsPossibleApply || thisTarget.Avatar == null);
-            if (thisTarget.TexTransGroup.IsApply == false)
-            {
-                if (GUILayout.Button("Preview - AvatarDomain-Apply"))
-                {
-                    thisTarget.Apply();
-                    EditorUtility.SetDirty(thisTarget);
-                    EditorUtility.SetDirty(thisTarget.TexTransGroup);
-                }
-            }
-            else
-            {
-                EditorGUI.BeginDisabledGroup(!thisTarget.IsSelfCallApply);
-                if (GUILayout.Button("Revert"))
-                {
-                    thisTarget.Revert();
-                    EditorUtility.SetDirty(thisTarget);
-                    EditorUtility.SetDirty(thisTarget.TexTransGroup);
-                }
-                EditorGUI.EndDisabledGroup();
-            }
+            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
             EditorGUI.EndDisabledGroup();
 
             serializedObject.ApplyModifiedProperties();

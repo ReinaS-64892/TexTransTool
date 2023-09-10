@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             DrawOffsetSaveAndLoader(ThisObject);
 
 
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

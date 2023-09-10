@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var ThisObject = target as CylindricalDecal;
 
 
-            EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            TextureTransformerEditor.DrawerApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
 
             This_S_Object.ApplyModifiedProperties();
         }

@@ -1,8 +1,8 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool
 {
@@ -10,31 +10,16 @@ namespace net.rs64.TexTransTool
     {
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract List<Renderer> GetRenderers { get; }
-        public abstract bool IsApply { get; set; }
         public abstract bool IsPossibleApply { get; }
-        [FormerlySerializedAs("_IsSelfCallApply"), SerializeField] bool _PreviewApply;
-        public virtual bool IsPreviewApply { get => _PreviewApply; protected set => _PreviewApply = value; }
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
-        public abstract void Apply(IDomain Domain = null);
 
-        [SerializeField] PreviewDomain _lastPreviewDomain;
-        public virtual void PreviewApply()
-        {
-            if (IsPreviewApply == true) { return; }
-            IsPreviewApply = true;
-            _lastPreviewDomain = new PreviewDomain(GetRenderers);
-            Apply(_lastPreviewDomain);
-            _lastPreviewDomain.EditFinish();
-        }
-        public virtual void PreviewRevert()
-        {
-            if (IsPreviewApply == false) { return; }
-            IsPreviewApply = false;
-            IsApply = false;
-            _lastPreviewDomain.Dispose();
-            _lastPreviewDomain = null;
-        }
+        /// <summary>
+        /// Applies this TextureTransformer with that domain
+        /// You MUST NOT modify state of this component.
+        /// </summary>
+        /// <param name="domain">The domain</param>
+        public abstract void Apply([NotNull] IDomain domain);
     }
 }
 #endif

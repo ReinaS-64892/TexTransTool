@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            TextureTransformerEditor.DrawerApplyAndRevert(target as CylindricalCurveDecal);
+            PreviewContext.instance.DrawApplyAndRevert(target as CylindricalCurveDecal);
         }
 
     }

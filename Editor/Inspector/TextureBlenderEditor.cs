@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Editor
             var Target = target as TextureBlender;
             var This_S_Object = serializedObject;
 
-            EditorGUI.BeginDisabledGroup(Target.IsApply);
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(Target));
             var S_TargetRenderer = This_S_Object.FindProperty("TargetRenderer");
             TextureTransformerEditor.DrawerObjectReference<Renderer>(S_TargetRenderer, TextureTransformerEditor.RendererFiltering);
 
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUI.EndDisabledGroup();
 
 
-            TextureTransformerEditor.DrawerApplyAndRevert(Target);
+            PreviewContext.instance.DrawApplyAndRevert(Target);
             This_S_Object.ApplyModifiedProperties();
         }
 

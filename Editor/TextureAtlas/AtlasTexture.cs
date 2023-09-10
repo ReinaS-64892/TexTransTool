@@ -23,10 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<MatSelector> MatSelectors = new List<MatSelector>();
         public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
         public bool UseIslandCache = true;
-        public AtlasTextureDataContainer Container = new AtlasTextureDataContainer();
 
-        [SerializeField] bool _isApply = false;
-        public override bool IsApply { get => _isApply; set => _isApply = value; }
         public override bool IsPossibleApply => TargetRoot != null && AtlasSettings.Count > 0;
 
         public override List<Renderer> GetRenderers => Renderers;
@@ -58,17 +55,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
         MeshAndMatRef MeshReferenceとマテリアルスロット分のMaterialReferenceをもち、適応するときこれをもとに、マテリアル違いやマテリアルの一部違いなども識別して適応する。
 
         */
-        public bool CompileAtlasTextures()
+        public AtlasTextureDataContainer CompileAtlasTextures()
         {
             if (!IsPossibleApply)
             {
                 Debug.LogWarning("AtlasTexture : アトラス化可能な状態ではないのためアトラス化ができません。ターゲットルートなどが設定されているかどうかご確認ください。");
-                return false;
-            }
-            if (IsApply)
-            {
-                Debug.LogWarning("AtlasTexture : すでにこのコンポーネントでアトラス化が適応されているため、アトラス化ができません。");
-                return false;
+                return null;
             }
 
             //情報を集めるフェーズ
@@ -83,14 +75,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (selectRefsMat.Count != atlasData.Materials.Count)
             {
                 Debug.LogWarning("AtlasTexture : すでにアトラス化されているためか、マテリアルインデックスがずれているためアトラス化ができません。");
-                return false;
+                return null;
             }
 
             var compiledAllAtlasTextures = new List<List<PropAndTexture2D>>();
             var compiledMeshes = new List<AtlasTextureDataContainer.MeshAndMatRef>();
             var channelsMatRef = new List<List<int>>();
-
-
 
             var channelCount = AtlasSettings.Count;
             for (int channel = 0; channel < channelCount; channel += 1)
@@ -234,41 +224,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             //保存するフェーズ
-            Container.ChannelsMatRef = channelsMatRef;
-            Container.AtlasTextures = compiledAllAtlasTextures;
-            Container.GenerateMeshes = compiledMeshes;
-            Container.IsPossibleApply = true;
-            return true;
+            return new AtlasTextureDataContainer
+            {
+                ChannelsMatRef = channelsMatRef,
+                AtlasTextures = compiledAllAtlasTextures,
+                GenerateMeshes = compiledMeshes,
+            };
         }
 
-        public override void Apply(IDomain Domain = null)
+        public override void Apply(IDomain Domain)
         {
-            var result = CompileAtlasTextures();
-            if (!result) { return; }
-            if (!Container.IsPossibleApply)
-            {
-                Debug.LogWarning("AtlasTexture : アトラス化したデータの適応ができない状態です。何か不明なエラーが起きている可能性があります。");
-                return;
-            }
+            var container = CompileAtlasTextures();
+            if (container == null) { return; }
 
             var nowRenderers = Renderers;
 
-            Container.GenerateMaterials = null;
-
-            var generateMaterials = new List<List<Material>>();
-
             var ShaderSupport = new AtlasShaderSupportUtils();
 
-            var channelMatRef = Container.ChannelsMatRef;
-            var generateMeshes = Container.GenerateMeshes;
-            var atlasTextures = Container.AtlasTextures;
+            var channelMatRef = container.ChannelsMatRef;
+            var generateMeshes = container.GenerateMeshes;
+            var atlasTextures = container.AtlasTextures;
             var materials = GetMaterials(nowRenderers);
             var referenceMesh = GetMeshes(nowRenderers);
 
             if (AtlasSettings.Count != atlasTextures.Count || AtlasSettings.Count != channelMatRef.Count) { return; }
 
 
-            var nawChannelRevertMeshes = new List<MeshPair>();
             foreach (var renderer in nowRenderers)
             {
                 var mesh = renderer.GetMesh();
@@ -280,9 +261,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var targetMeshData = targetMeshDataList.Find(MD => MD.MatRefs.SequenceEqual(matRefs));
                 if (targetMeshData == null) continue;
 
-                renderer.SetMesh(targetMeshData.Mesh);
-                Domain.transferAsset(targetMeshData.Mesh);
-                nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
+                Domain.SetMesh(renderer, targetMeshData.Mesh);
+                Domain.TransferAsset(targetMeshData.Mesh);
             }
 
 
@@ -312,26 +292,23 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     Material generateMat = GenerateAtlasMat(mergeMat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
                     var distMats = channelMatRefs.Select(MatRef => materials[MatRef]).ToList();
-                    Domain.SetMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), false);
-
-                    generateMaterials.Add(new List<Material>(1) { generateMat });
+                    Domain.ReplaceMaterials(distMats.ToDictionary(x => x, _ => generateMat), rendererOnly: true);
                 }
                 else
                 {
-                    List<MatPair> materialMap = new List<MatPair>();
+                    var materialMap = new Dictionary<Material, Material>();
+
                     foreach (var matRef in channelMatRefs)
                     {
                         var mat = materials[matRef];
                         var generateMat = GenerateAtlasMat(mat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
-                        materialMap.Add(new MatPair(mat, generateMat));
+                        materialMap.Add(mat, generateMat);
                     }
 
-                    Domain.SetMaterials(materialMap, true);
-                    generateMaterials.Add(materialMap.ConvertAll(MP => MP.SecondMaterial));
+                    Domain.ReplaceMaterials(materialMap);
                 }
             }
-            _isApply = true;
         }
 
         private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island, Island)> islandPairs, float padding)
@@ -733,18 +710,5 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public float TextureSizeOffSet = 1;
         public List<PropAndTexture> PropAndTextures;
     }
-    [Serializable]
-    public struct MeshPair
-    {
-        public Mesh Mesh;
-        public Mesh SecondMesh;
-        public MeshPair(Mesh mesh, Mesh secondMesh)
-        {
-            Mesh = mesh;
-            SecondMesh = secondMesh;
-        }
-
-    }
-
 }
 #endif
