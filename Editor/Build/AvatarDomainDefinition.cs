@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.Build
                 Debug.LogWarning("AvatarDomainDefinition : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
                 return;
             }
-            if (texTransGroup.IsApply)
+            if (PreviewContext.IsPreviewing(texTransGroup))
             {
                 Debug.LogWarning("AvatarDomainDefinition : すでにこのコンポーネントでプレビュー状態のため実行できません。");
                 return;
@@ -63,10 +63,8 @@ namespace net.rs64.TexTransTool.Build
             if (_IsSelfCallApply == false) return;
             var texTransGroup = TexTransGroup;
             if (texTransGroup == null) return;
-            if (!texTransGroup.IsApply) return;
+            if (!PreviewContext.IsPreviewing(texTransGroup)) return;
             _IsSelfCallApply = false;
-
-            texTransGroup.Revert();
 
             lastDomain.Dispose();
             lastDomain = null;

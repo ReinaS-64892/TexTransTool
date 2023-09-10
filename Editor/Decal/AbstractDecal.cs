@@ -22,8 +22,6 @@ namespace net.rs64.TexTransTool.Decal
 
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
-        [SerializeField] protected bool _IsApply = false;
-        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
         public override List<Renderer> GetRenderers => TargetRenderers;
 
 
@@ -39,15 +37,7 @@ namespace net.rs64.TexTransTool.Decal
                 Debug.LogWarning("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
                 return;
             }
-            if (_IsApply)
-            {
-                Debug.LogWarning("Decal : すでにこのコンポーネントで デカールが貼られているため、デカールを張ることができません。");
-                return;
-            }
             Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
-
-
-
 
             if (!IsSeparateMatAndTexture)
             {
@@ -69,8 +59,6 @@ namespace net.rs64.TexTransTool.Decal
                 Domain.transferAssets(decalBlendTextures.Values);
                 Domain.transferAssets(dictMat.Values);
             }
-
-            _IsApply = true;
         }
 
         private static void CopyTexDescription(Dictionary<Texture2D, Texture2D> DecalBlendTextures)

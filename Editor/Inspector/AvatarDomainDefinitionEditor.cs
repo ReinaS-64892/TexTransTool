@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Avatar"), new GUIContent("Preview Avatar"));
 
             EditorGUI.BeginDisabledGroup(!thisTarget.TexTransGroup.IsPossibleApply || thisTarget.Avatar == null);
-            if (thisTarget.TexTransGroup.IsApply == false)
+            if (!PreviewContext.IsPreviewing(thisTarget.TexTransGroup))
             {
                 if (GUILayout.Button("Preview - AvatarDomain-Apply"))
                 {

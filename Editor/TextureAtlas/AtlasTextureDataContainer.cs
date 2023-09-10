@@ -34,39 +34,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         List<List<int>> _matReference;
         public List<List<int>> ChannelsMatRef { get => _matReference; set => _matReference = value; }
 
-
-
-        [SerializeField] List<List<Material>> _genereatMaterials;
-        public List<List<Material>> GenerateMaterials
-        {
-            get => _genereatMaterials;
-            set
-            {
-                var Mats = value;
-                if (Mats == null) { return; }
-                _genereatMaterials = Mats;
-            }
-        }
-        [SerializeField] bool _IsPossibleApply;
-        public bool IsPossibleApply
-        {
-            get
-            {
-                var IsPossibleMesh = true;
-                foreach (var item in _meshes)
-                {
-                    if (item.Mesh == null)
-                    {
-                        IsPossibleMesh = false;
-                        break;
-                    }
-                }
-                return _IsPossibleApply && IsPossibleMesh;
-            }
-            set => _IsPossibleApply = value;
-        }
-
-
         public AtlasTextureDataContainer()
         {
 

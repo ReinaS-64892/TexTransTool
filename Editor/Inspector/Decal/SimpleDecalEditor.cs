@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var ThisObject = target as SimpleDecal;
 
 
-            EditorGUI.BeginDisabledGroup(ThisObject.IsApply);
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
             AbstractSingleDecalEditor.DrawerDecalEditor(This_S_Object);
 
@@ -99,7 +99,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 if (!Target.IsRealTimePreview)
                 {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || Target.IsApply);
+                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || PreviewContext.IsPreviewing(Target));
                     if (GUILayout.Button("EnableRealTimePreview"))
                     {
                         Target.EnableRealTimePreview();

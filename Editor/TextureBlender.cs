@@ -16,8 +16,6 @@ namespace net.rs64.TexTransTool
         public PropertyName TargetPropertyName;
 
 
-        [SerializeField] protected bool _IsApply = false;
-        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
         public override List<Renderer> GetRenderers => new List<Renderer>() { TargetRenderer };
 
         public override bool IsPossibleApply => TargetRenderer != null && BlendTexture != null;
@@ -26,8 +24,6 @@ namespace net.rs64.TexTransTool
         public override void Apply(IDomain Domain = null)
         {
             if (!IsPossibleApply) return;
-            if (_IsApply) return;
-            _IsApply = true;
 
             var DistMaterials = TargetRenderer.sharedMaterials;
 
@@ -41,9 +37,7 @@ namespace net.rs64.TexTransTool
                 return;
             }
 
-
             Domain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
-
         }
     }
 

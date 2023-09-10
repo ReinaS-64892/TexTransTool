@@ -11,8 +11,6 @@ namespace net.rs64.TexTransTool
     {
         public abstract IEnumerable<TextureTransformer> Targets { get; }
 
-        [SerializeField] bool _IsApply;
-        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
         public override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
 
         public override bool IsPossibleApply => PossibleApplyCheck();
@@ -24,23 +22,14 @@ namespace net.rs64.TexTransTool
                 Debug.LogWarning("TexTransGroup : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
                 return;
             }
-            if (_IsApply)
-            {
-                Debug.LogWarning("TexTransGroup : すでにこのコンポーネントでプレビュー状態のため実行できません。");
-                return;
-            }
             if (TexTransGroupValidationUtils.SelfCallApplyExists(Targets))
             {
                 Debug.LogWarning("TexTransGroup : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
                 return;
             }
-            _IsApply = true;
 
             foreach (var tf in TextureTransformerFilter(Targets))
-            {
                 tf.Apply(Domain);
-                EditorUtility.SetDirty(tf);
-            }
         }
         public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
 

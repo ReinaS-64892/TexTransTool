@@ -14,6 +14,8 @@ namespace net.rs64.TexTransTool
         {
         }
 
+        public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
+
         public void DrawApplyAndRevert(TextureTransformer target)
         {
             if (target == null) return;
@@ -33,7 +35,6 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button("Revert"))
                 {
                     previweing = null;
-                    target.IsApply = false;
                     previewDomain.Dispose();
                     previewDomain = null;
                     EditorUtility.SetDirty(target);
