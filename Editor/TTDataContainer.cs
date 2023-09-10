@@ -6,20 +6,6 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [System.Serializable]
-    public class TTDataContainer
-    {
-        public bool IsPossibleApply = false;
-        [SerializeField] List<MatPair> _GenerateMatPairs = new List<MatPair>();
-
-        public List<MatPair> GenerateMaterials
-        {
-            set => _GenerateMatPairs = value;
-            get => _GenerateMatPairs;
-        }
-
-    }
-
-    [System.Serializable]
     public class MatAndTex
     {
         public Material Material;

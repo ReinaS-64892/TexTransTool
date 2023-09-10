@@ -40,17 +40,5 @@ namespace net.rs64.TexTransTool
             Domain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
         }
     }
-
-    public class TextureBlenderDataContainer : TTDataContainer
-    {
-        [SerializeField] Texture2D _BlendTextures;
-
-        public Texture2D BlendTextures
-        {
-            set => _BlendTextures = value;
-            get => _BlendTextures;
-        }
-
-    }
 }
 #endif

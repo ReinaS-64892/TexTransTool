@@ -710,18 +710,5 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public float TextureSizeOffSet = 1;
         public List<PropAndTexture> PropAndTextures;
     }
-    [Serializable]
-    public struct MeshPair
-    {
-        public Mesh Mesh;
-        public Mesh SecondMesh;
-        public MeshPair(Mesh mesh, Mesh secondMesh)
-        {
-            Mesh = mesh;
-            SecondMesh = secondMesh;
-        }
-
-    }
-
 }
 #endif
