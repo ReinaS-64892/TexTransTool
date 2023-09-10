@@ -21,6 +21,7 @@ namespace net.rs64.TexTransTool
         [SerializeField] PreviewDomain _lastPreviewDomain;
         public virtual void PreviewApply()
         {
+            if (IsPreviewApply == true) { return; }
             IsPreviewApply = true;
             _lastPreviewDomain = new PreviewDomain(GetRenderers);
             Apply(_lastPreviewDomain);
@@ -28,6 +29,7 @@ namespace net.rs64.TexTransTool
         }
         public virtual void PreviewRevert()
         {
+            if (IsPreviewApply == false) { return; }
             IsPreviewApply = false;
             IsApply = false;
             _lastPreviewDomain.Dispose();
