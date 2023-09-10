@@ -30,7 +30,13 @@ namespace net.rs64.TexTransTool
             where T : Object 
         {
             if (target == null) return;
-            if (previweing == null)
+            if (previweing == null && AnimationMode.InAnimationMode())
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                GUILayout.Button(previewMessage + " (Previewing Animation)");
+                EditorGUI.EndDisabledGroup();
+            }
+            else if (previweing == null)
             {
                 if (GUILayout.Button(previewMessage))
                 {
