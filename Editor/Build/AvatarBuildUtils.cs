@@ -12,10 +12,13 @@ namespace net.rs64.TexTransTool.Build
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
+
+                var assetSaver = new AssetSaver(OverrideAssetContainer);
+
                 var aDDs = avatarGameObject.GetComponentsInChildren<AvatarDomainDefinition>();
                 foreach (var aDD in aDDs)
                 {
-                    var domain = new AvatarDomain(avatarGameObject, true, OverrideAssetContainer);
+                    var domain = new AvatarDomain1(avatarGameObject, previewing: false, saver: assetSaver);
                     aDD.Apply(domain);
                     domain.EditFinish();
                 }
