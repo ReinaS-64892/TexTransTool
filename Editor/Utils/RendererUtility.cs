@@ -127,6 +127,7 @@ namespace net.rs64.TexTransTool.Utils
                 var filteredComponents = new List<Component>(allComponent.Length);
                 foreach (var component in allComponent)
                 {
+                    if (component == null) { continue; }
                     var type = component.GetType();
                     if (!IgnoreTypes.Any(J => J.IsAssignableFrom(type))) { filteredComponents.Add(component); }
                 }

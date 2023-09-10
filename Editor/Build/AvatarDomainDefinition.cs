@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.Build
             if (!texTransGroup.IsApply) return;
             _IsSelfCallApply = false;
 
-            texTransGroup.Revert(lastDomain);
+            texTransGroup.Revert();
 
             lastDomain.Dispose();
             lastDomain = null;

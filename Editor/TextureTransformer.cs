@@ -1,24 +1,37 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool
 {
     public abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
     {
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
-        public abstract bool IsApply { get; }
+        public abstract List<Renderer> GetRenderers { get; }
+        public abstract bool IsApply { get; set; }
         public abstract bool IsPossibleApply { get; }
-        [SerializeField] bool _IsSelfCallApply;
-        public virtual bool IsSelfCallApply { get => _IsSelfCallApply; protected set => _IsSelfCallApply = value; }
-        [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
+        [FormerlySerializedAs("_IsSelfCallApply"), SerializeField] bool _PreviewApply;
+        public virtual bool IsPreviewApply { get => _PreviewApply; protected set => _PreviewApply = value; }
+        [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
-        public abstract void Apply(AvatarDomain avatarMaterialDomain = null);
-        public abstract void Revert(AvatarDomain avatarMaterialDomain = null);
-        public virtual void SelfCallApply(AvatarDomain avatarMaterialDomain = null)
+        public abstract void Apply(IDomain Domain = null);
+
+        [SerializeField] PreviewDomain _lastPreviewDomain;
+        public virtual void PreviewApply()
         {
-            IsSelfCallApply = true;
-            Apply(avatarMaterialDomain);
+            IsPreviewApply = true;
+            _lastPreviewDomain = new PreviewDomain(GetRenderers);
+            Apply(_lastPreviewDomain);
+            _lastPreviewDomain.EditFinish();
+        }
+        public virtual void PreviewRevert()
+        {
+            IsPreviewApply = false;
+            IsApply = false;
+            _lastPreviewDomain.Dispose();
+            _lastPreviewDomain = null;
         }
     }
 }

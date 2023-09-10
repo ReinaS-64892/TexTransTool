@@ -12,11 +12,12 @@ namespace net.rs64.TexTransTool
         public abstract IEnumerable<TextureTransformer> Targets { get; }
 
         [SerializeField] bool _IsApply;
-        public override bool IsApply => _IsApply;
+        public override bool IsApply { get => _IsApply; set => _IsApply = value; }
+        public override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
 
         public override bool IsPossibleApply => PossibleApplyCheck();
 
-        public override void Apply(AvatarDomain AvatarMaterialDomain = null)
+        public override void Apply(IDomain Domain = null)
         {
             if (!IsPossibleApply)
             {
@@ -34,35 +35,29 @@ namespace net.rs64.TexTransTool
                 return;
             }
             _IsApply = true;
-            try
-            {
-                foreach (var tf in TextureTransformerFilter(Targets))
-                {
-                    tf.Apply(AvatarMaterialDomain);
-                    EditorUtility.SetDirty(tf);
-                }
-            }
-            catch (Exception ex)
-            {
-                Revert(AvatarMaterialDomain);
-                throw ex;
-            }
-        }
-        public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
-        public override void Revert(AvatarDomain AvatarMaterialDomain = null)
-        {
-            if (!_IsApply) return;
-            _IsApply = false;
-            IsSelfCallApply = false;
 
-            foreach (var tf in Targets.Reverse())
+            foreach (var tf in TextureTransformerFilter(Targets))
             {
-                if (tf == null) continue;
-                if (tf.ThisEnable == false) continue;
-                tf.Revert(AvatarMaterialDomain);
+                tf.Apply(Domain);
+                EditorUtility.SetDirty(tf);
+            }
+
+        }
+        public void Revert()
+        {
+            _IsApply = false;
+            foreach (var tf in TextureTransformerFilter(Targets))
+            {
+                tf.IsApply = false;
                 EditorUtility.SetDirty(tf);
             }
         }
+        public override void PreviewRevert()
+        {
+            Revert();
+            base.PreviewRevert();
+        }
+        public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
 
         bool PossibleApplyCheck()
         {
@@ -78,6 +73,7 @@ namespace net.rs64.TexTransTool
             }
             return PossibleFlag;
         }
+
     }
 }
 #endif
