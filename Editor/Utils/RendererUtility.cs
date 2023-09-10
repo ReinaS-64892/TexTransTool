@@ -61,21 +61,7 @@ namespace net.rs64.TexTransTool.Utils
 
             return targetAndSet;
         }
-        /// <summary>
-        /// マテリアルをとりあえず差し替える上のGetMaterialsと合わせて使うこと推奨。
-        /// </summary>
-        /// <param name="Renderers"></param>
-        /// <param name="Mat"></param>
-        public static void SetMaterials(IEnumerable<Renderer> Renderers, List<Material> Mat)
-        {
-            int startOffset = 0;
-            foreach (var renderer in Renderers)
-            {
-                int takeLength = renderer.sharedMaterials.Length;
-                renderer.sharedMaterials = Mat.Skip(startOffset).Take(takeLength).ToArray();
-                startOffset += takeLength;
-            }
-        }
+
         public static void ChangeMaterialForRenderers(IEnumerable<Renderer> Renderer, Dictionary<Material, Material> MatPairs)
         {
             foreach (var renderer in Renderer)
