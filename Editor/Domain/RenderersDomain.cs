@@ -137,8 +137,7 @@ namespace net.rs64.TexTransTool
 
         public void SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            var matPair = RendererUtility.SetTexture(_renderers, Target, SetTex);
-            this.ReplaceMaterials(matPair);
+            this.ReplaceMaterials(RendererUtility.SetTexture(_renderers, Target, SetTex));
         }
 
         public virtual void EditFinish()

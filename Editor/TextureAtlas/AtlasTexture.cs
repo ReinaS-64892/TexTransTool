@@ -239,8 +239,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var nowRenderers = Renderers;
 
-            var generateMaterials = new List<List<Material>>();
-
             var ShaderSupport = new AtlasShaderSupportUtils();
 
             var channelMatRef = container.ChannelsMatRef;
@@ -252,7 +250,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (AtlasSettings.Count != atlasTextures.Count || AtlasSettings.Count != channelMatRef.Count) { return; }
 
 
-            var nawChannelRevertMeshes = new List<MeshPair>();
             foreach (var renderer in nowRenderers)
             {
                 var mesh = renderer.GetMesh();
@@ -266,7 +263,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 Domain.SetMesh(renderer, targetMeshData.Mesh);
                 Domain.TransferAsset(targetMeshData.Mesh);
-                nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
             }
 
 
@@ -296,23 +292,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     Material generateMat = GenerateAtlasMat(mergeMat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
                     var distMats = channelMatRefs.Select(MatRef => materials[MatRef]).ToList();
-                    Domain.ReplaceMaterials(distMats.ConvertAll(Mat => new MatPair(Mat, generateMat)), rendererOnly: true);
-
-                    generateMaterials.Add(new List<Material>(1) { generateMat });
+                    Domain.ReplaceMaterials(distMats.ToDictionary(x => x, _ => generateMat), rendererOnly: true);
                 }
                 else
                 {
-                    List<MatPair> materialMap = new List<MatPair>();
+                    var materialMap = new Dictionary<Material, Material>();
+
                     foreach (var matRef in channelMatRefs)
                     {
                         var mat = materials[matRef];
                         var generateMat = GenerateAtlasMat(mat, AtlasTex, ShaderSupport, atlasSetting.ForceSetTexture);
 
-                        materialMap.Add(new MatPair(mat, generateMat));
+                        materialMap.Add(mat, generateMat);
                     }
 
                     Domain.ReplaceMaterials(materialMap);
-                    generateMaterials.Add(materialMap.ConvertAll(MP => MP.SecondMaterial));
                 }
             }
         }

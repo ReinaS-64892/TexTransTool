@@ -33,31 +33,31 @@ namespace net.rs64.TexTransTool.Utils
         /// <param name="Target"></param>
         /// <param name="SetTex"></param>
         /// <returns>差し替え元と差し替え先のペア</returns>
-        public static List<MatPair> SetTexture(IEnumerable<Renderer> Renderers, Texture2D Target, Texture2D SetTex)
+        public static Dictionary<Material, Material> SetTexture(IEnumerable<Renderer> Renderers, Texture2D Target, Texture2D SetTex)
         {
             var mats = GetFilteredMaterials(Renderers);
-            var targetAndSet = new List<MatPair>();
+            var mapping = new Dictionary<Material, Material>();
             foreach (var mat in mats)
             {
                 var Textures = MaterialUtility.FiltalingUnused(MaterialUtility.GetPropAndTextures(mat), mat);
 
                 if (Textures.ContainsValue(Target))
                 {
-                    var NewMat = UnityEngine.Object.Instantiate<Material>(mat);
+                    var material = Object.Instantiate(mat);
 
                     foreach (var KVP in Textures)
                     {
                         if (KVP.Value == Target)
                         {
-                            NewMat.SetTexture(KVP.Key, SetTex);
+                            material.SetTexture(KVP.Key, SetTex);
                         }
                     }
 
-                    targetAndSet.Add(new MatPair(mat, NewMat));
+                    mapping.Add(mat, material);
                 }
             }
 
-            return targetAndSet;
+            return mapping;
         }
 
         public static Mesh GetMesh(this Renderer Target)

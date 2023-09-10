@@ -24,10 +24,11 @@ namespace net.rs64.TexTransTool
 
     public static class DomainUtility
     {
-        public static void ReplaceMaterials(this IDomain domain, List<MatPair> matPairs, bool rendererOnly = false)
+        public static void ReplaceMaterials(this IDomain domain, Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
-            foreach (var matPair in matPairs)
-                domain.ReplaceMaterial(matPair.Material, matPair.SecondMaterial, rendererOnly);
+            // stub for now but will be replaced with interface implementation
+            foreach (var pair in mapping)
+                domain.ReplaceMaterial(pair.Key, pair.Value, rendererOnly);
         }
         public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> UnityObjects)
         {
