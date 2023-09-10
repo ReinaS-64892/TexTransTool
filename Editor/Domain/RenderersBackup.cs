@@ -17,7 +17,9 @@ namespace net.rs64.TexTransTool
 
         public RenderersBackup(List<Renderer> renderers)
         {
-            _renderers = renderers;
+            _renderers = new List<Renderer>(renderers);
+            _initMaterial = RendererUtility.GetMaterials(_renderers);
+            _initMesh = RendererUtility.GetMeshes(_renderers);
         }
 
         public void Dispose()
