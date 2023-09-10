@@ -223,10 +223,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
         }
-
-        public AvatarDomain RevertDomain;
-        public List<MeshPair> RevertMeshes;
-        public override void Apply(AvatarDomain avatarMaterialDomain = null)
+        public override void Apply(IDomain Domain = null)
         {
             if (!IsPossibleApply)
             {
@@ -246,7 +243,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var ShaderSupport = new AtlasShaderSupportUtils();
 
             //Mesh Change
-            RevertMeshes = new List<MeshPair>();
             foreach (var renderer in nowRenderers)
             {
                 var mesh = renderer.GetMesh();
@@ -256,8 +252,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 var atlasMesh = atlasMeshAndDist.AtlasMesh;
                 renderer.SetMesh(atlasMesh);
-                avatarMaterialDomain.transferAsset(atlasMesh);
-                Domain.Add(new MeshPair(mesh, atlasMesh));
+                Domain.transferAsset(atlasMesh);
             }
 
             //Texture Fine Tuning
@@ -267,7 +262,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 fineSetting.FineSetting(atlasTexture);
             }
-            avatarMaterialDomain.transferAsset(atlasTexture.Select(PaT => PaT.Texture2D));
+            Domain.transferAssets(atlasTexture.Select(PaT => PaT.Texture2D));
 
             //MaterialGenerate And Change
             if (AtlasSetting.MergeMaterials)
