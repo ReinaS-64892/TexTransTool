@@ -52,6 +52,8 @@ namespace net.rs64.TexTransTool
 
         public virtual void SetMaterial(Material target, Material set, bool isPaired)
         {
+            transferAsset(set);
+
             foreach (var renderer in _renderers)
             {
                 var materials = renderer.sharedMaterials;
@@ -112,7 +114,9 @@ namespace net.rs64.TexTransTool
         {
             foreach (var mergeResult in _textureStacks.MargeStacks())
             {
+                if (mergeResult.FirstTexture == null || mergeResult.MargeTexture == null) continue;
                 SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
+                transferAsset(mergeResult.MargeTexture);
             }
         }
     }
