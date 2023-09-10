@@ -22,11 +22,6 @@ namespace net.rs64.TexTransTool
                 Debug.LogWarning("TexTransGroup : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
                 return;
             }
-            if (TexTransGroupValidationUtils.SelfCallApplyExists(Targets))
-            {
-                Debug.LogWarning("TexTransGroup : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
-                return;
-            }
 
             foreach (var tf in TextureTransformerFilter(Targets))
                 tf.Apply(Domain);

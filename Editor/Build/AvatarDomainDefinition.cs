@@ -30,16 +30,6 @@ namespace net.rs64.TexTransTool.Build
                 Debug.LogWarning("AvatarDomainDefinition : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
                 return;
             }
-            if (PreviewContext.IsPreviewing(texTransGroup))
-            {
-                Debug.LogWarning("AvatarDomainDefinition : すでにこのコンポーネントでプレビュー状態のため実行できません。");
-                return;
-            }
-            if (TexTransGroupValidationUtils.SelfCallApplyExists(texTransGroup.Targets))
-            {
-                Debug.LogWarning("AvatarDomainDefinition : すでにプレビュー状態のものが存在しているためこのグループのプレビューはできません。すでにプレビューされている物を解除してください。");
-                return;
-            }
 
             TexTransGroupValidationUtils.ValidateTexTransGroup(texTransGroup);
 

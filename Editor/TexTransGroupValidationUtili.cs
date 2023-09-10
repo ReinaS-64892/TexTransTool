@@ -117,36 +117,6 @@ namespace net.rs64.TexTransTool
                 }
             }
         }
-
-        public static bool SelfCallApplyExists(IEnumerable<TextureTransformer> tTFs)
-        {
-            foreach (var tf in tTFs)
-            {
-                if (PreviewContext.IsPreviewing(tf))
-                {
-                    return true;
-                }
-                else
-                {
-                    switch (tf)
-                    {
-                        default:
-                            {
-                                break;
-                            }
-                        case AbstractTexTransGroup abstractTexTransGroup:
-                            {
-                                if (SelfCallApplyExists(abstractTexTransGroup.Targets))
-                                {
-                                    return true;
-                                }
-                                break;
-                            }
-                    }
-                }
-            }
-            return false;
-        }
     }
 }
 
