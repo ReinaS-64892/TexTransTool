@@ -77,6 +77,25 @@ namespace net.rs64.TexTransTool
             transferAsset(SetMat);
         }
 
+        public void SetMesh(Renderer renderer, Mesh mesh)
+        {
+            switch (renderer)
+            {
+                case SkinnedMeshRenderer skinnedRenderer:
+                {
+                    skinnedRenderer.sharedMesh = mesh;
+                    break;
+                }
+                case MeshRenderer meshRenderer:
+                {
+                    meshRenderer.GetComponent<MeshFilter>().sharedMesh = mesh;
+                    break;
+                }
+                default:
+                    throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
+            }
+        }
+
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
             _textureStacks.AddTextureStack(Dist, SetTex);

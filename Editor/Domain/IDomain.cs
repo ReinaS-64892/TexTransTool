@@ -9,6 +9,7 @@ namespace net.rs64.TexTransTool
     {
         void transferAsset(UnityEngine.Object Asset);
         void SetMaterial(Material Target, Material SetMat, bool isPaired);
+        void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D Dist, BlendTextures SetTex);
     }
 

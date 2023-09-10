@@ -264,7 +264,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var targetMeshData = targetMeshDataList.Find(MD => MD.MatRefs.SequenceEqual(matRefs));
                 if (targetMeshData == null) continue;
 
-                renderer.SetMesh(targetMeshData.Mesh);
+                Domain.SetMesh(renderer, targetMeshData.Mesh);
                 Domain.transferAsset(targetMeshData.Mesh);
                 nawChannelRevertMeshes.Add(new MeshPair(mesh, targetMeshData.Mesh));
             }

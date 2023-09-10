@@ -30,6 +30,25 @@ namespace net.rs64.TexTransTool
             RendererUtility.ChangeMaterialForRenderers(_renderers, Target, SetMat);
         }
 
+        public void SetMesh(Renderer renderer, Mesh mesh)
+        {
+            switch (renderer)
+            {
+                case SkinnedMeshRenderer skinnedRenderer:
+                {
+                    skinnedRenderer.sharedMesh = mesh;
+                    break;
+                }
+                case MeshRenderer meshRenderer:
+                {
+                    meshRenderer.GetComponent<MeshFilter>().sharedMesh = mesh;
+                    break;
+                }
+                default:
+                    throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
+            }
+        }
+
         public void transferAsset(UnityEngine.Object Asset)
         {
             //なにもしなくていい
