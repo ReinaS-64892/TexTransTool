@@ -61,8 +61,7 @@ namespace net.rs64.TexTransTool
                         if (!(iter.objectReferenceValue is Material originalMat)) continue;
                         if (!matModifiedDict.TryGetValue(originalMat, out var value)) continue;
 
-                        AddPropertyModification(component, iter.propertyPath, originalMat);
-                        iter.objectReferenceValue = value;
+                        SetSerializedProperty(iter, value);
                     }
 
                     serializeObj.ApplyModifiedPropertiesWithoutUndo();

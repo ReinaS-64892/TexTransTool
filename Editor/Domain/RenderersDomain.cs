@@ -38,11 +38,11 @@ namespace net.rs64.TexTransTool
             _textureStacks.AddTextureStack(Dist, SetTex);
         }
 
-        protected void AddPropertyModification(Object component, string property, Object value)
+        private void AddPropertyModification(Object component, string property, Object value)
         {
             if (!Previewing) return;
             AnimationMode.AddPropertyModification(
-                EditorCurveBinding.PPtrCurve("", component.GetType(), ""),
+                EditorCurveBinding.PPtrCurve("", component.GetType(), property),
                 new PropertyModification
                 {
                     target = component,
@@ -50,6 +50,13 @@ namespace net.rs64.TexTransTool
                     objectReference = value,
                 },
                 true);
+        }
+
+        public void SetSerializedProperty(SerializedProperty property, Object value)
+        {
+            AddPropertyModification(property.serializedObject.targetObject, property.propertyPath,
+                property.objectReferenceValue);
+            property.objectReferenceValue = value;
         }
 
         public virtual void SetMaterial(Material target, Material replacement, bool isPaired)

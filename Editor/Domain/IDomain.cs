@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using static net.rs64.TexTransTool.TextureLayerUtil;
 
@@ -12,6 +13,10 @@ namespace net.rs64.TexTransTool
 
     public interface IDomain : IAssetSaver
     {
+        /// <summary>
+        /// Sets the value to specified property with recording for revert
+        /// </summary>
+        void SetSerializedProperty(SerializedProperty property, Object value);
         void SetMaterial(Material target, Material replacement, bool isPaired);
         void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D dist, BlendTextures setTex);
