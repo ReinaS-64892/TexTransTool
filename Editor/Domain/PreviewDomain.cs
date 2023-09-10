@@ -7,6 +7,7 @@ using static net.rs64.TexTransTool.TextureLayerUtil;
 
 namespace net.rs64.TexTransTool
 {
+    [Serializable]
     public class PreviewDomain : IDomain, IDisposable
     {
         [SerializeField] List<Renderer> _renderers;
@@ -35,7 +36,8 @@ namespace net.rs64.TexTransTool
         }
         public void SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            RendererUtility.SetTexture(_renderers, Target, SetTex);
+            var matPair = RendererUtility.SetTexture(_renderers, Target, SetTex);
+            this.SetMaterials(matPair, true);
         }
         public void EditFinish()
         {
