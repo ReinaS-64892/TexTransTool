@@ -18,8 +18,6 @@ namespace net.rs64.TexTransTool
         public PreviewDomain(List<Renderer> previewRenderers)
         {
             _renderers = previewRenderers;
-            AnimationMode.StartAnimationMode();
-            AnimationMode.BeginSampling();
         }
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
         {
@@ -109,7 +107,6 @@ namespace net.rs64.TexTransTool
         public void EditFinish()
         {
             ExecuteBatchedModifications();
-            AnimationMode.EndSampling();
         }
     }
 }

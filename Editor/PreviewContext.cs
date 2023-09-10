@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button(previewMessage))
                 {
                     previweing = target;
+                    AnimationMode.StartAnimationMode();
                     try
                     {
                         apply(target);
@@ -59,15 +60,16 @@ namespace net.rs64.TexTransTool
         {
             DrawApplyAndRevert(target, "Preview", target1 =>
             {
-                var previewDomain = new PreviewDomain(target.GetRenderers);
-
+                AnimationMode.BeginSampling();
                 try
                 {
+                    var previewDomain = new PreviewDomain(target.GetRenderers);
                     target1.Apply(previewDomain);
+                    previewDomain.EditFinish();
                 }
                 finally
                 {
-                    previewDomain.EditFinish();
+                    AnimationMode.EndSampling();
                 }
             });
         }
@@ -76,14 +78,16 @@ namespace net.rs64.TexTransTool
         {
             DrawApplyAndRevert(target, "Preview - AvatarDomain-Apply", target1 =>
             {
-                var previewAvatarDomain = new PreviewAvatarDomain(target.Avatar);
+                AnimationMode.BeginSampling();
                 try
                 {
+                    var previewAvatarDomain = new PreviewAvatarDomain(target.Avatar);
                     target.Apply(previewAvatarDomain);
+                    previewAvatarDomain.EditFinish();
                 }
                 finally
                 {
-                    previewAvatarDomain.EditFinish();
+                    AnimationMode.EndSampling();
                 }
             });
         }
