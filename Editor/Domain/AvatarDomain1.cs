@@ -71,5 +71,27 @@ namespace net.rs64.TexTransTool
             }
         }
     }
+    
+    public class FlatMapDict<TKeyValue>
+    {
+        Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
+        Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();
+
+        public void Add(TKeyValue key, TKeyValue value)
+        {
+            if (_reverseDict.TryGetValue(key, out var tKey))
+            {
+                _dict[tKey] = value;
+                _reverseDict.Remove(key);
+                _reverseDict.Add(value, tKey);
+            }
+            else
+            {
+                _dict.Add(key, value);
+                _reverseDict.Add(value, key);
+            }
+        }
+        public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;
+    }
 }
 #endif
