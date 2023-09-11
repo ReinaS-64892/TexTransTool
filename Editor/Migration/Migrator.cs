@@ -2,19 +2,22 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
 
-namespace net.rs64.TexTransTool
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.Inspector")]
+
+namespace net.rs64.TexTransTool.Migration
 {
     [InitializeOnLoad]
-    internal static class Migration
+    internal static class Migrator
     {
         public static string SaveDataVersionPath = "ProjectSettings/net.rs64.TexTransTool-Version.json";
 
-        static Migration()
+        static Migrator()
         {
             if (!File.Exists(SaveDataVersionPath))
             {
@@ -42,7 +45,7 @@ namespace net.rs64.TexTransTool
 
         public static void MigrationExecute()
         {
-                    throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
 

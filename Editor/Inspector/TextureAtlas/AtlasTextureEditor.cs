@@ -19,6 +19,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var ThisTarget = target as AtlasTexture;
             var This_S_Object = serializedObject;
 
+            if (ThisTarget.SaveDataVersion == 0)
+            {
+                if (GUILayout.Button("Migrate"))
+                {
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0(target as AtlasTexture);
+                }
+                return;
+            }
+
+
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisTarget));
 
             var S_AtlasSetting = This_S_Object.FindProperty("AtlasSetting");
