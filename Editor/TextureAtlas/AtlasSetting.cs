@@ -19,11 +19,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool ForceSetTexture;
         public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
         public float Padding = 10;
+        public bool UseIslandCache = true;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
-        [FormerlySerializedAs("fineSettings")] public List<TextureFineTuningData> TextureFineTuningDataList;
+        public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> {
+            new TextureFineTuningData()
+            {
+                Select = TextureFineTuningData.select.Resize,
+                Resize_Size = 512,
+                Resize_PropertyNames = new PropertyName("_MainTex"),
+                Resize_Select = PropertySelect.NotEqual,
+            }
+        };
         public float GetTexScalePadding => Padding / AtlasTextureSize.x;
 
-        public List<ITextureFineTuning> GetFineSettings()
+        public List<ITextureFineTuning> GetTextureFineTuning()
         {
             var IFineSettings = new List<ITextureFineTuning>
             {
