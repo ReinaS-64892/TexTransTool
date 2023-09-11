@@ -158,7 +158,7 @@ namespace net.rs64.TexTransTool.Migration
             var allPrefabRoots = AssetDatabase.FindAssets("t:prefab")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(s => !IsReadOnlyPath(s))
-                .Select(PrefabUtility.LoadPrefabContents)
+                .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
                 .Where(x => x)
                 .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x)))
                 .Where(x => x.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
