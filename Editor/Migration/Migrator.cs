@@ -34,31 +34,6 @@ namespace net.rs64.TexTransTool.Migration
 
                 File.WriteAllText(SaveDataVersionPath, jsonStr);
             }
-            else
-            {
-                var jsonStr = File.ReadAllText(SaveDataVersionPath);
-                var SaveDataVersionJson = JsonUtility.FromJson<SaveDataVersionJson>(jsonStr);
-
-                if (SaveDataVersionJson.SaveDataVersion == 0)
-                {
-                    if (DoMigrate())
-                    {
-                        var NawSaveDataVersion = new SaveDataVersionJson();
-                        NawSaveDataVersion.SaveDataVersion = 0;
-                        var newJsonStr = JsonUtility.ToJson(NawSaveDataVersion);
-
-                        File.WriteAllText(SaveDataVersionPath, newJsonStr);
-                    }
-                }
-                else if (SaveDataVersionJson.SaveDataVersion >= 1)
-                {
-                    //何もできない。
-                }
-                else
-                {
-                    //もっと前のバージョン用の対応をするかは考えて決めるべきだ。
-                }
-            }
         }
         [Serializable]
         private class SaveDataVersionJson
@@ -105,27 +80,9 @@ namespace net.rs64.TexTransTool.Migration
         //Originally under MIT License
         //Copyright (c) 2022 anatawa12
         #region CopyFromAAOCode
-        private static bool DoMigrate()
-        {
-            var result = EditorUtility.DisplayDialog("Migrate!",
-@"互換性の持たないTexTransToolのアップグレードが検出されました!
-正常な動作のためにはすべてのシーンとプレハブをマイグレーションする必要があります。
-プロジェクトが壊れる可能性もあり、長い時間がかかります。
-バックアップをしていない場合はバックアップをしてから移行してください。
-マイグレーションを完了させない場合、Unityを再起動するたびにこのウィンドウが出現します。
-
-                プロジェクトをマイグレーションしますか？",
-                "マイグレーションする (Migrate)",
-                "キャンセル (Cancel)");
-
-            if (result)
-            {
-                MigrateEverything();
-            }
-            return result;
-        }
 
 
+        [MenuItem("Tools/TexTransTool/Migrate Everything v0.3.x to v0.4x")]
         private static void MigrateEverything()
         {
             try
@@ -201,7 +158,7 @@ namespace net.rs64.TexTransTool.Migration
             var allPrefabRoots = AssetDatabase.FindAssets("t:prefab")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(s => !IsReadOnlyPath(s))
-                .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
+                .Select(PrefabUtility.LoadPrefabContents)
                 .Where(x => x)
                 .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x)))
                 .Where(x => x.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
