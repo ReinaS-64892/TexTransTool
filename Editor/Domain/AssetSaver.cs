@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -31,3 +32,4 @@ namespace net.rs64.TexTransTool
         }
     }
 }
+#endif

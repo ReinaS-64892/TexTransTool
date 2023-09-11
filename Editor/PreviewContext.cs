@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace net.rs64.TexTransTool
         public static bool IsPreviewing(AvatarDomainDefinition domainDefinition) => domainDefinition == instance.previweing;
 
         private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
-            where T : Object 
+            where T : Object
         {
             if (target == null) return;
             if (previweing == null && AnimationMode.InAnimationMode())
@@ -87,7 +88,7 @@ namespace net.rs64.TexTransTool
                 }
             });
         }
-        
+
         public void DrawApplyAndRevert(AvatarDomainDefinition target)
         {
             DrawApplyAndRevert(target, "Preview - AvatarDomain-Apply", target1 =>
@@ -107,3 +108,4 @@ namespace net.rs64.TexTransTool
         }
     }
 }
+#endif
