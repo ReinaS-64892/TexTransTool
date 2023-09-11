@@ -89,7 +89,7 @@ namespace net.rs64.TexTransTool.Migration
 
                 if (SaveDataVersionJsonI.SaveDataVersion == 0)
                 {
-                    DoMigrate();
+                    DoMigrateV0ToV1();
                 }
                 else if (SaveDataVersionJsonI.SaveDataVersion > 1)
                 {
@@ -99,10 +99,8 @@ namespace net.rs64.TexTransTool.Migration
                 }
                 else
                 {
-                    //もっと前のバージョン用の対応をするかは考えて決めるべきだ。
+                    //もっと前のバージョン用の対応をするかは考えて決めるべきだが、今は考えるべきでもない。
                 }
-
-
             }
             finally
             {
@@ -110,7 +108,7 @@ namespace net.rs64.TexTransTool.Migration
             }
         }
 
-        private static bool DoMigrate()
+        private static bool DoMigrateV0ToV1()
         {
             InProgress = true;
             var result = EditorUtility.DisplayDialog("Migrate!",
@@ -126,14 +124,14 @@ namespace net.rs64.TexTransTool.Migration
 
             if (result)
             {
-                MigrateEverything();
+                MigrateEverythingV0ToV1();
             }
             InProgress = false;
             return result;
         }
 
         [MenuItem("Tools/TexTransTool/Migrate Everything v0.3.x to v0.4x")]
-        private static void MigrateEverything()
+        private static void MigrateEverythingV0ToV1()
         {
             try
             {
@@ -142,22 +140,22 @@ namespace net.rs64.TexTransTool.Migration
                 var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
 
-                MigratePrefabs(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                MigratePrefabsV0ToV1(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
                     "Migrating Everything (pass 1)",
                     $"{name} (Prefabs) ({i} / {totalCount})",
                     i / totalCount));
 
-                MigrateAllScenes(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                MigrateAllScenesV0ToV1(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
                     "Migrating Everything (pass 1)",
                     $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
                     (prefabs.Count + i) / totalCount));
 
-                MigratePrefabsPass2(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                MigratePrefabsPass2V0ToV1(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
                     "Migrating Everything (pass 2)",
                     $"{name} (Prefabs) ({i} / {totalCount})",
                     i / totalCount));
 
-                MigrateAllScenesPass2(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                MigrateAllScenesPass2V0ToV1(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
                     "Migrating Everything (pass 2)",
                     $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
                     (prefabs.Count + i) / totalCount));
@@ -319,16 +317,24 @@ namespace net.rs64.TexTransTool.Migration
                 Prefab = prefab;
             }
         }
-        private static void MigratePrefabs(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabsV0ToV1(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV0ToV1);
         }
 
-        private static void MigratePrefabsPass2(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabsPass2V0ToV1(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, RemoveSaveDataVersionV0);
         }
+        private static void MigrateAllScenesV0ToV1(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV0ToV1);
+        }
 
+        private static void MigrateAllScenesPass2V0ToV1(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, RemoveSaveDataVersionV0);
+        }
         private static void MigratePrefabsImpl(List<GameObject> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
         {
             for (var i = 0; i < prefabAssets.Count; i++)
@@ -352,16 +358,6 @@ namespace net.rs64.TexTransTool.Migration
                 PrefabUtility.UnloadPrefabContents(prefabAsset);
             }
             progressCallback("finish Prefabs", prefabAssets.Count);
-        }
-
-        private static void MigrateAllScenes(List<string> scenePaths, Action<string, int> progressCallback)
-        {
-            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV0ToV1);
-        }
-
-        private static void MigrateAllScenesPass2(List<string> scenePaths, Action<string, int> progressCallback)
-        {
-            MigrateAllScenesImpl(scenePaths, progressCallback, RemoveSaveDataVersionV0);
         }
 
         private static void MigrateAllScenesImpl(List<string> scenePaths, Action<string, int> progressCallback,
