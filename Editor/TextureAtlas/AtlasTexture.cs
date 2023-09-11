@@ -95,11 +95,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             atlasData = new AtlasData();
 
-            if (!IsPossibleApply)
-            {
-                Debug.LogWarning("AtlasTexture : アトラス化可能な状態ではないのためアトラス化ができません。ターゲットルートなどが設定されているかどうかご確認ください。");
-                return null;
-            }
 
             //情報を集めるフェーズ
             var targetMaterialSelectors = SelectMatList;
@@ -226,8 +221,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
         }
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain Domain = null)
         {
+            if (!IsPossibleApply)
+            {
+                Debug.LogWarning("AtlasTexture : アトラス化実行不可能な状態です、設定を見直しましょう。");
+                return;
+            }
+
             if (!TryCompileAtlasTextures(out var atlasData)) { return; }
 
             var nowRenderers = Renderers;
