@@ -24,13 +24,6 @@ namespace net.rs64.TexTransTool.Migration
     {
         public static string SaveDataVersionPath = "ProjectSettings/net.rs64.TexTransTool-Version.json";
 
-        static Migrator()
-        {
-            if (!File.Exists(SaveDataVersionPath))
-            {
-                MigrationUtility.WriteVersion(ToolUtils.ThiSaveDataVersion);
-            }
-        }
         [Serializable]
         internal class SaveDataVersionJson
         {
@@ -77,6 +70,67 @@ namespace net.rs64.TexTransTool.Migration
         //Copyright (c) 2022 anatawa12
         #region CopyFromAAOCode
 
+        static Migrator()
+        {
+            if (!File.Exists(SaveDataVersionPath))
+            {
+                MigrationUtility.WriteVersion(ToolUtils.ThiSaveDataVersion);
+            }
+
+            EditorApplication.update += Update;
+        }
+        static bool InProgress = false;
+        private static void Update()
+        {
+            if (InProgress) return; // try next tick
+            try
+            {
+                var SaveDataVersionJsonI = JsonUtility.FromJson<SaveDataVersionJson>(File.ReadAllText(SaveDataVersionPath));
+
+                if (SaveDataVersionJsonI.SaveDataVersion == 0)
+                {
+                    DoMigrate();
+                }
+                else if (SaveDataVersionJsonI.SaveDataVersion > 1)
+                {
+                    EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
+                     "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
+                     "理解しました","Yes");
+                }
+                else
+                {
+                    //もっと前のバージョン用の対応をするかは考えて決めるべきだ。
+                }
+
+
+            }
+            finally
+            {
+                EditorApplication.update -= Update;
+            }
+        }
+
+        private static bool DoMigrate()
+        {
+            InProgress = true;
+            var result = EditorUtility.DisplayDialog("Migrate!",
+@"互換性の持たないTexTransToolのアップグレードが検出されました!
+正常な動作のためにはすべてのシーンとプレハブをマイグレーションする必要があります。
+プロジェクトが壊れる可能性もあり、長い時間がかかります。
+バックアップをしていない場合はバックアップをしてから移行してください。
+マイグレーションを完了させない場合、Unityを再起動するたびにこのウィンドウが出現します。
+
+                プロジェクトをマイグレーションしますか？",
+                "マイグレーションする (Migrate)",
+                "キャンセル (Cancel)");
+
+            if (result)
+            {
+                MigrateEverything();
+            }
+            InProgress = false;
+            return result;
+        }
 
         [MenuItem("Tools/TexTransTool/Migrate Everything v0.3.x to v0.4x")]
         private static void MigrateEverything()
