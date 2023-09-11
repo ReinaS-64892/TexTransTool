@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using net.rs64.TexTransTool.TextureAtlas;
@@ -11,7 +12,7 @@ namespace net.rs64.TexTransTool.Migration.V0
 {
     internal static class AtlasTextureV0
     {
-        public static void MigrationAtlasTextureV0(AtlasTexture atlasTexture)
+        public static void MigrationAtlasTextureV0(AtlasTexture atlasTexture, bool DestroyNow)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (atlasTexture.SaveDataVersion != 0) { Debug.LogWarning("マイグレーションのバージョンが違います。"); return; }
@@ -25,39 +26,54 @@ namespace net.rs64.TexTransTool.Migration.V0
             }
             else
             {
-                var texTransParentGroup = GameObject.AddComponent<TexTransParentGroup>();
-
-                for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
+                if (atlasTexture.ObsoleteChannelsRef.Any())
                 {
-                    var newGameObject = new GameObject("Channel " + Count);
-                    newGameObject.transform.SetParent(GameObject.transform);
+                    for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
+                    {
+                        var newAtlasTexture = atlasTexture.ObsoleteChannelsRef[Count];
+                        CopySetting(atlasTexture, Count, newAtlasTexture);
+                        EditorUtility.SetDirty(newAtlasTexture);
+                    }
+                }
+                else
+                {
 
-                    var newAtlasTexture = newGameObject.AddComponent<net.rs64.TexTransTool.TextureAtlas.AtlasTexture>();
-                    CopySetting(atlasTexture, Count, newAtlasTexture);
-                    EditorUtility.SetDirty(newAtlasTexture);
+                    var texTransParentGroup = GameObject.AddComponent<TexTransParentGroup>();
+                    atlasTexture.ObsoleteChannelsRef = new List<AtlasTexture>() { };
+
+                    for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
+                    {
+                        var newGameObject = new GameObject("Channel " + Count);
+                        newGameObject.transform.SetParent(GameObject.transform);
+
+                        var newAtlasTexture = newGameObject.AddComponent<net.rs64.TexTransTool.TextureAtlas.AtlasTexture>();
+                        CopySetting(atlasTexture, Count, newAtlasTexture);
+                        atlasTexture.ObsoleteChannelsRef.Add(newAtlasTexture);
+                        EditorUtility.SetDirty(newAtlasTexture);
+                    }
+
                 }
 
-                UnityEngine.Object.DestroyImmediate(atlasTexture);
+                if (DestroyNow) { UnityEngine.Object.DestroyImmediate(atlasTexture); }
             }
-
         }
 
-        private static void CopySetting(AtlasTexture atlasTexture, int atlasSettingIndex, AtlasTexture newAtlasTexture)
+        private static void CopySetting(AtlasTexture atlasTextureSouse, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
         {
-            newAtlasTexture.TargetRoot = atlasTexture.TargetRoot;
-            newAtlasTexture.AtlasSetting = atlasTexture.AtlasSettings[atlasSettingIndex];
-            newAtlasTexture.AtlasSetting.UseIslandCache = atlasTexture.UseIslandCache;
-            newAtlasTexture.SelectMatList = atlasTexture.MatSelectors
+            NewAtlasTextureTarget.TargetRoot = atlasTextureSouse.TargetRoot;
+            NewAtlasTextureTarget.AtlasSetting = atlasTextureSouse.AtlasSettings[atlasSettingIndex];
+            NewAtlasTextureTarget.AtlasSetting.UseIslandCache = atlasTextureSouse.UseIslandCache;
+            NewAtlasTextureTarget.SelectMatList = atlasTextureSouse.MatSelectors
             .Where(I => I.IsTarget && I.AtlasChannel == atlasSettingIndex)
             .Select(I => new TexTransTool.TextureAtlas.AtlasTexture.MatSelector()
             {
                 Material = I.Material,
                 TextureSizeOffSet = I.TextureSizeOffSet
             }).ToList();
-            EditorUtility.SetDirty(newAtlasTexture);
-            if (atlasTexture == newAtlasTexture)
+            EditorUtility.SetDirty(NewAtlasTextureTarget);
+            if (atlasTextureSouse == NewAtlasTextureTarget)
             {
-                var sObj = new SerializedObject(newAtlasTexture);
+                var sObj = new SerializedObject(NewAtlasTextureTarget);
                 var saveDataProp = sObj.FindProperty("_saveDataVersion");
                 saveDataProp.intValue = 1;
                 sObj.ApplyModifiedPropertiesWithoutUndo();

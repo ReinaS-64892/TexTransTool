@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 if (GUILayout.Button("Migrate"))
                 {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0(target as AtlasTexture);
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0(target as AtlasTexture, true);
                 }
                 return;
             }
