@@ -22,7 +22,6 @@ namespace net.rs64.TexTransTool.Deprecated.V0.TextureAtlas
 
         public override List<Renderer> GetRenderers => throw new NotImplementedException();
 
-        public override bool IsApply { get => _isApply; set => _isApply = value; }
 
         public AvatarDomain RevertDomain;
         public List<MeshPair> RevertMeshes;
