@@ -10,9 +10,10 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Migration.V0
 {
+    [Obsolete]
     internal static class AtlasTextureV0
     {
-        public static void MigrationAtlasTextureV0(AtlasTexture atlasTexture, bool DestroyNow)
+        public static void MigrationAtlasTextureV0ToV1(AtlasTexture atlasTexture, bool DestroyNow)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (atlasTexture.SaveDataVersion != 0) { Debug.LogWarning("マイグレーションのバージョンが違います。"); return; }
@@ -22,7 +23,7 @@ namespace net.rs64.TexTransTool.Migration.V0
 
             if (atlasTexture.AtlasSettings.Count == 1)
             {
-                CopySetting(atlasTexture, 0, atlasTexture);
+                MigrateSettingV0ToV1(atlasTexture, 0, atlasTexture);
             }
             else
             {
@@ -31,7 +32,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                     for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
                     {
                         var newAtlasTexture = atlasTexture.ObsoleteChannelsRef[Count];
-                        CopySetting(atlasTexture, Count, newAtlasTexture);
+                        MigrateSettingV0ToV1(atlasTexture, Count, newAtlasTexture);
                         EditorUtility.SetDirty(newAtlasTexture);
                     }
                 }
@@ -44,10 +45,10 @@ namespace net.rs64.TexTransTool.Migration.V0
                     for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
                     {
                         var newGameObject = new GameObject("Channel " + Count);
-                        newGameObject.transform.SetParent(GameObject.transform);
+                        newGameObject.transform.parent = GameObject.transform;
 
                         var newAtlasTexture = newGameObject.AddComponent<net.rs64.TexTransTool.TextureAtlas.AtlasTexture>();
-                        CopySetting(atlasTexture, Count, newAtlasTexture);
+                        MigrateSettingV0ToV1(atlasTexture, Count, newAtlasTexture);
                         atlasTexture.ObsoleteChannelsRef.Add(newAtlasTexture);
                         EditorUtility.SetDirty(newAtlasTexture);
                     }
@@ -58,7 +59,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             }
         }
 
-        private static void CopySetting(AtlasTexture atlasTextureSouse, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
+        private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSouse, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
         {
             NewAtlasTextureTarget.TargetRoot = atlasTextureSouse.TargetRoot;
             NewAtlasTextureTarget.AtlasSetting = atlasTextureSouse.AtlasSettings[atlasSettingIndex];
@@ -73,10 +74,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             EditorUtility.SetDirty(NewAtlasTextureTarget);
             if (atlasTextureSouse == NewAtlasTextureTarget)
             {
-                var sObj = new SerializedObject(NewAtlasTextureTarget);
-                var saveDataProp = sObj.FindProperty("_saveDataVersion");
-                saveDataProp.intValue = 1;
-                sObj.ApplyModifiedPropertiesWithoutUndo();
+                MigrationUtility.SetSaveDataVersion(NewAtlasTextureTarget, 1);
             }
         }
     }

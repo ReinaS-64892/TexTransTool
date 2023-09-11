@@ -19,15 +19,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var ThisTarget = target as AtlasTexture;
             var This_S_Object = serializedObject;
 
+#pragma warning disable CS0612
             if (ThisTarget.SaveDataVersion == 0)
             {
-                if (GUILayout.Button("Migrate"))
+                if (GUILayout.Button("Migrate DSV0 To DSV1"))
                 {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0(target as AtlasTexture, true);
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(target as AtlasTexture, true);
                 }
                 return;
             }
-
+#pragma warning restore CS0612
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisTarget));
 
