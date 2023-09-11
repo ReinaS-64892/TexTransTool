@@ -157,15 +157,15 @@ namespace net.rs64.TexTransTool.Migration
             var allPrefabRoots = AssetDatabase.FindAssets("t:prefab")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(s => !IsReadOnlyPath(s))
-                .Select(path => (PrefabUtility.LoadPrefabContents(path), path))
-                .Where(x => x.Item1)
-                .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x.Item1)))
-                .Where(x => x.Item1.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
+                .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
+                .Where(x => x)
+                .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x)))
+                .Where(x => x.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
                 .ToArray();
 
             var sortedVertices = new List<GameObject>();
 
-            var vertices = new LinkedList<PrefabInfo>(allPrefabRoots.Select(prefabRoot => new PrefabInfo(prefabRoot.Item1)));
+            var vertices = new LinkedList<PrefabInfo>(allPrefabRoots.Select(prefabRoot => new PrefabInfo(prefabRoot)));
 
             // assign Parents and Children here.
             {
@@ -265,21 +265,22 @@ namespace net.rs64.TexTransTool.Migration
                 Prefab = prefab;
             }
         }
-        private static void MigratePrefabs(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabs(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV0ToV1);
         }
 
-        private static void MigratePrefabsPass2(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabsPass2(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, RemoveSaveDataVersionV0);
         }
 
-        private static void MigratePrefabsImpl(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
+        private static void MigratePrefabsImpl(List<GameObject> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
         {
             for (var i = 0; i < prefabAssets.Count; i++)
             {
-                var (prefabAsset, path) = prefabAssets[i];
+                var prefabPath = AssetDatabase.GetAssetPath(prefabAssets[i]);
+                var prefabAsset = PrefabUtility.LoadPrefabContents(prefabPath);
                 progressCallback(prefabAsset.name, i);
                 AssetDatabase.OpenAsset(prefabAsset.GetInstanceID());
 
@@ -293,7 +294,7 @@ namespace net.rs64.TexTransTool.Migration
                     throw new Exception($"Migrating Prefab {prefabAsset.name}: {e.Message}", e);
                 }
 
-                PrefabUtility.SaveAsPrefabAsset(prefabAsset, path);
+                PrefabUtility.SaveAsPrefabAsset(prefabAsset, prefabPath);
                 PrefabUtility.UnloadPrefabContents(prefabAsset);
             }
             progressCallback("finish Prefabs", prefabAssets.Count);
