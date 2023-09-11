@@ -202,8 +202,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var S_AtlasTextureSize = serializedProperty.FindPropertyRelative("AtlasTextureSize");
             S_AtlasTextureSize.vector2IntValue = new Vector2Int(2048, 2048);
-            var S_PaddingType = serializedProperty.FindPropertyRelative("PaddingType");
-            S_PaddingType.enumValueIndex = 0;
             var S_Padding = serializedProperty.FindPropertyRelative("Padding");
             S_Padding.floatValue = -10;
             var S_SortingType = serializedProperty.FindPropertyRelative("SortingType");
