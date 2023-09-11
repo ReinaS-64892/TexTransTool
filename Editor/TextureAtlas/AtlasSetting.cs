@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 Select = TextureFineTuningData.select.Resize,
                 Resize_Size = 512,
-                Resize_PropertyNames = new PropertyName("_MainTexture"),
+                Resize_PropertyNames = new PropertyName("_MainTex"),
                 Resize_Select = PropertySelect.NotEqual,
             }
         };
