@@ -28,15 +28,11 @@ namespace net.rs64.TexTransTool.Migration
         {
             if (!File.Exists(SaveDataVersionPath))
             {
-                var NawSaveDataVersion = new SaveDataVersionJson();
-                NawSaveDataVersion.SaveDataVersion = ToolUtils.ThiSaveDataVersion;
-                var jsonStr = JsonUtility.ToJson(NawSaveDataVersion);
-
-                File.WriteAllText(SaveDataVersionPath, jsonStr);
+                MigrationUtility.WriteVersion(ToolUtils.ThiSaveDataVersion);
             }
         }
         [Serializable]
-        private class SaveDataVersionJson
+        internal class SaveDataVersionJson
         {
             public int SaveDataVersion;
         }
@@ -111,6 +107,9 @@ namespace net.rs64.TexTransTool.Migration
                     "Migrating Everything (pass 2)",
                     $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
                     (prefabs.Count + i) / totalCount));
+
+                MigrationUtility.WriteVersion(1);
+
             }
             catch
             {
@@ -158,15 +157,15 @@ namespace net.rs64.TexTransTool.Migration
             var allPrefabRoots = AssetDatabase.FindAssets("t:prefab")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(s => !IsReadOnlyPath(s))
-                .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
-                .Where(x => x)
-                .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x)))
-                .Where(x => x.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
+                .Select(path => (PrefabUtility.LoadPrefabContents(path), path))
+                .Where(x => x.Item1)
+                .Where(x => CheckPrefabType(PrefabUtility.GetPrefabAssetType(x.Item1)))
+                .Where(x => x.Item1.GetComponentsInChildren<ITexTransToolTag>(true).Length != 0)
                 .ToArray();
 
             var sortedVertices = new List<GameObject>();
 
-            var vertices = new LinkedList<PrefabInfo>(allPrefabRoots.Select(prefabRoot => new PrefabInfo(prefabRoot)));
+            var vertices = new LinkedList<PrefabInfo>(allPrefabRoots.Select(prefabRoot => new PrefabInfo(prefabRoot.Item1)));
 
             // assign Parents and Children here.
             {
@@ -266,37 +265,36 @@ namespace net.rs64.TexTransTool.Migration
                 Prefab = prefab;
             }
         }
-        private static void MigratePrefabs(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabs(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV0ToV1);
         }
 
-        private static void MigratePrefabsPass2(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        private static void MigratePrefabsPass2(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, RemoveSaveDataVersionV0);
         }
 
-        private static void MigratePrefabsImpl(List<GameObject> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
+        private static void MigratePrefabsImpl(List<(GameObject, string)> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
         {
             for (var i = 0; i < prefabAssets.Count; i++)
             {
-                var prefabAsset = prefabAssets[i];
+                var (prefabAsset, path) = prefabAssets[i];
                 progressCallback(prefabAsset.name, i);
-
-                var modified = false;
+                AssetDatabase.OpenAsset(prefabAsset.GetInstanceID());
 
                 try
                 {
                     foreach (var component in prefabAsset.GetComponentsInChildren<ITexTransToolTag>(true))
-                        modified |= migrator(component);
+                        migrator(component);
                 }
                 catch (Exception e)
                 {
                     throw new Exception($"Migrating Prefab {prefabAsset.name}: {e.Message}", e);
                 }
 
-                if (modified)
-                    PrefabUtility.SavePrefabAsset(prefabAsset);
+                PrefabUtility.SaveAsPrefabAsset(prefabAsset, path);
+                PrefabUtility.UnloadPrefabContents(prefabAsset);
             }
             progressCallback("finish Prefabs", prefabAssets.Count);
         }
@@ -351,6 +349,14 @@ namespace net.rs64.TexTransTool.Migration
     }
     internal static class MigrationUtility
     {
+        public static void WriteVersion(int value)
+        {
+            var NawSaveDataVersion = new Migrator.SaveDataVersionJson();
+            NawSaveDataVersion.SaveDataVersion = value;
+            var newJsonStr = JsonUtility.ToJson(NawSaveDataVersion);
+
+            File.WriteAllText(Migrator.SaveDataVersionPath, newJsonStr);
+        }
         public static void SetSaveDataVersion(ITexTransToolTag texTransToolTag, int value)
         {
             var sObj = new SerializedObject(texTransToolTag as UnityEngine.Object);

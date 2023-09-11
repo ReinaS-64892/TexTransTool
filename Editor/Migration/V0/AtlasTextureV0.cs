@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             }
             else
             {
-                if (atlasTexture.ObsoleteChannelsRef.Any())
+                if (atlasTexture.ObsoleteChannelsRef.Where(I => I != null).Any())
                 {
                     for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
                     {
