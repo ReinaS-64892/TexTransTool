@@ -25,6 +25,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public override List<Renderer> GetRenderers => Renderers;
 
+#region V0SaveData
+        [Obsolete]
+        public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
+        [Obsolete]
+        public List<MatSelector> MatSelectors = new List<MatSelector>();
+        [Obsolete]
+        public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
+        [Obsolete]
+        public bool UseIslandCache = true;
+#endregion
+
 
         // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
         /*
