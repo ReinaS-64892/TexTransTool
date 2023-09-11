@@ -16,8 +16,8 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAtlasTextureV0ToV1(AtlasTexture atlasTexture, bool DestroyNow)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (atlasTexture.SaveDataVersion != 0) { Debug.LogWarning("マイグレーションのバージョンが違います。"); return; }
-            if (atlasTexture.AtlasSettings.Count < 1) { Debug.LogWarning("マイグレーション不可能なアトラステクスチャーです。"); return; }
+            if (atlasTexture.SaveDataVersion != 0) { Debug.Log(atlasTexture.name + " atlasTexture : マイグレーションのバージョンが違います。"); return; }
+            if (atlasTexture.AtlasSettings.Count < 1) { Debug.LogWarning(atlasTexture.name + " atlasTexture : マイグレーション不可能なアトラステクスチャーです。"); return; }
 
             var GameObject = atlasTexture.gameObject;
 
