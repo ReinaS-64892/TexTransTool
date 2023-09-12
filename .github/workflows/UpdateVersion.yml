@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name:
+        name: tex-trans-tool-${{ github.event.inputs.tag }}
 
     - name: Checkout Repo
       uses: actions/checkout@v4
@@ -38,5 +38,5 @@ jobs:
         tag_name: ${{ github.event.inputs.tag }}
         draft: true
         files: |
-          tex-trans-tool-${{ github.event.inputs.tag }}
+          tex-trans-tool-${{ github.event.inputs.tag }}.zip
           TexTransTool/package.json
