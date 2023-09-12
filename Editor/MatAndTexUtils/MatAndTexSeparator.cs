@@ -8,12 +8,13 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using System;
 
-namespace net.rs64.TexTransTool.Decal
+namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    [AddComponentMenu("TexTransTool/MatAndTexSeparator")]
+    [AddComponentMenu("TexTransTool/MatAndTexUtils/MatAndTexSeparator")]
     public class MatAndTexSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
+        public bool MultiRendererMode = false;
         public override List<Renderer> GetRenderers => TargetRenderers;
 
         public override bool IsPossibleApply => SeparateTarget.Any();
@@ -31,6 +32,7 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var renderer in TargetRenderers)
             {
+                if (renderer == null) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))

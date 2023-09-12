@@ -13,10 +13,10 @@ namespace net.rs64.TexTransTool.Decal
     public abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
+        public bool MultiRendererMode = false;
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = new PropertyName("_MainTex");
-        public bool MultiRendererMode = false;
         public float Padding = 0.5f;
         public bool FastMode = true;
 
