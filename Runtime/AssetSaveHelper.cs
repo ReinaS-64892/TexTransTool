@@ -21,6 +21,10 @@ namespace net.rs64.TexTransTool
                 {
                     ClearTemp();
                 }
+                else
+                {
+                    SaveDirectoryCheck();
+                }
             }
         }
         public const string SaveDirectory = "Assets/TexTransToolGenerates";
@@ -118,6 +122,7 @@ namespace net.rs64.TexTransTool
         }
         private static void ClearTemp()
         {
+            SaveDirectoryCheck();
             var tempPath = Path.Combine(SaveDirectory, TempDirName);
             foreach (var path in Directory.GetFiles(tempPath))
             {
