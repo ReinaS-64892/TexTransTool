@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using net.rs64.TexTransCore.TransTextureCore;
 using UnityEditor;
 using UnityEngine;
 
@@ -45,6 +46,24 @@ namespace net.rs64.TexTransTool.Utils
             EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
 
             return tex;
+        }
+        /// <summary>
+        /// パフォーマンスはあまり良いとは思えないが、新しいインスタンスのTexture2Dを生成する。
+        /// </summary>
+        /// <param name="texture2D"></param>
+        /// <returns></returns>
+        public static Texture2D CloneTexture2D(this Texture2D texture2D)
+        {
+            if (texture2D.isReadable)
+            {
+                return UnityEngine.Object.Instantiate(texture2D);
+            }
+            else
+            {
+                var newRt = new RenderTexture(texture2D.width, texture2D.height, 0);
+                Graphics.Blit(texture2D, newRt);
+                return newRt.CopyTexture2D().CopySetting(texture2D);
+            }
         }
         public static Texture2D ConvertNormalMap(this Texture2D tex)
         {

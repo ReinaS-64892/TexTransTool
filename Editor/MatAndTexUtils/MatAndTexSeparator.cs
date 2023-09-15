@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public override void Apply(IDomain Domain)
         {
             var separatedMaterials = new Dictionary<Material, Material>();
-            var separatedTextures = new List<Texture2D>();
+            var separatedTextures = new Dictionary<Texture2D, Texture2D>();
 
             foreach (var renderer in TargetRenderers)
             {
@@ -42,6 +42,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                             if (!separatedMaterials.TryGetValue(material, out var separatedMaterial))
                             {
                                 separatedMaterial = Instantiate(material);
+                                separatedMaterials.Add(material, separatedMaterial);
                             }
                             Domain.SetSerializedProperty(property, separatedMaterial);
                         }
@@ -61,15 +62,22 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                         texture2D != null
                     )
                     {
-                        var separatedTexture = Instantiate(texture2D);
-                        separatedMaterial.SetTexture(propertyName, separatedTexture);
-                        separatedTextures.Add(separatedTexture);
+                        if (separatedTextures.ContainsKey(texture2D))
+                        {
+                            separatedMaterial.SetTexture(propertyName, separatedTextures[texture2D]);
+                        }
+                        else
+                        {
+                            var separatedTexture = texture2D.CloneTexture2D();
+                            separatedMaterial.SetTexture(propertyName, separatedTexture);
+                            separatedTextures.Add(texture2D, separatedTexture);
+                        }
                     }
                 }
             }
 
             Domain.transferAssets(separatedMaterials.Values);
-            Domain.transferAssets(separatedTextures);
+            Domain.transferAssets(separatedTextures.Values);
         }
     }
 }
