@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -101,7 +102,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             if (abstractDecal.TargetRenderers != null)
             {
                 matAndTexSeparator.TargetRenderers = abstractDecal.TargetRenderers;
-                var separateTarget = new List<List<bool>>();
+                var separateTarget = new List<MatSlotBool>();
                 for (int rd = 0; abstractDecal.TargetRenderers.Count > rd; rd += 1)
                 {
                     var boolList = new List<bool>();
@@ -112,12 +113,14 @@ namespace net.rs64.TexTransTool.Migration.V0
                     {
                         boolList.Add(true);
                     }
-                    separateTarget.Add(boolList);
+                    separateTarget.Add(new MatSlotBool(boolList));
                 }
                 matAndTexSeparator.SeparateTarget = separateTarget;
             }
             matAndTexSeparator.IsTextureSeparate = true;
             matAndTexSeparator.PropertyName = abstractDecal.TargetPropertyName;
+
+            EditorUtility.SetDirty(matAndTexSeparator);
         }
 
         static void CopyFromDecal(this AbstractDecal target, AbstractDecal copySouse)

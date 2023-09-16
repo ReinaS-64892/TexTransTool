@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public bool MultiRendererMode = false;
         public override List<Renderer> GetRenderers => TargetRenderers;
         public override bool IsPossibleApply => SeparateTarget.Any();
-        public List<List<bool>> SeparateTarget = new List<List<bool>>();
+        public List<MatSlotBool> SeparateTarget = new List<MatSlotBool>();
         public bool IsTextureSeparate;
         public PropertyName PropertyName = new PropertyName(PropertyName.MainTex);
 
@@ -30,9 +30,9 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             foreach (var renderer in TargetRenderers)
             {
                 var slotIndex = 0;
-                
+
                 if (SeparateTarget.Count <= rendererIndex) { break; }
-                var SeparateTargetRenderer = SeparateTarget[rendererIndex];
+                var SeparateTargetRenderer = SeparateTarget[rendererIndex].Bools;
 
                 if (renderer == null) { continue; }
                 using (var serialized = new SerializedObject(renderer))
@@ -88,6 +88,17 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             Domain.transferAssets(separatedMaterials.Values);
             Domain.transferAssets(separatedTextures.Values);
         }
+    }
+    [Serializable]
+    public class MatSlotBool
+    {
+        public List<bool> Bools;
+
+        public MatSlotBool(List<bool> bools)
+        {
+            Bools = bools;
+        }
+
     }
 }
 
