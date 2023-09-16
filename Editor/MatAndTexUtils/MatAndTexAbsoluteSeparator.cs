@@ -10,7 +10,7 @@ using System;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    public abstract class MatAndTexAbsoluteSeparator : TextureTransformer
+    public class MatAndTexAbsoluteSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
