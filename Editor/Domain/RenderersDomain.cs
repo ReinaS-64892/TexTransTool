@@ -109,18 +109,18 @@ namespace net.rs64.TexTransTool
             switch (renderer)
             {
                 case SkinnedMeshRenderer skinnedRenderer:
-                {
-                    AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
-                    skinnedRenderer.sharedMesh = mesh;
-                    break;
-                }
+                    {
+                        AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
+                        skinnedRenderer.sharedMesh = mesh;
+                        break;
+                    }
                 case MeshRenderer meshRenderer:
-                {
-                    var meshFilter = meshRenderer.GetComponent<MeshFilter>();
-                    AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
-                    meshFilter.sharedMesh = mesh;
-                    break;
-                }
+                    {
+                        var meshFilter = meshRenderer.GetComponent<MeshFilter>();
+                        AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
+                        meshFilter.sharedMesh = mesh;
+                        break;
+                    }
                 default:
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
