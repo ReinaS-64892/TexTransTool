@@ -17,6 +17,7 @@ namespace net.rs64.TexTransTool
                 AssetDatabase.AddObjectToAsset(UnityObject, OverrideContainer == null ? this : OverrideContainer);
                 SubAssets.Add(UnityObject);
             }
+            EditorUtility.SetDirty(this);
         }
     }
 }
