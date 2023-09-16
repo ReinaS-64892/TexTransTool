@@ -41,6 +41,9 @@ namespace net.rs64.TexTransTool.Migration.V0
                 {
                     if (abstractDecal.MigrationV0DataMatAndTexSeparator != null) { UnityEngine.Object.DestroyImmediate(abstractDecal.MigrationV0DataMatAndTexSeparator); }
                 }
+                abstractDecal.MigrationV0DataAbstractDecal.CopyFromDecal(abstractDecal);
+                abstractDecal.MigrationV0DataAbstractDecal.MigrationV0ClearTarget = false;
+                abstractDecal.MigrationV0DataAbstractDecal.IsSeparateMatAndTexture = false;
             }
             else
             {
@@ -57,6 +60,8 @@ namespace net.rs64.TexTransTool.Migration.V0
                     newGameObjectDecal.transform.parent = GameObject.transform;
                     var NewDecal = newGameObjectDecal.AddComponent(abstractDecal.GetType()) as AbstractDecal;
                     NewDecal.CopyFromDecal(abstractDecal);
+                    NewDecal.IsSeparateMatAndTexture = false;
+                    NewDecal.MigrationV0ClearTarget = false;
                     MigrationUtility.SetSaveDataVersion(NewDecal, 1);
 
                     abstractDecal.MigrationV0DataAbstractDecal = NewDecal;
