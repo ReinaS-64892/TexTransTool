@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.Utils;
@@ -33,14 +34,19 @@ namespace net.rs64.TexTransTool.Migration
 
 
 
+#pragma warning disable CS0612
         public static bool MigrationITexTransToolTagV0ToV1(ITexTransToolTag texTransToolTag)
         {
-#pragma warning disable CS0612
             switch (texTransToolTag)
             {
                 case AtlasTexture atlasTexture:
                     {
-                        AtlasTextureV0.MigrationAtlasTextureV0ToV1(atlasTexture, false);
+                        AtlasTextureV0.MigrationAtlasTextureV0ToV1(atlasTexture);
+                        return true;
+                    }
+                case AbstractDecal abstractDecal:
+                    {
+                        AbstractDecalV0.MigrationAbstractDecalV0ToV1(abstractDecal);
                         return true;
                     }
                 default:
@@ -49,20 +55,29 @@ namespace net.rs64.TexTransTool.Migration
                         return true;
                     }
             }
-#pragma warning restore CS0612
         }
-        public static bool RemoveSaveDataVersionV0(ITexTransToolTag texTransToolTag)
+        public static bool MigrationFinalizeITexTransToolTagV0ToV1(ITexTransToolTag texTransToolTag)
         {
-            if (texTransToolTag.SaveDataVersion == 0)
+            switch (texTransToolTag)
             {
-                UnityEngine.Object.DestroyImmediate(texTransToolTag as MonoBehaviour);
-                return true;
-            }
-            else
-            {
-                return false;
+                case AtlasTexture atlasTexture:
+                    {
+                        AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(atlasTexture);
+                        return true;
+                    }
+                case AbstractDecal abstractDecal:
+                    {
+                        AbstractDecalV0.FinalizeMigrationAbstractDecalV0ToV1(abstractDecal);
+                        return true;
+                    }
+                default:
+                    {
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 1);
+                        return true;
+                    }
             }
         }
+#pragma warning restore CS0612
 
 
         //https://github.com/anatawa12/AvatarOptimizer/blob/25bf2e68f93705808d8d2cc6b7c4449f57c990a8/Editor/Migration/Migration.cs#L841C43-L841C43
@@ -95,7 +110,7 @@ namespace net.rs64.TexTransTool.Migration
                 {
                     EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
                      "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
-                     "理解しました","Yes");
+                     "理解しました", "Yes");
                 }
                 else
                 {
@@ -324,7 +339,7 @@ namespace net.rs64.TexTransTool.Migration
 
         private static void MigratePrefabsPass2V0ToV1(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
-            MigratePrefabsImpl(prefabAssets, progressCallback, RemoveSaveDataVersionV0);
+            MigratePrefabsImpl(prefabAssets, progressCallback, MigrationFinalizeITexTransToolTagV0ToV1);
         }
         private static void MigrateAllScenesV0ToV1(List<string> scenePaths, Action<string, int> progressCallback)
         {
@@ -333,7 +348,7 @@ namespace net.rs64.TexTransTool.Migration
 
         private static void MigrateAllScenesPass2V0ToV1(List<string> scenePaths, Action<string, int> progressCallback)
         {
-            MigrateAllScenesImpl(scenePaths, progressCallback, RemoveSaveDataVersionV0);
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationFinalizeITexTransToolTagV0ToV1);
         }
         private static void MigratePrefabsImpl(List<GameObject> prefabAssets, Action<string, int> progressCallback, Func<ITexTransToolTag, bool> migrator)
         {

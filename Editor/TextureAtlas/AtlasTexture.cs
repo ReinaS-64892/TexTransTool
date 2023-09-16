@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public override List<Renderer> GetRenderers => Renderers;
 
         #region V0SaveData
-        [Obsolete("V0SaveData",true)] public List<AtlasTexture> ObsoleteChannelsRef;
+        [Obsolete("V0SaveData",true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
         [Obsolete("V0SaveData",true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
         [Obsolete("V0SaveData",true)] public List<MatSelectorV0> MatSelectors = new List<MatSelectorV0>();
         [Serializable][Obsolete("V0SaveData",true)]
