@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 {
-    [UnityEditor.CustomEditor(typeof(MatAndTexSeparator))]
+    [UnityEditor.CustomEditor(typeof(MatAndTexAbsoluteSeparator))]
     public class MatAndTexSeparatorEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
 
             var This_S_Object = serializedObject;
-            var ThisObject = target as MatAndTexSeparator;
+            var ThisObject = target as MatAndTexAbsoluteSeparator;
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 

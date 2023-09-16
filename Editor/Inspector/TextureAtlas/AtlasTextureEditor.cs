@@ -24,7 +24,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 if (GUILayout.Button("Migrate DSV0 To DSV1"))
                 {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(target as AtlasTexture, true);
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(ThisTarget);
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(ThisTarget);
                 }
                 return;
             }
