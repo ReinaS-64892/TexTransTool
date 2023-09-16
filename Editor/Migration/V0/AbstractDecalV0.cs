@@ -93,6 +93,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                 {
                     var boolList = new List<bool>();
                     var renderer = abstractDecal.TargetRenderers[rd];
+                    if (renderer == null) { continue; }
                     var materials = renderer.sharedMaterials;
                     for (int ms = 0; materials.Length > ms; ms += 1)
                     {

@@ -425,7 +425,9 @@ namespace net.rs64.TexTransTool.Migration
         }
         public static void SetSaveDataVersion(ITexTransToolTag texTransToolTag, int value)
         {
-            var sObj = new SerializedObject(texTransToolTag as UnityEngine.Object);
+            if (!(texTransToolTag is UnityEngine.Object unityObject)) { return; }
+            if (unityObject == null) { return; }
+            var sObj = new SerializedObject(unityObject);
             var saveDataProp = sObj.FindProperty("_saveDataVersion");
             if (saveDataProp == null) { Debug.LogWarning(texTransToolTag.GetType() + " : SaveDataVersionの書き換えができませんでした。"); }
             saveDataProp.intValue = value;

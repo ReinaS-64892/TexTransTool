@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.Migration.V0
 
             var GameObject = atlasTexture.gameObject;
 
-            if (atlasTexture.AtlasSettings.Count == 1)
+            if (atlasTexture.AtlasSettings.Count == 1 && !atlasTexture.MigrationV0ObsoleteChannelsRef.Where(I => I != null).Any())
             {
                 MigrateSettingV0ToV1(atlasTexture, 0, atlasTexture);
             }
@@ -50,8 +50,10 @@ namespace net.rs64.TexTransTool.Migration.V0
                         for (int count = 0; RemoveChannelCount > count; count += 1)
                         {
                             var RemoveTarget = atlasTexture.MigrationV0ObsoleteChannelsRef[langs - count];
-                            UnityEngine.Object.DestroyImmediate(RemoveTarget.gameObject);
+                            UnityEngine.Object.DestroyImmediate(RemoveTarget);
                         }
+
+                        atlasTexture.MigrationV0ObsoleteChannelsRef.RemoveAll(I => I == null);
                     }
                 }
                 else
@@ -70,10 +72,20 @@ namespace net.rs64.TexTransTool.Migration.V0
 
             void CreateChannel(int Count)
             {
-                var newGameObject = new GameObject("Channel " + Count);
-                newGameObject.transform.parent = GameObject.transform;
+                var channelTransform = GameObject.transform.Find("Channel " + Count);
+                GameObject channelGameObject;
+                if (channelTransform != null)
+                {
+                    channelGameObject = channelTransform.gameObject;
+                }
+                else
+                {
+                    var newGameObject = new GameObject("Channel " + Count);
+                    newGameObject.transform.parent = GameObject.transform;
+                    channelGameObject = newGameObject;
+                }
 
-                var newAtlasTexture = newGameObject.AddComponent<net.rs64.TexTransTool.TextureAtlas.AtlasTexture>();
+                var newAtlasTexture = channelGameObject.AddComponent<net.rs64.TexTransTool.TextureAtlas.AtlasTexture>();
                 MigrateSettingV0ToV1(atlasTexture, Count, newAtlasTexture);
                 atlasTexture.MigrationV0ObsoleteChannelsRef.Add(newAtlasTexture);
                 EditorUtility.SetDirty(newAtlasTexture);
