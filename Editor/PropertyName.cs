@@ -28,6 +28,11 @@ namespace net.rs64.TexTransTool
             _propertyIndex = 0;
         }
 
+        public const string MainTex = "_MainTex";
+        public override string ToString()
+        {
+            return (string)this;
+        }
 
         public static implicit operator string(PropertyName p) => p._propertyName;
     }

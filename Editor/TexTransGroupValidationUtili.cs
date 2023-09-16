@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.TextureAtlas;
+using net.rs64.TexTransTool.MatAndTexUtils;
 
 namespace net.rs64.TexTransTool
 {
@@ -26,22 +27,14 @@ namespace net.rs64.TexTransTool
                 {
                     switch (tf)
                     {
-                        case AbstractDecal abstractDecal:
+                        case MatAndTexSeparator matAndTexSeparator:
                             {
-                                if (!abstractDecal.IsSeparateMatAndTexture)
-                                {
-                                    allowSeparateFlag = false;
-                                }
-                                else
-                                {
-                                    if (!allowSeparateFlag) { warnTarget.Add(abstractDecal); }
-                                }
+                                if (!allowSeparateFlag) { warnTarget.Add(matAndTexSeparator); }
                                 break;
                             }
                         case AtlasTexture atlasTexture:
                             {
                                 if (!allowSeparateFlag) { warnTarget.Add(atlasTexture); }
-
                                 break;
                             }
                         default: { break; }

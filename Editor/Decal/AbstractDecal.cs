@@ -6,20 +6,23 @@ using UnityEditor;
 using System.IO;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
+using System;
 
 namespace net.rs64.TexTransTool.Decal
 {
     public abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
+        public bool MultiRendererMode = false;
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = new PropertyName("_MainTex");
-        public bool MultiRendererMode = false;
         public float Padding = 0.5f;
         public bool FastMode = true;
-        public bool IsSeparateMatAndTexture;
 
+        #region V0SaveData
+        [Obsolete("V0SaveData", true)] public bool IsSeparateMatAndTexture;
+        #endregion
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
         public override List<Renderer> GetRenderers => TargetRenderers;
@@ -39,81 +42,13 @@ namespace net.rs64.TexTransTool.Decal
             }
             Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
 
-            if (!IsSeparateMatAndTexture)
+
+            foreach (var trp in decalCompiledTextures)
             {
-                foreach (var trp in decalCompiledTextures)
-                {
-                    Domain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
-                }
-            }
-            else
-            {
-                //分割する場合は特別処理。
-                var decalBlendTextures = DecalBlend(decalCompiledTextures, BlendType);
-                var materials = RendererUtility.GetMaterials(TargetRenderers).Distinct();
-                CopyTexDescription(decalBlendTextures);
-
-                var dictMat = GetDecalTextureSetMaterial(decalBlendTextures, materials, TargetPropertyName);
-                
-                foreach (var renderer in TargetRenderers)
-                {
-                    using (var serialized = new SerializedObject(renderer))
-                    {
-                        foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                            if (property.objectReferenceValue is Material material &&
-                                dictMat.TryGetValue(material, out var replacement))
-                                Domain.SetSerializedProperty(property, replacement);
-
-                        serialized.ApplyModifiedPropertiesWithoutUndo();
-                    }
-                }
-
-                Domain.transferAssets(decalBlendTextures.Values);
-                Domain.transferAssets(dictMat.Values);
+                Domain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
             }
         }
 
-        private static void CopyTexDescription(Dictionary<Texture2D, Texture2D> DecalBlendTextures)
-        {
-            foreach (var dist in DecalBlendTextures.Keys.ToArray())
-            {
-                DecalBlendTextures[dist] = DecalBlendTextures[dist].CopySetting(DecalBlendTextures[dist]);
-            }
-        }
-
-        public static Dictionary<Material, Material> GetDecalTextureSetMaterial(Dictionary<Texture2D, Texture2D> DecalsBlendTextures, IEnumerable<Material> Materials, string TargetPropertyName)
-        {
-            var dictMat = new Dictionary<Material, Material>();
-            foreach (var material in Materials)
-            {
-                if (!material.HasProperty(TargetPropertyName)) { continue; }
-                var oldTex = material.GetTexture(TargetPropertyName) as Texture2D;
-
-                if (oldTex == null) continue;
-                if (!DecalsBlendTextures.ContainsKey(oldTex)) continue;
-
-                var newMat = UnityEngine.Object.Instantiate(material);
-
-                var NewTex = DecalsBlendTextures[oldTex];
-                newMat.SetTexture(TargetPropertyName, NewTex);
-                dictMat.Add(material, newMat);
-            }
-
-            return dictMat;
-        }
-
-        public static Dictionary<Texture2D, Texture2D> DecalBlend(Dictionary<Texture2D, Texture> DecalCompiledTextures, BlendType BlendType)
-        {
-            var decalBlendTextures = new Dictionary<Texture2D, Texture2D>();
-            foreach (var texture in DecalCompiledTextures)
-            {
-                var blendTexture = TextureLayerUtil.BlendBlit(texture.Key, texture.Value, BlendType).CopyTexture2D();
-                blendTexture.Apply();
-                decalBlendTextures.Add(texture.Key, blendTexture);
-            }
-
-            return decalBlendTextures;
-        }
 
         public abstract Dictionary<Texture2D, Texture> CompileDecal();
 
