@@ -85,20 +85,23 @@ namespace net.rs64.TexTransTool.Migration.V0
 
         static void SetUpSeparator(MatAndTexUtils.MatAndTexRelativeSeparator matAndTexSeparator, AbstractDecal abstractDecal)
         {
-            matAndTexSeparator.TargetRenderers = abstractDecal.TargetRenderers.ToList();
-            var separateTarget = new List<List<bool>>();
-            for (int rd = 0; abstractDecal.TargetRenderers.Count > rd; rd += 1)
+            if (abstractDecal.TargetRenderers != null)
             {
-                var boolList = new List<bool>();
-                var renderer = abstractDecal.TargetRenderers[rd];
-                var materials = renderer.sharedMaterials;
-                for (int ms = 0; materials.Length > ms; ms += 1)
+                matAndTexSeparator.TargetRenderers = abstractDecal.TargetRenderers;
+                var separateTarget = new List<List<bool>>();
+                for (int rd = 0; abstractDecal.TargetRenderers.Count > rd; rd += 1)
                 {
-                    boolList.Add(true);
+                    var boolList = new List<bool>();
+                    var renderer = abstractDecal.TargetRenderers[rd];
+                    var materials = renderer.sharedMaterials;
+                    for (int ms = 0; materials.Length > ms; ms += 1)
+                    {
+                        boolList.Add(true);
+                    }
+                    separateTarget.Add(boolList);
                 }
-                separateTarget.Add(boolList);
+                matAndTexSeparator.SeparateTarget = separateTarget;
             }
-            matAndTexSeparator.SeparateTarget = separateTarget;
             matAndTexSeparator.IsTextureSeparate = true;
             matAndTexSeparator.PropertyName = abstractDecal.TargetPropertyName;
         }
