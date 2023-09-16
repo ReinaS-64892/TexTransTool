@@ -34,16 +34,21 @@ namespace net.rs64.TexTransTool.Migration.V0
                     }
                     else
                     {
-                        //すでにあるなら何もする必要はない。上は消されてるから再生成。
+                        SetUpSeparator(abstractDecal.MigrationV0DataMatAndTexSeparator, abstractDecal);
                     }
                 }
                 else
                 {
-                    if (abstractDecal.MigrationV0DataMatAndTexSeparator != null) { UnityEngine.Object.DestroyImmediate(abstractDecal.MigrationV0DataMatAndTexSeparator); }
+                    if (abstractDecal.MigrationV0DataMatAndTexSeparator != null)
+                    {
+                        UnityEngine.Object.DestroyImmediate(abstractDecal.MigrationV0DataMatAndTexSeparator);
+                        abstractDecal.MigrationV0DataMatAndTexSeparator = null;
+                    }
                 }
                 abstractDecal.MigrationV0DataAbstractDecal.CopyFromDecal(abstractDecal);
                 abstractDecal.MigrationV0DataAbstractDecal.MigrationV0ClearTarget = false;
                 abstractDecal.MigrationV0DataAbstractDecal.IsSeparateMatAndTexture = false;
+                EditorUtility.SetDirty(abstractDecal.MigrationV0DataAbstractDecal);
             }
             else
             {
@@ -62,7 +67,10 @@ namespace net.rs64.TexTransTool.Migration.V0
                     NewDecal.CopyFromDecal(abstractDecal);
                     NewDecal.IsSeparateMatAndTexture = false;
                     NewDecal.MigrationV0ClearTarget = false;
-                    MigrationUtility.SetSaveDataVersion(NewDecal, 1);
+                    NewDecal.MigrationV0DataAbstractDecal = null;
+                    NewDecal.MigrationV0DataMatAndTexSeparator = null;
+                    NewDecal.MigrationV0DataMatAndTexSeparatorGameObject = null;
+                    EditorUtility.SetDirty(NewDecal);
 
                     abstractDecal.MigrationV0DataAbstractDecal = NewDecal;
                     abstractDecal.MigrationV0DataMatAndTexSeparator = NewSeparator;
