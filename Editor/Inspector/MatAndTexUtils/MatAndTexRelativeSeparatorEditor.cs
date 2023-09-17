@@ -138,7 +138,13 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             return -1;
         }
 
-
+        public static void DrawerSummary(MatAndTexRelativeSeparator target)
+        {
+            var s_obj = new SerializedObject(target);
+            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
+            s_obj.ApplyModifiedProperties();
+        }
     }
 }
 #endif

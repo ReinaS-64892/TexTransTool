@@ -108,7 +108,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             if (GUILayout.Button("Left <= Right "))
             {
-                Undo.RecordObject(nailEditor,"NailEditor Offset Copy Left <= Right");
+                Undo.RecordObject(nailEditor, "NailEditor Offset Copy Left <= Right");
                 var nailOffsets = new NailOffSets();
                 nailOffsets.Copy(nailEditor.RightHand);
                 nailOffsets.UpVector = nailEditor.LeftHand.FingerUpVector;
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             if (GUILayout.Button("Left => Right"))
             {
-                Undo.RecordObject(nailEditor,"NailEditor Offset Copy Left => Right");
+                Undo.RecordObject(nailEditor, "NailEditor Offset Copy Left => Right");
                 var nailOffsets = new NailOffSets();
                 nailOffsets.Copy(nailEditor.LeftHand);
                 nailOffsets.UpVector = nailEditor.RightHand.FingerUpVector;
@@ -155,6 +155,17 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }
             EditorGUILayout.EndHorizontal();
 
+        }
+
+        public static void DrawerSummary(NailEditor target)
+        {
+            var s_obj = new SerializedObject(target);
+            var s_TargetAvatar = s_obj.FindProperty("TargetAvatar");
+            EditorGUILayout.PropertyField(s_TargetAvatar);
+            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
+
+            s_obj.ApplyModifiedProperties();
         }
 
     }

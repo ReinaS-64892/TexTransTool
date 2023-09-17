@@ -274,7 +274,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             return -1;
         }
-
+        public static void DrawerSummary(AtlasTexture target)
+        {
+            var s_obj = new SerializedObject(target);
+            var s_TargetRenderers = s_obj.FindProperty("TargetRoot");
+            EditorGUILayout.PropertyField(s_TargetRenderers);
+            var S_AtlasTextureSize = s_obj.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
+            EditorGUILayout.PropertyField(S_AtlasTextureSize);
+            s_obj.ApplyModifiedProperties();
+        }
     }
 }
 #endif
