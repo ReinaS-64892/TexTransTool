@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
             MaterialSelectEditor(s_SeparateTarget, TempMaterial);
 
-            if (ThisObject.SeparateTarget.Any(I => I == null)) { Undo.RecordObject(ThisObject,"SeparateTarget Remove Null");ThisObject.SeparateTarget.RemoveAll(I => I == null); }
+            if (ThisObject.SeparateTarget.Any(I => I == null)) { Undo.RecordObject(ThisObject, "SeparateTarget Remove Null"); ThisObject.SeparateTarget.RemoveAll(I => I == null); }
 
             var s_IsTextureSeparate = This_S_Object.FindProperty("IsTextureSeparate");
             EditorGUILayout.PropertyField(s_IsTextureSeparate);
@@ -116,7 +116,13 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             return -1;
         }
 
-
+        public static void DrawerSummary(MatAndTexAbsoluteSeparator target)
+        {
+            var s_obj = new SerializedObject(target);
+            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
+            s_obj.ApplyModifiedProperties();
+        }
     }
 }
 #endif

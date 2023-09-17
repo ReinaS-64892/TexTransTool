@@ -144,7 +144,23 @@ namespace net.rs64.TexTransTool.Editor
 
         #endregion
 
-
+        public static void DrawerTargetRenderersSummary(SerializedProperty s_TargetRenderers)
+        {
+            if (s_TargetRenderers.arraySize == 1)
+            {
+                var s_rd = s_TargetRenderers.GetArrayElementAtIndex(0);
+                EditorGUILayout.PropertyField(s_rd, new GUIContent("TargetRenderers"));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("TargetRenderers");
+                for (var i = 0; s_TargetRenderers.arraySize > i; i += 1)
+                {
+                    var s_rd = s_TargetRenderers.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(s_rd, GUIContent.none);
+                }
+            }
+        }
     }
 }
 #endif

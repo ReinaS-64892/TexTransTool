@@ -68,6 +68,16 @@ namespace net.rs64.TexTransTool.Editor
             }
             return NewSelect;
         }
+        public static void DrawerSummary(TextureBlender target)
+        {
+            var s_obj = new SerializedObject(target);
+            var s_TargetRenderer = s_obj.FindProperty("TargetRenderer");
+            EditorGUILayout.PropertyField(s_TargetRenderer);
+            var s_BlendTexture = s_obj.FindProperty("BlendTexture");
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_BlendTexture);
+
+            s_obj.ApplyModifiedProperties();
+        }
     }
 }
 #endif
