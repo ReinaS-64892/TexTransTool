@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - AtlasTexture `#84`
 - AtlasSet は AtlasTexture に作り直されて削除 `#46`
 - AvatarBuildApplyHook を削除 [commit](https://github.com/ReinaS-64892/TexTransTool/commit/4ffc1b9d11e9cf491e485379d5694e048c791737)
+- SimpleDecal の AdvancedMode を削除[commit](https://github.com/ReinaS-64892/TexTransTool/commit/351a53a237af61c852f509c99ac6a51444237bc2)
 
 ### Fixed
 
