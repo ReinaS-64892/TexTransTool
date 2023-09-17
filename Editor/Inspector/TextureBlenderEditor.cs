@@ -10,6 +10,8 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning("TextureBlender");
+
             var Target = target as TextureBlender;
             var This_S_Object = serializedObject;
 

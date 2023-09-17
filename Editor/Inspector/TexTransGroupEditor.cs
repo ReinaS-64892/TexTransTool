@@ -1,6 +1,4 @@
 #if UNITY_EDITOR
-using System.Net.Mime;
-using UnityEngine;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor
@@ -10,6 +8,8 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
+            EditorGUILayout.HelpBox("TexTransGroupは廃止された機能でTexTransParentGroupを使用してください。", MessageType.Warning);
+
             var TTList = serializedObject.FindProperty("TextureTransformers");
             EditorGUILayout.PropertyField(TTList, true);
 
