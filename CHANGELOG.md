@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TexTransParentGroup に簡易表示リストを追加 `#156`
 - 開発中であるコンポーネントに対して、インスペクターに警告を追加 `#157`
 - MatAndTexAbsolute(Relative)Separator を追加 `#151` `#154`
+- [マニュアル](Manual/JP/TextureTransformer.md)に書かれたことに沿うように、複数のコンポーネントを付けれないようにする属性を追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/b920e634554ebf1cddc7d21885ce791d110487cd)
 
 ### Changed
 
