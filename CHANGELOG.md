@@ -98,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - UV のひとまとまりだけにデカールをマスクできる、アイランドカリングを追加 `#47`
   - デカールの色を乗算で色調整できる機能を追加 `#69`
   - インスペクターの作り直し + 詳細設定 `#59`
-- AvatarDomainDefinition が AvatarBuildApplyHook の削除に伴いビルド時のマーカーの役割が追加 [commit](https://github.com/ReinaS-64892/TexTransTool/commit/4ffc1b9d11e9cf491e485379d5694e048c791737)
+- AvatarDomainDefinition が AvatarBuildApplyHook の削除に伴いビルド時のマーカーの役割が追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/4ffc1b9d11e9cf491e485379d5694e048c791737)
 - AtlasTexture を追加 `#46`
 - CylindricalDecal を追加 `#43`
 - NailEditor を追加 `#48`
@@ -107,11 +107,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Compile 機能を高速化に伴い削除
-  - Decal [commit](https://github.com/ReinaS-64892/TexTransTool/pull/53/commits/959064ba5e4f3acc1e6784636e7967ad7aad2602)
+  - Decal [コミット](https://github.com/ReinaS-64892/TexTransTool/pull/53/commits/959064ba5e4f3acc1e6784636e7967ad7aad2602)
   - AtlasTexture `#84`
 - AtlasSet は AtlasTexture に作り直されて削除 `#46`
-- AvatarBuildApplyHook を削除 [commit](https://github.com/ReinaS-64892/TexTransTool/commit/4ffc1b9d11e9cf491e485379d5694e048c791737)
-- SimpleDecal の AdvancedMode を削除[commit](https://github.com/ReinaS-64892/TexTransTool/commit/351a53a237af61c852f509c99ac6a51444237bc2)
+- AvatarBuildApplyHook を削除 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/4ffc1b9d11e9cf491e485379d5694e048c791737)
+- SimpleDecal の AdvancedMode を削除[コミット](https://github.com/ReinaS-64892/TexTransTool/commit/351a53a237af61c852f509c99ac6a51444237bc2)
 
 ### Fixed
 
