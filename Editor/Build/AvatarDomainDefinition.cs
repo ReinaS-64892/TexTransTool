@@ -35,6 +35,18 @@ namespace net.rs64.TexTransTool.Build
 
             texTransGroup.Apply(domain);
         }
+
+        [ContextMenu("TexTransTool Only Manual Bake Avatar")]
+        public void ManualBakeAvatar()
+        {
+            if (Avatar == null)
+            {
+                Debug.LogError("Preview Avatar が存在しないため、Manual Bake Avatarを実行できません。");
+                return;
+            }
+
+            ManualBake.ManualBakeAvatar(Avatar);
+        }
     }
 }
 #endif
