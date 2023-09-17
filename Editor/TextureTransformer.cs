@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
+    [DisallowMultipleComponent]
     public abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
     {
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
