@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning("CylindricalCurveDecal");
             base.OnInspectorGUI();
             PreviewContext.instance.DrawApplyAndRevert(target as CylindricalCurveDecal);
         }

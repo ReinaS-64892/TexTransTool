@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning("NailEditor");
             var This_S_Object = serializedObject;
             var ThisObject = target as NailEditor;
 

@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning("MatAndTexRelativeSeparator");
 
             var This_S_Object = serializedObject;
             var ThisObject = target as MatAndTexRelativeSeparator;

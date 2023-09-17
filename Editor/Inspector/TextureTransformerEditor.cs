@@ -11,6 +11,10 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(TextureTransformer))]
     public class TextureTransformerEditor : UnityEditor.Editor
     {
+        public static void DrawerWarning(string TypeName)
+        {
+            EditorGUILayout.HelpBox($" {TypeName} は実験的な機能です。予告なく機能変更や削除がされる可能性があります。", MessageType.Warning);
+        }
         public static Renderer RendererFiltering(Renderer TargetRendererEditValue)
         {
             Renderer FilteredRenderer;
