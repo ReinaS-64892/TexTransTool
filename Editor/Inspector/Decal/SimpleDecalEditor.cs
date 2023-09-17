@@ -77,9 +77,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var s_Padding = This_S_Object.FindProperty("Padding");
                 EditorGUILayout.PropertyField(s_Padding, new GUIContent("Padding"));
 
-                var s_IsSeparateMatAndTexture = This_S_Object.FindProperty("IsSeparateMatAndTexture");
-                EditorGUILayout.PropertyField(s_IsSeparateMatAndTexture, new GUIContent("SeparateMaterialAndTexture"));
-
                 EditorGUI.indentLevel -= 1;
             }
 

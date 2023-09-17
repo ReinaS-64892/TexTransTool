@@ -21,6 +21,10 @@ namespace net.rs64.TexTransTool.Decal
         public bool FastMode = true;
 
         #region V0SaveData
+        [Obsolete("V0SaveData", true)] public bool MigrationV0ClearTarget;
+        [Obsolete("V0SaveData", true)] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
+        [Obsolete("V0SaveData", true)] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
+        [Obsolete("V0SaveData", true)] public AbstractDecal MigrationV0DataAbstractDecal;
         [Obsolete("V0SaveData", true)] public bool IsSeparateMatAndTexture;
         #endregion
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }

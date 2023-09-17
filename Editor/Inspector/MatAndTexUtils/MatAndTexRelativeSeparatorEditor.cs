@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 {
-    [UnityEditor.CustomEditor(typeof(MatAndTexSeparator))]
-    public class MatAndTexSeparatorEditor : UnityEditor.Editor
+    [UnityEditor.CustomEditor(typeof(MatAndTexRelativeSeparator))]
+    public class MatAndTexRelativeSeparatorEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
 
             var This_S_Object = serializedObject;
-            var ThisObject = target as MatAndTexSeparator;
+            var ThisObject = target as MatAndTexRelativeSeparator;
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
@@ -24,11 +24,33 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
             EditorGUILayout.PropertyField(s_MultiRendererMode);
 
-            if (TempMaterial == null || GUILayout.Button("Refresh Materials")) { RefreshMaterials(s_TargetRenderers); }
             var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
-            MaterialSelectEditor(s_SeparateTarget, TempMaterial);
+            if (s_SeparateTarget.arraySize != ThisObject.TargetRenderers.Count) { s_SeparateTarget.arraySize = ThisObject.TargetRenderers.Count; }
+            
+            EditorGUILayout.LabelField("---");
 
-            if (ThisObject.SeparateTarget.Any(I => I == null)) { Undo.RecordObject(ThisObject,"SeparateTarget Remove Null");ThisObject.SeparateTarget.RemoveAll(I => I == null); }
+            int rendererIndex = 0;
+            foreach (var renderer in ThisObject.TargetRenderers)
+            {
+                if (renderer == null) { continue; }
+                var s_selectRd = s_SeparateTarget.GetArrayElementAtIndex(rendererIndex).FindPropertyRelative("Bools");
+                var materials = renderer.sharedMaterials;
+                if (s_selectRd.arraySize != materials.Length) { s_selectRd.arraySize = materials.Length; }
+                int slotIndex = 0;
+                foreach (var MatSlot in materials)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PropertyField(s_selectRd.GetArrayElementAtIndex(slotIndex));
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.ObjectField(MatSlot, typeof(Material), true);
+                    EditorGUI.EndDisabledGroup();
+                    EditorGUILayout.EndHorizontal();
+                    slotIndex += 1;
+                }
+                rendererIndex += 1;
+
+                EditorGUILayout.LabelField("---");
+            }
 
             var s_IsTextureSeparate = This_S_Object.FindProperty("IsTextureSeparate");
             EditorGUILayout.PropertyField(s_IsTextureSeparate);

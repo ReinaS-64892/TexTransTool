@@ -10,17 +10,13 @@ using System;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    [AddComponentMenu("TexTransTool/MatAndTexUtils/MatAndTexSeparator")]
-    public class MatAndTexSeparator : TextureTransformer
+    public class MatAndTexRelativeSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         public override List<Renderer> GetRenderers => TargetRenderers;
-
         public override bool IsPossibleApply => SeparateTarget.Any();
-
-        public List<Material> SeparateTarget = new List<Material>();
-
+        public List<MatSlotBool> SeparateTarget = new List<MatSlotBool>();
         public bool IsTextureSeparate;
         public PropertyName PropertyName = new PropertyName(PropertyName.MainTex);
 
@@ -30,13 +26,20 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();
 
+            var rendererIndex = 0;
             foreach (var renderer in TargetRenderers)
             {
+                var slotIndex = 0;
+
+                if (SeparateTarget.Count <= rendererIndex) { break; }
+                var SeparateTargetRenderer = SeparateTarget[rendererIndex].Bools;
+
                 if (renderer == null) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                        if (property.objectReferenceValue is Material material && SeparateTarget.Contains(material))
+                    {
+                        if (property.objectReferenceValue is Material material && material != null && SeparateTargetRenderer.Count > slotIndex && SeparateTargetRenderer[slotIndex])
                         {
 
                             if (!separatedMaterials.TryGetValue(material, out var separatedMaterial))
@@ -45,10 +48,16 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                                 separatedMaterials.Add(material, separatedMaterial);
                             }
                             Domain.SetSerializedProperty(property, separatedMaterial);
+
                         }
+
+                        slotIndex += 1;
+                    }
 
                     serialized.ApplyModifiedPropertiesWithoutUndo();
                 }
+
+                rendererIndex += 1;
             }
 
             if (IsTextureSeparate)
@@ -79,6 +88,17 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             Domain.transferAssets(separatedMaterials.Values);
             Domain.transferAssets(separatedTextures.Values);
         }
+    }
+    [Serializable]
+    public class MatSlotBool
+    {
+        public List<bool> Bools;
+
+        public MatSlotBool(List<bool> bools)
+        {
+            Bools = bools;
+        }
+
     }
 }
 

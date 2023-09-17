@@ -27,9 +27,14 @@ namespace net.rs64.TexTransTool
                 {
                     switch (tf)
                     {
-                        case MatAndTexSeparator matAndTexSeparator:
+                        case MatAndTexAbsoluteSeparator matAndTexSeparator:
                             {
                                 if (!allowSeparateFlag) { warnTarget.Add(matAndTexSeparator); }
+                                break;
+                            }
+                        case MatAndTexRelativeSeparator matAndTexRelativeSeparator:
+                            {
+                                if (!allowSeparateFlag) { warnTarget.Add(matAndTexRelativeSeparator); }
                                 break;
                             }
                         case AtlasTexture atlasTexture:
