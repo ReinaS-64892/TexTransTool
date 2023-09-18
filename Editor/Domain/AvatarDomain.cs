@@ -48,6 +48,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
             {
+                if (component == null) continue;
                 if (IgnoreTypes.Contains(component.GetType())) continue;
 
                 using (var serializeObj = new SerializedObject(component))

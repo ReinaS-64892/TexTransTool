@@ -1,4 +1,4 @@
-﻿#if (UNITY_EDITOR && VRC_BASE)
+﻿#if (UNITY_EDITOR && VRC_BASE && !NDMF)
 using UnityEditor;
 using UnityEngine;
 using VRC.SDKBase.Editor.BuildPipeline;
