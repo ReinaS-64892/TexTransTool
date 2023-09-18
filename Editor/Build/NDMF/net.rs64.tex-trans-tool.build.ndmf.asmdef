@@ -1,8 +1,8 @@
 {
-    "name": "net.rs64.tex-trans-tool.build.vrc",
+    "name": "net.rs64.tex-trans-tool.build.ndmf",
     "references": [
         "GUID:9bc83561c99cfbe4ba0457cda3f96218",
-        "GUID:3456780c4fb2d324ab9c633d6f1b0ddb"
+        "GUID:62ced99b048af7f4d8dfe4bed8373d76"
     ],
     "includePlatforms": [
         "Editor"
@@ -14,11 +14,6 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [
-        {
-            "name": "com.vrchat.base",
-            "expression": "3.1.13",
-            "define": "VRC"
-        },
         {
             "name": "nadena.dev.ndmf",
             "expression": "",

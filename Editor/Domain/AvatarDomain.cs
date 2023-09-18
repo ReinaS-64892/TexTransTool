@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
             base.ReplaceMaterials(mapping, rendererOnly);
-            
+
             if (!rendererOnly)
                 foreach (var keyValuePair in mapping)
                     _mapDict.Add(keyValuePair.Key, keyValuePair.Value);
@@ -47,6 +47,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
             {
+                if (component == null) continue;
                 if (IgnoreTypes.Contains(component.GetType())) continue;
 
                 using (var serializeObj = new SerializedObject(component))
@@ -66,7 +67,7 @@ namespace net.rs64.TexTransTool
             }
         }
     }
-    
+
     public class FlatMapDict<TKeyValue>
     {
         Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
