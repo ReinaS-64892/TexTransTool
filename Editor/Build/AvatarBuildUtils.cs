@@ -23,10 +23,11 @@ namespace net.rs64.TexTransTool.Build
                     {TexTransPhase.AfterUVModification,new List<TextureTransformer>()}
                 };
 
-                var definedChildren = FindChildren(avatarGameObject.GetComponentsInChildren<PhaseDefinition>());
+                var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>();
+                var definedChildren = FindChildren(phaseDefinitions);
                 var ContainsBy = new HashSet<TextureTransformer>(definedChildren);
 
-                foreach (var pd in avatarGameObject.GetComponentsInChildren<PhaseDefinition>())
+                foreach (var pd in phaseDefinitions)
                 {
                     if (!definedChildren.Contains(pd))
                     {
@@ -44,11 +45,14 @@ namespace net.rs64.TexTransTool.Build
                     }
                 }
 
+                var singleTextureTransformer = new List<TextureTransformer>();
+
                 foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>())
                 {
                     if (!ContainsBy.Contains(tf))
                     {
                         phaseDict[tf.PhaseDefine].Add(tf);
+                        singleTextureTransformer.Add(tf);
                     }
                 }
 
@@ -77,7 +81,8 @@ namespace net.rs64.TexTransTool.Build
                 }
 
                 domain.EditFinish();
-                DestroyITexTransToolTags(avatarGameObject);
+                DestroySingleTextureTransformer(singleTextureTransformer);
+                DestroyITexTransToolTagsForGameObject(avatarGameObject);
                 return true;
             }
             catch (Exception e)
@@ -86,6 +91,8 @@ namespace net.rs64.TexTransTool.Build
                 return false;
             }
         }
+
+
 
         private static HashSet<TextureTransformer> FindChildren(AbstractTexTransGroup[] abstractTexTransGroups)
         {
@@ -110,8 +117,17 @@ namespace net.rs64.TexTransTool.Build
             return children;
         }
 
-
-        private static void DestroyITexTransToolTags(GameObject avatarGameObject)
+        private static void DestroySingleTextureTransformer(List<TextureTransformer> singleTextureTransformer)
+        {
+            foreach (var tf in singleTextureTransformer)
+            {
+                if (tf != null)
+                {
+                    MonoBehaviour.DestroyImmediate(tf);
+                }
+            }
+        }
+        private static void DestroyITexTransToolTagsForGameObject(GameObject avatarGameObject)
         {
             foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
