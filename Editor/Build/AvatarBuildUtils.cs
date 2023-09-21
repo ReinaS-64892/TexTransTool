@@ -36,13 +36,23 @@ namespace net.rs64.TexTransTool.Build
                     }
                 }
 
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<AbstractTexTransGroup>())
+                void PhaseRegister(AbstractTexTransGroup absTTG)
                 {
-                    if (!ContainsBy.Contains(tf))
+                    ContainsBy.Add(absTTG);
+                    foreach (var tf in AbstractTexTransGroup.TextureTransformerFilter(absTTG.Targets))
                     {
-                        phaseDict[tf.PhaseDefine].Add(tf);
-                        ContainsBy.UnionWith(FindChildren(tf));
+
+                        if (tf is AbstractTexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup); }
+                        else
+                        {
+                            phaseDict[tf.PhaseDefine].Add(tf);
+                            ContainsBy.Add(tf);
+                        }
                     }
+                }
+                foreach (var absTTG in avatarGameObject.GetComponentsInChildren<AbstractTexTransGroup>().Where(I => !ContainsBy.Contains(I)))
+                {
+                    PhaseRegister(absTTG);
                 }
 
                 var singleTextureTransformer = new List<TextureTransformer>();
@@ -60,25 +70,21 @@ namespace net.rs64.TexTransTool.Build
 
                 var domain = new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer));
 
-                foreach (var pd in phaseDict[TexTransPhase.BeforeUVModification])
+                void ApplyFor(TexTransPhase texTransPhase)
                 {
-                    pd.Apply(domain);
+                    foreach (var tf in phaseDict[texTransPhase])
+                    {
+                        Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply");
+                        tf.Apply(domain);
+                    }
                 }
 
-                foreach (var pd in phaseDict[TexTransPhase.UVModification])
-                {
-                    pd.Apply(domain);
-                }
+                ApplyFor(TexTransPhase.BeforeUVModification);
+                ApplyFor(TexTransPhase.UVModification);
+                ApplyFor(TexTransPhase.AfterUVModification);
+                ApplyFor(TexTransPhase.UnDefined);
 
-                foreach (var pd in phaseDict[TexTransPhase.AfterUVModification])
-                {
-                    pd.Apply(domain);
-                }
 
-                foreach (var pd in phaseDict[TexTransPhase.UnDefined])
-                {
-                    pd.Apply(domain);
-                }
 
                 domain.EditFinish();
                 DestroySingleTextureTransformer(singleTextureTransformer);
@@ -90,6 +96,8 @@ namespace net.rs64.TexTransTool.Build
                 Debug.LogError(e);
                 return false;
             }
+
+
         }
 
 
@@ -109,10 +117,7 @@ namespace net.rs64.TexTransTool.Build
             children.UnionWith(abstractTexTransGroup.Targets);
             foreach (var tf in abstractTexTransGroup.Targets)
             {
-                if (tf is AbstractTexTransGroup abstractTexTransGroupC)
-                {
-                    children.UnionWith(FindChildren(abstractTexTransGroupC));
-                }
+                if (tf is AbstractTexTransGroup abstractTexTransGroupC) { children.UnionWith(FindChildren(abstractTexTransGroupC)); }
             }
             return children;
         }
@@ -121,10 +126,7 @@ namespace net.rs64.TexTransTool.Build
         {
             foreach (var tf in singleTextureTransformer)
             {
-                if (tf != null)
-                {
-                    MonoBehaviour.DestroyImmediate(tf);
-                }
+                if (tf != null) { MonoBehaviour.DestroyImmediate(tf); }
             }
         }
         private static void DestroyITexTransToolTagsForGameObject(GameObject avatarGameObject)
