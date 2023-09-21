@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public bool IsTextureSeparate;
         public PropertyName PropertyName = new PropertyName(PropertyName.MainTex);
 
+        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
         public override void Apply(IDomain Domain)
         {

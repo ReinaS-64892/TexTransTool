@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace net.rs64.TexTransTool
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract List<Renderer> GetRenderers { get; }
         public abstract bool IsPossibleApply { get; }
+        public abstract TexTransPhase PhaseDefine { get; }
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
 
@@ -21,6 +23,14 @@ namespace net.rs64.TexTransTool
         /// </summary>
         /// <param name="domain">The domain</param>
         public abstract void Apply([NotNull] IDomain domain);
+    }
+
+    public enum TexTransPhase
+    {
+        UnDefined,
+        BeforeUVModification,
+        UVModification,
+        AfterUVModification,
     }
 }
 #endif

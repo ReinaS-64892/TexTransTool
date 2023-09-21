@@ -4,11 +4,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
 using System;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool
 {
     public abstract class AbstractTexTransGroup : TextureTransformer
     {
+        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
         public abstract IEnumerable<TextureTransformer> Targets { get; }
 
         public override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();

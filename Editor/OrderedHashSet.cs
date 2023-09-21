@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
@@ -10,6 +11,8 @@ namespace net.rs64.TexTransTool.Utils
     public class OrderedHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
     {
         [SerializeField] List<T> List;
+        [SerializeField] HashSet<T> Hash;
+
         public T this[int index] => List[index];
         public int Count => List.Count;
 
@@ -23,23 +26,26 @@ namespace net.rs64.TexTransTool.Utils
             return List.GetEnumerator();
         }
 
-        public void Add(T item)
+        public bool Add(T item)
         {
-            var Index = IndexOf(item);
-            if (Index == -1)
+            if (!Hash.Contains(item))
             {
                 List.Add(item);
+                Hash.Add(item);
+                return true;
             }
+            return false;
         }
         public int AddAndIndexOf(T item)
         {
-            var Index = List.IndexOf(item);
-            if (Index == -1)
+            if (Add(item))
             {
-                List.Add(item);
                 return List.Count - 1;
             }
-            return Index;
+            else
+            {
+                return IndexOf(item);
+            }
         }
 
         public int IndexOf(T item)
@@ -55,18 +61,25 @@ namespace net.rs64.TexTransTool.Utils
             }
         }
 
+        public void HashRefresh()
+        {
+            Hash.Clear();
+            Hash.UnionWith(List);
+        }
 
 
 
         public OrderedHashSet(IEnumerable<T> enumerate)
         {
             List = new List<T>();
+            Hash = new HashSet<T>();
             List.AddRange(enumerate);
         }
 
         public OrderedHashSet()
         {
             List = new List<T>();
+            Hash = new HashSet<T>();
         }
 
         public List<T> ToList(bool DeepClone = false)

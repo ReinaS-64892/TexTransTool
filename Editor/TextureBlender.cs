@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool
 
         public override bool IsPossibleApply => TargetRenderer != null && BlendTexture != null;
 
+        public override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         public override void Apply(IDomain Domain)
         {

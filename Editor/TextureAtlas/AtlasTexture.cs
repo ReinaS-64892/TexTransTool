@@ -25,11 +25,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public override List<Renderer> GetRenderers => Renderers;
 
+        public override TexTransPhase PhaseDefine => TexTransPhase.UVModification;
+
         #region V0SaveData
-        [Obsolete("V0SaveData",true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
-        [Obsolete("V0SaveData",true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
-        [Obsolete("V0SaveData",true)] public List<MatSelectorV0> MatSelectors = new List<MatSelectorV0>();
-        [Serializable][Obsolete("V0SaveData",true)]
+        [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
+        [Obsolete("V0SaveData", true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
+        [Obsolete("V0SaveData", true)] public List<MatSelectorV0> MatSelectors = new List<MatSelectorV0>();
+        [Serializable]
+        [Obsolete("V0SaveData", true)]
         public class MatSelectorV0
         {
             public Material Material;
@@ -37,8 +40,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public int AtlasChannel = 0;
             public float TextureSizeOffSet = 1;
         }
-        [Obsolete("V0SaveData",true)] public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
-        [Obsolete("V0SaveData",true)] public bool UseIslandCache = true;
+        [Obsolete("V0SaveData", true)] public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
+        [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
         #endregion
 
 

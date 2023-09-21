@@ -7,6 +7,7 @@ using System.IO;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using System;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
@@ -17,6 +18,8 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public override List<Renderer> GetRenderers => TargetRenderers;
 
         public override bool IsPossibleApply => SeparateTarget.Any();
+
+        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
         public List<Material> SeparateTarget = new List<Material>();
         public bool IsTextureSeparate;
