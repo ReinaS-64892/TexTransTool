@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool
         }
 
         [SerializeField] GameObject _avatarRoot;
+        public GameObject AvatarRoot => _avatarRoot;
         [NotNull] FlatMapDict<Material> _mapDict = new FlatMapDict<Material>();
 
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
