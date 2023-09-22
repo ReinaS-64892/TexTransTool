@@ -19,7 +19,6 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAvatarDomainDefinitionV0ToV1(PhaseDefinition avatarDomainDefinition)
         {
             if (avatarDomainDefinition == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (avatarDomainDefinition.SaveDataVersion != 0) { Debug.Log(avatarDomainDefinition.name + " AvatarDomainDefinition : マイグレーションのバージョンが違います。"); return; }
 
             var aTTGs = avatarDomainDefinition.gameObject.GetComponents<AbstractTexTransGroup>().Where(I => !(I is PhaseDefinition));
 
