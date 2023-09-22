@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAtlasTextureV0ToV1(AtlasTexture atlasTexture)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (atlasTexture.SaveDataVersion != 0) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーションのバージョンが違います。"); return; }
+            if (atlasTexture.SaveDataVersion > 1) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
             if (atlasTexture.AtlasSettings.Count < 1) { Debug.LogWarning(atlasTexture.name + " AtlasTexture : マイグレーション不可能なアトラステクスチャーです。"); return; }
 
             var GameObject = atlasTexture.gameObject;
@@ -59,7 +59,6 @@ namespace net.rs64.TexTransTool.Migration.V0
                 else
                 {
 
-                    var texTransParentGroup = GameObject.AddComponent<TexTransParentGroup>();
                     atlasTexture.MigrationV0ObsoleteChannelsRef = new List<AtlasTexture>() { };
 
                     for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)
@@ -95,7 +94,9 @@ namespace net.rs64.TexTransTool.Migration.V0
         {
             if (atlasTexture.SaveDataVersion == 0)
             {
+                var go = atlasTexture.gameObject;
                 UnityEngine.Object.DestroyImmediate(atlasTexture);
+                go.AddComponent<TexTransGroup>();
             }
         }
         private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSouse, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)

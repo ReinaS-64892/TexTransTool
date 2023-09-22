@@ -1,11 +1,9 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using System.IO;
 using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransTool.Utils;
 using System;
 
 namespace net.rs64.TexTransTool.Decal
@@ -31,6 +29,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public override List<Renderer> GetRenderers => TargetRenderers;
 
+        public override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
         public override void Apply(IDomain Domain)
         {

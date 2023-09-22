@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.TextureAtlas;
@@ -47,6 +48,11 @@ namespace net.rs64.TexTransTool.Migration
                 case AbstractDecal abstractDecal:
                     {
                         AbstractDecalV0.MigrationAbstractDecalV0ToV1(abstractDecal);
+                        return true;
+                    }
+                case PhaseDefinition phaseDefinition:
+                    {
+                        AvatarDomainDefinitionV0.MigrationAvatarDomainDefinitionV0ToV1(phaseDefinition);
                         return true;
                     }
                 default:

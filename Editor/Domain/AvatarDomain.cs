@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
     /// </summary>
     public class AvatarDomain : RenderersDomain
     {
-        static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(AvatarDomainDefinition) };
+        static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
         public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
@@ -28,12 +28,13 @@ namespace net.rs64.TexTransTool
         }
 
         [SerializeField] GameObject _avatarRoot;
+        public GameObject AvatarRoot => _avatarRoot;
         [NotNull] FlatMapDict<Material> _mapDict = new FlatMapDict<Material>();
 
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
             base.ReplaceMaterials(mapping, rendererOnly);
-            
+
             if (!rendererOnly)
                 foreach (var keyValuePair in mapping)
                     _mapDict.Add(keyValuePair.Key, keyValuePair.Value);
@@ -66,7 +67,7 @@ namespace net.rs64.TexTransTool
             }
         }
     }
-    
+
     public class FlatMapDict<TKeyValue>
     {
         Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
@@ -80,7 +81,7 @@ namespace net.rs64.TexTransTool
                 _reverseDict.Remove(key);
                 _reverseDict.Add(value, tKey);
             }
-            else
+            else if (!_dict.ContainsKey(key))
             {
                 _dict.Add(key, value);
                 _reverseDict.Add(value, key);

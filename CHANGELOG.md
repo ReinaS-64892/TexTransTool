@@ -15,15 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 開発中であるコンポーネントに対して、インスペクターに警告を追加 `#157`
 - MatAndTexAbsolute(Relative)Separator を追加 `#151` `#154`
 - [マニュアル](Manual/JP/TextureTransformer.md)に書かれたことに沿うように、複数のコンポーネントを付けれないようにする属性を追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/b920e634554ebf1cddc7d21885ce791d110487cd)
+- PhaseとPhaseDefinitionの追加 `#159`
 
 ### Changed
 
 - AtlasTexture がマテリアルのインデックスではなく、直接の参照を持つように変更 `#146`
+- 名前変更 TexTransParentGroup => TexTransGroup `#159`
 
 ### Removed
 
 - AtlasTexture の Channel を削除 `#146`
 - Decal 系統の IsSeparateMatAndTexture の削除 `#151`
+- AvatarDomainDefinition の削除 `#159`
 
 ### Fixed
 
@@ -32,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- TexTransParentGroup
+- 名前変更とDeprecatedにマーク TexTransGroup => TexTransListGroup `#159`
 
 ## [0.3.6]
 
