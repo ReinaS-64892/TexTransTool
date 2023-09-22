@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool.Build
 
                 var singleTextureTransformer = new List<TextureTransformer>();
 
-                foreach (var tf in avatarGameObject.GetComponentsInChildren<TextureTransformer>())
+                foreach (var tf in AbstractTexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TextureTransformer>()))
                 {
                     if (!ContainsBy.Contains(tf))
                     {
@@ -87,8 +87,7 @@ namespace net.rs64.TexTransTool.Build
 
 
                 domain.EditFinish();
-                DestroySingleTextureTransformer(singleTextureTransformer);
-                DestroyITexTransToolTagsForGameObject(avatarGameObject);
+                DestroyITexTransToolTags(avatarGameObject);
                 return true;
             }
             catch (Exception e)
@@ -122,19 +121,20 @@ namespace net.rs64.TexTransTool.Build
             return children;
         }
 
-        private static void DestroySingleTextureTransformer(List<TextureTransformer> singleTextureTransformer)
-        {
-            foreach (var tf in singleTextureTransformer)
-            {
-                if (tf != null) { MonoBehaviour.DestroyImmediate(tf); }
-            }
-        }
-        private static void DestroyITexTransToolTagsForGameObject(GameObject avatarGameObject)
+
+        private static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
             foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
-                if (tf != null && tf is MonoBehaviour mb && mb != null && mb.gameObject != null)
-                { MonoBehaviour.DestroyImmediate(mb.gameObject); }
+                if (!(tf != null && tf is MonoBehaviour mb && mb != null && mb.gameObject != null)) { continue; }
+                if (mb.gameObject.GetComponents<Component>().Where(I => !(I is ITexTransToolTag) && !(I is Transform)).Count() == 0)
+                {
+                    MonoBehaviour.DestroyImmediate(mb.gameObject);
+                }
+                else
+                {
+                    MonoBehaviour.DestroyImmediate(mb);
+                }
             }
         }
     }
