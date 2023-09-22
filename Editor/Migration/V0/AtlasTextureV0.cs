@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                 else
                 {
 
-                    var texTransParentGroup = GameObject.AddComponent<TexTransParentGroup>();
+                    var texTransParentGroup = GameObject.AddComponent<TexTransGroup>();
                     atlasTexture.MigrationV0ObsoleteChannelsRef = new List<AtlasTexture>() { };
 
                     for (int Count = 0; atlasTexture.AtlasSettings.Count > Count; Count += 1)

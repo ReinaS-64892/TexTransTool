@@ -55,7 +55,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             {
                 if (abstractDecal.IsSeparateMatAndTexture)
                 {
-                    var texTransParentGroup = GameObject.AddComponent<TexTransParentGroup>();
+                    var texTransParentGroup = GameObject.AddComponent<TexTransGroup>();
 
                     var newGameObjectSeparator = new GameObject("Separator");
                     newGameObjectSeparator.transform.parent = GameObject.transform;

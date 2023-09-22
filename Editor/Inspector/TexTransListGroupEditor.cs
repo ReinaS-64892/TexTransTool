@@ -3,12 +3,12 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor
 {
-    [CustomEditor(typeof(TexTransGroup))]
-    public class TexTransGroupEditor : AbstractTexTransGroupEditor
+    [CustomEditor(typeof(TexTransListGroup))]
+    public class TexTransListGroupEditor : AbstractTexTransGroupEditor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.HelpBox("TexTransGroupは廃止された機能でTexTransParentGroupを使用してください。", MessageType.Warning);
+            EditorGUILayout.HelpBox("TexTransListGroupは廃止された機能でTexTransParentGroupを使用してください。", MessageType.Warning);
 
             var TTList = serializedObject.FindProperty("TextureTransformers");
             EditorGUILayout.PropertyField(TTList, true);
