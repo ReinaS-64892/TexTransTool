@@ -271,8 +271,7 @@ namespace net.rs64.TexTransCore.Island
             TagIslandPool<T> TargetPool,
             float IslandPadding = 0.01f,
             float CrawlingStep = 0.01f,
-            float MinHeight = 0.75f,
-            int MaxLoopCount = 128)//NFDH
+            int MaxLoopCount = 128)
         {
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
@@ -281,6 +280,8 @@ namespace net.rs64.TexTransCore.Island
             bool success = false;
             float nawScale = 1f;
             int loopCount = -1;
+            bool isBigger = false;
+            bool nextSuccessEnd = false;
 
             while (!success && MaxLoopCount > loopCount)
             {
@@ -314,18 +315,23 @@ namespace net.rs64.TexTransCore.Island
 
                 if (!success)
                 {
+                    if (isBigger) { nextSuccessEnd = true; }
                     ScaleApply(1 - CrawlingStep);
-                }
 
-                if (success && MinHeight > lastHeight)
+                }
+                else if (success)
                 {
-                    success = false;
-                    ScaleApply(1 + CrawlingStep);
+                    if (!nextSuccessEnd)
+                    {
+                        success = false;
+                        isBigger = true;
+                        ScaleApply(1 + CrawlingStep);
+                    }
                 }
 
 
             }
-            Debug.Log(loopCount);
+
             return TargetPool;
 
             void ScaleApply(float Scale)
