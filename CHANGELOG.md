@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Mac ですべてのコンポーネントが正常に動かなかったことを修正 (ただし、サポートは今のところしません) `#138`
 - Unity のアニメーションのプレビューを使用し、プレハブオーバーライドを生成してしまう問題を修正 `#143`
+- 圧縮しない設定ができない問題を修正 `#120`
 
 ### Deprecated
 
