@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 名前変更 TexTransParentGroup => TexTransGroup `#159`
 - すべての AddComponent から追加できるコンポーネントの名前に TTT を追加しました。 `#122`
 - Decal 系統は DecalTexture がセットされていなくても、単色のデカールを貼り付けれるように変更 `#124`
+- liltoonの宝石やファー用のテクスチャーをアトラス化の”対象”に入れるように追加しました。 `#126`
 
 ### Removed
 

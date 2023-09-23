@@ -11,6 +11,7 @@ namespace net.rs64.TexTransTool.Utils
         {
             foreach (var propAndTexture in PropAndTextures)
             {
+                if (!TargetMat.HasProperty(propAndTexture.PropertyName)) { continue; }
                 if (FocusSetTexture || TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
                 {
                     TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
