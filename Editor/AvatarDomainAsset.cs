@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool
 
         public void AddSubObject(Object UnityObject)
         {
-            if (UnityObject != null && !SubAssets.Contains(UnityObject) && string.IsNullOrWhiteSpace(AssetDatabase.GetAssetPath(UnityObject)))
+            if (UnityObject != null && !SubAssets.Contains(UnityObject) && !AssetDatabase.Contains(UnityObject))
             {
                 AssetDatabase.AddObjectToAsset(UnityObject, OverrideContainer == null ? this : OverrideContainer);
                 SubAssets.Add(UnityObject);
