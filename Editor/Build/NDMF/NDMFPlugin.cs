@@ -1,6 +1,7 @@
 #if NDMF
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build.NDMF;
+using net.rs64.TexTransTool.Build;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -13,11 +14,18 @@ namespace net.rs64.TexTransTool.Build.NDMF
         public override string DisplayName => "TexTransTool";
         protected override void Configure()
         {
-            InPhase(BuildPhase.Transforming).Run("Build TexTransTool", ctx =>
+            var seq = InPhase(BuildPhase.Transforming);
+
+            seq.WithRequiredExtension(typeof(TexTransToolContext), s =>
             {
-                AvatarBuildUtils.ProcessAvatar(ctx.AvatarRootObject, ctx.AssetContainer, false);
+                seq.Run(BeforeUVModificationPass.Instance);
+                seq.Run(UVModificationPass.Instance);
+                seq.Run(AfterUVModificationPass.Instance);
+                seq.Run(UnDefinedPass.Instance);
             });
+
         }
     }
+
 }
 #endif

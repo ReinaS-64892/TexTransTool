@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Build
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer)), FindAtPhase(avatarGameObject));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer)));
 
                 session.ApplyFor(TexTransPhase.BeforeUVModification);
                 session.ApplyFor(TexTransPhase.UVModification);
@@ -46,7 +46,11 @@ namespace net.rs64.TexTransTool.Build
                 _avatarDomain = avatarDomain;
                 _phaseAtList = phaseAtList;
             }
-
+            public TexTransBuildSession(AvatarDomain avatarDomain)
+            {
+                _avatarDomain = avatarDomain;
+                _phaseAtList = FindAtPhase(_avatarDomain.AvatarRoot);
+            }
             public void ApplyFor(TexTransPhase texTransPhase)
             {
                 foreach (var tf in _phaseAtList[texTransPhase])
