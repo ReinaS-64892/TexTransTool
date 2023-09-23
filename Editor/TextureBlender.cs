@@ -5,7 +5,7 @@ using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore;
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/TextureBlender")]
+    [AddComponentMenu("TexTransTool/TTT TextureBlender")]
     public class TextureBlender : TextureTransformer
     {
         public Renderer TargetRenderer;

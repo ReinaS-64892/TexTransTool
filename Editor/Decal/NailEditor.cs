@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 namespace net.rs64.TexTransTool.Decal
 {
 
-    [AddComponentMenu("TexTransTool/NailEditor")]
+    [AddComponentMenu("TexTransTool/TTT NailEditor")]
     public class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;

@@ -7,7 +7,7 @@ using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/CylindricalDecal")]
+    [AddComponentMenu("TexTransTool/TTT CylindricalDecal")]
     public class CylindricalDecal : AbstractSingleDecal<CCSSpace>
     {
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
