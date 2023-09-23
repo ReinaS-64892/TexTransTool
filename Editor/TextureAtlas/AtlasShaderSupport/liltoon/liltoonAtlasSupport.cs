@@ -112,6 +112,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 propEnvsDict.Add("_OutlineWidthMask", material.GetTexture("_OutlineWidthMask") as Texture2D);
                 propEnvsDict.Add("_OutlineVectorTex", material.GetTexture("_OutlineVectorTex") as Texture2D);
             }
+            if (material.shader.name.Contains("Gem"))
+            {
+                if (!propEnvsDict.ContainsKey("_SmoothnessTex")) propEnvsDict.Add("_SmoothnessTex", material.GetTexture("_SmoothnessTex") as Texture2D);
+            }
+            if (material.shader.name.Contains("Fur"))
+            {
+                propEnvsDict.Add("_FurLengthMask", material.GetTexture("_FurLengthMask") as Texture2D);
+                propEnvsDict.Add("_FurMask", material.GetTexture("_FurMask") as Texture2D);
+                propEnvsDict.Add("_FurNoiseMask", material.GetTexture("_FurNoiseMask") as Texture2D);
+                propEnvsDict.Add("_FurVectorTex", material.GetTexture("_FurVectorTex") as Texture2D);
+            }
             if (bakeSetting == PropertyBakeSetting.NotBake)
             {
                 var propAndTexture2 = new List<PropAndTexture>();
@@ -444,6 +455,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
         ファーや屈折、宝石、などの高負荷系統は、独自の設定が強いし、そもそもまとめるべきかというと微妙。分けといたほうが軽いとかがありそうだから。
+
+        マテリアルをマージしない前提で、とりあえずアトラス化はする。
+
         */
 
         class lilDifferenceRecord
@@ -666,6 +680,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     lilDifferenceRecordI.IsAlreadyTex_OutlineWidth = material.GetTexture("_OutlineWidthMask") != null;
                 }
 
+                if (material.shader.name.Contains("Gem"))
+                {
+                    lilDifferenceRecordI._Smoothness = material.GetFloat("_Smoothness");
+                    lilDifferenceRecordI.IsDifference_Smoothness = false;
+                    lilDifferenceRecordI.IsAlreadyTex_Smoothness = material.GetTexture("_SmoothnessTex") != null;
+                }
+
                 lilDifferenceRecordI.IsInitialized = true;
             }
             else
@@ -746,6 +767,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (lilDifferenceRecordI._OutlineTexHSVG != material.GetColor("_OutlineTexHSVG")) lilDifferenceRecordI.IsDifference_OutlineTexHSVG = true;
                     if (!Mathf.Approximately(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth"))) { lilDifferenceRecordI.IsDifference_OutlineWidth = true; lilDifferenceRecordI._OutlineWidth = Mathf.Max(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth")); }
                     if (material.GetTexture("_OutlineWidthMask") != null) lilDifferenceRecordI.IsAlreadyTex_OutlineWidth = true;
+                }
+                if (material.shader.name.Contains("Gem"))
+                {
+                    if (!Mathf.Approximately(lilDifferenceRecordI._Smoothness, material.GetFloat("_Smoothness"))) lilDifferenceRecordI.IsDifference_Smoothness = true;
+                    if (material.GetTexture("_SmoothnessTex") != null) lilDifferenceRecordI.IsAlreadyTex_Smoothness = true;
                 }
             }
 
