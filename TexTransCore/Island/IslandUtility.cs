@@ -12,7 +12,7 @@ namespace net.rs64.TexTransCore.Island
     {
         public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> UV, IIslandCache Caches = null)
         {
-            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands)) 
+            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands))
                 return cacheHitIslands;
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -325,13 +325,14 @@ namespace net.rs64.TexTransCore.Island
 
 
             }
-
+            Debug.Log(loopCount);
             return TargetPool;
 
             void ScaleApply(float Scale)
             {
                 foreach (var islandAndTag in Islands)
                 {
+                    if ((islandAndTag.Size.x * Scale) > (0.999f - IslandPadding)) { continue; }
                     islandAndTag.Size *= Scale;
                 }
                 nawScale *= Scale;
