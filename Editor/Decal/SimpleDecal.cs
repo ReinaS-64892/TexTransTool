@@ -99,6 +99,7 @@ namespace net.rs64.TexTransTool.Decal
         [SerializeField] protected bool _IsRealTimePreview = false;
         public bool IsRealTimePreview => _IsRealTimePreview;
         [SerializeField] RenderTexture DecalRenderTexture;
+        [SerializeField] Material UnlitColor;
         Dictionary<RenderTexture, RenderTexture> _RealTimePreviewDecalTextureCompile;
         Dictionary<Texture2D, RenderTexture> _RealTimePreviewDecalTextureBlend;
 
@@ -114,8 +115,15 @@ namespace net.rs64.TexTransTool.Decal
 
             _RealTimePreviewDecalTextureCompile = new Dictionary<RenderTexture, RenderTexture>();
             _RealTimePreviewDecalTextureBlend = new Dictionary<Texture2D, RenderTexture>();
-            DecalRenderTexture = new RenderTexture(DecalTexture.width, DecalTexture.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
-
+            if (DecalRenderTexture == null)
+            {
+                DecalRenderTexture = new RenderTexture(2, 2, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+                UnlitColor = new Material(Shader.Find("Hidden/UnlitColorAndAlpha"));
+            }
+            else
+            {
+                DecalRenderTexture = new RenderTexture(DecalTexture.width, DecalTexture.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB, -1);
+            }
 
             foreach (var renderer in TargetRenderers)
             {
@@ -185,6 +193,7 @@ namespace net.rs64.TexTransTool.Decal
             _RealTimePreviewDecalTextureBlend = null;
             _RealTimePreviewDecalTextureCompile = null;
             DecalRenderTexture = null;
+            UnlitColor = null;
         }
 
         public void UpdateRealTimePreview()
@@ -199,7 +208,15 @@ namespace net.rs64.TexTransTool.Decal
             }
 
             DecalRenderTexture.Release();
-            TextureLayerUtil.MultipleRenderTexture(DecalRenderTexture, DecalTexture, Color);
+            if (DecalTexture != null)
+            {
+                TextureLayerUtil.MultipleRenderTexture(DecalRenderTexture, DecalTexture, Color);
+            }
+            else
+            {
+                UnlitColor.SetColor("_Color", Color);
+                Graphics.Blit(null, DecalRenderTexture, UnlitColor);
+            }
 
             foreach (var rt in _RealTimePreviewDecalTextureCompile)
             {

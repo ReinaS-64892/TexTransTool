@@ -14,13 +14,13 @@ namespace net.rs64.TexTransTool.Decal
     where SpaceConverter : DecalUtility.IConvertSpace
     {
         public Texture2D DecalTexture;
-        public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null);
+        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         public abstract SpaceConverter GetSpaceConverter { get; }
         public abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
 
         public override Dictionary<Texture2D, Texture> CompileDecal()
         {
-            var mulDecalTexture = TextureLayerUtil.CreateMultipliedRenderTexture(DecalTexture, Color);
+            var mulDecalTexture = DecalTexture != null ? (Texture)TextureLayerUtil.CreateMultipliedRenderTexture(DecalTexture, Color) : TextureLayerUtil.CreateColorTex(Color);
             var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
             if (FastMode)
             {
@@ -46,7 +46,20 @@ namespace net.rs64.TexTransTool.Decal
             }
             else
             {
-                var mulDecalTexture2D = mulDecalTexture.CopyTexture2D();
+                Texture2D mulDecalTexture2D = null;
+                switch (mulDecalTexture)
+                {
+                    case RenderTexture renderTexture:
+                        {
+                            mulDecalTexture2D = renderTexture.CopyTexture2D();
+                            break;
+                        }
+                    case Texture2D texture2D:
+                        {
+                            mulDecalTexture2D = texture2D;
+                            break;
+                        }
+                }
                 var mulDecalTexTowDimensionMap = new TwoDimensionalMap<Color>(mulDecalTexture2D.GetPixels(), new Vector2Int(mulDecalTexture2D.width, mulDecalTexture2D.height));
                 var TransTextureCompute = TransMapper.TransTextureCompute;
                 List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>> DecalsCompileTexListDict = new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
