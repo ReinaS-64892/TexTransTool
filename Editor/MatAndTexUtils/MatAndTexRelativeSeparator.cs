@@ -10,6 +10,7 @@ using System;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
+    [AddComponentMenu("TexTransTool/MatAndTexSeparator/TTT MatAndTexRelativeSeparator")]
     public class MatAndTexRelativeSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };

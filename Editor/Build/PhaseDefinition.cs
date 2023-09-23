@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Build
 {
-    [AddComponentMenu("TexTransTool/PhaseDefinition")]
+    [AddComponentMenu("TexTransTool/TTT PhaseDefinition")]
     public class PhaseDefinition : TexTransGroup
     {
         public TexTransPhase TexTransPhase;

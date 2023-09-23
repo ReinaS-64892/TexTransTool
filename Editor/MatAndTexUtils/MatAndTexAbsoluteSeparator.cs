@@ -11,6 +11,7 @@ using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
+    [AddComponentMenu("TexTransTool/MatAndTexSeparator/TTT MatAndTexAbsoluteSeparator")]
     public class MatAndTexAbsoluteSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };

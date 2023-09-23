@@ -13,7 +13,7 @@ using net.rs64.TexTransTool.EditorIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    [AddComponentMenu("TexTransTool/AtlasTexture")]
+    [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
     public class AtlasTexture : TextureTransformer
     {
         public GameObject TargetRoot;

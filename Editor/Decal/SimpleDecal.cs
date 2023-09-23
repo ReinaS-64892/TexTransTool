@@ -11,7 +11,7 @@ using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/SimpleDecal")]
+    [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
     [ExecuteInEditMode]
     public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
     {
