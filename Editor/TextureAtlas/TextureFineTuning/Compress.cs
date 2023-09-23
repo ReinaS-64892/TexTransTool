@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using static net.rs64.TexTransTool.TextureAtlas.FineSetting.Compress;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Compress : ITextureFineTuning
+    public struct Compress : IAddFineTuning
     {
-        public int Order => 0;
         public FormatQuality FormatQualityValue;
         public TextureCompressionQuality CompressionQuality;
         public string PropertyNames;
@@ -29,16 +29,47 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             Normal,
             High,
         }
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            TextureFormat textureFormat = GetTextureFormat(FormatQualityValue);
             foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
-                if (target.Texture2D.format == textureFormat) { continue; }
-                EditorUtility.CompressTexture(target.Texture2D, textureFormat, CompressionQuality);
+                var compressionQualityData = target.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                if (compressionQualityData != null)
+                {
+                    compressionQualityData.FormatQualityValue = FormatQualityValue;
+                    compressionQualityData.CompressionQuality = CompressionQuality;
+                }
+                else
+                {
+                    target.TuningDataList.Add(new CompressionQualityData() { FormatQualityValue = FormatQualityValue, CompressionQuality = CompressionQuality });
+                }
             }
         }
 
+    }
+
+    public class CompressionQualityData : ITuningData
+    {
+        public Compress.FormatQuality FormatQualityValue = Compress.FormatQuality.Normal;
+        public TextureCompressionQuality CompressionQuality = TextureCompressionQuality.Normal;
+    }
+    public class CompressionQualityApplicant : ITuningApplicant
+    {
+        public int Order => 0;
+
+        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        {
+            foreach (var texf in texFineTuningTargets)
+            {
+                var compressionQualityData = texf.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                if (compressionQualityData == null) { continue; }
+                TextureFormat textureFormat = GetTextureFormat(compressionQualityData.FormatQualityValue);
+                if (compressionQualityData.FormatQualityValue != FormatQuality.None && texf.Texture2D.format != textureFormat)
+                {
+                    EditorUtility.CompressTexture(texf.Texture2D, textureFormat, compressionQualityData.CompressionQuality);
+                }
+            }
+        }
         public static TextureFormat GetTextureFormat(FormatQuality formatQuality)
         {
             var textureFormat = TextureFormat.RGBA32;
@@ -80,7 +111,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             return textureFormat;
         }
     }
-
 
 }
 #endif

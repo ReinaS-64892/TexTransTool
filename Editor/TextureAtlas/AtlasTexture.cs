@@ -10,6 +10,7 @@ using Island = net.rs64.TexTransCore.Island.Island;
 using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.EditorIsland;
+using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -19,6 +20,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
         public List<MatSelector> SelectMatList = new List<MatSelector>();
+        public List<MatSelector> GetContainedSelectMatList
+        {
+            get
+            {
+                var NowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers));
+                return SelectMatList.Where(I => NowContainsMatSet.Contains(I.Material)).ToList();
+            }
+        }
         public AtlasSetting AtlasSetting = new AtlasSetting();
 
         public override bool IsPossibleApply => TargetRoot != null;
@@ -116,7 +125,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //情報を集めるフェーズ
-            var targetMaterialSelectors = SelectMatList;
+            var targetMaterialSelectors = GetContainedSelectMatList;
             var atlasSetting = AtlasSetting;
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
             var shaderSupports = new AtlasShaderSupportUtils();
@@ -161,7 +170,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var propName in propertyNames)
             {
-                var targetRT = new RenderTexture(atlasSetting.AtlasTextureSize.x, atlasSetting.AtlasTextureSize.y, 32, RenderTextureFormat.ARGB32);
+                var targetRT = new RenderTexture(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, 32, RenderTextureFormat.ARGB32);
                 targetRT.name = "AtlasTex" + propName;
                 foreach (var matData in matDataList)
                 {
@@ -268,26 +277,30 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             //Texture Fine Tuning
-            var atlasTexture = atlasData.Textures;
+            var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
+            TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
             var fineSettings = AtlasSetting.GetTextureFineTuning();
             foreach (var fineSetting in fineSettings)
             {
-                fineSetting.FineSetting(atlasTexture);
+                fineSetting.AddSetting(atlasTexFineTuningTargets);
             }
-            Domain.transferAssets(atlasTexture.Select(PaT => PaT.Texture2D));
+            TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
+            var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
+            Domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
 
             //MaterialGenerate And Change
+            var targetMats = GetContainedSelectMatList;
             if (AtlasSetting.MergeMaterials)
             {
-                var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : SelectMatList.First().Material;
+                var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : targetMats.First().Material;
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);
 
-                Domain.ReplaceMaterials(SelectMatList.ToDictionary(x => x.Material, _ => generateMat), rendererOnly: true);
+                Domain.ReplaceMaterials(targetMats.ToDictionary(x => x.Material, _ => generateMat), rendererOnly: true);
             }
             else
             {
                 var materialMap = new Dictionary<Material, Material>();
-                foreach (var MatSelector in SelectMatList)
+                foreach (var MatSelector in targetMats)
                 {
                     var DistMat = MatSelector.Material;
                     var generateMat = GenerateAtlasMat(DistMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);

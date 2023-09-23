@@ -4,9 +4,8 @@ using System.Linq;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class Remove : ITextureFineTuning
+    public class Remove : IAddFineTuning
     {
-        public int Order => -1025;
         public string PropertyNames;
         public PropertySelect Select;
 
@@ -16,16 +15,39 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             Select = select;
         }
 
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures).ToArray())
+            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
-                propAndTextures.Remove(target);
+                var referenceCopyData = target.TuningDataList.Find(I => I is RemoveData) as RemoveData;
+                if (referenceCopyData == null)
+                {
+                    target.TuningDataList.Add(new RemoveData());
+                }
             }
         }
 
     }
 
+    public class RemoveData : ITuningData
+    {
+
+    }
+
+    public class RemoveApplicant : ITuningApplicant
+    {
+
+        public int Order => 64;
+
+        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        {
+            foreach (var removeTarget in texFineTuningTargets.Where(I => I.TuningDataList.Any(T => T is RemoveData)))
+            {
+                texFineTuningTargets.Remove(removeTarget);
+            }
+
+        }
+    }
 
 }
 #endif

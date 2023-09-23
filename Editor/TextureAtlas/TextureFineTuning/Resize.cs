@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Resize : ITextureFineTuning
+    public struct Resize : IAddFineTuning
     {
-        public int Order => -64;
         public int Size;
         public string PropertyNames;
         public PropertySelect Select;
@@ -19,15 +18,43 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         }
 
-        public void FineSetting(List<PropAndTexture2D> propAndTextures)
+        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
             foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
-                target.Texture2D = TextureLayerUtil.ResizeTexture(target.Texture2D, new Vector2Int(Size, Size));
+                var SizeData = target.TuningDataList.Find(I => I is SizeData) as SizeData;
+                if (SizeData != null)
+                {
+                    SizeData.TextureSize = Size;
+                }
+                else
+                {
+                    target.TuningDataList.Add(new SizeData() { TextureSize = Size });
+                }
             }
         }
     }
 
+    public class SizeData : ITuningData
+    {
+        public int TextureSize = 2048;
+    }
+
+    public class ResizeApplicant : ITuningApplicant
+    {
+        public int Order => -64;
+
+        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        {
+            foreach (var texf in texFineTuningTargets)
+            {
+                var sizeData = texf.TuningDataList.Find(I => I is SizeData) as SizeData;
+                if (sizeData == null) { continue; }
+                if (sizeData.TextureSize == texf.Texture2D.width) { continue; }
+                texf.Texture2D = TextureLayerUtil.ResizeTexture(texf.Texture2D, new Vector2Int(sizeData.TextureSize, sizeData.TextureSize));
+            }
+        }
+    }
 
 }
 #endif
