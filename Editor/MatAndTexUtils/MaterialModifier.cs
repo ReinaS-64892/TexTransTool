@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
+    [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
     public class MaterialModifier : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
