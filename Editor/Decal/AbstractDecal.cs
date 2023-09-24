@@ -43,13 +43,22 @@ namespace net.rs64.TexTransTool.Decal
                 Debug.LogWarning("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
                 return;
             }
+
+            Domain.ProgressStateEnter("AbstractDecal");
+
+            Domain.ProgressUpdate("DecalCompile", 0.25f);
+
             Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
 
+            Domain.ProgressUpdate("AddStack", 0.75f);
 
             foreach (var trp in decalCompiledTextures)
             {
                 Domain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
             }
+
+            Domain.ProgressUpdate("End", 1);
+            Domain.ProgressStateExit();
         }
 
 

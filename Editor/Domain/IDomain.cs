@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool
         void TransferAsset(UnityEngine.Object Asset);
     }
 
-    public interface IDomain : IAssetSaver
+    public interface IDomain : IAssetSaver, IProgressHandling
     {
         /// <summary>
         /// Sets the value to specified property with recording for revert
@@ -21,6 +21,12 @@ namespace net.rs64.TexTransTool
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D dist, BlendTextures setTex);
+    }
+    public interface IProgressHandling
+    {
+        void ProgressStateEnter(string EnterName);
+        void ProgressUpdate(string State, float Value);
+        void ProgressStateExit();
     }
 
     public static class DomainUtility
