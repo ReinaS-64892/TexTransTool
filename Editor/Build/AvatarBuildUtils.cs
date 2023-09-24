@@ -87,6 +87,7 @@ namespace net.rs64.TexTransTool.Build
 
             void PhaseRegister(AbstractTexTransGroup absTTG)
             {
+                if (ContainsBy.Contains(absTTG)) { return; }
                 ContainsBy.Add(absTTG);
                 foreach (var tf in AbstractTexTransGroup.TextureTransformerFilter(absTTG.Targets))
                 {
@@ -94,6 +95,7 @@ namespace net.rs64.TexTransTool.Build
                     if (tf is AbstractTexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup); }
                     else
                     {
+                        if (ContainsBy.Contains(tf)) { continue; }
                         phaseDict[tf.PhaseDefine].Add(tf);
                         ContainsBy.Add(tf);
                     }
