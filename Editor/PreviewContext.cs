@@ -2,6 +2,7 @@
 using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -14,6 +15,10 @@ namespace net.rs64.TexTransTool
 
         protected PreviewContext()
         {
+            AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
+            AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
+            EditorSceneManager.sceneClosing -= ExitPreview;
+            EditorSceneManager.sceneClosing += ExitPreview;
         }
 
         private void OnEnable()
@@ -58,8 +63,7 @@ namespace net.rs64.TexTransTool
             {
                 if (GUILayout.Button("Revert"))
                 {
-                    previweing = null;
-                    AnimationMode.StopAnimationMode();
+                    ExitPreview();
                 }
             }
             else
@@ -70,6 +74,16 @@ namespace net.rs64.TexTransTool
             }
         }
 
+        private void ExitPreview()
+        {
+            if (previweing == null) { return; }
+            previweing = null;
+            AnimationMode.StopAnimationMode();
+        }
+        public void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
+        {
+            ExitPreview();
+        }
         public void DrawApplyAndRevert(TextureTransformer target)
         {
             DrawApplyAndRevert(target, "Preview", target1 =>
