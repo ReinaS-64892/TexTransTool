@@ -257,7 +257,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return;
             }
 
+            Domain.ProgressStateEnter("AtlasTexture");
+            Domain.ProgressUpdate("CompileAtlasTexture", 0f);
+
             if (!TryCompileAtlasTextures(out var atlasData)) { return; }
+
+            Domain.ProgressUpdate("MeshChange", 0.5f);
 
             var nowRenderers = Renderers;
 
@@ -276,6 +281,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Domain.TransferAsset(atlasMesh);
             }
 
+            Domain.ProgressUpdate("Texture Fine Tuning", 0.75f);
+
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
@@ -287,6 +294,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
             var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
             Domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
+
+            Domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
 
             //MaterialGenerate And Change
             var targetMats = GetContainedSelectMatList;
@@ -308,6 +317,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 Domain.ReplaceMaterials(materialMap);
             }
+            
+            Domain.ProgressUpdate("End", 1);
+            Domain.ProgressStateExit();
         }
 
         private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, List<(Island, Island)> islandPairs, float padding)

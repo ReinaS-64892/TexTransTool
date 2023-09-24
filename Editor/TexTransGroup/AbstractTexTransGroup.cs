@@ -25,8 +25,17 @@ namespace net.rs64.TexTransTool
                 return;
             }
 
-            foreach (var tf in TextureTransformerFilter(Targets))
+            Domain.ProgressStateEnter("TexTransGroup");
+
+            var targetList = TextureTransformerFilter(Targets).ToArray();
+            var count = 0;
+            foreach (var tf in targetList)
+            {
+                count += 1;
                 tf.Apply(Domain);
+                Domain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
+            }
+            Domain.ProgressStateExit();
         }
         public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> Targets) => Targets.Where(tf => tf != null && tf.ThisEnable);
 

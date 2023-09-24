@@ -10,12 +10,12 @@ namespace net.rs64.TexTransTool.Build
     public static class AvatarBuildUtils
     {
 
-        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false)
+        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false, bool DisplayProgressBar = false)
         {
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer)), FindAtPhase(avatarGameObject));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null), FindAtPhase(avatarGameObject));
 
                 session.ApplyFor(TexTransPhase.BeforeUVModification);
                 session.ApplyFor(TexTransPhase.UVModification);
@@ -49,11 +49,16 @@ namespace net.rs64.TexTransTool.Build
 
             public void ApplyFor(TexTransPhase texTransPhase)
             {
+                _avatarDomain.ProgressStateEnter(texTransPhase.ToString());
+                var count = 0;
                 foreach (var tf in _phaseAtList[texTransPhase])
                 {
                     Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply");
                     tf.Apply(_avatarDomain);
+                    count += 1;
+                    _avatarDomain.ProgressUpdate($"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
                 }
+                _avatarDomain.ProgressStateExit();
             }
 
             public void TTTSessionEnd()
