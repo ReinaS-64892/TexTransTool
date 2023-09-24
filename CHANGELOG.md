@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MatAndTexAbsolute(Relative)Separator を追加 `#151` `#154`
 - [マニュアル](Manual/JP/TextureTransformer.md)に書かれたことに沿うように、複数のコンポーネントを付けれないようにする属性を追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/b920e634554ebf1cddc7d21885ce791d110487cd)
 - Phase と PhaseDefinition の追加 `#159`
+- マテリアルの設定を変更できる MaterialModifier の追加`#61`
 
 ### Changed
 
@@ -23,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 名前変更 TexTransParentGroup => TexTransGroup `#159`
 - すべての AddComponent から追加できるコンポーネントの名前に TTT を追加しました。 `#122`
 - Decal 系統は DecalTexture がセットされていなくても、単色のデカールを貼り付けれるように変更 `#124`
-- liltoonの宝石やファー用のテクスチャーをアトラス化の”対象”に入れるように追加しました。 `#126`
+- liltoon の宝石やファー用のテクスチャーをアトラス化の”対象”に入れるように追加しました。 `#126`
 - 自動生成ファイルのディレクトリを同じものが大量に生成されうるものは分けるように変更 `#119`
 
 ### Removed
