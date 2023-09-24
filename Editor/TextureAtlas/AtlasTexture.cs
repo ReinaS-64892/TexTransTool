@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
-    public class AtlasTexture : TextureTransformer
+    public class AtlasTexture : TextureTransformer, IMaterialReplaceEventLiner
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
@@ -317,7 +317,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 Domain.ReplaceMaterials(materialMap);
             }
-            
+
             Domain.ProgressUpdate("End", 1);
             Domain.ProgressStateExit();
         }
@@ -438,6 +438,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 MatSelector.TextureSizeOffSet = (tex.width * tex.height) / (float)maxTexPixel;
                 SelectMatList[i] = MatSelector;
             }
+        }
+
+        public void MaterialReplace(Material Souse, Material Target)
+        {
+            var index = SelectMatList.FindIndex(I => I.Material == Souse);
+            if (index == -1) { return; }
+            var selectMat = SelectMatList[index];
+            selectMat.Material = Target;
+            SelectMatList[index] = selectMat;
         }
     }
     public class AtlasReferenceData
