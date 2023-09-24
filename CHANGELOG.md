@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [マニュアル](Manual/JP/TextureTransformer.md)に書かれたことに沿うように、複数のコンポーネントを付けれないようにする属性を追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/b920e634554ebf1cddc7d21885ce791d110487cd)
 - Phase と PhaseDefinition の追加 `#159`
 - マテリアルの設定を変更できる MaterialModifier の追加 `#61`
-- ユニティエディターのプログレスバーを追加 `#98`
+- ユニティエディターのプログレスバーを追加 `#98
+
 ### Changed
 
 - AtlasTexture がマテリアルのインデックスではなく、直接の参照を持つように変更 `#146`

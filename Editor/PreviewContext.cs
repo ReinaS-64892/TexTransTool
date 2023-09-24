@@ -25,7 +25,6 @@ namespace net.rs64.TexTransTool
         }
 
         public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
-        // public static bool IsPreviewing(AvatarDomainDefinition domainDefinition) => domainDefinition == instance.previweing;
 
         private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
             where T : Object
@@ -89,23 +88,6 @@ namespace net.rs64.TexTransTool
             });
         }
 
-        // public void DrawApplyAndRevert(AvatarDomainDefinition target)
-        // {
-        //     DrawApplyAndRevert(target, "Preview - AvatarDomain-Apply", target1 =>
-        //     {
-        //         AnimationMode.BeginSampling();
-        //         try
-        //         {
-        //             var previewAvatarDomain = new AvatarDomain(target.Avatar, previewing: true);
-        //             target.Apply(previewAvatarDomain);
-        //             previewAvatarDomain.EditFinish();
-        //         }
-        //         finally
-        //         {
-        //             AnimationMode.EndSampling();
-        //         }
-        //     });
-        // }
     }
 }
 #endif
