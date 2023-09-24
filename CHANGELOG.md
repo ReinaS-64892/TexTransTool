@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - マテリアルの設定を変更できる MaterialModifier の追加 `#61`
 - ユニティエディターのプログレスバーを追加 `#98`
 - 一部のマテリアルの直接参照を持つコンポーネントがそれらを書き換わっても動くような仕組みを追加 `#173`
+- SimpleDecal 以外の Decal 系 component のギズモに、DecalTexture を表示するギズモを追加 `#155`
 
 ### Changed
 

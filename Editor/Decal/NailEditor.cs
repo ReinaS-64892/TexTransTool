@@ -154,11 +154,12 @@ namespace net.rs64.TexTransTool.Decal
                 foreach (var NailDD in nailSet)
                 {
                     var Finger = NailDD.Item1;
-                    var nailDecalDescription = NailDD.Item2;
+                    var nailDecalDescription = NailDD.nailDecalDescription;
                     var souseFingerTF = GetFinger(Finger, IsRight);
                     var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
 
                     Gizmos.matrix = matrix;
+                    DecalGizmoUtility.DrawGizmoQuad(NailDD.nailDecalDescription.DecalTexture, Color.white, matrix);
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
                     Gizmos.DrawLine(Vector3.zero, Vector3.forward);
                 }
@@ -238,7 +239,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NailSet : IEnumerable<(Finger, NailDecalDescription)>
+    public class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
     {
         public UpVector FingerUpVector;
 
@@ -257,7 +258,7 @@ namespace net.rs64.TexTransTool.Decal
             Little = new NailDecalDescription();
         }
 
-        IEnumerator<(Finger, NailDecalDescription)> IEnumerable<(Finger, NailDecalDescription)>.GetEnumerator()
+        IEnumerator<(Finger finger, NailDecalDescription nailDecalDescription)> IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>.GetEnumerator()
         {
             yield return (Finger.Thumb, Thumb);
             yield return (Finger.Index, Index);
