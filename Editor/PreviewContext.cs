@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true);
+                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true, progressHandler: new ProgressHandler());
                     target1.Apply(previewDomain);
                     previewDomain.EditFinish();
                 }
