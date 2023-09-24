@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine.Serialization;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -74,12 +75,9 @@ namespace net.rs64.TexTransTool.Decal
             var centerPos = Vector3.zero;
             Gizmos.DrawWireCube(centerPos + new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));//基準となる四角形
 
-            if (DecalTexture != null)
-            {
-                if (DisplayDecalMat == null || Quad == null) GizmoInstance();
-                DisplayDecalMat.SetPass(0);
-                Graphics.DrawMeshNow(Quad, matrix);
-            }
+
+            DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
+
             if (IslandCulling)
             {
                 Vector3 selectorOrigin = new Vector2(IslandSelectorPos.x - 0.5f, IslandSelectorPos.y - 0.5f);
@@ -88,13 +86,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public void GizmoInstance()
-        {
-            DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
-            DisplayDecalMat.mainTexture = DecalTexture;
-            Quad = AssetDatabase.LoadAllAssetsAtPath("Library/unity default resources").ToList().Find(i => i.name == "Quad") as Mesh;
 
-        }
 
         [SerializeField] protected bool _IsRealTimePreview = false;
         public bool IsRealTimePreview => _IsRealTimePreview;
