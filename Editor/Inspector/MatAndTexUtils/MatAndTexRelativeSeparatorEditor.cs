@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
             var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
             if (s_SeparateTarget.arraySize != ThisObject.TargetRenderers.Count) { s_SeparateTarget.arraySize = ThisObject.TargetRenderers.Count; }
-            
+
             EditorGUILayout.LabelField("---");
 
             int rendererIndex = 0;

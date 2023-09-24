@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -24,7 +25,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             }
         }
         public List<MatMod> ChangeList = new List<MatMod>();
-
+        [Serializable]
         public class MatMod
         {
             public ModTypeEnum ModType;
@@ -42,14 +43,11 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             public PropertyName Texture_PropertyName;
             public Texture Texture_Value;
 
-            public bool SetBlankTexture;
-            public Vector2Int TextureSize;
-
 
             public string Color_PropertyName;
             public Color Color_Value;
 
-            public void Modified(Material material, List<Texture2D> BlankTexture2Ds)
+            public void Modified(Material material)
             {
                 switch (ModType)
                 {
@@ -62,16 +60,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                     case ModTypeEnum.Texture:
                         {
                             if (!material.HasProperty(Texture_PropertyName)) { break; }
-                            if (!SetBlankTexture)
-                            {
-                                material.SetTexture(Texture_PropertyName, Texture_Value);
-                            }
-                            else
-                            {
-                                var newBlankTex = CoreUtility.CreateFillTexture(TextureSize, new Color(0, 0, 0, 0));
-                                BlankTexture2Ds.Add(newBlankTex);
-                                material.SetTexture(Texture_PropertyName, newBlankTex);
-                            }
+                            material.SetTexture(Texture_PropertyName, Texture_Value);
                             break;
                         }
                     case ModTypeEnum.Color:
@@ -88,19 +77,17 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public override void Apply([NotNull] IDomain domain)
         {
-            var newTexList = new List<Texture2D>();
-            var newMatList = new List<Material>();
+            var ModMatList = new Dictionary<Material, Material>();
             foreach (var modTarget in GetContainsMatTarget)
             {
                 var newMat = Instantiate(modTarget);
-                newMatList.Add(newMat);
+                ModMatList.Add(modTarget, newMat);
                 foreach (var Modified in ChangeList)
                 {
-                    Modified.Modified(newMat, newTexList);
+                    Modified.Modified(newMat);
                 }
             }
-            domain.transferAssets(newTexList);
-            domain.transferAssets(newMatList);
+            domain.ReplaceMaterials(ModMatList);
         }
     }
 }
