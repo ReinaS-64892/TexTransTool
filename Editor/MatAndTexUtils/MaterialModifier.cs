@@ -10,7 +10,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
-    public class MaterialModifier : TextureTransformer
+    public class MaterialModifier : TextureTransformer, IMaterialReplaceEventLiner
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -89,6 +89,13 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                 }
             }
             domain.ReplaceMaterials(ModMatList);
+        }
+
+        public void MaterialReplace(Material Souse, Material Target)
+        {
+            var index = ModifiedTarget.IndexOf(Souse);
+            if (index == -1) { return; }
+            ModifiedTarget[index] = Target;
         }
     }
 }
