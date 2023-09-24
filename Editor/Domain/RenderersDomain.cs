@@ -137,13 +137,19 @@ namespace net.rs64.TexTransTool
 
         public virtual void EditFinish()
         {
-            foreach (var mergeResult in _textureStacks.MargeStacks())
+            ProgressStateEnter("Finalize");
+            ProgressUpdate("MargeStack", 0f);
+            var mangedStack = _textureStacks.MargeStacks();
+            ProgressUpdate("MargeStack", 0.9f);
+            foreach (var mergeResult in mangedStack)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MargeTexture == null) continue;
                 SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
                 TransferAsset(mergeResult.MargeTexture);
             }
-            _progressHandler?.ProgressStateExit();
+            ProgressUpdate("MargeStack", 1);
+            ProgressStateExit();
+            ProgressStateExit();
             _progressHandler?.ProgressFinalize();
         }
 
