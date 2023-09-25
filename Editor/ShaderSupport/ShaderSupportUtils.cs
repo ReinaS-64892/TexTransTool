@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.ShaderSupport

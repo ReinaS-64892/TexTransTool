@@ -7,6 +7,7 @@ using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using BestHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
