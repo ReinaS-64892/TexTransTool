@@ -16,6 +16,7 @@ namespace net.rs64.TexTransTool.Decal
     public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
     {
         public bool AutoSelectRenderer = false;
+        public override bool IsPossibleApply => AutoSelectRenderer || base.IsPossibleApply;
         public Vector2 Scale = Vector2.one;
         public float MaxDistance = 1;
         public bool FixedAspect = true;
