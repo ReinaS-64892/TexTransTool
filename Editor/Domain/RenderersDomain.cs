@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -68,6 +69,8 @@ namespace net.rs64.TexTransTool
 
             foreach (var renderer in _renderers)
             {
+                if (renderer == null) { continue; }
+                if (!renderer.sharedMaterials.Any()) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
