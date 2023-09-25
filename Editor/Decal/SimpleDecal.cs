@@ -15,6 +15,7 @@ namespace net.rs64.TexTransTool.Decal
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
     public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
     {
+        public bool AutoSelectRenderer = false;
         public Vector2 Scale = Vector2.one;
         public float MaxDistance = 1;
         public bool FixedAspect = true;
@@ -59,6 +60,34 @@ namespace net.rs64.TexTransTool.Decal
                 };
         }
 
+        public override void Apply(IDomain Domain)
+        {
+            if (AutoSelectRenderer)
+            {
+                List<(int, Renderer)> find = null;
+                switch (Domain)
+                {
+                    case AvatarDomain avatarDomain:
+                        {
+                            find = DecalUtility.FindAtRenderer(transform.worldToLocalMatrix, avatarDomain.AvatarRoot);
+                            break;
+                        }
+                    default:
+                        {
+                            find = DecalUtility.FindAtRenderer(transform.worldToLocalMatrix);
+                            break;
+                        }
+                }
+                TargetRenderers.Clear();
+                find.Sort((L, R) => L.Item1 - R.Item1);
+                find.Reverse();
+                foreach (var rd in find)
+                {
+                    TargetRenderers.Add(rd.Item2);
+                }
+            }
+            base.Apply(Domain);
+        }
 
         [NonSerialized] public Material DisplayDecalMat;
         public Color GizmoColor = new Color(0, 0, 0, 1);

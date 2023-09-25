@@ -34,7 +34,7 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture< SpaceConverter>(
+        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter>(
             Renderer TargetRenderer,
             Dictionary<Material, Dictionary<string, RenderTexture>> RenderTextures,
             Texture SousTextures,
@@ -256,6 +256,34 @@ namespace net.rs64.TexTransCore.Decal
                 NormalizedPos.Add(QuadNormalize(Quad, targetPos));
             }
             return NormalizedPos;
+        }
+
+
+        public static List<(int, Renderer)> FindAtRenderer(Matrix4x4 WorldToLocal, GameObject FindRoot = null)
+        {
+            var ResultList = new List<(int, Renderer)>();
+            var Renderers = FindRoot != null ? FindRoot.GetComponentsInChildren<Renderer>() : UnityEngine.Object.FindObjectsOfType<Renderer>();
+            foreach (var rd in Renderers)
+            {
+                if (!(rd is SkinnedMeshRenderer || rd is MeshRenderer)) { continue; }
+                if (rd.GetMesh() == null) { continue; }
+                var vert = GetWorldSpaceVertices(rd);
+                var count = 0;
+                for (var i = 0; vert.Count > i; i += 1)
+                {
+                    var pos = WorldToLocal.MultiplyPoint3x4(vert[i]);
+                    pos.z -= 0.5f;
+                    if (Mathf.Abs(pos.x) < 0.5f && Mathf.Abs(pos.y) < 0.5f && Mathf.Abs(pos.z) < 0.5f)
+                    {
+                        count += 1;
+                    }
+                }
+                if (count > 0)
+                {
+                    ResultList.Add((count, rd));
+                }
+            }
+            return ResultList;
         }
     }
 

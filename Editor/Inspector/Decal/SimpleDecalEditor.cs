@@ -16,7 +16,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
 
-
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
             AbstractDecalEditor.DrawerDecalEditor(This_S_Object);

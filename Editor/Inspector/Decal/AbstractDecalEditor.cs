@@ -20,10 +20,18 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             EditorGUILayout.LabelField("RenderersSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
-            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(s_MultiRendererMode);
+            var s_AutoSelectRenderer = This_S_Object.FindProperty("AutoSelectRenderer");//これもうちょっといい感じにしたくない？
+            if (s_AutoSelectRenderer != null)
+            {
+                EditorGUILayout.PropertyField(s_AutoSelectRenderer);
+            }
+            if (s_AutoSelectRenderer == null || !s_AutoSelectRenderer.boolValue)
+            {
+                var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
+                var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
+                TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
+                EditorGUILayout.PropertyField(s_MultiRendererMode);
+            }
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("TextureSettings", EditorStyles.boldLabel);
