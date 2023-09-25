@@ -92,6 +92,7 @@ namespace net.rs64.TexTransTool
                 var souseTexture = material.GetTexture(PropertyName) as Texture2D;
                 var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
                 editableMat.SetTexture(PropertyName, newTarget);
+                Graphics.Blit(souseTexture, newTarget);
                 Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }) } });
             }
         }
