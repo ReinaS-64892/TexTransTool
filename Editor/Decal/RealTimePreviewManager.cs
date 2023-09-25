@@ -7,14 +7,13 @@ using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using static net.rs64.TexTransCore.Decal.DecalUtility;
 using static net.rs64.TexTransTool.TextureLayerUtil;
 
 namespace net.rs64.TexTransTool
 {
     public class RealTimePreviewManager : ScriptableSingleton<RealTimePreviewManager>
     {
-        public Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureClass, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)> RealTimePreviews = new Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureClass, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)>();
+        public Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)> RealTimePreviews = new Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)>();
         private Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>> Previews = new Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>>();
         private Dictionary<Material, Material> PreviewMatDict = new Dictionary<Material, Material>();
         private HashSet<Renderer> PreviewTargetRenderer = new HashSet<Renderer>();
@@ -67,7 +66,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private void RegtPreviewRenderTexture(Material material, string PropertyName, BlendTextureClass renderTexture)
+        private void RegtPreviewRenderTexture(Material material, string PropertyName, BlendTextureClass blendTexture)
         {
             if (PreviewMatDict.ContainsKey(material)) { material = PreviewMatDict[material]; }
 
@@ -75,14 +74,14 @@ namespace net.rs64.TexTransTool
             {
                 if (Previews[material].ContainsKey(PropertyName))
                 {
-                    Previews[material][PropertyName].Decals.Add(renderTexture);
+                    Previews[material][PropertyName].Decals.Add(blendTexture);
                 }
                 else
                 {
-                    var newTarget = new RenderTexture(renderTexture.RenderTexture.descriptor);
+                    var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
                     var souseTexture = material.GetTexture(PropertyName) as Texture2D;
                     material.SetTexture(PropertyName, newTarget);
-                    Previews[material].Add(PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { renderTexture }));
+                    Previews[material].Add(PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }));
                 }
             }
             else
@@ -91,9 +90,9 @@ namespace net.rs64.TexTransTool
                 SwapMaterialAll(material, editableMat);
                 PreviewMatDict.Add(material, editableMat);
                 var souseTexture = material.GetTexture(PropertyName) as Texture2D;
-                var newTarget = new RenderTexture(renderTexture.RenderTexture.descriptor);
+                var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
                 editableMat.SetTexture(PropertyName, newTarget);
-                Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { renderTexture }) } });
+                Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }) } });
             }
         }
 
@@ -211,7 +210,7 @@ namespace net.rs64.TexTransTool
                 RegtAbstractDecal(abstractDecal);
             }
 
-            foreach (var blendData in absDecalData.blendTextureClass)
+            foreach (var blendData in absDecalData.blendTextureList)
             {
                 blendData.BlendType = abstractDecal.BlendType;
             }
