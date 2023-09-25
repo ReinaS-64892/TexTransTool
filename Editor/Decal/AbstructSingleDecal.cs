@@ -18,82 +18,37 @@ namespace net.rs64.TexTransTool.Decal
         public abstract SpaceConverter GetSpaceConverter { get; }
         public abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
 
-        public override Dictionary<Texture2D, Texture> CompileDecal()
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-            var mulDecalTexture = DecalTexture != null ? (Texture)TextureLayerUtil.CreateMultipliedRenderTexture(DecalTexture, Color) : TextureLayerUtil.CreateColorTex(Color);
-            var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
-            if (FastMode)
+            RenderTexture mulDecalTexture = RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0);
+            if (DecalTexture != null)
             {
-                var decalCompiledRenderTextures = new Dictionary<Texture2D, RenderTexture>();
-                foreach (var renderer in TargetRenderers)
-                {
-                    DecalUtility.CreateDecalTexture(
-                        renderer,
-                        decalCompiledRenderTextures,
-                        mulDecalTexture,
-                        GetSpaceConverter,
-                        GetTriangleFilter,
-                        TargetPropertyName,
-                        GetTextureWarp,
-                        Padding
-                    );
-                }
-
-                foreach (var texture in decalCompiledRenderTextures)
-                {
-                    decalCompiledTextures.Add(texture.Key, texture.Value);
-                }
+                Graphics.Blit(DecalTexture, mulDecalTexture);
+                TextureLayerUtil.MultipleRenderTexture(mulDecalTexture, DecalTexture, Color);
             }
             else
             {
-                Texture2D mulDecalTexture2D = null;
-                switch (mulDecalTexture)
-                {
-                    case RenderTexture renderTexture:
-                        {
-                            mulDecalTexture2D = renderTexture.CopyTexture2D();
-                            break;
-                        }
-                    case Texture2D texture2D:
-                        {
-                            mulDecalTexture2D = texture2D;
-                            break;
-                        }
-                }
-                var mulDecalTexTowDimensionMap = new TwoDimensionalMap<Color>(mulDecalTexture2D.GetPixels(), new Vector2Int(mulDecalTexture2D.width, mulDecalTexture2D.height));
-                var TransTextureCompute = TransMapper.TransTextureCompute;
-                List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>> DecalsCompileTexListDict = new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
-                foreach (var renderer in TargetRenderers)
-                {
-                    var DecalsCompile = DecalUtility.CreateDecalTextureCS(
-                        TransTextureCompute,
-                        renderer,
-                        mulDecalTexTowDimensionMap,
-                        GetSpaceConverter,
-                        GetTriangleFilter,
-                        TargetPropertyName,
-                        GetTextureWarp,
-                        Padding
-                    );
-                    DecalsCompileTexListDict.Add(DecalsCompile);
-                }
-
-                var zipDict = CollectionsUtility.ZipToDictionaryOnList(DecalsCompileTexListDict);
-
-                var blendTextureCS = TransMapper.BlendTextureCS;
-                foreach (var texture in zipDict)
-                {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value, BlendType.AlphaLerp);
-                    var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
-                    blendTexture.SetPixels(blendColorMap.Array);
-                    blendTexture.Apply();
-                    decalCompiledTextures.Add(texture.Key, blendTexture);
-                }
+                TextureLayerUtil.ColorBlit(mulDecalTexture, Color);
             }
-
-
-            return decalCompiledTextures;
+            if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
+            foreach (var renderer in TargetRenderers)
+            {
+                DecalUtility.CreateDecalTexture(
+                   renderer,
+                   decalCompiledRenderTextures,
+                   mulDecalTexture,
+                   GetSpaceConverter,
+                   GetTriangleFilter,
+                   TargetPropertyName,
+                   GetTextureWarp,
+                   Padding
+               );
+            }
+            RenderTexture.ReleaseTemporary(mulDecalTexture);
+            return decalCompiledRenderTextures;
         }
+
+
 
         public virtual void ScaleApply() { throw new NotImplementedException(); }
 

@@ -21,21 +21,17 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         public BezierCurve BezierCurve => new BezierCurve(Segments, RollMode);
 
-        public override Dictionary<Texture2D, Texture> CompileDecal()
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-
-
             TextureWrap texWarpRange = TextureWrap.NotWrap;
             if (IsTextureWarp)
             {
                 texWarpRange.WarpRange = TextureWarpRange;
             }
 
-            Dictionary<Texture2D, RenderTexture> fastDictCompiledTextures = FastMode ? new Dictionary<Texture2D, RenderTexture>() : null;
-            List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>> slowDictCompiledTextures = FastMode ? null : new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
-            var transTextureCompute = TransMapper.TransTextureCompute;
+            decalCompiledRenderTextures = decalCompiledRenderTextures == null ? new Dictionary<Material, Dictionary<string, RenderTexture>>() : decalCompiledRenderTextures;
 
-            var decalCompiledTextures = new Dictionary<Texture2D, Texture>();
+
             int count = 0;
             foreach (var quad in BezierCurve.GetQuad(LoopCount, Size, CurveStartOffset))
             {
@@ -56,59 +52,22 @@ namespace net.rs64.TexTransTool.Decal.Curve
                     var CCSSpace = new CCSSpace(CylindricalCoordinatesSystem, quad);
                     var CCSfilter = new CCSFilter(GetFilers());
 
-                    if (FastMode)
-                    {
-                        DecalUtility.CreateDecalTexture(Renderer,
-                                                    fastDictCompiledTextures,
-                                                    targetDecalTexture,
-                                                    CCSSpace,
-                                                    CCSfilter,
-                                                    TargetPropertyName,
-                                                    TextureWarp: texWarpRange,
-                                                    DefaultPadding: Padding
-                                                    );
-                    }
-                    else
-                    {
-                        var decalTexTowDimensionMap = new TwoDimensionalMap<Color>(targetDecalTexture.GetPixels(), new Vector2Int(targetDecalTexture.width, targetDecalTexture.height));
-                        slowDictCompiledTextures.Add(DecalUtility.CreateDecalTextureCS(transTextureCompute,
-                                                                             Renderer,
-                                                                             decalTexTowDimensionMap,
-                                                                             CCSSpace,
-                                                                             CCSfilter,
-                                                                             TargetPropertyName,
-                                                                             TextureWarp: texWarpRange,
-                                                                             DefaultPadding: Padding
-                                                                            ));
-                    }
+
+                    DecalUtility.CreateDecalTexture(Renderer,
+                                                decalCompiledRenderTextures,
+                                                targetDecalTexture,
+                                                CCSSpace,
+                                                CCSfilter,
+                                                TargetPropertyName,
+                                                TextureWarp: texWarpRange,
+                                                DefaultPadding: Padding
+                                                );
 
                     count += 1;
                 }
             }
 
-            if (FastMode)
-            {
-                foreach (var Texture in fastDictCompiledTextures)
-                {
-                    decalCompiledTextures.Add(Texture.Key, Texture.Value);
-                }
-            }
-            else
-            {
-                var zipDict = CollectionsUtility.ZipToDictionaryOnList(slowDictCompiledTextures);
-
-                var blendTextureCS = TransMapper.BlendTextureCS;
-                foreach (var texture in zipDict)
-                {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value, BlendType.AlphaLerp);
-                    var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
-                    blendTexture.SetPixels(blendColorMap.Array);
-                    blendTexture.Apply();
-                    decalCompiledTextures.Add(texture.Key, blendTexture);
-                }
-            }
-
-            return decalCompiledTextures;
+            return decalCompiledRenderTextures;
         }
 
         public List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilers()

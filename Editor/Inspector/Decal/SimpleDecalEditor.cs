@@ -19,13 +19,13 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
-            AbstractSingleDecalEditor.DrawerDecalEditor(This_S_Object);
+            AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var s_Scale = This_S_Object.FindProperty("Scale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstractSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
+            AbstractDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
 
             var s_MaxDistance = This_S_Object.FindProperty("MaxDistance");
             TextureTransformerEditor.DrawerProperty(s_MaxDistance, (float MaxDistanceValue) =>
@@ -82,39 +82,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
             EditorGUI.EndDisabledGroup();
-            DrawerRealTimePreviewEditor(ThisObject);
-            EditorGUI.BeginDisabledGroup(ThisObject.IsRealTimePreview);
+            AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
+            EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
             PreviewContext.instance.DrawApplyAndRevert(ThisObject);
             EditorGUI.EndDisabledGroup();
 
             This_S_Object.ApplyModifiedProperties();
         }
 
-        private static void DrawerRealTimePreviewEditor(SimpleDecal Target)
-        {
-            if (Target == null) return;
-            {
-                if (!Target.IsRealTimePreview)
-                {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || PreviewContext.IsPreviewing(Target));
-                    if (GUILayout.Button("EnableRealTimePreview"))
-                    {
-                        Target.EnableRealTimePreview();
-                        EditorUtility.SetDirty(Target);
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
-                else
-                {
-                    if (GUILayout.Button("DisableRealTimePreview"))
-                    {
-                        Target.DisableRealTimePreview();
-                        EditorUtility.SetDirty(Target);
 
-                    }
-                }
-            }
-        }
         public static void DrawerSummary(SimpleDecal target)
         {
             var s_obj = new SerializedObject(target);

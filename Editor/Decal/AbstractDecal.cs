@@ -8,6 +8,7 @@ using System;
 
 namespace net.rs64.TexTransTool.Decal
 {
+    [ExecuteInEditMode]
     public abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
@@ -48,13 +49,16 @@ namespace net.rs64.TexTransTool.Decal
 
             Domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            Dictionary<Texture2D, Texture> decalCompiledTextures = CompileDecal();
+            var decalCompiledTextures = CompileDecal();
 
             Domain.ProgressUpdate("AddStack", 0.75f);
 
-            foreach (var trp in decalCompiledTextures)
+            foreach (var matAndTex in decalCompiledTextures)
             {
-                Domain.AddTextureStack(trp.Key, new TextureLayerUtil.BlendTextures(trp.Value, BlendType));
+                foreach (var PramAndRt in matAndTex.Value)
+                {
+                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureLayerUtil.BlendTextures(PramAndRt.Value, BlendType));
+                }
             }
 
             Domain.ProgressUpdate("End", 1);
@@ -62,9 +66,36 @@ namespace net.rs64.TexTransTool.Decal
         }
 
 
-        public abstract Dictionary<Texture2D, Texture> CompileDecal();
+        public abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
 
+        public static void DecalCompiledConvert(Dictionary<Texture2D, Texture> decalCompiledTextures, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures)
+        {
+            foreach (var matAndTex in decalCompiledRenderTextures)
+            {
+                foreach (var texture in matAndTex.Value)
+                {
+                    var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
+                    if (decalCompiledTextures.ContainsKey(souseTex))
+                    {
+                        TextureLayerUtil.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.AlphaLerp);
+                    }
+                    else
+                    {
+                        decalCompiledTextures.Add(souseTex, texture.Value);
+                    }
+                }
+            }
+        }
 
+        [NonSerialized] public bool ThisIsForces = false;
+        private void Update()
+        {
+            if (ThisIsForces && RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(this))
+            {
+                RealTimePreviewManager.instance.UpdateAbstractDecal(this);
+            }
+            ThisIsForces = false;
+        }
         [ContextMenu("ExtractDecalCompiledTexture")]
         public void ExtractDecalCompiledTexture()
         {
@@ -75,7 +106,9 @@ namespace net.rs64.TexTransTool.Decal
             if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
 
             var decalCompiledTextures = CompileDecal();
-            foreach (var TexturePair in decalCompiledTextures)
+            var decalCompiledTexPier = new Dictionary<Texture2D, Texture>();
+            DecalCompiledConvert(decalCompiledTexPier, decalCompiledTextures);
+            foreach (var TexturePair in decalCompiledTexPier)
             {
                 var name = TexturePair.Key.name;
                 Texture2D extractDCtex;

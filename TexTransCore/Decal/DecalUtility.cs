@@ -34,9 +34,9 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<KeyTexture, RenderTexture> CreateDecalTexture<KeyTexture, SpaceConverter>(
+        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture< SpaceConverter>(
             Renderer TargetRenderer,
-            Dictionary<KeyTexture, RenderTexture> RenderTextures,
+            Dictionary<Material, Dictionary<string, RenderTexture>> RenderTextures,
             Texture SousTextures,
             SpaceConverter ConvertSpace,
             ITrianglesFilter<SpaceConverter> Filter,
@@ -44,10 +44,9 @@ namespace net.rs64.TexTransCore.Decal
             TextureWrap TextureWarp = null,
             float DefaultPadding = 0.5f
         )
-        where KeyTexture : Texture
         where SpaceConverter : IConvertSpace
         {
-            if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
+            if (RenderTextures == null) RenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>();
 
             var vertices = GetWorldSpaceVertices(TargetRenderer);
             var (tUV, trianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
@@ -63,22 +62,26 @@ namespace net.rs64.TexTransCore.Decal
                 var targetMat = materials[i];
 
                 if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
-                var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
+                var targetTexture = targetMat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
                 var targetTexSize = new Vector2Int(targetTexture.width, targetTexture.height);
 
                 var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
                 if (filteredTriangle.Any() == false) { continue; }
 
+                if (!RenderTextures.ContainsKey(targetMat))
+                {
+                    RenderTextures.Add(targetMat, new Dictionary<string, RenderTexture>());
+                }
 
-                if (!RenderTextures.ContainsKey(targetTexture))
+                if (!RenderTextures[targetMat].ContainsKey(TargetPropertyName))
                 {
                     var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-                    RenderTextures.Add(targetTexture, rendererTexture);
+                    RenderTextures[targetMat].Add(TargetPropertyName, rendererTexture);
                 }
 
                 TransTexture.TransTextureToRenderTexture(
-                    RenderTextures[targetTexture],
+                    RenderTextures[targetMat][TargetPropertyName],
                     SousTextures,
                     new TransTexture.TransData(filteredTriangle, tUV, sUV),
                     DefaultPadding,
