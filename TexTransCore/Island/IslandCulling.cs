@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using Unity.Jobs;
+using Unity.Collections;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransCore.Island
 {
@@ -35,8 +38,7 @@ namespace net.rs64.TexTransCore.Island
             var rayCastHitTriangle = new List<TriangleIndex>();
             foreach (var i in IslandSelectors)
             {
-                var hits = RayCast(i.Ray, Positions, Triangles, out var RayMatrixPoss);
-
+                var hits = RayCast(i.Ray, Positions, Triangles);
                 FilteredBackTriangle(hits);
                 FilteredRangeTriangle(hits, i.RayRange);
 
@@ -63,43 +65,40 @@ namespace net.rs64.TexTransCore.Island
 
         }
 
-        public static List<RayCastHitTriangle> RayCast(Ray Ray, IReadOnlyList<Vector3> Positions, IReadOnlyList<TriangleIndex> Triangles, out List<Vector3> RayMatrixPoss)
+        public static List<RayCastHitTriangle> RayCast(Ray Ray, List<Vector3> Positions, List<TriangleIndex> TriangleIs)
         {
             var rot = Quaternion.LookRotation(Ray.direction);
             var rayMatrix = Matrix4x4.TRS(Ray.origin, rot, Vector3.one).inverse;
 
-            RayMatrixPoss = new List<Vector3>();
-            foreach (var i in Positions)
+            var Triangle = TriangleIs.ConvertAll(I => new Triangle(I, Positions)).ToArray();
+
+            var triangle = new NativeArray<Triangle>(Triangle, Allocator.TempJob);
+            var hitResult = new NativeArray<bool>(Triangle.Length, Allocator.TempJob);
+            var distance = new NativeArray<float>(Triangle.Length, Allocator.TempJob);
+
+            var rayCastJob = new RayCastJob
             {
-                RayMatrixPoss.Add(rayMatrix.MultiplyPoint3x4(i));
+                rayMatrix = rayMatrix,
+                triangles = triangle,
+                HitResult = hitResult,
+                Distance = distance
+            };
+
+            var handle = rayCastJob.Schedule(triangle.Length, 1);
+            handle.Complete();
+
+            var Out = new List<RayCastHitTriangle>();
+            for (int i = 0; triangle.Length > i; i += 1)
+            {
+                if (!hitResult[i]) { continue; }
+                Out.Add(new RayCastHitTriangle(TriangleIs[i], distance[i]));
             }
 
-            var hits = new List<(int, float, Vector4)>();
-            for (int i = 0; i < Triangles.Count; i++)
-            {
-                var triangle = Triangles[i];
-                var A = RayMatrixPoss[triangle.zero];
-                var B = RayMatrixPoss[triangle.one];
-                var C = RayMatrixPoss[triangle.two];
+            Out.Sort((a, b) => a.Distance.CompareTo(b.Distance));
 
-                var CrossT = VectorUtility.CrossTriangle(new List<Vector2> { A, B, C }, Vector2.zero);
-                var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
-                if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { continue; }
-                var IsIn = VectorUtility.IsInCal(CrossT.x, CrossT.y, CrossT.z);
-                if (IsIn)
-                {
-                    var Distance = VectorUtility.FromBarycentricCoordinateSystem(new List<Vector3> { A, B, C }, TBC).z;
-
-                    hits.Add((i, Distance, CrossT));
-                }
-            }
-            hits.Sort((a, b) => a.Item2.CompareTo(b.Item2));
-
-            var Out = new List<RayCastHitTriangle>(hits.Capacity);
-            foreach (var i in hits)
-            {
-                Out.Add(new RayCastHitTriangle(Triangles[i.Item1], i.Item3, i.Item2));
-            }
+            triangle.Dispose();
+            hitResult.Dispose();
+            distance.Dispose();
             return Out;
         }
         public static void FilteredBackTriangle(List<RayCastHitTriangle> RCHTri)
@@ -113,15 +112,14 @@ namespace net.rs64.TexTransCore.Island
         public struct RayCastHitTriangle
         {
             public TriangleIndex Triangle;
-            public Vector4 Close;
             public float Distance;
-            public RayCastHitTriangle(TriangleIndex triangle, Vector4 close, float distance)
+            public RayCastHitTriangle(TriangleIndex triangle, float distance)
             {
                 this.Triangle = triangle;
-                this.Close = close;
                 this.Distance = distance;
             }
         }
+
 
     }
 }

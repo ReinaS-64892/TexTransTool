@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-            RenderTexture mulDecalTexture = RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0);
+            RenderTexture mulDecalTexture = DecalTexture != null ? RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0) : RenderTexture.GetTemporary(32, 32, 0); ;
             if (DecalTexture != null)
             {
                 Graphics.Blit(DecalTexture, mulDecalTexture);

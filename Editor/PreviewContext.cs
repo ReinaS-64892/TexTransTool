@@ -54,6 +54,7 @@ namespace net.rs64.TexTransTool
                     catch
                     {
                         AnimationMode.StopAnimationMode();
+                        EditorUtility.ClearProgressBar();
                         previweing = null;
                         throw;
                     }
