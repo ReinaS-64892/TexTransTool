@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool
             if (previweing == null && AnimationMode.InAnimationMode())
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button(previewMessage + " (Previewing Animation)");
+                GUILayout.Button("(Other Previewing Or Previewing Animation)");
                 EditorGUI.EndDisabledGroup();
             }
             else if (previweing == null)

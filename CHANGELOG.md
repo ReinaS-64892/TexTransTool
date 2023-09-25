@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ユニティエディターのプログレスバーを追加 `#98`
 - 一部のマテリアルの直接参照を持つコンポーネントがそれらを書き換わっても動くような仕組みを追加 `#173`
 - SimpleDecal 以外の Decal 系 component のギズモに、DecalTexture を表示するギズモを追加 `#155`
+- SimpleDecalのリアルタイムプレビューが複数同時に使用できる機能を追加 `#144`
 
 ### Changed
 
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の Channel を削除 `#146`
 - Decal 系統の IsSeparateMatAndTexture の削除 `#151`
 - AvatarDomainDefinition の削除 `#159`
+- コンピュートシェーダーを用いたDecalのコンパイルは削除されました `#144`
 
 ### Fixed
 

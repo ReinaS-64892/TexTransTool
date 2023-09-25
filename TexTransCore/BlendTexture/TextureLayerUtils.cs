@@ -44,33 +44,35 @@ namespace net.rs64.TexTransTool
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
         {
             var material = new Material(Shader.Find("Hidden/BlendTexture"));
-            var swap = new RenderTexture(Base.descriptor);
+            var swap = RenderTexture.GetTemporary(Base.descriptor);
             Graphics.CopyTexture(Base, swap);
             material.SetTexture("_DistTex", swap);
             material.EnableKeyword(blendType.ToString());
 
             Graphics.Blit(Add, Base, material);
-
-
+            RenderTexture.ReleaseTemporary(swap);
         }
         public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
         {
             var material = new Material(Shader.Find("Hidden/BlendTexture"));
-            var swap = new RenderTexture(Base.descriptor);//GrabPassが使えないためスワップしている。
+            var temRt = RenderTexture.GetTemporary(Base.descriptor);
+            var swap = Base;
+            var target = temRt;
+            Graphics.Blit(swap, target);
 
-            var isSwap = false;
             foreach (var Add in Adds)
             {
+                material.SetTexture("_DistTex", swap);
                 material.shaderKeywords = new string[] { Add.BlendType.ToString() };
-                material.SetTexture("_DistTex", isSwap ? swap : Base);
-                Graphics.Blit(Add.Texture, isSwap ? Base : swap, material);
-                isSwap = !isSwap;
+                Graphics.Blit(Add.Texture, target, material);
+                (swap, target) = (target, swap);
             }
 
-            if (isSwap)
+            if (swap != Base)
             {
-                Graphics.CopyTexture(swap, Base);
+                Graphics.Blit(swap, Base);
             }
+            RenderTexture.ReleaseTemporary(temRt);
         }
         public static RenderTexture BlendBlit(Texture2D Base, Texture Add, BlendType blendType)
         {
@@ -676,6 +678,12 @@ namespace net.rs64.TexTransTool
             return mainTex2d;
         }
 
+        public static void ColorBlit(RenderTexture mulDecalTexture, Color Color)
+        {
+            var unlitMat = new Material(Shader.Find("Hidden/UnlitColorAndAlpha"));
+            unlitMat.SetColor("_Color", Color);
+            Graphics.Blit(null, mulDecalTexture, unlitMat);
+        }
     }
 
 }

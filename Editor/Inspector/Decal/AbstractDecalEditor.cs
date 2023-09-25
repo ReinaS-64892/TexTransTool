@@ -6,7 +6,7 @@ using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
-    public class AbstractSingleDecalEditor : UnityEditor.Editor
+    public class AbstractDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
@@ -43,7 +43,33 @@ namespace net.rs64.TexTransTool.Editor.Decal
             PropertyNameEditor.DrawInspectorGUI(s_TargetPropertyName);
             EditorGUI.indentLevel -= 1;
         }
-
+        public static void DrawerRealTimePreviewEditor(AbstractDecal Target)
+        {
+            if (Target == null) return;
+            {
+                if (!RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(Target))
+                {
+                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || AnimationMode.InAnimationMode() || PreviewContext.IsPreviewing(Target));
+                    var IsOtherPreview = AnimationMode.InAnimationMode() || PreviewContext.IsPreviewing(Target);
+                    if (GUILayout.Button(!IsOtherPreview ? "EnableRealTimePreview" : "(Other Previewing Or Previewing Animation)"))
+                    {
+                        RealTimePreviewManager.instance.RegtAbstractDecal(Target);
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+                else
+                {
+                    if (GUILayout.Button("DisableRealTimePreview"))
+                    {
+                        RealTimePreviewManager.instance.UnRegtAbstractDecal(Target);
+                    }
+                    else
+                    {
+                        Target.ThisIsForces = true;
+                    }
+                }
+            }
+        }
         public static void DrawerScaleEditor<T>(AbstractSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtility.IConvertSpace
         {
             if (S_FixedAspect.boolValue)

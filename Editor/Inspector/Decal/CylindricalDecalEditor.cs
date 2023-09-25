@@ -26,13 +26,13 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
 
-            AbstractSingleDecalEditor.DrawerDecalEditor(This_S_Object);
+            AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
 
             EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
             var S_Scale = This_S_Object.FindProperty("Scale");
             var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstractSingleDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
+            AbstractDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
             EditorGUI.indentLevel -= 1;
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
