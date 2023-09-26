@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.BeginHorizontal();
 
                 var sObj = new SerializedObject(tf.gameObject);
-                EditorGUILayout.LabelField(new GUIContent("Enabled"), GUILayout.Width(50));
+                EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
                 EditorGUILayout.PropertyField(sObj.FindProperty("m_IsActive"), GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
                 sObj.ApplyModifiedProperties();
 
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.Editor
                         }
                     case AbstractTexTransGroup abstractTexTransGroup:
                         {
-                            EditorGUILayout.LabelField("Group Children");
+                            EditorGUILayout.LabelField("GroupChildren".GetLocalize());
                             DrawerSummaryList(abstractTexTransGroup);
                             break;
                         }
@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.Editor
                         }
                     default:
                         {
-                            EditorGUILayout.LabelField("Summary None");
+                            EditorGUILayout.LabelField("SummaryNone");
                             break;
                         }
                 }
