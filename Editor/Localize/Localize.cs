@@ -35,6 +35,8 @@ namespace net.rs64.TexTransTool
                     {
                         return Str;
                     }
+
+#if UNITY_EDITOR
                 case LanguageEnum.JP:
                     {
                         if (JP == null) { InitLanguage(Language); }
@@ -42,10 +44,12 @@ namespace net.rs64.TexTransTool
                         if (index == -1 || JP.Length <= index) { return Str; }
                         return JP[index];
                     }
+#endif
             }
         }
 
-        public static void InitLanguage(LanguageEnum language)
+#if UNITY_EDITOR
+        static void InitLanguage(LanguageEnum language)
         {
             switch (language)
             {
@@ -77,5 +81,6 @@ namespace net.rs64.TexTransTool
             Language = LanguageEnum.JP;
             EditorPrefs.SetInt(PrefKey, (int)Language);
         }
+#endif
     }
 }
