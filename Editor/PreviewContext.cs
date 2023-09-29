@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool
             if (previweing == null && AnimationMode.InAnimationMode())
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("(Other Previewing Or Previewing Animation)");
+                GUILayout.Button("(Other Previewing Or Previewing Animation)".GetLocalize());
                 EditorGUI.EndDisabledGroup();
             }
             else if (previweing == null)
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
             }
             else if (previweing == target)
             {
-                if (GUILayout.Button("Revert"))
+                if (GUILayout.Button("Revert".GetLocalize()))
                 {
                     ExitPreview();
                 }
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool
             else
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("Preview (Other Previewing)");
+                GUILayout.Button("(Other Previewing)".GetLocalize());
                 EditorGUI.EndDisabledGroup();
             }
         }
@@ -87,7 +87,7 @@ namespace net.rs64.TexTransTool
         }
         public void DrawApplyAndRevert(TextureTransformer target)
         {
-            DrawApplyAndRevert(target, "Preview", target1 =>
+            DrawApplyAndRevert(target, "Preview".GetLocalize(), target1 =>
             {
                 AnimationMode.BeginSampling();
                 try

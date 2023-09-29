@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName" : Label);
+            EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName".GetLocalize() : Label);
             rect.x += rect.width;
 
             if (s_useCustomProperty.boolValue)
@@ -73,7 +73,7 @@ namespace net.rs64.TexTransTool.Editor
                 if (editorFlag || string.IsNullOrWhiteSpace(s_propertyName.stringValue)) { s_propertyName.stringValue = ShaderNameAndProperties[ShadersNames[editShaderIndex]][s_propertyIndex.intValue].PropertyName; }
             }
             rect.width = PropWith;
-            s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty"), s_useCustomProperty.boolValue);
+            s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty".GetLocalize()), s_useCustomProperty.boolValue);
 
             EditorGUILayout.EndHorizontal();
         }
