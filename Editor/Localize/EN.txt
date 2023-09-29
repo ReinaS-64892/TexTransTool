@@ -71,7 +71,7 @@ Load
 TexTransPhase
 Phase
 Setting
-is experimental future!!!
+is an experimental feature. Features may be changed or removed without notice.
 Enabled
 GroupChildren
 SummaryNone
