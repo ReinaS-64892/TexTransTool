@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.Editor
                         }
                     default:
                         {
-                            EditorGUILayout.LabelField("SummaryNone");
+                            EditorGUILayout.LabelField("SummaryNone".GetLocalize());
                             break;
                         }
                 }
