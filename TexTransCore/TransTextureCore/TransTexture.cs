@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -53,11 +54,14 @@ namespace net.rs64.TexTransCore.TransTextureCore
             SouseTexture.wrapMode = TexWrap.ConvertTextureWrapMode;
 
 
+            if (Padding.HasValue)
+            {
 
+            }
 
             var material = new Material(Shader.Find("Hidden/TransTexture"));
             material.SetTexture("_MainTex", SouseTexture);
-            if (Padding != null) material.SetFloat("_Padding", Padding.Value);
+            if (Padding.HasValue) material.SetFloat("_Padding", Padding.Value);
 
             if (TexWrap.WarpRange != null)
             {
@@ -102,6 +106,81 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 TransTextureToRenderTexture(TargetTexture, SouseTexture, transUVData, Padding, WarpRange);
             }
         }
+
+        public static void TTNormalCal(this Mesh mesh)
+        {
+            var vertices = mesh.vertices;
+            var posDict = new Dictionary<Vector3, List<Triangle>>();
+            var posDictNormal = new Dictionary<Vector3, Vector3>();
+            var normal = new Vector3[vertices.Length];
+
+
+            foreach (var tri in mesh.GetTriangleIndex())
+            {
+                foreach (var i in tri)
+                {
+                    if (posDict.ContainsKey(vertices[i]))
+                    {
+                        posDict[vertices[i]].Add(new Triangle(tri, vertices));
+                    }
+                    else
+                    {
+                        posDict.Add(vertices[i], new List<Triangle>() { new Triangle(tri, vertices) });
+                    }
+                }
+            }
+
+            foreach (var posAndTri in posDict)
+            {
+                var pos = posAndTri.Key;
+                var normalVec = Vector3.zero;
+
+                foreach (var tri in posAndTri.Value)
+                {
+                    foreach (var vert in tri)
+                    {
+                        if (vert == pos) { continue; }
+                        normalVec += vert - pos;
+                    }
+                }
+
+                normalVec *= -1;
+
+                foreach (var tri in posAndTri.Value)
+                {
+                    var trList = tri.ToList();
+                    trList.Remove(pos);
+                    trList[0] = trList[0] - pos;
+                    trList[1] = trList[1] - pos;
+
+                    var zeroCross = Vector3.Cross(trList[0], normalVec).z > 0;
+                    var oneCross = Vector3.Cross(trList[1], normalVec).z > 0;
+
+                    if (zeroCross == oneCross) { continue; }
+
+                    var middleVec = trList[0] + trList[1];
+                    if (Vector3.Dot(middleVec, normalVec) < 0) { continue; }
+
+
+                    normalVec = Vector3.up;
+                    break;
+                }
+
+                posDictNormal.Add(posAndTri.Key, normalVec);
+            }
+
+            for (var i = 0; vertices.Length > i; i += 1)
+            {
+                normal[i] = posDictNormal[vertices[i]].normalized;
+            }
+
+            mesh.normals = normal;
+
+        }
+
+
+
+
         public static Texture2D CopyTexture2D(this RenderTexture Rt)
         {
             var preRt = RenderTexture.active;
