@@ -64,21 +64,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }
             EditorGUI.indentLevel -= 1;
 
-
-            FoldoutOption = EditorGUILayout.Foldout(FoldoutOption, "AdvancedOption".GetLocalize());
-            if (FoldoutOption)
-            {
-                EditorGUI.indentLevel += 1;
-
-                // var s_HighQualityPadding = This_S_Object.FindProperty("HighQualityPadding");
-                // EditorGUILayout.PropertyField(s_HighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
-
-                var s_Padding = This_S_Object.FindProperty("Padding");
-                EditorGUILayout.PropertyField(s_Padding, "Padding".GetLC());
-
-                EditorGUI.indentLevel -= 1;
-            }
-
+            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
             EditorGUI.EndDisabledGroup();
             AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);

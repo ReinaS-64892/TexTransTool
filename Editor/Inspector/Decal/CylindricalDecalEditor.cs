@@ -11,8 +11,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(CylindricalDecal), true)]
     public class CylindricalDecalEditor : UnityEditor.Editor
     {
-        bool FoldoutOption;
-
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning("CylindricalDecal");
@@ -46,18 +44,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel -= 1;
 
 
-            FoldoutOption = EditorGUILayout.Foldout(FoldoutOption, "Advanced Option");
-            if (FoldoutOption)
-            {
-                EditorGUI.indentLevel += 1;
-                var s_FastMode = This_S_Object.FindProperty("FastMode");
-                EditorGUILayout.PropertyField(s_FastMode, new GUIContent("FastMode"));
+            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
-                var s_Padding = This_S_Object.FindProperty("Padding");
-                EditorGUILayout.PropertyField(s_Padding, new GUIContent("Padding"));
-
-                EditorGUI.indentLevel -= 1;
-            }
 
             EditorGUI.EndDisabledGroup();
 
