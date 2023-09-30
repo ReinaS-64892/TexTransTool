@@ -42,7 +42,8 @@ namespace net.rs64.TexTransCore.Decal
             ITrianglesFilter<SpaceConverter> Filter,
             string TargetPropertyName = "_MainTex",
             TextureWrap TextureWarp = null,
-            float DefaultPadding = 0.5f
+            float DefaultPadding = 0.5f,
+            bool HighQualityPadding = false
         )
         where SpaceConverter : IConvertSpace
         {
@@ -85,7 +86,8 @@ namespace net.rs64.TexTransCore.Decal
                     SousTextures,
                     new TransTexture.TransData(filteredTriangle, tUV, sUV),
                     DefaultPadding,
-                    TextureWarp
+                    TextureWarp,
+                    HighQualityPadding
                 );
 
 

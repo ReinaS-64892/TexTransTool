@@ -110,6 +110,24 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }, S_FixedAspect.name.GetLocalize());
         }
 
+        static bool FoldoutAdvancedOption;
+        public static void DrawerAdvancedOption(SerializedObject S_Object)
+        {
+            FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "AdvancedOption".GetLocalize());
+            if (FoldoutAdvancedOption)
+            {
+                EditorGUI.indentLevel += 1;
+
+                var s_HighQualityPadding = S_Object.FindProperty("HighQualityPadding");
+                EditorGUILayout.PropertyField(s_HighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
+
+                var s_Padding = S_Object.FindProperty("Padding");
+                EditorGUILayout.PropertyField(s_Padding, "Padding".GetLC());
+
+                EditorGUI.indentLevel -= 1;
+            }
+
+        }
 
     }
 }

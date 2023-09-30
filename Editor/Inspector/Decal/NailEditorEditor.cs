@@ -47,6 +47,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             DrawerOffsetUtilEditor(ThisObject);
             DrawOffsetSaveAndLoader(ThisObject);
 
+            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
             PreviewContext.instance.DrawApplyAndRevert(ThisObject);
 

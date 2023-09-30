@@ -60,7 +60,8 @@ namespace net.rs64.TexTransTool.Decal.Curve
                                                 CCSfilter,
                                                 TargetPropertyName,
                                                 TextureWarp: texWarpRange,
-                                                DefaultPadding: Padding
+                                                DefaultPadding: Padding,
+                                                HighQualityPadding: HighQualityPadding
                                                 );
 
                     count += 1;
