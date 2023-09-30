@@ -46,8 +46,11 @@ Shader "Hidden/TransTexture"
             #pragma geometry geom
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
+            #pragma shader_feature_local HighQualityPadding
+
 
             #include "./TransTextureHelper.hlsl"
+
 
             ENDHLSL
         }
