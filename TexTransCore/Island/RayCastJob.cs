@@ -24,9 +24,9 @@ namespace net.rs64.TexTransCore.Island
         public void Execute(int index)
         {
             var tri = triangles[index];
-            tri.Zero = rayMatrix.MultiplyPoint3x4(tri.Zero);
-            tri.One = rayMatrix.MultiplyPoint3x4(tri.One);
-            tri.Two = rayMatrix.MultiplyPoint3x4(tri.Two);
+            tri.zero = rayMatrix.MultiplyPoint3x4(tri.zero);
+            tri.one = rayMatrix.MultiplyPoint3x4(tri.one);
+            tri.two = rayMatrix.MultiplyPoint3x4(tri.two);
             var CrossT = tri.Cross(Vector3.zero);
 
             var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
@@ -39,37 +39,5 @@ namespace net.rs64.TexTransCore.Island
 
 
 
-    }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct Triangle
-    {
-        [FieldOffset(0)] public Vector3 Zero;
-        [FieldOffset(12)] public Vector3 One;
-        [FieldOffset(24)] public Vector3 Two;
-
-        public Triangle(TriangleIndex TriIndex, List<Vector3> vector3s)
-        {
-            Zero = vector3s[TriIndex.zero];
-            One = vector3s[TriIndex.one];
-            Two = vector3s[TriIndex.two];
-        }
-
-        public Vector4 Cross(Vector3 TargetPoint)
-        {
-            var w = Vector3.Cross(Two - One, TargetPoint - One).z;
-            var u = Vector3.Cross(Zero - Two, TargetPoint - Two).z;
-            var v = Vector3.Cross(One - Zero, TargetPoint - Zero).z;
-            var wuv = Vector3.Cross(One - Zero, Two - Zero).z;
-            return new Vector4(w, u, v, wuv);
-        }
-
-        public Vector3 FromBCS(Vector3 SourceTBC)
-        {
-            var ConversionPos = Vector3.zero;
-            ConversionPos += Zero * SourceTBC.x;
-            ConversionPos += One * SourceTBC.y;
-            ConversionPos += Two * SourceTBC.z;
-            return ConversionPos;
-        }
     }
 }
