@@ -65,6 +65,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                     newGameObjectDecal.transform.parent = GameObject.transform;
                     var NewDecal = newGameObjectDecal.AddComponent(abstractDecal.GetType()) as AbstractDecal;
                     NewDecal.CopyFromDecal(abstractDecal);
+                    abstractDecal.HighQualityPadding = abstractDecal.FastMode;
                     NewDecal.IsSeparateMatAndTexture = false;
                     NewDecal.MigrationV0ClearTarget = false;
                     NewDecal.MigrationV0DataAbstractDecal = null;
@@ -80,7 +81,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                 }
                 else
                 {
-                    //何もしなくてよい
+                    abstractDecal.HighQualityPadding = abstractDecal.FastMode;
                 }
             }
         }
