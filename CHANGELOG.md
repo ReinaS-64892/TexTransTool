@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal のリアルタイムプレビューが複数同時に使用できる機能を追加 `#144`
 - IslandCulling のレイキャスト処理の高速化 `#172`
 - SimpleDecal にレンダラーの自動選択機能の追加 `#94`
+- デカール系の余白生成が少し改善 `#79`
 
 ### Changed
 
