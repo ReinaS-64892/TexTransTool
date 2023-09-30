@@ -41,7 +41,8 @@ namespace net.rs64.TexTransTool.Decal
                    GetTriangleFilter,
                    TargetPropertyName,
                    GetTextureWarp,
-                   Padding
+                   Padding,
+                   HighQualityPadding
                );
             }
             RenderTexture.ReleaseTemporary(mulDecalTexture);

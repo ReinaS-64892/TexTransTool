@@ -43,7 +43,8 @@ namespace net.rs64.TexTransTool.Decal
                         nailTexSpaceFilter.Item3,
                         TargetPropertyName,
                         GetTextureWarp,
-                        Padding
+                        Padding,
+                        HighQualityPadding
                     );
                 }
             }

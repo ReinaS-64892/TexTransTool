@@ -16,8 +16,8 @@ namespace net.rs64.TexTransTool.Decal
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = new PropertyName("_MainTex");
-        public float Padding = 0.5f;
-        public bool FastMode = true;
+        public float Padding = 5;
+        public bool HighQualityPadding = false;
 
         #region V0SaveData
         [Obsolete("V0SaveData", true)] public bool MigrationV0ClearTarget;
@@ -25,6 +25,7 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V0SaveData", true)] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
         [Obsolete("V0SaveData", true)] public AbstractDecal MigrationV0DataAbstractDecal;
         [Obsolete("V0SaveData", true)] public bool IsSeparateMatAndTexture;
+        [Obsolete("V0SaveData", true)] public bool FastMode = true;
         #endregion
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
