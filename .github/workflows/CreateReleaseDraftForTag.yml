@@ -23,7 +23,9 @@ jobs:
         ref: ${{ github.event.inputs.tag }}
 
     - name: Debug
-      run: ls -alh
+      run: |
+        ls -alh
+        ls -alh ../
 
 
     - name: CrateRelease
@@ -33,5 +35,5 @@ jobs:
         tag_name: ${{ github.event.inputs.tag }}
         draft: true
         files: |
-          tex-trans-tool-${{ github.event.inputs.tag }}.zip
-          TexTransTool/package.json
+          ../tex-trans-tool-${{ github.event.inputs.tag }}.zip
+          package.json
