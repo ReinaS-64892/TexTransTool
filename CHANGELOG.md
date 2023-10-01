@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - デカール系の余白生成が少し改善 `#79`
 - 主なコンポーネントに日本語 UI を追加 `#73`
 - デカール系に HighQualityPadding を追加 `#180`
+- NDMF対応 `#139`
 
 ### Changed
 
