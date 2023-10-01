@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using net.rs64.TexTransTool.EditorIsland;
 namespace net.rs64.TexTransTool
 {
     public static class AssetSaveHelper
@@ -28,11 +29,21 @@ namespace net.rs64.TexTransTool
             }
         }
         public const string SaveDirectory = "Assets/TexTransToolGenerates";
-        public const string TempDirName = "TempDirectory";
-        public static string GenerateAssetPath(string Name, string Extension)
+        public const string IslandCaches = "IslandCaches";
+        public const string AvatarDomainAssets = "AvatarDomainAssets";
+        public const string Temp = "TempDirectory";
+
+        public enum SaveType
+        {
+            Other,
+            IslandCaches,
+            AvatarDomainAssets,
+        }
+
+        public static string GenerateAssetPath(string Name, string Extension, SaveType saveType = SaveType.Other)
         {
             SaveDirectoryCheck();
-            var path = GenerateFullPath(Name);
+            var path = GenerateFullPath(Name, saveType);
             path += Extension;
             path = AssetDatabase.GenerateUniqueAssetPath(path);
             return path;
@@ -40,14 +51,55 @@ namespace net.rs64.TexTransTool
         private static void SaveDirectoryCheck()
         {
             if (!Directory.Exists(SaveDirectory)) Directory.CreateDirectory(SaveDirectory);
-            if (!Directory.Exists(Path.Combine(SaveDirectory, TempDirName))) Directory.CreateDirectory(Path.Combine(SaveDirectory, TempDirName));
+            if (!Directory.Exists(Path.Combine(SaveDirectory, Temp))) Directory.CreateDirectory(Path.Combine(SaveDirectory, Temp));
+            if (!Directory.Exists(Path.Combine(SaveDirectory, IslandCaches))) Directory.CreateDirectory(Path.Combine(SaveDirectory, IslandCaches));
+            if (!Directory.Exists(Path.Combine(SaveDirectory, AvatarDomainAssets))) Directory.CreateDirectory(Path.Combine(SaveDirectory, AvatarDomainAssets));
         }
-        private static string GenerateFullPath(string Name)
+        private static string GenerateFullPath(string Name, SaveType saveType = SaveType.Other)
         {
             var replacedName = Name.Replace("(Clone)", "");
             replacedName = string.IsNullOrWhiteSpace(replacedName) ? "GenerateAsset" : replacedName;
-            var parentPath = !IsTemporary ? SaveDirectory : Path.Combine(SaveDirectory, TempDirName);
+            string parentPath;
+            if (!IsTemporary)
+            {
+                parentPath = GetDirectoryAtType(saveType);
+            }
+            else
+            {
+                parentPath = Path.Combine(SaveDirectory, Temp);
+            }
+
             return Path.Combine(parentPath, replacedName);
+        }
+        private static string GetDirectoryAtType(SaveType saveType)
+        {
+            switch (saveType)
+            {
+                default:
+                case SaveType.Other:
+                    return SaveDirectory;
+                case SaveType.IslandCaches:
+                    return Path.Combine(SaveDirectory, IslandCaches);
+                case SaveType.AvatarDomainAssets:
+                    return Path.Combine(SaveDirectory, AvatarDomainAssets);
+            }
+        }
+        private static SaveType GetSaveTypeAtAsset<T>(T asset = null) where T : class
+        {
+            var type = typeof(T);
+            if (type == typeof(IslandCache))
+            {
+                return SaveType.IslandCaches;
+            }
+            else if (type == typeof(AvatarDomainAsset))
+            {
+                return SaveType.AvatarDomainAssets;
+            }
+            else
+            {
+                return SaveType.Other;
+            }
+
         }
         public static void SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
         {
@@ -66,7 +118,7 @@ namespace net.rs64.TexTransTool
             {
                 default:
                     {
-                        savePath = GenerateAssetPath(Target.name, ".asset");
+                        savePath = GenerateAssetPath(Target.name, ".asset", GetSaveTypeAtAsset(Target));
                         break;
                     }
                 case Material Mat:
@@ -110,8 +162,9 @@ namespace net.rs64.TexTransTool
         public static List<T> LoadAssets<T>() where T : UnityEngine.Object
         {
             SaveDirectoryCheck();
+            var saveType = GetSaveTypeAtAsset<T>();
             List<T> LoadedAssets = new List<T>();
-            foreach (var path in Directory.GetFiles(SaveDirectory))
+            foreach (var path in Directory.GetFiles(GetDirectoryAtType(saveType)))
             {
                 if (AssetDatabase.LoadAssetAtPath(path, typeof(T)) is T instants)
                 {
@@ -123,7 +176,7 @@ namespace net.rs64.TexTransTool
         private static void ClearTemp()
         {
             SaveDirectoryCheck();
-            var tempPath = Path.Combine(SaveDirectory, TempDirName);
+            var tempPath = Path.Combine(SaveDirectory, Temp);
             foreach (var path in Directory.GetFiles(tempPath))
             {
                 if (string.IsNullOrWhiteSpace(path)) continue;

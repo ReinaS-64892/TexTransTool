@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool
             if (container == null)
             {
                 Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset"));
+                AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset", AssetSaveHelper.SaveType.AvatarDomainAssets));
             }
             else
             {

@@ -19,34 +19,35 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var ThisObject = target as NailEditor;
 
             var S_TargetAvatar = This_S_Object.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(S_TargetAvatar);
+            EditorGUILayout.PropertyField(S_TargetAvatar, S_TargetAvatar.name.GetLC());
 
             var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
             var S_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
             TextureTransformerEditor.DrawerRenderer(S_TargetRenderers, S_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(S_MultiRendererMode);
+            EditorGUILayout.PropertyField(S_MultiRendererMode, S_MultiRendererMode.name.GetLC());
 
             var S_BlendType = This_S_Object.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(S_BlendType);
+            EditorGUILayout.PropertyField(S_BlendType, S_BlendType.name.GetLC());
 
             var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
             PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
 
             var S_UseTextureAspect = This_S_Object.FindProperty("UseTextureAspect");
-            EditorGUILayout.PropertyField(S_UseTextureAspect);
+            EditorGUILayout.PropertyField(S_UseTextureAspect, S_UseTextureAspect.name.GetLC());
 
 
             var S_LeftHand = This_S_Object.FindProperty("LeftHand");
             var S_RightHand = This_S_Object.FindProperty("RightHand");
-            EditorGUILayout.LabelField("LeftHand");
+            EditorGUILayout.LabelField("LeftHand".GetLocalize());
             DrawerNailSet(S_LeftHand);
-            EditorGUILayout.LabelField("RightHand");
+            EditorGUILayout.LabelField("RightHand".GetLocalize());
             DrawerNailSet(S_RightHand);
 
 
             DrawerOffsetUtilEditor(ThisObject);
             DrawOffsetSaveAndLoader(ThisObject);
 
+            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
             PreviewContext.instance.DrawApplyAndRevert(ThisObject);
 
@@ -64,17 +65,17 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(S_FingerUpVector);
+            EditorGUILayout.PropertyField(S_FingerUpVector, S_FingerUpVector.name.GetLC());
 
-            EditorGUILayout.LabelField("Thumb");
+            EditorGUILayout.LabelField("Thumb".GetLocalize());
             DrawerNailDescriptor(S_Thumb);
-            EditorGUILayout.LabelField("Index");
+            EditorGUILayout.LabelField("Index".GetLocalize());
             DrawerNailDescriptor(S_Index);
-            EditorGUILayout.LabelField("Middle");
+            EditorGUILayout.LabelField("Middle".GetLocalize());
             DrawerNailDescriptor(S_Middle);
-            EditorGUILayout.LabelField("Ring");
+            EditorGUILayout.LabelField("Ring".GetLocalize());
             DrawerNailDescriptor(S_Ring);
-            EditorGUILayout.LabelField("Little");
+            EditorGUILayout.LabelField("Little".GetLocalize());
             DrawerNailDescriptor(S_Little);
 
             EditorGUI.indentLevel -= 1;
@@ -88,26 +89,26 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(S_DecalTexture);
+            EditorGUILayout.PropertyField(S_DecalTexture, S_DecalTexture.name.GetLC());
             DrawerPositionOffset(S_PositionOffset);
-            EditorGUILayout.PropertyField(S_ScaleOffset);
-            EditorGUILayout.PropertyField(S_RotationOffset);
+            EditorGUILayout.PropertyField(S_ScaleOffset, S_ScaleOffset.name.GetLC());
+            EditorGUILayout.PropertyField(S_RotationOffset, S_RotationOffset.name.GetLC());
 
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerPositionOffset(SerializedProperty serializedProperty)
         {
             var DrawValue = serializedProperty.vector3Value * 100;
-            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "Position Offset", DrawValue) * 0.01f;
+            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "PositionOffset".GetLocalize(), DrawValue) * 0.01f;
 
         }
 
         public static void DrawerOffsetUtilEditor(NailEditor nailEditor)
         {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Copy", GUILayout.Width(100));
+            EditorGUILayout.LabelField("Copy".GetLocalize(), GUILayout.Width(100));
 
-            if (GUILayout.Button("Left <= Right "))
+            if (GUILayout.Button("LeftHand".GetLocalize() + "<=" + "RightHand".GetLocalize()))
             {
                 Undo.RecordObject(nailEditor, "NailEditor Offset Copy Left <= Right");
                 var nailOffsets = new NailOffSets();
@@ -116,7 +117,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 nailEditor.LeftHand.Copy(nailOffsets);
             }
 
-            if (GUILayout.Button("Left => Right"))
+            if (GUILayout.Button("LeftHand".GetLocalize() + "=>" + "RightHand".GetLocalize()))
             {
                 Undo.RecordObject(nailEditor, "NailEditor Offset Copy Left => Right");
                 var nailOffsets = new NailOffSets();
@@ -133,8 +134,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public void DrawOffsetSaveAndLoader(NailEditor thisObject)
         {
             EditorGUILayout.BeginHorizontal();
-            nailOffsetData = EditorGUILayout.ObjectField("SaveData", nailOffsetData, typeof(NailOffsetData), false) as NailOffsetData;
-            if (GUILayout.Button("Load"))
+            nailOffsetData = EditorGUILayout.ObjectField("SaveData".GetLocalize(), nailOffsetData, typeof(NailOffsetData), false) as NailOffsetData;
+            if (GUILayout.Button("Load".GetLocalize()))
             {
                 if (nailOffsetData != null)
                 {
@@ -144,7 +145,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     EditorUtility.SetDirty(nailOffsetData);
                 }
             }
-            if (GUILayout.Button("Save"))
+            if (GUILayout.Button("Save".GetLocalize()))
             {
                 if (nailOffsetData != null)
                 {
@@ -162,7 +163,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var s_obj = new SerializedObject(target);
             var s_TargetAvatar = s_obj.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(s_TargetAvatar);
+            EditorGUILayout.PropertyField(s_TargetAvatar, s_TargetAvatar.name.GetLC());
             var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
             TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
 

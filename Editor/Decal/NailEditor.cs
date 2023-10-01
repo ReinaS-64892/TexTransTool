@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 namespace net.rs64.TexTransTool.Decal
 {
 
-    [AddComponentMenu("TexTransTool/NailEditor")]
+    [AddComponentMenu("TexTransTool/TTT NailEditor")]
     public class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;
@@ -27,75 +27,28 @@ namespace net.rs64.TexTransTool.Decal
 
         public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
-        public override Dictionary<Texture2D, Texture> CompileDecal()
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-            if (FastMode)
+            if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
+
+            foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
             {
-                var decalCompiledTextures = new Dictionary<Texture2D, RenderTexture>();
-
-                foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
+                foreach (var renderer in TargetRenderers)
                 {
-                    foreach (var renderer in TargetRenderers)
-                    {
-                        DecalUtility.CreateDecalTexture(
-                            renderer,
-                            decalCompiledTextures,
-                            nailTexSpaceFilter.Item1,
-                            nailTexSpaceFilter.Item2,
-                            nailTexSpaceFilter.Item3,
-                            TargetPropertyName,
-                            GetTextureWarp,
-                            Padding
-                        );
-                    }
+                    DecalUtility.CreateDecalTexture(
+                        renderer,
+                        decalCompiledRenderTextures,
+                        nailTexSpaceFilter.Item1,
+                        nailTexSpaceFilter.Item2,
+                        nailTexSpaceFilter.Item3,
+                        TargetPropertyName,
+                        GetTextureWarp,
+                        Padding,
+                        HighQualityPadding
+                    );
                 }
-
-                var decalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
-                foreach (var texture in decalCompiledTextures)
-                {
-                    decalCompiledRenderTextures.Add(texture.Key, texture.Value);
-                }
-                return decalCompiledRenderTextures;
             }
-            else
-            {
-                var decalsCompileTexListDict = new List<Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>>();
-                var transTextureCompute = TransMapper.TransTextureCompute;
-
-
-                foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
-                {
-                    foreach (var renderer in TargetRenderers)
-                    {
-                        decalsCompileTexListDict.Add(
-                                DecalUtility.CreateDecalTextureCS(
-                                    transTextureCompute,
-                                    renderer,
-                                    new TwoDimensionalMap<Color>(nailTexSpaceFilter.Item1.GetPixels(), nailTexSpaceFilter.Item1.NativeSize()),
-                                    nailTexSpaceFilter.Item2,
-                                    nailTexSpaceFilter.Item3,
-                                    TargetPropertyName,
-                                    GetTextureWarp,
-                                    Padding
-                                ));
-                    }
-                }
-
-                var decalCompiledRenderTextures = new Dictionary<Texture2D, Texture>();
-
-                var zipDict = CollectionsUtility.ZipToDictionaryOnList(decalsCompileTexListDict);
-                var blendTextureCS = TransMapper.BlendTextureCS;
-                foreach (var texture in zipDict)
-                {
-                    var blendColorMap = TextureLayerUtil.BlendTextureUseComputeShader(blendTextureCS, texture.Value.ToList(), BlendType.AlphaLerp);
-                    var blendTexture = new Texture2D(blendColorMap.MapSize.x, blendColorMap.MapSize.y);
-                    blendTexture.SetPixels(blendColorMap.Array);
-                    blendTexture.Apply();
-                    decalCompiledRenderTextures.Add(texture.Key, blendTexture);
-                }
-
-                return decalCompiledRenderTextures;
-            }
+            return decalCompiledRenderTextures;
         }
 
         List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter)> GetNailTexSpaceFilters()
@@ -154,11 +107,12 @@ namespace net.rs64.TexTransTool.Decal
                 foreach (var NailDD in nailSet)
                 {
                     var Finger = NailDD.Item1;
-                    var nailDecalDescription = NailDD.Item2;
+                    var nailDecalDescription = NailDD.nailDecalDescription;
                     var souseFingerTF = GetFinger(Finger, IsRight);
                     var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
 
                     Gizmos.matrix = matrix;
+                    DecalGizmoUtility.DrawGizmoQuad(NailDD.nailDecalDescription.DecalTexture, Color.white, matrix);
                     Gizmos.DrawWireCube(new Vector3(0, 0, 0.5f), new Vector3(1, 1, 1));
                     Gizmos.DrawLine(Vector3.zero, Vector3.forward);
                 }
@@ -238,7 +192,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NailSet : IEnumerable<(Finger, NailDecalDescription)>
+    public class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
     {
         public UpVector FingerUpVector;
 
@@ -257,7 +211,7 @@ namespace net.rs64.TexTransTool.Decal
             Little = new NailDecalDescription();
         }
 
-        IEnumerator<(Finger, NailDecalDescription)> IEnumerable<(Finger, NailDecalDescription)>.GetEnumerator()
+        IEnumerator<(Finger finger, NailDecalDescription nailDecalDescription)> IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>.GetEnumerator()
         {
             yield return (Finger.Thumb, Thumb);
             yield return (Finger.Index, Index);

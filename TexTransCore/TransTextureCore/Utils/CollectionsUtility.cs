@@ -1,8 +1,7 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.Utils
+namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
     public static class CollectionsUtility
     {
@@ -112,4 +111,3 @@ namespace net.rs64.TexTransTool.Utils
 
     }
 }
-#endif

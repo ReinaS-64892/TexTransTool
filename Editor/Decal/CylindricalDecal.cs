@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/CylindricalDecal")]
+    [AddComponentMenu("TexTransTool/TTT CylindricalDecal")]
     public class CylindricalDecal : AbstractSingleDecal<CCSSpace>
     {
         public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
@@ -60,6 +61,7 @@ namespace net.rs64.TexTransTool.Decal
 
         void OnDrawGizmosSelected()
         {
+            if (cylindricalCoordinatesSystem == null) { return; }
             Gizmos.color = Color.black;
             var Matrix = Matrix4x4.identity;
             Gizmos.matrix = Matrix;
@@ -86,6 +88,7 @@ namespace net.rs64.TexTransTool.Decal
                 Gizmos.DrawLine(From, To);
             }
 
+            DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, transform.localToWorldMatrix);
 
         }
         public static (Vector3, Vector3) GetEdge(IReadOnlyList<Vector3> Quad, int Count)

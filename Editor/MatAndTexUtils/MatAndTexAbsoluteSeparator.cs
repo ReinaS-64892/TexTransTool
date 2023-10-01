@@ -11,7 +11,8 @@ using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    public class MatAndTexAbsoluteSeparator : TextureTransformer
+    [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
+    public class MatAndTexAbsoluteSeparator : TextureTransformer , IMaterialReplaceEventLiner
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -79,6 +80,12 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
             Domain.transferAssets(separatedMaterials.Values);
             Domain.transferAssets(separatedTextures.Values);
+        }
+        public void MaterialReplace(Material Souse, Material Target)
+        {
+            var index = SeparateTarget.IndexOf(Souse);
+            if (index == -1) { return; }
+            SeparateTarget[index] = Target;
         }
     }
 }

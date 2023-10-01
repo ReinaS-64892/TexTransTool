@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Material MergeReferenceMaterial;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
-        public Vector2Int AtlasTextureSize = new Vector2Int(2048, 2048);
+        public int AtlasTextureSize = 2048;
         public float Padding = 10;
         public bool UseIslandCache = true;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
@@ -30,20 +30,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Resize_Select = PropertySelect.NotEqual,
             }
         };
-        public float GetTexScalePadding => Padding / AtlasTextureSize.x;
+        public float GetTexScalePadding => Padding / AtlasTextureSize;
 
-        public List<ITextureFineTuning> GetTextureFineTuning()
+        public List<IAddFineTuning> GetTextureFineTuning()
         {
-            var IFineSettings = new List<ITextureFineTuning>
-            {
-                new Initialize(),
-                new DefaultCompress()
-            };
+            var IFineSettings = new List<IAddFineTuning>();
             foreach (var fineSetting in TextureFineTuningDataList)
             {
                 IFineSettings.Add(fineSetting.GetFineSetting());
             }
-            IFineSettings.Sort((L, R) => L.Order - R.Order);
             return IFineSettings;
         }
 
@@ -86,7 +81,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
-        public ITextureFineTuning GetFineSetting()
+        public IAddFineTuning GetFineSetting()
         {
             switch (Select)
             {

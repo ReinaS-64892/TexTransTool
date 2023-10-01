@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
             var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
             if (s_SeparateTarget.arraySize != ThisObject.TargetRenderers.Count) { s_SeparateTarget.arraySize = ThisObject.TargetRenderers.Count; }
-            
+
             EditorGUILayout.LabelField("---");
 
             int rendererIndex = 0;

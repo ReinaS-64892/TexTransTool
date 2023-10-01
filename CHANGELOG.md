@@ -15,27 +15,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 開発中であるコンポーネントに対して、インスペクターに警告を追加 `#157`
 - MatAndTexAbsolute(Relative)Separator を追加 `#151` `#154`
 - [マニュアル](Manual/JP/TextureTransformer.md)に書かれたことに沿うように、複数のコンポーネントを付けれないようにする属性を追加 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/b920e634554ebf1cddc7d21885ce791d110487cd)
-- PhaseとPhaseDefinitionの追加 `#159`
+- Phase と PhaseDefinition の追加 `#159`
+- マテリアルの設定を変更できる MaterialModifier の追加 `#61`
+- ユニティエディターのプログレスバーを追加 `#98`
+- 一部のマテリアルの直接参照を持つコンポーネントがそれらを書き換わっても動くような仕組みを追加 `#173`
+- SimpleDecal 以外の Decal 系 component のギズモに、DecalTexture を表示するギズモを追加 `#155`
+- SimpleDecal のリアルタイムプレビューが複数同時に使用できる機能を追加 `#144`
+- IslandCulling のレイキャスト処理の高速化 `#172`
+- SimpleDecal にレンダラーの自動選択機能の追加 `#94`
+- デカール系の余白生成が少し改善 `#79`
+- 主なコンポーネントに日本語 UI を追加 `#73`
+- デカール系に HighQualityPadding を追加 `#180`
 
 ### Changed
 
 - AtlasTexture がマテリアルのインデックスではなく、直接の参照を持つように変更 `#146`
 - 名前変更 TexTransParentGroup => TexTransGroup `#159`
+- すべての AddComponent から追加できるコンポーネントの名前に TTT を追加しました。 `#122`
+- Decal 系統は DecalTexture がセットされていなくても、単色のデカールを貼り付けれるように変更 `#124`
+- liltoon の宝石やファー用のテクスチャーをアトラス化の”対象”に入れるように追加しました。 `#126`
+- 自動生成ファイルのディレクトリを同じものが大量に生成されうるものは分けるように変更 `#119`
 
 ### Removed
 
 - AtlasTexture の Channel を削除 `#146`
 - Decal 系統の IsSeparateMatAndTexture の削除 `#151`
 - AvatarDomainDefinition の削除 `#159`
+- コンピュートシェーダーを用いた Decal のコンパイルは削除されました `#144`
 
 ### Fixed
 
 - Mac ですべてのコンポーネントが正常に動かなかったことを修正 (ただし、サポートは今のところしません) `#138`
 - Unity のアニメーションのプレビューを使用し、プレハブオーバーライドを生成してしまう問題を修正 `#143`
+- 圧縮しない設定ができない問題を修正 `#120`
+- AtlasTexture の NextFitDecreasingHeightPlusFloorCeiling アルゴリズムで、横幅が大きい UVIsland が存在する場合うまく処理できない問題を修正 `#168`
+- AtlasTexture の NextFitDecreasingHeightPlusFloorCeiling アルゴリズムで、上の余白が多きすぎる問題を修正 `#129`
 
 ### Deprecated
 
-- 名前変更とDeprecatedにマーク TexTransGroup => TexTransListGroup `#159`
+- 名前変更と Deprecated にマーク TexTransGroup => TexTransListGroup `#159`
 
 ## [0.3.6]
 

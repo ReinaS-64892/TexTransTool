@@ -2,6 +2,7 @@
 using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -14,6 +15,10 @@ namespace net.rs64.TexTransTool
 
         protected PreviewContext()
         {
+            AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
+            AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
+            EditorSceneManager.sceneClosing -= ExitPreview;
+            EditorSceneManager.sceneClosing += ExitPreview;
         }
 
         private void OnEnable()
@@ -25,7 +30,6 @@ namespace net.rs64.TexTransTool
         }
 
         public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
-        // public static bool IsPreviewing(AvatarDomainDefinition domainDefinition) => domainDefinition == instance.previweing;
 
         private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
             where T : Object
@@ -34,7 +38,7 @@ namespace net.rs64.TexTransTool
             if (previweing == null && AnimationMode.InAnimationMode())
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button(previewMessage + " (Previewing Animation)");
+                GUILayout.Button("(Other Previewing Or Previewing Animation)".GetLocalize());
                 EditorGUI.EndDisabledGroup();
             }
             else if (previweing == null)
@@ -50,6 +54,7 @@ namespace net.rs64.TexTransTool
                     catch
                     {
                         AnimationMode.StopAnimationMode();
+                        EditorUtility.ClearProgressBar();
                         previweing = null;
                         throw;
                     }
@@ -57,28 +62,37 @@ namespace net.rs64.TexTransTool
             }
             else if (previweing == target)
             {
-                if (GUILayout.Button("Revert"))
+                if (GUILayout.Button("Revert".GetLocalize()))
                 {
-                    previweing = null;
-                    AnimationMode.StopAnimationMode();
+                    ExitPreview();
                 }
             }
             else
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("Preview (Other Previewing)");
+                GUILayout.Button("(Other Previewing)".GetLocalize());
                 EditorGUI.EndDisabledGroup();
             }
         }
 
+        private void ExitPreview()
+        {
+            if (previweing == null) { return; }
+            previweing = null;
+            AnimationMode.StopAnimationMode();
+        }
+        public void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
+        {
+            ExitPreview();
+        }
         public void DrawApplyAndRevert(TextureTransformer target)
         {
-            DrawApplyAndRevert(target, "Preview", target1 =>
+            DrawApplyAndRevert(target, "Preview".GetLocalize(), target1 =>
             {
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true);
+                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true, progressHandler: new ProgressHandler());
                     target1.Apply(previewDomain);
                     previewDomain.EditFinish();
                 }
@@ -89,23 +103,6 @@ namespace net.rs64.TexTransTool
             });
         }
 
-        // public void DrawApplyAndRevert(AvatarDomainDefinition target)
-        // {
-        //     DrawApplyAndRevert(target, "Preview - AvatarDomain-Apply", target1 =>
-        //     {
-        //         AnimationMode.BeginSampling();
-        //         try
-        //         {
-        //             var previewAvatarDomain = new AvatarDomain(target.Avatar, previewing: true);
-        //             target.Apply(previewAvatarDomain);
-        //             previewAvatarDomain.EditFinish();
-        //         }
-        //         finally
-        //         {
-        //             AnimationMode.EndSampling();
-        //         }
-        //     });
-        // }
     }
 }
 #endif

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -26,11 +27,13 @@ namespace net.rs64.TexTransTool
         public readonly bool Previewing;
         [CanBeNull] private readonly IAssetSaver _saver;
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = saver;
+            _progressHandler = progressHandler;
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
@@ -66,6 +69,8 @@ namespace net.rs64.TexTransTool
 
             foreach (var renderer in _renderers)
             {
+                if (renderer == null) { continue; }
+                if (!renderer.sharedMaterials.Any()) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
@@ -130,18 +135,31 @@ namespace net.rs64.TexTransTool
 
         public void SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            this.ReplaceMaterials(RendererUtility.SetTexture(_renderers, Target, SetTex));
+            this.ReplaceMaterials(RendererEditorUtility.SetTexture(_renderers, Target, SetTex));
         }
 
         public virtual void EditFinish()
         {
-            foreach (var mergeResult in _textureStacks.MargeStacks())
+            ProgressStateEnter("Finalize");
+            ProgressUpdate("MargeStack", 0f);
+            var mangedStack = _textureStacks.MargeStacks();
+            ProgressUpdate("MargeStack", 0.9f);
+            foreach (var mergeResult in mangedStack)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MargeTexture == null) continue;
                 SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
                 TransferAsset(mergeResult.MargeTexture);
             }
+            ProgressUpdate("MargeStack", 1);
+            ProgressStateExit();
+            ProgressStateExit();
+            _progressHandler?.ProgressFinalize();
         }
+
+        ProgressHandler _progressHandler;
+        public void ProgressStateEnter(string EnterName) => _progressHandler?.ProgressStateEnter(EnterName);
+        public void ProgressUpdate(string State, float Value) => _progressHandler?.ProgressUpdate(State, Value);
+        public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
     }
 }
 #endif

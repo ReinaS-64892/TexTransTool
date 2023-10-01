@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -25,7 +26,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
             EditorGUILayout.PropertyField(s_MultiRendererMode);
 
-            if (TempMaterial == null || GUILayout.Button("Refresh Materials")) { RefreshMaterials(s_TargetRenderers); }
+            if (TempMaterial == null || GUILayout.Button("Refresh Materials")) { RefreshMaterials(s_TargetRenderers, ref TempMaterial); }
             var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
             MaterialSelectEditor(s_SeparateTarget, TempMaterial);
 
@@ -46,7 +47,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
         }
 
         List<Material> TempMaterial;
-        void RefreshMaterials(SerializedProperty s_TargetRenderers)
+        public static void RefreshMaterials(SerializedProperty s_TargetRenderers, ref List<Material> TempMaterial)
         {
             var renderer = new List<Renderer>();
             for (var i = 0; s_TargetRenderers.arraySize > i; i += 1)
@@ -57,10 +58,10 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             TempMaterial = RendererUtility.GetMaterials(renderer).Distinct().ToList();
         }
 
-        public static void MaterialSelectEditor(SerializedProperty TargetMaterials, List<Material> TempMaterial)
+        public static void MaterialSelectEditor(SerializedProperty TargetMaterials, List<Material> TempMaterial, string Label = "Separate?         Material")
         {
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("Separate?         Material");
+            GUILayout.Label(Label);
             foreach (var mat in TempMaterial)
             {
                 var S_MatSelector = FindMatSelector(TargetMaterials, mat);

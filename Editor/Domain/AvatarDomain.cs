@@ -21,11 +21,16 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null)
-            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null)
+            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;
+            _useMaterialReplaceEvent = !previewing;
+            if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
         }
+
+        bool _useMaterialReplaceEvent;
+        IMaterialReplaceEventLiner[] _liners;
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
@@ -36,8 +41,22 @@ namespace net.rs64.TexTransTool
             base.ReplaceMaterials(mapping, rendererOnly);
 
             if (!rendererOnly)
+            {
                 foreach (var keyValuePair in mapping)
+                {
                     _mapDict.Add(keyValuePair.Key, keyValuePair.Value);
+                    InvokeMaterialReplace(keyValuePair.Key, keyValuePair.Value);
+                }
+            }
+        }
+
+        private void InvokeMaterialReplace(Material key, Material value)
+        {
+            if (!_useMaterialReplaceEvent) { return; }
+            foreach (var liner in _liners)
+            {
+                liner.MaterialReplace(key, value);
+            }
         }
 
         public override void EditFinish()

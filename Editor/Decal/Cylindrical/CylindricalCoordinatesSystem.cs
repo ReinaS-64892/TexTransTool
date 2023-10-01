@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Cylindrical
 {
-    [AddComponentMenu("TexTransTool/CylindricalCoordinatesSystem")]
+    [AddComponentMenu("TexTransTool/TTT CylindricalCoordinatesSystem")]
     public class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
     {
         public float GizmoRadius = 0.25f;

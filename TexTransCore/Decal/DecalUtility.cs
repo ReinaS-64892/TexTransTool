@@ -34,20 +34,20 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<KeyTexture, RenderTexture> CreateDecalTexture<KeyTexture, SpaceConverter>(
+        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter>(
             Renderer TargetRenderer,
-            Dictionary<KeyTexture, RenderTexture> RenderTextures,
+            Dictionary<Material, Dictionary<string, RenderTexture>> RenderTextures,
             Texture SousTextures,
             SpaceConverter ConvertSpace,
             ITrianglesFilter<SpaceConverter> Filter,
             string TargetPropertyName = "_MainTex",
             TextureWrap TextureWarp = null,
-            float DefaultPadding = 0.5f
+            float DefaultPadding = 0.5f,
+            bool HighQualityPadding = false
         )
-        where KeyTexture : Texture
         where SpaceConverter : IConvertSpace
         {
-            if (RenderTextures == null) RenderTextures = new Dictionary<KeyTexture, RenderTexture>();
+            if (RenderTextures == null) RenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>();
 
             var vertices = GetWorldSpaceVertices(TargetRenderer);
             var (tUV, trianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
@@ -63,26 +63,31 @@ namespace net.rs64.TexTransCore.Decal
                 var targetMat = materials[i];
 
                 if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
-                var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
+                var targetTexture = targetMat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
                 var targetTexSize = new Vector2Int(targetTexture.width, targetTexture.height);
 
                 var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
                 if (filteredTriangle.Any() == false) { continue; }
 
+                if (!RenderTextures.ContainsKey(targetMat))
+                {
+                    RenderTextures.Add(targetMat, new Dictionary<string, RenderTexture>());
+                }
 
-                if (!RenderTextures.ContainsKey(targetTexture))
+                if (!RenderTextures[targetMat].ContainsKey(TargetPropertyName))
                 {
                     var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-                    RenderTextures.Add(targetTexture, rendererTexture);
+                    RenderTextures[targetMat].Add(TargetPropertyName, rendererTexture);
                 }
 
                 TransTexture.TransTextureToRenderTexture(
-                    RenderTextures[targetTexture],
+                    RenderTextures[targetMat][TargetPropertyName],
                     SousTextures,
                     new TransTexture.TransData(filteredTriangle, tUV, sUV),
                     DefaultPadding,
-                    TextureWarp
+                    TextureWarp,
+                    HighQualityPadding
                 );
 
 
@@ -253,6 +258,34 @@ namespace net.rs64.TexTransCore.Decal
                 NormalizedPos.Add(QuadNormalize(Quad, targetPos));
             }
             return NormalizedPos;
+        }
+
+
+        public static List<(int, Renderer)> FindAtRenderer(Matrix4x4 WorldToLocal, GameObject FindRoot = null)
+        {
+            var ResultList = new List<(int, Renderer)>();
+            var Renderers = FindRoot != null ? FindRoot.GetComponentsInChildren<Renderer>() : UnityEngine.Object.FindObjectsOfType<Renderer>();
+            foreach (var rd in Renderers)
+            {
+                if (!(rd is SkinnedMeshRenderer || rd is MeshRenderer)) { continue; }
+                if (rd.GetMesh() == null) { continue; }
+                var vert = GetWorldSpaceVertices(rd);
+                var count = 0;
+                for (var i = 0; vert.Count > i; i += 1)
+                {
+                    var pos = WorldToLocal.MultiplyPoint3x4(vert[i]);
+                    pos.z -= 0.5f;
+                    if (Mathf.Abs(pos.x) < 0.5f && Mathf.Abs(pos.y) < 0.5f && Mathf.Abs(pos.z) < 0.5f)
+                    {
+                        count += 1;
+                    }
+                }
+                if (count > 0)
+                {
+                    ResultList.Add((count, rd));
+                }
+            }
+            return ResultList;
         }
     }
 
