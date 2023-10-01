@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal 以外の Decal 系 component のギズモに、DecalTexture を表示するギズモを追加 `#155`
 - SimpleDecal のリアルタイムプレビューが複数同時に使用できる機能を追加 `#144`
 - IslandCulling のレイキャスト処理の高速化 `#172`
-- SimpleDecal にレンダラーの自動選択機能の追加 `#94`
 - デカール系の余白生成が少し改善 `#79`
 - 主なコンポーネントに日本語 UI を追加 `#73`
 - デカール系に HighQualityPadding を追加 `#180`
@@ -43,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Decal 系統の IsSeparateMatAndTexture の削除 `#151`
 - AvatarDomainDefinition の削除 `#159`
 - コンピュートシェーダーを用いた Decal のコンパイルは削除されました `#144`
+- SimpleDecal にレンダラーの自動選択機能の追加はキャンセルされました `#94` `#185`
 
 ### Fixed
 
