@@ -6,6 +6,10 @@ on:
       tag:
         type: string
         required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
 
 jobs:
   update-package-json: 
