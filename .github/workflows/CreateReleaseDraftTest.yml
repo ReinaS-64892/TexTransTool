@@ -1,4 +1,4 @@
-name: update-version
+name: Create-Release-Draft-Test
 
 on:
   workflow_dispatch:
@@ -7,13 +7,7 @@ on:
         type: string
 
 jobs:
-  call-Update-Tag:
-    uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
-    with:
-      tag: ${{ github.event.inputs.tag }}
-
   call-TagToZip:
-    needs: [call-Update-Tag]
     uses: ./.github/workflows/TagToZip.yml
     with:
       tag: ${{ github.event.inputs.tag }}

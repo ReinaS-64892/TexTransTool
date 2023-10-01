@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  Create-tag-to-zip: 
+  Create-tag-to-zip:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
