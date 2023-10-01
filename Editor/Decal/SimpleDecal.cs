@@ -15,8 +15,6 @@ namespace net.rs64.TexTransTool.Decal
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
     public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
     {
-        public bool AutoSelectRenderer = false;
-        public override bool IsPossibleApply => AutoSelectRenderer || base.IsPossibleApply;
         public Vector2 Scale = Vector2.one;
         public float MaxDistance = 1;
         public bool FixedAspect = true;
@@ -60,37 +58,6 @@ namespace net.rs64.TexTransTool.Decal
                 new IslandSelector(new Ray(transform.localToWorldMatrix.MultiplyPoint3x4(IslandSelectorPos - new Vector2(0.5f, 0.5f)), transform.forward), MaxDistance * IslandSelectorRange)
                 };
         }
-
-        public override void Apply(IDomain Domain)
-        {
-            if (AutoSelectRenderer)
-            {
-                List<(int, Renderer)> find = null;
-                switch (Domain)
-                {
-                    case AvatarDomain avatarDomain:
-                        {
-                            find = DecalUtility.FindAtRenderer(transform.worldToLocalMatrix, avatarDomain.AvatarRoot);
-                            break;
-                        }
-                    default:
-                        {
-                            find = DecalUtility.FindAtRenderer(transform.worldToLocalMatrix);
-                            break;
-                        }
-                }
-                TargetRenderers.Clear();
-                find.Sort((L, R) => L.Item1 - R.Item1);
-                find.Reverse();
-                foreach (var rd in find)
-                {
-                    TargetRenderers.Add(rd.Item2);
-                }
-            }
-            base.Apply(Domain);
-        }
-
-
 
         protected virtual void OnDrawGizmosSelected()
         {

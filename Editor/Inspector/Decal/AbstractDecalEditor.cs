@@ -20,18 +20,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             EditorGUILayout.LabelField("RenderersSettings".GetLocalize(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
-            var s_AutoSelectRenderer = This_S_Object.FindProperty("AutoSelectRenderer");//これもうちょっといい感じにしたくない？
-            if (s_AutoSelectRenderer != null)
-            {
-                EditorGUILayout.PropertyField(s_AutoSelectRenderer, new GUIContent("AutoSelectRenderer".GetLocalize()));
-            }
-            if (s_AutoSelectRenderer == null || !s_AutoSelectRenderer.boolValue)
-            {
-                var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-                var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-                TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
-                EditorGUILayout.PropertyField(s_MultiRendererMode, new GUIContent("MultiRendererMode".GetLocalize()));
-            }
+
+            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
+            var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(s_MultiRendererMode, new GUIContent("MultiRendererMode".GetLocalize()));
+
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("TextureSettings".GetLocalize(), EditorStyles.boldLabel);
