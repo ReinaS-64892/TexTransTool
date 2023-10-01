@@ -90,13 +90,11 @@ namespace net.rs64.TexTransTool.Decal
             base.Apply(Domain);
         }
 
-        [NonSerialized] public Material DisplayDecalMat;
-        public Color GizmoColor = new Color(0, 0, 0, 1);
-        [NonSerialized] public Mesh Quad;
+
 
         protected virtual void OnDrawGizmosSelected()
         {
-            Gizmos.color = GizmoColor;
+            Gizmos.color = Color.black;
             var matrix = transform.localToWorldMatrix;
 
             Gizmos.matrix = matrix;
