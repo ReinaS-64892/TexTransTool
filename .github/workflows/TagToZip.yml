@@ -23,8 +23,12 @@ jobs:
       - name: RemoveDotgit
         run: |
           rm -r ./.git
+      - name: CreateZip
+        run: |
+          zip -r tex-trans-tool-${{ github.event.inputs.tag }}.zip ./*
+
       - name: Upload-artifact
         uses: actions/upload-artifact@v3
         with:
           name: tex-trans-tool-${{ github.event.inputs.tag }}
-          path: ./*
+          path: tex-trans-tool-${{ github.event.inputs.tag }}.zip
