@@ -79,16 +79,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public static void DrawerSummary(SimpleDecal target)
         {
             var s_obj = new SerializedObject(target);
-            var s_AutoSelectRenderer = s_obj.FindProperty("AutoSelectRenderer");
-            if (!s_AutoSelectRenderer.boolValue)
-            {
-                var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
-                TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
-            }
-            else
-            {
-                EditorGUILayout.LabelField(s_AutoSelectRenderer.name.GetLocalize());
-            }
+
+            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
+
             var s_DecalTexture = s_obj.FindProperty("DecalTexture");
             TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_DecalTexture, s_DecalTexture.name.GetLocalize());
 
