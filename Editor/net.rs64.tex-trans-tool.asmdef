@@ -1,7 +1,8 @@
 {
     "name": "net.rs64.tex-trans-tool",
     "references": [
-        "GUID:5282758b83062964bb8be6e82a433ef2"
+        "GUID:5282758b83062964bb8be6e82a433ef2",
+        "GUID:3456780c4fb2d324ab9c633d6f1b0ddb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

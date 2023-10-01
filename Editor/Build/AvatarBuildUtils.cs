@@ -46,7 +46,11 @@ namespace net.rs64.TexTransTool.Build
                 _avatarDomain = avatarDomain;
                 _phaseAtList = phaseAtList;
             }
-
+            public TexTransBuildSession(AvatarDomain avatarDomain)
+            {
+                _avatarDomain = avatarDomain;
+                _phaseAtList = FindAtPhase(_avatarDomain.AvatarRoot);
+            }
             public void ApplyFor(TexTransPhase texTransPhase)
             {
                 _avatarDomain.ProgressStateEnter(texTransPhase.ToString());
