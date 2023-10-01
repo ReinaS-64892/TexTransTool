@@ -24,6 +24,7 @@ jobs:
 
     - name: Debug
       run: |
+        pwd
         ls -alh
         ls -alh ../
 
