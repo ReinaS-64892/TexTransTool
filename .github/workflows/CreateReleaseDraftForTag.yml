@@ -19,6 +19,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
       with:
+        path: ./TexTransTool
         fetch-tags: true
         ref: ${{ github.event.inputs.tag }}
 
@@ -36,5 +37,5 @@ jobs:
         tag_name: ${{ github.event.inputs.tag }}
         draft: true
         files: |
-          ../tex-trans-tool-${{ github.event.inputs.tag }}.zip
-          package.json
+          ./tex-trans-tool-${{ github.event.inputs.tag }}.zip
+          ./TexTransTool/package.json
