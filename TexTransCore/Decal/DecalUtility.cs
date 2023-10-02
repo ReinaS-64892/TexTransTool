@@ -77,7 +77,7 @@ namespace net.rs64.TexTransCore.Decal
 
                 if (!RenderTextures[targetMat].ContainsKey(TargetPropertyName))
                 {
-                    var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                    var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32);
                     RenderTextures[targetMat].Add(TargetPropertyName, rendererTexture);
                 }
 

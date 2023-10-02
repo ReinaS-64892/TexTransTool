@@ -5,6 +5,9 @@ using UnityEngine;
 using static net.rs64.TexTransTool.TextureLayerUtil;
 using net.rs64.TexTransCore.TransTextureCore;
 using System.Linq;
+using System;
+using UnityEditor;
+using System.IO;
 
 namespace net.rs64.TexTransTool
 {
@@ -64,15 +67,27 @@ namespace net.rs64.TexTransTool
         {
             if (!StackTextures.Any()) { return FirstTexture; }
             var size = FirstTexture.NativeSize();
-            var rendererTexture = new RenderTexture(size.x, size.y, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-            Graphics.Blit(FirstTexture, rendererTexture);
+            var rendererTexture = RenderTexture.GetTemporary(size.x, size.y, 32);
+            Graphics.Blit(TryGetUnCompress(FirstTexture, out var outUnCompress) ? outUnCompress : FirstTexture, rendererTexture);
 
             rendererTexture.BlendBlit(StackTextures);
 
             rendererTexture.name = FirstTexture.name + "_MergedStack";
-            return rendererTexture.CopyTexture2D().CopySetting(FirstTexture);
+            var resultTex = rendererTexture.CopyTexture2D().CopySetting(FirstTexture);
+            RenderTexture.ReleaseTemporary(rendererTexture);
+            return resultTex;
         }
 
+        public bool TryGetUnCompress(Texture2D firstTexture, out Texture2D unCompress)
+        {
+            if (!AssetDatabase.Contains(firstTexture)) { unCompress = firstTexture; return false; }
+            var path = AssetDatabase.GetAssetPath(firstTexture);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
+            unCompress = new Texture2D(2, 2);
+            unCompress.LoadImage(File.ReadAllBytes(path));
+            return true;
+        }
     }
 
 }

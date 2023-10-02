@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Utils
         /// <param name="tex"></param>
         /// <param name="CopySouse"></param>
         /// <returns></returns>
-        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse)
+        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, TextureFormat? OverrideFormat = null)
         {
             var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
             if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
@@ -43,7 +43,11 @@ namespace net.rs64.TexTransTool.Utils
             tex.wrapModeV = CopySouse.wrapModeV;
             tex.wrapMode = CopySouse.wrapMode;
             if (tex.mipmapCount > 1) { tex.Apply(true); }
-            EditorUtility.CompressTexture(tex, CopySouse.format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
+            if (tex.format != CopySouse.format)
+            {
+                var format = OverrideFormat.HasValue ? OverrideFormat.Value : CopySouse.format;
+                EditorUtility.CompressTexture(tex, format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
+            }
 
             return tex;
         }
