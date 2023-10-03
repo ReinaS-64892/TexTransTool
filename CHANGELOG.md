@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 圧縮しない設定ができない問題を修正 `#120`
 - AtlasTexture の NextFitDecreasingHeightPlusFloorCeiling アルゴリズムで、横幅が大きい UVIsland が存在する場合うまく処理できない問題を修正 `#168`
 - AtlasTexture の NextFitDecreasingHeightPlusFloorCeiling アルゴリズムで、上の余白が多きすぎる問題を修正 `#129`
+- 内部的に使用されているレンダーテクスチャなどのフォーマットを調整しました `#187`
 
 ### Deprecated
 
