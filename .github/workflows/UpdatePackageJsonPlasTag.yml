@@ -10,9 +10,10 @@ on:
     inputs:
       tag:
         type: string
+        required: true
 
 jobs:
-  update-package-json: 
+  update-package-json:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
