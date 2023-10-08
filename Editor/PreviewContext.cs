@@ -30,6 +30,7 @@ namespace net.rs64.TexTransTool
         }
 
         public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
+        public static bool IsPreviewContains => instance.previweing != null;
 
         private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
             where T : Object

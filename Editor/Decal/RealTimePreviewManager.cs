@@ -26,6 +26,8 @@ namespace net.rs64.TexTransTool
             EditorSceneManager.sceneClosing += ExitPreview;
         }
 
+        public static bool IsContainsRealTimePreview => RealTimePreviewManager.instance.RealTimePreviews.Count > 0;
+
         private void RegtRenderer(Renderer renderer)
         {
             if (PreviewTargetRenderer.Contains(renderer) || renderer == null) { return; }

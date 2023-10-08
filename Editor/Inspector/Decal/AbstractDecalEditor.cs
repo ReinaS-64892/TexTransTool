@@ -51,9 +51,18 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 if (!RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(Target))
                 {
-                    EditorGUI.BeginDisabledGroup(!Target.IsPossibleApply || AnimationMode.InAnimationMode() || PreviewContext.IsPreviewing(Target));
-                    var IsOtherPreview = AnimationMode.InAnimationMode() || PreviewContext.IsPreviewing(Target);
-                    if (GUILayout.Button(!IsOtherPreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
+                    var IsPossibleRealTimePreview = false;
+                    if (RealTimePreviewManager.IsContainsRealTimePreview)
+                    {
+                        IsPossibleRealTimePreview = Target.IsPossibleApply;
+                    }
+                    else
+                    {
+                        IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
+                        IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
+                    }
+                    EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
+                    if (GUILayout.Button(IsPossibleRealTimePreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
                     {
                         RealTimePreviewManager.instance.RegtAbstractDecal(Target);
                     }
