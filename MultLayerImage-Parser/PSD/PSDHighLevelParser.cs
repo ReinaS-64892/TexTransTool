@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore.Layer;
 using UnityEngine;
 using static net.rs64.PSD.parser.PSDLowLevelParser.PSDLowLevelData;
 
@@ -156,7 +157,7 @@ namespace net.rs64.PSD.parser
             tex2D.SetPixels32(pixels);
             tex2D.Apply();
             tex2D.name = record.LayerName + "_MaskTex";
-            rasterLayer.LayerMask = new LayerMask() { MaskTexture = tex2D };
+            rasterLayer.LayerMask = new TexTransCore.Layer.LayerMask() { MaskTexture = tex2D };
             var maskDisabled = record.LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerRecordParser.LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.MaskDisabled);
             rasterLayer.LayerMask.LayerMaskDisabled = maskDisabled;
             rasterLayer.LayerMask.MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Bottom, record.LayerMaskAdjustmentLayerData.RectTangle.Left);

@@ -1,8 +1,7 @@
-
 using System;
 using UnityEngine;
 
-namespace net.rs64.PSD.parser
+namespace net.rs64.TexTransCore.Layer
 {
     [Serializable]
     public class RasterLayer : AbstractLayer

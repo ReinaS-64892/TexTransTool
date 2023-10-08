@@ -10,7 +10,7 @@ using System;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
-namespace net.rs64.TexTransTool
+namespace net.rs64.TexTransCore.BlendTexture
 {
     public enum BlendType
     {
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool
         AlphaLerp,
         NotBlend,
     }
-    public static class TextureLayerUtil
+    public static class TextureBlendUtils
     {
 
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)

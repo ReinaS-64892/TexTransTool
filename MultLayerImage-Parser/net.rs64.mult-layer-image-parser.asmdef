@@ -1,0 +1,17 @@
+{
+    "name": "net.rs64.mult-layer-image-parser",
+    "references": [
+        "GUID:5f92e09816a7a684ba6f0faab465c186",
+        "GUID:618d91fef8c36af4a9e25c1697c0c57a",
+        "GUID:5282758b83062964bb8be6e82a433ef2"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

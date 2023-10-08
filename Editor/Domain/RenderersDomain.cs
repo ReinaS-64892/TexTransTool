@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureLayerUtil;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
 using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool

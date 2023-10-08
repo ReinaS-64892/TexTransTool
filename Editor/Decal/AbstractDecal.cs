@@ -5,6 +5,7 @@ using UnityEditor;
 using System.IO;
 using net.rs64.TexTransCore.TransTextureCore;
 using System;
+using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -58,7 +59,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var PramAndRt in matAndTex.Value)
                 {
-                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureLayerUtil.BlendTextures(PramAndRt.Value, BlendType));
+                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlendUtils.BlendTextures(PramAndRt.Value, BlendType));
                 }
             }
 
@@ -78,7 +79,7 @@ namespace net.rs64.TexTransTool.Decal
                     var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
                     if (decalCompiledTextures.ContainsKey(souseTex))
                     {
-                        TextureLayerUtil.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.AlphaLerp);
+                        TextureBlendUtils.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.AlphaLerp);
                     }
                     else
                     {
