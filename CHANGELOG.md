@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- 複数同時のリアルタイムプレビューができない問題を修正 `#189`
+
 ### Deprecated
 
 ## [0.4.0]
