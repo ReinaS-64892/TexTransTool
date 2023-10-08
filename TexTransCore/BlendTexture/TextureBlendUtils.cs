@@ -669,6 +669,16 @@ namespace net.rs64.TexTransCore.BlendTexture
             mat.SetColor("_Color", Color);
             Graphics.Blit(MainTex, MainTexRt, mat);
         }
+        public static void MultipleRenderTexture(RenderTexture renderTexture, Color Color)
+        {
+            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+            var mat = new Material(Shader.Find("Hidden/ColorMulShader"));
+            mat.SetColor("_Color", Color);
+            Graphics.CopyTexture(renderTexture, tempRt);
+            Graphics.Blit(tempRt, renderTexture, mat);
+            RenderTexture.ReleaseTemporary(tempRt);
+        }
+
 
         public static Texture2D CreateColorTex(Color Color)
         {

@@ -285,13 +285,14 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
 
-        public static Texture2D CopyTexture2D(this RenderTexture Rt, TextureFormat? OverrideFormat = null)
+        public static Texture2D CopyTexture2D(this RenderTexture Rt, TextureFormat? OverrideFormat = null, bool? OverrideUseMip = null)
         {
             var preRt = RenderTexture.active;
             try
             {
                 RenderTexture.active = Rt;
-                var texture = OverrideFormat.HasValue ? new Texture2D(Rt.width, Rt.height, OverrideFormat.Value, Rt.useMipMap) : new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, Rt.useMipMap ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+                var useMip = OverrideUseMip.HasValue ? OverrideUseMip.Value : Rt.useMipMap;
+                var texture = OverrideFormat.HasValue ? new Texture2D(Rt.width, Rt.height, OverrideFormat.Value, useMip) : new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, useMip ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
                 texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
                 texture.Apply();
                 texture.name = Rt.name + "_CopyTex2D";
