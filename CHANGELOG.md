@@ -15,9 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Deprecated
+
+## [0.4.1]
+
+### Fixed
+
 - 複数同時のリアルタイムプレビューができない問題を修正 `#189`
 
-### Deprecated
 
 ## [0.4.0]
 
@@ -216,6 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
 [unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...master
+[0.4.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.6...v0.4.0
 [0.3.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.4...v0.3.5
