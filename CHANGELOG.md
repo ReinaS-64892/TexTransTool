@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- 内部的な色空間の変換ミスを修正しました。
+
 ### Deprecated
 
 ## [0.4.1]
