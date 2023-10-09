@@ -123,7 +123,8 @@ namespace net.rs64.TexTransTool.Utils
             }
             else
             {
-                stream = new MemoryStream(SouseTex.EncodeToPNG());
+                //非対応形式だった場合を雑に処理。
+                return new Vector2Int(SouseTex.width, SouseTex.height);
             }
 
 

@@ -82,11 +82,15 @@ namespace net.rs64.TexTransTool
         {
             if (!AssetDatabase.Contains(firstTexture)) { unCompress = firstTexture; return false; }
             var path = AssetDatabase.GetAssetPath(firstTexture);
-            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
-            unCompress = new Texture2D(2, 2);
-            unCompress.LoadImage(File.ReadAllBytes(path));
-            return true;
+            if (Path.GetExtension(path) == ".png" || Path.GetExtension(path) == ".jpeg" || Path.GetExtension(path) == ".jpg")
+            {
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
+                unCompress = new Texture2D(2, 2);
+                unCompress.LoadImage(File.ReadAllBytes(path));
+                return true;
+            }
+            else { unCompress = firstTexture; return false; }
         }
     }
 
