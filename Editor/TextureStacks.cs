@@ -66,8 +66,7 @@ namespace net.rs64.TexTransTool
         public Texture2D MergeStack()
         {
             if (!StackTextures.Any()) { return FirstTexture; }
-            var size = FirstTexture.NativeSize();
-            var rendererTexture = RenderTexture.GetTemporary(size.x, size.y, 32);
+            var rendererTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
             Graphics.Blit(TryGetUnCompress(FirstTexture, out var outUnCompress) ? outUnCompress : FirstTexture, rendererTexture);
 
             rendererTexture.BlendBlit(StackTextures);
