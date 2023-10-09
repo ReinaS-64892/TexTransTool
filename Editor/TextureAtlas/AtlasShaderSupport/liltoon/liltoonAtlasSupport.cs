@@ -147,7 +147,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(MainTex, Color);
+                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(MainTex.TryGetUnCompress(), Color);
                 }
             }
             void FloatMul(string TexPropName, string FloatProp, bool AlreadyTex)
@@ -164,7 +164,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(PropTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(PropTex.TryGetUnCompress(), new Color(PropFloat, PropFloat, PropFloat, PropFloat));
                 }
             }
 

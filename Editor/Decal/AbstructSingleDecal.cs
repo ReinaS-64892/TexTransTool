@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Decal
             RenderTexture mulDecalTexture = DecalTexture != null ? RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0) : RenderTexture.GetTemporary(32, 32, 0); ;
             if (DecalTexture != null)
             {
-                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, DecalTexture, Color);
+                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, DecalTexture.TryGetUnCompress(), Color);
             }
             else
             {

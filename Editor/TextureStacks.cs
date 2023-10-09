@@ -65,9 +65,8 @@ namespace net.rs64.TexTransTool
         public Texture2D MergeStack()
         {
             if (!StackTextures.Any()) { return FirstTexture; }
-            var size = FirstTexture.NativeSize();
-            var rendererTexture = RenderTexture.GetTemporary(size.x, size.y, 32);
-            Graphics.Blit(TryGetUnCompress(FirstTexture, out var outUnCompress) ? outUnCompress : FirstTexture, rendererTexture);
+            var rendererTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
+            Graphics.Blit(FirstTexture.TryGetUnCompress(), rendererTexture);
 
             rendererTexture.BlendBlit(StackTextures);
 
@@ -77,16 +76,7 @@ namespace net.rs64.TexTransTool
             return resultTex;
         }
 
-        public bool TryGetUnCompress(Texture2D firstTexture, out Texture2D unCompress)
-        {
-            if (!AssetDatabase.Contains(firstTexture)) { unCompress = firstTexture; return false; }
-            var path = AssetDatabase.GetAssetPath(firstTexture);
-            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
-            unCompress = new Texture2D(2, 2);
-            unCompress.LoadImage(File.ReadAllBytes(path));
-            return true;
-        }
+
     }
 
 }

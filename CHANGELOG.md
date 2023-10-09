@@ -17,12 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.4.2]
+
+### Fixed
+
+- 内部的な色空間の変換ミスを修正しました。[コミット](https://github.com/ReinaS-64892/TexTransTool/commit/012af2aaaad5d53bef87745f7c03cc9bde6b0440)
+- PSD をテクスチャーに使用している場合正常にデカールなどが使用できない問題を修正しました [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/909a487491b8986862030ad6206389a6997dfd3e)
+- ネイティブサイズを使用しないことで、二のべき乗の解像度ではない画像になることを修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/9288cba0b0f621c85003601e1d14bf5e35026830)
+- デカール系や AtlasTexture で圧縮されていないテクスチャーを使用するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/0faa9177c0138230cce6c40274024edef5a79610)
+
 ## [0.4.1]
 
 ### Fixed
 
 - 複数同時のリアルタイムプレビューができない問題を修正 `#189`
-
 
 ## [0.4.0]
 
@@ -44,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - デカール系の余白生成が少し改善 `#79`
 - 主なコンポーネントに日本語 UI を追加 `#73`
 - デカール系に HighQualityPadding を追加 `#180`
-- NDMF対応 `#139`
+- NDMF 対応 `#139`
 
 ### Changed
 
@@ -220,7 +228,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...master
+[0.4.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.6...v0.4.0
 [0.3.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.5...v0.3.6
