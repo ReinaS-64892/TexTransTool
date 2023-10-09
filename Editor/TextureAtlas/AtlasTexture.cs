@@ -187,7 +187,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         if (Origin != null && Moved != null) { islandPairs.Add((Origin, Moved)); }
                     }
 
-                    TransMoveRectIsland(souseProp2Tex.Texture2D, targetRT, islandPairs, atlasSetting.GetTexScalePadding);
+                    TransMoveRectIsland(souseProp2Tex.Texture2D.TryGetUnCompress(), targetRT, islandPairs, atlasSetting.GetTexScalePadding);
                 }
 
                 compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));

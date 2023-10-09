@@ -12,7 +12,30 @@ namespace net.rs64.TexTransTool.Utils
 
     public static class TextureUtility
     {
+        public static bool TryGetUnCompress(Texture2D firstTexture, out Texture2D unCompress)
+        {
+            if (!AssetDatabase.Contains(firstTexture)) { unCompress = firstTexture; return false; }
+            var path = AssetDatabase.GetAssetPath(firstTexture);
+            if (Path.GetExtension(path) == ".png" || Path.GetExtension(path) == ".jpeg" || Path.GetExtension(path) == ".jpg")
+            {
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
+                unCompress = new Texture2D(2, 2);
+                unCompress.LoadImage(File.ReadAllBytes(path));
+                return true;
+            }
+            else { unCompress = firstTexture; return false; }
+        }
 
+        public static Texture2D TryGetUnCompress(this Texture2D tex)
+        {
+            return TryGetUnCompress(tex, out var outUnCompress) ? outUnCompress : tex;
+        }
+        public static Texture TryGetUnCompress(this Texture tex)
+        {
+            if (tex is Texture2D texture2D) { return TryGetUnCompress(texture2D, out var outUnCompress) ? outUnCompress : texture2D; }
+            else { return tex; }
+        }
 
         /// <summary>
         /// いろいろな設定をコピーしたような感じにする。
