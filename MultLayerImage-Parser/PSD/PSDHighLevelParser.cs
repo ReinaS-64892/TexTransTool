@@ -39,18 +39,18 @@ namespace net.rs64.PSD.parser
                 var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
                 if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    rootLayers.Add(ParseLayerFolder(record, Depth, imageRecordQueue, imageDataQueue, texture2DList));
+                    rootLayers.Add(ParseLayerFolder(record, Depth, imageRecordQueue, imageDataQueue, texture2DList, Size));
                 }
                 else
                 {
-                    rootLayers.Add(ParseRasterLayer(record, Depth, imageDataQueue, texture2DList));
+                    rootLayers.Add(ParseRasterLayer(record, Depth, imageDataQueue, texture2DList, Size));
                 }
 
             }
             return texture2DList;
         }
 
-        private static LayerFolder ParseLayerFolder(LayerRecordParser.LayerRecord record, int depth, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList)
+        private static LayerFolder ParseLayerFolder(LayerRecordParser.LayerRecord record, int depth, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
         {
             var layerFolder = new LayerFolder();
             // layerFolder.CopyFromRecord(record);
@@ -66,11 +66,11 @@ namespace net.rs64.PSD.parser
 
                 if (PeekSectionDividerSetting == null)
                 {
-                    layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), depth, imageDataQueue, texture2DList));
+                    layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), depth, imageDataQueue, texture2DList, size));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), depth, imageRecordQueue, imageDataQueue, texture2DList));
+                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), depth, imageRecordQueue, imageDataQueue, texture2DList, size));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.OpenFolder
                 || PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.ClosedFolder)
@@ -86,7 +86,7 @@ namespace net.rs64.PSD.parser
             return layerFolder;
         }
 
-        private static RasterLayer ParseRasterLayer(LayerRecordParser.LayerRecord record, int depth, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList)
+        private static RasterLayer ParseRasterLayer(LayerRecordParser.LayerRecord record, int depth, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
         {
             var rasterLayer = new RasterLayer();
             rasterLayer.CopyFromRecord(record);
@@ -124,7 +124,8 @@ namespace net.rs64.PSD.parser
                 tex2D.Apply();
                 tex2D.name = record.LayerName + "_Tex";
                 rasterLayer.RasterTexture = tex2D;
-                rasterLayer.TexturePivot = new Vector2Int(record.RectTangle.Bottom, record.RectTangle.Left);
+                // Debug.Log($"name : {record.LayerName} left : {record.RectTangle.Left} right : {record.RectTangle.Right} top : {record.RectTangle.Top} bottom : {record.RectTangle.Bottom} ");
+                rasterLayer.TexturePivot = new Vector2Int(record.RectTangle.Left, size.y - record.RectTangle.Bottom);
                 texture2DList.Add(tex2D);
             }
 

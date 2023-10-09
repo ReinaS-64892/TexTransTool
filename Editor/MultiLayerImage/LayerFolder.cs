@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Select(I => I.EvaluateTexture(canvasDescription))
             .ToArray();
 
+            if (Layers.Length == 0) { return new BlendTextures(rt, BlendType.Normal); }
 
             TextureBlendUtils.BlendBlit(rt, Layers);
             TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));

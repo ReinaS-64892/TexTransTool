@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var souse = new List<Vector2>() { Vector2.zero, new Vector2(0, 1), new Vector2(1, 0), Vector2.one };
             var target = new List<Vector2>() { Pivot, new Vector2(Pivot.x, RightUpPos.y), new Vector2(RightUpPos.x, Pivot.y), RightUpPos };
 
-            var TransData = new TransTexture.TransData(triangle, souse, target);
+            var TransData = new TransTexture.TransData(triangle, target, souse);
             TransTexture.TransTextureToRenderTexture(tex, texture, TransData);
         }
     }
