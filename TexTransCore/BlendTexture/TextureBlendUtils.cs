@@ -1,11 +1,8 @@
-#if UNITY_EDITOR
-
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEditor;
 using System;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
@@ -697,4 +694,3 @@ namespace net.rs64.TexTransCore.BlendTexture
     }
 
 }
-#endif
