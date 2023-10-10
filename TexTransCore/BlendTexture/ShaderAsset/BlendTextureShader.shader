@@ -15,10 +15,10 @@ Shader "Hidden/BlendTexture"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp NotBlend
+            #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp ClassicNormal NotBlend
 
             #include "UnityCG.cginc"
-            #include "../../TransTextureCore/ShaderAsset/Compute/BlendTextureHelper.hlsl"
+            #include "./BlendTextureHelper.hlsl"
 
             struct appdata
             {
@@ -101,8 +101,8 @@ Shader "Hidden/BlendTexture"
                  BlendColor = ColorBlendColor(col ,AddColor);
                 #elif Luminosity
                  BlendColor = ColorBlendLuminosity(col ,AddColor);
-                #elif AlphaLerp
-                 BlendColor = ColorBlendAlphaLerp(col ,AddColor);
+                #elif ClassicNormal
+                 BlendColor = ColorBlendClassicNormal(col ,AddColor);
                 #elif NotBlend
                  BlendColor = AddColor;
                 #endif

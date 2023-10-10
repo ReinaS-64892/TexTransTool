@@ -1,4 +1,4 @@
-#include "./TransHelper.hlsl"
+#include "../../TransTextureCore/ShaderAsset/Compute/TransHelper.hlsl"
 
 static float4 OneColor = float4(1,1,1,1);
 
@@ -89,11 +89,10 @@ float3 HSVtoRGB(float3 hsv)
 	return rgb;
 }
 //this far
-
 float4 ColorBlendNormal(float4 BaseColor, float4 AddColor) {
 
   float2 Alpha = FinalAlphaAndReversCal(BaseColor.w, AddColor.w);
-  float4 ResultColor = (AddColor * AddColor.w) + ((BaseColor * BaseColor.w) * Alpha.y);
+  float4 ResultColor = lerp(BaseColor, AddColor, AddColor.w / (AddColor.w +( Alpha.y * BaseColor.w )));
   ResultColor.w = Alpha.x;
 
   return ResultColor;
@@ -361,10 +360,10 @@ float4 ColorBlendLuminosity(float4 BaseColor, float4 AddColor) {
 
   return ResultColor;
 }
-float4 ColorBlendAlphaLerp(float4 BaseColor, float4 AddColor) {
+float4 ColorBlendClassicNormal(float4 BaseColor, float4 AddColor) {
 
   float2 Alpha = FinalAlphaAndReversCal(BaseColor.w, AddColor.w);
-  float4 ResultColor = lerp(BaseColor, AddColor, AddColor.w / (AddColor.w +( Alpha.y * BaseColor.w )));
+  float4 ResultColor = (AddColor * AddColor.w) + ((BaseColor * BaseColor.w) * Alpha.y);
   ResultColor.w = Alpha.x;
 
   return ResultColor;

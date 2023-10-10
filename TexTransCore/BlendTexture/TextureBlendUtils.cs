@@ -32,7 +32,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         Saturation,
         Color,
         Luminosity,
-        AlphaLerp,
+        ClassicNormal,
         NotBlend,
     }
     public static class TextureBlendUtils
@@ -300,7 +300,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                         }
                         break;
                     }
-                case BlendType.AlphaLerp:
+                case BlendType.ClassicNormal:
                     {
                         foreach (var Index in indexEnumerator)
                         {
