@@ -6,7 +6,7 @@ namespace net.rs64.TexTransCore.Layer
 {
 
     [Serializable]
-    public abstract class AbstractLayer
+    public abstract class AbstractLayerData
     {
         public string LayerName;
         public bool TransparencyProtected;

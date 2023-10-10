@@ -5,8 +5,9 @@ using UnityEngine;
 namespace net.rs64.TexTransCore.Layer
 {
     [Serializable]
-    public class LayerFolder : AbstractLayer
+    public class LayerFolderData : AbstractLayerData
     {
-        public List<AbstractLayer> Layers;
+        public bool PassThrough;
+        public List<AbstractLayerData> Layers;
     }
 }
