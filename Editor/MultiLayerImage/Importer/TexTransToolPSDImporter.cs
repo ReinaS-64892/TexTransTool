@@ -13,6 +13,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     [ScriptedImporter(1, "psd", AutoSelect = false)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
+        public Texture2D DefaultReplaceTexture;
+
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
         static void ChangeImporter()
         {
@@ -45,6 +47,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
 
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
+            multiLayerImageCanvas.ReplaceTarget = DefaultReplaceTexture;
             multiLayerImageCanvas.TextureSize = pSDData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, pSDData.RootLayers);
 
@@ -72,17 +75,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             rasterLayerComponent.Opacity = layer.Opacity;
                             rasterLayerComponent.Clipping = layer.Clipping;
                             rasterLayerComponent.Visible = layer.Visible;
+                            rasterLayerComponent.LayerMask = layer.LayerMask;
                             break;
                         }
                     case LayerFolderData layerFolder:
                         {
 
                             var layerFolderComponent = NewLayer.AddComponent<LayerFolder>();
+                            layerFolderComponent.PassThrough = layerFolder.PassThrough;
                             layerFolderComponent.BlendMode = layer.BlendMode;
                             layerFolderComponent.Opacity = layer.Opacity;
                             layerFolderComponent.Clipping = layer.Clipping;
                             layerFolderComponent.Visible = layer.Visible;
-                            layerFolderComponent.PassThrough = layerFolder.PassThrough;
+                            layerFolderComponent.LayerMask = layer.LayerMask;
                             AddLayers(NewLayer.transform, ctx, layerFolder.Layers);
                             break;
                         }
