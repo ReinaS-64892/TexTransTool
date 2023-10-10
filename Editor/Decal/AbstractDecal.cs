@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.Decal
                     var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
                     if (decalCompiledTextures.ContainsKey(souseTex))
                     {
-                        TextureBlendUtils.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.AlphaLerp);
+                        TextureBlendUtils.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.Normal);
                     }
                     else
                     {
