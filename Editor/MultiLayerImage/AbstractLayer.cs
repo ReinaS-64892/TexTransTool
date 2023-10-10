@@ -18,8 +18,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool Clipping;
         public BlendType BlendMode;
         public TexTransCore.Layer.LayerMask LayerMask;
-
-        //ここ戻すやつ複数のRenderTextureであるほうが望ましいのかな？
         public abstract IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription);
 
     }
