@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             rasterLayerComponent.Opacity = layer.Opacity;
                             rasterLayerComponent.Clipping = layer.Clipping;
                             rasterLayerComponent.Visible = layer.Visible;
-                            rasterLayerComponent.LayerMask = layer.LayerMask;
+                            SetMaskTexture(rasterLayerComponent, rasterLayer);
                             break;
                         }
                     case LayerFolderData layerFolder:
@@ -87,10 +87,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             layerFolderComponent.Opacity = layer.Opacity;
                             layerFolderComponent.Clipping = layer.Clipping;
                             layerFolderComponent.Visible = layer.Visible;
-                            layerFolderComponent.LayerMask = layer.LayerMask;
+                            SetMaskTexture(layerFolderComponent, layerFolder);
                             AddLayers(NewLayer.transform, ctx, layerFolder.Layers);
                             break;
                         }
+                }
+            }
+
+            void SetMaskTexture(AbstractLayer abstractLayer, AbstractLayerData abstractLayerData)
+            {
+                if (abstractLayerData.LayerMask != null)
+                {
+                    var mask = abstractLayerData.LayerMask;
+                    abstractLayer.LayerMask = mask;
+                    ctx.AddObjectToAsset(mask.MaskTexture.name, mask.MaskTexture);
                 }
             }
         }

@@ -1,9 +1,9 @@
-Shader "Hidden/ColorMulShader"
+Shader "Hidden/MuskShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Color ("Color", Color) = (1,1,1,1)
+        _MaskTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -31,7 +31,7 @@ Shader "Hidden/ColorMulShader"
             };
 
             sampler2D _MainTex;
-            float4 _Color ;
+            sampler2D _MaskTex;
 
             v2f vert (appdata v)
             {
@@ -43,14 +43,12 @@ Shader "Hidden/ColorMulShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 MainColor = tex2Dlod(_MainTex ,float4(i.uv,0,0));
+                float4 col = tex2Dlod(_MainTex ,float4(i.uv,0,0));
+                float MaskColor =  tex2Dlod(_MaskTex ,float4(i.uv,0,0));
 
-                return  float4(
-                    MainColor.r * _Color.r,
-                    MainColor.g * _Color.g,
-                    MainColor.b * _Color.b,
-                    MainColor.a * _Color.a
-                );
+                col.a *= MaskColor;
+
+                return  col;
             }
             ENDHLSL
         }

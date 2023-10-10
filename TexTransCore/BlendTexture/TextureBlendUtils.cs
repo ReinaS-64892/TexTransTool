@@ -656,7 +656,7 @@ namespace net.rs64.TexTransCore.BlendTexture
 
         public static RenderTexture CreateMultipliedRenderTexture(Texture MainTex, Color Color)
         {
-            var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
+            var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0);
             MultipleRenderTexture(mainTexRt, MainTex, Color);
             return mainTexRt;
         }

@@ -17,7 +17,7 @@ namespace net.rs64.TexTransCore.Layer
         public LayerMask LayerMask;
 
     }
-
+    [Serializable]
     public class LayerMask
     {
         public bool LayerMaskDisabled;

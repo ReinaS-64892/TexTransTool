@@ -55,8 +55,8 @@ Shader "Hidden/BlendTexture"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 col = LiniearToGamma(tex2D(_DistTex, i.uv));
-                float4 AddColor = LiniearToGamma(tex2D(_MainTex ,i.uv));
+                float4 col = LiniearToGamma(tex2Dlod(_DistTex,float4( i.uv,0,0)));
+                float4 AddColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
                 float4 BlendColor;
 
                 #ifdef Normal
