@@ -67,6 +67,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 {
                     case RasterLayerData rasterLayer:
                         {
+                            if (rasterLayer.RasterTexture == null) { DestroyImmediate(NewLayer); continue; }
                             ctx.AddObjectToAsset(layer.LayerName, rasterLayer.RasterTexture);
                             var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
                             rasterLayerComponent.RasterTexture = rasterLayer.RasterTexture;

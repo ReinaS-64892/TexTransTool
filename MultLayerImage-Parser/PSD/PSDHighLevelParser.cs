@@ -129,6 +129,7 @@ namespace net.rs64.PSD.parser
                 tex2D.SetPixels32(pixels);
                 tex2D.Apply();
                 tex2D.name = record.LayerName + "_Tex";
+                tex2D.filterMode = FilterMode.Point;
                 rasterLayer.RasterTexture = tex2D;
                 // Debug.Log($"name : {record.LayerName} left : {record.RectTangle.Left} right : {record.RectTangle.Right} top : {record.RectTangle.Top} bottom : {record.RectTangle.Bottom} ");
                 rasterLayer.TexturePivot = new Vector2Int(record.RectTangle.Left, size.y - record.RectTangle.Bottom);
@@ -164,7 +165,11 @@ namespace net.rs64.PSD.parser
             tex2D.SetPixels32(pixels);
             tex2D.Apply();
             tex2D.name = record.LayerName + "_MaskTex";
-            rasterLayer.LayerMask = new TexTransCore.Layer.LayerMask() { MaskTexture = tex2D };
+            rasterLayer.LayerMask = new TexTransCore.Layer.LayerMask()
+            {
+                MaskTexture = tex2D,
+                DefaultMaskColor = record.LayerMaskAdjustmentLayerData.DefaultColor / 255
+            };
             var maskDisabled = record.LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerRecordParser.LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.MaskDisabled);
             rasterLayer.LayerMask.LayerMaskDisabled = maskDisabled;
             rasterLayer.LayerMask.MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, size.y - record.LayerMaskAdjustmentLayerData.RectTangle.Bottom);

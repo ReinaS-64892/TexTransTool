@@ -5,6 +5,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -19,17 +20,44 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public float Opacity = 1;
         public bool Clipping;
         public BlendType BlendMode;
-        public TexTransCore.Layer.LayerMask LayerMask;
-        public abstract IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription);
+        public LayerMask LayerMask;
+        public abstract void EvaluateTexture(LayerStack layerStack);
 
         public static void DrawMask(LayerMask layerMask, Vector2Int canvasSize, RenderTexture tex)
         {
             if (layerMask.MaskTexture != null)
             {
                 var tempRt = RenderTexture.GetTemporary(tex.descriptor);
+                ColorBlit(tempRt, new Color(1, 1, 1, layerMask.DefaultMaskColor));
                 DrawOffsetEvaluateTexture(tempRt, layerMask.MaskTexture, layerMask.MaskPivot, canvasSize);
                 MaskDrawRenderTexture(tex, tempRt);
                 RenderTexture.ReleaseTemporary(tempRt);
+            }
+        }
+
+        public static void DrawClipping(LayerStack layerStack, RenderTexture tex)
+        {
+            var index = layerStack.Stack.Count;
+            var findEnd = false;
+            while (!findEnd)
+            {
+                index -= 1;
+                if (index < 0) { break; }
+                var downLayer = layerStack.Stack[index];
+                if (downLayer.RefLayer is LayerFolder layerFolder && layerFolder.PassThrough) { break; }
+                if (downLayer.RefLayer.Clipping) { continue; }
+                if (downLayer.BlendTextures.Texture == null) { break; }
+                findEnd = true;
+            }
+
+            if (findEnd == false || index < 0)
+            {
+                TextureBlendUtils.MultipleRenderTexture(tex, new Color(0, 0, 0, 0));
+            }
+            else
+            {
+                var refBlendLayer = layerStack.Stack[index];
+                MaskDrawRenderTexture(tex, refBlendLayer.BlendTextures.Texture);
             }
         }
 
@@ -57,23 +85,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             TransTexture.TransTextureToRenderTexture(tex, texture, TransData);
         }
 
-    }
 
-    public static class AbstractLayerUtility
-    {
 
-        public static AbstractLayer GetRelIndexLayer(this AbstractLayer abstractLayer, int RelIndex)
-        {
-            if (RelIndex == 0) { return abstractLayer; }
-            var parent = abstractLayer.transform.parent;
-            var thisSibling = abstractLayer.transform.GetSiblingIndex();
-            var targetSibling = thisSibling + RelIndex;
-            if (parent.childCount > targetSibling && targetSibling >= 0) { return null; }
-            return parent.GetChild(targetSibling).GetComponent<AbstractLayer>();
-        }
-
-        public static AbstractLayer GetUpLayer(this AbstractLayer abstractLayer) => abstractLayer.GetRelIndexLayer(-1);
-        public static AbstractLayer GetDownLayer(this AbstractLayer abstractLayer) => abstractLayer.GetRelIndexLayer(1);
     }
 }
 #endif

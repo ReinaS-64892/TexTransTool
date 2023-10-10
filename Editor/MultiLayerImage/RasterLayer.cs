@@ -6,6 +6,7 @@ using net.rs64.TexTransCore.Layer;
 using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT RasterLayer")]
@@ -14,16 +15,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D RasterTexture;
         public Vector2Int TexturePivot;
 
-        public override IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription)
+        public override void EvaluateTexture(LayerStack layerStack)
         {
-            var canvasSize = canvasDescription.CanvasSize;
+            if (!Visible) { layerStack.Stack.Add(new BlendLayer(this, null, BlendMode)); return; }
+            var canvasSize = layerStack.CanvasSize;
             var tex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
-            DrawOffsetEvaluateTexture(tex, RasterTexture, TexturePivot, canvasDescription.CanvasSize);
+            DrawOffsetEvaluateTexture(tex, RasterTexture, TexturePivot, layerStack.CanvasSize);
 
             TextureBlendUtils.MultipleRenderTexture(tex, new Color(1, 1, 1, Opacity));
             DrawMask(LayerMask, canvasSize, tex);
+            if (Clipping) { DrawClipping(layerStack, tex); }
 
-            yield return new TextureBlendUtils.BlendTextures(tex, BlendMode);
+            layerStack.Stack.Add(new BlendLayer(this, tex, BlendMode));
         }
     }
 }

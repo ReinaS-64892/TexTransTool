@@ -28,20 +28,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public override void Apply([NotNull] IDomain domain)
         {
             var Canvas = new RenderTexture(TextureSize.x, TextureSize.y, 0);
-            var canvasDescription = new CanvasDescription() { CanvasSize = TextureSize };
+            var layerStack = new LayerStack() { CanvasSize = TextureSize };
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse()
-            .Where(I => I.Visible)
-            .SelectMany(I => I.EvaluateTexture(canvasDescription))
-            .ToArray();
+            .Reverse();
+            foreach (var layer in Layers) { layer.EvaluateTexture(layerStack); }
 
-            if (Layers.Length == 0) { return; }
 
-            Layers[0] = new BlendTextures(Layers[0].Texture, BlendType.NotBlend);
+            if (layerStack.Stack.Count == 0) { return; }
 
-            foreach (var layer in Layers)
+            layerStack.Stack[0] = new BlendLayer(layerStack.Stack[0].RefLayer, layerStack.Stack[0].BlendTextures.Texture, BlendType.NotBlend);
+
+            foreach (var layer in layerStack.GetLayers)
             {
                 domain.AddTextureStack(ReplaceTarget, layer);
             }
@@ -54,9 +53,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             // domain.ReplaceMaterials(new Dictionary<Material, Material>() { { mat, newMat } });
         }
 
-        public class CanvasDescription
+        public class LayerStack
         {
             public Vector2Int CanvasSize;
+            public List<BlendLayer> Stack = new List<BlendLayer>();
+
+            public LayerStack CreateSubStack => new LayerStack() { CanvasSize = CanvasSize };
+
+            public IEnumerable<BlendTextures> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
+        }
+
+        public struct BlendLayer
+        {
+            public AbstractLayer RefLayer;
+            public BlendTextures BlendTextures;
+
+            public BlendLayer(AbstractLayer refLayer, Texture layer, BlendType blendType)
+            {
+                RefLayer = refLayer;
+                BlendTextures = new BlendTextures(layer, blendType);
+            }
+
         }
     }
 }

@@ -5,6 +5,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT LayerFolder")]
@@ -12,32 +13,33 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public bool PassThrough;
 
-        public override IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription)
+        public override void EvaluateTexture(LayerStack layerStack)
         {
-
+            if (!Visible) { layerStack.Stack.Add(new BlendLayer(this, null, BlendMode)); return; }
+            var subStack = layerStack.CreateSubStack;
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse()
-            .Where(I => I.Visible)
-            .SelectMany(I => I.EvaluateTexture(canvasDescription));
+            .Reverse();
+            foreach (var layer in Layers) { layer.EvaluateTexture(subStack); }
 
-            if (Layers.Count() == 0) { yield break; }
-            if (PassThrough)
+            if (subStack.Stack.Count() == 0) { return; }
+            if (!Clipping && PassThrough)
             {
-                foreach (var layer in Layers)
+                foreach (var layer in subStack.GetLayers)
                 {
                     MultipleRenderTexture((RenderTexture)layer.Texture, new Color(1, 1, 1, Opacity));
-                    DrawMask(LayerMask, canvasDescription.CanvasSize, (RenderTexture)layer.Texture);
-                    yield return layer;
+                    DrawMask(LayerMask, layerStack.CanvasSize, (RenderTexture)layer.Texture);
+                    layerStack.Stack.Add(new BlendLayer(this, layer.Texture, layer.BlendType));
                 }
             }
             else
             {
-                var rt = new RenderTexture(canvasDescription.CanvasSize.x, canvasDescription.CanvasSize.y, 0);
-                TextureBlendUtils.BlendBlit(rt, Layers);
+                var rt = new RenderTexture(layerStack.CanvasSize.x, layerStack.CanvasSize.y, 0);
+                TextureBlendUtils.BlendBlit(rt, subStack.GetLayers);
                 TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));
-                DrawMask(LayerMask, canvasDescription.CanvasSize, rt);
-                yield return new BlendTextures(rt, BlendType.Normal);
+                DrawMask(LayerMask, layerStack.CanvasSize, rt);
+                if (Clipping) { DrawClipping(layerStack, rt); }
+                layerStack.Stack.Add(new BlendLayer(this, rt, PassThrough ? BlendType.Normal : BlendMode));
             }
 
         }
