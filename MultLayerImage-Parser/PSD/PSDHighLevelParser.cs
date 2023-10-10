@@ -18,7 +18,7 @@ namespace net.rs64.PSD.parser
                 channels = levelData.channels
             };
 
-            var rootLayers = new List<AbstractLayer>();
+            var rootLayers = new List<AbstractLayerData>();
             var imageDataQueue = new Queue<ChannelImageDataParser.ChannelImageData>(levelData.LayerInfo.ChannelImageData);
             var imageRecordQueue = new Queue<LayerRecordParser.LayerRecord>(levelData.LayerInfo.LayerRecords);
 
@@ -29,7 +29,7 @@ namespace net.rs64.PSD.parser
             return PSD;
         }
 
-        private static List<Texture2D> ParseAsLayers(Vector2Int Size, int Depth, List<AbstractLayer> rootLayers, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue)
+        private static List<Texture2D> ParseAsLayers(Vector2Int Size, int Depth, List<AbstractLayerData> rootLayers, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue)
         {
             var texture2DList = new List<Texture2D>();
             while (imageRecordQueue.Count != 0)
@@ -50,11 +50,11 @@ namespace net.rs64.PSD.parser
             return texture2DList;
         }
 
-        private static LayerFolder ParseLayerFolder(LayerRecordParser.LayerRecord record, int depth, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
+        private static LayerFolderData ParseLayerFolder(LayerRecordParser.LayerRecord record, int depth, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
         {
-            var layerFolder = new LayerFolder();
+            var layerFolder = new LayerFolderData();
             // layerFolder.CopyFromRecord(record);
-            layerFolder.Layers = new List<AbstractLayer>();
+            layerFolder.Layers = new List<AbstractLayerData>();
             _ = DeuceChannelInfoAndImage(record, imageDataQueue);
             // SetGenerateLayerMask(record, depth, layerFolder, channelInfoAndImage, texture2DList);
             while (imageRecordQueue.Count != 0)
@@ -81,14 +81,20 @@ namespace net.rs64.PSD.parser
             }
             var EndFolderRecord = imageRecordQueue.Dequeue();
             layerFolder.CopyFromRecord(EndFolderRecord);
+
+            var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
+            var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey);
+            layerFolder.BlendMode = PSDLayer.ConvertBlendType(BlendModeKeyEnum);
+            layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
+            
             var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
             SetGenerateLayerMask(EndFolderRecord, depth, layerFolder, endChannelInfoAndImage, texture2DList);
             return layerFolder;
         }
 
-        private static RasterLayer ParseRasterLayer(LayerRecordParser.LayerRecord record, int depth, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
+        private static RasterLayerData ParseRasterLayer(LayerRecordParser.LayerRecord record, int depth, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, List<Texture2D> texture2DList, Vector2Int size)
         {
-            var rasterLayer = new RasterLayer();
+            var rasterLayer = new RasterLayerData();
             rasterLayer.CopyFromRecord(record);
             var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
 
@@ -134,7 +140,7 @@ namespace net.rs64.PSD.parser
             return rasterLayer;
         }
 
-        private static void SetGenerateLayerMask(LayerRecordParser.LayerRecord record, int depth, AbstractLayer rasterLayer, Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> channelInfoAndImage, List<Texture2D> texture2DList)
+        private static void SetGenerateLayerMask(LayerRecordParser.LayerRecord record, int depth, AbstractLayerData rasterLayer, Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> channelInfoAndImage, List<Texture2D> texture2DList)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return; }
@@ -215,7 +221,7 @@ namespace net.rs64.PSD.parser
         public Vector2Int Size;
         public ushort Depth;
         public ushort channels;
-        public List<AbstractLayer> RootLayers;
+        public List<AbstractLayerData> RootLayers;
         public List<Texture2D> Texture2Ds;
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT RasterLayer")]
@@ -12,7 +13,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D RasterTexture;
         public Vector2Int TexturePivot;
 
-        public override TextureBlendUtils.BlendTextures EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription)
+        public override IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription)
         {
             var canvasSize = canvasDescription.CanvasSize;
             var tex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
@@ -30,7 +31,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             TextureBlendUtils.MultipleRenderTexture(tex, new Color(1, 1, 1, Opacity));
 
-            return new TextureBlendUtils.BlendTextures(tex, BlendMode);
+            yield return new TextureBlendUtils.BlendTextures(tex, BlendMode);
         }
 
         public static void TextureOffset(RenderTexture tex, Texture texture, Vector2 RightUpPos, Vector2 Pivot)

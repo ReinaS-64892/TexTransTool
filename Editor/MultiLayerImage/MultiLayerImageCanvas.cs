@@ -14,11 +14,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
     public class MultiLayerImageCanvas : TextureTransformer
     {
-        public Renderer ReferenceRenderer;
-        public int ReferenceMaterialSlot;
-        public PropertyName ReferencePropertyName = new PropertyName(PropertyName.MainTex);
+        public Texture2D ReplaceTarget;
+        public List<Renderer> PreviewRenderer;
 
-        public override List<Renderer> GetRenderers => new List<Renderer>() { ReferenceRenderer };
+        public override List<Renderer> GetRenderers => PreviewRenderer;
 
         public override bool IsPossibleApply => true;
 
@@ -35,17 +34,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Select(I => I.GetComponent<AbstractLayer>())
             .Reverse()
             .Where(I => I.Visible)
-            .Select(I => I.EvaluateTexture(canvasDescription))
+            .SelectMany(I => I.EvaluateTexture(canvasDescription))
             .ToArray();
 
+            foreach (var layer in Layers)
+            {
+                domain.AddTextureStack(ReplaceTarget, layer);
+            }
 
-
-            Canvas.BlendBlit(Layers);
-            var resultTex = Canvas.CopyTexture2D(OverrideUseMip: true);
-            var mat = ReferenceRenderer.sharedMaterials[ReferenceMaterialSlot];
-            var newMat = Instantiate(mat);
-            newMat.SetTexture(ReferencePropertyName, resultTex);
-            domain.ReplaceMaterials(new Dictionary<Material, Material>() { { mat, newMat } });
+            // Canvas.BlendBlit(Layers);
+            // var resultTex = Canvas.CopyTexture2D(OverrideUseMip: true);
+            // var mat = ReferenceRenderer.sharedMaterials[ReferenceMaterialSlot];
+            // var newMat = Instantiate(mat);
+            // newMat.SetTexture(ReferencePropertyName, resultTex);
+            // domain.ReplaceMaterials(new Dictionary<Material, Material>() { { mat, newMat } });
         }
 
         public class CanvasDescription

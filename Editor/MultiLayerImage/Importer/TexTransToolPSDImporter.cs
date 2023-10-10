@@ -50,20 +50,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         }
 
-        public void AddLayers(Transform thisTransForm, AssetImportContext ctx, List<TexTransCore.Layer.AbstractLayer> abstractLayers)
+        public void AddLayers(Transform thisTransForm, AssetImportContext ctx, List<AbstractLayerData> abstractLayers)
         {
             var parent = thisTransForm;
             var count = 0;
-            foreach (var layer in abstractLayers.Reverse<TexTransCore.Layer.AbstractLayer>())
+            foreach (var layer in abstractLayers.Reverse<AbstractLayerData>())
             {
                 var NewLayer = new GameObject(count + "-" + layer.LayerName);
                 count += 1;
                 NewLayer.transform.SetParent(parent);
-                // NewLayer.transform.SetSiblingIndex(-1);
 
                 switch (layer)
                 {
-                    case TexTransCore.Layer.RasterLayer rasterLayer:
+                    case RasterLayerData rasterLayer:
                         {
                             ctx.AddObjectToAsset(layer.LayerName, rasterLayer.RasterTexture);
                             var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
@@ -75,7 +74,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             rasterLayerComponent.Visible = layer.Visible;
                             break;
                         }
-                    case TexTransCore.Layer.LayerFolder layerFolder:
+                    case LayerFolderData layerFolder:
                         {
 
                             var layerFolderComponent = NewLayer.AddComponent<LayerFolder>();
@@ -83,6 +82,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             layerFolderComponent.Opacity = layer.Opacity;
                             layerFolderComponent.Clipping = layer.Clipping;
                             layerFolderComponent.Visible = layer.Visible;
+                            layerFolderComponent.PassThrough = layerFolder.PassThrough;
                             AddLayers(NewLayer.transform, ctx, layerFolder.Layers);
                             break;
                         }

@@ -41,7 +41,7 @@ namespace net.rs64.PSD.parser
     public static class PSDLayer
     {
 
-        public static void CopyFromRecord(this AbstractLayer abstractLayer, LayerRecordParser.LayerRecord layerRecord)
+        public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord)
         {
             abstractLayer.LayerName = layerRecord.LayerName;
             abstractLayer.TransparencyProtected = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.TransparencyProtected);
@@ -120,6 +120,7 @@ namespace net.rs64.PSD.parser
         {
             switch (pSDBlendMode)
             {
+                default:
                 // case PSDBlendMode.PassThrough:
                 //     return BlendType;
                 case PSDBlendMode.Normal:
@@ -174,8 +175,6 @@ namespace net.rs64.PSD.parser
                     return BlendType.Color;
                 case PSDBlendMode.Luminosity:
                     return BlendType.Luminosity;
-                default:
-                    throw new NotSupportedException();
             }
         }
     }
