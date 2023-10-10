@@ -86,9 +86,9 @@ namespace net.rs64.PSD.parser
             var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey);
             layerFolder.BlendMode = PSDLayer.ConvertBlendType(BlendModeKeyEnum);
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
-            
+
             var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
-            SetGenerateLayerMask(EndFolderRecord, depth, layerFolder, endChannelInfoAndImage, texture2DList);
+            SetGenerateLayerMask(EndFolderRecord, depth, layerFolder, endChannelInfoAndImage, texture2DList, size);
             return layerFolder;
         }
 
@@ -135,12 +135,12 @@ namespace net.rs64.PSD.parser
                 texture2DList.Add(tex2D);
             }
 
-            SetGenerateLayerMask(record, depth, rasterLayer, channelInfoAndImage, texture2DList);
+            SetGenerateLayerMask(record, depth, rasterLayer, channelInfoAndImage, texture2DList, size);
 
             return rasterLayer;
         }
 
-        private static void SetGenerateLayerMask(LayerRecordParser.LayerRecord record, int depth, AbstractLayerData rasterLayer, Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> channelInfoAndImage, List<Texture2D> texture2DList)
+        private static void SetGenerateLayerMask(LayerRecordParser.LayerRecord record, int depth, AbstractLayerData rasterLayer, Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> channelInfoAndImage, List<Texture2D> texture2DList, Vector2Int size)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return; }
@@ -167,7 +167,7 @@ namespace net.rs64.PSD.parser
             rasterLayer.LayerMask = new TexTransCore.Layer.LayerMask() { MaskTexture = tex2D };
             var maskDisabled = record.LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerRecordParser.LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.MaskDisabled);
             rasterLayer.LayerMask.LayerMaskDisabled = maskDisabled;
-            rasterLayer.LayerMask.MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Bottom, record.LayerMaskAdjustmentLayerData.RectTangle.Left);
+            rasterLayer.LayerMask.MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, size.y - record.LayerMaskAdjustmentLayerData.RectTangle.Bottom);
             texture2DList.Add(tex2D);
 
         }

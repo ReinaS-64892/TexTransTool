@@ -675,6 +675,15 @@ namespace net.rs64.TexTransCore.BlendTexture
             Graphics.Blit(tempRt, renderTexture, mat);
             RenderTexture.ReleaseTemporary(tempRt);
         }
+        public static void MaskDrawRenderTexture(RenderTexture renderTexture, Texture MaskTex)
+        {
+            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+            var mat = new Material(Shader.Find("Hidden/MaskShader"));
+            mat.SetTexture("_MaskTex", MaskTex);
+            Graphics.CopyTexture(renderTexture, tempRt);
+            Graphics.Blit(tempRt, renderTexture, mat);
+            RenderTexture.ReleaseTemporary(tempRt);
+        }
 
 
         public static Texture2D CreateColorTex(Color Color)

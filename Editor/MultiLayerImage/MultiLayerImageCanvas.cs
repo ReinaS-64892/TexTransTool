@@ -37,6 +37,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .SelectMany(I => I.EvaluateTexture(canvasDescription))
             .ToArray();
 
+            if (Layers.Length == 0) { return; }
+
+            Layers[0] = new BlendTextures(Layers[0].Texture, BlendType.NotBlend);
+
             foreach (var layer in Layers)
             {
                 domain.AddTextureStack(ReplaceTarget, layer);

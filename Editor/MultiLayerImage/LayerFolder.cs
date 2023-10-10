@@ -14,7 +14,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override IEnumerable<BlendTextures> EvaluateTexture(MultiLayerImageCanvas.CanvasDescription canvasDescription)
         {
-            var rt = new RenderTexture(canvasDescription.CanvasSize.x, canvasDescription.CanvasSize.y, 0);
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
@@ -27,15 +26,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 foreach (var layer in Layers)
                 {
-                    TextureBlendUtils.MultipleRenderTexture((RenderTexture)layer.Texture, new Color(1, 1, 1, Opacity));
+                    MultipleRenderTexture((RenderTexture)layer.Texture, new Color(1, 1, 1, Opacity));
+                    DrawMask(LayerMask, canvasDescription.CanvasSize, (RenderTexture)layer.Texture);
                     yield return layer;
                 }
             }
             else
             {
-
+                var rt = new RenderTexture(canvasDescription.CanvasSize.x, canvasDescription.CanvasSize.y, 0);
                 TextureBlendUtils.BlendBlit(rt, Layers);
                 TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));
+                DrawMask(LayerMask, canvasDescription.CanvasSize, rt);
                 yield return new BlendTextures(rt, BlendType.Normal);
             }
 
