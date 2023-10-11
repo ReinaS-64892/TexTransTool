@@ -13,20 +13,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public class RasterLayer : AbstractLayer
     {
         public Texture2D RasterTexture;
-        public Vector2Int TexturePivot;
 
         public override void EvaluateTexture(LayerStack layerStack)
         {
             if (!Visible) { layerStack.Stack.Add(new BlendLayer(this, null, BlendMode)); return; }
             var canvasSize = layerStack.CanvasSize;
-            var tex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
-            DrawOffsetEvaluateTexture(tex, RasterTexture, TexturePivot, layerStack.CanvasSize);
+            var rTex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
 
-            TextureBlendUtils.MultipleRenderTexture(tex, new Color(1, 1, 1, Opacity));
-            DrawMask(LayerMask, canvasSize, tex);
-            if (Clipping) { DrawClipping(layerStack, tex); }
+            Graphics.Blit(RasterTexture, rTex);
 
-            layerStack.Stack.Add(new BlendLayer(this, tex, BlendMode));
+            TextureBlendUtils.MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity));
+            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, LayerMask.MaskTexture); }
+            if (Clipping) { DrawClipping(layerStack, rTex); }
+
+            layerStack.Stack.Add(new BlendLayer(this, rTex, BlendMode));
         }
     }
 }

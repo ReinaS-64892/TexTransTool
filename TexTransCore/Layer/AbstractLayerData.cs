@@ -21,9 +21,7 @@ namespace net.rs64.TexTransCore.Layer
     public class LayerMask
     {
         public bool LayerMaskDisabled;
-        public float DefaultMaskColor;
         public Texture2D MaskTexture;
-        public Vector2Int MaskPivot;
     }
 
 }
