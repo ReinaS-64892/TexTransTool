@@ -16,40 +16,42 @@ namespace net.rs64.PSD.parser
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
         public static PSDLowLevelData Pase(string path)
         {
-            return Pase(File.OpenRead(path));
+            return Pase(File.ReadAllBytes(path));
         }
-        public static PSDLowLevelData Pase(Stream stream)
+        public static PSDLowLevelData Pase(byte[] psdByte)
         {
             var psd = new PSDLowLevelData();
 
             // Signature ...
 
-            if (!stream.ReadBytes(4).SequenceEqual(OctBPSSignature)) { throw new System.Exception(); }
-            if (!stream.ReadBytes(2).SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
-            if (!stream.ReadBytes(6).SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })) { throw new System.Exception(); }
+            var spanStream = new SubSpanStream(psdByte.AsSpan());
+
+            if (!spanStream.ReadSubStream(4).Span.SequenceEqual(OctBPSSignature)) { throw new System.Exception(); }
+            if (!spanStream.ReadSubStream(2).Span.SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
+            if (!spanStream.ReadSubStream(6).Span.SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })) { throw new System.Exception(); }
 
             // File Header Section
 
-            psd.channels = stream.ReadByteToUInt16();
-            psd.height = stream.ReadByteToUInt32();
-            psd.width = stream.ReadByteToUInt32();
-            psd.Depth = stream.ReadByteToUInt16();
-            psd.ColorMode = (PSDLowLevelData.ColorModeEnum)stream.ReadByteToUInt16();
+            psd.channels = spanStream.ReadUInt16();
+            psd.height = spanStream.ReadUInt32();
+            psd.width = spanStream.ReadUInt32();
+            psd.Depth = spanStream.ReadUInt16();
+            psd.ColorMode = (PSDLowLevelData.ColorModeEnum)spanStream.ReadUInt16();
 
             // Color Mode Data Section
 
-            psd.ColorModeDataSectionLength = stream.ReadByteToUInt32();
-            psd.ColorData = stream.ReadBytes(psd.ColorModeDataSectionLength);
+            psd.ColorModeDataSectionLength = spanStream.ReadUInt32();
+            psd.ColorData = spanStream.ReadSubStream((int)psd.ColorModeDataSectionLength).Span.ToArray();
 
             // Image Resources Section
 
-            psd.ImageResourcesSectionLength = stream.ReadByteToUInt32();
-            psd.ImageResources = PaseImageResourceBlocks(stream.ReadBytes(psd.ImageResourcesSectionLength));
+            psd.ImageResourcesSectionLength = spanStream.ReadUInt32();
+            psd.ImageResources = PaseImageResourceBlocks(spanStream.ReadSubStream((int)psd.ImageResourcesSectionLength));
 
             // LayerAndMaskInformationSection
 
-            psd.LayerAndMaskInformationSectionLength = stream.ReadByteToUInt32();
-            psd.LayerInfo = LayerInformationParser.PaseLayerInfo(new MemoryStream(stream.ReadBytes(psd.LayerAndMaskInformationSectionLength)));
+            psd.LayerAndMaskInformationSectionLength = spanStream.ReadUInt32();
+            psd.LayerInfo = LayerInformationParser.PaseLayerInfo(spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength));
 
             return psd;
         }

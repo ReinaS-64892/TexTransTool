@@ -68,18 +68,18 @@ namespace net.rs64.PSD.parser
 
 
 
-        public static LayerRecord PaseLayerRecord(Stream stream)
+        public static LayerRecord PaseLayerRecord(SubSpanStream stream)
         {
             var layerRecord = new LayerRecord
             {
                 RectTangle = new RectTangle
                 {
-                    Top = stream.ReadByteToInt32(),
-                    Left = stream.ReadByteToInt32(),
-                    Bottom = stream.ReadByteToInt32(),
-                    Right = stream.ReadByteToInt32(),
+                    Top = stream.ReadInt32(),
+                    Left = stream.ReadInt32(),
+                    Bottom = stream.ReadInt32(),
+                    Right = stream.ReadInt32(),
                 },
-                NumberOfChannels = stream.ReadByteToUInt16(),
+                NumberOfChannels = stream.ReadUInt16(),
             };
 
             var ChannelInformationList = new List<ChannelInformation>();
@@ -87,43 +87,43 @@ namespace net.rs64.PSD.parser
             {
                 var channelInfo = new ChannelInformation()
                 {
-                    ChannelIDRawShort = stream.ReadByteToInt16(),
-                    CorrespondingChannelDataLength = stream.ReadByteToInt32()
+                    ChannelIDRawShort = stream.ReadInt16(),
+                    CorrespondingChannelDataLength = stream.ReadInt32()
                 };
                 channelInfo.ChannelID = (ChannelInformation.ChannelIDEnum)channelInfo.ChannelIDRawShort;
                 ChannelInformationList.Add(channelInfo);
             }
             layerRecord.ChannelInformationArray = ChannelInformationList.ToArray();
 
-            if (!stream.ReadBytes(4).SequenceEqual(PSDLowLevelParser.OctBIMSignature)) { return layerRecord; }//throw new Exception(); }
+            if (!stream.ReadSubStream(4).Span.SequenceEqual(PSDLowLevelParser.OctBIMSignature)) { return layerRecord; }//throw new Exception(); }
 
-            layerRecord.BlendModeKey = stream.ReadBytes(4).ParseUTF8();
-            layerRecord.Opacity = stream.ReadByteToByte();
-            layerRecord.Clipping = stream.ReadByteToByte();
+            layerRecord.BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
+            layerRecord.Opacity = stream.ReadByte();
+            layerRecord.Clipping = stream.ReadByte();
             layerRecord.LayerFlag = (LayerRecord.LayerFlagEnum)stream.ReadByte();
 
             stream.ReadByte();
 
-            layerRecord.ExtraDataFieldLength = stream.ReadByteToUInt32();
+            layerRecord.ExtraDataFieldLength = stream.ReadUInt32();
 
             var firstPos = stream.Position;
 
             var LayerMaskAdjustmentLayerData = new LayerMaskAdjustmentLayerData
             {
-                DataSize = stream.ReadByteToUInt32()
+                DataSize = stream.ReadUInt32()
             };
 
             if (LayerMaskAdjustmentLayerData.DataSize != 0)
             {
                 LayerMaskAdjustmentLayerData.RectTangle = new RectTangle()
                 {
-                    Top = stream.ReadByteToInt32(),
-                    Left = stream.ReadByteToInt32(),
-                    Bottom = stream.ReadByteToInt32(),
-                    Right = stream.ReadByteToInt32(),
+                    Top = stream.ReadInt32(),
+                    Left = stream.ReadInt32(),
+                    Bottom = stream.ReadInt32(),
+                    Right = stream.ReadInt32(),
                 };
 
-                LayerMaskAdjustmentLayerData.DefaultColor = stream.ReadByteToByte();
+                LayerMaskAdjustmentLayerData.DefaultColor = stream.ReadByte();
                 LayerMaskAdjustmentLayerData.Flag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
                 if (LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.UserOrVectorMasksHave))
                 {
@@ -131,33 +131,33 @@ namespace net.rs64.PSD.parser
                     var maskParm = LayerMaskAdjustmentLayerData.MaskParameters.Value;
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserDensity))
                     {
-                        LayerMaskAdjustmentLayerData.UserMaskDensity = stream.ReadByteToByte();
+                        LayerMaskAdjustmentLayerData.UserMaskDensity = stream.ReadByte();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserFeather))
                     {
-                        LayerMaskAdjustmentLayerData.UserMaskFeather = stream.ReadByteToDouble();
+                        LayerMaskAdjustmentLayerData.UserMaskFeather = stream.ReadDouble();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorDensity))
                     {
-                        LayerMaskAdjustmentLayerData.VectorMaskDensity = stream.ReadByteToByte();
+                        LayerMaskAdjustmentLayerData.VectorMaskDensity = stream.ReadByte();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorFeather))
                     {
-                        LayerMaskAdjustmentLayerData.VectorMaskFeather = stream.ReadByteToDouble();
+                        LayerMaskAdjustmentLayerData.VectorMaskFeather = stream.ReadDouble();
                     }
                 }
 
-                if (LayerMaskAdjustmentLayerData.DataSize == 20) { stream.ReadBytes(2); }
+                if (LayerMaskAdjustmentLayerData.DataSize == 20) { stream.ReadSubStream(2); }
                 else
                 {
                     LayerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
-                    LayerMaskAdjustmentLayerData.RealUserMaskBackground = stream.ReadByteToByte();
+                    LayerMaskAdjustmentLayerData.RealUserMaskBackground = stream.ReadByte();
                     LayerMaskAdjustmentLayerData.EnclosingLayerMask = new RectTangle()
                     {
-                        Top = stream.ReadByteToInt32(),
-                        Left = stream.ReadByteToInt32(),
-                        Bottom = stream.ReadByteToInt32(),
-                        Right = stream.ReadByteToInt32(),
+                        Top = stream.ReadInt32(),
+                        Left = stream.ReadInt32(),
+                        Bottom = stream.ReadInt32(),
+                        Right = stream.ReadInt32(),
                     };
                 }
 
@@ -167,21 +167,21 @@ namespace net.rs64.PSD.parser
 
             var layerBlendingRangesData = new LayerBlendingRangesData
             {
-                Length = stream.ReadByteToUInt32()
+                Length = stream.ReadUInt32()
             };
             if (layerBlendingRangesData.Length != 0)
             {
                 var sourSourceAndDestinationRangeList = new List<LayerBlendingRangesData.SourceAndDestinationRange>();
-                var sSADRStream = new MemoryStream(stream.ReadBytes(layerBlendingRangesData.Length));
+                var sSADRStream = stream.ReadSubStream((int)layerBlendingRangesData.Length);
                 while (sSADRStream.Position < sSADRStream.Length)
                 {
                     sourSourceAndDestinationRangeList.Add(new LayerBlendingRangesData.SourceAndDestinationRange()
                     {
-                        CompositeGrayBlendSource1 = sSADRStream.ReadByteToByte(),
-                        CompositeGrayBlendSource2 = sSADRStream.ReadByteToByte(),
-                        CompositeGrayBlendSource3 = sSADRStream.ReadByteToByte(),
-                        CompositeGrayBlendSource4 = sSADRStream.ReadByteToByte(),
-                        CompositeGrayBlendDestinationRange = sSADRStream.ReadByteToUInt32()
+                        CompositeGrayBlendSource1 = sSADRStream.ReadByte(),
+                        CompositeGrayBlendSource2 = sSADRStream.ReadByte(),
+                        CompositeGrayBlendSource3 = sSADRStream.ReadByte(),
+                        CompositeGrayBlendSource4 = sSADRStream.ReadByte(),
+                        CompositeGrayBlendDestinationRange = sSADRStream.ReadUInt32()
                     }
                     );
                 }
@@ -192,9 +192,9 @@ namespace net.rs64.PSD.parser
 
             layerRecord.LayerName = ParserUtility.ReadPascalString(stream);
 
-            var AdditionalLayerInformationBytes = stream.ReadBytes((uint)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
+            var AdditionalLayerInformationBytes = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
 
-            layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(new MemoryStream(AdditionalLayerInformationBytes));
+            layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(AdditionalLayerInformationBytes);
 
             return layerRecord;
         }

@@ -19,11 +19,11 @@ namespace net.rs64.PSD.parser
             public LayerRecord[] LayerRecords;
             public ChannelImageData[] ChannelImageData;
         }
-        public static LayerInfo PaseLayerInfo(MemoryStream stream)
+        public static LayerInfo PaseLayerInfo(SubSpanStream stream)
         {
             var layerInfo = new LayerInfo();
-            layerInfo.LayersInfoSectionLength = stream.ReadByteToUInt32();
-            layerInfo.LayerCount = stream.ReadByteToInt16();
+            layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
+            layerInfo.LayerCount = stream.ReadInt16();
             layerInfo.LayerCountAbsValue = Mathf.Abs(layerInfo.LayerCount);
 
             // var firstPos = stream.Position;

@@ -44,10 +44,10 @@ namespace net.rs64.PSD.parser
         }
 
 
-        public static ChannelImageData PaseChannelImageData(Stream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
+        public static ChannelImageData PaseChannelImageData(SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
-            channelImageData.CompressionRawUshort = stream.ReadByteToUInt16();
+            channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
             var channelInfo = refLayerRecord.ChannelInformationArray[ChannelInformationIndex];
             var Rect = channelInfo.ChannelID != ChannelInformation.ChannelIDEnum.UserLayerMask ? refLayerRecord.RectTangle : refLayerRecord.LayerMaskAdjustmentLayerData.RectTangle;
@@ -56,23 +56,23 @@ namespace net.rs64.PSD.parser
             {
                 case ChannelImageData.CompressionEnum.RawData:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         break;
                     }
                 case ChannelImageData.CompressionEnum.RLECompressed:
                     {
-                        channelImageData.ImageData = ParseRLECompressed(new MemoryStream(stream.ReadBytes(imageLength)), (uint)Rect.GetHeight());
+                        channelImageData.ImageData = ParseRLECompressed(stream.ReadSubStream((int)imageLength), (uint)Rect.GetHeight());
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithoutPrediction:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         Debug.LogWarning("ZIPWithoutPredictionは現在非対応です。");
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithPrediction:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         Debug.LogWarning("ZIPWithPredictionは現在非対応です。");
                         break;
                     }
@@ -89,20 +89,20 @@ namespace net.rs64.PSD.parser
 
 
 
-        private static byte[] ParseRLECompressed(Stream rLEStream, uint Height)
+        private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Height)
         {
             var rawDataList = new List<byte>();
             var lengthShorts = new ushort[Height];
 
             for (var i = 0; Height > i; i += 1)
             {
-                lengthShorts[i] = BitConverter.ToUInt16(ParserUtility.ConvertLittleEndian(rLEStream.ReadBytes(2)), 0);
+                lengthShorts[i] = rLEStream.ReadUInt16();
             }
 
             foreach (var widthLength in lengthShorts)
             {
                 if (widthLength == 0) { continue; }
-                var withStream = new MemoryStream(rLEStream.ReadBytes(widthLength));
+                var withStream = rLEStream.ReadSubStream(widthLength);
                 rawDataList.AddRange(ParseRLECompressedWidthLine(withStream));
             }
 
@@ -110,7 +110,7 @@ namespace net.rs64.PSD.parser
             return rawDataList.ToArray();
         }
 
-        private static List<byte> ParseRLECompressedWidthLine(MemoryStream withStream)
+        private static List<byte> ParseRLECompressedWidthLine(SubSpanStream withStream)
         {
             var rawDataList = new List<byte>();
 
@@ -120,7 +120,7 @@ namespace net.rs64.PSD.parser
                 if (runLength >= 0)
                 {
                     var count = (uint)Mathf.Abs(runLength) + 1;
-                    rawDataList.AddRange(withStream.ReadBytes(count));
+                    rawDataList.AddRange(withStream.ReadSubStream((int)count).Span.ToArray());
                 }
                 else
                 {

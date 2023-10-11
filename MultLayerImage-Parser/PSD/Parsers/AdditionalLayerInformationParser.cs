@@ -28,7 +28,7 @@ namespace net.rs64.PSD.parser
 
             return dict;
         }
-        public static AdditionalLayerInfo[] PaseAdditionalLayerInfos(Stream stream)
+        public static AdditionalLayerInfo[] PaseAdditionalLayerInfos(SubSpanStream stream)
         {
             var addLayerInfoList = new List<AdditionalLayerInfo>();
             if (AdditionalLayerInfoParsersTypes == null) AdditionalLayerInfoParsersTypes = GetAdditionalLayerInfoParsersTypes();
@@ -36,8 +36,8 @@ namespace net.rs64.PSD.parser
             while (stream.Position < stream.Length)
             {
                 if (!ParserUtility.Signature(stream, PSDLowLevelParser.OctBIMSignature)) { break; }
-                var keyCode = stream.ReadBytes(4).ParseUTF8();
-                uint length = stream.ReadByteToUInt32();
+                var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
+                uint length = stream.ReadUInt32();
 
                 if (addLayerInfoParsers.ContainsKey(keyCode))
                 {
@@ -54,7 +54,7 @@ namespace net.rs64.PSD.parser
         public class AdditionalLayerInfo
         {
             public uint Length;
-            public virtual void ParseAddLY(Stream stream) { }
+            public virtual void ParseAddLY(SubSpanStream stream) { }
         }
         [AttributeUsage(AttributeTargets.Class)]
         public class AdditionalLayerInfoParserAttribute : Attribute
@@ -71,9 +71,9 @@ namespace net.rs64.PSD.parser
         {
             public string LayerName;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(SubSpanStream stream)
             {
-                LayerName = stream.ReadBytes(Length).ParseUTF16();
+                LayerName = stream.ReadSubStream((int)Length).Span.ParseUTF16();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lnsr")]
@@ -81,9 +81,9 @@ namespace net.rs64.PSD.parser
         {
             public int IDForLayerName;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(SubSpanStream stream)
             {
-                IDForLayerName = stream.ReadByteToInt32();
+                IDForLayerName = stream.ReadInt32();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lyid")]
@@ -91,9 +91,9 @@ namespace net.rs64.PSD.parser
         {
             public int ChannelID;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(SubSpanStream stream)
             {
-                ChannelID = stream.ReadByteToInt32();
+                ChannelID = stream.ReadInt32();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lsct")]
@@ -111,17 +111,17 @@ namespace net.rs64.PSD.parser
                 BoundingSectionDivider = 3,
             }
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(SubSpanStream stream)
             {
-                SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadByteToUInt32();
+                SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
                 if (Length >= 12)
                 {
-                    stream.ReadBytes(4);
-                    BlendModeKey = stream.ReadBytes(4).ParseUTF8();
+                    stream.ReadSubStream(4);
+                    BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
                 }
                 if (Length >= 16)
                 {
-                    SubType = stream.ReadByteToInt32();
+                    SubType = stream.ReadInt32();
                 }
             }
         }
