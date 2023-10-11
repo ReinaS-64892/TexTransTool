@@ -35,7 +35,7 @@ namespace net.rs64.PSD.parser
             var addLayerInfoParsers = AdditionalLayerInfoParsersTypes;
             while (stream.Position < stream.Length)
             {
-                if (!ParserUtility.Signature(stream, PSDLowLevelParser.OctBIMSignature)) { break; }
+                if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { break; }
                 var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
                 uint length = stream.ReadUInt32();
 

@@ -44,7 +44,7 @@ namespace net.rs64.PSD.parser
         }
 
 
-        public static ChannelImageData PaseChannelImageData(SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
+        public static ChannelImageData PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
@@ -61,7 +61,7 @@ namespace net.rs64.PSD.parser
                     }
                 case ChannelImageData.CompressionEnum.RLECompressed:
                     {
-                        channelImageData.ImageData = ParseRLECompressed(stream.ReadSubStream((int)imageLength), (uint)Rect.GetHeight());
+                        channelImageData.ImageData = ParseRLECompressed(stream.ReadSubStream((int)imageLength), (uint)Rect.GetWidth(), (uint)Rect.GetHeight());
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithoutPrediction:
@@ -89,9 +89,9 @@ namespace net.rs64.PSD.parser
 
 
 
-        private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Height)
+        private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Width, uint Height)
         {
-            var rawDataList = new List<byte>();
+            var rawDataList = new List<byte>((int)(Width * Height));
             var lengthShorts = new ushort[Height];
 
             for (var i = 0; Height > i; i += 1)
@@ -103,16 +103,16 @@ namespace net.rs64.PSD.parser
             {
                 if (widthLength == 0) { continue; }
                 var withStream = rLEStream.ReadSubStream(widthLength);
-                rawDataList.AddRange(ParseRLECompressedWidthLine(withStream));
+                rawDataList.AddRange(ParseRLECompressedWidthLine(withStream, Width));
             }
 
 
             return rawDataList.ToArray();
         }
 
-        private static List<byte> ParseRLECompressedWidthLine(SubSpanStream withStream)
+        private static List<byte> ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
         {
-            var rawDataList = new List<byte>();
+            var rawDataList = new List<byte>((int)width);
 
             while (withStream.Position < withStream.Length)
             {

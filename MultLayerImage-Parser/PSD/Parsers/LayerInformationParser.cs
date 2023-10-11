@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 using static net.rs64.PSD.parser.ChannelImageDataParser;
 using static net.rs64.PSD.parser.LayerRecordParser;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.PSD.parser
 {
@@ -31,7 +33,7 @@ namespace net.rs64.PSD.parser
             var LayerRecordList = new List<LayerRecord>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
-                LayerRecordList.Add(PaseLayerRecord(stream));
+                LayerRecordList.Add(PaseLayerRecord(ref stream));
             }
             layerInfo.LayerRecords = LayerRecordList.ToArray();
 
@@ -43,7 +45,7 @@ namespace net.rs64.PSD.parser
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
                 {
-                    channelImageDataList.Add(PaseChannelImageData(stream, layerInfo.LayerRecords[i], Ci));
+                    channelImageDataList.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
                 }
             }
             layerInfo.ChannelImageData = channelImageDataList.ToArray();

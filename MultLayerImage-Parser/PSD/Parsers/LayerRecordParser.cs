@@ -68,7 +68,7 @@ namespace net.rs64.PSD.parser
 
 
 
-        public static LayerRecord PaseLayerRecord(SubSpanStream stream)
+        public static LayerRecord PaseLayerRecord(ref SubSpanStream stream)
         {
             var layerRecord = new LayerRecord
             {
@@ -190,11 +190,11 @@ namespace net.rs64.PSD.parser
             layerRecord.LayerBlendingRangesData = layerBlendingRangesData;
 
 
-            layerRecord.LayerName = ParserUtility.ReadPascalString(stream);
+            layerRecord.LayerName = ParserUtility.ReadPascalString(ref stream);
 
-            var AdditionalLayerInformationBytes = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
+            var AdditionalLayerInformationSpan = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
 
-            layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(AdditionalLayerInformationBytes);
+            layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(AdditionalLayerInformationSpan);
 
             return layerRecord;
         }

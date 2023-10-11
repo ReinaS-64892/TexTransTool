@@ -31,7 +31,7 @@ namespace net.rs64.PSD.parser
         // {
         //     return BitConverter.IsLittleEndian ? array.Reverse().ToArray() : array;
         // }
-        public static bool Signature(SubSpanStream stream, byte[] signature)
+        public static bool Signature(ref SubSpanStream stream, byte[] signature)
         {
             bool HitSignature = false;
             while (!HitSignature)
@@ -45,7 +45,7 @@ namespace net.rs64.PSD.parser
 
         }
 
-        public static string ReadPascalString(SubSpanStream stream)
+        public static string ReadPascalString(ref SubSpanStream stream)
         {
             var stringLength = stream.ReadByte();
             var count = 1;
