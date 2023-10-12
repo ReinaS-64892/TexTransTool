@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -91,7 +92,7 @@ namespace net.rs64.PSD.parser
 
         private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Width, uint Height)
         {
-            var rawDataList = new byte[(int)(Width * Height)];
+            var rawDataArray = new byte[(int)(Width * Height)];
             var pos = 0;
             var lengthShorts = new ushort[Height];
 
@@ -106,18 +107,19 @@ namespace net.rs64.PSD.parser
                 if (widthLength == 0) { continue; }
 
                 var withStream = rLEStream.ReadSubStream(widthLength);
-                var raeWith = ParseRLECompressedWidthLine(withStream, Width);
-                raeWith.CopyTo(rawDataList, pos);
-                pos += raeWith.Length;
+                var RawWithRendBuf = ParseRLECompressedWidthLine(withStream, Width);
+                Array.Copy(RawWithRendBuf, 0, rawDataArray, pos, Width);
+                ArrayPool<byte>.Shared.Return(RawWithRendBuf);
+                pos += (int)Width;
             }
 
 
-            return rawDataList;
+            return rawDataArray;
         }
 
         private static byte[] ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
         {
-            var rawDataList = new byte[(int)width];
+            var rawDataBuf = ArrayPool<byte>.Shared.Rent((int)width);
             var pos = 0;
 
             while (withStream.Position < withStream.Length)
@@ -129,7 +131,7 @@ namespace net.rs64.PSD.parser
                     var subSpan = withStream.ReadSubStream(count).Span;
                     for (var i = 0; subSpan.Length > i; i += 1)
                     {
-                        rawDataList[pos] = subSpan[i];
+                        rawDataBuf[pos] = subSpan[i];
                         pos += 1;
                     }
                 }
@@ -139,13 +141,13 @@ namespace net.rs64.PSD.parser
                     var value = (byte)withStream.ReadByte();
                     for (var i = 0; count > i; i += 1)
                     {
-                        rawDataList[pos] = value;
+                        rawDataBuf[pos] = value;
                         pos += 1;
                     }
                 }
             }
 
-            return rawDataList;
+            return rawDataBuf;
         }
 
     }
