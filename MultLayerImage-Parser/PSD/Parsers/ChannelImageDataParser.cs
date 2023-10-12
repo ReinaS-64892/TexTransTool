@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using static net.rs64.PSD.parser.LayerRecordParser;
+using System.Threading.Tasks;
+using Debug = UnityEngine.Debug;
 
 
 namespace net.rs64.PSD.parser
@@ -45,7 +47,7 @@ namespace net.rs64.PSD.parser
         }
 
 
-        public static ChannelImageData PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
+        public static (ChannelImageData data, Task<byte[]> DecompressTask) PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
@@ -53,6 +55,7 @@ namespace net.rs64.PSD.parser
             var channelInfo = refLayerRecord.ChannelInformationArray[ChannelInformationIndex];
             var Rect = channelInfo.ChannelID != ChannelInformation.ChannelIDEnum.UserLayerMask ? refLayerRecord.RectTangle : refLayerRecord.LayerMaskAdjustmentLayerData.RectTangle;
             var imageLength = (uint)Mathf.Abs(channelInfo.CorrespondingChannelDataLength - 2);
+            Task<byte[]> task = null;
             switch (channelImageData.Compression)
             {
                 case ChannelImageData.CompressionEnum.RawData:
@@ -62,7 +65,10 @@ namespace net.rs64.PSD.parser
                     }
                 case ChannelImageData.CompressionEnum.RLECompressed:
                     {
-                        channelImageData.ImageData = ParseRLECompressed(stream.ReadSubStream((int)imageLength), (uint)Rect.GetWidth(), (uint)Rect.GetHeight());
+                        var imageSpan = stream.ReadSubStream((int)imageLength);
+                        var buffer = ArrayPool<byte>.Shared.Rent(imageSpan.Length);
+                        imageSpan.Span.CopyTo(buffer.AsSpan());
+                        task = Task.Run(() => ParseRLECompressed(buffer, (uint)Rect.GetWidth(), (uint)Rect.GetHeight()));
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithoutPrediction:
@@ -80,18 +86,19 @@ namespace net.rs64.PSD.parser
                 default:
                     {
                         Debug.LogError("PaseError:" + channelImageData.Compression);
-                        return channelImageData;
+                        return (channelImageData, task);
                     }
             }
-            return channelImageData;
+            return (channelImageData, task);
         }
 
 
 
 
 
-        private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Width, uint Height)
+        private static byte[] ParseRLECompressed(byte[] RentBufBytes, uint Width, uint Height)
         {
+            var rLEStream = new SubSpanStream(RentBufBytes);
             var rawDataArray = new byte[(int)(Width * Height)];
             var pos = 0;
             var lengthShorts = new ushort[Height];
@@ -114,6 +121,7 @@ namespace net.rs64.PSD.parser
             }
 
 
+            ArrayPool<byte>.Shared.Return(RentBufBytes);
             return rawDataArray;
         }
 

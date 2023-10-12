@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using static net.rs64.PSD.parser.ChannelImageDataParser;
 using static net.rs64.PSD.parser.LayerRecordParser;
@@ -38,18 +39,30 @@ namespace net.rs64.PSD.parser
             // var movedLength = stream.Position - firstPos;
             // Debug.Log($"moved length:{movedLength} LayersInfoSectionLength:{layerInfo.LayersInfoSectionLength}");
 
-            var channelImageDataList = new List<ChannelImageData>();
+            var channelImageDataAndTask = new List<(ChannelImageData, Task<byte[]>)>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
                 {
-                    channelImageDataList.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
+                    channelImageDataAndTask.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
                 }
             }
+            var channelImageDataList = AwaitDecompress(channelImageDataAndTask).Result;
             layerInfo.ChannelImageData = channelImageDataList;
 
             return layerInfo;
         }
 
+        private static async Task<List<ChannelImageData>> AwaitDecompress(List<(ChannelImageData, Task<byte[]>)> channelImageDataAndTask)
+        {
+            var channelImageDataList = new List<ChannelImageData>(channelImageDataAndTask.Count);
+            foreach (var cidATask in channelImageDataAndTask)
+            {
+                var channelImageData = cidATask.Item1;
+                if (cidATask.Item2 != null) { channelImageData.ImageData = await cidATask.Item2.ConfigureAwait(false); }
+                channelImageDataList.Add(channelImageData);
+            }
+            return channelImageDataList;
+        }
     }
 }
