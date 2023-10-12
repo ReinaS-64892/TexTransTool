@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using net.rs64.PSD.parser;
@@ -51,6 +51,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             multiLayerImageCanvas.TextureSize = pSDData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, pSDData.RootLayers);
 
+            foreach (var tex in pSDData.Texture2Ds) { UnityEngine.Object.DestroyImmediate(tex); }
         }
 
         public void AddLayers(Transform thisTransForm, AssetImportContext ctx, List<AbstractLayerData> abstractLayers)
