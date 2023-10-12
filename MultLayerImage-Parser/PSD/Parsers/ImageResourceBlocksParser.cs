@@ -15,7 +15,7 @@ namespace net.rs64.PSD.parser
             public uint ActualDataSizeFollows;
             public byte[] ResourceData;
         }
-        public static ImageResourceBlock[] PaseImageResourceBlocks(SubSpanStream stream)
+        public static List<ImageResourceBlock> PaseImageResourceBlocks(SubSpanStream stream)
         {
             var ImageResourceBlockList = new List<ImageResourceBlock>();
 
@@ -33,7 +33,7 @@ namespace net.rs64.PSD.parser
                 ImageResourceBlockList.Add(nowIRB);
             }
 
-            return ImageResourceBlockList.ToArray();
+            return ImageResourceBlockList;
         }
     }
 }

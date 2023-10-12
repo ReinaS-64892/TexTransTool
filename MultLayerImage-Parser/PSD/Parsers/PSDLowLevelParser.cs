@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static net.rs64.PSD.parser.GlobalLayerMaskInformationParser;
@@ -86,7 +87,7 @@ namespace net.rs64.PSD.parser
             // Image Resources Section
 
             public uint ImageResourcesSectionLength;
-            public ImageResourceBlock[] ImageResources;
+            public List<ImageResourceBlock> ImageResources;
 
             // LayerAndMaskInformationSection
 

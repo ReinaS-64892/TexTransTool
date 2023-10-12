@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 using static net.rs64.PSD.parser.ChannelImageDataParser;
 using static net.rs64.PSD.parser.LayerRecordParser;
-using Debug = UnityEngine.Debug;
 
 namespace net.rs64.PSD.parser
 {
@@ -18,8 +16,8 @@ namespace net.rs64.PSD.parser
             public int LayerCount;
             public int LayerCountAbsValue;
 
-            public LayerRecord[] LayerRecords;
-            public ChannelImageData[] ChannelImageData;
+            public List<LayerRecord> LayerRecords;
+            public List<ChannelImageData> ChannelImageData;
         }
         public static LayerInfo PaseLayerInfo(SubSpanStream stream)
         {
@@ -35,7 +33,7 @@ namespace net.rs64.PSD.parser
             {
                 LayerRecordList.Add(PaseLayerRecord(ref stream));
             }
-            layerInfo.LayerRecords = LayerRecordList.ToArray();
+            layerInfo.LayerRecords = LayerRecordList;
 
             // var movedLength = stream.Position - firstPos;
             // Debug.Log($"moved length:{movedLength} LayersInfoSectionLength:{layerInfo.LayersInfoSectionLength}");
@@ -48,7 +46,7 @@ namespace net.rs64.PSD.parser
                     channelImageDataList.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
                 }
             }
-            layerInfo.ChannelImageData = channelImageDataList.ToArray();
+            layerInfo.ChannelImageData = channelImageDataList;
 
             return layerInfo;
         }
