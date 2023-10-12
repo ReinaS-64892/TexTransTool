@@ -142,6 +142,8 @@ namespace net.rs64.PSD.parser
                         rawDataBuf[pos] = subSpan[i];
                         pos += 1;
                     }
+                    // subSpan.CopyTo(rawDataBuf.AsSpan(pos, count));// なぜか遅い 
+                    // pos += count;
                 }
                 else
                 {
@@ -152,6 +154,8 @@ namespace net.rs64.PSD.parser
                         rawDataBuf[pos] = value;
                         pos += 1;
                     }
+                    // rawDataBuf.AsSpan(pos, count).Fill(value);
+                    // pos += count;
                 }
             }
 
