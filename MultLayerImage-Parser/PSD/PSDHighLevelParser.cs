@@ -149,7 +149,7 @@ namespace net.rs64.PSD.parser
                     rasterLayer.RasterTexture.name = $"{name}-{count}";
                 }
                 texture2DList.Add(rasterLayer.RasterTexture.name, rasterLayer.RasterTexture);
-                if (rasterLayer.RasterTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D); }
+                if (rasterLayer.RasterTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D, true); }
 
             }
 
@@ -205,7 +205,7 @@ namespace net.rs64.PSD.parser
                 rasterLayer.LayerMask.MaskTexture.name = $"{name}-{count}";
             }
             texture2DList.Add(rasterLayer.LayerMask.MaskTexture.name, rasterLayer.LayerMask.MaskTexture);
-            if (rasterLayer.LayerMask.MaskTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D); }
+            if (rasterLayer.LayerMask.MaskTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D, true); }
 
         }
 
@@ -224,15 +224,16 @@ namespace net.rs64.PSD.parser
         }
         private static byte[] DirectionSlice(byte[] imageData, int width, int height)
         {
-            var bytes = new byte[height][];
+            var bytes = new byte[imageData.Length];
+
             for (var i = 0; height > i; i += 1)
             {
                 var startIndex = i * width;
 
-                bytes[i] = imageData.AsSpan(startIndex, width).ToArray();
+                imageData.AsSpan(startIndex, width).CopyTo(bytes.AsSpan((height - i - 1) * width, width));
 
             }
-            return bytes.Reverse().SelectMany(I => I).ToArray();
+            return bytes;
         }
         public static TextureFormat DepthToFormat(int depth)
         {
