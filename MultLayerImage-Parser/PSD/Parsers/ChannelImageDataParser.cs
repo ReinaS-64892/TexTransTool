@@ -135,7 +135,7 @@ namespace net.rs64.PSD.parser
                 var runLength = (sbyte)withStream.ReadByte();
                 if (runLength >= 0)
                 {
-                    var count = Mathf.Abs(runLength) + 1;
+                    var count = runLength + 1;
                     var subSpan = withStream.ReadSubStream(count).Span;
                     for (var i = 0; subSpan.Length > i; i += 1)
                     {
