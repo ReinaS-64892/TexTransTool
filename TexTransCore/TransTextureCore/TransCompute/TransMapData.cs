@@ -68,10 +68,10 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
         }
     }
 
-    public class TwoDimensionalMap<T>
+    public struct TwoDimensionalMap<T>
     {
-        public T[] Array;
-        public Vector2Int MapSize;
+        public readonly T[] Array;
+        public readonly Vector2Int MapSize;
 
         public T this[int i] { get => Array[i]; set => Array[i] = value; }
         public T this[int x, int y] { get => Array[GetIndexOn1D(new Vector2Int(x, y))]; set => Array[GetIndexOn1D(new Vector2Int(x, y))] = value; }
@@ -90,9 +90,6 @@ namespace net.rs64.TexTransCore.TransTextureCore.TransCompute
         {
             Array = new T[mapSize.x * mapSize.y];
             MapSize = mapSize;
-        }
-        public TwoDimensionalMap()
-        {
         }
 
         public Vector2Int GetPosOn2D(int i)
