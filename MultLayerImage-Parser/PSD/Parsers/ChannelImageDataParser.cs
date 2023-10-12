@@ -91,7 +91,8 @@ namespace net.rs64.PSD.parser
 
         private static byte[] ParseRLECompressed(SubSpanStream rLEStream, uint Width, uint Height)
         {
-            var rawDataList = new List<byte>((int)(Width * Height));
+            var rawDataList = new byte[(int)(Width * Height)];
+            var pos = 0;
             var lengthShorts = new ushort[Height];
 
             for (var i = 0; Height > i; i += 1)
@@ -99,39 +100,48 @@ namespace net.rs64.PSD.parser
                 lengthShorts[i] = rLEStream.ReadUInt16();
             }
 
-            foreach (var widthLength in lengthShorts)
+            for (var widthIndex = 0; lengthShorts.Length > widthIndex; widthIndex += 1)
             {
+                var widthLength = lengthShorts[widthIndex];
                 if (widthLength == 0) { continue; }
+
                 var withStream = rLEStream.ReadSubStream(widthLength);
-                rawDataList.AddRange(ParseRLECompressedWidthLine(withStream, Width));
+                var raeWith = ParseRLECompressedWidthLine(withStream, Width);
+                raeWith.CopyTo(rawDataList, pos);
+                pos += raeWith.Length;
             }
 
 
-            return rawDataList.ToArray();
+            return rawDataList;
         }
 
-        private static List<byte> ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
+        private static byte[] ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
         {
-            var rawDataList = new List<byte>((int)width);
+            var rawDataList = new byte[(int)width];
+            var pos = 0;
 
             while (withStream.Position < withStream.Length)
             {
                 var runLength = (sbyte)withStream.ReadByte();
                 if (runLength >= 0)
                 {
-                    var count = (uint)Mathf.Abs(runLength) + 1;
-                    rawDataList.AddRange(withStream.ReadSubStream((int)count).Span.ToArray());
+                    var count = Mathf.Abs(runLength) + 1;
+                    var subSpan = withStream.ReadSubStream(count).Span;
+                    for (var i = 0; subSpan.Length > i; i += 1)
+                    {
+                        rawDataList[pos] = subSpan[i];
+                        pos += 1;
+                    }
                 }
                 else
                 {
-                    var count = (uint)Mathf.Abs(runLength) + 1;
+                    var count = Mathf.Abs(runLength) + 1;
                     var value = (byte)withStream.ReadByte();
-                    var addArray = new byte[count];
-                    for (var i = 0; addArray.Length > i; i += 1)
+                    for (var i = 0; count > i; i += 1)
                     {
-                        addArray[i] = value;
+                        rawDataList[pos] = value;
+                        pos += 1;
                     }
-                    rawDataList.AddRange(addArray);
                 }
             }
 
