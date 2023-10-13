@@ -394,15 +394,26 @@ namespace net.rs64.PSD.parser
             var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
             tTex2D.Array.AsSpan(0, TargetSize.x * TargetSize.y).Fill(initColor);
 
-            for (var xi = 0; sTex2D.MapSize.x > xi; xi += 1)
+            var xStart = Mathf.Max(-Pivot.x, 0);
+            var xEnd = Mathf.Min(Pivot.x + sTex2D.MapSize.x, TargetSize.x) - Pivot.x;
+            var xLength = xEnd - xStart;
+
+            var yStart = Mathf.Max(-Pivot.y, 0);
+            var yEnd = Mathf.Min(Pivot.y + sTex2D.MapSize.y, TargetSize.y) - Pivot.y;
+
+            if (xLength < 0)
             {
-                for (var yi = 0; sTex2D.MapSize.y > yi; yi += 1)
-                {
-                    var tpx = xi + Pivot.x;
-                    var tpy = yi + Pivot.y;
-                    if (!(TargetSize.x > tpx && tpx >= 0) || !(TargetSize.y > tpy && tpy >= 0)) { continue; }
-                    tTex2D[tpx, tpy] = sTex2D[xi, yi];
-                }
+                ArrayPool<Color32>.Shared.Return(texture.Array);
+                return tTex2D;
+            }
+
+
+            for (var yi = yStart; yEnd > yi; yi += 1)
+            {
+                var sPos = new Vector2Int(xStart, yi);
+                var sSpan = sTex2D.Array.AsSpan(sTex2D.GetIndexOn1D(sPos), xLength);
+                var tSpan = tTex2D.Array.AsSpan(tTex2D.GetIndexOn1D(sPos + Pivot), xLength);
+                sSpan.CopyTo(tSpan);
             }
             ArrayPool<Color32>.Shared.Return(texture.Array);
             return tTex2D;
