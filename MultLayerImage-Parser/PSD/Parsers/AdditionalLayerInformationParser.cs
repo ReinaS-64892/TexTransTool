@@ -43,7 +43,7 @@ namespace net.rs64.PSD.parser
                 {
                     var parser = Activator.CreateInstance(addLayerInfoParsers[keyCode]) as AdditionalLayerInfo;
                     parser.Length = length;
-                    parser.ParseAddLY(stream);
+                    parser.ParseAddLY(ref stream);
                     addLayerInfoList.Add(parser);
                 }
             }
@@ -54,7 +54,7 @@ namespace net.rs64.PSD.parser
         public class AdditionalLayerInfo
         {
             public uint Length;
-            public virtual void ParseAddLY(SubSpanStream stream) { }
+            public virtual void ParseAddLY(ref SubSpanStream stream) { }
         }
         [AttributeUsage(AttributeTargets.Class)]
         public class AdditionalLayerInfoParserAttribute : Attribute
@@ -71,7 +71,7 @@ namespace net.rs64.PSD.parser
         {
             public string LayerName;
 
-            public override void ParseAddLY(SubSpanStream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
                 LayerName = stream.ReadSubStream((int)Length).Span.ParseUTF16();
             }
@@ -81,7 +81,7 @@ namespace net.rs64.PSD.parser
         {
             public int IDForLayerName;
 
-            public override void ParseAddLY(SubSpanStream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
                 IDForLayerName = stream.ReadInt32();
             }
@@ -91,7 +91,7 @@ namespace net.rs64.PSD.parser
         {
             public int ChannelID;
 
-            public override void ParseAddLY(SubSpanStream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
                 ChannelID = stream.ReadInt32();
             }
@@ -111,7 +111,7 @@ namespace net.rs64.PSD.parser
                 BoundingSectionDivider = 3,
             }
 
-            public override void ParseAddLY(SubSpanStream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
                 SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
                 if (Length >= 12)
