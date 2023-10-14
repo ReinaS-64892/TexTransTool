@@ -54,6 +54,35 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public LayerStack CreateSubStack => new LayerStack() { CanvasSize = CanvasSize };
 
             public IEnumerable<BlendTextures> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
+
+
+
+            public void AddRtForClipping(AbstractLayer abstractLayer, RenderTexture tex, BlendType blendType)
+            {
+                var index = Stack.Count;
+                index -= 1;
+                if (index >= 0)
+                {
+                    var downLayer = Stack[index];
+                    if (downLayer.RefLayer is LayerFolder layerFolder && layerFolder.PassThrough) { index = -1; }
+                }
+
+                if (index < 0)
+                {
+                    Stack.Add(new BlendLayer(abstractLayer, tex, blendType));
+                }
+                else
+                {
+                    var refBlendLayer = Stack[index];
+                    var ClippingDist = refBlendLayer.BlendTextures.Texture as RenderTexture;
+                    ClippingDist.BlendBlit(tex, blendType);
+                }
+            }
+
+            public void AddRenderTexture(AbstractLayer abstractLayer, RenderTexture tex, BlendType blendType)
+            {
+                Stack.Add(new BlendLayer(abstractLayer, tex, blendType));
+            }
         }
 
         public struct BlendLayer

@@ -21,10 +21,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             Graphics.Blit(GetImage(), rTex);
 
             TextureBlendUtils.MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity));
-            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, LayerMask.MaskTexture); }
-            if (Clipping) { DrawClipping(layerStack, rTex); }
 
-            layerStack.Stack.Add(new BlendLayer(this, rTex, BlendMode));
+            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, LayerMask.MaskTexture); }
+
+            if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendMode); }
+            else { layerStack.AddRenderTexture(this, rTex, BlendMode); }
         }
     }
 }

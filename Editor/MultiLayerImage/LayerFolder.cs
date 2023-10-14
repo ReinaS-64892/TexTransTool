@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     MultipleRenderTexture((RenderTexture)layer.Texture, new Color(1, 1, 1, Opacity));
 
                     if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture((RenderTexture)layer.Texture, LayerMask.MaskTexture); }
-                    layerStack.Stack.Add(new BlendLayer(this, layer.Texture, layer.BlendType));
+                    layerStack.AddRenderTexture(this, layer.Texture as RenderTexture, layer.BlendType);
                 }
             }
             else
@@ -40,8 +40,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));
                 if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rt, LayerMask.MaskTexture); }
 
-                if (Clipping) { DrawClipping(layerStack, rt); }
-                layerStack.Stack.Add(new BlendLayer(this, rt, PassThrough ? BlendType.Normal : BlendMode));
+                if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendMode); }
+                else { layerStack.AddRenderTexture(this, rt, PassThrough ? BlendType.Normal : BlendMode); }
             }
 
         }
