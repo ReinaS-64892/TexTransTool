@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,8 +6,15 @@ using net.rs64.TexTransCore.Layer;
 using UnityEngine;
 using net.rs64.TexTransCore;
 using static net.rs64.PSD.parser.PSDLowLevelParser.PSDLowLevelData;
+using static net.rs64.PSD.parser.ChannelImageDataParser;
+using static net.rs64.PSD.parser.LayerRecordParser;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.BlendTexture;
+using Debug = UnityEngine.Debug;
+using System.Threading.Tasks;
+using net.rs64.TexTransCore.TransTextureCore.TransCompute;
+using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
+using System.Buffers;
 
 namespace net.rs64.PSD.parser
 {
@@ -22,19 +30,134 @@ namespace net.rs64.PSD.parser
             };
 
             var rootLayers = new List<AbstractLayerData>();
-            var imageDataQueue = new Queue<ChannelImageDataParser.ChannelImageData>(levelData.LayerInfo.ChannelImageData);
-            var imageRecordQueue = new Queue<LayerRecordParser.LayerRecord>(levelData.LayerInfo.LayerRecords);
+            var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
+            var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
 
-            var textures = ParseAsLayers(PSD.Size, PSD.Depth, rootLayers, imageRecordQueue, imageDataQueue);
+            var ImageParseTask = new Dictionary<TexCal, RasterLayerData>();
+            var ImageMaskParseTask = new Dictionary<TexCal, AbstractLayerData>();
+
+            ParseAsLayers(PSD.Size, rootLayers, imageRecordQueue, imageDataQueue, ImageParseTask, ImageMaskParseTask);
 
             PSD.RootLayers = rootLayers;
-            PSD.Texture2Ds = textures.Values.ToArray();
+            var image = AwaitImage(ImageParseTask, PSD.Depth, PSD.Size);
+            var imageMask = AwaitImageMask(ImageMaskParseTask, PSD.Depth, PSD.Size);
+            PSD.Texture2Ds = image.Concat(imageMask).ToArray();
             return PSD;
         }
+        public delegate TwoDimensionalMap<Color32> TexCal();
 
-        private static Dictionary<string, Texture2D> ParseAsLayers(Vector2Int Size, int Depth, List<AbstractLayerData> rootLayers, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue)
+        public static Dictionary<TwoDimensionalMap<Color32>, T> TextureCalculationExecuter<T>(Dictionary<TexCal, T> ImageTask, int? ForceParallelSize = null)
         {
-            var texture2DDict = new Dictionary<string, Texture2D>();
+            var parallelSize = ForceParallelSize.HasValue ? ForceParallelSize.Value : Environment.ProcessorCount;
+            var results = new Dictionary<TwoDimensionalMap<Color32>, T>(ImageTask.Count);
+            var taskQueue = new Queue<KeyValuePair<TexCal, T>>(ImageTask);
+            var TaskParallel = new (Task<TwoDimensionalMap<Color32>>, T)[parallelSize];
+            while (taskQueue.Count > 0)
+            {
+                var fact = Task.Factory;
+                for (int i = 0; TaskParallel.Length > i; i += 1)
+                {
+                    if (taskQueue.Count > 0)
+                    {
+                        var task = taskQueue.Dequeue();
+                        TaskParallel[i] = (Task.Run(task.Key.Invoke), task.Value);
+                    }
+                    else
+                    {
+                        TaskParallel[i] = (null, default);
+                    }
+                }
+
+                foreach (var task in TaskParallel)
+                {
+                    if (task.Item1 == null) { continue; }
+                    results.Add(TexCalAwaiter(task.Item1).Result, task.Item2);
+                }
+            }
+            return results;
+        }
+
+        public static async Task<TwoDimensionalMap<Color32>> TexCalAwaiter(Task<TwoDimensionalMap<Color32>> twoDimensionalMap)
+        {
+            return await twoDimensionalMap.ConfigureAwait(false);
+        }
+
+        private static Texture2D[] AwaitImage(Dictionary<TexCal, RasterLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        {
+            var texture2Ds = new Texture2D[ImageParseTask.Count];
+            var NameHash = new HashSet<string>();
+            var count = 0;
+            foreach (var task in TextureCalculationExecuter(ImageParseTask))
+            {
+                var tex = task.Key;
+                var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
+                tex2d.SetPixels32(tex.Array);
+                ArrayPool<Color32>.Shared.Return(tex.Array);
+                tex2d.Apply();
+
+                tex2d.name = task.Value.LayerName + "_Tex";
+
+                if (NameHash.Contains(tex2d.name))
+                {
+                    var name = tex2d.name;
+                    var nameCount = 0;
+                    while (NameHash.Contains($"{name}-{nameCount}"))
+                    {
+                        nameCount += 1;
+                    }
+                    tex2d.name = $"{name}-{nameCount}";
+                }
+                NameHash.Add(tex2d.name);
+
+                texture2Ds[count] = tex2d;
+                task.Value.RasterTexture = tex2d;
+                count += 1;
+            }
+            return texture2Ds;
+        }
+
+        private static Texture2D[] AwaitImageMask(Dictionary<TexCal, AbstractLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        {
+            var texture2Ds = new Texture2D[ImageParseTask.Count];
+            var NameHash = new HashSet<string>();
+            var count = 0;
+            foreach (var task in TextureCalculationExecuter(ImageParseTask))
+            {
+                var tex = task.Key;
+                var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
+                tex2d.SetPixels32(tex.Array);
+                ArrayPool<Color32>.Shared.Return(tex.Array);
+                tex2d.Apply();
+
+                tex2d.name = task.Value.LayerName + "_Mask";
+
+                if (NameHash.Contains(tex2d.name))
+                {
+                    var name = tex2d.name;
+                    var nameCount = 0;
+                    while (NameHash.Contains($"{name}-{nameCount}"))
+                    {
+                        nameCount += 1;
+                    }
+                    tex2d.name = $"{name}-{nameCount}";
+                }
+                NameHash.Add(tex2d.name);
+
+                texture2Ds[count] = tex2d;
+                task.Value.LayerMask.MaskTexture = tex2d;
+                count += 1;
+            }
+            return texture2Ds;
+        }
+        private static void ParseAsLayers(
+         Vector2Int CanvasSize,
+         List<AbstractLayerData> rootLayers,
+         Queue<LayerRecord> imageRecordQueue,
+         Queue<ChannelImageData> imageDataQueue,
+         Dictionary<TexCal, RasterLayerData> imageParseTask,
+         Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
+         )
+        {
             while (imageRecordQueue.Count != 0)
             {
                 var record = imageRecordQueue.Dequeue();
@@ -42,18 +165,24 @@ namespace net.rs64.PSD.parser
                 var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
                 if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    rootLayers.Add(ParseLayerFolder(record, Depth, imageRecordQueue, imageDataQueue, texture2DDict, Size));
+                    rootLayers.Add(ParseLayerFolder(record, imageRecordQueue, imageDataQueue, CanvasSize, imageParseTask, imageMaskParseTask));
                 }
                 else
                 {
-                    rootLayers.Add(ParseRasterLayer(record, Depth, imageDataQueue, texture2DDict, Size));
+                    rootLayers.Add(ParseRasterLayer(record, imageDataQueue, CanvasSize, imageParseTask, imageMaskParseTask));
                 }
 
             }
-            return texture2DDict;
         }
 
-        private static LayerFolderData ParseLayerFolder(LayerRecordParser.LayerRecord record, int depth, Queue<LayerRecordParser.LayerRecord> imageRecordQueue, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, Dictionary<string, Texture2D> texture2DList, Vector2Int size)
+        private static LayerFolderData ParseLayerFolder(
+            LayerRecord record,
+            Queue<LayerRecord> imageRecordQueue,
+            Queue<ChannelImageData> imageDataQueue,
+            Vector2Int CanvasSize,
+            Dictionary<TexCal, RasterLayerData> imageParseTask,
+            Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
+        )
         {
             var layerFolder = new LayerFolderData();
             // layerFolder.CopyFromRecord(record);
@@ -69,11 +198,11 @@ namespace net.rs64.PSD.parser
 
                 if (PeekSectionDividerSetting == null)
                 {
-                    layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), depth, imageDataQueue, texture2DList, size));
+                    layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), imageDataQueue, CanvasSize, imageParseTask, imageMaskParseTask));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), depth, imageRecordQueue, imageDataQueue, texture2DList, size));
+                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), imageRecordQueue, imageDataQueue, CanvasSize, imageParseTask, imageMaskParseTask));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.OpenFolder
                 || PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.ClosedFolder)
@@ -91,83 +220,108 @@ namespace net.rs64.PSD.parser
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
 
             var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
-            SetGenerateLayerMask(EndFolderRecord, depth, layerFolder, endChannelInfoAndImage, texture2DList, size);
+            SetGenerateLayerMask(EndFolderRecord, layerFolder, endChannelInfoAndImage, CanvasSize, imageMaskParseTask);
             return layerFolder;
         }
-
-        private static RasterLayerData ParseRasterLayer(LayerRecordParser.LayerRecord record, int depth, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue, Dictionary<string, Texture2D> texture2DList, Vector2Int size)
+        private static RasterLayerData ParseRasterLayer(
+            LayerRecord record,
+            Queue<ChannelImageData> imageDataQueue,
+            Vector2Int CanvasSize,
+            Dictionary<TexCal, RasterLayerData> imageParseTask,
+            Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
+        )
         {
+            var timer = Stopwatch.StartNew();
             var rasterLayer = new RasterLayerData();
             rasterLayer.CopyFromRecord(record);
             var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
 
-            if (channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Red)
-            && channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Blue)
-            && channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Green)
+            if (channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.Red)
+            && channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.Blue)
+            && channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.Green)
             && record.RectTangle.CalculateRawCompressLength() != 0
             )
             {
-
-                var redImage = DirectionConvert(channelInfoAndImage[ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Red].ImageData, record.RectTangle);
-                var blueImage = DirectionConvert(channelInfoAndImage[ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Blue].ImageData, record.RectTangle);
-                var greenImage = DirectionConvert(channelInfoAndImage[ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Green].ImageData, record.RectTangle);
-
-                var pixels = new Color32[record.RectTangle.GetWidth() * record.RectTangle.GetHeight()];
-                if (channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Transparency))
-                {
-                    var alphaImage = DirectionConvert(channelInfoAndImage[ChannelImageDataParser.ChannelInformation.ChannelIDEnum.Transparency].ImageData, record.RectTangle);
-                    for (var i = 1; pixels.Length > i; i += 1)
-                    {
-                        pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], alphaImage[i]);
-                    }
-                }
-                else
-                {
-                    for (var i = 1; pixels.Length > i; i += 1)
-                    {
-                        pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], byte.MaxValue);
-                    }
-                }
-                var tex2D = new Texture2D(record.RectTangle.GetWidth(), record.RectTangle.GetHeight(), DepthToFormat(depth), false);
-                tex2D.SetPixels32(pixels);
-                tex2D.Apply();
-                tex2D.filterMode = FilterMode.Point;
-
-                rasterLayer.TexturePivot = new Vector2Int(record.RectTangle.Left, size.y - record.RectTangle.Bottom);
-                var offsetTex = DrawOffsetEvaluateTexture(tex2D, rasterLayer.TexturePivot, size, null);
-                offsetTex.name = record.LayerName + "_Tex";
-                offsetTex.filterMode = FilterMode.Point;
-                rasterLayer.RasterTexture = offsetTex;
-                if (texture2DList.ContainsKey(rasterLayer.RasterTexture.name))
-                {
-                    var name = rasterLayer.RasterTexture.name;
-                    var count = 0;
-                    while (texture2DList.ContainsKey($"{name}-{count}"))
-                    {
-                        count += 1;
-                    }
-                    rasterLayer.RasterTexture.name = $"{name}-{count}";
-                }
-                texture2DList.Add(rasterLayer.RasterTexture.name, rasterLayer.RasterTexture);
-                if (rasterLayer.RasterTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D); }
-
+                imageParseTask.Add(() => GenerateTexTowDMap(record, CanvasSize, channelInfoAndImage), rasterLayer);
             }
 
-            SetGenerateLayerMask(record, depth, rasterLayer, channelInfoAndImage, texture2DList, size);
+            SetGenerateLayerMask(record, rasterLayer, channelInfoAndImage, CanvasSize, imageMaskParseTask);
 
             return rasterLayer;
         }
 
-        private static void SetGenerateLayerMask(LayerRecordParser.LayerRecord record, int depth, AbstractLayerData rasterLayer, Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> channelInfoAndImage, Dictionary<string, Texture2D> texture2DList, Vector2Int size)
+        private static TwoDimensionalMap<Color32> GenerateTexTowDMap(LayerRecord record, Vector2Int size, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
-            if (!channelInfoAndImage.ContainsKey(ChannelImageDataParser.ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
+            Color32[] pixels = GenerateTexturePixels(record, channelInfoAndImage).Result;
+            var TexturePivot = new Vector2Int(record.RectTangle.Left, size.y - record.RectTangle.Bottom);
+            return DrawOffsetEvaluateTexture(new TwoDimensionalMap<Color32>(pixels, new Vector2Int(record.RectTangle.GetWidth(), record.RectTangle.GetHeight())), TexturePivot, size, null);
+        }
+
+        private static async Task<Color32[]> GenerateTexturePixels(LayerRecord record, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
+        {
+            var redImageTask = Task.Run(() => DirectionConvert(channelInfoAndImage[ChannelInformation.ChannelIDEnum.Red].ImageData, record.RectTangle));
+            var blueImageTask = Task.Run(() => DirectionConvert(channelInfoAndImage[ChannelInformation.ChannelIDEnum.Blue].ImageData, record.RectTangle));
+            var greenImageTask = Task.Run(() => DirectionConvert(channelInfoAndImage[ChannelInformation.ChannelIDEnum.Green].ImageData, record.RectTangle));
+
+            var length = record.RectTangle.GetWidth() * record.RectTangle.GetHeight();
+            var pixels = ArrayPool<Color32>.Shared.Rent(length);
+            if (channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.Transparency))
+            {
+                var alphaImageTask = Task.Run(() => DirectionConvert(channelInfoAndImage[ChannelInformation.ChannelIDEnum.Transparency].ImageData, record.RectTangle));
+                var redImage = await redImageTask.ConfigureAwait(false);
+                var blueImage = await blueImageTask.ConfigureAwait(false);
+                var greenImage = await greenImageTask.ConfigureAwait(false);
+                var alphaImage = await alphaImageTask.ConfigureAwait(false);
+                for (var i = 1; length > i; i += 1)
+                {
+                    pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], alphaImage[i]);
+                }
+            }
+            else
+            {
+                var redImage = await redImageTask.ConfigureAwait(false);
+                var blueImage = await blueImageTask.ConfigureAwait(false);
+                var greenImage = await greenImageTask.ConfigureAwait(false);
+                for (var i = 1; length > i; i += 1)
+                {
+                    pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], byte.MaxValue);
+                }
+            }
+
+            return pixels;
+        }
+
+        private static void SetGenerateLayerMask(LayerRecord record, AbstractLayerData abstractLayer, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage, Vector2Int CanvasSize, Dictionary<TexCal, AbstractLayerData> imageMaskParseTask)
+        {
+            if (!channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return; }
 
-            var maskImage = channelInfoAndImage[ChannelImageDataParser.ChannelInformation.ChannelIDEnum.UserLayerMask].ImageData;
+            var MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, CanvasSize.y - record.LayerMaskAdjustmentLayerData.RectTangle.Bottom);
+            var DefaultMaskColor = record.LayerMaskAdjustmentLayerData.DefaultColor / 255;
+
+
+            abstractLayer.LayerMask = new LayerMask();
+            var maskDisabled = record.LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.MaskDisabled);
+            abstractLayer.LayerMask.LayerMaskDisabled = maskDisabled;
+
+
+            imageMaskParseTask.Add(() => GenerateMaskTexTwoDMap(record, channelInfoAndImage, CanvasSize, MaskPivot, DefaultMaskColor), abstractLayer);
+        }
+
+        private static TwoDimensionalMap<Color32> GenerateMaskTexTwoDMap(
+            LayerRecord record,
+            Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage,
+            Vector2Int CanvasSize,
+            Vector2Int MaskPivot,
+            int DefaultMaskColor
+        )
+        {
+            var maskImage = channelInfoAndImage[ChannelInformation.ChannelIDEnum.UserLayerMask].ImageData;
             maskImage = DirectionConvert(maskImage, record.LayerMaskAdjustmentLayerData.RectTangle);
 
-            var pixels = new Color32[record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth() * record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight()];
-            for (var i = 1; pixels.Length > i; i += 1)
+            var length = record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth() * record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight();
+            var pixels = ArrayPool<Color32>.Shared.Rent(length);
+            for (var i = 1; length > i; i += 1)
             {
                 try
                 {
@@ -178,61 +332,36 @@ namespace net.rs64.PSD.parser
                     pixels[i] = new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);
                 }
             }
-            var tex2D = new Texture2D(record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth(), record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight(), DepthToFormat(depth), false);
-            tex2D.SetPixels32(pixels);
-            tex2D.Apply();
-            tex2D.filterMode = FilterMode.Point;
-            tex2D.name = record.LayerName + "_MaskTex";
-            rasterLayer.LayerMask = new TexTransCore.Layer.LayerMask();
-
-
-            var DefaultMaskColor = record.LayerMaskAdjustmentLayerData.DefaultColor / 255;
-
-            var maskDisabled = record.LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerRecordParser.LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.MaskDisabled);
-            rasterLayer.LayerMask.LayerMaskDisabled = maskDisabled;
-            var MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, size.y - record.LayerMaskAdjustmentLayerData.RectTangle.Bottom);
-
-            rasterLayer.LayerMask.MaskTexture = DrawOffsetEvaluateTexture(tex2D, MaskPivot, size, new Color(1, 1, 1, DefaultMaskColor));
-            rasterLayer.LayerMask.MaskTexture.filterMode = FilterMode.Point;
-            if (texture2DList.ContainsKey(rasterLayer.LayerMask.MaskTexture.name))
-            {
-                var name = rasterLayer.LayerMask.MaskTexture.name;
-                var count = 0;
-                while (texture2DList.ContainsKey($"{name}-{count}"))
-                {
-                    count += 1;
-                }
-                rasterLayer.LayerMask.MaskTexture.name = $"{name}-{count}";
-            }
-            texture2DList.Add(rasterLayer.LayerMask.MaskTexture.name, rasterLayer.LayerMask.MaskTexture);
-            if (rasterLayer.LayerMask.MaskTexture != tex2D) { UnityEngine.Object.DestroyImmediate(tex2D); }
-
+            return DrawOffsetEvaluateTexture(new TwoDimensionalMap<Color32>(pixels, new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth(), record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight())), MaskPivot, CanvasSize, new Color(1, 1, 1, DefaultMaskColor));
         }
 
-        private static Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData> DeuceChannelInfoAndImage(LayerRecordParser.LayerRecord record, Queue<ChannelImageDataParser.ChannelImageData> imageDataQueue)
+        private static Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> DeuceChannelInfoAndImage(
+            LayerRecord record,
+            Queue<ChannelImageData> imageDataQueue
+        )
         {
-            var channelInfoAndImage = new Dictionary<ChannelImageDataParser.ChannelInformation.ChannelIDEnum, ChannelImageDataParser.ChannelImageData>();
+            var channelInfoAndImage = new Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData>();
             foreach (var item in record.ChannelInformationArray)
             {
                 channelInfoAndImage.Add(item.ChannelID, imageDataQueue.Dequeue());
             }
             return channelInfoAndImage;
         }
-        private static byte[] DirectionConvert(byte[] imageData, LayerRecordParser.RectTangle rectTangle)
+        private static byte[] DirectionConvert(byte[] imageData, RectTangle rectTangle)
         {
-            return DirectionSlice(imageData, rectTangle.GetWidth(), rectTangle.GetHeight());
+            return DirectionConvert(imageData, rectTangle.GetWidth(), rectTangle.GetHeight());
         }
-        private static byte[] DirectionSlice(byte[] imageData, int width, int height)
+        private static byte[] DirectionConvert(byte[] imageData, int width, int height)
         {
-            var bytes = new byte[height][];
+            var bytes = new byte[imageData.Length];
+
             for (var i = 0; height > i; i += 1)
             {
                 var startIndex = i * width;
 
-                bytes[i] = imageData.AsSpan(startIndex, width).ToArray();
-
+                Array.Copy(imageData, startIndex, bytes, (height - i - 1) * width, width);
             }
-            return bytes.Reverse().SelectMany(I => I).ToArray();
+            return bytes;
         }
         public static TextureFormat DepthToFormat(int depth)
         {
@@ -251,20 +380,18 @@ namespace net.rs64.PSD.parser
 
         }
 
-        public static Texture2D DrawOffsetEvaluateTexture(Texture2D targetTexture, Vector2Int texturePivot, Vector2Int canvasSize, Color? DefaultColor)
+        public static TwoDimensionalMap<Color32> DrawOffsetEvaluateTexture(
+            TwoDimensionalMap<Color32> targetTexture,
+            Vector2Int texturePivot,
+            Vector2Int canvasSize,
+            Color? DefaultColor
+        )
         {
-            var RightUpPos = texturePivot + new Vector2Int(targetTexture.width, targetTexture.height);
+            var RightUpPos = texturePivot + targetTexture.MapSize;
             var Pivot = texturePivot;
             if (RightUpPos != canvasSize || Pivot != Vector2Int.zero)
             {
-                var rt = RenderTexture.GetTemporary(canvasSize.x, canvasSize.y, 0);
-                if (DefaultColor.HasValue) { TextureBlendUtils.ColorBlit(rt, DefaultColor.Value); }
-                else { TextureBlendUtils.ColorBlit(rt, new Color(0, 0, 0, 0)); }
-                TextureOffset(rt, targetTexture, new Vector2((float)RightUpPos.x / canvasSize.x, (float)RightUpPos.y / canvasSize.y), new Vector2((float)Pivot.x / canvasSize.x, (float)Pivot.y / canvasSize.y));
-                var tex2D = rt.CopyTexture2D();
-                RenderTexture.ReleaseTemporary(rt);
-                tex2D.name = targetTexture.name;
-                return tex2D;
+                return TextureOffset(targetTexture, canvasSize, Pivot, DefaultColor);
             }
             else
             {
@@ -272,14 +399,36 @@ namespace net.rs64.PSD.parser
             }
         }
 
-        public static void TextureOffset(RenderTexture tex, Texture texture, Vector2 RightUpPos, Vector2 Pivot)
+        public static TwoDimensionalMap<Color32> TextureOffset(TwoDimensionalMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
         {
-            var triangle = new List<TriangleIndex>() { new TriangleIndex(0, 1, 2), new TriangleIndex(2, 1, 3) };
-            var souse = new List<Vector2>() { Vector2.zero, new Vector2(0, 1), new Vector2(1, 0), Vector2.one };
-            var target = new List<Vector2>() { Pivot, new Vector2(Pivot.x, RightUpPos.y), new Vector2(RightUpPos.x, Pivot.y), RightUpPos };
+            var sTex2D = texture;
+            var tTex2D = new TwoDimensionalMap<Color32>(ArrayPool<Color32>.Shared.Rent(TargetSize.x * TargetSize.y), TargetSize);
+            var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
+            tTex2D.Array.AsSpan(0, TargetSize.x * TargetSize.y).Fill(initColor);
 
-            var TransData = new TransTexture.TransData(triangle, target, souse);
-            TransTexture.TransTextureToRenderTexture(tex, texture, TransData);
+            var xStart = Mathf.Max(-Pivot.x, 0);
+            var xEnd = Mathf.Min(Pivot.x + sTex2D.MapSize.x, TargetSize.x) - Pivot.x;
+            var xLength = xEnd - xStart;
+
+            var yStart = Mathf.Max(-Pivot.y, 0);
+            var yEnd = Mathf.Min(Pivot.y + sTex2D.MapSize.y, TargetSize.y) - Pivot.y;
+
+            if (xLength < 0)
+            {
+                ArrayPool<Color32>.Shared.Return(texture.Array);
+                return tTex2D;
+            }
+
+
+            for (var yi = yStart; yEnd > yi; yi += 1)
+            {
+                var sPos = new Vector2Int(xStart, yi);
+                var sSpan = sTex2D.Array.AsSpan(sTex2D.GetIndexOn1D(sPos), xLength);
+                var tSpan = tTex2D.Array.AsSpan(tTex2D.GetIndexOn1D(sPos + Pivot), xLength);
+                sSpan.CopyTo(tSpan);
+            }
+            ArrayPool<Color32>.Shared.Return(texture.Array);
+            return tTex2D;
         }
     }
 

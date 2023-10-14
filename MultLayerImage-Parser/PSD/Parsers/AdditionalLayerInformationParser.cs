@@ -28,22 +28,22 @@ namespace net.rs64.PSD.parser
 
             return dict;
         }
-        public static AdditionalLayerInfo[] PaseAdditionalLayerInfos(Stream stream)
+        public static AdditionalLayerInfo[] PaseAdditionalLayerInfos(SubSpanStream stream)
         {
             var addLayerInfoList = new List<AdditionalLayerInfo>();
             if (AdditionalLayerInfoParsersTypes == null) AdditionalLayerInfoParsersTypes = GetAdditionalLayerInfoParsersTypes();
             var addLayerInfoParsers = AdditionalLayerInfoParsersTypes;
             while (stream.Position < stream.Length)
             {
-                if (!ParserUtility.Signature(stream, PSDLowLevelParser.OctBIMSignature)) { break; }
-                var keyCode = stream.ReadBytes(4).ParseUTF8();
-                uint length = stream.ReadByteToUInt32();
+                if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { break; }
+                var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
+                uint length = stream.ReadUInt32();
 
                 if (addLayerInfoParsers.ContainsKey(keyCode))
                 {
                     var parser = Activator.CreateInstance(addLayerInfoParsers[keyCode]) as AdditionalLayerInfo;
                     parser.Length = length;
-                    parser.ParseAddLY(stream);
+                    parser.ParseAddLY(ref stream);
                     addLayerInfoList.Add(parser);
                 }
             }
@@ -54,7 +54,7 @@ namespace net.rs64.PSD.parser
         public class AdditionalLayerInfo
         {
             public uint Length;
-            public virtual void ParseAddLY(Stream stream) { }
+            public virtual void ParseAddLY(ref SubSpanStream stream) { }
         }
         [AttributeUsage(AttributeTargets.Class)]
         public class AdditionalLayerInfoParserAttribute : Attribute
@@ -71,9 +71,9 @@ namespace net.rs64.PSD.parser
         {
             public string LayerName;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
-                LayerName = stream.ReadBytes(Length).ParseUTF16();
+                LayerName = stream.ReadSubStream((int)Length).Span.ParseUTF16();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lnsr")]
@@ -81,9 +81,9 @@ namespace net.rs64.PSD.parser
         {
             public int IDForLayerName;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
-                IDForLayerName = stream.ReadByteToInt32();
+                IDForLayerName = stream.ReadInt32();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lyid")]
@@ -91,9 +91,9 @@ namespace net.rs64.PSD.parser
         {
             public int ChannelID;
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
-                ChannelID = stream.ReadByteToInt32();
+                ChannelID = stream.ReadInt32();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lsct")]
@@ -111,17 +111,17 @@ namespace net.rs64.PSD.parser
                 BoundingSectionDivider = 3,
             }
 
-            public override void ParseAddLY(Stream stream)
+            public override void ParseAddLY(ref SubSpanStream stream)
             {
-                SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadByteToUInt32();
+                SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
                 if (Length >= 12)
                 {
-                    stream.ReadBytes(4);
-                    BlendModeKey = stream.ReadBytes(4).ParseUTF8();
+                    stream.ReadSubStream(4);
+                    BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
                 }
                 if (Length >= 16)
                 {
-                    SubType = stream.ReadByteToInt32();
+                    SubType = stream.ReadInt32();
                 }
             }
         }

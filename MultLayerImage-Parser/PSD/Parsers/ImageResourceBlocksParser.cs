@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace net.rs64.PSD.parser
 {
@@ -14,26 +15,25 @@ namespace net.rs64.PSD.parser
             public uint ActualDataSizeFollows;
             public byte[] ResourceData;
         }
-        public static ImageResourceBlock[] PaseImageResourceBlocks(byte[] InputBytes)
+        public static List<ImageResourceBlock> PaseImageResourceBlocks(SubSpanStream stream)
         {
-            var stream = new MemoryStream(InputBytes);
             var ImageResourceBlockList = new List<ImageResourceBlock>();
 
             while (stream.Position < stream.Length)
             {
-                if (!ParserUtility.Signature(stream, PSDLowLevelParser.OctBIMSignature)) { throw new Exception(); }
+                if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { throw new Exception(); }
                 var nowIRB = new ImageResourceBlock();
 
-                nowIRB.UniqueIdentifier = stream.ReadByteToUInt16();
-                nowIRB.PascalStringName = ParserUtility.ReadPascalString(stream);
+                nowIRB.UniqueIdentifier = stream.ReadUInt16();
+                nowIRB.PascalStringName = ParserUtility.ReadPascalString(ref stream);
 
-                nowIRB.ActualDataSizeFollows = stream.ReadByteToUInt32();
-                nowIRB.ResourceData = stream.ReadBytes(nowIRB.ActualDataSizeFollows);
+                nowIRB.ActualDataSizeFollows = stream.ReadUInt32();
+                nowIRB.ResourceData = stream.ReadSubStream((int)nowIRB.ActualDataSizeFollows).Span.ToArray();
 
                 ImageResourceBlockList.Add(nowIRB);
             }
 
-            return ImageResourceBlockList.ToArray();
+            return ImageResourceBlockList;
         }
     }
 }

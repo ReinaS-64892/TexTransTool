@@ -1,9 +1,12 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using static net.rs64.PSD.parser.LayerRecordParser;
+using System.Threading.Tasks;
+using Debug = UnityEngine.Debug;
 
 
 namespace net.rs64.PSD.parser
@@ -44,98 +47,119 @@ namespace net.rs64.PSD.parser
         }
 
 
-        public static ChannelImageData PaseChannelImageData(Stream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
+        public static (ChannelImageData data, Task<byte[]> DecompressTask) PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
-            channelImageData.CompressionRawUshort = stream.ReadByteToUInt16();
+            channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
             var channelInfo = refLayerRecord.ChannelInformationArray[ChannelInformationIndex];
             var Rect = channelInfo.ChannelID != ChannelInformation.ChannelIDEnum.UserLayerMask ? refLayerRecord.RectTangle : refLayerRecord.LayerMaskAdjustmentLayerData.RectTangle;
             var imageLength = (uint)Mathf.Abs(channelInfo.CorrespondingChannelDataLength - 2);
+            Task<byte[]> task = null;
             switch (channelImageData.Compression)
             {
                 case ChannelImageData.CompressionEnum.RawData:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         break;
                     }
                 case ChannelImageData.CompressionEnum.RLECompressed:
                     {
-                        channelImageData.ImageData = ParseRLECompressed(new MemoryStream(stream.ReadBytes(imageLength)), (uint)Rect.GetHeight());
+                        var imageSpan = stream.ReadSubStream((int)imageLength);
+                        var buffer = ArrayPool<byte>.Shared.Rent(imageSpan.Length);
+                        imageSpan.Span.CopyTo(buffer.AsSpan());
+                        task = Task.Run(() => ParseRLECompressed(buffer, (uint)Rect.GetWidth(), (uint)Rect.GetHeight()));
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithoutPrediction:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         Debug.LogWarning("ZIPWithoutPredictionは現在非対応です。");
                         break;
                     }
                 case ChannelImageData.CompressionEnum.ZIPWithPrediction:
                     {
-                        channelImageData.ImageData = stream.ReadBytes(imageLength);
+                        channelImageData.ImageData = stream.ReadSubStream((int)imageLength).Span.ToArray();
                         Debug.LogWarning("ZIPWithPredictionは現在非対応です。");
                         break;
                     }
                 default:
                     {
                         Debug.LogError("PaseError:" + channelImageData.Compression);
-                        return channelImageData;
+                        return (channelImageData, task);
                     }
             }
-            return channelImageData;
+            return (channelImageData, task);
         }
 
 
 
 
 
-        private static byte[] ParseRLECompressed(Stream rLEStream, uint Height)
+        private static byte[] ParseRLECompressed(byte[] RentBufBytes, uint Width, uint Height)
         {
-            var rawDataList = new List<byte>();
+            var rLEStream = new SubSpanStream(RentBufBytes);
+            var rawDataArray = new byte[(int)(Width * Height)];
+            var pos = 0;
             var lengthShorts = new ushort[Height];
 
             for (var i = 0; Height > i; i += 1)
             {
-                lengthShorts[i] = BitConverter.ToUInt16(ParserUtility.ConvertLittleEndian(rLEStream.ReadBytes(2)), 0);
+                lengthShorts[i] = rLEStream.ReadUInt16();
             }
 
-            foreach (var widthLength in lengthShorts)
+            for (var widthIndex = 0; lengthShorts.Length > widthIndex; widthIndex += 1)
             {
+                var widthLength = lengthShorts[widthIndex];
                 if (widthLength == 0) { continue; }
-                var withStream = new MemoryStream(rLEStream.ReadBytes(widthLength));
-                rawDataList.AddRange(ParseRLECompressedWidthLine(withStream));
+
+                var withStream = rLEStream.ReadSubStream(widthLength);
+                var RawWithRendBuf = ParseRLECompressedWidthLine(withStream, Width);
+                Array.Copy(RawWithRendBuf, 0, rawDataArray, pos, Width);
+                ArrayPool<byte>.Shared.Return(RawWithRendBuf);
+                pos += (int)Width;
             }
 
 
-            return rawDataList.ToArray();
+            ArrayPool<byte>.Shared.Return(RentBufBytes);
+            return rawDataArray;
         }
 
-        private static List<byte> ParseRLECompressedWidthLine(MemoryStream withStream)
+        private static byte[] ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
         {
-            var rawDataList = new List<byte>();
+            var rawDataBuf = ArrayPool<byte>.Shared.Rent((int)width);
+            var pos = 0;
 
             while (withStream.Position < withStream.Length)
             {
                 var runLength = (sbyte)withStream.ReadByte();
                 if (runLength >= 0)
                 {
-                    var count = (uint)Mathf.Abs(runLength) + 1;
-                    rawDataList.AddRange(withStream.ReadBytes(count));
+                    var count = runLength + 1;
+                    var subSpan = withStream.ReadSubStream(count).Span;
+                    for (var i = 0; subSpan.Length > i; i += 1)
+                    {
+                        rawDataBuf[pos] = subSpan[i];
+                        pos += 1;
+                    }
+                    // subSpan.CopyTo(rawDataBuf.AsSpan(pos, count));// なぜか遅い 
+                    // pos += count;
                 }
                 else
                 {
-                    var count = (uint)Mathf.Abs(runLength) + 1;
+                    var count = Mathf.Abs(runLength) + 1;
                     var value = (byte)withStream.ReadByte();
-                    var addArray = new byte[count];
-                    for (var i = 0; addArray.Length > i; i += 1)
+                    for (var i = 0; count > i; i += 1)
                     {
-                        addArray[i] = value;
+                        rawDataBuf[pos] = value;
+                        pos += 1;
                     }
-                    rawDataList.AddRange(addArray);
+                    // rawDataBuf.AsSpan(pos, count).Fill(value);
+                    // pos += count;
                 }
             }
 
-            return rawDataList;
+            return rawDataBuf;
         }
 
     }
