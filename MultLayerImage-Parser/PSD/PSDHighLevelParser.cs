@@ -92,7 +92,6 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 var tex = task.Key;
                 var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
                 tex2d.SetPixels32(tex.Array);
-                ArrayPool<Color32>.Shared.Return(tex.Array);
                 tex2d.Apply();
 
                 tex2d.name = task.Value.LayerName + "_Tex";
@@ -126,7 +125,6 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 var tex = task.Key;
                 var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
                 tex2d.SetPixels32(tex.Array);
-                ArrayPool<Color32>.Shared.Return(tex.Array);
                 tex2d.Apply();
 
                 tex2d.name = task.Value.LayerName + "_Mask";
@@ -276,6 +274,11 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 {
                     pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], alphaImage[i]);
                 }
+
+                ArrayPool<byte>.Shared.Return(redImage);
+                ArrayPool<byte>.Shared.Return(blueImage);
+                ArrayPool<byte>.Shared.Return(greenImage);
+                ArrayPool<byte>.Shared.Return(alphaImage);
             }
             else
             {
@@ -286,6 +289,9 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 {
                     pixels[i] = new Color32(redImage[i], greenImage[i], blueImage[i], byte.MaxValue);
                 }
+                ArrayPool<byte>.Shared.Return(redImage);
+                ArrayPool<byte>.Shared.Return(blueImage);
+                ArrayPool<byte>.Shared.Return(greenImage);
             }
 
             return pixels;
@@ -332,6 +338,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
                     pixels[i] = new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);
                 }
             }
+            ArrayPool<byte>.Shared.Return(maskImage);
             return DrawOffsetEvaluateTexture(new TwoDimensionalMap<Color32>(pixels, new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth(), record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight())), MaskPivot, CanvasSize, new Color(1, 1, 1, DefaultMaskColor));
         }
 
@@ -353,7 +360,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
         private static byte[] DirectionConvert(byte[] imageData, int width, int height)
         {
-            var bytes = new byte[imageData.Length];
+            var bytes = ArrayPool<byte>.Shared.Rent(imageData.Length);
 
             for (var i = 0; height > i; i += 1)
             {
@@ -395,14 +402,14 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
             else
             {
-                return targetTexture;
+                return new TwoDimensionalMap<Color32>(targetTexture.Array.AsSpan(0, canvasSize.x * canvasSize.y).ToArray(), canvasSize);
             }
         }
 
         public static TwoDimensionalMap<Color32> TextureOffset(TwoDimensionalMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
         {
             var sTex2D = texture;
-            var tTex2D = new TwoDimensionalMap<Color32>(ArrayPool<Color32>.Shared.Rent(TargetSize.x * TargetSize.y), TargetSize);
+            var tTex2D = new TwoDimensionalMap<Color32>(new Color32[TargetSize.x * TargetSize.y], TargetSize);
             var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
             tTex2D.Array.AsSpan(0, TargetSize.x * TargetSize.y).Fill(initColor);
 
