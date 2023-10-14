@@ -15,11 +15,11 @@ namespace net.rs64.PSD.parser
     {
         public static readonly byte[] OctBPSSignature = new byte[] { 0x38, 0x42, 0x50, 0x53 };
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
-        public static PSDLowLevelData Pase(string path)
+        public static PSDLowLevelData Parse(string path)
         {
-            return Pase(File.ReadAllBytes(path));
+            return Parse(File.ReadAllBytes(path));
         }
-        public static PSDLowLevelData Pase(byte[] psdByte)
+        public static PSDLowLevelData Parse(byte[] psdByte)
         {
             var psd = new PSDLowLevelData();
 

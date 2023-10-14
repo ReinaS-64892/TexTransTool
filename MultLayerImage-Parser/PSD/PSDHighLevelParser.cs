@@ -20,7 +20,7 @@ namespace net.rs64.PSD.parser
 {
     public static class PSDHighLevelParser
     {
-        public static PSDHighLevelData Pase(PSDLowLevelParser.PSDLowLevelData levelData)
+        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData)
         {
             var PSD = new PSDHighLevelData
             {

@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             ctx.AddObjectToAsset("RootCanvas", rootCanvas);
             ctx.SetMainObject(rootCanvas);
 
-            var pSDData = PSDHighLevelParser.Pase(PSDLowLevelParser.Pase(ctx.assetPath));
+            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(ctx.assetPath));
 
 
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
