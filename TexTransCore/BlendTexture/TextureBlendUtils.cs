@@ -38,13 +38,14 @@ namespace net.rs64.TexTransCore.BlendTexture
     public static class TextureBlendUtils
     {
 
-        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
+        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType, bool keepAlpha = false)
         {
             var material = new Material(Shader.Find("Hidden/BlendTexture"));
             var swap = RenderTexture.GetTemporary(Base.descriptor);
             Graphics.CopyTexture(Base, swap);
             material.SetTexture("_DistTex", swap);
             material.EnableKeyword(blendType.ToString());
+            if(keepAlpha){material.EnableKeyword("KeepAlpha");}
 
             Graphics.Blit(Add, Base, material);
             RenderTexture.ReleaseTemporary(swap);

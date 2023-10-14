@@ -16,6 +16,7 @@ Shader "Hidden/BlendTexture"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp ClassicNormal NotBlend
+            #pragma shader_feature_local_fragment KeepAlpha
 
             #include "UnityCG.cginc"
             #include "./BlendTextureHelper.hlsl"
@@ -105,6 +106,10 @@ Shader "Hidden/BlendTexture"
                  BlendColor = ColorBlendClassicNormal(col ,AddColor);
                 #elif NotBlend
                  BlendColor = AddColor;
+                #endif
+
+                #if KeepAlpha
+                BlendColor.a = col.a;
                 #endif
 
 

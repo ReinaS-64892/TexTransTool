@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     var refBlendLayer = Stack[index];
                     var ClippingDist = refBlendLayer.BlendTextures.Texture as RenderTexture;
-                    ClippingDist.BlendBlit(tex, blendType);
+                    ClippingDist.BlendBlit(tex, blendType, true);
                 }
             }
 
