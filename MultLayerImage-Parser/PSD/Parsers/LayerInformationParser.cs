@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
-using static net.rs64.PSD.parser.ChannelImageDataParser;
-using static net.rs64.PSD.parser.LayerRecordParser;
+using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
+using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
 
-namespace net.rs64.PSD.parser
+namespace net.rs64.MultiLayerImageParser.PSD
 {
     public static class LayerInformationParser
     {

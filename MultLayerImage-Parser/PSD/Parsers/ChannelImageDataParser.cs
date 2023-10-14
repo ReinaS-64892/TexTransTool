@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using static net.rs64.PSD.parser.LayerRecordParser;
+using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
 
-namespace net.rs64.PSD.parser
+namespace net.rs64.MultiLayerImageParser.PSD
 {
     public static class ChannelImageDataParser
     {
@@ -142,7 +142,7 @@ namespace net.rs64.PSD.parser
                         rawDataBuf[pos] = subSpan[i];
                         pos += 1;
                     }
-                    // subSpan.CopyTo(rawDataBuf.AsSpan(pos, count));// なぜか遅い 
+                    // subSpan.CopyTo(rawDataBuf.AsSpan(pos, count));// なぜか遅い
                     // pos += count;
                 }
                 else

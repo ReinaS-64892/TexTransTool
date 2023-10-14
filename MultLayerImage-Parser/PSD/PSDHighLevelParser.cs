@@ -5,9 +5,9 @@ using System.Linq;
 using net.rs64.TexTransCore.Layer;
 using UnityEngine;
 using net.rs64.TexTransCore;
-using static net.rs64.PSD.parser.PSDLowLevelParser.PSDLowLevelData;
-using static net.rs64.PSD.parser.ChannelImageDataParser;
-using static net.rs64.PSD.parser.LayerRecordParser;
+using static net.rs64.MultiLayerImageParser.PSD.PSDLowLevelParser.PSDLowLevelData;
+using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
+using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
@@ -16,7 +16,7 @@ using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
 using System.Buffers;
 
-namespace net.rs64.PSD.parser
+namespace net.rs64.MultiLayerImageParser.PSD
 {
     public static class PSDHighLevelParser
     {

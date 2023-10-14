@@ -1,6 +1,6 @@
 using System;
 
-namespace net.rs64.PSD.parser
+namespace net.rs64.MultiLayerImageParser.PSD
 {
     public static class GlobalLayerMaskInformationParser
     {
