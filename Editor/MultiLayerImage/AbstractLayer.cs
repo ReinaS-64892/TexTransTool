@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
 
-        public float Opacity = 1;
+        [Range(0, 1)] public float Opacity = 1;
         public bool Clipping;
         public BlendType BlendMode;
         public LayerMask LayerMask;
@@ -48,8 +48,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 MaskDrawRenderTexture(tex, refBlendLayer.BlendTextures.Texture);
             }
         }
-
-
 
 
 

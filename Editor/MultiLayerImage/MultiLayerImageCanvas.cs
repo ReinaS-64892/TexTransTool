@@ -44,13 +44,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 domain.AddTextureStack(ReplaceTarget, layer);
             }
-
-            // Canvas.BlendBlit(Layers);
-            // var resultTex = Canvas.CopyTexture2D(OverrideUseMip: true);
-            // var mat = ReferenceRenderer.sharedMaterials[ReferenceMaterialSlot];
-            // var newMat = Instantiate(mat);
-            // newMat.SetTexture(ReferencePropertyName, resultTex);
-            // domain.ReplaceMaterials(new Dictionary<Material, Material>() { { mat, newMat } });
         }
 
         public class LayerStack
