@@ -33,8 +33,8 @@ namespace net.rs64.PSD.parser
             var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
             var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
 
-            var ImageParseTask = new Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData>();
-            var ImageMaskParseTask = new Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData>();
+            var ImageParseTask = new Dictionary<TexCal, RasterLayerData>();
+            var ImageMaskParseTask = new Dictionary<TexCal, AbstractLayerData>();
 
             ParseAsLayers(PSD.Size, rootLayers, imageRecordQueue, imageDataQueue, ImageParseTask, ImageMaskParseTask);
 
@@ -44,14 +44,50 @@ namespace net.rs64.PSD.parser
             PSD.Texture2Ds = image.Concat(imageMask).ToArray();
             return PSD;
         }
+        public delegate TwoDimensionalMap<Color32> TexCal();
 
-        private static Texture2D[] AwaitImage(Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        public static Dictionary<TwoDimensionalMap<Color32>, T> TextureCalculationExecuter<T>(Dictionary<TexCal, T> ImageTask, int? ForceParallelSize = null)
         {
-            var Images = AwaitImageTask(ImageParseTask).Result;
+            var parallelSize = ForceParallelSize.HasValue ? ForceParallelSize.Value : Environment.ProcessorCount;
+            var results = new Dictionary<TwoDimensionalMap<Color32>, T>(ImageTask.Count);
+            var taskQueue = new Queue<KeyValuePair<TexCal, T>>(ImageTask);
+            var TaskParallel = new (Task<TwoDimensionalMap<Color32>>, T)[parallelSize];
+            while (taskQueue.Count > 0)
+            {
+                var fact = Task.Factory;
+                for (int i = 0; TaskParallel.Length > i; i += 1)
+                {
+                    if (taskQueue.Count > 0)
+                    {
+                        var task = taskQueue.Dequeue();
+                        TaskParallel[i] = (Task.Run(task.Key.Invoke), task.Value);
+                    }
+                    else
+                    {
+                        TaskParallel[i] = (null, default);
+                    }
+                }
+
+                foreach (var task in TaskParallel)
+                {
+                    if (task.Item1 == null) { continue; }
+                    results.Add(TexCalAwaiter(task.Item1).Result, task.Item2);
+                }
+            }
+            return results;
+        }
+
+        public static async Task<TwoDimensionalMap<Color32>> TexCalAwaiter(Task<TwoDimensionalMap<Color32>> twoDimensionalMap)
+        {
+            return await twoDimensionalMap.ConfigureAwait(false);
+        }
+
+        private static Texture2D[] AwaitImage(Dictionary<TexCal, RasterLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        {
             var texture2Ds = new Texture2D[ImageParseTask.Count];
             var NameHash = new HashSet<string>();
             var count = 0;
-            foreach (var task in Images)
+            foreach (var task in TextureCalculationExecuter(ImageParseTask))
             {
                 var tex = task.Key;
                 var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
@@ -80,24 +116,12 @@ namespace net.rs64.PSD.parser
             return texture2Ds;
         }
 
-        private static async Task<Dictionary<TwoDimensionalMap<Color32>, RasterLayerData>> AwaitImageTask(Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData> ImageParseTask)
+        private static Texture2D[] AwaitImageMask(Dictionary<TexCal, AbstractLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
         {
-            var Images = new Dictionary<TwoDimensionalMap<Color32>, RasterLayerData>();
-            foreach (var task in ImageParseTask)
-            {
-                Images.Add(await task.Key.ConfigureAwait(false), task.Value);
-            }
-
-            return Images;
-        }
-
-        private static Texture2D[] AwaitImageMask(Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
-        {
-            var ImagesMask = AwaitImageMaskTask(ImageParseTask).Result;
             var texture2Ds = new Texture2D[ImageParseTask.Count];
             var NameHash = new HashSet<string>();
             var count = 0;
-            foreach (var task in ImagesMask)
+            foreach (var task in TextureCalculationExecuter(ImageParseTask))
             {
                 var tex = task.Key;
                 var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
@@ -125,24 +149,13 @@ namespace net.rs64.PSD.parser
             }
             return texture2Ds;
         }
-
-        private static async Task<Dictionary<TwoDimensionalMap<Color32>, AbstractLayerData>> AwaitImageMaskTask(Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> ImageMaskParseTask)
-        {
-            var Images = new Dictionary<TwoDimensionalMap<Color32>, AbstractLayerData>();
-            foreach (var task in ImageMaskParseTask)
-            {
-                Images.Add(await task.Key.ConfigureAwait(false), task.Value);
-            }
-
-            return Images;
-        }
         private static void ParseAsLayers(
          Vector2Int CanvasSize,
          List<AbstractLayerData> rootLayers,
          Queue<LayerRecord> imageRecordQueue,
          Queue<ChannelImageData> imageDataQueue,
-         Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData> imageParseTask,
-         Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> imageMaskParseTask
+         Dictionary<TexCal, RasterLayerData> imageParseTask,
+         Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
          )
         {
             while (imageRecordQueue.Count != 0)
@@ -167,8 +180,8 @@ namespace net.rs64.PSD.parser
             Queue<LayerRecord> imageRecordQueue,
             Queue<ChannelImageData> imageDataQueue,
             Vector2Int CanvasSize,
-            Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData> imageParseTask,
-            Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> imageMaskParseTask
+            Dictionary<TexCal, RasterLayerData> imageParseTask,
+            Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
         )
         {
             var layerFolder = new LayerFolderData();
@@ -210,13 +223,12 @@ namespace net.rs64.PSD.parser
             SetGenerateLayerMask(EndFolderRecord, layerFolder, endChannelInfoAndImage, CanvasSize, imageMaskParseTask);
             return layerFolder;
         }
-
         private static RasterLayerData ParseRasterLayer(
             LayerRecord record,
             Queue<ChannelImageData> imageDataQueue,
             Vector2Int CanvasSize,
-            Dictionary<Task<TwoDimensionalMap<Color32>>, RasterLayerData> imageParseTask,
-            Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> imageMaskParseTask
+            Dictionary<TexCal, RasterLayerData> imageParseTask,
+            Dictionary<TexCal, AbstractLayerData> imageMaskParseTask
         )
         {
             var timer = Stopwatch.StartNew();
@@ -230,7 +242,7 @@ namespace net.rs64.PSD.parser
             && record.RectTangle.CalculateRawCompressLength() != 0
             )
             {
-                imageParseTask.Add(Task.Run(() => GenerateTexTowDMap(record, CanvasSize, channelInfoAndImage)), rasterLayer);
+                imageParseTask.Add(() => GenerateTexTowDMap(record, CanvasSize, channelInfoAndImage), rasterLayer);
             }
 
             SetGenerateLayerMask(record, rasterLayer, channelInfoAndImage, CanvasSize, imageMaskParseTask);
@@ -279,7 +291,7 @@ namespace net.rs64.PSD.parser
             return pixels;
         }
 
-        private static void SetGenerateLayerMask(LayerRecord record, AbstractLayerData abstractLayer, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage, Vector2Int CanvasSize, Dictionary<Task<TwoDimensionalMap<Color32>>, AbstractLayerData> imageMaskParseTask)
+        private static void SetGenerateLayerMask(LayerRecord record, AbstractLayerData abstractLayer, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage, Vector2Int CanvasSize, Dictionary<TexCal, AbstractLayerData> imageMaskParseTask)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return; }
@@ -293,7 +305,7 @@ namespace net.rs64.PSD.parser
             abstractLayer.LayerMask.LayerMaskDisabled = maskDisabled;
 
 
-            imageMaskParseTask.Add(Task.Run(() => GenerateMaskTexTwoDMap(record, channelInfoAndImage, CanvasSize, MaskPivot, DefaultMaskColor)), abstractLayer);
+            imageMaskParseTask.Add(() => GenerateMaskTexTwoDMap(record, channelInfoAndImage, CanvasSize, MaskPivot, DefaultMaskColor), abstractLayer);
         }
 
         private static TwoDimensionalMap<Color32> GenerateMaskTexTwoDMap(
