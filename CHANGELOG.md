@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.4.3]
+
+### Fixed
+
+- ターゲットプロパティの違うデカールをリアルタイムプレビューしたときに起きるバグを修正 `#190`
+
 ## [0.4.2]
 
 ### Fixed
@@ -228,7 +234,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...master
+[0.4.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.6...v0.4.0
