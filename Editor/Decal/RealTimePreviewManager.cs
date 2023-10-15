@@ -194,7 +194,12 @@ namespace net.rs64.TexTransTool
                     Previews[mat][target.Key].Decals.Remove(Previews[mat][target.Key].Decals.Find(I => I.RenderTexture == target.Value));
                     if (Previews[mat][target.Key].Decals.Count == 0)
                     {
+                        mat.SetTexture(target.Key, Previews[mat][target.Key].Item1.SouseTexture);
                         Previews[mat].Remove(target.Key);
+                    }
+                    else
+                    {
+                        UpdatePreviewTexture(mat, target.Key);
                     }
                 }
             }
