@@ -1,8 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.BlendTexture;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TextureBlender")]
@@ -32,13 +31,13 @@ namespace net.rs64.TexTransTool
             var DistMat = DistMaterials[MaterialSelect];
 
             var DistTex = DistMat.GetTexture(TargetPropertyName) as Texture2D;
-            var AddTex = TextureLayerUtil.CreateMultipliedRenderTexture(BlendTexture, Color);
+            var AddTex = TextureBlendUtils.CreateMultipliedRenderTexture(BlendTexture, Color);
             if (DistTex == null)
             {
                 return;
             }
 
-            Domain.AddTextureStack(DistTex, new TextureLayerUtil.BlendTextures(AddTex, BlendType));
+            Domain.AddTextureStack(DistTex, new TextureBlendUtils.BlendTextures(AddTex, BlendType));
         }
     }
 }

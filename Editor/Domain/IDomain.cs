@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureLayerUtil;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
 
 namespace net.rs64.TexTransTool
 {

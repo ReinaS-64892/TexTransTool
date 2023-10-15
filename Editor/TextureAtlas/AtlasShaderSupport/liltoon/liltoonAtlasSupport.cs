@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using net.rs64.TexTransTool;
-using TexLU = net.rs64.TexTransTool.TextureLayerUtil;
+using TexLU = net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+
 using net.rs64.TexTransTool.Utils;
 
 

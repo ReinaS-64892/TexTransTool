@@ -17,7 +17,6 @@ Shader "Hidden/ColorMulShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../../TransTextureCore/ShaderAsset/Compute/BlendTextureHelper.hlsl"
 
             struct appdata
             {
@@ -44,7 +43,7 @@ Shader "Hidden/ColorMulShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 MainColor = tex2D(_MainTex ,i.uv);
+                float4 MainColor = tex2Dlod(_MainTex ,float4(i.uv,0,0));
 
                 return  float4(
                     MainColor.r * _Color.r,

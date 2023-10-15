@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
@@ -51,7 +52,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                 var sizeData = texf.TuningDataList.Find(I => I is SizeData) as SizeData;
                 if (sizeData == null) { continue; }
                 if (sizeData.TextureSize == texf.Texture2D.width) { continue; }
-                texf.Texture2D = TextureLayerUtil.ResizeTexture(texf.Texture2D, new Vector2Int(sizeData.TextureSize, sizeData.TextureSize));
+                texf.Texture2D = TextureBlendUtils.ResizeTexture(texf.Texture2D, new Vector2Int(sizeData.TextureSize, sizeData.TextureSize));
             }
         }
     }

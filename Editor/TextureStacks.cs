@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureLayerUtil;
 using net.rs64.TexTransCore.TransTextureCore;
 using System.Linq;
-using System;
 using UnityEditor;
 using System.IO;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
 
 namespace net.rs64.TexTransTool
 {

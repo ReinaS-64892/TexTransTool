@@ -19,7 +19,7 @@
 #pragma kernel Saturation
 #pragma kernel Color
 #pragma kernel Luminosity
-#pragma kernel AlphaLerp
+#pragma kernel ClassicNormal
 
 #include "./BlendTextureHelper.hlsl"
 
@@ -169,10 +169,10 @@ StructuredBuffer<float4> AddTex;
 
   BaseTex[OneDIndex] = ColorBlendLuminosity(BaseColor, AddColor);
 }
-[numthreads(32, 32, 1)] void AlphaLerp(uint3 id : SV_DispatchThreadID) {
+[numthreads(32, 32, 1)] void ClassicNormal(uint3 id : SV_DispatchThreadID) {
   uint OneDIndex = TwoDToOneDIndex((uint2)id, Size);
   float4 BaseColor = BaseTex[OneDIndex];
   float4 AddColor = AddTex[OneDIndex];
 
-  BaseTex[OneDIndex] = saturate(ColorBlendAlphaLerp(BaseColor, AddColor));
+  BaseTex[OneDIndex] = saturate(ColorBlendClassicNormal(BaseColor, AddColor));
 }

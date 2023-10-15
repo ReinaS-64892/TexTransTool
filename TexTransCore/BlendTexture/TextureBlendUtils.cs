@@ -1,16 +1,13 @@
-#if UNITY_EDITOR
-
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEditor;
 using System;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
-namespace net.rs64.TexTransTool
+namespace net.rs64.TexTransCore.BlendTexture
 {
     public enum BlendType
     {
@@ -35,19 +32,20 @@ namespace net.rs64.TexTransTool
         Saturation,
         Color,
         Luminosity,
-        AlphaLerp,
+        ClassicNormal,
         NotBlend,
     }
-    public static class TextureLayerUtil
+    public static class TextureBlendUtils
     {
 
-        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType)
+        public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType, bool keepAlpha = false)
         {
             var material = new Material(Shader.Find("Hidden/BlendTexture"));
             var swap = RenderTexture.GetTemporary(Base.descriptor);
             Graphics.CopyTexture(Base, swap);
             material.SetTexture("_DistTex", swap);
             material.EnableKeyword(blendType.ToString());
+            if(keepAlpha){material.EnableKeyword("KeepAlpha");}
 
             Graphics.Blit(Add, Base, material);
             RenderTexture.ReleaseTemporary(swap);
@@ -303,7 +301,7 @@ namespace net.rs64.TexTransTool
                         }
                         break;
                     }
-                case BlendType.AlphaLerp:
+                case BlendType.ClassicNormal:
                     {
                         foreach (var Index in indexEnumerator)
                         {
@@ -659,7 +657,7 @@ namespace net.rs64.TexTransTool
 
         public static RenderTexture CreateMultipliedRenderTexture(Texture MainTex, Color Color)
         {
-            var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0, RenderTextureFormat.ARGB32);
+            var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0);
             MultipleRenderTexture(mainTexRt, MainTex, Color);
             return mainTexRt;
         }
@@ -669,6 +667,25 @@ namespace net.rs64.TexTransTool
             mat.SetColor("_Color", Color);
             Graphics.Blit(MainTex, MainTexRt, mat);
         }
+        public static void MultipleRenderTexture(RenderTexture renderTexture, Color Color)
+        {
+            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+            var mat = new Material(Shader.Find("Hidden/ColorMulShader"));
+            mat.SetColor("_Color", Color);
+            Graphics.CopyTexture(renderTexture, tempRt);
+            Graphics.Blit(tempRt, renderTexture, mat);
+            RenderTexture.ReleaseTemporary(tempRt);
+        }
+        public static void MaskDrawRenderTexture(RenderTexture renderTexture, Texture MaskTex)
+        {
+            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+            var mat = new Material(Shader.Find("Hidden/MaskShader"));
+            mat.SetTexture("_MaskTex", MaskTex);
+            Graphics.CopyTexture(renderTexture, tempRt);
+            Graphics.Blit(tempRt, renderTexture, mat);
+            RenderTexture.ReleaseTemporary(tempRt);
+        }
+
 
         public static Texture2D CreateColorTex(Color Color)
         {
@@ -687,4 +704,3 @@ namespace net.rs64.TexTransTool
     }
 
 }
-#endif

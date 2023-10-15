@@ -7,6 +7,7 @@ using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
+using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -23,11 +24,11 @@ namespace net.rs64.TexTransTool.Decal
             RenderTexture mulDecalTexture = DecalTexture != null ? RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0) : RenderTexture.GetTemporary(32, 32, 0); ;
             if (DecalTexture != null)
             {
-                TextureLayerUtil.MultipleRenderTexture(mulDecalTexture, DecalTexture.TryGetUnCompress(), Color);
+                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, DecalTexture.TryGetUnCompress(), Color);
             }
             else
             {
-                TextureLayerUtil.ColorBlit(mulDecalTexture, Color);
+                TextureBlendUtils.ColorBlit(mulDecalTexture, Color);
             }
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
             foreach (var renderer in TargetRenderers)
