@@ -58,6 +58,7 @@ Shader "Hidden/BlendTexture"
             {
                 float4 col = LiniearToGamma(tex2Dlod(_DistTex,float4( i.uv,0,0)));
                 float4 AddColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
+
                 float4 BlendColor;
 
                 #ifdef Normal
