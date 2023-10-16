@@ -47,8 +47,8 @@ FormatQuality,フォーマット品質
 CompressionQuality,圧縮品質
 Source,ソース
 NewFineTuningSetting,テクスチャー詳細設定を追加
-(OtherPreviewing),(他がプレビュー中)
-(OtherPreviewing Or PreviewingAnimation),(他かアニメーションのプレビュー中)
+(Other Previewing),(他がプレビュー中)
+(Other Previewing Or Previewing Animation),(他かアニメーションのプレビュー中)
 BlendTexture,ブレンドテクスチャー
 TargetAvatar,ターゲットアバター
 UseTextureAspect,テクスチャーのアスペクトを使う
