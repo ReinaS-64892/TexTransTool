@@ -8,6 +8,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning("MultiImageLayer".GetLocalize());
             base.OnInspectorGUI();
 
             var Target = target as MultiLayerImageCanvas;

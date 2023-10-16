@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         public static void DrawerWarning(string TypeName)
         {
-            EditorGUILayout.HelpBox(TypeName + "is experimental future!!!".GetLocalize(), MessageType.Warning);
+            EditorGUILayout.HelpBox(TypeName + "is an experimental feature. Features may be changed or removed without notice.".GetLocalize(), MessageType.Warning);
         }
         public static Renderer RendererFiltering(Renderer TargetRendererEditValue)
         {
