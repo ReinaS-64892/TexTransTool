@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransTool.ReferenceResolver;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
@@ -15,9 +16,18 @@ namespace net.rs64.TexTransTool.Build
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null), FindAtPhase(avatarGameObject));
+
+                var resolverContext = new ResolverContext(avatarGameObject);
+                resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
+
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null));
+
+                session.FindAtPhaseTTT();
 
                 session.ApplyFor(TexTransPhase.BeforeUVModification);
+
+                session.MidwayMargeStack();
+
                 session.ApplyFor(TexTransPhase.UVModification);
                 session.ApplyFor(TexTransPhase.AfterUVModification);
                 session.ApplyFor(TexTransPhase.UnDefined);
@@ -33,7 +43,13 @@ namespace net.rs64.TexTransTool.Build
 
 
         }
-
+        public static void ResolvingFor(this ResolverContext resolverContext, IEnumerable<AbstractResolver> abstractResolvers)
+        {
+            foreach (var resolver in abstractResolvers)
+            {
+                resolver.Resolving(resolverContext);
+            }
+        }
         public class TexTransBuildSession
         {
             AvatarDomain _avatarDomain;
@@ -49,8 +65,12 @@ namespace net.rs64.TexTransTool.Build
             public TexTransBuildSession(AvatarDomain avatarDomain)
             {
                 _avatarDomain = avatarDomain;
+            }
+            public void FindAtPhaseTTT()
+            {
                 _phaseAtList = FindAtPhase(_avatarDomain.AvatarRoot);
             }
+
             public void ApplyFor(TexTransPhase texTransPhase)
             {
                 _avatarDomain.ProgressStateEnter(texTransPhase.ToString());
@@ -62,6 +82,13 @@ namespace net.rs64.TexTransTool.Build
                     count += 1;
                     _avatarDomain.ProgressUpdate($"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
                 }
+                _avatarDomain.ProgressStateExit();
+            }
+
+            public void MidwayMargeStack()
+            {
+                _avatarDomain.ProgressStateEnter("MidwayMargeStack");
+                _avatarDomain.MargeStack();
                 _avatarDomain.ProgressStateExit();
             }
 
@@ -163,6 +190,16 @@ namespace net.rs64.TexTransTool.Build
                 }
             }
         }
+        public class ResolverContext
+        {
+            public readonly GameObject AvatarRoot;
+
+            public ResolverContext(GameObject avatarGameObject)
+            {
+                AvatarRoot = avatarGameObject;
+            }
+        }
     }
+
 }
 #endif

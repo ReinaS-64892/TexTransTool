@@ -141,6 +141,14 @@ namespace net.rs64.TexTransTool
         public virtual void EditFinish()
         {
             ProgressStateEnter("Finalize");
+            MargeStack();
+            ProgressStateExit();
+            ProgressStateExit();
+            _progressHandler?.ProgressFinalize();
+        }
+
+        public virtual void MargeStack()
+        {
             ProgressUpdate("MargeStack", 0f);
             var mangedStack = _textureStacks.MargeStacks();
             ProgressUpdate("MargeStack", 0.9f);
@@ -151,9 +159,6 @@ namespace net.rs64.TexTransTool
                 TransferAsset(mergeResult.MargeTexture);
             }
             ProgressUpdate("MargeStack", 1);
-            ProgressStateExit();
-            ProgressStateExit();
-            _progressHandler?.ProgressFinalize();
         }
 
         ProgressHandler _progressHandler;

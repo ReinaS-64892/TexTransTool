@@ -1,5 +1,6 @@
 #if NDMF
 using nadena.dev.ndmf;
+using net.rs64.TexTransTool.ReferenceResolver;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.Build.NDMF
@@ -11,11 +12,33 @@ namespace net.rs64.TexTransTool.Build.NDMF
             return context.Extension<TexTransToolContext>().TTTBuildContext;
         }
     }
+    internal class ResolvingPass : Pass<ResolvingPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            var resolverContext = new ResolverContext(context.AvatarRootObject);
+            resolverContext.ResolvingFor(context.AvatarRootObject.GetComponentsInChildren<AbstractResolver>());
+        }
+    }
+    internal class FindAtPhasePass : TTTPass<FindAtPhasePass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).FindAtPhaseTTT();
+        }
+    }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>
     {
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.BeforeUVModification);
+        }
+    }
+    internal class MidwayMargeStackPass : TTTPass<MidwayMargeStackPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).MidwayMargeStack();
         }
     }
     internal class UVModificationPass : TTTPass<UVModificationPass>
