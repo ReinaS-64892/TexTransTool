@@ -8,7 +8,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [RequireComponent(typeof(AtlasTexture))]
     [DisallowMultipleComponent]
-    public class AddMaterials : AbstractResolver
+    public class AddAbsoluteMaterials : AbstractResolver
     {
         public List<AtlasTexture.MatSelector> AddSelectors = new List<AtlasTexture.MatSelector>();
 
