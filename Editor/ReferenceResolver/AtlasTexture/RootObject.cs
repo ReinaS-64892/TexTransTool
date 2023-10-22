@@ -7,6 +7,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [RequireComponent(typeof(AtlasTexture))]
     [DisallowMultipleComponent]
+    [AddComponentMenu("TexTransTool/Resolver/TTT AtlasTexture RootObjectResolver")]
     public class RootObject : AbstractResolver
     {
         [SerializeField] SelectEnum SelectType;

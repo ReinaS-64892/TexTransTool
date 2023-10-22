@@ -6,6 +6,7 @@ using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
+    [AddComponentMenu("TexTransTool/Resolver/TTT Decal RendererResolver")]
     public class RayCastRendererResolver : AbstractRayCastRendererResolver
     {
         public AbstractDecal ResolveTarget;
