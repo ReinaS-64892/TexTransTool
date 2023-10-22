@@ -104,7 +104,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public struct MatSelector
         {
             public Material Material;
-            public float TextureSizeOffSet;
+            public float AdditionalTextureSizeOffSet;
+            #region V1SaveData
+            [Obsolete("V1SaveData", true)] public float TextureSizeOffSet;
+            #endregion
+
         }
         struct MatData
         {
@@ -115,7 +119,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public MatData(MatSelector matSelector, List<PropAndTexture> propAndTextures)
             {
                 Material = matSelector.Material;
-                TextureSizeOffSet = matSelector.TextureSizeOffSet;
+                TextureSizeOffSet = matSelector.AdditionalTextureSizeOffSet;
                 PropAndTextures = propAndTextures;
             }
         }
@@ -144,6 +148,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             shaderSupports.ClearRecord();
 
+            var maxTexturePixelCount = 0;
+            foreach (var matSelect in targetMaterialSelectors)
+            {
+                var tex = matSelect.Material.mainTexture;
+                if (tex == null) { continue; }
+                maxTexturePixelCount = Mathf.Max(maxTexturePixelCount, tex.width * tex.height);
+            }
+
 
             //アイランドを並び替えるフェーズ
             var originIslandPool = atlasReferenceData.GeneratedIslandPool(atlasSetting.UseIslandCache);
@@ -151,7 +163,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var moveIslandPool = new TagIslandPool<IndexTagPlusIslandIndex>();
             foreach (var matDataPool in matDataPools)
             {
-                matDataPool.Value.IslandPoolSizeOffset(matDataPool.Key.TextureSizeOffSet);
+                var tex = matDataPool.Key.Material.mainTexture;
+                var defaultTextureSizeOffset = tex != null ? (tex.width * tex.height) / (float)maxTexturePixelCount : 0.01f;
+                matDataPool.Value.IslandPoolSizeOffset(matDataPool.Key.TextureSizeOffSet * defaultTextureSizeOffset);
                 moveIslandPool.AddRangeIsland(matDataPool.Value);
             }
             IslandSorting.GenerateMovedIslands(atlasSetting.SortingType, moveIslandPool, atlasSetting.GetTexScalePadding);
@@ -420,25 +434,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 result.Add(item);
             }
             return result;
-        }
-
-        public void AutomaticOffSetSetting()
-        {
-            var maxTexPixel = 0;
-
-            foreach (var matSelect in SelectMatList)
-            {
-                var tex = matSelect.Material.mainTexture;
-                maxTexPixel = Mathf.Max(maxTexPixel, tex.width * tex.height);
-            }
-
-            for (int i = 0; SelectMatList.Count > i; i += 1)
-            {
-                var MatSelector = SelectMatList[i];
-                var tex = MatSelector.Material.mainTexture;
-                MatSelector.TextureSizeOffSet = (tex.width * tex.height) / (float)maxTexPixel;
-                SelectMatList[i] = MatSelector;
-            }
         }
 
         public void MaterialReplace(Material Souse, Material Target)
