@@ -21,12 +21,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var This_S_Object = serializedObject;
 
 #pragma warning disable CS0612
-            if (ThisTarget.SaveDataVersion == 0)
+            if (ThisTarget.SaveDataVersion != ToolUtils.ThiSaveDataVersion)
             {
-                if (GUILayout.Button("Migrate DSV0 To DSV1"))
+                if (ThisTarget.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
                 {
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(ThisTarget);
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(ThisTarget);
+                }
+                if (ThisTarget.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
+                {
+                    net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(ThisTarget);
                 }
                 return;
             }
@@ -54,11 +58,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
                     RefreshMaterials(S_TargetRoot, ThisTarget.TargetRoot);
                     This_S_Object.ApplyModifiedProperties();
-                }
-                if (GUILayout.Button("AutomaticOffSetSetting".GetLocalize()))
-                {
-                    Undo.RecordObject(ThisTarget, "AtlasTexture - Automatic OffSet Setting");
-                    ThisTarget.AutomaticOffSetSetting();
                 }
                 if (TempMaterial == null)
                 {
@@ -228,7 +227,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         TargetMaterial.arraySize += 1;
                         var S_NewMatSelector = TargetMaterial.GetArrayElementAtIndex(index);
                         S_NewMatSelector.FindPropertyRelative("Material").objectReferenceValue = mat;
-                        S_NewMatSelector.FindPropertyRelative("TextureSizeOffSet").floatValue = 1;
+                        S_NewMatSelector.FindPropertyRelative("AdditionalTextureSizeOffSet").floatValue = 1;
                     }
                     else
                     {
@@ -237,8 +236,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 }
                 else if (isTarget)
                 {
-                    var SOffset = S_MatSelector.FindPropertyRelative("TextureSizeOffSet");
-                    SOffset.floatValue = Mathf.Clamp01(EditorGUILayout.FloatField(SOffset.floatValue));
+                    var SOffset = S_MatSelector.FindPropertyRelative("AdditionalTextureSizeOffSet");
+                    SOffset.floatValue = EditorGUILayout.FloatField(SOffset.floatValue);
                 }
 
                 EditorGUI.BeginDisabledGroup(true);
