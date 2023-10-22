@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
                 if (index != -1)
                 {
                     var matSelector = atlasTexture.SelectMatList[index];
-                    matSelector.TextureSizeOffSet = add.TextureSizeOffSet;
+                    matSelector.AdditionalTextureSizeOffSet = add.AdditionalTextureSizeOffSet;
                     atlasTexture.SelectMatList[index] = matSelector;
                 }
                 else

@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
                 var selector = s_AddSelectors.GetArrayElementAtIndex(i);
                 GUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(i.ToString(), GUILayout.Width(10f));
-                EditorGUILayout.PropertyField(selector.FindPropertyRelative("TextureSizeOffSet"), GUIContent.none);
+                EditorGUILayout.PropertyField(selector.FindPropertyRelative("AdditionalTextureSizeOffSet"), GUIContent.none);
                 EditorGUILayout.PropertyField(selector.FindPropertyRelative("Material"), GUIContent.none);
                 if (GUILayout.Button("X")) { s_AddSelectors.DeleteArrayElementAtIndex(i); break; }
                 GUILayout.EndHorizontal();
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
 
                 var newSelector = s_AddSelectors.GetArrayElementAtIndex(index);
                 newSelector.FindPropertyRelative("Material").objectReferenceValue = addMat;
-                newSelector.FindPropertyRelative("TextureSizeOffSet").floatValue = 1;
+                newSelector.FindPropertyRelative("AdditionalTextureSizeOffSet").floatValue = 1;
             }
 
 
