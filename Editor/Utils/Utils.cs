@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Utils
 {
     public static class ToolUtils
     {
-        public const int ThiSaveDataVersion = 1;
+        public const int ThiSaveDataVersion = 2;
     }
 }
 #endif

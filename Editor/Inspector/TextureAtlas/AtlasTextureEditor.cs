@@ -21,9 +21,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var This_S_Object = serializedObject;
 
 #pragma warning disable CS0612
-            if (ThisTarget.SaveDataVersion == 0)
+            if (ThisTarget.SaveDataVersion != ToolUtils.ThiSaveDataVersion)
             {
-                if (GUILayout.Button("Migrate DSV0 To DSV1"))
+                if (ThisTarget.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
+                {
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(ThisTarget);
+                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(ThisTarget);
+                }
+                if (ThisTarget.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
                 {
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(ThisTarget);
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(ThisTarget);
@@ -54,11 +59,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
                     RefreshMaterials(S_TargetRoot, ThisTarget.TargetRoot);
                     This_S_Object.ApplyModifiedProperties();
-                }
-                if (GUILayout.Button("AutomaticOffSetSetting".GetLocalize()))
-                {
-                    Undo.RecordObject(ThisTarget, "AtlasTexture - Automatic OffSet Setting");
-                    ThisTarget.AutomaticOffSetSetting();
                 }
                 if (TempMaterial == null)
                 {
