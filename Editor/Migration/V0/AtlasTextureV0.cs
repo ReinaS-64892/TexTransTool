@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             .Select(I => new TexTransTool.TextureAtlas.AtlasTexture.MatSelector()
             {
                 Material = I.Material,
-                AdditionalTextureSizeOffSet = I.TextureSizeOffSet
+                TextureSizeOffSet = I.TextureSizeOffSet
             }).ToList();
             EditorUtility.SetDirty(NewAtlasTextureTarget);
             if (atlasTextureSouse == NewAtlasTextureTarget)

@@ -27,24 +27,28 @@ namespace net.rs64.TexTransTool.Migration.V1
                 maxTexturePixelCount = Mathf.Max(maxTexturePixelCount, tex.width * tex.height);
             }
 
-
-            for (int i = 0; i < atlasTexture.SelectMatList.Count; i += 1)
+            var matList = atlasTexture.SelectMatList;
+            for (int i = 0; i < matList.Count; i += 1)
             {
-                var selector = atlasTexture.SelectMatList[i];
+                var selector = matList[i];
                 var tex = selector.Material.mainTexture;
                 if (tex == null) { continue; }
                 var texSize = tex.width * tex.height;
-                var defaultOffset = texSize / maxTexturePixelCount;
+                var defaultOffset = (float)texSize / maxTexturePixelCount;
                 var offset = selector.TextureSizeOffSet;
 
                 var additionalTextureSizeOffSet = offset / defaultOffset;
 
+                // Debug.Log($"texSize{texSize}/{maxTexturePixelCount}:Offset{offset}:Default{defaultOffset}:result{additionalTextureSizeOffSet}");
+
 
                 selector.AdditionalTextureSizeOffSet = additionalTextureSizeOffSet;
-                atlasTexture.SelectMatList[i] = selector;
+                matList[i] = selector;
             }
 
+            atlasTexture.SelectMatList = matList;
 
+            EditorUtility.SetDirty(atlasTexture);
 
 
             MigrationUtility.SetSaveDataVersion(atlasTexture, 2);

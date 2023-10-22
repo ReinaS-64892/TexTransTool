@@ -128,9 +128,9 @@ namespace net.rs64.TexTransTool.Migration
 
                 if (SaveDataVersionJsonI.SaveDataVersion == 0)
                 {
-                    DoMigrateV0ToV1();
+                    DoMigrate();
                 }
-                else if (SaveDataVersionJsonI.SaveDataVersion > 1)
+                else if (SaveDataVersionJsonI.SaveDataVersion > ToolUtils.ThiSaveDataVersion)
                 {
                     EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
                      "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
@@ -147,7 +147,7 @@ namespace net.rs64.TexTransTool.Migration
             }
         }
 
-        private static bool DoMigrateV0ToV1()
+        private static bool DoMigrate()
         {
             InProgress = true;
             var result = EditorUtility.DisplayDialog("Migrate!",
@@ -171,6 +171,7 @@ namespace net.rs64.TexTransTool.Migration
         [MenuItem("Tools/TexTransTool/Migration/Migrate Everything All")]
         private static void MigrateEverything()
         {
+            PreMigration();
             var nowVersion = GetSaveDataVersion;
             foreach (var version in Enumerable.Range(nowVersion.SaveDataVersion, ToolUtils.ThiSaveDataVersion))
             {
@@ -192,11 +193,12 @@ namespace net.rs64.TexTransTool.Migration
         }
 
         [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.3.x to v0.4x")]
+        private static void MigrateEverythingV0ToV1() { MigrateEverythingV0ToV1(); }
         private static void MigrateEverythingV0ToV1(bool continuesMigrate = false)
         {
             try
             {
-                PreMigration();
+                if (!continuesMigrate) PreMigration();
                 var prefabs = GetPrefabs();
                 var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
@@ -236,11 +238,12 @@ namespace net.rs64.TexTransTool.Migration
             }
         }
         [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.4.x to v0.5.x")]
+        private static void MigrateEverythingV1ToV2() { MigrateEverythingV1ToV2(); }
         private static void MigrateEverythingV1ToV2(bool continuesMigrate = false)
         {
             try
             {
-                PreMigration();
+                if (!continuesMigrate) PreMigration();
                 var prefabs = GetPrefabs();
                 var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
