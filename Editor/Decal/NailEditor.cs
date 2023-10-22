@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var renderer in TargetRenderers)
                 {
+                    if (renderer == null) { continue; }
                     DecalUtility.CreateDecalTexture(
                         renderer,
                         decalCompiledRenderTextures,
