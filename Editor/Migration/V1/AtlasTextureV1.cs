@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Migration.V1
 
 
             var maxTexturePixelCount = 0;
-            foreach (var matSelect in atlasTexture.GetContainedSelectMatList)
+            foreach (var matSelect in atlasTexture.SelectMatList)
             {
                 var tex = matSelect.Material.mainTexture;
                 if (tex == null) { continue; }
