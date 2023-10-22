@@ -33,6 +33,7 @@ namespace net.rs64.TexTransTool.Decal
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
             foreach (var renderer in TargetRenderers)
             {
+                if(renderer == null){ continue; }
                 DecalUtility.CreateDecalTexture(
                    renderer,
                    decalCompiledRenderTextures,
