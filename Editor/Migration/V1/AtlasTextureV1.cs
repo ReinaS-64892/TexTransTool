@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.Migration.V1
             var maxTexturePixelCount = 0;
             foreach (var matSelect in atlasTexture.SelectMatList)
             {
+                if (matSelect.Material == null) { continue; }
                 var tex = matSelect.Material.mainTexture;
                 if (tex == null) { continue; }
                 maxTexturePixelCount = Mathf.Max(maxTexturePixelCount, tex.width * tex.height);
