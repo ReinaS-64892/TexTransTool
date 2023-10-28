@@ -18,7 +18,14 @@ namespace net.rs64.TexTransTool.Editor
         {
             var thisTarget = target as AbstractTexTransGroup;
 
-            DrawerSummaryList(thisTarget);
+            if (!PreviewContext.IsPreviewContains)
+            {
+                DrawerSummaryList(thisTarget);
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Summary display during preview is not supported.".GetLocalize());
+            }
 
             PreviewContext.instance.DrawApplyAndRevert(thisTarget);
         }

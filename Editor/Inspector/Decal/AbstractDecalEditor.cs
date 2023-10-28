@@ -81,37 +81,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 }
             }
         }
-        public static void DrawerScaleEditor<T>(AbstractSingleDecal<T> ThisObject, SerializedObject This_S_Object, SerializedProperty S_Scale, SerializedProperty S_FixedAspect) where T : DecalUtility.IConvertSpace
-        {
-            if (S_FixedAspect.boolValue)
-            {
-                TextureTransformerEditor.DrawerProperty(S_Scale.displayName.GetLocalize(), S_Scale.vector2Value.x, EditValue =>
-                {
-                    S_Scale.vector2Value = new Vector2(EditValue, EditValue);
-                    This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
-                    ThisObject.ScaleApply();
-                }
-                );
-            }
-            else
-            {
-                TextureTransformerEditor.DrawerProperty(S_Scale, (Vector2 EditValue) =>
-                {
-                    S_Scale.vector2Value = EditValue;
-                    This_S_Object.ApplyModifiedProperties();
-                    Undo.RecordObject(ThisObject, "ScaleApply - ScaleEdit");
-                    ThisObject.ScaleApply();
-                }, S_Scale.displayName.GetLocalize());
-            }
-            TextureTransformerEditor.DrawerProperty(S_FixedAspect, (bool FixedAspectValue) =>
-            {
-                S_FixedAspect.boolValue = FixedAspectValue;
-                This_S_Object.ApplyModifiedProperties();
-                Undo.RecordObject(ThisObject, "ApplyScale - Size");
-                ThisObject.ScaleApply();
-            }, S_FixedAspect.name.GetLocalize());
-        }
+
 
         static bool FoldoutAdvancedOption;
         public static void DrawerAdvancedOption(SerializedObject S_Object)

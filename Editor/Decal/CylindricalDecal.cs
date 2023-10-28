@@ -115,10 +115,6 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public override void ScaleApply()
-        {
-            ScaleApply(new Vector3(Scale.x, Scale.y, 1), FixedAspect);
-        }
     }
 }
 #endif

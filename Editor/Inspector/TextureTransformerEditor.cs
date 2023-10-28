@@ -75,6 +75,23 @@ namespace net.rs64.TexTransTool.Editor
         }
 
         #region DrawerProperty
+
+        public static void DrawerPropertyBool(SerializedProperty Prop, GUIContent gUIContent = null, Action<bool> EditCollBack = null)
+        {
+            var preValue = Prop.boolValue;
+            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
+            var postValue = Prop.boolValue;
+            if (EditCollBack != null && preValue != postValue) { EditCollBack.Invoke(postValue); }
+        }
+        public static void DrawerPropertyFloat(SerializedProperty Prop, GUIContent gUIContent = null, Action<float> EditCollBack = null)
+        {
+            var preValue = Prop.floatValue;
+            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
+            var postValue = Prop.floatValue;
+            if (EditCollBack != null && !Mathf.Approximately(preValue, postValue)) { EditCollBack.Invoke(postValue); }
+        }
+
+
         public static void DrawerProperty(SerializedProperty Prop, Action<bool> EditCollBack = null, string PropName = null)
         {
             var Value = Prop.boolValue;

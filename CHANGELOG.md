@@ -13,10 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - それに伴い LayerFolder と RasterLayer を追加
   - 特殊なレイヤーとして SolidLayer を追加
   - PSD の importer が追加され、アセットの右クリックメニューに TexTransTool/TTT PSD Importer が追加
-- ReferenceResolverが追加されました `#183`
+- ReferenceResolver が追加されました `#183`
 - BeforeUVModification と UVModification の間にスタックをマージし、デカール系統や MultiLayerImageCanvas の効果が消えないように MidwayMargeStack を追加 `#200`
+- SimpleDecal のインスペクターに複数編集を追加 `#203`
 
 ### Changed
+
+- SimpleDecal のインスペクターのサイズ調整機能が直接トランスフォームを変更する形に変更 `#202`
 
 ### Removed
 

@@ -8,6 +8,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(SimpleDecal), true)]
+    [CanEditMultipleObjects]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
         bool FoldoutOption;
@@ -15,26 +16,21 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
+            var isMultiEdit = targets.Length != 1;
+
+            if (isMultiEdit && PreviewContext.IsPreviewContains) { EditorGUILayout.LabelField("Multiple edits during preview are not supported.".GetLocalize()); return; }
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
             AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
 
-            EditorGUILayout.LabelField("ScaleSettings".GetLocalize(), EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-            var s_Scale = This_S_Object.FindProperty("Scale");
-            var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstractDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, s_Scale, s_FixedAspect);
-
-            var s_MaxDistance = This_S_Object.FindProperty("MaxDistance");
-            TextureTransformerEditor.DrawerProperty(s_MaxDistance, (float MaxDistanceValue) =>
+            if (!isMultiEdit)
             {
-                Undo.RecordObject(ThisObject, "ApplyScale - MaxDistance");
-                ThisObject.MaxDistance = MaxDistanceValue;
-                ThisObject.ScaleApply();
-            }, false, s_MaxDistance.name.GetLocalize());
-            EditorGUI.indentLevel -= 1;
-
+                var tf_S_Obg = new SerializedObject(ThisObject.transform);
+                var decalTexture = ThisObject.DecalTexture;
+                DrawerScale(This_S_Object, tf_S_Obg, decalTexture);
+                tf_S_Obg.ApplyModifiedProperties();
+            }
 
             EditorGUILayout.LabelField("CullingSettings".GetLocalize(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
@@ -66,15 +62,52 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
-            EditorGUI.EndDisabledGroup();
-            AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
-            EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
-            EditorGUI.EndDisabledGroup();
+            if (!isMultiEdit)
+            {
+                EditorGUI.EndDisabledGroup();
+                AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
+                EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
+                PreviewContext.instance.DrawApplyAndRevert(ThisObject);
+                EditorGUI.EndDisabledGroup();
+            }
 
             This_S_Object.ApplyModifiedProperties();
         }
 
+        public static void DrawerScale(SerializedObject This_S_Object, SerializedObject tf_S_Obg, Texture2D decalTexture)
+        {
+            EditorGUILayout.LabelField("ScaleSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+
+            var s_localScale = tf_S_Obg.FindProperty("m_LocalScale");
+            var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
+
+            System.Action<float> editCollBack = (value) => { s_localScale.FindPropertyRelative("y").floatValue = value * ((float)decalTexture.height / (float)decalTexture.width); };
+            if (s_FixedAspect.boolValue)
+            {
+                TextureTransformerEditor.DrawerPropertyFloat(
+                    s_localScale.FindPropertyRelative("x"),
+                    s_localScale.displayName.GetLC(),
+                    editCollBack
+                );
+            }
+            else
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Scale".GetLocalize(), GUILayout.Width(60));
+                EditorGUILayout.LabelField("x", GUILayout.Width(30));
+                EditorGUILayout.PropertyField(s_localScale.FindPropertyRelative("x"), GUIContent.none);
+                EditorGUILayout.LabelField("y", GUILayout.Width(30));
+                EditorGUILayout.PropertyField(s_localScale.FindPropertyRelative("y"), GUIContent.none);
+                EditorGUILayout.EndHorizontal();
+            }
+
+            TextureTransformerEditor.DrawerPropertyBool(s_FixedAspect, s_FixedAspect.displayName.GetLC(), (Value) => { if (Value) { editCollBack.Invoke(s_localScale.FindPropertyRelative("x").floatValue); } });
+
+            EditorGUILayout.PropertyField(s_localScale.FindPropertyRelative("z"), "MaxDistance".GetLC());
+
+            EditorGUI.indentLevel -= 1;
+        }
 
         public static void DrawerSummary(SimpleDecal target)
         {
