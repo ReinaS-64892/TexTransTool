@@ -8,6 +8,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(SimpleDecal), true)]
+    [CanEditMultipleObjects]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
         bool FoldoutOption;
@@ -15,12 +16,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var This_S_Object = serializedObject;
             var ThisObject = target as SimpleDecal;
+            var isMultiEdit = targets.Length != 1;
+
+            if (isMultiEdit && PreviewContext.IsPreviewContains) { EditorGUILayout.LabelField("Multiple edits during preview are not supported.".GetLocalize()); return; }
 
             EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
 
             AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
 
-            if (targets.Length == 1)
+            if (!isMultiEdit)
             {
                 var tf_S_Obg = new SerializedObject(ThisObject.transform);
                 var decalTexture = ThisObject.DecalTexture;
@@ -58,11 +62,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
-            EditorGUI.EndDisabledGroup();
-            AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
-            EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
-            EditorGUI.EndDisabledGroup();
+            if (!isMultiEdit)
+            {
+                EditorGUI.EndDisabledGroup();
+                AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
+                EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
+                PreviewContext.instance.DrawApplyAndRevert(ThisObject);
+                EditorGUI.EndDisabledGroup();
+            }
 
             This_S_Object.ApplyModifiedProperties();
         }
