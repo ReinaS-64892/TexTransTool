@@ -15,8 +15,6 @@ namespace net.rs64.TexTransTool.Decal
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
     public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
     {
-        public Vector2 Scale = Vector2.one;
-        public float MaxDistance = 1;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;
@@ -34,10 +32,6 @@ namespace net.rs64.TexTransTool.Decal
         public bool IslandCulling = false;
         public Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
         public float IslandSelectorRange = 1;
-        public override void ScaleApply()
-        {
-            ScaleApply(new Vector3(Scale.x, Scale.y, MaxDistance), FixedAspect);
-        }
         public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
             var filters = new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
@@ -55,7 +49,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (!IslandCulling) return null;
             return new List<IslandSelector>() {
-                new IslandSelector(new Ray(transform.localToWorldMatrix.MultiplyPoint3x4(IslandSelectorPos - new Vector2(0.5f, 0.5f)), transform.forward), MaxDistance * IslandSelectorRange)
+                new IslandSelector(new Ray(transform.localToWorldMatrix.MultiplyPoint3x4(IslandSelectorPos - new Vector2(0.5f, 0.5f)), transform.forward), transform.localScale.z * IslandSelectorRange)
                 };
         }
 

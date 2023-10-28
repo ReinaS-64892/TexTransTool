@@ -52,19 +52,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
 
-        public virtual void ScaleApply() { throw new NotImplementedException(); }
 
-        public void ScaleApply(Vector3 Scale, bool FixedAspect)
-        {
-            if (DecalTexture != null && FixedAspect)
-            {
-                transform.localScale = new Vector3(Scale.x, Scale.x * ((float)DecalTexture.height / (float)DecalTexture.width), Scale.z);
-            }
-            else
-            {
-                transform.localScale = Scale;
-            }
-        }
     }
 }
 

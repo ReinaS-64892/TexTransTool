@@ -26,12 +26,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
 
-            EditorGUILayout.LabelField("ScaleSettings", EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-            var S_Scale = This_S_Object.FindProperty("Scale");
-            var S_FixedAspect = This_S_Object.FindProperty("FixedAspect");
-            AbstractDecalEditor.DrawerScaleEditor(ThisObject, This_S_Object, S_Scale, S_FixedAspect);
-            EditorGUI.indentLevel -= 1;
+            if (targets.Length == 1)
+            {
+                var tf_S_Obg = new SerializedObject(ThisObject.transform);
+                SimpleDecalEditor.DrawerScale(This_S_Object, tf_S_Obg, ThisObject.DecalTexture);
+                tf_S_Obg.ApplyModifiedProperties();
+            }
+
+
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
