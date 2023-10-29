@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System;
 using net.rs64.TexTransCore.BlendTexture;
 

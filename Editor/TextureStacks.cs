@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Linq;
 using UnityEditor;
 using System.IO;
@@ -66,6 +67,7 @@ namespace net.rs64.TexTransTool
         {
             if (!StackTextures.Any()) { return FirstTexture; }
             var rendererTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
+            rendererTexture.Clear();
             Graphics.Blit(FirstTexture.TryGetUnCompress(), rendererTexture);
 
             rendererTexture.BlendBlit(StackTextures);
