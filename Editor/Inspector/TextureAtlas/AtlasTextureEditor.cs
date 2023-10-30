@@ -92,6 +92,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_Padding = s_AtlasSettings.FindPropertyRelative("Padding");
             var s_UseIslandCache = s_AtlasSettings.FindPropertyRelative("UseIslandCache");
             var S_SortingType = s_AtlasSettings.FindPropertyRelative("SortingType");
+            var s_WriteOriginalUV = s_AtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var S_TextureFineTuningDataList = s_AtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
 
 
@@ -107,6 +108,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(S_Padding, new GUIContent("Padding".GetLocalize()));
             EditorGUILayout.PropertyField(s_UseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
             EditorGUILayout.PropertyField(S_SortingType, new GUIContent("SortingType".GetLocalize()));
+            EditorGUILayout.PropertyField(s_WriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             DrawTextureFineTuningDataList(S_TextureFineTuningDataList);
 
 

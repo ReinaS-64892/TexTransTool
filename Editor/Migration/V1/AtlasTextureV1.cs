@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Migration.V1
             for (int i = 0; i < matList.Count; i += 1)
             {
                 var selector = matList[i];
-                if(selector.Material == null) { continue; }
+                if (selector.Material == null) { continue; }
                 var tex = selector.Material.mainTexture;
                 if (tex == null) { continue; }
                 var texSize = tex.width * tex.height;
@@ -49,6 +49,9 @@ namespace net.rs64.TexTransTool.Migration.V1
             }
 
             atlasTexture.SelectMatList = matList;
+
+            atlasTexture.AtlasSetting.WriteOriginalUV = true;
+
 
             EditorUtility.SetDirty(atlasTexture);
 

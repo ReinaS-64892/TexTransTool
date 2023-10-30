@@ -74,3 +74,4 @@ is an experimental feature. Features may be changed or removed without notice.,�
 Enabled,有効
 GroupChildren,グループの子
 SummaryNone,概要はありません
+WriteOriginalUV,元のUVを書き込む
