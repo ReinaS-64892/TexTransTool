@@ -21,6 +21,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public float Padding = 10;
         public bool UseIslandCache = true;
         public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
+        public bool WriteOriginalUV = false;
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> {
             new TextureFineTuningData()
             {

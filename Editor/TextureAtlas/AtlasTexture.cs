@@ -255,7 +255,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 IslandUtility.IslandPoolMoveUV(AMD.UV, MovedUV, originIslandPool, MovedPool);
 
                 NewMesh.SetUVs(0, MovedUV);
-                NewMesh.SetUVs(1, AMD.UV);
+                if (AtlasSetting.WriteOriginalUV) { NewMesh.SetUVs(1, AMD.UV); }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, NewMesh, AMD.MaterialIndex.Select(Index => atlasReferenceData.Materials[Index]).ToArray()));
             }
