@@ -184,7 +184,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var propName in propertyNames)
             {
-                var targetRT = new RenderTexture(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, 32);
+                var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, 32);
+                targetRT.Clear();
                 targetRT.name = "AtlasTex" + propName;
                 foreach (var matData in matDataList)
                 {
@@ -205,7 +206,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
                 compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));
-                // RenderTexture.ReleaseTemporary(targetRT); なぜかTemporaryなレンダーテクスチャだと壊れる
+                RenderTexture.ReleaseTemporary(targetRT);
             }
             atlasData.Textures = compiledAtlasTextures;
 
