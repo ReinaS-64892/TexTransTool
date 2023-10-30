@@ -115,9 +115,10 @@ namespace net.rs64.TexTransTool
 
             targetRt.BlendBlit(target.Decals.Where(I => I.RenderTexture != null).Select<BlendTextureClass, BlendTextures>(I => I));
         }
+        public bool ContainsPreview => PreviewTargetRenderer.Count != 0;
         public void ExitPreview()
         {
-            if (PreviewTargetRenderer.Count != 0)
+            if (ContainsPreview)
             {
                 AnimationMode.StopAnimationMode();
                 RealTimePreviews.Clear();
@@ -130,12 +131,6 @@ namespace net.rs64.TexTransTool
         private void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
         {
             ExitPreview();
-        }
-
-        [MenuItem("Tools/TexTransTool/Exit RealTime Previews")]
-        public static void MenuItemExitPreview()
-        {
-            RealTimePreviewManager.instance.ExitPreview();
         }
 
         public void RegtAbstractDecal(AbstractDecal abstractDecal)
