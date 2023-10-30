@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - SimpleDecal のインスペクターのサイズ調整機能が直接トランスフォームを変更する形に変更 `#202`
+- Mesh の UV1 に元の UV を書き込む機能 WriteOriginalUV をオプションに変更 `#204`
 
 ### Removed
 
