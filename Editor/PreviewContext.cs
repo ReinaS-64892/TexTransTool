@@ -76,7 +76,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private void ExitPreview()
+        public void ExitPreview()
         {
             if (previweing == null) { return; }
             previweing = null;
