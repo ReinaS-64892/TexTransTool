@@ -75,3 +75,4 @@ Enabled,有効
 GroupChildren,グループの子
 SummaryNone,概要はありません
 WriteOriginalUV,元のUVを書き込む
+UnknownShaderAtlasAllTexture,未知のシェーダーのすべてのテクスチャーをアトラス化
