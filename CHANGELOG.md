@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ReferenceResolver が追加されました `#183`
 - BeforeUVModification と UVModification の間にスタックをマージし、デカール系統や MultiLayerImageCanvas の効果が消えないように MidwayMargeStack を追加 `#200`
 - SimpleDecal のインスペクターに複数編集を追加 `#203`
+- 未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加
 
 ### Changed
 
