@@ -77,8 +77,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 propEnvsDict.Add("_MetallicGlossMap", material.GetTexture("_MetallicGlossMap") as Texture2D);
                 propEnvsDict.Add("_ReflectionColorTex", material.GetTexture("_ReflectionColorTex") as Texture2D);
             }
-            // PropertyAndTextures.Add(new PropAndTexture("_MatCapBlendMask", material.GetTexture("_MatCapBlendMask") as Texture2D));
-            // PropertyAndTextures.Add(new PropAndTexture("_MatCap2ndBlendMask", material.GetTexture("_MatCap2ndBlendMask") as Texture2D));
+            if (material.GetFloat("_UseMatCap") > 0.5f)
+            {
+                propEnvsDict.Add("_MatCapBlendMask", material.GetTexture("_MatCapBlendMask") as Texture2D);
+            }
+            if (material.GetFloat("_UseMatCap") > 0.5f)
+            {
+                propEnvsDict.Add("_MatCap2ndBlendMask", material.GetTexture("_MatCap2ndBlendMask") as Texture2D);
+            }
             if (material.GetFloat("_UseRim") > 0.5f)
             {
                 propEnvsDict.Add("_RimColorTex", material.GetTexture("_RimColorTex") as Texture2D);
@@ -269,6 +275,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     ColorMul("_ReflectionColorTex", "_ReflectionColor", lilDifferenceRecordI.IsAlreadyTex_ReflectionColor);
                 }
             }
+            if (material.GetFloat("_UseMatCap") > 0.5f)
+            {
+                FloatMul("_MatCapBlendMask", "_MatCapBlend", lilDifferenceRecordI.IsAlreadyTex_MatCapBlend);
+            }
+            if (material.GetFloat("_UseMatCap") > 0.5f)
+            {
+                FloatMul("_MatCap2ndBlendMask", "_MatCap2ndBlend", lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend);
+            }
             if (lilDifferenceRecordI.IsDifference_RimColor && material.GetFloat("_UseRim") > 0.5f)
             {
                 ColorMul("_RimColorTex", "_RimColor", lilDifferenceRecordI.IsAlreadyTex_RimColor);
@@ -414,7 +428,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         < 色/マスクTex * 色Color
         はまとめる。
 
-        MatCap系統は基本的に無理...そもそもこの方針だとできない。
+        MatCap系統はマスクだけマージする
+        < マットキャップマスク(1,2)Tex * マットキャップブレンド(1,2)
 
         リムライト --
         < 色/マスクTex * 色Color
@@ -531,6 +546,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public Color _ReflectionColor;
             public bool IsDifference_ReflectionColor;
             public bool IsAlreadyTex_ReflectionColor;
+
+            public float _MatCapBlend;
+            public bool IsDifference_MatCapBlend;
+            public bool IsAlreadyTex_MatCapBlend;
+            public float _MatCap2ndBlend;
+            public bool IsDifference_MatCap2ndBlend;
+            public bool IsAlreadyTex_MatCap2ndBlend;
 
             public Color _RimColor;
             public bool IsDifference_RimColor;
@@ -652,7 +674,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     lilDifferenceRecordI.IsDifference_ReflectionColor = false;
                     lilDifferenceRecordI.IsAlreadyTex_ReflectionColor = material.GetTexture("_ReflectionColorTex") != null;
                 }
-
+                if (material.GetFloat("_UseMatCap") > 0.5f)
+                {
+                    lilDifferenceRecordI._MatCapBlend = material.GetFloat("_MatCapBlend");
+                    lilDifferenceRecordI.IsDifference_MatCapBlend = false;
+                    lilDifferenceRecordI.IsAlreadyTex_MatCapBlend = material.GetTexture("_MatCapBlendMask") != null;
+                }
+                if (material.GetFloat("_UseMatCap") > 0.5f)
+                {
+                    lilDifferenceRecordI._MatCap2ndBlend = material.GetFloat("_MatCap2ndBlend");
+                    lilDifferenceRecordI.IsDifference_MatCap2ndBlend = false;
+                    lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend = material.GetTexture("_MatCap2ndBlendMask") != null;
+                }
                 if (material.GetFloat("_UseRim") > 0.5f)
                 {
                     lilDifferenceRecordI._RimColor = material.GetColor("_RimColor");
@@ -749,7 +782,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (lilDifferenceRecordI._ReflectionColor != material.GetColor("_ReflectionColor")) lilDifferenceRecordI.IsDifference_ReflectionColor = true;
                     if (material.GetTexture("_ReflectionColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_ReflectionColor = true;
                 }
-
+                if (material.GetFloat("_UseMatCap") > 0.5f)
+                {
+                    if (!Mathf.Approximately(lilDifferenceRecordI._MatCapBlend, material.GetFloat("_MatCapBlend"))) lilDifferenceRecordI.IsDifference_MatCapBlend = true;
+                    if (material.GetTexture("_MatCapBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_MatCapBlend = true;
+                }
+                if (material.GetFloat("_UseMatCap") > 0.5f)
+                {
+                    if (!Mathf.Approximately(lilDifferenceRecordI._MatCap2ndBlend, material.GetFloat("_MatCap2ndBlend"))) lilDifferenceRecordI.IsDifference_MatCap2ndBlend = true;
+                    if (material.GetTexture("_MatCap2ndBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend = true;
+                }
                 if (material.GetFloat("_UseRim") > 0.5f)
                 {
                     if (lilDifferenceRecordI._RimColor != material.GetColor("_RimColor")) lilDifferenceRecordI.IsDifference_RimColor = true;
