@@ -12,14 +12,6 @@ VRChatAvatar で使用する場合は VPM を推奨しています。[Add-VPM-Li
 
 ## Tutorial
 
-### Init Setup
-
-アバター直下に新しい GameObject を生成し、[TexTransParentGroup](Manual/JP/TexTransParentGroup.md)と[AvatarDomainDefinition](Manual/JP/AvatarDomainDefinition.md)追加してください。
-
-### Modification Setup
-
-前述で生成した GameObject の子に GameObject を生成し、AddComponent しましょう
-
 スタンプのようなデカールや髪の毛などにグラデーションを入れたい場合[こちら](Manual/JP/SimpleDecal.md)
 
 テクスチャーのアトラス化による VRAM 削減は[こちら](Manual/JP/AtlasTexture.md)
