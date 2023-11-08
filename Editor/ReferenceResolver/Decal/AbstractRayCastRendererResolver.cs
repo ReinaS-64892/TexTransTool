@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Decal;
@@ -63,3 +64,4 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
         }
     }
 }
+#endif

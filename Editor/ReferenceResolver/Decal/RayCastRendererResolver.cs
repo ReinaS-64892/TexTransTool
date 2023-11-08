@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.Utils;
@@ -19,3 +20,4 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
         }
     }
 }
+#endif
