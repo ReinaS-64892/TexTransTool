@@ -5,7 +5,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
-using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
+using LayerMask = net.rs64.TexTransCore.LayerData.LayerMask;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [DisallowMultipleComponent]

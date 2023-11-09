@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using net.rs64.MultiLayerImageParser.PSD;
-using net.rs64.TexTransCore.Layer;
+using net.rs64.TexTransCore.LayerData;
 using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEditor.Experimental.AssetImporters;

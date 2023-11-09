@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Layer;
+using net.rs64.TexTransCore.LayerData;
 using UnityEngine;
 using net.rs64.TexTransCore;
 using static net.rs64.MultiLayerImageParser.PSD.PSDLowLevelParser.PSDLowLevelData;
@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
-using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
+using LayerMask = net.rs64.TexTransCore.LayerData.LayerMask;
 using System.Buffers;
 
 namespace net.rs64.MultiLayerImageParser.PSD
