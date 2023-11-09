@@ -2,7 +2,7 @@ using System;
 using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 
-namespace net.rs64.TexTransCore.LayerData
+namespace net.rs64.MultiLayerImageParser.LayerData
 {
 
     [Serializable]
