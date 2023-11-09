@@ -447,5 +447,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         public ushort channels;
         public List<AbstractLayerData> RootLayers;
         public Texture2D[] Texture2Ds;
+
+        public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Size = hData.Size, RootLayers = hData.RootLayers };
     }
 }
