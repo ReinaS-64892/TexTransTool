@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using net.rs64.TexTransCore.LayerData;
+using net.rs64.MultiLayerImageParser.LayerData;
 using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using System.Linq;
@@ -9,11 +9,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     public static class MultiLayerImageImporter
     {
-        public static void ImportCanvasData(AssetImportContext ctx, GameObject rootCanvas, CanvasData canvasData)
+        public static MultiLayerImageCanvas ImportCanvasData(AssetImportContext ctx, GameObject rootCanvas, CanvasData canvasData)
         {
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
             multiLayerImageCanvas.TextureSize = canvasData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
+            return multiLayerImageCanvas;
         }
         public static void AddLayers(Transform thisTransForm, AssetImportContext ctx, List<AbstractLayerData> abstractLayers)
         {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using net.rs64.MultiLayerImageParser.PSD;
-using net.rs64.TexTransCore.LayerData;
+using net.rs64.MultiLayerImageParser.LayerData;
 using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEditor.Experimental.AssetImporters;
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(ctx.assetPath));
 
-            MultiLayerImageImporter.ImportCanvasData(ctx, rootCanvas, (CanvasData)pSDData);
+            var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(ctx, rootCanvas, (CanvasData)pSDData);
         }
 
 
