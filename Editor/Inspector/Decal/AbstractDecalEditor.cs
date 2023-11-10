@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
             var s_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_DecalTexture, "DecalTexture".GetLocalize());
+            TextureTransformerEditor.DrawerTexture2D(s_DecalTexture, "DecalTexture".GetLC());
 
             var s_Color = This_S_Object.FindProperty("Color");
             EditorGUILayout.PropertyField(s_Color, new GUIContent("Color".GetLocalize()));

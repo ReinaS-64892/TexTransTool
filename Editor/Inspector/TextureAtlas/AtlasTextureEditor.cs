@@ -44,12 +44,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_SelectReferenceMatList = This_S_Object.FindProperty("SelectReferenceMat");
             var S_MatSelectors = This_S_Object.FindProperty("SelectMatList");
 
-            TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, NewRoot =>
+            TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, "TargetRoot".GetLC(), NewRoot =>
             {
                 Undo.RecordObject(ThisTarget, "AtlasTexture - TargetRoot");
                 RefreshMaterials(S_TargetRoot, NewRoot);
                 This_S_Object.ApplyModifiedProperties();
-            }, "TargetRoot".GetLocalize());
+                return NewRoot;
+            });
             if (S_TargetRoot.objectReferenceValue != null)
             {
                 if (GUILayout.Button("RefreshMaterials".GetLocalize()))

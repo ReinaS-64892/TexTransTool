@@ -1,6 +1,6 @@
 using System;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Layer;
+using net.rs64.MultiLayerImageParser.LayerData;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {

@@ -76,92 +76,39 @@ namespace net.rs64.TexTransTool.Editor
 
         #region DrawerProperty
 
-        public static void DrawerPropertyBool(SerializedProperty Prop, GUIContent gUIContent = null, Action<bool> EditCollBack = null)
+        public delegate T Filter<T>(T Target);
+        public static void DrawerPropertyBool(SerializedProperty Prop, GUIContent gUIContent = null, Filter<bool> EditAndFilterCollBack = null)
         {
             var preValue = Prop.boolValue;
             EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
             var postValue = Prop.boolValue;
-            if (EditCollBack != null && preValue != postValue) { EditCollBack.Invoke(postValue); }
+            if (EditAndFilterCollBack != null && preValue != postValue) { Prop.boolValue = EditAndFilterCollBack.Invoke(postValue); }
         }
-        public static void DrawerPropertyFloat(SerializedProperty Prop, GUIContent gUIContent = null, Action<float> EditCollBack = null)
+        public static void DrawerPropertyFloat(SerializedProperty Prop, GUIContent gUIContent = null, Filter<float> EditAndFilterCollBack = null)
         {
             var preValue = Prop.floatValue;
             EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
             var postValue = Prop.floatValue;
-            if (EditCollBack != null && !Mathf.Approximately(preValue, postValue)) { EditCollBack.Invoke(postValue); }
+            if (EditAndFilterCollBack != null && !Mathf.Approximately(preValue, postValue)) { Prop.floatValue = EditAndFilterCollBack.Invoke(postValue); }
         }
-
-
-        public static void DrawerProperty(SerializedProperty Prop, Action<bool> EditCollBack = null, string PropName = null)
+        public static void DrawerTexture2D(SerializedProperty Prop, GUIContent gUIContent = null, Filter<Texture2D> EditAndFilterCollBack = null, float PreviewTextureSize = 64f)
         {
-            var Value = Prop.boolValue;
-            var EditValue = EditorGUILayout.Toggle(PropName == null ? Prop.name : PropName, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(string label, bool Prop, Action<bool> EditCollBack = null)
-        {
-            var Value = Prop;
-            var EditValue = EditorGUILayout.Toggle(label, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(SerializedProperty Prop, Action<float> EditCollBack = null, bool WithoutLabel = false, string PropName = null)
-        {
-            var Value = Prop.floatValue;
-            var EditValue = WithoutLabel ? EditorGUILayout.FloatField(Value) : EditorGUILayout.FloatField(PropName == null ? Prop.displayName : PropName, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(string label, float Prop, Action<float> EditCollBack = null, string PropName = null)
-        {
-            var Value = Prop;
-            var EditValue = EditorGUILayout.FloatField(label, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(SerializedProperty Prop, Action<Vector2> EditCollBack = null, string PropName = null)
-        {
-            var Value = Prop.vector2Value;
-            var EditValue = EditorGUILayout.Vector2Field(PropName == null ? Prop.displayName : PropName, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(string label, Vector2 Prop, Action<Vector2> EditCollBack = null)
-        {
-            var Value = Prop;
-            var EditValue = EditorGUILayout.Vector2Field(label, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(SerializedProperty Prop, Action<int> EditCollBack = null, bool WithoutLabel = false)
-        {
-            var Value = Prop.intValue;
-            var EditValue = WithoutLabel ? EditorGUILayout.IntField(Value) : EditorGUILayout.IntField(Prop.displayName, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerProperty(string label, int Prop, Action<int> EditCollBack = null)
-        {
-            var Value = Prop;
-            var EditValue = EditorGUILayout.IntField(label, Value);
-            if (EditCollBack != null && Value != EditValue) { EditCollBack.Invoke(EditValue); };
-        }
-        public static void DrawerObjectReference<T>(SerializedProperty Prop, Action<T> EditCollBack, string PropName = null) where T : UnityEngine.Object
-        {
-            var Value = Prop.objectReferenceValue as T;
-            var EditValue = EditorGUILayout.ObjectField(PropName == null ? Prop.name : PropName, Value, typeof(T), true) as T;
-            if (Value != EditValue)
+            var Value = Prop.objectReferenceValue as Texture2D;
+            if (Value != null) { EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(PreviewTextureSize)), Value, ScaleMode.ScaleToFit); }
+            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : Prop.displayName.GetLC());
+            if (EditAndFilterCollBack != null && Prop.objectReferenceValue != Value)
             {
-                EditCollBack.Invoke(EditValue);
+                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Prop.objectReferenceValue as Texture2D);
             }
         }
-        public delegate T Filter<T>(T Target);
-        public static void DrawerObjectReference<T>(SerializedProperty Prop, Filter<T> EditAndFilterCollBack) where T : UnityEngine.Object
+        public static void DrawerObjectReference<T>(SerializedProperty Prop, GUIContent gUIContent = null, Filter<T> EditAndFilterCollBack = null) where T : UnityEngine.Object
         {
             var Value = Prop.objectReferenceValue as T;
-            var EditValue = EditorGUILayout.ObjectField(Prop.name, Value, typeof(T), true) as T;
-            if (Value != EditValue)
+            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : Prop.displayName.GetLC());
+            if (EditAndFilterCollBack != null && Prop.objectReferenceValue != Value)
             {
-                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(EditValue);
+                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Prop.objectReferenceValue as T);
             }
-        }
-        public static void DrawerObjectReference<T>(SerializedProperty Prop, string PropName = null) where T : UnityEngine.Object
-        {
-            Prop.objectReferenceValue = EditorGUILayout.ObjectField(PropName == null ? Prop.name : PropName, Prop.objectReferenceValue, typeof(T), true) as T;
         }
 
         #endregion

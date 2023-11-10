@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Layer;
+using net.rs64.MultiLayerImageParser.LayerData;
 using UnityEngine;
 using net.rs64.TexTransCore;
 using static net.rs64.MultiLayerImageParser.PSD.PSDLowLevelParser.PSDLowLevelData;
@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
-using LayerMask = net.rs64.TexTransCore.Layer.LayerMask;
+using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMask;
 using System.Buffers;
 
 namespace net.rs64.MultiLayerImageParser.PSD
@@ -447,5 +447,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         public ushort channels;
         public List<AbstractLayerData> RootLayers;
         public Texture2D[] Texture2Ds;
+
+        public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Size = hData.Size, RootLayers = hData.RootLayers };
     }
 }

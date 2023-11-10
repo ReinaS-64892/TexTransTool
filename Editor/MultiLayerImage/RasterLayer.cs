@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Layer;
+using net.rs64.MultiLayerImageParser.LayerData;
 using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;

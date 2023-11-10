@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -14,10 +15,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
     public class MultiLayerImageCanvas : TextureTransformer
     {
-        public Texture2D ReplaceTarget;
-        public List<Renderer> PreviewRenderer;
+        public RelativeTextureSelector TextureSelector;
 
-        public override List<Renderer> GetRenderers => PreviewRenderer;
+        public override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
 
         public override bool IsPossibleApply => true;
 
@@ -29,6 +29,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var Canvas = new RenderTexture(TextureSize.x, TextureSize.y, 0);
             var layerStack = new LayerStack() { CanvasSize = TextureSize };
+
+            var replaceTarget = TextureSelector.GetTexture();
+            if (replaceTarget == null) { return; }
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
@@ -42,7 +45,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             foreach (var layer in layerStack.GetLayers)
             {
-                domain.AddTextureStack(ReplaceTarget, layer);
+                domain.AddTextureStack(replaceTarget, layer);
             }
         }
 

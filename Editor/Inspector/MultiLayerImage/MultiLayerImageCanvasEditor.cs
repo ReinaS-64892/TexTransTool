@@ -9,10 +9,19 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning("MultiImageLayer".GetLocalize());
-            base.OnInspectorGUI();
+
+            var s_Target = serializedObject;
+
+            TextureBlenderEditor.DrawerRelativeTextureSelector(s_Target.FindProperty("TextureSelector"));
+            EditorGUI.BeginDisabledGroup(true);
+            var s_TexSize = s_Target.FindProperty("TextureSize");
+            EditorGUILayout.PropertyField(s_TexSize, s_TexSize.displayName.GetLC());
+            EditorGUI.EndDisabledGroup();
 
             var Target = target as MultiLayerImageCanvas;
             PreviewContext.instance.DrawApplyAndRevert(Target);
+
+            s_Target.ApplyModifiedProperties();
         }
     }
 }

@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_localScale = tf_S_Obg.FindProperty("m_LocalScale");
             var s_FixedAspect = This_S_Object.FindProperty("FixedAspect");
 
-            System.Action<float> editCollBack = (value) => { s_localScale.FindPropertyRelative("y").floatValue = value * ((float)decalTexture.height / (float)decalTexture.width); };
+            TextureTransformerEditor.Filter<float> editCollBack = (value) => { if (decalTexture != null) { s_localScale.FindPropertyRelative("y").floatValue = value * ((float)decalTexture.height / (float)decalTexture.width); } return value; };
             if (s_FixedAspect.boolValue)
             {
                 TextureTransformerEditor.DrawerPropertyFloat(
@@ -102,7 +102,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.EndHorizontal();
             }
 
-            TextureTransformerEditor.DrawerPropertyBool(s_FixedAspect, s_FixedAspect.displayName.GetLC(), (Value) => { if (Value) { editCollBack.Invoke(s_localScale.FindPropertyRelative("x").floatValue); } });
+            TextureTransformerEditor.DrawerPropertyBool(s_FixedAspect, s_FixedAspect.displayName.GetLC(), (Value) => { if (Value) { editCollBack.Invoke(s_localScale.FindPropertyRelative("x").floatValue); } return Value; });
 
             EditorGUILayout.PropertyField(s_localScale.FindPropertyRelative("z"), "MaxDistance".GetLC());
 
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
 
             var s_DecalTexture = s_obj.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_DecalTexture, s_DecalTexture.name.GetLocalize());
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_DecalTexture, s_DecalTexture.name.GetLC());
 
             s_obj.ApplyModifiedProperties();
         }

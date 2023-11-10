@@ -17,12 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BeforeUVModification と UVModification の間にスタックをマージし、デカール系統や MultiLayerImageCanvas の効果が消えないように MidwayMargeStack を追加 `#200`
 - SimpleDecal のインスペクターに複数編集を追加 `#203`
 - 未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加
+- MultiLayerImageCanvas と TextureBlender にリゾルバー AbsoluteTextureResolver を追加 `#216`
 
 ### Changed
 
 - SimpleDecal のインスペクターのサイズ調整機能が直接トランスフォームを変更する形に変更 `#202`
 - Mesh の UV1 に元の UV を書き込む機能 WriteOriginalUV をオプションに変更 `#204`
 - "Exit RealTime Previews" は 通常の Preview も終了する "Exit Previews" に変更 `#197`
+- Texture2Dのプロパティがプレハブオーバーライドをコントロールできるように変更 `#217`
 
 ### Removed
 
