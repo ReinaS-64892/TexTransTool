@@ -52,9 +52,12 @@ namespace net.rs64.TexTransTool.Editor
             PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
             if (TargetMaterials != null)
             {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("ReplaceTexturePreview".GetLocalize());
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(64f)), TargetMaterials[S_MaterialSelect.intValue].GetTexture(S_TargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D, ScaleMode.ScaleToFit);
                 EditorGUI.EndDisabledGroup();
+                EditorGUILayout.EndHorizontal();
             }
         }
 
