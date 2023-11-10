@@ -112,7 +112,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 AssetDatabase.ImportAsset(path);
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 importer.maxTextureSize = 512;
-                importer.compressionQuality = 0;
+                importer.textureCompression = TextureImporterCompression.CompressedLQ;
+                importer.mipmapEnabled = false;
                 importer.isReadable = false;
                 importer.SaveAndReimport();
                 return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
