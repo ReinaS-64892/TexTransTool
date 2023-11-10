@@ -46,6 +46,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(ctx.assetPath));
 
             var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(ctx, rootCanvas, (CanvasData)pSDData);
+            if (DefaultReplaceTexture != null) multiLayerImageCanvas.gameObject.AddComponent<ReferenceResolver.MLIResolver.AbsoluteTextureResolver>().Texture = DefaultReplaceTexture;
         }
 
 
