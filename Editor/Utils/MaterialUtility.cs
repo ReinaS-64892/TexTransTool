@@ -19,6 +19,24 @@ namespace net.rs64.TexTransTool.Utils
             }
         }
 
+        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material)
+        {
+            var dict = new Dictionary<string, Texture2D>();
+            var shader = material.shader;
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
+                var propName = shader.GetPropertyName(i);
+                var texture = material.GetTexture(propName);
+                if (texture != null && texture is Texture2D texture2D)
+                {
+                    dict.Add(propName, texture2D);
+                }
+            }
+            return dict;
+        }
+
         //MIT License
         //Copyright (c) 2020-2021 lilxyzw
         //https://github.com/lilxyzw/lilToon/blob/master/Assets/lilToon/Editor/lilMaterialUtils.cs
