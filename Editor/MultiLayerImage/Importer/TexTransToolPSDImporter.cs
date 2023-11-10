@@ -10,43 +10,22 @@ using UnityEngine;
 using System.Linq;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    [ScriptedImporter(1, "psd", AutoSelect = false)]
-    public class TexTransToolPSDImporter : ScriptedImporter
+    public class TexTransToolPSDImporter
     {
-        public Texture2D DefaultReplaceTexture;
-
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
-        static void ChangeImporter()
+        public static void ImportPSD()
         {
-            foreach (var obj in Selection.objects)
-            {
-                var path = AssetDatabase.GetAssetPath(obj);
-                var ext = Path.GetExtension(path);
-                if (ext != ".psd") { continue; }
+            var targetPSDPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
+            if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
-                var importer = AssetImporter.GetAtPath(path);
-                if (importer is TexTransToolPSDImporter)
-                {
-                    AssetDatabaseExperimental.ClearImporterOverride(path);
-                }
-                else
-                {
-                    AssetDatabaseExperimental.SetImporterOverride<TexTransToolPSDImporter>(path);
-                }
+            var rootCanvas = new GameObject(Path.GetFileNameWithoutExtension(targetPSDPath) + "-Canvas");
 
-            }
-        }
-        public override void OnImportAsset(AssetImportContext ctx)
-        {
+            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
 
-            var rootCanvas = new GameObject(Path.GetFileNameWithoutExtension(ctx.assetPath));
-            ctx.AddObjectToAsset("RootCanvas", rootCanvas);
-            ctx.SetMainObject(rootCanvas);
+            var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), rootCanvas, (CanvasData)pSDData);
 
-            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(ctx.assetPath));
-
-            var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(ctx, rootCanvas, (CanvasData)pSDData);
-            if (DefaultReplaceTexture != null) multiLayerImageCanvas.gameObject.AddComponent<ReferenceResolver.MLIResolver.AbsoluteTextureResolver>().Texture = DefaultReplaceTexture;
+            PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(targetPSDPath.Replace(".psd", ""), Path.GetFileNameWithoutExtension(targetPSDPath) + "-Canvas" + ".prefab"));
         }
 
 
