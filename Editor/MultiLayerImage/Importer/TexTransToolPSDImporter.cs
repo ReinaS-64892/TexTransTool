@@ -8,6 +8,7 @@ using UnityEditor.Experimental;
 using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using System.Linq;
+using net.rs64.TexTransTool.ReferenceResolver.MLIResolver;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     public class TexTransToolPSDImporter
@@ -15,17 +16,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
         public static void ImportPSD()
         {
-            var targetPSDPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            var souseTex2D = Selection.activeObject as Texture2D;
+            if (souseTex2D == null) { return; }
+            var targetPSDPath = AssetDatabase.GetAssetPath(souseTex2D);
             if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
             if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
-            var rootCanvas = new GameObject(Path.GetFileNameWithoutExtension(targetPSDPath) + "-Canvas");
-
             var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
-
-            var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), rootCanvas, (CanvasData)pSDData);
-
-            PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(targetPSDPath.Replace(".psd", ""), Path.GetFileNameWithoutExtension(targetPSDPath) + "-Canvas" + ".prefab"));
+            MultiLayerImageImporter.ImportCanvasData(
+                new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
+                multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
+                );
         }
 
 

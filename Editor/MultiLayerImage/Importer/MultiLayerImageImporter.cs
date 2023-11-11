@@ -11,12 +11,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     public static class MultiLayerImageImporter
     {
-        public static MultiLayerImageCanvas ImportCanvasData(ITexture2DHandler ctx, GameObject rootCanvas, CanvasData canvasData)
+        public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> PreSaveCallBack)
         {
+            var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
+            var rootCanvas = new GameObject(prefabName);
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
             multiLayerImageCanvas.TextureSize = canvasData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
-            return multiLayerImageCanvas;
+            PreSaveCallBack.Invoke(multiLayerImageCanvas);
+            PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
+            UnityEngine.Object.DestroyImmediate(rootCanvas);
         }
         public static void AddLayers(Transform thisTransForm, ITexture2DHandler ctx, List<AbstractLayerData> abstractLayers)
         {
@@ -111,7 +115,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 UnityEngine.Object.DestroyImmediate(tex);
                 AssetDatabase.ImportAsset(path);
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                importer.maxTextureSize = 512;
+                importer.maxTextureSize = 1024;
                 importer.textureCompression = TextureImporterCompression.CompressedLQ;
                 importer.mipmapEnabled = false;
                 importer.isReadable = false;
