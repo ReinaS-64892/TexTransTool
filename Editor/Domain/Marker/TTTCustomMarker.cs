@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool
         [SerializeField, HideInInspector] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
     }
-    public class TTTCustomMarkerFinder : IMarkerFinder
+    public class TTTCustomMarkerFinder : IDomainMarkerFinder
     {
         public GameObject FindMarker(GameObject StartPoint)
         {

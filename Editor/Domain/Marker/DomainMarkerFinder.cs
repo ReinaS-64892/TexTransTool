@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public static class MarkerFinder
+    public static class DomainMarkerFinder
     {
-        static List<IMarkerFinder> Finders;
+        static List<IDomainMarkerFinder> Finders;
         public static GameObject FindMarker(GameObject StartPoint)
         {
-            if (Finders == null) { Finders = InterfaceUtility.GetInterfaceInstance<IMarkerFinder>(); }
+            if (Finders == null) { Finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>(); }
             foreach (var finder in Finders)
             {
                 var marker = finder.FindMarker(StartPoint);
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
         }
     }
 
-    public interface IMarkerFinder
+    public interface IDomainMarkerFinder
     {
         GameObject FindMarker(GameObject StartPoint);
     }
