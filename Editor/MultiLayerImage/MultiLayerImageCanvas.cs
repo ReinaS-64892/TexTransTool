@@ -7,6 +7,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool;
 using net.rs64.TexTransTool.Utils;
+using UnityEditor;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
 namespace net.rs64.TexTransTool.MultiLayerImage
@@ -27,25 +28,49 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void Apply([NotNull] IDomain domain)
         {
-            var Canvas = new RenderTexture(TextureSize.x, TextureSize.y, 0);
-            var layerStack = new LayerStack() { CanvasSize = TextureSize };
-
-            var replaceTarget = TextureSelector.GetTexture();
-            if (replaceTarget == null) { return; }
-
-            var Layers = transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse();
-            foreach (var layer in Layers) { layer.EvaluateTexture(layerStack); }
-
-
-            if (layerStack.Stack.Count == 0) { return; }
-
-            layerStack.Stack[0] = new BlendLayer(layerStack.Stack[0].RefLayer, layerStack.Stack[0].BlendTextures.Texture, BlendType.NotBlend);
-
-            foreach (var layer in layerStack.GetLayers)
+            using (var CanvasContext = new CanvasContext(TextureSize, false))
             {
-                domain.AddTextureStack(replaceTarget, layer);
+                var replaceTarget = TextureSelector.GetTexture();
+                if (replaceTarget == null) { return; }
+
+                var Layers = transform.GetChildren()
+                .Select(I => I.GetComponent<AbstractLayer>())
+                .Reverse();
+                foreach (var layer in Layers) { layer.EvaluateTexture(CanvasContext); }
+
+
+                if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
+
+                CanvasContext.RootLayerStack.Stack[0] = new BlendLayer(CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BlendType.NotBlend);
+
+                foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
+                {
+                    domain.AddTextureStack(replaceTarget, layer);
+                }
+            }
+        }
+        public class CanvasContext : IDisposable
+        {
+            public LayerStack RootLayerStack;
+            public TextureManageContext TextureManage;
+
+            public CanvasContext(Vector2Int canvasSize, bool IsRealTimePreview)
+            {
+                RootLayerStack = new LayerStack(canvasSize);
+                TextureManage = new TextureManageContext(IsRealTimePreview);
+            }
+
+            public CanvasContext(Vector2Int canvasSize, TextureManageContext textureManage)
+            {
+                RootLayerStack = new LayerStack(canvasSize);
+                TextureManage = textureManage;
+            }
+
+            public CanvasContext CreateSubContext => new CanvasContext(RootLayerStack.CanvasSize, TextureManage);
+
+            public void Dispose()
+            {
+                TextureManage.Dispose();
             }
         }
 
@@ -54,7 +79,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public Vector2Int CanvasSize;
             public List<BlendLayer> Stack = new List<BlendLayer>();
 
-            public LayerStack CreateSubStack => new LayerStack() { CanvasSize = CanvasSize };
+            public LayerStack(Vector2Int textureSize)
+            {
+                CanvasSize = textureSize;
+            }
 
             public IEnumerable<BlendTextures> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
 
@@ -100,6 +128,35 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
 
         }
+    }
+
+    public class TextureManageContext : IDisposable
+    {
+        public readonly bool IsRealTimePreview;
+        public HashSet<Texture> DestroyTarget = new HashSet<Texture>();
+
+        public TextureManageContext(bool isRealTimePreview)
+        {
+            IsRealTimePreview = isRealTimePreview;
+        }
+
+        public Texture2D TryGetUnCompress(Texture2D texture2D)
+        {
+            if (IsRealTimePreview) { return texture2D; }
+            var unCompressed = texture2D.TryGetUnCompress();
+            if (unCompressed != texture2D || !AssetDatabase.Contains(unCompressed)) { DestroyTarget.Add(unCompressed); }
+            return unCompressed;
+        }
+        public void Dispose()
+        {
+            foreach (var tex in DestroyTarget)
+            {
+                UnityEngine.Object.DestroyImmediate(tex);
+            }
+            DestroyTarget.Clear();
+        }
+
+
     }
 }
 #endif

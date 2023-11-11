@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool Clipping;
         public BlendType BlendMode;
         public LayerMask LayerMask;
-        public abstract void EvaluateTexture(LayerStack layerStack);
+        public abstract void EvaluateTexture(CanvasContext layerStack);
 
 
 
