@@ -5,24 +5,31 @@ using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using System.Linq;
 using System;
+using System.IO;
+using UnityEditor;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     public static class MultiLayerImageImporter
     {
-        public static MultiLayerImageCanvas ImportCanvasData(AssetImportContext ctx, GameObject rootCanvas, CanvasData canvasData)
+        public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> PreSaveCallBack)
         {
+            var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
+            var rootCanvas = new GameObject(prefabName);
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
             multiLayerImageCanvas.TextureSize = canvasData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
-            return multiLayerImageCanvas;
+            PreSaveCallBack.Invoke(multiLayerImageCanvas);
+            PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
+            UnityEngine.Object.DestroyImmediate(rootCanvas);
         }
-        public static void AddLayers(Transform thisTransForm, AssetImportContext ctx, List<AbstractLayerData> abstractLayers)
+        public static void AddLayers(Transform thisTransForm, ITexture2DHandler ctx, List<AbstractLayerData> abstractLayers)
         {
             var parent = thisTransForm;
             var count = 0;
             foreach (var layer in abstractLayers.Reverse<AbstractLayerData>())
             {
-                var NewLayer = new GameObject(count + "-" + layer.LayerName);
+                var NewLayer = new GameObject(layer.LayerName);
+                // var NewLayer = new GameObject(count + "-" + layer.LayerName);
                 count += 1;
                 NewLayer.transform.SetParent(parent);
 
@@ -31,9 +38,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     case RasterLayerData rasterLayer:
                         {
                             if (rasterLayer.RasterTexture == null) { UnityEngine.Object.DestroyImmediate(NewLayer); continue; }
-                            ctx.AddObjectToAsset(rasterLayer.RasterTexture.name, rasterLayer.RasterTexture);
                             var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
-                            rasterLayerComponent.RasterTexture = rasterLayer.RasterTexture;
+                            rasterLayerComponent.RasterTexture = ctx.AddAsset(rasterLayer.RasterTexture);
                             rasterLayerComponent.BlendMode = layer.BlendMode;
                             rasterLayerComponent.Opacity = layer.Opacity;
                             rasterLayerComponent.Clipping = layer.Clipping;
@@ -63,8 +69,58 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 {
                     var mask = abstractLayerData.LayerMask;
                     abstractLayer.LayerMask = mask;
-                    ctx.AddObjectToAsset(mask.MaskTexture.name, mask.MaskTexture);
+                    mask.MaskTexture = ctx.AddAsset(mask.MaskTexture);
                 }
+            }
+        }
+
+        public interface ITexture2DHandler
+        {
+            Texture2D AddAsset(Texture2D tex);
+        }
+
+        public class HandlerForAssetImporterContext : ITexture2DHandler
+        {
+            public AssetImportContext ctx;
+
+            public HandlerForAssetImporterContext(AssetImportContext assetImportContext)
+            {
+                ctx = assetImportContext;
+            }
+
+            public Texture2D AddAsset(Texture2D tex)
+            {
+                ctx.AddObjectToAsset(tex.name, tex);
+                return tex;
+            }
+        }
+
+        public class HandlerForFolderSaver : ITexture2DHandler
+        {
+            public string SaveDirectory;
+
+            public const string RasterImageData = "RasterImageData";
+
+            public HandlerForFolderSaver(string v)
+            {
+                SaveDirectory = v;
+            }
+
+            public Texture2D AddAsset(Texture2D tex)
+            {
+                if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
+                if (!Directory.Exists(Path.Combine(SaveDirectory, RasterImageData))) { Directory.CreateDirectory(Path.Combine(SaveDirectory, RasterImageData)); }
+                var path = Path.Combine(SaveDirectory, RasterImageData, tex.name) + ".png";
+                File.WriteAllBytes(path, tex.EncodeToPNG());
+                UnityEngine.Object.DestroyImmediate(tex);
+                AssetDatabase.ImportAsset(path);
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                importer.maxTextureSize = 1024;
+                importer.textureCompression = TextureImporterCompression.CompressedLQ;
+                importer.mipmapEnabled = false;
+                importer.isReadable = false;
+                importer.SaveAndReimport();
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
             }
         }
 

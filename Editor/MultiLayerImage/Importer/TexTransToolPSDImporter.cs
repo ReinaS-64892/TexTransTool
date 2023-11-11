@@ -8,45 +8,25 @@ using UnityEditor.Experimental;
 using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using System.Linq;
+using net.rs64.TexTransTool.ReferenceResolver.MLIResolver;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    [ScriptedImporter(1, "psd", AutoSelect = false)]
-    public class TexTransToolPSDImporter : ScriptedImporter
+    public class TexTransToolPSDImporter
     {
-        public Texture2D DefaultReplaceTexture;
-
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
-        static void ChangeImporter()
+        public static void ImportPSD()
         {
-            foreach (var obj in Selection.objects)
-            {
-                var path = AssetDatabase.GetAssetPath(obj);
-                var ext = Path.GetExtension(path);
-                if (ext != ".psd") { continue; }
+            var souseTex2D = Selection.activeObject as Texture2D;
+            if (souseTex2D == null) { return; }
+            var targetPSDPath = AssetDatabase.GetAssetPath(souseTex2D);
+            if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
+            if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
-                var importer = AssetImporter.GetAtPath(path);
-                if (importer is TexTransToolPSDImporter)
-                {
-                    AssetDatabaseExperimental.ClearImporterOverride(path);
-                }
-                else
-                {
-                    AssetDatabaseExperimental.SetImporterOverride<TexTransToolPSDImporter>(path);
-                }
-
-            }
-        }
-        public override void OnImportAsset(AssetImportContext ctx)
-        {
-
-            var rootCanvas = new GameObject(Path.GetFileNameWithoutExtension(ctx.assetPath));
-            ctx.AddObjectToAsset("RootCanvas", rootCanvas);
-            ctx.SetMainObject(rootCanvas);
-
-            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(ctx.assetPath));
-
-            var multiLayerImageCanvas = MultiLayerImageImporter.ImportCanvasData(ctx, rootCanvas, (CanvasData)pSDData);
-            if (DefaultReplaceTexture != null) multiLayerImageCanvas.gameObject.AddComponent<ReferenceResolver.MLIResolver.AbsoluteTextureResolver>().Texture = DefaultReplaceTexture;
+            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
+            MultiLayerImageImporter.ImportCanvasData(
+                new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
+                multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
+                );
         }
 
 
