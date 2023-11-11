@@ -19,13 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加
 - MultiLayerImageCanvas と TextureBlender にリゾルバー AbsoluteTextureResolver を追加 `#216`
 - Preview でもビルドと同じようにアバター全体の影響になる DomainMarkerFinder を追加 `#219`
+- 実験的機能として、GrabDecal が SimpleDecal に追加 `#233`
 
 ### Changed
 
 - SimpleDecal のインスペクターのサイズ調整機能が直接トランスフォームを変更する形に変更 `#202`
 - Mesh の UV1 に元の UV を書き込む機能 WriteOriginalUV をオプションに変更 `#204`
 - "Exit RealTime Previews" は 通常の Preview も終了する "Exit Previews" に変更 `#197`
-- Texture2Dのプロパティがプレハブオーバーライドをコントロールできるように変更 `#217`
+- Texture2D のプロパティがプレハブオーバーライドをコントロールできるように変更 `#217`
 
 ### Removed
 
