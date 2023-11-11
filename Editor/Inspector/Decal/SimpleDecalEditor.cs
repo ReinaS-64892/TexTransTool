@@ -62,9 +62,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
+            EditorGUI.EndDisabledGroup();
             if (!isMultiEdit)
             {
-                EditorGUI.EndDisabledGroup();
+                AbstractDecalEditor.DrawerDecalGrabEditor(ThisObject);
                 AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
                 EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
                 PreviewContext.instance.DrawApplyAndRevert(ThisObject);

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransCore.Decal;
+using System;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -102,6 +103,27 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         }
 
+        public static void DrawerDecalGrabEditor(AbstractDecal thisObject)
+        {
+            if (thisObject == null) return;
+            {
+                if (DecalGrabManager.instance.NowGrabDecal == null)
+                {
+                    if (GUILayout.Button("GrabDecal"))
+                    {
+                        DecalGrabManager.instance.Grab(thisObject);
+                    }
+
+                }
+                else if (DecalGrabManager.instance.NowGrabDecal == thisObject)
+                {
+                    if (GUILayout.Button("DropDecal"))
+                    {
+                        DecalGrabManager.instance.Drop(thisObject);
+                    }
+                }
+            }
+        }
     }
 }
 #endif
