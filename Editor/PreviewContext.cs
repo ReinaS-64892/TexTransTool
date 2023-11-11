@@ -93,9 +93,12 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    var previewDomain = new RenderersDomain(target.GetRenderers, previewing: true, progressHandler: new ProgressHandler());
-                    target1.Apply(previewDomain);
-                    previewDomain.EditFinish();
+                    RenderersDomain renderersDomain = null;
+                    var marker = MarkerFinder.FindMarker(target1.gameObject);
+                    if (marker != null) { renderersDomain = new AvatarDomain(marker, previewing: true, progressHandler: new ProgressHandler()); }
+                    else { renderersDomain = new RenderersDomain(target.GetRenderers, previewing: true, progressHandler: new ProgressHandler()); }
+                    target1.Apply(renderersDomain);
+                    renderersDomain.EditFinish();
                 }
                 finally
                 {
