@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal のインスペクターに複数編集を追加 `#203`
 - 未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加
 - MultiLayerImageCanvas と TextureBlender にリゾルバー AbsoluteTextureResolver を追加 `#216`
+- Preview でもビルドと同じようにアバター全体の影響になる DomainMarkerFinder を追加 `#219`
 
 ### Changed
 
