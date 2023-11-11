@@ -62,10 +62,23 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
 
+
+            ExperimentalFutureOption = EditorGUILayout.Foldout(ExperimentalFutureOption, "Experimental Future".GetLocalize());
+            if (ExperimentalFutureOption)
+            {
+                EditorGUI.indentLevel += 1;
+                if (!isMultiEdit)
+                {
+                    AbstractDecalEditor.DrawerDecalGrabEditor(ThisObject);
+                }
+                EditorGUI.indentLevel -= 1;
+
+                EditorGUILayout.LabelField("---");
+            }
+
             EditorGUI.EndDisabledGroup();
             if (!isMultiEdit)
             {
-                AbstractDecalEditor.DrawerDecalGrabEditor(ThisObject);
                 AbstractDecalEditor.DrawerRealTimePreviewEditor(ThisObject);
                 EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(ThisObject));
                 PreviewContext.instance.DrawApplyAndRevert(ThisObject);
@@ -74,6 +87,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             This_S_Object.ApplyModifiedProperties();
         }
+
+        static bool ExperimentalFutureOption = false;
 
         public static void DrawerScale(SerializedObject This_S_Object, SerializedObject tf_S_Obg, Texture2D decalTexture)
         {

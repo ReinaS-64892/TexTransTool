@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 if (DecalGrabManager.instance.NowGrabDecal == null)
                 {
-                    if (GUILayout.Button("GrabDecal"))
+                    if (GUILayout.Button("GrabDecal".GetLocalize()))
                     {
                         DecalGrabManager.instance.Grab(thisObject);
                     }
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 }
                 else if (DecalGrabManager.instance.NowGrabDecal == thisObject)
                 {
-                    if (GUILayout.Button("DropDecal"))
+                    if (GUILayout.Button("DropDecal".GetLocalize()))
                     {
                         DecalGrabManager.instance.Drop(thisObject);
                     }
