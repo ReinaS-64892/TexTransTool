@@ -15,16 +15,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     {
         public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> PreSaveCallBack)
         {
+            EditorUtility.DisplayProgressBar("Import Canvas", "Build Layer", 0);
+
             var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
             var rootCanvas = new GameObject(prefabName);
             var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
             multiLayerImageCanvas.TextureSize = canvasData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
+            ctx.FinalizeTex2D();
             PreSaveCallBack.Invoke(multiLayerImageCanvas);
             PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
             UnityEngine.Object.DestroyImmediate(rootCanvas);
+
+
+            EditorUtility.ClearProgressBar();
         }
-        public static void AddLayers(Transform thisTransForm, ITexture2DHandler ctx, List<AbstractLayerData> abstractLayers)
+        public static void AddLayers(Transform thisTransForm, HandlerForFolderSaver ctx, List<AbstractLayerData> abstractLayers)
         {
             var parent = thisTransForm;
             var count = 0;
@@ -41,7 +47,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                         {
                             if (rasterLayer.RasterTexture.Array == null) { UnityEngine.Object.DestroyImmediate(NewLayer); continue; }
                             var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
-                            rasterLayerComponent.RasterTexture = ctx.AddAsset(rasterLayer.RasterTexture, layer.LayerName + "_Tex");
+                            ctx.AddTextureCallBack(rasterLayer.RasterTexture, layer.LayerName + "_Tex", (Texture2D tex) => rasterLayerComponent.RasterTexture = tex);
                             rasterLayerComponent.BlendMode = layer.BlendMode;
                             rasterLayerComponent.Opacity = layer.Opacity;
                             rasterLayerComponent.Clipping = layer.Clipping;
@@ -72,33 +78,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     var mask = new LayerMask();
                     mask.LayerMaskDisabled = abstractLayerData.LayerMask.LayerMaskDisabled;
                     abstractLayer.LayerMask = mask;
-                    mask.MaskTexture = ctx.AddAsset(abstractLayerData.LayerMask.MaskTexture, abstractLayerData.LayerName + "_Mask");
+                    ctx.AddTextureCallBack(abstractLayerData.LayerMask.MaskTexture, abstractLayerData.LayerName + "_Mask", (Texture2D tex) => abstractLayer.LayerMask.MaskTexture = tex);
                 }
             }
         }
 
-        public interface ITexture2DHandler
-        {
-            Texture2D AddAsset(TwoDimensionalMap<Color32> TexMap, string TexName);
-        }
-
-        // public class HandlerForAssetImporterContext : ITexture2DHandler
-        // {
-        //     public AssetImportContext ctx;
-
-        //     public HandlerForAssetImporterContext(AssetImportContext assetImportContext)
-        //     {
-        //         ctx = assetImportContext;
-        //     }
-
-        //     public Texture2D AddAsset(Texture2D tex)
-        //     {
-        //         ctx.AddObjectToAsset(tex.name, tex);
-        //         return tex;
-        //     }
-        // }
-
-        public class HandlerForFolderSaver : ITexture2DHandler
+        public class HandlerForFolderSaver
         {
             public string SaveDirectory;
 
@@ -109,29 +94,179 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 SaveDirectory = v;
             }
 
-            public Texture2D AddAsset(TwoDimensionalMap<Color32> TexMap, string TexName)
+
+            public void AddTextureCallBack(TwoDimensionalMap<Color32> rasterTexture, string name, Action<Texture2D> value)
             {
-                if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
-                if (!Directory.Exists(Path.Combine(SaveDirectory, RasterImageData))) { Directory.CreateDirectory(Path.Combine(SaveDirectory, RasterImageData)); }
-                var path = Path.Combine(SaveDirectory, RasterImageData, TexName) + ".png";
-                path = AssetDatabase.GenerateUniqueAssetPath(path);
-
-                var tex2D = new Texture2D(TexMap.MapSize.x, TexMap.MapSize.y, TextureFormat.RGBA32, false);
-                tex2D.SetPixelData(TexMap.Array, 0);
-                File.WriteAllBytes(path, tex2D.EncodeToPNG());
-                UnityEngine.Object.DestroyImmediate(tex2D);
-
-                AssetDatabase.ImportAsset(path);
-                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                importer.maxTextureSize = 1024;
-                importer.textureCompression = TextureImporterCompression.CompressedLQ;
-                importer.mipmapEnabled = false;
-                importer.isReadable = false;
-                importer.SaveAndReimport();
-
-                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                TexToNameLoad.Add(rasterTexture, (name, value));
             }
 
+            Dictionary<TwoDimensionalMap<Color32>, (string, Action<Texture2D>)> TexToNameLoad = new Dictionary<TwoDimensionalMap<Color32>, (string, Action<Texture2D>)>();
+
+            public void FinalizeTex2D()
+            {
+
+                EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", 0);
+                var RasterDataPath = Path.Combine(SaveDirectory, RasterImageData);
+                if (Directory.Exists(RasterDataPath)) { Directory.Delete(RasterDataPath, true); }
+                Directory.CreateDirectory(RasterDataPath);
+
+                var PathToAction = new Dictionary<string, Action<Texture2D>>();
+                var NameHash = new HashSet<string>();
+                var progressesCount = TexToNameLoad.Count;
+                var progressNowCount = 0;
+                foreach (var texToNameLoad in TexToNameLoad)
+                {
+                    EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG-" + texToNameLoad.Value.Item1, (float)progressNowCount / progressesCount);
+                    progressNowCount += 1;
+
+                    var TexName = texToNameLoad.Value.Item1;
+                    var TexMap = texToNameLoad.Key;
+
+                    if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
+
+
+                    var count = 1;
+                    var loopName = TexName;
+                    while (true)
+                    {
+                        if (!NameHash.Contains(loopName))
+                        {
+                            TexName = loopName;
+                            break;
+                        }
+                        count += 1;
+                        loopName = TexName + $"-{count}";
+                    }
+
+                    var path = Path.Combine(SaveDirectory, RasterImageData, TexName) + ".png";
+                    path = AssetDatabase.GenerateUniqueAssetPath(path);
+
+
+
+                    var tex2D = new Texture2D(TexMap.MapSize.x, TexMap.MapSize.y, TextureFormat.RGBA32, false);
+                    tex2D.SetPixelData(TexMap.Array, 0);
+                    File.WriteAllBytes(path, tex2D.EncodeToPNG());
+                    File.WriteAllText(path + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
+                    UnityEngine.Object.DestroyImmediate(tex2D);
+
+                    PathToAction.Add(path, texToNameLoad.Value.Item2);
+                }
+                TexToNameLoad.Clear();
+
+
+                EditorUtility.DisplayProgressBar("Import Canvas", "AssetDatabase.Refresh();", 0);
+                AssetDatabase.Refresh();
+                EditorUtility.DisplayProgressBar("Import Canvas", "Refresh End", 1);
+
+                progressNowCount = 0;
+                foreach (var loadTex2d in PathToAction)
+                {
+                    EditorUtility.DisplayProgressBar("Import Canvas", "SetUpLayer for PNG-" + Path.GetFileName(loadTex2d.Key), progressNowCount / (float)progressesCount);
+                    progressNowCount += 1;
+
+                    var Tex2D = AssetDatabase.LoadAssetAtPath<Texture2D>(loadTex2d.Key);
+                    loadTex2d.Value.Invoke(Tex2D);
+                }
+                EditorUtility.ClearProgressBar();
+            }
+
+
+            public const string MetaGUIDPre =
+@"fileFormatVersion: 2
+guid: ";
+            public const string MetaGUIDPost =
+@"
+  TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 1
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 0
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 3
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant:
+";
         }
 
     }

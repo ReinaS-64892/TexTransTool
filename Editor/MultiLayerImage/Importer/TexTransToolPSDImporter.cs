@@ -30,11 +30,21 @@ PSDのインポートは非常に長い時間がかかる可能性がありま�
 本当にインポートしますか？".GetLocalize(),
                  "する".GetLocalize(), "しない".GetLocalize())) { return; }
 
-            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
+
+            EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
+            var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
+            EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
+            var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+            EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+
+
             MultiLayerImageImporter.ImportCanvasData(
                 new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
                 multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
                 );
+
+
+            EditorUtility.ClearProgressBar();
         }
 
 
