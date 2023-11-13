@@ -22,6 +22,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
             if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
+            if (!EditorUtility.DisplayDialog(
+                "TexTransTool PSD Importer",
+@"PSDインポーターは、実験的機能で予告なく変更や削除される可能性があり、
+PSDのインポートは非常に長い時間がかかる可能性があります。
+
+本当にインポートしますか？".GetLocalize(),
+                 "する".GetLocalize(), "しない".GetLocalize())) { return; }
+
             var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
             MultiLayerImageImporter.ImportCanvasData(
                 new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
