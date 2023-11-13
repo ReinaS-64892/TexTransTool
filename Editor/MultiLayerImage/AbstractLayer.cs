@@ -1,11 +1,12 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
-using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMask;
+using LayerMaskData = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [DisallowMultipleComponent]
@@ -24,7 +25,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
 
 
-
     }
+    [Serializable]
+    public class LayerMask
+    {
+        public bool LayerMaskDisabled;
+        public Texture2D MaskTexture;
+    }
+
+
 }
 #endif
