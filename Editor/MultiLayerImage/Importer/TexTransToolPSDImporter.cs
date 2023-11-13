@@ -22,11 +22,29 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
             if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
-            var pSDData = PSDHighLevelParser.Parse(PSDLowLevelParser.Parse(targetPSDPath));
+            if (!EditorUtility.DisplayDialog(
+                "TexTransTool PSD Importer",
+@"PSDインポーターは、実験的機能で予告なく変更や削除される可能性があり、
+PSDのインポートは非常に長い時間がかかる可能性があります。
+
+本当にインポートしますか？".GetLocalize(),
+                 "する".GetLocalize(), "しない".GetLocalize())) { return; }
+
+
+            EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
+            var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
+            EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
+            var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+            EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+
+
             MultiLayerImageImporter.ImportCanvasData(
                 new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
                 multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
                 );
+
+
+            EditorUtility.ClearProgressBar();
         }
 
 

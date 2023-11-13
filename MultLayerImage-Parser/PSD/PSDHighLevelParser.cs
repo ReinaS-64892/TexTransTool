@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
 using net.rs64.TexTransCore.TransTextureCore.TransCompute;
-using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMask;
+using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
 using System.Buffers;
 
 namespace net.rs64.MultiLayerImageParser.PSD
@@ -82,67 +82,32 @@ namespace net.rs64.MultiLayerImageParser.PSD
             return await twoDimensionalMap.ConfigureAwait(false);
         }
 
-        private static Texture2D[] AwaitImage(Dictionary<TexCal, RasterLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        private static TwoDimensionalMap<Color32>[] AwaitImage(Dictionary<TexCal, RasterLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
         {
-            var texture2Ds = new Texture2D[ImageParseTask.Count];
-            var NameHash = new HashSet<string>();
+            var texture2Ds = new TwoDimensionalMap<Color32>[ImageParseTask.Count];
             var count = 0;
             foreach (var task in TextureCalculationExecuter(ImageParseTask))
             {
                 var tex = task.Key;
-                var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
-                tex2d.SetPixels32(tex.Array);
-                tex2d.Apply();
 
-                tex2d.name = task.Value.LayerName + "_Tex";
-
-                if (NameHash.Contains(tex2d.name))
-                {
-                    var name = tex2d.name;
-                    var nameCount = 0;
-                    while (NameHash.Contains($"{name}-{nameCount}"))
-                    {
-                        nameCount += 1;
-                    }
-                    tex2d.name = $"{name}-{nameCount}";
-                }
-                NameHash.Add(tex2d.name);
-
-                texture2Ds[count] = tex2d;
-                task.Value.RasterTexture = tex2d;
+                texture2Ds[count] = tex;
+                task.Value.RasterTexture = tex;
                 count += 1;
             }
             return texture2Ds;
         }
 
-        private static Texture2D[] AwaitImageMask(Dictionary<TexCal, AbstractLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
+        private static TwoDimensionalMap<Color32>[] AwaitImageMask(Dictionary<TexCal, AbstractLayerData> ImageParseTask, int Depth, Vector2Int CanvasSize)
         {
-            var texture2Ds = new Texture2D[ImageParseTask.Count];
+            var texture2Ds = new TwoDimensionalMap<Color32>[ImageParseTask.Count];
             var NameHash = new HashSet<string>();
             var count = 0;
             foreach (var task in TextureCalculationExecuter(ImageParseTask))
             {
                 var tex = task.Key;
-                var tex2d = new Texture2D(CanvasSize.x, CanvasSize.y, DepthToFormat(Depth), false);
-                tex2d.SetPixels32(tex.Array);
-                tex2d.Apply();
 
-                tex2d.name = task.Value.LayerName + "_Mask";
-
-                if (NameHash.Contains(tex2d.name))
-                {
-                    var name = tex2d.name;
-                    var nameCount = 0;
-                    while (NameHash.Contains($"{name}-{nameCount}"))
-                    {
-                        nameCount += 1;
-                    }
-                    tex2d.name = $"{name}-{nameCount}";
-                }
-                NameHash.Add(tex2d.name);
-
-                texture2Ds[count] = tex2d;
-                task.Value.LayerMask.MaskTexture = tex2d;
+                texture2Ds[count] = tex;
+                task.Value.LayerMask.MaskTexture = tex;
                 count += 1;
             }
             return texture2Ds;
@@ -446,7 +411,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         public ushort Depth;
         public ushort channels;
         public List<AbstractLayerData> RootLayers;
-        public Texture2D[] Texture2Ds;
+        public TwoDimensionalMap<Color32>[] Texture2Ds;
 
         public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Size = hData.Size, RootLayers = hData.RootLayers };
     }

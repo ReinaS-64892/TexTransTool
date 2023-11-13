@@ -1,5 +1,6 @@
 using System;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using UnityEngine;
 
 namespace net.rs64.MultiLayerImageParser.LayerData
@@ -14,14 +15,14 @@ namespace net.rs64.MultiLayerImageParser.LayerData
         public float Opacity;
         public bool Clipping;
         public BlendType BlendMode;
-        public LayerMask LayerMask;
+        public LayerMaskData LayerMask;
 
     }
     [Serializable]
-    public class LayerMask
+    public class LayerMaskData
     {
         public bool LayerMaskDisabled;
-        public Texture2D MaskTexture;
+        public TwoDimensionalMap<Color32> MaskTexture;
     }
 
 }

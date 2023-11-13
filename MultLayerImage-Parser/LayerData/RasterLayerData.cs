@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using UnityEngine;
 
 namespace net.rs64.MultiLayerImageParser.LayerData
@@ -6,7 +7,6 @@ namespace net.rs64.MultiLayerImageParser.LayerData
     [Serializable]
     public class RasterLayerData : AbstractLayerData
     {
-        public Texture2D RasterTexture;
-        public Vector2Int TexturePivot;
+        public TwoDimensionalMap<Color32> RasterTexture;
     }
 }
