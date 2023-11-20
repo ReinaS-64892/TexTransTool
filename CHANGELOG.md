@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MultiLayerImageCanvas と TextureBlender にリゾルバー AbsoluteTextureResolver を追加 `#216`
 - Preview でもビルドと同じようにアバター全体の影響になる DomainMarkerFinder を追加 `#219`
 - 実験的機能として、GrabDecal が SimpleDecal に追加 `#233`
+- メッシュとテクスチャーの置き換えも適用する機能を追加 `#232`
 
 ### Changed
 
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mesh の UV1 に元の UV を書き込む機能 WriteOriginalUV をオプションに変更 `#204`
 - "Exit RealTime Previews" は 通常の Preview も終了する "Exit Previews" に変更 `#197`
 - Texture2D のプロパティがプレハブオーバーライドをコントロールできるように変更 `#217`
+- マテリアルの置き換えをほかのコンポーネントにも適用する機能をオプションに変更 `#232`
+  - その機能は実験的機能に変更
 
 ### Removed
 
