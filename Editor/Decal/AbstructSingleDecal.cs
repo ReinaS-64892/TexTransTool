@@ -19,13 +19,17 @@ namespace net.rs64.TexTransTool.Decal
         public abstract SpaceConverter GetSpaceConverter { get; }
         public abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-            RenderTexture mulDecalTexture = DecalTexture != null ? RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0) : RenderTexture.GetTemporary(32, 32, 0); ;
+            RenderTexture mulDecalTexture;
+            if (DecalTexture != null) { mulDecalTexture = RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0); }
+            else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
+
             mulDecalTexture.Clear();
+
             if (DecalTexture != null)
             {
-                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, DecalTexture.TryGetUnCompress(), Color);
+                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(DecalTexture), Color);
             }
             else
             {

@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal
 
             Domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            var decalCompiledTextures = CompileDecal();
+            var decalCompiledTextures = CompileDecal(Domain);
 
             Domain.ProgressUpdate("AddStack", 0.75f);
 
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool.Decal
         }
 
 
-        public abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
+        public abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
 
         public static void DecalCompiledConvert(Dictionary<Texture2D, Texture> decalCompiledTextures, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures)
         {
@@ -108,7 +108,7 @@ namespace net.rs64.TexTransTool.Decal
             var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
             if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
 
-            var decalCompiledTextures = CompileDecal();
+            var decalCompiledTextures = CompileDecal(new TextureManager(false));
             var decalCompiledTexPier = new Dictionary<Texture2D, Texture>();
             DecalCompiledConvert(decalCompiledTexPier, decalCompiledTextures);
             foreach (var TexturePair in decalCompiledTexPier)
