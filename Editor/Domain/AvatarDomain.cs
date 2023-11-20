@@ -22,12 +22,13 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null, bool? isObjectReplaceInvoke = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;
             _useMaterialReplaceEvent = !previewing;
             if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
+            _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
 
         bool _useMaterialReplaceEvent;
@@ -35,6 +36,7 @@ namespace net.rs64.TexTransTool
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
+        bool _isObjectReplaceInvoke;
         [NotNull] FlatMapDict<Material> _matMap = new FlatMapDict<Material>();
         [NotNull] FlatMapDict<Texture2D> _texMap = new FlatMapDict<Texture2D>();
         [NotNull] FlatMapDict<Mesh> _meshMap = new FlatMapDict<Mesh>();
@@ -77,48 +79,51 @@ namespace net.rs64.TexTransTool
         {
             base.EditFinish();
 
-            var matModifiedDict = _matMap.GetMapping;
-            var texModifiedDict = _texMap.GetMapping;
-            var meshModifiedDict = _meshMap.GetMapping;
-
-            foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
+            if (_isObjectReplaceInvoke)
             {
-                if (component == null) continue;
-                if (IgnoreTypes.Contains(component.GetType())) continue;
+                var matModifiedDict = _matMap.GetMapping;
+                var texModifiedDict = _texMap.GetMapping;
+                var meshModifiedDict = _meshMap.GetMapping;
 
-                using (var serializeObj = new SerializedObject(component))
+                foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
                 {
-                    var iter = serializeObj.GetIterator();
-                    while (iter.Next(true))
+                    if (component == null) continue;
+                    if (IgnoreTypes.Contains(component.GetType())) continue;
+
+                    using (var serializeObj = new SerializedObject(component))
                     {
-                        if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
-                        switch (iter.objectReferenceValue)
+                        var iter = serializeObj.GetIterator();
+                        while (iter.Next(true))
                         {
-                            case Material originalMat:
-                                {
-                                    if (!matModifiedDict.TryGetValue(originalMat, out var value)) { continue; }
-                                    SetSerializedProperty(iter, value);
+                            if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
+                            switch (iter.objectReferenceValue)
+                            {
+                                case Material originalMat:
+                                    {
+                                        if (!matModifiedDict.TryGetValue(originalMat, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                case Texture2D originalTexture2D:
+                                    {
+                                        if (!texModifiedDict.TryGetValue(originalTexture2D, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                case Mesh originalMesh:
+                                    {
+                                        if (!meshModifiedDict.TryGetValue(originalMesh, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                default:
                                     break;
-                                }
-                            case Texture2D originalTexture2D:
-                                {
-                                    if (!texModifiedDict.TryGetValue(originalTexture2D, out var value)) { continue; }
-                                    SetSerializedProperty(iter, value);
-                                    break;
-                                }
-                            case Mesh originalMesh:
-                                {
-                                    if (!meshModifiedDict.TryGetValue(originalMesh, out var value)) { continue; }
-                                    SetSerializedProperty(iter, value);
-                                    break;
-                                }
-                            default:
-                                break;
+                            }
+
                         }
 
+                        serializeObj.ApplyModifiedPropertiesWithoutUndo();
                     }
-
-                    serializeObj.ApplyModifiedPropertiesWithoutUndo();
                 }
             }
         }
