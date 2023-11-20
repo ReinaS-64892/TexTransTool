@@ -32,6 +32,7 @@ namespace net.rs64.TexTransTool
     public interface ITextureManager
     {
         Texture2D GetOriginalTexture2D(Texture2D texture2D);
+        void DeferDestroyTexture2D(Texture2D texture2D);
     }
 
     public static class DomainUtility

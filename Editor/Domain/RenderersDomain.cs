@@ -34,6 +34,7 @@ namespace net.rs64.TexTransTool
             _saver = saver;
             _progressHandler = progressHandler;
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
+            _textureManager = new TextureManager(Previewing);
         }
 
         public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
@@ -116,6 +117,7 @@ namespace net.rs64.TexTransTool
         {
             ProgressStateEnter("Finalize");
             MargeStack();
+            DestroyDeferTextures();
             ProgressStateExit();
             ProgressStateExit();
             _progressHandler?.ProgressFinalize();
@@ -140,17 +142,10 @@ namespace net.rs64.TexTransTool
         public void ProgressUpdate(string State, float Value) => _progressHandler?.ProgressUpdate(State, Value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
 
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D)
-        {
-            if (Previewing)
-            {
-                return texture2D;
-            }
-            else
-            {
-                return texture2D.TryGetUnCompress();
-            }
-        }
+        TextureManager _textureManager;
+        public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager.GetOriginalTexture2D(texture2D);
+        public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager.DeferDestroyTexture2D(texture2D);
+        public void DestroyDeferTextures() => _textureManager.Dispose();
     }
 }
 #endif
