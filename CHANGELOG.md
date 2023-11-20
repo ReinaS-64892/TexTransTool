@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preview でもビルドと同じようにアバター全体の影響になる DomainMarkerFinder を追加 `#219`
 - 実験的機能として、GrabDecal が SimpleDecal に追加 `#233`
 - メッシュとテクスチャーの置き換えも適用する機能を追加 `#232`
+- MenuItem の Language に CheckMark の表示を追加 `#233`
 
 ### Changed
 
