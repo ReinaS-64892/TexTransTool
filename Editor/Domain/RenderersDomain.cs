@@ -83,32 +83,6 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public virtual void SetMaterial(Material target, Material replacement, bool isPaired)
-        {
-            TransferAsset(replacement);
-
-            foreach (var renderer in _renderers)
-            {
-                var materials = renderer.sharedMaterials;
-                var modified = false;
-                for (var index = 0; index < materials.Length; index++)
-                {
-                    var originalMaterial = materials[index];
-                    if (target == originalMaterial)
-                    {
-                        AddPropertyModification(renderer, $"m_Materials.Array.data[{index}]", originalMaterial);
-
-                        materials[index] = replacement;
-                        modified = true;
-                    }
-                }
-                if (modified)
-                {
-                    renderer.sharedMaterials = materials;
-                }
-            }
-        }
-
         public virtual void SetMesh(Renderer renderer, Mesh mesh)
         {
             switch (renderer)
@@ -165,6 +139,18 @@ namespace net.rs64.TexTransTool
         public void ProgressStateEnter(string EnterName) => _progressHandler?.ProgressStateEnter(EnterName);
         public void ProgressUpdate(string State, float Value) => _progressHandler?.ProgressUpdate(State, Value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
+
+        public Texture2D GetOriginalTexture2D(Texture2D texture2D)
+        {
+            if (Previewing)
+            {
+                return texture2D;
+            }
+            else
+            {
+                return texture2D.TryGetUnCompress();
+            }
+        }
     }
 }
 #endif
