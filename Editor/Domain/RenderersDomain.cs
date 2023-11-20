@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public void SetMesh(Renderer renderer, Mesh mesh)
+        public virtual void SetMesh(Renderer renderer, Mesh mesh)
         {
             switch (renderer)
             {
@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool
 
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
-        public void SetTexture(Texture2D Target, Texture2D SetTex)
+        public virtual void SetTexture(Texture2D Target, Texture2D SetTex)
         {
             this.ReplaceMaterials(RendererEditorUtility.SetTexture(_renderers, Target, SetTex));
         }

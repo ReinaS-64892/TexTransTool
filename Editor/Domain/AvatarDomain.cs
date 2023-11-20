@@ -6,6 +6,7 @@ using UnityEditor;
 using System;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool
 {
@@ -21,12 +22,13 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null, bool? isObjectReplaceInvoke = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;
             _useMaterialReplaceEvent = !previewing;
             if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
+            _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
 
         bool _useMaterialReplaceEvent;
@@ -34,7 +36,10 @@ namespace net.rs64.TexTransTool
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
-        [NotNull] FlatMapDict<Material> _mapDict = new FlatMapDict<Material>();
+        bool _isObjectReplaceInvoke;
+        [NotNull] FlatMapDict<Material> _matMap = new FlatMapDict<Material>();
+        [NotNull] FlatMapDict<Texture2D> _texMap = new FlatMapDict<Texture2D>();
+        [NotNull] FlatMapDict<Mesh> _meshMap = new FlatMapDict<Mesh>();
 
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
         {
@@ -44,7 +49,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var keyValuePair in mapping)
                 {
-                    _mapDict.Add(keyValuePair.Key, keyValuePair.Value);
+                    _matMap.Add(keyValuePair.Key, keyValuePair.Value);
                     InvokeMaterialReplace(keyValuePair.Key, keyValuePair.Value);
                 }
             }
@@ -59,30 +64,66 @@ namespace net.rs64.TexTransTool
             }
         }
 
+        public override void SetTexture(Texture2D Target, Texture2D SetTex)
+        {
+            base.SetTexture(Target, SetTex);
+            _texMap.Add(Target, SetTex);
+        }
+        public override void SetMesh(Renderer renderer, Mesh mesh)
+        {
+            base.SetMesh(renderer, mesh);
+            _meshMap.Add(renderer.GetMesh(), mesh);
+        }
+
         public override void EditFinish()
         {
             base.EditFinish();
 
-            var matModifiedDict = _mapDict.GetMapping;
-
-            foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
+            if (_isObjectReplaceInvoke)
             {
-                if (component == null) continue;
-                if (IgnoreTypes.Contains(component.GetType())) continue;
+                var matModifiedDict = _matMap.GetMapping;
+                var texModifiedDict = _texMap.GetMapping;
+                var meshModifiedDict = _meshMap.GetMapping;
 
-                using (var serializeObj = new SerializedObject(component))
+                foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
                 {
-                    var iter = serializeObj.GetIterator();
-                    while (iter.Next(true))
+                    if (component == null) continue;
+                    if (IgnoreTypes.Contains(component.GetType())) continue;
+
+                    using (var serializeObj = new SerializedObject(component))
                     {
-                        if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
-                        if (!(iter.objectReferenceValue is Material originalMat)) continue;
-                        if (!matModifiedDict.TryGetValue(originalMat, out var value)) continue;
+                        var iter = serializeObj.GetIterator();
+                        while (iter.Next(true))
+                        {
+                            if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
+                            switch (iter.objectReferenceValue)
+                            {
+                                case Material originalMat:
+                                    {
+                                        if (!matModifiedDict.TryGetValue(originalMat, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                case Texture2D originalTexture2D:
+                                    {
+                                        if (!texModifiedDict.TryGetValue(originalTexture2D, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                case Mesh originalMesh:
+                                    {
+                                        if (!meshModifiedDict.TryGetValue(originalMesh, out var value)) { continue; }
+                                        SetSerializedProperty(iter, value);
+                                        break;
+                                    }
+                                default:
+                                    break;
+                            }
 
-                        SetSerializedProperty(iter, value);
+                        }
+
+                        serializeObj.ApplyModifiedPropertiesWithoutUndo();
                     }
-
-                    serializeObj.ApplyModifiedPropertiesWithoutUndo();
                 }
             }
         }
