@@ -10,7 +10,20 @@ namespace net.rs64.TexTransTool
     public static class Localize
     {
         const string JP_GUID = "139e527c0dc01364b97daf9bdbaeb365";
-        public static LanguageEnum Language;
+        public const string LANGUAGE_PREFKEY = "net.rs64.tex-trans-tool.language";
+        public const string LANGUAGE_MENU_PATH = TTTConfig.TTT_MENU_PATH + "/Language";
+        private static LanguageEnum _Language;
+        public static LanguageEnum Language
+        {
+            get => _Language;
+            private set
+            {
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + _Language.ToString(), false);
+                _Language = value;
+                EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)_Language);
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + _Language.ToString(), true);
+            }
+        }
         public enum LanguageEnum
         {
             EN,
@@ -19,7 +32,7 @@ namespace net.rs64.TexTransTool
         [InitializeOnLoadMethod]
         static void Init()
         {
-            Language = (LanguageEnum)EditorPrefs.GetInt(PrefKey);
+            Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
         }
 
         static Dictionary<string, string> JP;
@@ -36,7 +49,7 @@ namespace net.rs64.TexTransTool
 
                 case LanguageEnum.JP:
                     {
-                        if (JP == null) { JP = ParseCSV(JP_GUID);}
+                        if (JP == null) { JP = ParseCSV(JP_GUID); }
                         if (JP.TryGetValue(Str, out var jpStr))
                         { return jpStr; }
                         else { return Str; }
@@ -60,19 +73,11 @@ namespace net.rs64.TexTransTool
         }
         public static GUIContent ToGUIContent(this string str) => new GUIContent(str);
         public static GUIContent GetLC(this string str) => str.GetLocalize().ToGUIContent();
-        public const string PrefKey = "net.rs64.tex-trans-tool.language";
-        [MenuItem("Tools/TexTransTool/Language/EN")]
-        public static void SwitchEN()
-        {
-            Language = LanguageEnum.EN;
-            EditorPrefs.SetInt(PrefKey, (int)Language);
-        }
-        [MenuItem("Tools/TexTransTool/Language/JP")]
-        public static void SwitchJP()
-        {
-            Language = LanguageEnum.JP;
-            EditorPrefs.SetInt(PrefKey, (int)Language);
-        }
+
+        [MenuItem(LANGUAGE_MENU_PATH + "/EN")]
+        public static void SwitchEN() => Language = LanguageEnum.EN;
+        [MenuItem(LANGUAGE_MENU_PATH + "/JP")]
+        public static void SwitchJP() => Language = LanguageEnum.JP;
 #endif
     }
 }
