@@ -118,6 +118,7 @@ namespace net.rs64.TexTransTool
             ProgressStateEnter("Finalize");
             MargeStack();
             DestroyDeferTextures();
+            TexCompressDelegationInvoke();
             ProgressStateExit();
             ProgressStateExit();
             _progressHandler?.ProgressFinalize();
@@ -126,7 +127,7 @@ namespace net.rs64.TexTransTool
         public virtual void MargeStack()
         {
             ProgressUpdate("MargeStack", 0f);
-            var mangedStack = _textureStacks.MargeStacks();
+            var mangedStack = _textureStacks.MargeStacks(_textureManager);
             ProgressUpdate("MargeStack", 0.9f);
             foreach (var mergeResult in mangedStack)
             {
@@ -145,7 +146,11 @@ namespace net.rs64.TexTransTool
         TextureManager _textureManager;
         public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager.GetOriginalTexture2D(texture2D);
         public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager.DeferDestroyTexture2D(texture2D);
-        public void DestroyDeferTextures() => _textureManager.Dispose();
+        public void DestroyDeferTextures() => _textureManager.DeferTexDestroy();
+
+        public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target) => _textureManager.TextureCompressDelegation(CompressFormat, Target);
+        public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target) => _textureManager.ReplaceTextureCompressDelegation(Souse, Target);
+        public void TexCompressDelegationInvoke() => _textureManager.TexCompressDelegationInvoke();
     }
 }
 #endif
