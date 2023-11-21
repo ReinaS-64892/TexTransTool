@@ -227,7 +227,7 @@ namespace net.rs64.TexTransTool
                 }
             }
 
-            abstractDecal.CompileDecal(absDecalData.decalTargets);
+            abstractDecal.CompileDecal(new TextureManager(true), absDecalData.decalTargets);
 
             foreach (var mat in absDecalData.decalTargets.Keys)
             {

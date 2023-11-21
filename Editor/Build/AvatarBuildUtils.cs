@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Build
                 var resolverContext = new ResolverContext(avatarGameObject);
                 resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
 
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, previewing: false, saver: new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null));
 
                 session.FindAtPhaseTTT();
 

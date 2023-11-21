@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Texture2D のプロパティがプレハブオーバーライドをコントロールできるように変更 `#217`
 - マテリアルの置き換えをほかのコンポーネントにも適用する機能をオプションに変更 `#232`
   - その機能は実験的機能に変更
+- Preview の場合オリジナルのテクスチャを取得しなくなり、結果のテクスチャを圧縮しないように変更 `#231 #186`
 
 ### Removed
 

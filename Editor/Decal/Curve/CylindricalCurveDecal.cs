@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         public BezierCurve BezierCurve => new BezierCurve(Segments, RollMode);
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             TextureWrap texWarpRange = TextureWrap.NotWrap;
             if (IsTextureWarp)

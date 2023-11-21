@@ -30,12 +30,12 @@ namespace net.rs64.TexTransTool
 
         }
 
-        public List<MargeResult> MargeStacks()
+        public List<MargeResult> MargeStacks(ITextureManager textureManager)
         {
             var margeTex = new List<MargeResult>(_textureStacks.Capacity);
             foreach (var stack in _textureStacks)
             {
-                margeTex.Add(new MargeResult(stack.FirstTexture, stack.MergeStack()));
+                margeTex.Add(new MargeResult(stack.FirstTexture, stack.MergeStack(textureManager)));
             }
             return margeTex;
         }
@@ -63,17 +63,18 @@ namespace net.rs64.TexTransTool
             set => StackTextures.Add(value);
         }
 
-        public Texture2D MergeStack()
+        public Texture2D MergeStack(ITextureManager textureManager)
         {
             if (!StackTextures.Any()) { return FirstTexture; }
             var rendererTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
             rendererTexture.Clear();
-            Graphics.Blit(FirstTexture.TryGetUnCompress(), rendererTexture);
+            Graphics.Blit(textureManager.GetOriginalTexture2D(FirstTexture), rendererTexture);
 
             rendererTexture.BlendBlit(StackTextures);
 
             rendererTexture.name = FirstTexture.name + "_MergedStack";
-            var resultTex = rendererTexture.CopyTexture2D().CopySetting(FirstTexture);
+            var resultTex = rendererTexture.CopyTexture2D().CopySetting(FirstTexture, false);
+            textureManager.ReplaceTextureCompressDelegation(FirstTexture, resultTex);
             RenderTexture.ReleaseTemporary(rendererTexture);
             return resultTex;
         }

@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
 
