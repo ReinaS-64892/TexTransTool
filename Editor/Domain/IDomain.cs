@@ -27,14 +27,18 @@ namespace net.rs64.TexTransTool
         void ProgressStateEnter(string EnterName);
         void ProgressUpdate(string State, float Value);
         void ProgressStateExit();
+        void ProgressFinalize();
     }
 
     public interface ITextureManager
     {
         Texture2D GetOriginalTexture2D(Texture2D texture2D);
         void DeferDestroyTexture2D(Texture2D texture2D);
+        void DeferTexDestroy();
+
         void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target);
         void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target);
+        void TexCompressDelegationInvoke();
     }
 
     public static class DomainUtility

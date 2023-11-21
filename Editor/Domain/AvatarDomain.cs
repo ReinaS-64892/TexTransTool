@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null, bool? isObjectReplaceInvoke = null)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, IProgressHandling progressHandler = null, bool? isObjectReplaceInvoke = null)
             : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;

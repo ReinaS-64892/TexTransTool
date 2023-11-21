@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public struct TextureManager : ITextureManager
+    public readonly struct TextureManager : ITextureManager
     {
         private readonly bool Previewing;
         private readonly List<Texture2D> DestroyList;

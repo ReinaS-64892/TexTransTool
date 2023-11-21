@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool
         public readonly bool Previewing;
         [CanBeNull] private readonly IAssetSaver _saver;
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null, ProgressHandler progressHandler = null)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null, IProgressHandling progressHandler = null)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool
         {
             ProgressStateEnter("Finalize");
             MargeStack();
-            DestroyDeferTextures();
+            DeferTexDestroy();
             TexCompressDelegationInvoke();
             ProgressStateExit();
             ProgressStateExit();
@@ -138,19 +138,21 @@ namespace net.rs64.TexTransTool
             ProgressUpdate("MargeStack", 1);
         }
 
-        ProgressHandler _progressHandler;
+        IProgressHandling _progressHandler;
         public void ProgressStateEnter(string EnterName) => _progressHandler?.ProgressStateEnter(EnterName);
         public void ProgressUpdate(string State, float Value) => _progressHandler?.ProgressUpdate(State, Value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
+        public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
 
-        TextureManager _textureManager;
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager.GetOriginalTexture2D(texture2D);
-        public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager.DeferDestroyTexture2D(texture2D);
-        public void DestroyDeferTextures() => _textureManager.DeferTexDestroy();
+        ITextureManager _textureManager;
+        public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager?.GetOriginalTexture2D(texture2D);
+        public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager?.DeferDestroyTexture2D(texture2D);
+        public void DeferTexDestroy() => _textureManager?.DeferTexDestroy();
 
-        public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target) => _textureManager.TextureCompressDelegation(CompressFormat, Target);
-        public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target) => _textureManager.ReplaceTextureCompressDelegation(Souse, Target);
-        public void TexCompressDelegationInvoke() => _textureManager.TexCompressDelegationInvoke();
+        public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target) => _textureManager?.TextureCompressDelegation(CompressFormat, Target);
+        public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target) => _textureManager?.ReplaceTextureCompressDelegation(Souse, Target);
+        public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
+
     }
 }
 #endif
