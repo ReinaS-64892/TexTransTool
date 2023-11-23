@@ -37,7 +37,7 @@ namespace net.rs64.TexTransCore.BlendTexture
     public static class TextureBlendUtils
     {
         public const string BLEND_TEX_SHADER = "Hidden/BlendTexture";
-        public const string COLOR_MUL_SHADER = "Hidden/BlendTexture";
+        public const string COLOR_MUL_SHADER = "Hidden/ColorMulShader";
         public const string MASK_SHADER = "Hidden/MaskShader";
         public const string UNLIT_COLOR_ALPHA_SHADER = "Hidden/UnlitColorAndAlpha";
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType, bool keepAlpha = false)
