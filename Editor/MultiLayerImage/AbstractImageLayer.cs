@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (image is RenderTexture renderTexture) { canvasContext.TextureManage.DestroyTarget.Add(renderTexture); }
             Graphics.Blit(image, rTex);
 
-            TextureBlendUtils.MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity));
+            if (!Mathf.Approximately(Opacity, 1)) { TextureBlendUtils.MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity)); }
 
             if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
 

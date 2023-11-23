@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
@@ -37,9 +38,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             else
             {
-                var rt = new RenderTexture(layerStack.CanvasSize.x, layerStack.CanvasSize.y, 0);
+                var rt = new RenderTexture(layerStack.CanvasSize.x, layerStack.CanvasSize.y, 0); rt.Clear();
+                var first = subStack.Stack[0]; first.BlendTextures.BlendType = BlendType.NotBlend; subStack.Stack[0] = first;
                 TextureBlendUtils.BlendBlit(rt, subStack.GetLayers);
-                TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));
+                if (!Mathf.Approximately(Opacity, 1)) { TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity)); }
                 if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rt, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
 
                 if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendMode); }

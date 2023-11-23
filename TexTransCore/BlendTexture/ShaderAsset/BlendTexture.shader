@@ -1,9 +1,9 @@
-Shader "Hidden/ColorMulShader"
+Shader "Hidden/BlendTexture"
 {
     Properties
     {
+        _DistTex ("DistTexture", 2D) = "white" {}
         _MainTex ("Texture", 2D) = "white" {}
-        _Color ("Color", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -15,8 +15,11 @@ Shader "Hidden/ColorMulShader"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp ClassicNormal NotBlend
+            #pragma shader_feature_local_fragment KeepAlpha
 
             #include "UnityCG.cginc"
+            #include "./BlendColor.hlsl"
 
             struct appdata
             {
@@ -31,7 +34,7 @@ Shader "Hidden/ColorMulShader"
             };
 
             sampler2D _MainTex;
-            float4 _Color ;
+            sampler2D _DistTex;
 
             v2f vert (appdata v)
             {
@@ -40,6 +43,8 @@ Shader "Hidden/ColorMulShader"
                 o.uv = v.uv;
                 return o;
             }
+
+
             float4 LiniearToGamma(float4 col)
             {
                 return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), (col.a));
@@ -51,10 +56,21 @@ Shader "Hidden/ColorMulShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 MainColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
-                float4 GammaColor = LiniearToGamma(_Color);
+                float4 BaseColor = LiniearToGamma(tex2Dlod(_DistTex,float4( i.uv,0,0)));
+                float4 AddColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
 
-                return  GammaToLinier(MainColor * GammaColor);
+                #if NotBlend
+                float4 BlendColor = AddColor;
+                //#elif ~~~
+                #else
+                float4 BlendColor = ColorBlend(BaseColor,AddColor);
+                #endif
+
+                #if KeepAlpha
+                BlendColor.a = BaseColor.a;
+                #endif
+
+                return GammaToLinier(BlendColor);
             }
             ENDHLSL
         }

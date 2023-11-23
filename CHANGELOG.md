@@ -35,7 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- 色合成の改修に伴い ClassicNormal は削除されました `#237`
+
 ### Fixed
+
+- 一部の色合成が一般的なソフトと大きく異なっている問題を修正 `#237`
 
 ### Deprecated
 
