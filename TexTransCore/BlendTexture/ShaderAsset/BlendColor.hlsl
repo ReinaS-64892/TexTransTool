@@ -61,13 +61,13 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif LightenOnly
   BlendColor = max(Bcol, Acol);
 #elif Hue
-  BlendColor = HSVtoRGB(Ahsv.r, Bhsv.g, Bhsv.b);
+  BlendColor = HSVtoRGB(float3(Ahsv.r, Bhsv.g, Bhsv.b));
 #elif Saturation
-  BlendColor = HSVtoRGB(Bhsv.r, Ahsv.g, Bhsv.b);
+  BlendColor = HSVtoRGB(float3(Bhsv.r, Ahsv.g, Bhsv.b));
 #elif Color
-  BlendColor = HSVtoRGB(Ahsv.r, Ahsv.g, Bhsv.b);
+  BlendColor = HSVtoRGB(float3(Ahsv.r, Ahsv.g, Bhsv.b));
 #elif Luminosity
-  BlendColor = HSVtoRGB(Bhsv.r, Bhsv.g, Ahsv.b);
+  BlendColor = HSVtoRGB(float3(Bhsv.r, Bhsv.g, Ahsv.b));
 #endif
 
   float BlendRatio = AddColor.a * BaseColor.a;
@@ -75,8 +75,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
-  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) +
-                       (BaseColor.rgb * BaseRatio) / Alpha;
+  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio) / Alpha;
 
   return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
 }
