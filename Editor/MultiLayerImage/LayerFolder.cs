@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 var rt = new RenderTexture(layerStack.CanvasSize.x, layerStack.CanvasSize.y, 0); rt.Clear();
                 var first = subStack.Stack[0]; first.BlendTextures.BlendType = BlendType.NotBlend; subStack.Stack[0] = first;
                 TextureBlendUtils.BlendBlit(rt, subStack.GetLayers);
-                TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity));
+                if (!Mathf.Approximately(Opacity, 1)) { TextureBlendUtils.MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity)); }
                 if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rt, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
 
                 if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendMode); }

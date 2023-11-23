@@ -40,17 +40,21 @@ Shader "Hidden/ColorMulShader"
                 o.uv = v.uv;
                 return o;
             }
+            float4 LiniearToGamma(float4 col)
+            {
+                return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), (col.a));
+            }
+            float4 GammaToLinier(float4 col)
+            {
+                return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), (col.a));
+            }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 MainColor = tex2Dlod(_MainTex ,float4(i.uv,0,0));
+                float4 MainColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
+                float4 GammaColor = LiniearToGamma(_Color);
 
-                return  float4(
-                    MainColor.r * _Color.r,
-                    MainColor.g * _Color.g,
-                    MainColor.b * _Color.b,
-                    MainColor.a * _Color.a
-                );
+                return  GammaToLinier(MainColor * GammaColor);
             }
             ENDHLSL
         }

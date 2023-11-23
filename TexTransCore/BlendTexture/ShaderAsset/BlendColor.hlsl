@@ -1,5 +1,6 @@
 // References
-// MIT License Copyright (c) 2022 lilxyzw https://github.com/lilxyzw/lilMatCapGenerator/blob/2fa421e168b0a42526e1407456ad565b4db72911/Assets/lilMatCapGenerator/ShaderBase.txt#L142-L200
+// MIT License Copyright (c) 2022 lilxyzw
+// https://github.com/lilxyzw/lilMatCapGenerator/blob/2fa421e168b0a42526e1407456ad565b4db72911/Assets/lilMatCapGenerator/ShaderBase.txt#L142-L200
 // https://web.archive.org/web/20230211165421/http://www.deepskycolors.com/archivo/2010/04/21/formulas-for-Photoshop-blending-modes.html
 // http://www.simplefilter.de/en/basics/mixmods.html
 // https://odashi.hatenablog.com/entry/20110921/1316610121
@@ -13,13 +14,17 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float3 Acol = AddColor.rgb;
   float3 BlendColor = float3(0, 0, 0);
 
+
   float3 Addc = Bcol + Acol;
   float3 Mulc = Bcol * Acol;
   float3 OneCol = float3(1, 1, 1);
   float3 Scrc = OneCol - (OneCol - Bcol) * (OneCol - Acol);
 
-  float3 burn = Bcol == 1 ? 1 : Acol == 0 ? 0 : 1.0 - (1.0 - Bcol) / Acol;
-  float3 dodge = Bcol == 0 ? 0 : Acol == 1 ? 1 : Bcol / (1.0 - Acol);
+  float3 BcolPM = BaseColor.rgb * LinearToGammaSpaceExact(BaseColor.a);
+  float3 AcolPM = AddColor.rgb * LinearToGammaSpaceExact(AddColor.a);
+
+  float3 burn = BcolPM == 1 ? 1 : AcolPM == 0 ? 0 : 1.0 - (1.0 - BcolPM) / AcolPM;
+  float3 dodge = BcolPM == 0 ? 0 : AcolPM == 1 ? 1 : BcolPM / (1.0 - AcolPM);
 
   float3 Bhsv = RGBtoHSV(Bcol);
   float3 Ahsv = RGBtoHSV(Acol);
@@ -75,7 +80,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
-  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio) / Alpha;
+  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) +
+                       (BaseColor.rgb * BaseRatio) / Alpha;
 
   return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
 }

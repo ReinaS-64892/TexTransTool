@@ -47,11 +47,11 @@ Shader "Hidden/BlendTexture"
 
             float4 LiniearToGamma(float4 col)
             {
-                return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), col.a);
+                return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), (col.a));
             }
             float4 GammaToLinier(float4 col)
             {
-                return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), col.a);
+                return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), (col.a));
             }
 
             fixed4 frag (v2f i) : SV_Target
