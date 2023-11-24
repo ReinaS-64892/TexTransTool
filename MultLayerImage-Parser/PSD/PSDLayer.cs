@@ -143,8 +143,8 @@ namespace net.rs64.MultiLayerImageParser.PSD
                     return BlendType.Screen;
                 case PSDBlendMode.ColorDodge:
                     return BlendType.ColorDodge;
-                // case PSDBlendMode.LinearDodge:
-                //     return BlendType;
+                case PSDBlendMode.LinearDodge:
+                    return BlendType.Addition;
                 // case PSDBlendMode.LighterColor:
                 //     return BlendType;
                 case PSDBlendMode.Overlay:
