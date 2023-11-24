@@ -131,6 +131,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     {
                         if (!NameHash.Contains(loopName))
                         {
+                            NameHash.Add(loopName);
                             TexName = loopName;
                             break;
                         }
@@ -139,9 +140,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     }
 
                     var path = Path.Combine(SaveDirectory, RasterImageData, TexName) + ".png";
-                    path = AssetDatabase.GenerateUniqueAssetPath(path);
-
-
 
                     var tex2D = new Texture2D(TexMap.MapSize.x, TexMap.MapSize.y, TextureFormat.RGBA32, false);
                     tex2D.SetPixelData(TexMap.Array, 0);
