@@ -80,8 +80,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
-  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) +
-                       (BaseColor.rgb * BaseRatio) / Alpha;
+  float3 ResultColor = lerp(BaseColor.rgb, BlendColor ,  AddColor.a/saturate(AddColor.a + BaseColor.a));
 
   return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
 }

@@ -111,13 +111,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Directory.CreateDirectory(RasterDataPath);
 
                 var PathToAction = new Dictionary<string, Action<Texture2D>>();
-                var NameHash = new HashSet<string>();
                 var progressesCount = TexToNameLoad.Count;
-                var progressNowCount = 0;
+                var imageIndex = 0;
                 foreach (var texToNameLoad in TexToNameLoad)
                 {
-                    EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG-" + texToNameLoad.Value.Item1, (float)progressNowCount / progressesCount);
-                    progressNowCount += 1;
+                    EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG-" + texToNameLoad.Value.Item1, (float)imageIndex / progressesCount);
+                    imageIndex += 1;
 
                     var TexName = texToNameLoad.Value.Item1;
                     var TexMap = texToNameLoad.Key;
@@ -125,21 +124,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
 
 
-                    var count = 1;
-                    var loopName = TexName;
-                    while (true)
-                    {
-                        if (!NameHash.Contains(loopName))
-                        {
-                            NameHash.Add(loopName);
-                            TexName = loopName;
-                            break;
-                        }
-                        count += 1;
-                        loopName = TexName + $"-{count}";
-                    }
+                    var path = CreatePath(TexName, imageIndex);
 
-                    var path = Path.Combine(SaveDirectory, RasterImageData, TexName) + ".png";
 
                     var tex2D = new Texture2D(TexMap.MapSize.x, TexMap.MapSize.y, TextureFormat.RGBA32, false);
                     tex2D.SetPixelData(TexMap.Array, 0);
@@ -156,11 +142,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 AssetDatabase.Refresh();
                 EditorUtility.DisplayProgressBar("Import Canvas", "Refresh End", 1);
 
-                progressNowCount = 0;
+                imageIndex = 0;
                 foreach (var loadTex2d in PathToAction)
                 {
-                    EditorUtility.DisplayProgressBar("Import Canvas", "SetUpLayer for PNG-" + Path.GetFileName(loadTex2d.Key), progressNowCount / (float)progressesCount);
-                    progressNowCount += 1;
+                    EditorUtility.DisplayProgressBar("Import Canvas", "SetUpLayer for PNG-" + Path.GetFileName(loadTex2d.Key), imageIndex / (float)progressesCount);
+                    imageIndex += 1;
 
                     var Tex2D = AssetDatabase.LoadAssetAtPath<Texture2D>(loadTex2d.Key);
                     loadTex2d.Value.Invoke(Tex2D);
@@ -168,6 +154,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 EditorUtility.ClearProgressBar();
             }
 
+            private string CreatePath(string TexName, int count)
+            {
+                return Path.Combine(SaveDirectory, RasterImageData, TexName + "-" + count)  + ".png";
+            }
 
             public const string MetaGUIDPre =
 @"fileFormatVersion: 2
