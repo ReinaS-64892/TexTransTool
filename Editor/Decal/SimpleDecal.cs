@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             var filters = new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
             {
-                new TriangleFilterUtility.FarStruct(1, false),
+                new TriangleFilterUtility.FarStruct(1, true),
                 new TriangleFilterUtility.NearStruct(0, true)
             };
             if (SideCulling) filters.Add(new TriangleFilterUtility.SideStruct());
