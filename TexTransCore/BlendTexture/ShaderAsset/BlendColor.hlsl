@@ -10,6 +10,9 @@
 
 float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
+  if(BaseColor.a == 0){return AddColor;}
+  if(AddColor.a == 0){return BaseColor;}
+
   float3 Bcol = BaseColor.rgb;
   float3 Acol = AddColor.rgb;
   float3 BlendColor = float3(0, 0, 0);
@@ -80,7 +83,9 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
-  float3 ResultColor = lerp(BaseColor.rgb, BlendColor ,  AddColor.a/saturate(AddColor.a + BaseColor.a));
+  // float3 ResultColor = lerp(BaseColor.rgb, BlendColor ,  AddColor.a/saturate(AddColor.a + BaseColor.a));
+  // float3 ResultColor = lerp( lerp(BaseColor.rgb, AddColor.rgb ,  AddColor.a/saturate(AddColor.a + BaseColor.a)), BlendColor ,BlendRatio);
+  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio) / Alpha;
 
   return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
 }
