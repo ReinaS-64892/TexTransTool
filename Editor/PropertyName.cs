@@ -14,9 +14,7 @@ namespace net.rs64.TexTransTool
 
 #pragma warning disable CS0414 , IDE0052
         [SerializeField] bool _useCustomProperty;
-
         [SerializeField] string _shaderName;
-        [SerializeField] int _propertyIndex;
 #pragma warning restore CS0414 , IDE0052
 
 
@@ -24,8 +22,7 @@ namespace net.rs64.TexTransTool
         {
             _propertyName = propertyName;
             _useCustomProperty = false;
-            _shaderName = "";
-            _propertyIndex = 0;
+            _shaderName = "DefaultShader";
         }
 
         public const string MainTex = "_MainTex";
