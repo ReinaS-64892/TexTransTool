@@ -18,12 +18,12 @@ namespace net.rs64.TexTransTool.ShaderSupport
             _shaderSupports = InterfaceUtility.GetInterfaceInstance<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) });
         }
 
-        public Dictionary<string, PropertyNameAndDisplayName[]> GetPropertyNames()
+        public List<(string ShaderName, (string PropertyName, string DisplayName)[])> GetPropertyNames()
         {
-            var propertyNames = new Dictionary<string, PropertyNameAndDisplayName[]> { { _defaultShaderSupport.ShaderName, _defaultShaderSupport.GetPropertyNames } };
+            var propertyNames = new List<(string ShaderName, (string PropertyName, string DisplayName)[])>(_shaderSupports.Count + 1) { (_defaultShaderSupport.ShaderName, _defaultShaderSupport.GetPropertyNames) };
             foreach (var i in _shaderSupports)
             {
-                propertyNames.Add(i.ShaderName, i.GetPropertyNames);
+                propertyNames.Add((i.ShaderName, i.GetPropertyNames));
             }
             return propertyNames;
         }

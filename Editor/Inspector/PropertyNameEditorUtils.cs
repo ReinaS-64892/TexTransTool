@@ -11,26 +11,31 @@ namespace net.rs64.TexTransTool.Editor
     public static class PropertyNameEditor
     {
         static string[] ShadersNames;
-        static Dictionary<string, string[]> ShaderNameAndDisplayNames;
-        static Dictionary<string, PropertyNameAndDisplayName[]> ShaderNameAndProperties;
+        static Dictionary<string, (string[] PropertyName, string[] DisplayName, Dictionary<string, string> Dict)> PropertyNames;
+        static string[] Empty = Array.Empty<string>();
 
 
         public static void DrawInspectorGUI(SerializedProperty serializedProperty, string Label = null)
         {
-            if (ShaderNameAndProperties == null || ShadersNames == null || ShaderNameAndDisplayNames == null)
+            if (ShadersNames == null)
             {
-                ShaderNameAndProperties = new ShaderSupportUtils().GetPropertyNames();
-                ShadersNames = ShaderNameAndProperties.Keys.ToArray();
-                ShaderNameAndDisplayNames = new Dictionary<string, string[]>();
-                foreach (var item in ShaderNameAndProperties) { ShaderNameAndDisplayNames.Add(item.Key, item.Value.Select(x => x.DisplayName).ToArray()); }
-
+                var getData = new ShaderSupportUtils().GetPropertyNames();
+                ShadersNames = getData.Select(i => i.ShaderName).ToArray();
+                PropertyNames = getData.ToDictionary(
+                    i => i.ShaderName,
+                     i => (
+                        i.Item2.Select(v => v.PropertyName).ToArray(),
+                        i.Item2.Select(v => v.DisplayName).ToArray(),
+                        i.Item2.ToDictionary(v => v.PropertyName, v => v.DisplayName)
+                        ));
             }
             var s_Target = serializedProperty;
 
             var s_propertyName = s_Target.FindPropertyRelative("_propertyName");
             var s_useCustomProperty = s_Target.FindPropertyRelative("_useCustomProperty");
             var s_shaderName = s_Target.FindPropertyRelative("_shaderName");
-            var s_propertyIndex = s_Target.FindPropertyRelative("_propertyIndex");
+
+
 
 
             EditorGUILayout.BeginHorizontal();
@@ -49,28 +54,23 @@ namespace net.rs64.TexTransTool.Editor
             }
             else
             {
-                bool editorFlag = false;
-
                 rect.width = PropWith;
-                var notEditShaderIndex = Mathf.Clamp(Array.IndexOf(ShadersNames, s_shaderName.stringValue), 0, ShadersNames.Length - 1);
-                var editShaderIndex = EditorGUI.Popup(rect, notEditShaderIndex, ShadersNames);
-                rect.x += rect.width;
-                if (editShaderIndex != notEditShaderIndex)
-                {
-                    s_shaderName.stringValue = ShadersNames[editShaderIndex];
-                    s_propertyIndex.intValue = Mathf.Clamp(s_propertyIndex.intValue, 0, ShaderNameAndProperties[ShadersNames[editShaderIndex]].Length - 1);
-                    editorFlag = true;
-                }
 
-                var editPropIndex = EditorGUI.Popup(rect, s_propertyIndex.intValue, ShaderNameAndDisplayNames[ShadersNames[editShaderIndex]]);
-                rect.x += rect.width;
-                if (editPropIndex != s_propertyIndex.intValue)
-                {
-                    s_propertyIndex.intValue = editPropIndex;
-                    editorFlag = true;
-                }
+                var shaderName = s_shaderName.stringValue;
+                var shaderSelectIndex = Array.IndexOf(ShadersNames, shaderName);
+                shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, ShadersNames);
+                s_shaderName.stringValue = 0 <= shaderSelectIndex && shaderSelectIndex < ShadersNames.Length ? ShadersNames[shaderSelectIndex] : shaderName;
 
-                if (editorFlag || string.IsNullOrWhiteSpace(s_propertyName.stringValue)) { s_propertyName.stringValue = ShaderNameAndProperties[ShadersNames[editShaderIndex]][s_propertyIndex.intValue].PropertyName; }
+                rect.x += rect.width;
+
+                var propertyName = s_propertyName.stringValue;
+                var propertyArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].PropertyName : Empty;
+                var displayNameArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].DisplayName : Empty;
+                var propertySelectIndex = Array.IndexOf(propertyArray, propertyName);
+                propertySelectIndex = EditorGUI.Popup(rect, propertySelectIndex, displayNameArray);
+                s_propertyName.stringValue = 0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length ? propertyArray[propertySelectIndex] : propertyName;
+
+                rect.x += rect.width;
             }
             rect.width = PropWith;
             s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty".GetLocalize()), s_useCustomProperty.boolValue);

@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 
@@ -10,18 +11,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         string ShaderName { get; }
 
-        PropertyNameAndDisplayName[] GetPropertyNames { get; }
-    }
-
-    public struct PropertyNameAndDisplayName
-    {
-        public string PropertyName;
-        public string DisplayName;
-        public PropertyNameAndDisplayName(string PropertyName, string DisplayName)
-        {
-            this.PropertyName = PropertyName;
-            this.DisplayName = DisplayName;
-        }
+        (string PropertyName, string DisplayName)[] GetPropertyNames { get; }// PropertyNames - DisplayName
     }
 
 
