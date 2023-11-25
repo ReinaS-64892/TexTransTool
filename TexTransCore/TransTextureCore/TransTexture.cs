@@ -34,7 +34,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 return Mesh;
             }
         }
-        public static void TransTextureToRenderTexture(
+        public static void ForTrans(
             RenderTexture TargetTexture,
             Texture SouseTexture,
             TransData TransUVData,
@@ -95,7 +95,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 SouseTexture.wrapMode = preWarp;
             }
         }
-        public static void TransTextureToRenderTexture(
+        public static void ForTrans(
             RenderTexture TargetTexture,
             Texture SouseTexture,
             IEnumerable<TransData> TransUVDataEnumerable,
@@ -104,7 +104,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
         {
             foreach (var transUVData in TransUVDataEnumerable)
             {
-                TransTextureToRenderTexture(TargetTexture, SouseTexture, transUVData, Padding, WarpRange);
+                ForTrans(TargetTexture, SouseTexture, transUVData, Padding, WarpRange);
             }
         }
 

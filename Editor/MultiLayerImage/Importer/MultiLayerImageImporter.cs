@@ -7,8 +7,8 @@ using System.Linq;
 using System;
 using System.IO;
 using UnityEditor;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using System.Text;
+using net.rs64.TexTransCore.TransTextureCore;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     public static class MultiLayerImageImporter

@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.TestCode
                 }
             );
 
-            TransTexture.TransTextureToRenderTexture(targetRt, sourcesTex, transData, 0f, null);
+            TransTexture.ForTrans(targetRt, sourcesTex, transData, 0f, null);
             var target2d = targetRt.CopyTexture2D();
 
             for (var x = 0; x < 512; x += 1)

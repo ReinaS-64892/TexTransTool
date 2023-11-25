@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.BlendTexture

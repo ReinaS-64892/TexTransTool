@@ -12,7 +12,6 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
 using System.Buffers;
 

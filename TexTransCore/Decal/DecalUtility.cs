@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.Decal
@@ -81,7 +80,7 @@ namespace net.rs64.TexTransCore.Decal
                     RenderTextures[targetMat].Add(TargetPropertyName, rendererTexture);
                 }
 
-                TransTexture.TransTextureToRenderTexture(
+                TransTexture.ForTrans(
                     RenderTextures[targetMat][TargetPropertyName],
                     SousTextures,
                     new TransTexture.TransData(filteredTriangle, tUV, sUV),
@@ -94,51 +93,6 @@ namespace net.rs64.TexTransCore.Decal
             }
 
             return RenderTextures;
-        }
-        public static Dictionary<Texture2D, List<TwoDimensionalMap<Color>>> CreateDecalTextureCS<SpaceConverter>(
-            TransTextureCompute transTextureCompute,
-            Renderer TargetRenderer,
-            TwoDimensionalMap<Color> SousTextures,
-            SpaceConverter ConvertSpace,
-            ITrianglesFilter<SpaceConverter> Filter,
-            string TargetPropertyName = "_MainTex",
-            TextureWrap TextureWarp = null,
-            float DefaultPadding = 1f
-        )
-        where SpaceConverter : IConvertSpace
-        {
-            var resultTextures = new Dictionary<Texture2D, List<TwoDimensionalMap<Color>>>();
-
-            var vertices = GetWorldSpaceVertices(TargetRenderer);
-            var (tUV, TrianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
-
-            ConvertSpace.Input(new MeshData(vertices, tUV, TrianglesSubMesh));
-            var sUV = ConvertSpace.OutPutUV();
-
-            var materials = TargetRenderer.sharedMaterials;
-
-            for (int i = 0; i < TrianglesSubMesh.Count; i++)
-            {
-                var triangle = TrianglesSubMesh[i];
-                var targetMat = materials[i];
-
-                var targetTexture = targetMat.GetTexture(TargetPropertyName) as Texture2D;
-                if (targetTexture == null) { continue; }
-                var targetTexSize = new Vector2Int(targetTexture.width, targetTexture.height);
-
-                var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
-                if (filteredTriangle.Any() == false) { continue; }
-
-
-                var atlasTex = new TwoDimensionalMap<TransColor>(new TransColor(new Color(0, 0, 0, 0), TransTextureCompute.CSPadding(DefaultPadding)), targetTexSize);
-                transTextureCompute.TransTextureUseCS(atlasTex, SousTextures, new TransTexture.TransData(filteredTriangle, tUV, sUV), DefaultPadding, TextureWarp);
-
-
-                if (resultTextures.ContainsKey(targetTexture) == false) { resultTextures.Add(targetTexture, new List<TwoDimensionalMap<Color>>() { new TwoDimensionalMap<Color>(TransColor.GetColorArray(atlasTex.Array), atlasTex.MapSize) }); }
-                else { resultTextures[targetTexture].Add(new TwoDimensionalMap<Color>(TransColor.GetColorArray(atlasTex.Array), atlasTex.MapSize)); }
-            }
-
-            return resultTextures;
         }
         public static List<Vector3> GetWorldSpaceVertices(Renderer Target)
         {

@@ -5,7 +5,6 @@ using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal.Curve
