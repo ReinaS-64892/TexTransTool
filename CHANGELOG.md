@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - その機能は実験的機能に変更
 - Preview の場合オリジナルのテクスチャを取得しなくなり、結果のテクスチャを圧縮しないように変更 `#231 #186`
 - SimpleDecal の IslandCulling を実験的機能に変更 `#229`
+- SimpleDecal の Far Culling の基準を変更 `#242`
 
 ### Removed
 
