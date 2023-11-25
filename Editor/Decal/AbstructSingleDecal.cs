@@ -6,7 +6,6 @@ using System.Linq;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.Decal

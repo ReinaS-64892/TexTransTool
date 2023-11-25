@@ -8,7 +8,6 @@ using System.Collections;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.TransCompute;
 
 namespace net.rs64.TexTransTool.Decal
 {
