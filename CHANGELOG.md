@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preview の場合オリジナルのテクスチャを取得しなくなり、結果のテクスチャを圧縮しないように変更 `#231 #186`
 - SimpleDecal の IslandCulling を実験的機能に変更 `#229`
 - SimpleDecal の Far Culling の基準を変更 `#242`
+- PropertyName の保存形式を調整し、データが勝手に変わらないように変更 `#228`
 
 ### Removed
 
