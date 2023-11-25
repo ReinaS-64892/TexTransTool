@@ -41,23 +41,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_SideCulling = This_S_Object.FindProperty("SideCulling");
             EditorGUILayout.PropertyField(s_SideCulling, s_SideCulling.name.GetLC());
 
-            var s_IslandCulling = This_S_Object.FindProperty("IslandCulling");
-            EditorGUILayout.PropertyField(s_IslandCulling, s_IslandCulling.name.GetLC());
-            if (s_IslandCulling.boolValue)
-            {
-                var s_IslandSelectorPos = This_S_Object.FindProperty("IslandSelectorPos");
-                EditorGUI.indentLevel += 1;
-                EditorGUILayout.LabelField(s_IslandSelectorPos.name.GetLocalize());
-                EditorGUI.indentLevel += 1;
-                var s_IslandSelectorPosX = s_IslandSelectorPos.FindPropertyRelative("x");
-                var s_IslandSelectorPosY = s_IslandSelectorPos.FindPropertyRelative("y");
-                EditorGUILayout.Slider(s_IslandSelectorPosX, 0, 1, new GUIContent("x"));
-                EditorGUILayout.Slider(s_IslandSelectorPosY, 0, 1, new GUIContent("y"));
-                EditorGUI.indentLevel -= 1;
-                var s_IslandSelectorRange = This_S_Object.FindProperty("IslandSelectorRange");
-                EditorGUILayout.Slider(s_IslandSelectorRange, 0, 1, s_IslandSelectorRange.name.GetLC());
-                EditorGUI.indentLevel -= 1;
-            }
+
             EditorGUI.indentLevel -= 1;
 
             AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
@@ -66,6 +50,23 @@ namespace net.rs64.TexTransTool.Editor.Decal
             ExperimentalFutureOption = EditorGUILayout.Foldout(ExperimentalFutureOption, "Experimental Future".GetLocalize());
             if (ExperimentalFutureOption)
             {
+                var s_IslandCulling = This_S_Object.FindProperty("IslandCulling");
+                EditorGUILayout.PropertyField(s_IslandCulling, s_IslandCulling.name.GetLC());
+                if (s_IslandCulling.boolValue)
+                {
+                    var s_IslandSelectorPos = This_S_Object.FindProperty("IslandSelectorPos");
+                    EditorGUI.indentLevel += 1;
+                    EditorGUILayout.LabelField(s_IslandSelectorPos.name.GetLocalize());
+                    EditorGUI.indentLevel += 1;
+                    var s_IslandSelectorPosX = s_IslandSelectorPos.FindPropertyRelative("x");
+                    var s_IslandSelectorPosY = s_IslandSelectorPos.FindPropertyRelative("y");
+                    EditorGUILayout.Slider(s_IslandSelectorPosX, 0, 1, new GUIContent("x"));
+                    EditorGUILayout.Slider(s_IslandSelectorPosY, 0, 1, new GUIContent("y"));
+                    EditorGUI.indentLevel -= 1;
+                    var s_IslandSelectorRange = This_S_Object.FindProperty("IslandSelectorRange");
+                    EditorGUILayout.Slider(s_IslandSelectorRange, 0, 1, s_IslandSelectorRange.name.GetLC());
+                    EditorGUI.indentLevel -= 1;
+                }
                 EditorGUI.indentLevel += 1;
                 if (!isMultiEdit)
                 {

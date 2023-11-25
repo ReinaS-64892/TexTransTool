@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - マテリアルの置き換えをほかのコンポーネントにも適用する機能をオプションに変更 `#232`
   - その機能は実験的機能に変更
 - Preview の場合オリジナルのテクスチャを取得しなくなり、結果のテクスチャを圧縮しないように変更 `#231 #186`
+- SimpleDecal の IslandCulling を実験的機能に変更 `#229`
 
 ### Removed
 
@@ -267,7 +268,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...master
 [0.4.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.1...v0.4.2
