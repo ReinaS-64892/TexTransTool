@@ -49,6 +49,7 @@ namespace net.rs64.TexTransTool.TextureStack
             {
                 margeTex.Add(new MargeResult(stack.FirstTexture, stack.MergeStack()));
             }
+            _textureStacks.Clear();
             return margeTex;
         }
 
