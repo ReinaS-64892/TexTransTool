@@ -99,27 +99,36 @@ namespace net.rs64.TexTransCore.BlendTexture
         }
         public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
         {
-            var resizedTexture = new Texture2D(Size.x, Size.y, Souse.graphicsFormat, Souse.mipmapCount > 1 ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-
-            var pixels = new Color[Size.x * Size.y];
-
-            foreach (var Index in Enumerable.Range(0, pixels.Length))
+            var useMip = Souse.mipmapCount > 1;
+            var rt = RenderTexture.GetTemporary(Size.x, Size.y);
+            if (useMip)
             {
-                pixels[Index] = GetColorOnTexture(Souse, Index, Size);
+                Graphics.Blit(Souse, rt);
+            }
+            else
+            {
+                var mipRt = RenderTexture.GetTemporary(Souse.width, Souse.height);
+                mipRt.Release();
+                var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
+
+                mipRt.useMipMap = true;
+                mipRt.autoGenerateMips = false;
+
+                Graphics.Blit(Souse, mipRt);
+                mipRt.GenerateMips();
+                Graphics.Blit(mipRt, rt);
+
+                mipRt.Release();
+                (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
+                RenderTexture.ReleaseTemporary(mipRt);
             }
 
-            resizedTexture.SetPixels(pixels);
-            resizedTexture.Apply();
+            var resizedTexture = rt.CopyTexture2D(OverrideUseMip: useMip);
             resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
 
+            RenderTexture.ReleaseTemporary(rt);
             return resizedTexture;
         }
-        public static Color GetColorOnTexture(Texture2D Texture, int Index, Vector2Int SouseSize)
-        {
-            var pos = DimensionIndexUtility.ConvertIndex2D(Index, SouseSize.x);
-            return Texture.GetPixelBilinear(pos.x / (float)SouseSize.x, pos.y / (float)SouseSize.y);
-        }
-
         public static RenderTexture CreateMultipliedRenderTexture(Texture MainTex, Color Color)
         {
             var mainTexRt = new RenderTexture(MainTex.width, MainTex.height, 0);

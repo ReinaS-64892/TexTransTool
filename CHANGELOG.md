@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - 一部の色合成が一般的なソフトと大きく異なっている問題を修正 `#237`
+- AtlasTexture の FineTuning の Resize の品質が低い問題を修正 `#96`
 
 ### Deprecated
 
