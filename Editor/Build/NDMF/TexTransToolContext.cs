@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
         {
             if (context != null)
             {
-                TTTBuildContext = new TexTransBuildSession(new AvatarDomain(context.AvatarRootObject, false, new AssetSaver(context.AssetContainer)));
+                TTTBuildContext = new TexTransBuildSession(new AvatarDomain(context.AvatarRootObject, false, new AssetSaver(context.AssetContainer), null, TTTConfig.isObjectReplaceInvoke));
             }
         }
 

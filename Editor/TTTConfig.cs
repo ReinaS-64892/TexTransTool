@@ -37,11 +37,7 @@ namespace net.rs64.TexTransTool
             EditorPrefs.SetBool(OBJECT_REPLACE_INVOKE_PREFKEY, isObjectReplaceInvoke);
             Menu.SetChecked(OBJECT_REPLACE_INVOKE_MENU_PATH, isObjectReplaceInvoke);
         }
-
 #endregion
-
-
-
     }
 }
 #endif

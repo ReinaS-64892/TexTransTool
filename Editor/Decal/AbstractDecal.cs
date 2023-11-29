@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var PramAndRt in matAndTex.Value)
                 {
-                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlendUtils.BlendTextures(PramAndRt.Value, BlendType));
+                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlendUtils.BlendTexturePair(PramAndRt.Value, BlendType));
                 }
             }
 

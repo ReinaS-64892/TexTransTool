@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
 
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
-        void AddTextureStack(Texture2D dist, BlendTextures setTex);
+        void AddTextureStack(Texture2D dist, BlendTexturePair setTex);
     }
     public interface IProgressHandling
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using net.rs64.TexTransTool.TextureStack;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -22,12 +23,16 @@ namespace net.rs64.TexTransTool
     public class RenderersDomain : IDomain
     {
         List<Renderer> _renderers;
-        TextureStacks _textureStacks = new TextureStacks();
+        IStackManager _textureStacks;
 
         public readonly bool Previewing;
         [CanBeNull] private readonly IAssetSaver _saver;
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, [CanBeNull] IAssetSaver saver = null, IProgressHandling progressHandler = null)
+        public RenderersDomain(List<Renderer> previewRenderers,
+                               bool previewing,
+                               [CanBeNull] IAssetSaver saver = null,
+                               IProgressHandling progressHandler = null
+                               )
         {
             _renderers = previewRenderers;
             Previewing = previewing;
@@ -35,9 +40,26 @@ namespace net.rs64.TexTransTool
             _progressHandler = progressHandler;
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
             _textureManager = new TextureManager(Previewing);
+            _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
+        }
+        public RenderersDomain(List<Renderer> previewRenderers,
+                       bool previewing,
+                       [CanBeNull] IAssetSaver saver,
+                       IProgressHandling progressHandler,
+                       ITextureManager textureManager,
+                       IStackManager stackManager
+                       )
+        {
+            _renderers = previewRenderers;
+            Previewing = previewing;
+            _saver = saver;
+            _progressHandler = progressHandler;
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
+            _textureManager = textureManager;
+            _textureStacks = stackManager;
         }
 
-        public void AddTextureStack(Texture2D Dist, BlendTextures SetTex)
+        public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
         {
             _textureStacks.AddTextureStack(Dist, SetTex);
         }
@@ -116,9 +138,13 @@ namespace net.rs64.TexTransTool
         public virtual void EditFinish()
         {
             ProgressStateEnter("Finalize");
+            ProgressUpdate("MargeStack", 0.0f);
             MargeStack();
+            ProgressUpdate("DeferTexDestroy", 0.3f);
             DeferTexDestroy();
+            ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
             TexCompressDelegationInvoke();
+            ProgressUpdate("End", 1f);
             ProgressStateExit();
             ProgressStateExit();
             _progressHandler?.ProgressFinalize();
@@ -127,7 +153,7 @@ namespace net.rs64.TexTransTool
         public virtual void MargeStack()
         {
             ProgressUpdate("MargeStack", 0f);
-            var mangedStack = _textureStacks.MargeStacks(_textureManager);
+            var mangedStack = _textureStacks.MargeStacks();
             ProgressUpdate("MargeStack", 0.9f);
             foreach (var mergeResult in mangedStack)
             {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
@@ -8,8 +9,8 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
     {
         public static Texture2D CopyTexture2D(this RenderTexture Rt, TextureFormat? OverrideFormat = null, bool? OverrideUseMip = null)
         {
-            var preRt = RenderTexture.active;
-            try
+
+            using (new RTActiveSaver())
             {
                 RenderTexture.active = Rt;
                 var useMip = OverrideUseMip.HasValue ? OverrideUseMip.Value : Rt.useMipMap;
@@ -19,23 +20,14 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                 texture.name = Rt.name + "_CopyTex2D";
                 return texture;
             }
-            finally
-            {
-                RenderTexture.active = preRt;
-            }
         }
 
         public static void Clear(this RenderTexture Rt)
         {
-            var preRt = RenderTexture.active;
-            try
+            using (new RTActiveSaver())
             {
                 RenderTexture.active = Rt;
                 GL.Clear(true, true, Color.clear);
-            }
-            finally
-            {
-                RenderTexture.active = preRt;
             }
 
         }

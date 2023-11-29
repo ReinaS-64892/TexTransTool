@@ -1,10 +1,12 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.Build
 {
@@ -16,11 +18,12 @@ namespace net.rs64.TexTransTool.Build
             try
             {
                 if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
+                var timer = Stopwatch.StartNew();
 
                 var resolverContext = new ResolverContext(avatarGameObject);
                 resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
 
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null, TTTConfig.isObjectReplaceInvoke));
 
                 session.FindAtPhaseTTT();
 
@@ -33,6 +36,7 @@ namespace net.rs64.TexTransTool.Build
                 session.ApplyFor(TexTransPhase.UnDefined);
 
                 session.TTTSessionEnd();
+                timer.Stop();Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
                 return true;
             }
             catch (Exception e)

@@ -12,6 +12,7 @@ namespace net.rs64.TexTransTool
         private readonly bool Previewing;
         private readonly List<Texture2D> DestroyList;
         private readonly Dictionary<Texture2D, TextureFormat> CompressDict;
+        private readonly Dictionary<Texture2D, Texture2D> OriginDict;
 
         public TextureManager(bool previewing)
         {
@@ -20,6 +21,8 @@ namespace net.rs64.TexTransTool
             else { DestroyList = null; }
             if (!Previewing) { CompressDict = new Dictionary<Texture2D, TextureFormat>(); }
             else { CompressDict = null; }
+            if (!Previewing) { OriginDict = new Dictionary<Texture2D, Texture2D>(); }
+            else { OriginDict = null; }
         }
 
         public void DeferDestroyTexture2D(Texture2D texture2D)
@@ -36,6 +39,7 @@ namespace net.rs64.TexTransTool
                 UnityEngine.Object.DestroyImmediate(tex);
             }
             DestroyList.Clear();
+            if (OriginDict != null) { OriginDict.Clear(); }
         }
 
         public Texture2D GetOriginalTexture2D(Texture2D texture2D)
@@ -46,9 +50,17 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                var originTex = texture2D.TryGetUnCompress();
-                DeferDestroyTexture2D(originTex);
-                return originTex;
+                if (OriginDict.ContainsKey(texture2D))
+                {
+                    return OriginDict[texture2D];
+                }
+                else
+                {
+                    var originTex = texture2D.TryGetUnCompress();
+                    DeferDestroyTexture2D(originTex);
+                    OriginDict.Add(texture2D, originTex);
+                    return originTex;
+                }
             }
         }
         public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target)
