@@ -7,6 +7,7 @@ using System;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.TextureStack;
 
 namespace net.rs64.TexTransTool
 {
@@ -22,8 +23,27 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot, bool previewing, [CanBeNull] IAssetSaver saver = null, IProgressHandling progressHandler = null, bool? isObjectReplaceInvoke = null)
-            : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
+        public AvatarDomain(GameObject avatarRoot,
+                            bool previewing,
+                            [CanBeNull] IAssetSaver saver = null,
+                            IProgressHandling progressHandler = null,
+                            bool? isObjectReplaceInvoke = null,
+                            bool useImmediateTextureStack = false
+                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, useImmediateTextureStack)
+        {
+            _avatarRoot = avatarRoot;
+            _useMaterialReplaceEvent = !previewing;
+            if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
+            _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
+        }
+        public AvatarDomain(GameObject avatarRoot,
+                            bool previewing,
+                            [CanBeNull] IAssetSaver saver,
+                            IProgressHandling progressHandler,
+                            ITextureManager textureManager,
+                            IStackManager stackManager,
+                            bool? isObjectReplaceInvoke = null
+                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager)
         {
             _avatarRoot = avatarRoot;
             _useMaterialReplaceEvent = !previewing;
