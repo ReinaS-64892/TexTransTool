@@ -4,6 +4,7 @@ using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -74,9 +75,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
 
-            var preRt = RenderTexture.active;
 
-            try
+            using (new RTActiveSaver())
             {
                 RenderTexture.active = TargetTexture;
                 material.SetPass(0);
@@ -88,12 +88,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 }
 
             }
-            finally
-            {
-                RenderTexture.active = preRt;
-                SouseTexture.mipMapBias = preBias;
-                SouseTexture.wrapMode = preWarp;
-            }
+            SouseTexture.mipMapBias = preBias;
+            SouseTexture.wrapMode = preWarp;
         }
         public static void ForTrans(
             RenderTexture TargetTexture,

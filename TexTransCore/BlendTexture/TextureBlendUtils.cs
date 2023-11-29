@@ -41,57 +41,69 @@ namespace net.rs64.TexTransCore.BlendTexture
         public const string UNLIT_COLOR_ALPHA_SHADER = "Hidden/UnlitColorAndAlpha";
         public static void BlendBlit(this RenderTexture Base, Texture Add, BlendType blendType, bool keepAlpha = false)
         {
-            var material = new Material(Shader.Find(BLEND_TEX_SHADER));
-            var swap = RenderTexture.GetTemporary(Base.descriptor);
-            Graphics.CopyTexture(Base, swap);
-            material.SetTexture("_DistTex", swap);
-            material.EnableKeyword(blendType.ToString());
-            if (keepAlpha) { material.EnableKeyword("KeepAlpha"); }
-
-            Graphics.Blit(Add, Base, material);
-            RenderTexture.ReleaseTemporary(swap);
-        }
-        public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTextures> Adds)
-        {
-            var material = new Material(Shader.Find(BLEND_TEX_SHADER));
-            var temRt = RenderTexture.GetTemporary(Base.descriptor);
-            var swap = Base;
-            var target = temRt;
-            Graphics.Blit(swap, target);
-
-            foreach (var Add in Adds)
+            using (new RTActiveSaver())
             {
+                var material = new Material(Shader.Find(BLEND_TEX_SHADER));
+                var swap = RenderTexture.GetTemporary(Base.descriptor);
+                Graphics.CopyTexture(Base, swap);
                 material.SetTexture("_DistTex", swap);
-                material.shaderKeywords = new string[] { Add.BlendType.ToString() };
-                Graphics.Blit(Add.Texture, target, material);
-                (swap, target) = (target, swap);
-            }
+                material.EnableKeyword(blendType.ToString());
+                if (keepAlpha) { material.EnableKeyword("KeepAlpha"); }
 
-            if (swap != Base)
-            {
-                Graphics.Blit(swap, Base);
+                Graphics.Blit(Add, Base, material);
+                RenderTexture.ReleaseTemporary(swap);
+                UnityEngine.Object.DestroyImmediate(material);
             }
-            RenderTexture.ReleaseTemporary(temRt);
+        }
+        public static void BlendBlit(this RenderTexture Base, IEnumerable<BlendTexturePair> Adds)
+        {
+            using (new RTActiveSaver())
+            {
+                var material = new Material(Shader.Find(BLEND_TEX_SHADER));
+                var temRt = RenderTexture.GetTemporary(Base.descriptor);
+                var swap = Base;
+                var target = temRt;
+                Graphics.Blit(swap, target);
+
+                foreach (var Add in Adds)
+                {
+                    material.SetTexture("_DistTex", swap);
+                    material.shaderKeywords = new string[] { Add.BlendType.ToString() };
+                    Graphics.Blit(Add.Texture, target, material);
+                    (swap, target) = (target, swap);
+                }
+
+                if (swap != Base)
+                {
+                    Graphics.Blit(swap, Base);
+                }
+                RenderTexture.ReleaseTemporary(temRt);
+                UnityEngine.Object.DestroyImmediate(material);
+            }
         }
         public static RenderTexture BlendBlit(Texture2D Base, Texture Add, BlendType blendType)
         {
-            var renderTexture = new RenderTexture(Base.width, Base.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
-            Graphics.Blit(Base, renderTexture);
+            using (new RTActiveSaver())
+            {
+                var renderTexture = new RenderTexture(Base.width, Base.height, 32, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+                Graphics.Blit(Base, renderTexture);
 
-            var material = new Material(Shader.Find(BLEND_TEX_SHADER));
-            material.SetTexture("_DistTex", Base);
-            material.EnableKeyword(blendType.ToString());
+                var material = new Material(Shader.Find(BLEND_TEX_SHADER));
+                material.SetTexture("_DistTex", Base);
+                material.EnableKeyword(blendType.ToString());
 
-            Graphics.Blit(Add, renderTexture, material);
+                Graphics.Blit(Add, renderTexture, material);
 
-            return renderTexture;
+                UnityEngine.Object.DestroyImmediate(material);
+                return renderTexture;
+            }
         }
-        public struct BlendTextures
+        public struct BlendTexturePair
         {
             public Texture Texture;
             public BlendType BlendType;
 
-            public BlendTextures(Texture texture, BlendType blendType)
+            public BlendTexturePair(Texture texture, BlendType blendType)
             {
                 Texture = texture;
                 BlendType = blendType;
@@ -99,35 +111,38 @@ namespace net.rs64.TexTransCore.BlendTexture
         }
         public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
         {
-            var useMip = Souse.mipmapCount > 1;
-            var rt = RenderTexture.GetTemporary(Size.x, Size.y);
-            if (useMip)
+            using (new RTActiveSaver())
             {
-                Graphics.Blit(Souse, rt);
+                var useMip = Souse.mipmapCount > 1;
+                var rt = RenderTexture.GetTemporary(Size.x, Size.y);
+                if (useMip)
+                {
+                    Graphics.Blit(Souse, rt);
+                }
+                else
+                {
+                    var mipRt = RenderTexture.GetTemporary(Souse.width, Souse.height);
+                    mipRt.Release();
+                    var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
+
+                    mipRt.useMipMap = true;
+                    mipRt.autoGenerateMips = false;
+
+                    Graphics.Blit(Souse, mipRt);
+                    mipRt.GenerateMips();
+                    Graphics.Blit(mipRt, rt);
+
+                    mipRt.Release();
+                    (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
+                    RenderTexture.ReleaseTemporary(mipRt);
+                }
+
+                var resizedTexture = rt.CopyTexture2D(OverrideUseMip: useMip);
+                resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
+
+                RenderTexture.ReleaseTemporary(rt);
+                return resizedTexture;
             }
-            else
-            {
-                var mipRt = RenderTexture.GetTemporary(Souse.width, Souse.height);
-                mipRt.Release();
-                var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
-
-                mipRt.useMipMap = true;
-                mipRt.autoGenerateMips = false;
-
-                Graphics.Blit(Souse, mipRt);
-                mipRt.GenerateMips();
-                Graphics.Blit(mipRt, rt);
-
-                mipRt.Release();
-                (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
-                RenderTexture.ReleaseTemporary(mipRt);
-            }
-
-            var resizedTexture = rt.CopyTexture2D(OverrideUseMip: useMip);
-            resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
-
-            RenderTexture.ReleaseTemporary(rt);
-            return resizedTexture;
         }
         public static RenderTexture CreateMultipliedRenderTexture(Texture MainTex, Color Color)
         {
@@ -137,27 +152,39 @@ namespace net.rs64.TexTransCore.BlendTexture
         }
         public static void MultipleRenderTexture(RenderTexture MainTexRt, Texture MainTex, Color Color)
         {
-            var mat = new Material(Shader.Find(COLOR_MUL_SHADER));
-            mat.SetColor("_Color", Color);
-            Graphics.Blit(MainTex, MainTexRt, mat);
+            using (new RTActiveSaver())
+            {
+                var mat = new Material(Shader.Find(COLOR_MUL_SHADER));
+                mat.SetColor("_Color", Color);
+                Graphics.Blit(MainTex, MainTexRt, mat);
+                UnityEngine.Object.DestroyImmediate(mat);
+            }
         }
         public static void MultipleRenderTexture(RenderTexture renderTexture, Color Color)
         {
-            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
-            var mat = new Material(Shader.Find(COLOR_MUL_SHADER));
-            mat.SetColor("_Color", Color);
-            Graphics.CopyTexture(renderTexture, tempRt);
-            Graphics.Blit(tempRt, renderTexture, mat);
-            RenderTexture.ReleaseTemporary(tempRt);
+            using (new RTActiveSaver())
+            {
+                var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+                var mat = new Material(Shader.Find(COLOR_MUL_SHADER));
+                mat.SetColor("_Color", Color);
+                Graphics.CopyTexture(renderTexture, tempRt);
+                Graphics.Blit(tempRt, renderTexture, mat);
+                RenderTexture.ReleaseTemporary(tempRt);
+                UnityEngine.Object.DestroyImmediate(mat);
+            }
         }
         public static void MaskDrawRenderTexture(RenderTexture renderTexture, Texture MaskTex)
         {
-            var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
-            var mat = new Material(Shader.Find(MASK_SHADER));
-            mat.SetTexture("_MaskTex", MaskTex);
-            Graphics.CopyTexture(renderTexture, tempRt);
-            Graphics.Blit(tempRt, renderTexture, mat);
-            RenderTexture.ReleaseTemporary(tempRt);
+            using (new RTActiveSaver())
+            {
+                var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
+                var mat = new Material(Shader.Find(MASK_SHADER));
+                mat.SetTexture("_MaskTex", MaskTex);
+                Graphics.CopyTexture(renderTexture, tempRt);
+                Graphics.Blit(tempRt, renderTexture, mat);
+                RenderTexture.ReleaseTemporary(tempRt);
+                UnityEngine.Object.DestroyImmediate(mat);
+            }
         }
 
 
@@ -171,9 +198,26 @@ namespace net.rs64.TexTransCore.BlendTexture
 
         public static void ColorBlit(RenderTexture mulDecalTexture, Color Color)
         {
-            var unlitMat = new Material(Shader.Find(UNLIT_COLOR_ALPHA_SHADER));
-            unlitMat.SetColor("_Color", Color);
-            Graphics.Blit(null, mulDecalTexture, unlitMat);
+            using (new RTActiveSaver())
+            {
+                var unlitMat = new Material(Shader.Find(UNLIT_COLOR_ALPHA_SHADER));
+                unlitMat.SetColor("_Color", Color);
+                Graphics.Blit(null, mulDecalTexture, unlitMat);
+                UnityEngine.Object.DestroyImmediate(unlitMat);
+            }
+        }
+    }
+
+    public struct RTActiveSaver : IDisposable
+    {
+        readonly RenderTexture PreRT;
+        public RTActiveSaver(bool empty = false)
+        {
+            PreRT = RenderTexture.active;
+        }
+        public void Dispose()
+        {
+            RenderTexture.active = PreRT;
         }
     }
 
