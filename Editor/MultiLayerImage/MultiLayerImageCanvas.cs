@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 CanvasSize = textureSize;
             }
 
-            public IEnumerable<BlendTextures> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
+            public IEnumerable<BlendTexturePair> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
 
 
 
@@ -119,12 +119,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public struct BlendLayer
         {
             public AbstractLayer RefLayer;
-            public BlendTextures BlendTextures;
+            public BlendTexturePair BlendTextures;
 
             public BlendLayer(AbstractLayer refLayer, Texture layer, BlendType blendType)
             {
                 RefLayer = refLayer;
-                BlendTextures = new BlendTextures(layer, blendType);
+                BlendTextures = new BlendTexturePair(layer, blendType);
             }
 
         }

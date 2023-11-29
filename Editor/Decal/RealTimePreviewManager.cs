@@ -113,7 +113,7 @@ namespace net.rs64.TexTransTool
             var souseTex = target.Item1.SouseTexture;
             Graphics.Blit(souseTex, targetRt);
 
-            targetRt.BlendBlit(target.Decals.Where(I => I.RenderTexture != null).Select<BlendTextureClass, BlendTextures>(I => I));
+            targetRt.BlendBlit(target.Decals.Where(I => I.RenderTexture != null).Select<BlendTextureClass, BlendTexturePair>(I => I));
         }
         public bool ContainsPreview => PreviewTargetRenderer.Count != 0;
         public void ExitPreview()
@@ -249,7 +249,7 @@ namespace net.rs64.TexTransTool
                 BlendType = blendType;
             }
 
-            public static implicit operator BlendTextures(BlendTextureClass bl) => new BlendTextures(bl.RenderTexture, bl.BlendType);
+            public static implicit operator BlendTexturePair(BlendTextureClass bl) => new BlendTexturePair(bl.RenderTexture, bl.BlendType);
         }
     }
 }
