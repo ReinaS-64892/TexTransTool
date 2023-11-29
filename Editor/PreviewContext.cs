@@ -95,8 +95,8 @@ namespace net.rs64.TexTransTool
                 {
                     RenderersDomain renderersDomain = null;
                     var marker = DomainMarkerFinder.FindMarker(target1.gameObject);
-                    if (marker != null) { renderersDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false, TTTConfig.UseImmediateTextureStack); }
-                    else { renderersDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler(), TTTConfig.UseImmediateTextureStack); }
+                    if (marker != null) { renderersDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false); }
+                    else { renderersDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler()); }
                     target1.Apply(renderersDomain);
                     renderersDomain.EditFinish();
                 }

@@ -31,8 +31,7 @@ namespace net.rs64.TexTransTool
         public RenderersDomain(List<Renderer> previewRenderers,
                                bool previewing,
                                [CanBeNull] IAssetSaver saver = null,
-                               IProgressHandling progressHandler = null,
-                               bool useImmediateTextureStack = true
+                               IProgressHandling progressHandler = null
                                )
         {
             _renderers = previewRenderers;
@@ -41,7 +40,7 @@ namespace net.rs64.TexTransTool
             _progressHandler = progressHandler;
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
             _textureManager = new TextureManager(Previewing);
-            _textureStacks = useImmediateTextureStack ? new StackManager<ImmediateTextureStack>(_textureManager) as IStackManager : new StackManager<DeferredTextureStack>(_textureManager) as IStackManager;
+            _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
         }
         public RenderersDomain(List<Renderer> previewRenderers,
                        bool previewing,
@@ -139,13 +138,13 @@ namespace net.rs64.TexTransTool
         public virtual void EditFinish()
         {
             ProgressStateEnter("Finalize");
-            ProgressUpdate("MargeStack",0.0f);
+            ProgressUpdate("MargeStack", 0.0f);
             MargeStack();
-            ProgressUpdate("DeferTexDestroy",0.3f);
+            ProgressUpdate("DeferTexDestroy", 0.3f);
             DeferTexDestroy();
-            ProgressUpdate("TexCompressDelegationInvoke",0.6f);
+            ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
             TexCompressDelegationInvoke();
-            ProgressUpdate("End",1f);
+            ProgressUpdate("End", 1f);
             ProgressStateExit();
             ProgressStateExit();
             _progressHandler?.ProgressFinalize();

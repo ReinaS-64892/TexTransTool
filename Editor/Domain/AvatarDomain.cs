@@ -27,9 +27,8 @@ namespace net.rs64.TexTransTool
                             bool previewing,
                             [CanBeNull] IAssetSaver saver = null,
                             IProgressHandling progressHandler = null,
-                            bool? isObjectReplaceInvoke = null,
-                            bool useImmediateTextureStack = false
-                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, useImmediateTextureStack)
+                            bool? isObjectReplaceInvoke = null
+                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;
             _useMaterialReplaceEvent = !previewing;

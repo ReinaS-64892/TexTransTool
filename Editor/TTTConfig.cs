@@ -17,7 +17,6 @@ namespace net.rs64.TexTransTool
         static void Init()
         {
             isObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
-            UseImmediateTextureStack = EditorPrefs.GetBool(IMMEDIATE_TEXTURE_STACK_PREFKEY);
         }
 
 
@@ -39,26 +38,6 @@ namespace net.rs64.TexTransTool
             Menu.SetChecked(OBJECT_REPLACE_INVOKE_MENU_PATH, isObjectReplaceInvoke);
         }
 #endregion
-
-#region StackType
-        public const string IMMEDIATE_TEXTURE_STACK_MENU_PATH = EXPERIMENTAL_MENU_PATH + "/ImmediateTextureStack";
-        public const string IMMEDIATE_TEXTURE_STACK_PREFKEY = "net.rs64.tex-trans-tool.ImmediateTextureStack";
-        private static bool _useImmediateTextureStack;
-        public static bool UseImmediateTextureStack { get => _useImmediateTextureStack; private set { _useImmediateTextureStack = value; ImmediateTextureStackConfigUpdate(); } }
-
-        [MenuItem(IMMEDIATE_TEXTURE_STACK_MENU_PATH)]
-        static void ToggleImmediateTextureStack()
-        {
-            UseImmediateTextureStack = !UseImmediateTextureStack;
-        }
-
-        private static void ImmediateTextureStackConfigUpdate()
-        {
-            EditorPrefs.SetBool(IMMEDIATE_TEXTURE_STACK_PREFKEY, UseImmediateTextureStack);
-            Menu.SetChecked(IMMEDIATE_TEXTURE_STACK_MENU_PATH, UseImmediateTextureStack);
-        }
-#endregion
-
     }
 }
 #endif
