@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Build
                 session.ApplyFor(TexTransPhase.UnDefined);
 
                 session.TTTSessionEnd();
-                timer.Stop();Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
+                timer.Stop(); Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
                 return true;
             }
             catch (Exception e)
@@ -79,11 +79,14 @@ namespace net.rs64.TexTransTool.Build
             {
                 _avatarDomain.ProgressStateEnter(texTransPhase.ToString());
                 var count = 0;
+                var timer = new System.Diagnostics.Stopwatch();
                 foreach (var tf in _phaseAtList[texTransPhase])
                 {
-                    Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply");
+                    timer.Restart();
                     tf.Apply(_avatarDomain);
+                    timer.Stop();
                     count += 1;
+                    Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply : {timer.ElapsedMilliseconds}ms");
                     _avatarDomain.ProgressUpdate($"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
                 }
                 _avatarDomain.ProgressStateExit();
