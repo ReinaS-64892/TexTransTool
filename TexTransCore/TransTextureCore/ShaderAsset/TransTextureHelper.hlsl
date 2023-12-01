@@ -84,9 +84,14 @@
                 v2f g2 = PaddingCal(center ,input[2] ,_Padding);
 
 #if HighQualityPadding
-                g0.uv = ReCalUV(input , g0);
-                g1.uv = ReCalUV(input , g1);
-                g2.uv = ReCalUV(input , g2);
+                g0.uv.xy = ReCalUV(input , g0);
+                g1.uv.xy = ReCalUV(input , g1);
+                g2.uv.xy = ReCalUV(input , g2);
+#endif
+#if !NotDepth
+                g0.uv = input[0].uv;
+                g1.uv = input[1].uv;
+                g2.uv = input[2].uv;
 #endif
 
                 stream.Append(g0);
