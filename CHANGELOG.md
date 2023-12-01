@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 実験的機能として、GrabDecal が SimpleDecal に追加 `#233`
 - メッシュとテクスチャーの置き換えも適用する機能を追加 `#232`
 - MenuItem の Language に CheckMark の表示を追加 `#233`
+- 非常に実験的な機能として UseDepth と DepthInvert が追加 `#150`
 
 ### Changed
 
