@@ -8,6 +8,7 @@ using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Editor.MatAndTexUtils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.Editor;
+using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Editor
 {

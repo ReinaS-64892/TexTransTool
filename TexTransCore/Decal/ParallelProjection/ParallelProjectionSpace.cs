@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public class ParallelProjectionSpace : DecalUtility.IConvertSpace
+    public class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
     {
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVert;
@@ -19,15 +19,7 @@ namespace net.rs64.TexTransCore.Decal
             PPSVert = DecalUtility.ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData.Vertex as IEnumerable<Vector3>, new Vector3(0.5f, 0.5f, 0));
         }
 
-        public List<Vector2> OutPutUV()
-        {
-            var UV = new List<Vector2>(PPSVert.Capacity);
-            foreach (var vert in PPSVert)
-            {
-                UV.Add(vert);
-            }
-            return UV;
-        }
+        public List<Vector3> OutPutUV() => PPSVert;
 
     }
 }

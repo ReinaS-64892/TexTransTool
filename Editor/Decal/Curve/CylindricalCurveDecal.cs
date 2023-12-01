@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                     var CCSfilter = new CCSFilter(GetFilers());
 
 
-                    DecalUtility.CreateDecalTexture(Renderer,
+                    DecalUtility.CreateDecalTexture<CCSSpace,Vector2>(Renderer,
                                                 decalCompiledRenderTextures,
                                                 targetDecalTexture,
                                                 CCSSpace,

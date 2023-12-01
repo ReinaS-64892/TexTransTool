@@ -10,13 +10,13 @@ namespace net.rs64.TexTransCore.TransTextureCore
 {
     public static class TransTexture
     {
-        public struct TransData
+        public struct TransData<UVDimension> where UVDimension : struct
         {
-            public readonly List<TriangleIndex> TrianglesToIndex;
-            public readonly List<Vector2> TargetUV;
-            public readonly List<Vector2> SourceUV;
+            public readonly IEnumerable<TriangleIndex> TrianglesToIndex;
+            public readonly IEnumerable<Vector2> TargetUV;
+            public readonly IEnumerable<UVDimension> SourceUV;
 
-            public TransData(List<TriangleIndex> TrianglesToIndex, List<Vector2> TargetUV, List<Vector2> SourceUV)
+            public TransData(IEnumerable<TriangleIndex> TrianglesToIndex, IEnumerable<Vector2> TargetUV, IEnumerable<UVDimension> SourceUV)
             {
                 this.TrianglesToIndex = TrianglesToIndex;
                 this.TargetUV = TargetUV;
@@ -27,22 +27,28 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 var Mesh = new Mesh();
                 var Vertices = TargetUV.Select(I => new Vector3(I.x, I.y, 0)).ToArray();
-                var UV = SourceUV.ToArray();
                 var Triangles = TrianglesToIndex.SelectMany(I => I).ToArray();
                 Mesh.vertices = Vertices;
-                Mesh.uv = UV;
+                var NativeArray = new Unity.Collections.NativeArray<UVDimension>(SourceUV.ToArray(), Unity.Collections.Allocator.Temp);
+                Mesh.SetUVs(0, NativeArray);
+                NativeArray.Dispose();
                 Mesh.triangles = Triangles;
                 return Mesh;
             }
         }
-        public static void ForTrans(
+
+
+        public const string TRANS_SHADER = "Hidden/TransTexture";
+        public const string DEPTH_WRITER_SHADER = "Hidden/DepthWriter";
+        public static void ForTrans<UVDimension>(
             RenderTexture TargetTexture,
             Texture SouseTexture,
-            TransData TransUVData,
+            TransData<UVDimension> TransUVData,
             float? Padding = null,
             TextureWrap TexWrap = null,
-            bool HighQualityPadding = false
-            )
+            bool HighQualityPadding = false,
+            bool? DepthInvert = null
+            ) where UVDimension : struct
         {
             var mesh = TransUVData.GenerateTransMesh();
 
@@ -56,7 +62,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
 
-            var material = new Material(Shader.Find("Hidden/TransTexture"));
+            var material = new Material(Shader.Find(TRANS_SHADER));
             material.SetTexture("_MainTex", SouseTexture);
             if (Padding.HasValue) material.SetFloat("_Padding", Padding.Value);
             if (Padding.HasValue && HighQualityPadding)
@@ -72,6 +78,30 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 material.SetFloat("_WarpRangeY", TexWrap.WarpRange.Value.y);
             }
 
+
+            RenderTexture depthRt = null;
+            if (DepthInvert.HasValue)
+            {
+                depthRt = RenderTexture.GetTemporary(TargetTexture.width, TargetTexture.height, 8, RenderTextureFormat.RFloat);
+                material.EnableKeyword(DepthInvert.Value ? "InvertDepth" : "DepthDecal");
+
+                using (new RTActiveSaver())
+                {
+                    var depthMat = new Material(Shader.Find(DEPTH_WRITER_SHADER));
+                    RenderTexture.active = depthRt;
+
+                    depthMat.SetPass(0);
+                    Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+
+                    UnityEngine.Object.DestroyImmediate(depthMat);
+                }
+
+                material.SetTexture("_DepthTex", depthRt);
+            }
+            else
+            {
+                material.EnableKeyword("NotDepth");
+            }
 
 
 
@@ -90,13 +120,16 @@ namespace net.rs64.TexTransCore.TransTextureCore
             }
             SouseTexture.mipMapBias = preBias;
             SouseTexture.wrapMode = preWarp;
+            UnityEngine.Object.DestroyImmediate(mesh);
+            if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
         }
-        public static void ForTrans(
+        public static void ForTrans<T>(
             RenderTexture TargetTexture,
             Texture SouseTexture,
-            IEnumerable<TransData> TransUVDataEnumerable,
+            IEnumerable<TransData<T>> TransUVDataEnumerable,
             float? Padding = null,
-            TextureWrap WarpRange = null)
+            TextureWrap WarpRange = null
+            ) where T : struct
         {
             foreach (var transUVData in TransUVDataEnumerable)
             {

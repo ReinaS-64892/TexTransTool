@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Editor;
+using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {

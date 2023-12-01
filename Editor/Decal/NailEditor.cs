@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.Decal
                 foreach (var renderer in TargetRenderers)
                 {
                     if (renderer == null) { continue; }
-                    DecalUtility.CreateDecalTexture(
+                    DecalUtility.CreateDecalTexture<ParallelProjectionSpace,Vector3>(
                         renderer,
                         decalCompiledRenderTextures,
                         nailTexSpaceFilter.Item1,
@@ -51,9 +51,9 @@ namespace net.rs64.TexTransTool.Decal
             return decalCompiledRenderTextures;
         }
 
-        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter)> GetNailTexSpaceFilters()
+        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)> GetNailTexSpaceFilters()
         {
-            var spaceList = new List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter)>();
+            var spaceList = new List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)>();
 
 
             CompileNail(LeftHand, false);
@@ -73,7 +73,7 @@ namespace net.rs64.TexTransTool.Decal
                     var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
 
                     var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
-                    var Filter = new IslandCullingPPFilter(GetFilter(), new List<IslandSelector>(1) { islandSelector }, new EditorIsland.EditorIslandCache());
+                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector }, new EditorIsland.EditorIslandCache());
 
                     spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }

@@ -3,6 +3,7 @@ Shader "Hidden/TransTexture"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _DepthTex ("Texture", 2D) = "white" {}
         _Padding ("Padding", Float) = 0
         _WarpRangeX("WarpRangeX" ,Float) = 0
         _WarpRangeY("WarpRangeY" ,Float) = 0
@@ -27,6 +28,7 @@ Shader "Hidden/TransTexture"
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
+            #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
             #include "./TransTextureHelper.hlsl"
 
@@ -47,6 +49,7 @@ Shader "Hidden/TransTexture"
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
             #pragma shader_feature_local HighQualityPadding
+            #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
 
             #include "./TransTextureHelper.hlsl"
@@ -73,6 +76,7 @@ Shader "Hidden/TransTexture"
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
+            #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
             #include "./TransTextureHelper.hlsl"
 

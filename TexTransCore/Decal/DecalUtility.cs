@@ -11,10 +11,11 @@ namespace net.rs64.TexTransCore.Decal
 {
     public static class DecalUtility
     {
-        public interface IConvertSpace
+        public interface IConvertSpace<UVDimension>
+        where UVDimension : struct
         {
             void Input(MeshData meshData);
-            List<Vector2> OutPutUV();
+            List<UVDimension> OutPutUV();
         }
         public interface ITrianglesFilter<SpaceConverter>
         {
@@ -33,7 +34,7 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter>(
+        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter,UVDimension>(
             Renderer TargetRenderer,
             Dictionary<Material, Dictionary<string, RenderTexture>> RenderTextures,
             Texture SousTextures,
@@ -42,9 +43,11 @@ namespace net.rs64.TexTransCore.Decal
             string TargetPropertyName = "_MainTex",
             TextureWrap TextureWarp = null,
             float DefaultPadding = 0.5f,
-            bool HighQualityPadding = false
+            bool HighQualityPadding = false,
+            bool? UseDepthOrInvert = null
         )
-        where SpaceConverter : IConvertSpace
+        where SpaceConverter : IConvertSpace<UVDimension>
+        where UVDimension : struct
         {
             if (RenderTextures == null) RenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>();
 
@@ -83,10 +86,11 @@ namespace net.rs64.TexTransCore.Decal
                 TransTexture.ForTrans(
                     RenderTextures[targetMat][TargetPropertyName],
                     SousTextures,
-                    new TransTexture.TransData(filteredTriangle, tUV, sUV),
+                    new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
                     DefaultPadding,
                     TextureWarp,
-                    HighQualityPadding
+                    HighQualityPadding,
+                    UseDepthOrInvert
                 );
 
 
