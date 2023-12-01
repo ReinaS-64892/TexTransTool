@@ -3,18 +3,27 @@
 
             struct appdata
             {
+                #if NotDepth
                 float2 uv : TEXCOORD0;
+                #else
+                float3 uv : TEXCOORD0;
+                #endif
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
             };
 
             struct v2f
             {
+                #if NotDepth
                 float2 uv : TEXCOORD0;
+                #else
+                float3 uv : TEXCOORD0;
+                #endif
                 float4 vertex : SV_POSITION;
                 float3 normal : NORMAL;
             };
             sampler2D _MainTex;
+            sampler2D _DepthTex;
             float _Padding;
             float _WarpRangeX;
             float _WarpRangeY;
@@ -112,7 +121,7 @@
             }
 
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
 
 #if WarpRange
@@ -123,7 +132,15 @@
                 Rangeflag  = 0.5 - Rangeflag;
                 clip(Rangeflag);
 #endif
-                float4 AddColor = tex2D(_MainTex ,i.uv);
-                return AddColor;
+#if DepthDecal
+                float DepthValue = tex2Dlod(_DepthTex ,float4(i.uv.xy,0,0)).r;
+                clip( ((1.0001 - i.uv.z) < DepthValue ) * -1 + 0.5);
+#elif InvertDepth
+                float DepthValue = tex2D(_DepthTex ,i.uv.xy).r;
+                clip( ((1.0001 - i.uv.z) < DepthValue )  - 0.5);
+#endif
+
+                float4 DecalColor = tex2D(_MainTex ,i.uv.xy);
+                return DecalColor;
 
             }

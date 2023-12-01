@@ -10,13 +10,15 @@ using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public abstract class AbstractSingleDecal<SpaceConverter> : AbstractDecal
-    where SpaceConverter : DecalUtility.IConvertSpace
+    public abstract class AbstractSingleDecal<SpaceConverter, UVDimension> : AbstractDecal
+    where SpaceConverter : DecalUtility.IConvertSpace<UVDimension>
+    where UVDimension : struct
     {
         public Texture2D DecalTexture;
         public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         public abstract SpaceConverter GetSpaceConverter { get; }
         public abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
+        public virtual bool? GetUseDepthOrInvert => null;
 
         public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
@@ -38,7 +40,7 @@ namespace net.rs64.TexTransTool.Decal
             foreach (var renderer in TargetRenderers)
             {
                 if (renderer == null) { continue; }
-                DecalUtility.CreateDecalTexture(
+                DecalUtility.CreateDecalTexture<SpaceConverter, UVDimension>(
                    renderer,
                    decalCompiledRenderTextures,
                    mulDecalTexture,
@@ -47,7 +49,8 @@ namespace net.rs64.TexTransTool.Decal
                    TargetPropertyName,
                    GetTextureWarp,
                    Padding,
-                   HighQualityPadding
+                   HighQualityPadding,
+                   GetUseDepthOrInvert
                );
             }
             RenderTexture.ReleaseTemporary(mulDecalTexture);

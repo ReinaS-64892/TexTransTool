@@ -108,7 +108,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
     }
 
 
-    public class CCSSpace : DecalUtility.IConvertSpace
+    public class CCSSpace : DecalUtility.IConvertSpace<Vector2>
     {
         public CylindricalCoordinatesSystem CCS;
         public IReadOnlyList<Vector3> Quad;

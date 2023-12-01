@@ -13,25 +13,29 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
-    public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace>
+    public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
     {
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;
 
+        public bool IslandCulling = false;
+        public Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
+        public float IslandSelectorRange = 1;
+
+        public bool UseDepth;
+        public bool DepthInvert;
+        public override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
         public override ParallelProjectionSpace GetSpaceConverter => new ParallelProjectionSpace(transform.worldToLocalMatrix);
         public override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter
         {
             get
             {
-                if (IslandCulling) { return new IslandCullingPPFilter(GetFilter(), GetIslandSelector(), new EditorIsland.EditorIslandCache()); }
-                else { return new ParallelProjectionFilter(GetFilter()); }
+                if (IslandCulling) { return new IslandCullingPPFilter<Vector2>(GetFilter(), GetIslandSelector(), new EditorIsland.EditorIslandCache()); }
+                else { return new ParallelProjectionFilter<Vector2>(GetFilter()); }
             }
         }
 
-        public bool IslandCulling = false;
-        public Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
-        public float IslandSelectorRange = 1;
         public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
             var filters = new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>

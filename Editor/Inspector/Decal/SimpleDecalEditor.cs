@@ -3,12 +3,13 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
 
-    [CustomEditor(typeof(SimpleDecal), true)]
     [CanEditMultipleObjects]
+    [CustomEditor(typeof(SimpleDecal))]
     public class SimpleDecalEditor : UnityEditor.Editor
     {
         bool FoldoutOption;
@@ -67,13 +68,19 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     EditorGUILayout.Slider(s_IslandSelectorRange, 0, 1, s_IslandSelectorRange.name.GetLC());
                     EditorGUI.indentLevel -= 1;
                 }
+
+                var s_UseDepth = This_S_Object.FindProperty("UseDepth");
+                var s_DepthInvert = This_S_Object.FindProperty("DepthInvert");
+                EditorGUILayout.PropertyField(s_UseDepth, s_UseDepth.name.GetLC());
+                if (s_UseDepth.boolValue) { EditorGUILayout.PropertyField(s_DepthInvert, s_DepthInvert.name.GetLC()); }
+
+
                 EditorGUI.indentLevel += 1;
                 if (!isMultiEdit)
                 {
                     AbstractDecalEditor.DrawerDecalGrabEditor(ThisObject);
                 }
                 EditorGUI.indentLevel -= 1;
-
                 EditorGUILayout.LabelField("---");
             }
 

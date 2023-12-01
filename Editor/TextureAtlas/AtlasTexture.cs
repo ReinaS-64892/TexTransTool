@@ -361,7 +361,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TUV.AddRange(movedVertexes);
             }
 
-            TransTexture.ForTrans(targetRT, SouseTex, new TransData(triangles, TUV, SUV), TexWrap: TextureWrap.Loop);
+            TransTexture.ForTrans(targetRT, SouseTex, new TransData<Vector2>(triangles, TUV, SUV), TexWrap: TextureWrap.Loop);
 
         }
 
