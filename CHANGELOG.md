@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - メッシュとテクスチャーの置き換えも適用する機能を追加 `#232`
 - MenuItem の Language に CheckMark の表示を追加 `#233`
 - 非常に実験的な機能として UseDepth と DepthInvert が追加 `#150`
+- 無効化されたレンダラーもアトラス化の対象にする IncludeDisableRenderer を追加 `#222`
 
 ### Changed
 
@@ -36,18 +37,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal の IslandCulling を実験的機能に変更 `#229`
 - SimpleDecal の Far Culling の基準を変更 `#242`
 - PropertyName の保存形式を調整し、データが勝手に変わらないように変更 `#228`
-- Texture のブレンドを即時実行するように変更し、VRAM + RAM 容量が Decalなどのコンポーネントの最大数にならないように変更 `#188`
+- Texture のブレンドを即時実行するように変更し、VRAM + RAM 容量が Decal などのコンポーネントの最大数にならないように変更 `#188`
 
 ### Removed
 
 - 色合成の改修に伴い ClassicNormal は削除されました `#237`
 - TexTransListGroup は削除されました `#230`
+- AtlasTexture の改修に伴い EvenlySpaced, NextFitDecreasingHeight は削除されました `#252`
 
 ### Fixed
 
 - 一部の色合成が一般的なソフトと大きく異なっている問題を修正 `#237`
 - AtlasTexture の FineTuning の Resize の品質が低い問題を修正 `#96`
-- Decalなどのコンポーネントがオリジナルのテクスチャーを取得する際、不必要に別のインスタンスを生成していた問題を修正 `#249`
+- Decal などのコンポーネントがオリジナルのテクスチャーを取得する際、不必要に別のインスタンスを生成していた問題を修正 `#249`
 
 ### Deprecated
 
