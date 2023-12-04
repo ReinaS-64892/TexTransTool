@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, "TargetRoot".GetLC(), NewRoot =>
             {
                 Undo.RecordObject(ThisTarget, "AtlasTexture - TargetRoot");
-                RefreshMaterials(ThisTarget,S_TargetRoot, NewRoot);
+                RefreshMaterials(ThisTarget, S_TargetRoot, NewRoot);
                 This_S_Object.ApplyModifiedProperties();
                 return NewRoot;
             });
@@ -56,13 +56,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (GUILayout.Button("RefreshMaterials".GetLocalize()))
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(ThisTarget,S_TargetRoot, ThisTarget.TargetRoot);
+                    RefreshMaterials(ThisTarget, S_TargetRoot, ThisTarget.TargetRoot);
                     This_S_Object.ApplyModifiedProperties();
                 }
                 if (TempMaterial == null)
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(ThisTarget,S_TargetRoot, ThisTarget.TargetRoot);
+                    RefreshMaterials(ThisTarget, S_TargetRoot, ThisTarget.TargetRoot);
                 }
                 MaterialSelectEditor(S_MatSelectors, TempMaterial);
             }
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(S_ForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
             EditorGUILayout.PropertyField(S_Padding, new GUIContent("Padding".GetLocalize()));
             EditorGUILayout.PropertyField(s_UseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
-            EditorGUILayout.PropertyField(S_SorterName, new GUIContent("SorterName".GetLocalize()));
+            EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(S_SorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(s_WriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(s_UnknownShaderAtlasAllTexture, "UnknownShaderAtlasAllTexture".GetLC());
             EditorGUILayout.PropertyField(s_IncludeDisableRenderer, s_IncludeDisableRenderer.name.GetLC());
