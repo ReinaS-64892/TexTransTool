@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             TextureTransformerEditor.DrawerObjectReference<GameObject>(S_TargetRoot, "TargetRoot".GetLC(), NewRoot =>
             {
                 Undo.RecordObject(ThisTarget, "AtlasTexture - TargetRoot");
-                RefreshMaterials(S_TargetRoot, NewRoot);
+                RefreshMaterials(ThisTarget,S_TargetRoot, NewRoot);
                 This_S_Object.ApplyModifiedProperties();
                 return NewRoot;
             });
@@ -56,13 +56,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (GUILayout.Button("RefreshMaterials".GetLocalize()))
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(S_TargetRoot, ThisTarget.TargetRoot);
+                    RefreshMaterials(ThisTarget,S_TargetRoot, ThisTarget.TargetRoot);
                     This_S_Object.ApplyModifiedProperties();
                 }
                 if (TempMaterial == null)
                 {
                     Undo.RecordObject(ThisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(S_TargetRoot, ThisTarget.TargetRoot);
+                    RefreshMaterials(ThisTarget,S_TargetRoot, ThisTarget.TargetRoot);
                 }
                 MaterialSelectEditor(S_MatSelectors, TempMaterial);
             }
@@ -91,9 +91,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var S_PropertyBakeSetting = s_AtlasSettings.FindPropertyRelative("PropertyBakeSetting");
             var S_Padding = s_AtlasSettings.FindPropertyRelative("Padding");
             var s_UseIslandCache = s_AtlasSettings.FindPropertyRelative("UseIslandCache");
-            var S_SortingType = s_AtlasSettings.FindPropertyRelative("SortingType");
+            var S_SorterName = s_AtlasSettings.FindPropertyRelative("SorterName");
             var s_WriteOriginalUV = s_AtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var s_UnknownShaderAtlasAllTexture = s_AtlasSettings.FindPropertyRelative("UnknownShaderAtlasAllTexture");
+            var s_IncludeDisableRenderer = s_AtlasSettings.FindPropertyRelative("IncludeDisableRenderer");
             var S_TextureFineTuningDataList = s_AtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
 
 
@@ -108,9 +109,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(S_ForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
             EditorGUILayout.PropertyField(S_Padding, new GUIContent("Padding".GetLocalize()));
             EditorGUILayout.PropertyField(s_UseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
-            EditorGUILayout.PropertyField(S_SortingType, new GUIContent("SortingType".GetLocalize()));
+            EditorGUILayout.PropertyField(S_SorterName, new GUIContent("SorterName".GetLocalize()));
             EditorGUILayout.PropertyField(s_WriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(s_UnknownShaderAtlasAllTexture, "UnknownShaderAtlasAllTexture".GetLC());
+            EditorGUILayout.PropertyField(s_IncludeDisableRenderer, s_IncludeDisableRenderer.name.GetLC());
             DrawTextureFineTuningDataList(S_TextureFineTuningDataList);
 
 
@@ -202,12 +204,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
         List<Material> TempMaterial;
-        void RefreshMaterials(SerializedProperty s_TargetRoot, GameObject NewRoot)
+        void RefreshMaterials(AtlasTexture thisTarget, SerializedProperty s_TargetRoot, GameObject NewRoot)
         {
             s_TargetRoot.objectReferenceValue = NewRoot;
             if (NewRoot == null) { return; }
 
-            var renderers = AtlasTexture.FilteredRenderers(NewRoot);
+            var renderers = thisTarget.FilteredRenderers(NewRoot);
             TempMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
         }
 

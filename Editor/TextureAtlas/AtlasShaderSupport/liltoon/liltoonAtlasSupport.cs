@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             material.SetTexture("_BaseColorMap", mainTex);
         }
 
-        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(ITextureManager textureManager, Material material, PropertyBakeSetting bakeSetting)
         {
             var propEnvsDict = new Dictionary<string, Texture>();
 
@@ -144,8 +144,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var Color = material.GetColor(ColorPropName);
 
-                var MainTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
-                if (MainTex == null)
+                var texture = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
+                if (texture == null)
                 {
                     if (AlreadyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
@@ -154,15 +154,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(MainTex.TryGetUnCompress(), Color);
+                    texture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
+                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(texture, Color);
                 }
             }
             void FloatMul(string TexPropName, string FloatProp, bool AlreadyTex)
             {
                 var PropFloat = material.GetFloat(FloatProp);
 
-                var PropTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
-                if (PropTex == null)
+                var propTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
+                if (propTex == null)
                 {
                     if (AlreadyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
@@ -171,7 +172,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(PropTex.TryGetUnCompress(), new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                    propTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
+                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(propTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
                 }
             }
 

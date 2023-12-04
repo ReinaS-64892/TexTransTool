@@ -8,12 +8,12 @@ namespace net.rs64.TexTransTool
     public class PropAndTexture
     {
         public string PropertyName;
-        public Texture Texture2D;
+        public Texture Texture;
 
         public PropAndTexture(string propertyName, Texture textures)
         {
             PropertyName = propertyName;
-            Texture2D = textures;
+            Texture = textures;
         }
     }
 

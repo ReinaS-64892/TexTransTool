@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool GetAllTexture = false;
         public void AddRecord(Material material) { }
         public void ClearRecord() { }
-        public List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(ITextureManager textureManager, Material material, PropertyBakeSetting bakeSetting)
         {
             if (GetAllTexture)
             {
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             if (material.HasProperty("_MainTex"))
             {
-                return new List<PropAndTexture>() { new PropAndTexture("_MainTex", material.GetTexture("_MainTex")) };
+                return new List<PropAndTexture>() { new PropAndTexture("_MainTex", material.GetTexture("_MainTex") as Texture2D) };
             }
             else { return new List<PropAndTexture>(); }
         }

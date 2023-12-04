@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         void AddRecord(Material material);
         void ClearRecord();
 
-        List<PropAndTexture> GetPropertyAndTextures(Material material, PropertyBakeSetting bakeSetting);
+        List<PropAndTexture> GetPropertyAndTextures(ITextureManager textureManager,Material material, PropertyBakeSetting bakeSetting);
         void MaterialCustomSetting(Material material);
     }
 }
