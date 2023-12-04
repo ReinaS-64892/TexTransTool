@@ -59,16 +59,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
         {
-            foreach (var texf in texFineTuningTargets)
-            {
-                var compressionQualityData = texf.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
-                if (compressionQualityData == null) { continue; }
-                TextureFormat textureFormat = GetTextureFormat(compressionQualityData.FormatQualityValue);
-                if (compressionQualityData.FormatQualityValue != FormatQuality.None && texf.Texture2D.format != textureFormat)
-                {
-                    EditorUtility.CompressTexture(texf.Texture2D, textureFormat, compressionQualityData.CompressionQuality);
-                }
-            }
+            // Delegated to ITextureManager
         }
         public static TextureFormat GetTextureFormat(FormatQuality formatQuality)
         {

@@ -175,7 +175,7 @@ namespace net.rs64.TexTransTool
         public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager?.DeferDestroyTexture2D(texture2D);
         public void DeferTexDestroy() => _textureManager?.DeferTexDestroy();
 
-        public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target) => _textureManager?.TextureCompressDelegation(CompressFormat, Target);
+        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) CompressSetting, Texture2D Target) => _textureManager?.TextureCompressDelegation(CompressSetting, Target);
         public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target) => _textureManager?.ReplaceTextureCompressDelegation(Souse, Target);
         public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
 

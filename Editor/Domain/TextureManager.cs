@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool
     {
         private readonly bool Previewing;
         private readonly List<Texture2D> DestroyList;
-        private readonly Dictionary<Texture2D, TextureFormat> CompressDict;
+        private readonly Dictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> CompressDict;
         private readonly Dictionary<Texture2D, Texture2D> OriginDict;
 
         public TextureManager(bool previewing)
@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
             Previewing = previewing;
             if (!Previewing) { DestroyList = new List<Texture2D>(); }
             else { DestroyList = null; }
-            if (!Previewing) { CompressDict = new Dictionary<Texture2D, TextureFormat>(); }
+            if (!Previewing) { CompressDict = new Dictionary<Texture2D, (TextureFormat, int)>(); }
             else { CompressDict = null; }
             if (!Previewing) { OriginDict = new Dictionary<Texture2D, Texture2D>(); }
             else { OriginDict = null; }
@@ -63,10 +63,10 @@ namespace net.rs64.TexTransTool
                 }
             }
         }
-        public void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target)
+        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
         {
             if (CompressDict == null) { return; }
-            CompressDict[Target] = CompressFormat;
+            CompressDict[target] = compressSetting;
         }
         public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target)
         {
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                CompressDict[Target] = Souse.format;
+                CompressDict[Target] = (Souse.format, 50);
             }
         }
 
@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool
             if (CompressDict == null) { return; }
             foreach (var texAndFormat in CompressDict)
             {
-                EditorUtility.CompressTexture(texAndFormat.Key, texAndFormat.Value, 50);
+                EditorUtility.CompressTexture(texAndFormat.Key, texAndFormat.Value.CompressFormat, texAndFormat.Value.Quality);
             }
         }
     }
