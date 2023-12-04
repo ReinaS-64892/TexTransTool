@@ -24,15 +24,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool WriteOriginalUV = false;
         public bool UnknownShaderAtlasAllTexture = false;
         public bool IncludeDisableRenderer = false;
-        public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> {
-            new TextureFineTuningData()
-            {
-                Select = TextureFineTuningData.select.Resize,
-                Resize_Size = 512,
-                Resize_PropertyNames = PropertyName.DefaultValue,
-                Resize_Select = PropertySelect.NotEqual,
-            }
-        };
+        public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         public float GetTexScalePadding => Padding / AtlasTextureSize;
 
         public List<IAddFineTuning> GetTextureFineTuning()

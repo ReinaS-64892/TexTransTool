@@ -120,14 +120,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawTextureFineTuningDataList(SerializedProperty s_fineSettings)
+        private static void DrawTextureFineTuningDataList(SerializedProperty s_fineTunings)
         {
             EditorGUILayout.LabelField("TextureFineTuning".GetLocalize(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            for (int i = 0; s_fineSettings.arraySize > i; i += 1)
+            for (int i = 0; s_fineTunings.arraySize > i; i += 1)
             {
-                var S_fineSettingData = s_fineSettings.GetArrayElementAtIndex(i);
+                var S_fineSettingData = s_fineTunings.GetArrayElementAtIndex(i);
                 var S_select = S_fineSettingData.FindPropertyRelative("Select");
                 EditorGUILayout.PropertyField(S_select, new GUIContent("Setting".GetLocalize() + " " + i));
                 switch (S_select.enumValueIndex)
@@ -199,7 +199,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("[" + "NewFineTuningSetting".GetLocalize() + "]");
-            TextureTransformerEditor.DrawerArrayResizeButton(s_fineSettings, true);
+            TextureTransformerEditor.DrawerArrayResizeButton(s_fineTunings, true);
         }
 
 
