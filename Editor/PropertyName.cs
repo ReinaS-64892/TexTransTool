@@ -26,6 +26,7 @@ namespace net.rs64.TexTransTool
         }
 
         public const string MainTex = "_MainTex";
+        public static PropertyName DefaultValue => new PropertyName(MainTex);
         public override string ToString()
         {
             return (string)this;

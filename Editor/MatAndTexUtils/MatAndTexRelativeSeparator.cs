@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public override bool IsPossibleApply => SeparateTarget.Any();
         public List<MatSlotBool> SeparateTarget = new List<MatSlotBool>();
         public bool IsTextureSeparate;
-        public PropertyName PropertyName = new PropertyName(PropertyName.MainTex);
+        public PropertyName PropertyName = PropertyName.DefaultValue;
 
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 

@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool MultiRendererMode = false;
         public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
-        public PropertyName TargetPropertyName = new PropertyName("_MainTex");
+        public PropertyName TargetPropertyName =  PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
 

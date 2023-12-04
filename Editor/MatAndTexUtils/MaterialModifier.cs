@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             public float Float_Value;
 
 
-            public PropertyName Texture_PropertyName;
+            public PropertyName Texture_PropertyName = PropertyName.DefaultValue;
             public Texture Texture_Value;
 
 

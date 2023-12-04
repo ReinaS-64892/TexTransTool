@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool
     {
         public Renderer TargetRenderer;
         public int MaterialSelect = 0;
-        public PropertyName TargetPropertyName;
+        public PropertyName TargetPropertyName = PropertyName.DefaultValue;
 
         public Texture2D GetTexture()
         {

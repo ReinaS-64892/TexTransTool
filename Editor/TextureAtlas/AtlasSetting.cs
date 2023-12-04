@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 Select = TextureFineTuningData.select.Resize,
                 Resize_Size = 512,
-                Resize_PropertyNames = new PropertyName("_MainTex"),
+                Resize_PropertyNames = PropertyName.DefaultValue,
                 Resize_Select = PropertySelect.NotEqual,
             }
         };
@@ -67,21 +67,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         //Resize
         public int Resize_Size = 512;
-        public PropertyName Resize_PropertyNames;
+        public PropertyName Resize_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Resize_Select = PropertySelect.NotEqual;
         //Compress
         public Compress.FormatQuality Compress_FormatQuality = Compress.FormatQuality.High;
         public TextureCompressionQuality Compress_CompressionQuality = TextureCompressionQuality.Best;
-        public PropertyName Compress_PropertyNames;
+        public PropertyName Compress_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Compress_Select = PropertySelect.Equal;
         //ReferenceCopy
-        public PropertyName ReferenceCopy_SourcePropertyName;
-        public PropertyName ReferenceCopy_TargetPropertyName;
+        public PropertyName ReferenceCopy_SourcePropertyName = PropertyName.DefaultValue;
+        public PropertyName ReferenceCopy_TargetPropertyName = PropertyName.DefaultValue;
         //Remove
-        public PropertyName Remove_PropertyNames;
+        public PropertyName Remove_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Remove_Select = PropertySelect.NotEqual;
         //MipMapRemove
-        public PropertyName MipMapRemove_PropertyNames;
+        public PropertyName MipMapRemove_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
         public IAddFineTuning GetFineSetting()

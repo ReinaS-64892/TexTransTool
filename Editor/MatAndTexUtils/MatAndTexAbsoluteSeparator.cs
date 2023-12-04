@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public List<Material> SeparateTarget = new List<Material>();
         public bool IsTextureSeparate;
-        public PropertyName PropertyName = new PropertyName(PropertyName.MainTex);
+        public PropertyName PropertyName = PropertyName.DefaultValue;
 
 
         public override void Apply(IDomain Domain)
