@@ -69,8 +69,10 @@
             }
             float2 ReCalUV(triangle v2f input[3], v2f Target)
             {
-             float4 CrossT = CrossTriangle(input[0].vertex , input[1].vertex , input[2].vertex , Target.vertex);
-             return FromBarycentricCoordinateSystem(input[0].uv.xyy , input[1].uv.xyy , input[2].uv.xyy , ToBarycentricCoordinateSystem(CrossT)).xy;
+              float4 CrossT = CrossTriangle(input[0].vertex , input[1].vertex , input[2].vertex , Target.vertex);
+              float2 recalUV = FromBarycentricCoordinateSystem(input[0].uv.xyy , input[1].uv.xyy , input[2].uv.xyy , ToBarycentricCoordinateSystem(CrossT)).xy;
+              recalUV = isnan(recalUV) ? Target.uv : recalUV;
+              return recalUV;
             }
             [maxvertexcount(18)]
             void geom (triangle v2f input[3], inout TriangleStream<v2f> stream)
