@@ -37,18 +37,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        public List<PropAndTexture> GetTextures(Material material)
+        public List<PropAndTexture> GetTextures(Material material, ITextureManager textureManager)
         {
             List<PropAndTexture> allTex;
             var supportShaderI = FindSupportI(material);
 
-            if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(material, BakeSetting); }
-            else { allTex = _defaultShaderSupport.GetPropertyAndTextures(material, BakeSetting); }
+            if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(textureManager, material, BakeSetting); }
+            else { allTex = _defaultShaderSupport.GetPropertyAndTextures(textureManager, material, BakeSetting); }
 
             var textures = new List<PropAndTexture>();
             foreach (var tex in allTex)
             {
-                if (tex.Texture2D != null)
+                if (tex.Texture != null)
                 {
                     textures.Add(tex);
                 }

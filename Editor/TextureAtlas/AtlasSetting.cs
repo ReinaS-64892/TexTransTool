@@ -20,9 +20,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public int AtlasTextureSize = 2048;
         public float Padding = 10;
         public bool UseIslandCache = true;
-        public IslandSorting.IslandSortingType SortingType = IslandSorting.IslandSortingType.NextFitDecreasingHeightPlusFloorCeiling;
+        public string SorterName = NFDHPlasFC.NDFHPlasFCName;
         public bool WriteOriginalUV = false;
         public bool UnknownShaderAtlasAllTexture = false;
+        public bool IncludeDisableRenderer = false;
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> {
             new TextureFineTuningData()
             {
