@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool
         void DeferDestroyTexture2D(Texture2D texture2D);
         void DeferTexDestroy();
 
-        void TextureCompressDelegation(TextureFormat CompressFormat, Texture2D Target);
+        void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) CompressFormat, Texture2D Target);
         void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target);
         void TexCompressDelegationInvoke();
     }

@@ -330,6 +330,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
             var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
             Domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
+            foreach (var atlasTexFTData in atlasTexFineTuningTargets)
+            {
+                var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting.FormatQualityValue), (int)compressSetting.CompressionQuality);
+                Domain.TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
+            }
 
             Domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
 
