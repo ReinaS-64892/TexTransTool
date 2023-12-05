@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         where Value : struct
         {
             if (!mat.HasProperty(texturePropertyName)) { return null; }
-            if (propRecords.ContainsKey(texturePropertyName)) { propRecords[texturePropertyName] = new PropRecordAndValue<Value>(); }
+            if (!propRecords.ContainsKey(texturePropertyName)) { propRecords[texturePropertyName] = new PropRecordAndValue<Value>(); }
 
             var record = propRecords[texturePropertyName];
             var vRecord = record as PropRecordAndValue<Value>;
@@ -111,7 +111,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         where Value : struct
         {
             if (!mat.HasProperty(texturePropertyName)) { return null; }
-            if (propRecords.ContainsKey(texturePropertyName)) { propRecords[texturePropertyName] = new PropRecordAndTowValue<Value>(); }
+            if (!propRecords.ContainsKey(texturePropertyName)) { propRecords[texturePropertyName] = new PropRecordAndTowValue<Value>(); }
 
             var record = propRecords[texturePropertyName];
             var vRecord = record as PropRecordAndTowValue<Value>;
@@ -181,7 +181,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var Color = material.GetColor(colorPropName);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<Color>;
 
-            if (record.IsDifferenceValue.HasValue) { return; }
+            if (!record.IsDifferenceValue.HasValue) { return; }
             if (!record.IsDifferenceValue.Value) { return; }
 
             var texture = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
@@ -195,8 +195,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                texture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(texture, Color);
+                var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
+                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originTexture, Color);
             }
         }
 
@@ -205,7 +205,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var PropFloat = material.GetFloat(floatProp);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<float>;
 
-            if (record.IsDifferenceValue.HasValue) { return; }
+            if (!record.IsDifferenceValue.HasValue) { return; }
             if (!record.IsDifferenceValue.Value) { return; }
 
             var propTex = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
@@ -218,8 +218,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                propTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
-                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(propTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                var originPropTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
+                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
             }
         }
 
@@ -230,7 +230,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var texture = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
 
-            if (!(record.IsDifferenceValue.HasValue || !record.IsDifferenceValue.Value))
+            if (record.IsDifferenceValue.HasValue && record.IsDifferenceValue.Value)
             {
                 if (texture == null)
                 {
@@ -241,12 +241,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    texture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                    propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(texture, Color);
+                    var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
+                    texture = TexLU.CreateMultipliedRenderTexture(originTexture, Color);
                 }
             }
 
-            if (!(record.IsDifferenceValue2.HasValue || !record.IsDifferenceValue2.Value))
+            if (record.IsDifferenceValue2.HasValue && record.IsDifferenceValue2.Value)
             {
                 var ColorAdjustMask = propEnvs.ContainsKey("_MainColorAdjustMask") ? propEnvs["_MainColorAdjustMask"] : null;
 
@@ -295,7 +295,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                outlineWidthMask = propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(outlineWidthMask, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                outlineWidthMask = TexLU.CreateMultipliedRenderTexture(outlineWidthMask, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
             }
             propEnvs[texPropName] = outlineWidthMask;
         }
