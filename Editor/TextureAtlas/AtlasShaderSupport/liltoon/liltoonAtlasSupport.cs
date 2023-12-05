@@ -130,6 +130,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 propEnvsDict.Add("_FurNoiseMask", material.GetTexture("_FurNoiseMask") as Texture2D);
                 propEnvsDict.Add("_FurVectorTex", material.GetTexture("_FurVectorTex") as Texture2D);
             }
+
             if (bakeSetting == PropertyBakeSetting.NotBake)
             {
                 var propAndTexture2 = new List<PropAndTexture>();
@@ -140,226 +141,69 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return propAndTexture2;
             }
 
-            void ColorMul(string TexPropName, string ColorPropName, bool AlreadyTex)
-            {
-                var Color = material.GetColor(ColorPropName);
+            var baker = new TextureBaker(textureManager, propEnvsDict, material, lilDifferenceRecorder, bakeSetting);
 
-                var texture = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
-                if (texture == null)
-                {
-                    if (AlreadyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
-                    {
-                        propEnvsDict[TexPropName] = TexLU.CreateColorTex(Color);
-                    }
-                }
-                else
-                {
-                    texture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(texture, Color);
-                }
+            baker.ColorMulAndHSVG("_MainTex", "_Color", "_MainTexHSVG");
+            if (material.GetFloat("_UseMain2ndTex") > 0.5f)
+            {
+                baker.ColorMul("_Main2ndTex", "_Color2nd");
             }
-            void FloatMul(string TexPropName, string FloatProp, bool AlreadyTex)
+            if (material.GetFloat("_UseMain3rdTex") > 0.5f)
             {
-                var PropFloat = material.GetFloat(FloatProp);
-
-                var propTex = propEnvsDict.ContainsKey(TexPropName) ? propEnvsDict[TexPropName] : null;
-                if (propTex == null)
-                {
-                    if (AlreadyTex || bakeSetting == PropertyBakeSetting.BakeAllProperty)
-                    {
-                        propEnvsDict[TexPropName] = TexLU.CreateColorTex(new Color(PropFloat, PropFloat, PropFloat, PropFloat));
-                    }
-                }
-                else
-                {
-                    propTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
-                    propEnvsDict[TexPropName] = TexLU.CreateMultipliedRenderTexture(propTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
-                }
-            }
-
-            if (lilDifferenceRecordI.IsDifference_MainColor)
-            {
-                ColorMul("_MainTex", "_Color", lilDifferenceRecordI.IsAlreadyTex_MainColor);
-            }
-            if (lilDifferenceRecordI.IsDifference_MainTexHSVG)
-            {
-                var MainTex = propEnvsDict.ContainsKey("_MainTex") ? propEnvsDict["_MainTex"] : null;
-                var ColorAdjustMask = propEnvsDict.ContainsKey("_MainColorAdjustMask") ? propEnvsDict["_MainColorAdjustMask"] : null;
-
-                var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                if (ColorAdjustMask != null) { Mat.SetTexture("_Mask", ColorAdjustMask); }
-                Mat.SetColor("_HSVG", material.GetColor("_MainTexHSVG"));
-
-                if (MainTex is Texture2D MainTex2d && MainTex2d != null)
-                {
-                    var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
-                    Graphics.Blit(MainTex2d, MainTexRt, Mat);
-                    if (propEnvsDict.ContainsKey("_MainTex")) { propEnvsDict["_MainTex"] = MainTexRt; }
-                    else { propEnvsDict.Add("_MainTex", MainTexRt); }
-                }
-                else if (MainTex is RenderTexture MainTexRt && MainTexRt != null)
-                {
-                    var SwapRt = new RenderTexture(MainTexRt.descriptor);
-
-                    Graphics.CopyTexture(MainTex, SwapRt);
-                    Graphics.Blit(SwapRt, MainTexRt, Mat);
-                }
-            }
-            if (lilDifferenceRecordI.IsDifference_MainColor2nd && material.GetFloat("_UseMain2ndTex") > 0.5f)
-            {
-                ColorMul("_Main2ndTex", "_Color2nd", lilDifferenceRecordI.IsAlreadyTex_MainColor2nd);
-            }
-            if (lilDifferenceRecordI.IsDifference_MainColor3rd && material.GetFloat("_UseMain3rdTex") > 0.5f)
-            {
-                ColorMul("_Main3rdTex", "_Color3rd", lilDifferenceRecordI.IsAlreadyTex_MainColor3rd);
+                baker.ColorMul("_Main3rdTex", "_Color3rd");
             }
             if (material.GetFloat("_UseShadow") > 0.5f)
             {
-                if (lilDifferenceRecordI.IsDifference_ShadowStrength)
-                {
-                    FloatMul("_ShadowStrengthMask", "_ShadowStrength", lilDifferenceRecordI.IsAlreadyTex_ShadowStrength);
-                }
-                if (lilDifferenceRecordI.IsDifference_ShadowColor)
-                {
-                    ColorMul("_ShadowColorTex", "_ShadowColor", lilDifferenceRecordI.IsAlreadyTex_ShadowColor);
-                }
-                if (lilDifferenceRecordI.IsDifference_Shadow2ndColor)
-                {
-                    ColorMul("_Shadow2ndColorTex", "_Shadow2ndColor", lilDifferenceRecordI.IsAlreadyTex_Shadow2ndColor);
-                }
-                if (lilDifferenceRecordI.IsDifference_Shadow3rdColor)
-                {
-                    ColorMul("_Shadow3rdColorTex", "_Shadow3rdColor", lilDifferenceRecordI.IsAlreadyTex_Shadow3rdColor);
-                }
+                baker.FloatMul("_ShadowStrengthMask", "_ShadowStrength");
+                baker.ColorMul("_ShadowColorTex", "_ShadowColor");
+                baker.ColorMul("_Shadow2ndColorTex", "_Shadow2ndColor");
+                baker.ColorMul("_Shadow3rdColorTex", "_Shadow3rdColor");
             }
             if (material.GetFloat("_UseEmission") > 0.5f)
             {
-                if (lilDifferenceRecordI.IsDifference_EmissionColor)
-                {
-                    ColorMul("_EmissionMap", "_EmissionColor", lilDifferenceRecordI.IsAlreadyTex_EmissionColor);
-                }
-                if (lilDifferenceRecordI.IsDifference_EmissionBlend)
-                {
-                    FloatMul("_EmissionBlendMask", "_EmissionBlend", lilDifferenceRecordI.IsAlreadyTex_EmissionBlend);
-                }
+                baker.ColorMul("_EmissionMap", "_EmissionColor");
+                baker.FloatMul("_EmissionBlendMask", "_EmissionBlend");
             }
             if (material.GetFloat("_UseEmission2nd") > 0.5f)
             {
-                if (lilDifferenceRecordI.IsDifference_Emission2ndColor)
-                {
-                    ColorMul("_Emission2ndMap", "_Emission2ndColor", lilDifferenceRecordI.IsAlreadyTex_Emission2ndColor);
-                }
-                if (lilDifferenceRecordI.IsDifference_Emission2ndBlend)
-                {
-                    FloatMul("_Emission2ndBlendMask", "_Emission2ndBlend", lilDifferenceRecordI.IsAlreadyTex_Emission2ndBlend);
-                }
+                baker.ColorMul("_Emission2ndMap", "_Emission2ndColor");
+                baker.FloatMul("_Emission2ndBlendMask", "_Emission2ndBlend");
             }
-            if (lilDifferenceRecordI.IsDifference_AnisotropyScale && material.GetFloat("_UseAnisotropy") > 0.5f)
+            if (material.GetFloat("_UseAnisotropy") > 0.5f)
             {
-                FloatMul("_AnisotropyScaleMask", "_AnisotropyScale", lilDifferenceRecordI.IsAlreadyTex_AnisotropyScale);
+                baker.FloatMul("_AnisotropyScaleMask", "_AnisotropyScale");
             }
-            if (lilDifferenceRecordI.IsDifference_BacklightColor && material.GetFloat("_UseBacklight") > 0.5f)
+            if (material.GetFloat("_UseBacklight") > 0.5f)
             {
-                ColorMul("_BacklightColorTex", "_BacklightColor", lilDifferenceRecordI.IsAlreadyTex_BacklightColor);
+                baker.ColorMul("_BacklightColorTex", "_BacklightColor");
             }
             if (material.GetFloat("_UseReflection") > 0.5f)
             {
-                if (lilDifferenceRecordI.IsDifference_Smoothness)
-                {
-                    FloatMul("_SmoothnessTex", "_Smoothness", lilDifferenceRecordI.IsAlreadyTex_Smoothness);
-                }
-                if (lilDifferenceRecordI.IsDifference_Metallic)
-                {
-                    FloatMul("_MetallicGlossMap", "_Metallic", lilDifferenceRecordI.IsAlreadyTex_Metallic);
-                }
-                if (lilDifferenceRecordI.IsDifference_ReflectionColor)
-                {
-                    ColorMul("_ReflectionColorTex", "_ReflectionColor", lilDifferenceRecordI.IsAlreadyTex_ReflectionColor);
-                }
+                baker.FloatMul("_SmoothnessTex", "_Smoothness");
+                baker.FloatMul("_MetallicGlossMap", "_Metallic");
+                baker.ColorMul("_ReflectionColorTex", "_ReflectionColor");
             }
             if (material.GetFloat("_UseMatCap") > 0.5f)
             {
-                FloatMul("_MatCapBlendMask", "_MatCapBlend", lilDifferenceRecordI.IsAlreadyTex_MatCapBlend);
+                baker.FloatMul("_MatCapBlendMask", "_MatCapBlend");
             }
             if (material.GetFloat("_UseMatCap") > 0.5f)
             {
-                FloatMul("_MatCap2ndBlendMask", "_MatCap2ndBlend", lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend);
+                baker.FloatMul("_MatCap2ndBlendMask", "_MatCap2ndBlend");
             }
-            if (lilDifferenceRecordI.IsDifference_RimColor && material.GetFloat("_UseRim") > 0.5f)
+            if (material.GetFloat("_UseRim") > 0.5f)
             {
-                ColorMul("_RimColorTex", "_RimColor", lilDifferenceRecordI.IsAlreadyTex_RimColor);
+                baker.ColorMul("_RimColorTex", "_RimColor");
             }
-            if (lilDifferenceRecordI.IsDifference_GlitterColor && material.GetFloat("_UseGlitter") > 0.5f)
+            if (material.GetFloat("_UseGlitter") > 0.5f)
             {
-                ColorMul("_GlitterColorTex", "_GlitterColor", lilDifferenceRecordI.IsAlreadyTex_GlitterColor);
+                baker.ColorMul("_GlitterColorTex", "_GlitterColor");
             }
             if (material.shader.name.Contains("Outline"))
             {
-                if (lilDifferenceRecordI.IsDifference_OutlineColor)
-                {
-                    ColorMul("_OutlineTex", "_OutlineColor", lilDifferenceRecordI.IsAlreadyTex_OutlineColor);
-                }
-                if (lilDifferenceRecordI.IsDifference_OutlineTexHSVG)
-                {
-                    var outlineTex = propEnvsDict.ContainsKey("_OutlineTex") ? propEnvsDict["_OutlineTex"] : null;
-
-                    var Mat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                    Mat.SetColor("_HSVG", material.GetColor("_MainTexHSVG"));
-
-                    if (outlineTex is Texture2D MainTex2d && MainTex2d != null)
-                    {
-                        var MainTexRt = new RenderTexture(MainTex2d.width, MainTex2d.height, 0, RenderTextureFormat.ARGB32);
-                        Graphics.Blit(MainTex2d, MainTexRt, Mat);
-                        if (propEnvsDict.ContainsKey("_OutlineTex")) { propEnvsDict["_OutlineTex"] = MainTexRt; }
-                        else { propEnvsDict.Add("_OutlineTex", MainTexRt); }
-                    }
-                    else if (outlineTex is RenderTexture OutlineRt && OutlineRt != null)
-                    {
-                        var swapRt = new RenderTexture(OutlineRt.descriptor);
-                        Graphics.CopyTexture(outlineTex, swapRt);
-                        Graphics.Blit(swapRt, OutlineRt, Mat);
-                    }
-                }
-                if (lilDifferenceRecordI.IsDifference_OutlineWidth)
-                {
-                    var floatProp = "_OutlineWidth";
-                    var texPropName = "_OutlineWidthMask";
-
-                    var outlineWidth = material.GetFloat(floatProp) / lilDifferenceRecordI._OutlineWidth;
-
-                    var outlineWidthMask = propEnvsDict.ContainsKey(texPropName) ? propEnvsDict[texPropName] : null;
-                    if (outlineWidthMask == null)
-                    {
-                        if (lilDifferenceRecordI.IsAlreadyTex_OutlineWidth || bakeSetting == PropertyBakeSetting.BakeAllProperty)
-                        {
-                            var newTex = TexLU.CreateColorTex(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
-                            if (propEnvsDict.ContainsKey(texPropName))
-                            {
-                                propEnvsDict[texPropName] = newTex;
-                            }
-                            else
-                            {
-                                propEnvsDict.Add(texPropName, newTex);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        var newTex = propEnvsDict[texPropName] = TexLU.CreateMultipliedRenderTexture(outlineWidthMask, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
-                        if (propEnvsDict.ContainsKey(texPropName))
-                        {
-                            propEnvsDict[texPropName] = newTex;
-                        }
-                        else
-                        {
-                            propEnvsDict.Add(texPropName, newTex);
-                        }
-
-                    }
-                }
+                baker.ColorMulAndHSVG("_OutlineTex", "_OutlineColor", "_OutlineTexHSVG");
+                baker.OutlineWidthMul("_OutlineWidthMask", "_OutlineWidth");
             }
-
 
             var propAndTexture = new List<PropAndTexture>();
             foreach (var PropEnv in propEnvsDict)
@@ -472,361 +316,98 @@ namespace net.rs64.TexTransTool.TextureAtlas
         これらはそもそもまとめれるものではない。
 
 
-        ファーや屈折、宝石、などの高負荷系統は、独自の設定が強いし、そもそもまとめるべきかというと微妙。分けといたほうが軽いとかがありそうだから。
+        ファーや屈折、宝石、などの高負荷系統は、独自の設定が強いし、そもそもまとめるべきかというと微妙。分けといたほうが軽いとかがありそう...
 
         マテリアルをマージしない前提で、とりあえずアトラス化はする。
 
         */
 
-        class lilDifferenceRecord
-        {
-            public bool IsInitialized = false;
-
-            public Color _Color;
-            public bool IsDifference_MainColor;
-            public bool IsAlreadyTex_MainColor;
-
-            public Color _MainTexHSVG;
-            public bool IsDifference_MainTexHSVG;
-
-            public Color _Color2nd;
-            public bool IsDifference_MainColor2nd;
-            public bool IsAlreadyTex_MainColor2nd;
-
-            public Color _Color3rd;
-            public bool IsDifference_MainColor3rd;
-            public bool IsAlreadyTex_MainColor3rd;
-
-            public float _ShadowStrength;
-            public bool IsDifference_ShadowStrength;
-            public bool IsAlreadyTex_ShadowStrength;
-
-            public Color _ShadowColor;
-            public bool IsDifference_ShadowColor;
-            public bool IsAlreadyTex_ShadowColor;
-
-            public Color _Shadow2ndColor;
-            public bool IsDifference_Shadow2ndColor;
-            public bool IsAlreadyTex_Shadow2ndColor;
-
-            public Color _Shadow3rdColor;
-            public bool IsDifference_Shadow3rdColor;
-            public bool IsAlreadyTex_Shadow3rdColor;
-
-            public Color _EmissionColor;
-            public bool IsDifference_EmissionColor;
-            public bool IsAlreadyTex_EmissionColor;
-
-            public float _EmissionBlend;
-            public bool IsDifference_EmissionBlend;
-            public bool IsAlreadyTex_EmissionBlend;
-
-            public Color _Emission2ndColor;
-            public bool IsDifference_Emission2ndColor;
-            public bool IsAlreadyTex_Emission2ndColor;
-
-            public float _Emission2ndBlend;
-            public bool IsDifference_Emission2ndBlend;
-            public bool IsAlreadyTex_Emission2ndBlend;
-
-            public float _AnisotropyScale;
-            public bool IsDifference_AnisotropyScale;
-            public bool IsAlreadyTex_AnisotropyScale;
-
-            public Color _BacklightColor;
-            public bool IsDifference_BacklightColor;
-            public bool IsAlreadyTex_BacklightColor;
-
-            public float _Smoothness;
-            public bool IsDifference_Smoothness;
-            public bool IsAlreadyTex_Smoothness;
-
-            public float _Metallic;
-            public bool IsDifference_Metallic;
-            public bool IsAlreadyTex_Metallic;
-
-            public Color _ReflectionColor;
-            public bool IsDifference_ReflectionColor;
-            public bool IsAlreadyTex_ReflectionColor;
-
-            public float _MatCapBlend;
-            public bool IsDifference_MatCapBlend;
-            public bool IsAlreadyTex_MatCapBlend;
-            public float _MatCap2ndBlend;
-            public bool IsDifference_MatCap2ndBlend;
-            public bool IsAlreadyTex_MatCap2ndBlend;
-
-            public Color _RimColor;
-            public bool IsDifference_RimColor;
-            public bool IsAlreadyTex_RimColor;
-
-            public Color _GlitterColor;
-            public bool IsDifference_GlitterColor;
-            public bool IsAlreadyTex_GlitterColor;
-
-            public Color _OutlineColor;
-            public bool IsDifference_OutlineColor;
-            public bool IsAlreadyTex_OutlineColor;
-
-            public Color _OutlineTexHSVG;
-            public bool IsDifference_OutlineTexHSVG;
-
-
-            public float _OutlineWidth;
-            public bool IsDifference_OutlineWidth;
-            public bool IsAlreadyTex_OutlineWidth;
-
-        }
-        lilDifferenceRecord lilDifferenceRecordI = new lilDifferenceRecord();
+        AtlasShaderRecorder lilDifferenceRecorder = new AtlasShaderRecorder();
 
         public void AddRecord(Material material)
         {
             if (material == null) return;
 
-            if (!lilDifferenceRecordI.IsInitialized)
+            lilDifferenceRecorder.AddRecord(material, "_MainTex", material.GetColor("_Color"), material.GetColor("_MainTexHSVG"), ColorEqualityComparer);
+            if (material.GetFloat("_UseMain2ndTex") > 0.5f)
             {
-                lilDifferenceRecordI._Color = material.GetColor("_Color");
-                lilDifferenceRecordI.IsDifference_MainColor = false;
-
-                lilDifferenceRecordI._MainTexHSVG = material.GetColor("_MainTexHSVG");
-                lilDifferenceRecordI.IsDifference_MainTexHSVG = false;
-
-                lilDifferenceRecordI.IsAlreadyTex_MainColor = material.GetTexture("_MainTex") != null;
-
-                if (material.GetFloat("_UseMain2ndTex") > 0.5f)
-                {
-                    lilDifferenceRecordI._Color2nd = material.GetColor("_Color2nd");
-                    lilDifferenceRecordI.IsDifference_MainColor2nd = false;
-                    lilDifferenceRecordI.IsAlreadyTex_MainColor2nd = material.GetTexture("_Main2ndTex") != null;
-                }
-
-                if (material.GetFloat("_UseMain3rdTex") > 0.5f)
-                {
-                    lilDifferenceRecordI._Color3rd = material.GetColor("_Color3rd");
-                    lilDifferenceRecordI.IsDifference_MainColor3rd = false;
-                    lilDifferenceRecordI.IsAlreadyTex_MainColor3rd = material.GetTexture("_Main3rdTex") != null;
-                }
-
-                if (material.GetFloat("_UseShadow") > 0.5f)
-                {
-                    lilDifferenceRecordI._ShadowStrength = material.GetFloat("_ShadowStrength");
-                    lilDifferenceRecordI.IsDifference_ShadowStrength = false;
-                    lilDifferenceRecordI.IsAlreadyTex_ShadowStrength = material.GetTexture("_ShadowStrengthMask") != null;
-
-                    lilDifferenceRecordI._ShadowColor = material.GetColor("_ShadowColor");
-                    lilDifferenceRecordI.IsDifference_ShadowColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_ShadowColor = material.GetTexture("_ShadowColorTex") != null;
-
-                    lilDifferenceRecordI._Shadow2ndColor = material.GetColor("_Shadow2ndColor");
-                    lilDifferenceRecordI.IsDifference_Shadow2ndColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Shadow2ndColor = material.GetTexture("_Shadow2ndColorTex") != null;
-
-                    lilDifferenceRecordI._Shadow3rdColor = material.GetColor("_Shadow3rdColor");
-                    lilDifferenceRecordI.IsDifference_Shadow3rdColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Shadow3rdColor = material.GetTexture("_Shadow3rdColorTex") != null;
-                }
-
-                if (material.GetFloat("_UseEmission") > 0.5f)
-                {
-                    lilDifferenceRecordI._EmissionColor = material.GetColor("_EmissionColor");
-                    lilDifferenceRecordI.IsDifference_EmissionColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_EmissionColor = material.GetTexture("_EmissionMap") != null;
-
-                    lilDifferenceRecordI._EmissionBlend = material.GetFloat("_EmissionBlend");
-                    lilDifferenceRecordI.IsDifference_EmissionBlend = false;
-                    lilDifferenceRecordI.IsAlreadyTex_EmissionBlend = material.GetTexture("_EmissionBlendMask") != null;
-                }
-
-                if (material.GetFloat("_UseEmission2nd") > 0.5f)
-                {
-                    lilDifferenceRecordI._Emission2ndColor = material.GetColor("_Emission2ndColor");
-                    lilDifferenceRecordI.IsDifference_Emission2ndColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Emission2ndColor = material.GetTexture("_Emission2ndMap") != null;
-
-                    lilDifferenceRecordI._Emission2ndBlend = material.GetFloat("_Emission2ndBlend");
-                    lilDifferenceRecordI.IsDifference_Emission2ndBlend = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Emission2ndBlend = material.GetTexture("_Emission2ndBlendMask") != null;
-                }
-
-                if (material.GetFloat("_UseAnisotropy") > 0.5f)
-                {
-                    lilDifferenceRecordI._AnisotropyScale = material.GetFloat("_AnisotropyScale");
-                    lilDifferenceRecordI.IsDifference_AnisotropyScale = false;
-                    lilDifferenceRecordI.IsAlreadyTex_AnisotropyScale = material.GetTexture("_AnisotropyScaleMask") != null;
-                }
-
-                if (material.GetFloat("_UseBacklight") > 0.5f)
-                {
-                    lilDifferenceRecordI._BacklightColor = material.GetColor("_BacklightColor");
-                    lilDifferenceRecordI.IsDifference_BacklightColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_BacklightColor = material.GetTexture("_BacklightColorTex") != null;
-                }
-
-                if (material.GetFloat("_UseReflection") > 0.5f)
-                {
-                    lilDifferenceRecordI._Smoothness = material.GetFloat("_Smoothness");
-                    lilDifferenceRecordI.IsDifference_Smoothness = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Smoothness = material.GetTexture("_SmoothnessTex") != null;
-
-                    lilDifferenceRecordI._Metallic = material.GetFloat("_Metallic");
-                    lilDifferenceRecordI.IsDifference_Metallic = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Metallic = material.GetTexture("_MetallicGlossMap") != null;
-
-                    lilDifferenceRecordI._ReflectionColor = material.GetColor("_ReflectionColor");
-                    lilDifferenceRecordI.IsDifference_ReflectionColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_ReflectionColor = material.GetTexture("_ReflectionColorTex") != null;
-                }
-                if (material.GetFloat("_UseMatCap") > 0.5f)
-                {
-                    lilDifferenceRecordI._MatCapBlend = material.GetFloat("_MatCapBlend");
-                    lilDifferenceRecordI.IsDifference_MatCapBlend = false;
-                    lilDifferenceRecordI.IsAlreadyTex_MatCapBlend = material.GetTexture("_MatCapBlendMask") != null;
-                }
-                if (material.GetFloat("_UseMatCap") > 0.5f)
-                {
-                    lilDifferenceRecordI._MatCap2ndBlend = material.GetFloat("_MatCap2ndBlend");
-                    lilDifferenceRecordI.IsDifference_MatCap2ndBlend = false;
-                    lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend = material.GetTexture("_MatCap2ndBlendMask") != null;
-                }
-                if (material.GetFloat("_UseRim") > 0.5f)
-                {
-                    lilDifferenceRecordI._RimColor = material.GetColor("_RimColor");
-                    lilDifferenceRecordI.IsDifference_RimColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_RimColor = material.GetTexture("_RimColorTex") != null;
-                }
-
-                if (material.GetFloat("_UseGlitter") > 0.5f)
-                {
-                    lilDifferenceRecordI._GlitterColor = material.GetColor("_GlitterColor");
-                    lilDifferenceRecordI.IsDifference_GlitterColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_GlitterColor = material.GetTexture("_GlitterColorTex") != null;
-                }
-
-                if (material.shader.name.Contains("Outline"))
-                {
-                    lilDifferenceRecordI._OutlineColor = material.GetColor("_OutlineColor");
-                    lilDifferenceRecordI.IsDifference_OutlineColor = false;
-                    lilDifferenceRecordI.IsAlreadyTex_OutlineColor = material.GetTexture("_OutlineTex") != null;
-
-                    lilDifferenceRecordI._OutlineTexHSVG = material.GetColor("_OutlineTexHSVG");
-                    lilDifferenceRecordI.IsDifference_OutlineTexHSVG = false;
-
-                    lilDifferenceRecordI._OutlineWidth = material.GetFloat("_OutlineWidth");
-                    lilDifferenceRecordI.IsDifference_OutlineWidth = false;
-                    lilDifferenceRecordI.IsAlreadyTex_OutlineWidth = material.GetTexture("_OutlineWidthMask") != null;
-                }
-
-                if (material.shader.name.Contains("Gem"))
-                {
-                    lilDifferenceRecordI._Smoothness = material.GetFloat("_Smoothness");
-                    lilDifferenceRecordI.IsDifference_Smoothness = false;
-                    lilDifferenceRecordI.IsAlreadyTex_Smoothness = material.GetTexture("_SmoothnessTex") != null;
-                }
-
-                lilDifferenceRecordI.IsInitialized = true;
+                lilDifferenceRecorder.AddRecord(material, "_Main2ndTex", material.GetColor("_Color2nd"), ColorEqualityComparer);
             }
-            else
+            if (material.GetFloat("_UseMain3rdTex") > 0.5f)
             {
-                if (lilDifferenceRecordI._Color != material.GetColor("_Color")) lilDifferenceRecordI.IsDifference_MainColor = true;
-                if (material.GetTexture("_MainTex") != null) lilDifferenceRecordI.IsAlreadyTex_MainColor = true;
-                if (lilDifferenceRecordI._MainTexHSVG != material.GetColor("_MainTexHSVG")) lilDifferenceRecordI.IsDifference_MainTexHSVG = true;
-                if (material.GetFloat("_UseMain2ndTex") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._Color2nd != material.GetColor("_Color2nd")) lilDifferenceRecordI.IsDifference_MainColor2nd = true;
-                    if (material.GetTexture("_Main2ndTex") != null) lilDifferenceRecordI.IsAlreadyTex_MainColor2nd = true;
-                }
-                if (material.GetFloat("_UseMain3rdTex") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._Color3rd != material.GetColor("_Color3rd")) lilDifferenceRecordI.IsDifference_MainColor3rd = true;
-                    if (material.GetTexture("_Main3rdTex") != null) lilDifferenceRecordI.IsAlreadyTex_MainColor3rd = true;
-                }
-                if (material.GetFloat("_UseShadow") > 0.5f)
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._ShadowStrength, material.GetFloat("_ShadowStrength"))) lilDifferenceRecordI.IsDifference_ShadowStrength = true;
-                    if (material.GetTexture("_ShadowStrengthMask") != null) lilDifferenceRecordI.IsAlreadyTex_ShadowStrength = true;
-                    if (lilDifferenceRecordI._ShadowColor != material.GetColor("_ShadowColor")) lilDifferenceRecordI.IsDifference_ShadowColor = true;
-                    if (material.GetTexture("_ShadowColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_ShadowColor = true;
-                    if (lilDifferenceRecordI._Shadow2ndColor != material.GetColor("_Shadow2ndColor")) lilDifferenceRecordI.IsDifference_Shadow2ndColor = true;
-                    if (material.GetTexture("_Shadow2ndColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_Shadow2ndColor = true;
-                    if (lilDifferenceRecordI._Shadow3rdColor != material.GetColor("_Shadow3rdColor")) lilDifferenceRecordI.IsDifference_Shadow3rdColor = true;
-                    if (material.GetTexture("_Shadow3rdColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_Shadow3rdColor = true;
-                }
-                if (material.GetFloat("_UseEmission") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._EmissionColor != material.GetColor("_EmissionColor")) lilDifferenceRecordI.IsDifference_EmissionColor = true;
-                    if (material.GetTexture("_EmissionMap") != null) lilDifferenceRecordI.IsAlreadyTex_EmissionColor = true;
-                    if (!Mathf.Approximately(lilDifferenceRecordI._EmissionBlend, material.GetFloat("_EmissionBlend"))) lilDifferenceRecordI.IsDifference_EmissionBlend = true;
-                    if (material.GetTexture("_EmissionBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_EmissionBlend = true;
-                }
-                if (material.GetFloat("_UseEmission2nd") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._Emission2ndColor != material.GetColor("_Emission2ndColor")) lilDifferenceRecordI.IsDifference_Emission2ndColor = true;
-                    if (material.GetTexture("_Emission2ndMap") != null) lilDifferenceRecordI.IsAlreadyTex_Emission2ndColor = true;
-                    if (!Mathf.Approximately(lilDifferenceRecordI._Emission2ndBlend, material.GetFloat("_Emission2ndBlend"))) lilDifferenceRecordI.IsDifference_Emission2ndBlend = true;
-                    if (material.GetTexture("_Emission2ndBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_Emission2ndBlend = true;
-                }
-                if (material.GetFloat("_UseAnisotropy") > 0.5f)
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._AnisotropyScale, material.GetFloat("_AnisotropyScale"))) lilDifferenceRecordI.IsDifference_AnisotropyScale = true;
-                    if (material.GetTexture("_AnisotropyScaleMask") != null) lilDifferenceRecordI.IsAlreadyTex_AnisotropyScale = true;
-                }
-                if (material.GetFloat("_UseBacklight") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._BacklightColor != material.GetColor("_BacklightColor")) lilDifferenceRecordI.IsDifference_BacklightColor = true;
-                    if (material.GetTexture("_BacklightColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_BacklightColor = true;
-                }
-                if (material.GetFloat("_UseReflection") > 0.5f)
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._Smoothness, material.GetFloat("_Smoothness"))) lilDifferenceRecordI.IsDifference_Smoothness = true;
-                    if (material.GetTexture("_SmoothnessTex") != null) lilDifferenceRecordI.IsAlreadyTex_Smoothness = true;
-                    if (!Mathf.Approximately(lilDifferenceRecordI._Metallic, material.GetFloat("_Metallic"))) lilDifferenceRecordI.IsDifference_Metallic = true;
-                    if (material.GetTexture("_MetallicGlossMap") != null) lilDifferenceRecordI.IsAlreadyTex_Metallic = true;
-                    if (lilDifferenceRecordI._ReflectionColor != material.GetColor("_ReflectionColor")) lilDifferenceRecordI.IsDifference_ReflectionColor = true;
-                    if (material.GetTexture("_ReflectionColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_ReflectionColor = true;
-                }
-                if (material.GetFloat("_UseMatCap") > 0.5f)
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._MatCapBlend, material.GetFloat("_MatCapBlend"))) lilDifferenceRecordI.IsDifference_MatCapBlend = true;
-                    if (material.GetTexture("_MatCapBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_MatCapBlend = true;
-                }
-                if (material.GetFloat("_UseMatCap") > 0.5f)
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._MatCap2ndBlend, material.GetFloat("_MatCap2ndBlend"))) lilDifferenceRecordI.IsDifference_MatCap2ndBlend = true;
-                    if (material.GetTexture("_MatCap2ndBlendMask") != null) lilDifferenceRecordI.IsAlreadyTex_MatCap2ndBlend = true;
-                }
-                if (material.GetFloat("_UseRim") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._RimColor != material.GetColor("_RimColor")) lilDifferenceRecordI.IsDifference_RimColor = true;
-                    if (material.GetTexture("_RimColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_RimColor = true;
-
-                }
-                if (material.GetFloat("_UseGlitter") > 0.5f)
-                {
-                    if (lilDifferenceRecordI._GlitterColor != material.GetColor("_GlitterColor")) lilDifferenceRecordI.IsDifference_GlitterColor = true;
-                    if (material.GetTexture("_GlitterColorTex") != null) lilDifferenceRecordI.IsAlreadyTex_GlitterColor = true;
-                }
-                if (material.shader.name.Contains("Outline"))
-                {
-                    if (lilDifferenceRecordI._OutlineColor != material.GetColor("_OutlineColor")) lilDifferenceRecordI.IsDifference_OutlineColor = true;
-                    if (material.GetTexture("_OutlineTex") != null) lilDifferenceRecordI.IsAlreadyTex_OutlineColor = true;
-                    if (lilDifferenceRecordI._OutlineTexHSVG != material.GetColor("_OutlineTexHSVG")) lilDifferenceRecordI.IsDifference_OutlineTexHSVG = true;
-                    if (!Mathf.Approximately(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth"))) { lilDifferenceRecordI.IsDifference_OutlineWidth = true; lilDifferenceRecordI._OutlineWidth = Mathf.Max(lilDifferenceRecordI._OutlineWidth, material.GetFloat("_OutlineWidth")); }
-                    if (material.GetTexture("_OutlineWidthMask") != null) lilDifferenceRecordI.IsAlreadyTex_OutlineWidth = true;
-                }
-                if (material.shader.name.Contains("Gem"))
-                {
-                    if (!Mathf.Approximately(lilDifferenceRecordI._Smoothness, material.GetFloat("_Smoothness"))) lilDifferenceRecordI.IsDifference_Smoothness = true;
-                    if (material.GetTexture("_SmoothnessTex") != null) lilDifferenceRecordI.IsAlreadyTex_Smoothness = true;
-                }
+                lilDifferenceRecorder.AddRecord(material, "_Main3rdTex", material.GetColor("_Color3rd"), ColorEqualityComparer);
             }
+            if (material.GetFloat("_UseShadow") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_ShadowStrengthMask", material.GetFloat("_ShadowStrength"), FloatEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_ShadowColorTex", material.GetColor("_ShadowColor"), ColorEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_Shadow2ndColorTex", material.GetColor("_Shadow2ndColor"), ColorEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_Shadow3rdColorTex", material.GetColor("_Shadow3rdColor"), ColorEqualityComparer);
+            }
+            if (material.GetFloat("_UseEmission") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_EmissionMap", material.GetColor("_EmissionColor"), ColorEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_EmissionBlendMask", material.GetFloat("_EmissionBlend"), FloatEqualityComparer);
+            }
+            if (material.GetFloat("_UseEmission2nd") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_Emission2ndMap", material.GetColor("_Emission2ndColor"), ColorEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_Emission2ndBlendMask", material.GetFloat("_Emission2ndBlend"), FloatEqualityComparer);
+            }
+            if (material.GetFloat("_UseAnisotropy") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_AnisotropyScaleMask", material.GetFloat("_AnisotropyScale"), FloatEqualityComparer);
+            }
+            if (material.GetFloat("_UseBacklight") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_BacklightColorTex", material.GetColor("_BacklightColor"), ColorEqualityComparer);
+            }
+            if (material.GetFloat("_UseReflection") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_MetallicGlossMap", material.GetFloat("_Metallic"), FloatEqualityComparer);
+                lilDifferenceRecorder.AddRecord(material, "_ReflectionColorTex", material.GetColor("_ReflectionColor"), ColorEqualityComparer);
+            }
+            if (material.GetFloat("_UseMatCap") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_MatCapBlendMask", material.GetFloat("_MatCapBlend"), FloatEqualityComparer);
+            }
+            if (material.GetFloat("_UseMatCap2nd") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_MatCap2ndBlendMask", material.GetFloat("_MatCap2ndBlend"), FloatEqualityComparer);
+            }
+            if (material.GetFloat("_UseRim") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_RimColorTex", material.GetColor("_RimColor"), ColorEqualityComparer);
+            }
+            if (material.GetFloat("_UseGlitter") > 0.5f)
+            {
+                lilDifferenceRecorder.AddRecord(material, "_GlitterColorTex", material.GetColor("_GlitterColor"), ColorEqualityComparer);
+            }
+            if (material.shader.name.Contains("Outline"))
+            {
+                lilDifferenceRecorder.AddRecord(material, "_OutlineTex", material.GetColor("_OutlineColor"), material.GetColor("_OutlineTexHSVG"), ColorEqualityComparer);
 
+                var record = lilDifferenceRecorder.AddRecord(material, "_OutlineWidthMask", material.GetFloat("_OutlineWidth"), FloatEqualityComparer);
+                record.RecordValue = Mathf.Max(record.RecordValue, material.GetFloat("_OutlineWidth"));
+            }
+            if (material.shader.name.Contains("Gem"))
+            {
+                lilDifferenceRecorder.AddRecord(material, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
+            }
         }
-
+        static bool ColorEqualityComparer(Color l, Color r)
+        {
+            return l == r;
+        }
+        static bool FloatEqualityComparer(float l, float r)
+        {
+            return Mathf.Approximately(l, r);
+        }
         public void ClearRecord()
         {
-            lilDifferenceRecordI = new lilDifferenceRecord();
+            lilDifferenceRecorder.ClearRecord();
         }
-
 
     }
 }
