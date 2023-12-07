@@ -12,7 +12,9 @@ namespace net.rs64.TexTransTool
 
         public Texture2D BlendTexture;
         public Color Color = Color.white;
-        public BlendType BlendType = BlendType.Normal;
+
+        public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [Obsolete("Replaced with BlendTypeKey", true)] public BlendType BlendType = BlendType.Normal;
 
 
         public override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.TargetRenderer };
@@ -28,8 +30,8 @@ namespace net.rs64.TexTransTool
             var DistTex = TargetTexture.GetTexture();
             if (DistTex == null) { return; }
 
-            var AddTex = TextureBlendUtils.CreateMultipliedRenderTexture(BlendTexture, Color);
-            Domain.AddTextureStack(DistTex, new TextureBlendUtils.BlendTexturePair(AddTex, BlendType));
+            var AddTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
+            Domain.AddTextureStack(DistTex, new TextureBlend.BlendTexturePair(AddTex, BlendTypeKey));
         }
     }
     [Serializable]

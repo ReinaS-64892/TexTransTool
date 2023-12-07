@@ -8,7 +8,7 @@ using net.rs64.TexTransTool.Decal;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {

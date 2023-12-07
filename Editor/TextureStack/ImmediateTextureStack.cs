@@ -7,7 +7,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Linq;
 using UnityEditor;
 using System.IO;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureStack
@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.TextureStack
 
         public override void AddStack(BlendTexturePair blendTexturePair)
         {
-            renderTexture.BlendBlit(blendTexturePair.Texture, blendTexturePair.BlendType);
+            renderTexture.BlendBlit(blendTexturePair.Texture, blendTexturePair.BlendTypeKey);
 
             if (blendTexturePair.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
             {

@@ -48,7 +48,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             abstractLayer.Visible = !layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible);
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
-            abstractLayer.BlendMode = ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey));
+            abstractLayer.BlendTypeKey = ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)).ToString();
         }
 
         public static PSDBlendMode BlendModeKeyToEnum(string blendModeStr)
@@ -116,65 +116,65 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
         }
 
-        public static BlendType ConvertBlendType(PSDBlendMode pSDBlendMode)
+        public static TTTBlendTypeKeyEnum ConvertBlendType(PSDBlendMode pSDBlendMode)
         {
             switch (pSDBlendMode)
             {
                 default:
                 // case PSDBlendMode.PassThrough:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Normal:
-                    return BlendType.Normal;
+                    return TTTBlendTypeKeyEnum.Normal;
                 // case PSDBlendMode.Dissolve:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Darken:
-                    return BlendType.DarkenOnly;
+                    return TTTBlendTypeKeyEnum.DarkenOnly;
                 case PSDBlendMode.Multiply:
-                    return BlendType.Mul;
+                    return TTTBlendTypeKeyEnum.Mul;
                 case PSDBlendMode.ColorBurn:
-                    return BlendType.ColorBurn;
+                    return TTTBlendTypeKeyEnum.ColorBurn;
                 case PSDBlendMode.LinearBurn:
-                    return BlendType.LinearBurn;
+                    return TTTBlendTypeKeyEnum.LinearBurn;
                 // case PSDBlendMode.DarkerColor:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Lighten:
-                    return BlendType.LightenOnly;
+                    return TTTBlendTypeKeyEnum.LightenOnly;
                 case PSDBlendMode.Screen:
-                    return BlendType.Screen;
+                    return TTTBlendTypeKeyEnum.Screen;
                 case PSDBlendMode.ColorDodge:
-                    return BlendType.ColorDodge;
+                    return TTTBlendTypeKeyEnum.ColorDodge;
                 case PSDBlendMode.LinearDodge:
-                    return BlendType.Addition;
+                    return TTTBlendTypeKeyEnum.Addition;
                 // case PSDBlendMode.LighterColor:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Overlay:
-                    return BlendType.Overlay;
+                    return TTTBlendTypeKeyEnum.Overlay;
                 case PSDBlendMode.SoftLight:
-                    return BlendType.SoftLight;
+                    return TTTBlendTypeKeyEnum.SoftLight;
                 case PSDBlendMode.HardLight:
-                    return BlendType.HardLight;
+                    return TTTBlendTypeKeyEnum.HardLight;
                 case PSDBlendMode.VividLight:
-                    return BlendType.VividLight;
+                    return TTTBlendTypeKeyEnum.VividLight;
                 case PSDBlendMode.LinearLight:
-                    return BlendType.LinearLight;
+                    return TTTBlendTypeKeyEnum.LinearLight;
                 // case PSDBlendMode.PinLight:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 // case PSDBlendMode.HardMix:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Difference:
-                    return BlendType.Difference;
+                    return TTTBlendTypeKeyEnum.Difference;
                 // case PSDBlendMode.Exclusion:
-                //     return BlendType;
+                //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Divide:
-                    return BlendType.Divide;
+                    return TTTBlendTypeKeyEnum.Divide;
                 case PSDBlendMode.Hue:
-                    return BlendType.Hue;
+                    return TTTBlendTypeKeyEnum.Hue;
                 case PSDBlendMode.Saturation:
-                    return BlendType.Saturation;
+                    return TTTBlendTypeKeyEnum.Saturation;
                 case PSDBlendMode.Color:
-                    return BlendType.Color;
+                    return TTTBlendTypeKeyEnum.Color;
                 case PSDBlendMode.Luminosity:
-                    return BlendType.Luminosity;
+                    return TTTBlendTypeKeyEnum.Luminosity;
             }
         }
     }

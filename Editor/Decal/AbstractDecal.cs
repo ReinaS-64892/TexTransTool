@@ -15,7 +15,8 @@ namespace net.rs64.TexTransTool.Decal
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
-        public BlendType BlendType = BlendType.Normal;
+        public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [Obsolete("Replaced with BlendTypeKey", true)]public BlendType BlendType = BlendType.Normal;
         public Color Color = Color.white;
         public PropertyName TargetPropertyName =  PropertyName.DefaultValue;
         public float Padding = 5;
@@ -60,7 +61,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var PramAndRt in matAndTex.Value)
                 {
-                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlendUtils.BlendTexturePair(PramAndRt.Value, BlendType));
+                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlend.BlendTexturePair(PramAndRt.Value, BlendTypeKey));
                 }
             }
 
@@ -80,7 +81,7 @@ namespace net.rs64.TexTransTool.Decal
                     var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
                     if (decalCompiledTextures.ContainsKey(souseTex))
                     {
-                        TextureBlendUtils.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.Normal);
+                        TextureBlend.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, TextureBlend.BL_KEY_DEFAULT);
                     }
                     else
                     {

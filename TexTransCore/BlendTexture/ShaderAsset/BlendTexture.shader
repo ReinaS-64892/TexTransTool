@@ -66,9 +66,6 @@ Shader "Hidden/BlendTexture"
                 float4 BlendColor = ColorBlend(BaseColor,AddColor);
                 #endif
 
-                #if KeepAlpha
-                BlendColor.a = BaseColor.a;
-                #endif
 
                 return GammaToLinier(BlendColor);
             }

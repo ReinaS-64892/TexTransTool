@@ -6,7 +6,8 @@ using System.Reflection;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.ShaderSupport;
 using UnityEngine;
-using TexLU = net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using TexLU = net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using TexUT = net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -190,7 +191,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexLU.CreateColorTex(Color);
+                    propEnvs[texPropName] = TexUT.CreateColorTex(Color);
                 }
             }
             else
@@ -213,7 +214,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexLU.CreateColorTex(new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                    propEnvs[texPropName] = TexUT.CreateColorTex(new Color(PropFloat, PropFloat, PropFloat, PropFloat));
                 }
             }
             else
@@ -236,7 +237,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
-                        propEnvs[texPropName] = TexLU.CreateColorTex(Color);
+                        propEnvs[texPropName] = TexUT.CreateColorTex(Color);
                     }
                 }
                 else
@@ -290,7 +291,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    outlineWidthMask = TexLU.CreateColorTex(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                    outlineWidthMask = TexUT.CreateColorTex(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
                 }
             }
             else

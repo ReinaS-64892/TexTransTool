@@ -8,7 +8,7 @@ using net.rs64.TexTransTool.Decal;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
@@ -162,7 +162,7 @@ namespace net.rs64.TexTransTool
                             { continue; }
                     }
 
-                    var blendTex = new BlendTextureClass(Rt, abstractDecal.BlendType);
+                    var blendTex = new BlendTextureClass(Rt, abstractDecal.BlendTypeKey);
                     blends.Add(blendTex);
 
                     RegtPreviewRenderTexture(mat, abstractDecal.TargetPropertyName, blendTex);
@@ -216,7 +216,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var blendData in absDecalData.blendTextureList)
             {
-                blendData.BlendType = abstractDecal.BlendType;
+                blendData.BlendTypeKey = abstractDecal.BlendTypeKey;
             }
 
             foreach (var decalTarget in absDecalData.decalTargets)
@@ -241,15 +241,15 @@ namespace net.rs64.TexTransTool
         public class BlendTextureClass
         {
             public RenderTexture RenderTexture;
-            public BlendType BlendType;
+            public string BlendTypeKey;
 
-            public BlendTextureClass(RenderTexture renderTexture, BlendType blendType)
+            public BlendTextureClass(RenderTexture renderTexture, string blendTypeKey)
             {
                 RenderTexture = renderTexture;
-                BlendType = blendType;
+                BlendTypeKey = blendTypeKey;
             }
 
-            public static implicit operator BlendTexturePair(BlendTextureClass bl) => new BlendTexturePair(bl.RenderTexture, bl.BlendType);
+            public static implicit operator BlendTexturePair(BlendTextureClass bl) => new BlendTexturePair(bl.RenderTexture, bl.BlendTypeKey);
         }
     }
 }

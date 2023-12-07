@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT SolidLayer")]
