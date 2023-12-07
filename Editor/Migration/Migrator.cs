@@ -51,6 +51,11 @@ namespace net.rs64.TexTransTool.Migration
                         AbstractDecalV1.MigrationAbstractDecalV1ToV2(abstractDecal);
                         return true;
                     }
+                case TextureBlender textureBlender:
+                    {
+                        TextureBlenderV1.MigrationV1ToV2(textureBlender);
+                        return true;
+                    }
                 default:
                     {
                         MigrationUtility.SetSaveDataVersion(texTransToolTag, 1);
