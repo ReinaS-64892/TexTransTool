@@ -31,6 +31,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         Saturation,
         Color,
         Luminosity,
+        AlphaLerp,
         NotBlend,
     }
     public static class TextureBlendUtils
