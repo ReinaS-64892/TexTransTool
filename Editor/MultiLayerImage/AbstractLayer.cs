@@ -16,9 +16,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
-        internal bool Clipping;
+        [SerializeField]internal bool Clipping;
         [BlendTypeKey]public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
-        internal LayerMask LayerMask;
+        [SerializeField]internal LayerMask LayerMask;
         internal abstract void EvaluateTexture(CanvasContext layerStack);
 
 
@@ -27,8 +27,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [Serializable]
     internal class LayerMask
     {
-        internal bool LayerMaskDisabled;
-        internal Texture2D MaskTexture;
+        [SerializeField]internal bool LayerMaskDisabled;
+        [SerializeField]internal Texture2D MaskTexture;
     }
 
 
