@@ -8,7 +8,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
 {
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    internal struct TriangleIndex : IEnumerable<int>, IEquatable<TriangleIndex>
+    public struct TriangleIndex : IEnumerable<int>, IEquatable<TriangleIndex>
     {
         [FieldOffset(0)] public int zero;
         [FieldOffset(4)] public int one;

@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
     }
-    internal enum PropertyBakeSetting
+    public enum PropertyBakeSetting
     {
         NotBake,
         Bake,

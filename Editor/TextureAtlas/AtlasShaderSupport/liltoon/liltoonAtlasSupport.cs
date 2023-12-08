@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             material.SetTexture("_BaseColorMap", mainTex);
         }
 
-        public List<PropAndTexture> GetPropertyAndTextures(ITextureManager textureManager, Material material, PropertyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(IGetOriginTex2DManager textureManager, Material material, PropertyBakeSetting bakeSetting)
         {
             var propEnvsDict = new Dictionary<string, Texture>();
 

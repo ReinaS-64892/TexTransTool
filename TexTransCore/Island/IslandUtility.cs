@@ -155,7 +155,7 @@ namespace net.rs64.TexTransCore.Island
 
     }
     [Serializable]
-    internal class Island
+    public class Island
     {
         public List<TriangleIndex> triangles = new List<TriangleIndex>();
         public Vector2 Pivot;

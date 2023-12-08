@@ -9,17 +9,17 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [DisallowMultipleComponent]
-    internal abstract class AbstractLayer : MonoBehaviour, ITexTransToolTag
+    public abstract class AbstractLayer : MonoBehaviour, ITexTransToolTag
     {
-        public bool Visible { get => gameObject.activeSelf; set => gameObject.SetActive(value); }
+        internal bool Visible { get => gameObject.activeSelf; set => gameObject.SetActive(value); }
 
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
-        public int SaveDataVersion => _saveDataVersion;
+        int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
-        public bool Clipping;
+        internal bool Clipping;
         [BlendTypeKey]public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
-        public LayerMask LayerMask;
-        public abstract void EvaluateTexture(CanvasContext layerStack);
+        internal LayerMask LayerMask;
+        internal abstract void EvaluateTexture(CanvasContext layerStack);
 
 
 
@@ -27,8 +27,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [Serializable]
     internal class LayerMask
     {
-        public bool LayerMaskDisabled;
-        public Texture2D MaskTexture;
+        internal bool LayerMaskDisabled;
+        internal Texture2D MaskTexture;
     }
 
 

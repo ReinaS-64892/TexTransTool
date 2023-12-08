@@ -653,7 +653,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return AtlasMeshDataIndex.GetHashCode() ^ MaterialSlot.GetHashCode();
         }
     }
-    internal struct AtlasIslandID
+    public struct AtlasIslandID
     {
         public int AtlasMeshDataIndex;
         public int MaterialSlot;
