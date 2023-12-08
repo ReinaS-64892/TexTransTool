@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     internal class SolidLayer : AbstractImageLayer
     {
         public Color Color;
-        public override Texture GetImage() => CreateColorTex(Color);
+        public override Texture GetImage(int width, int height) => CreateColorTex(Color);
     }
 }
 #endif

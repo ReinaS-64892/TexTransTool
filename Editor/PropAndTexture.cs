@@ -5,7 +5,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    internal class PropAndTexture
+    public class PropAndTexture
     {
         public string PropertyName;
         public Texture Texture;

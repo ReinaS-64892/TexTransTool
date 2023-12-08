@@ -15,7 +15,22 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    internal interface IAtlasIslandSorter
+    /// <summary>
+    /// これらinterfaceは非常に実験的なAPIで予告なく変更や削除される可能性があります。
+    ///
+    /// AtlasTexture や今後追加されるUVの再配置を行うコンポーネントのアルゴリズムを拡張することのできるAPIで
+    /// 設定として、並び替えアルゴリズムの名前と矩形移動かどうかが必要で、
+    /// <see cref="SorterName"/> 名前はセーブデータに入るものなのでほかの物と被らないようにご注意ください。
+    /// <see cref="RectTangleMove"/> true であれば　矩形でテクスチャの転写が行われ、そうでなければポリゴン単位でテクスチャの転写が行われます。
+    ///
+    /// そして並び替え <see cref="Sorting"/>
+    /// これは 引数 atlasIslands の Pivot や Size を書き換え返すことでそれら並び替えができ、
+    /// AtlasIslandID が同じであれば、戻り値の物はクローンの物でも問題はない。
+    ///
+    /// ちなみに現時点で使用するのは <see cref="AtlasTexture"/> しか存在せず、その AtlasTexture では並び替えアルゴリズムを選択するUIは存在しないため
+    /// DebugMode を使って書き換える日つよがあるためご注意ください。
+    /// </summary>
+    public interface IAtlasIslandSorter
     {
         string SorterName { get; }
         bool RectTangleMove { get; }

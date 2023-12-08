@@ -164,11 +164,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
     internal class TextureBaker
     {
         Material material;
-        ITextureManager textureManager;
+        IGetOriginTex2DManager textureManager;
         Dictionary<string, Texture> propEnvs;
         AtlasShaderRecorder atlasShaderRecorder;
         PropertyBakeSetting bakeSetting;
-        public TextureBaker(ITextureManager texManager, Dictionary<string, Texture> propEnvDict, Material mat, AtlasShaderRecorder shaderRecorder, PropertyBakeSetting bakeSettingEnum)
+        public TextureBaker(IGetOriginTex2DManager texManager, Dictionary<string, Texture> propEnvDict, Material mat, AtlasShaderRecorder shaderRecorder, PropertyBakeSetting bakeSettingEnum)
         {
             textureManager = texManager;
             propEnvs = propEnvDict;

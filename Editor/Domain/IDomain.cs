@@ -30,15 +30,18 @@ namespace net.rs64.TexTransTool
         void ProgressFinalize();
     }
 
-    internal interface ITextureManager
+    internal interface ITextureManager : IGetOriginTex2DManager
     {
-        Texture2D GetOriginalTexture2D(Texture2D texture2D);
         void DeferDestroyTexture2D(Texture2D texture2D);
         void DeferTexDestroy();
 
         void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) CompressFormat, Texture2D Target);
         void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target);
         void TexCompressDelegationInvoke();
+    }
+    public interface IGetOriginTex2DManager
+    {
+        Texture2D GetOriginalTexture2D(Texture2D texture2D);
     }
 
     internal static class DomainUtility
