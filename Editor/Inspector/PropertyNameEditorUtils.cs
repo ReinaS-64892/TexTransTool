@@ -7,11 +7,10 @@ using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.Editor
 {
-
     public static class PropertyNameEditor
     {
         static string[] ShadersNames;
-        static Dictionary<string, (string[] PropertyName, string[] DisplayName, Dictionary<string, string> Dict)> PropertyNames;
+        static Dictionary<string, (string[] PropertyName, string[] DisplayName)> PropertyNames;
         static string[] Empty = Array.Empty<string>();
 
 
@@ -23,11 +22,7 @@ namespace net.rs64.TexTransTool.Editor
                 ShadersNames = getData.Select(i => i.ShaderName).ToArray();
                 PropertyNames = getData.ToDictionary(
                     i => i.ShaderName,
-                     i => (
-                        i.Item2.Select(v => v.PropertyName).ToArray(),
-                        i.Item2.Select(v => v.DisplayName).ToArray(),
-                        i.Item2.ToDictionary(v => v.PropertyName, v => v.DisplayName)
-                        ));
+                    i => (i.Item2.Select(v => v.PropertyName).ToArray(), i.Item2.Select(v => v.DisplayName).ToArray()));
             }
             var s_Target = serializedProperty;
 
@@ -36,15 +31,15 @@ namespace net.rs64.TexTransTool.Editor
             var s_shaderName = s_Target.FindPropertyRelative("_shaderName");
 
 
-
-
-            EditorGUILayout.BeginHorizontal();
             var rect = EditorGUILayout.GetControlRect();
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
             EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName".GetLocalize() : Label);
             rect.x += rect.width;
+
+            var preIndent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
 
             if (s_useCustomProperty.boolValue)
             {
@@ -63,19 +58,51 @@ namespace net.rs64.TexTransTool.Editor
 
                 rect.x += rect.width;
 
-                var propertyName = s_propertyName.stringValue;
-                var propertyArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].PropertyName : Empty;
-                var displayNameArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].DisplayName : Empty;
-                var propertySelectIndex = Array.IndexOf(propertyArray, propertyName);
-                propertySelectIndex = EditorGUI.Popup(rect, propertySelectIndex, displayNameArray);
-                s_propertyName.stringValue = 0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length ? propertyArray[propertySelectIndex] : propertyName;
+                rect.width = 15;
+                EditorGUI.indentLevel = 1;
+                EditorGUI.PropertyField(rect, s_shaderName, new GUIContent(""));
+                EditorGUI.indentLevel = 0;
+                rect.x += 10f;
 
-                rect.x += rect.width;
+                rect.width = PropWith;
+
+                if (shaderSelectIndex != -1)
+                {
+
+                    var propertyName = s_propertyName.stringValue;
+                    var propertyArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].PropertyName : Empty;
+                    var displayNameArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].DisplayName : Empty;
+                    var propertySelectIndex = Array.IndexOf(propertyArray, propertyName);
+                    propertySelectIndex = EditorGUI.Popup(rect, propertySelectIndex, displayNameArray);
+                    s_propertyName.stringValue = 0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length ? propertyArray[propertySelectIndex] : propertyName;
+
+                    rect.x += rect.width;
+
+                    rect.width = 15;
+                    EditorGUI.indentLevel = 1;
+                    EditorGUI.PropertyField(rect, s_propertyName, new GUIContent(""));
+                    EditorGUI.indentLevel = 0;
+                    rect.x += 10f;
+
+                }
+                else
+                {
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUI.PropertyField(rect, s_propertyName, GUIContent.none);
+                    EditorGUI.EndDisabledGroup();
+                    rect.x += rect.width;
+
+                }
             }
-            rect.width = PropWith;
-            s_useCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, new GUIContent("UseCustomProperty".GetLocalize()), s_useCustomProperty.boolValue);
+            rect.x += 5f;
+            rect.width = 30f;
+            EditorGUI.PropertyField(rect, s_useCustomProperty, GUIContent.none);
+            rect.x += 15f;
+            rect.width = PropWith - rect.width;
+            EditorGUI.LabelField(rect, new GUIContent("UseCustomProperty".GetLocalize()));
 
-            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.indentLevel = preIndent;
         }
 
 
