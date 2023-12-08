@@ -5,28 +5,34 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.ShaderSupport;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
 {
-
-    public static class BlendTypeKeyEditor
+    [CustomPropertyDrawer(typeof(BlendTypeKeyAttribute))]
+    public class BlendTypeKeyDrawer : PropertyDrawer
     {
         static string[] BlendTypeKeys;
 
-        public static void DrawInspectorGUI(SerializedProperty serializedProperty, string Label = null)
+        public override void OnGUI(Rect rect, SerializedProperty serializedProperty, GUIContent label)
+        {
+            DrawBlendModeKey(rect, serializedProperty, label);
+        }
+
+        public static void DrawBlendModeKey(Rect rect, SerializedProperty serializedProperty, GUIContent label)
         {
             if (BlendTypeKeys == null)
             {
                 BlendTypeKeys = TextureBlend.BlendShaders.Keys.ToArray();
             }
+
             var s_Target = serializedProperty;
 
-            EditorGUILayout.BeginHorizontal();
-            var rect = EditorGUILayout.GetControlRect();
+            GUILayout.BeginHorizontal();
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName".GetLocalize() : Label);
+            EditorGUI.LabelField(rect, label);
             rect.x += rect.width;
 
             var enumWidth = PropWith * 3f * 0.9f;
@@ -41,12 +47,12 @@ namespace net.rs64.TexTransTool.Editor
             rect.x += rect.width;
             rect.width = strWidth;
 
-            EditorGUI.PropertyField(rect, s_Target,new GUIContent("O"));
+            EditorGUI.PropertyField(rect, s_Target, new GUIContent("O"));
 
 
-            EditorGUILayout.EndHorizontal();
+            GUILayout.EndHorizontal();
         }
-
-
     }
+
+
 }
