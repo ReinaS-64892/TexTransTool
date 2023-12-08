@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.Island
 {
-    public static class IslandUtility
+    internal static class IslandUtility
     {
         public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> UV, IIslandCache Caches = null)
         {
@@ -155,7 +155,7 @@ namespace net.rs64.TexTransCore.Island
 
     }
     [Serializable]
-    public class Island
+    internal class Island
     {
         public List<TriangleIndex> triangles = new List<TriangleIndex>();
         public Vector2 Pivot;
@@ -242,7 +242,7 @@ namespace net.rs64.TexTransCore.Island
     }
 
 
-    public static class IslandUtilsDebug
+    internal static class IslandUtilsDebug
     {
         public static void DrawUV(List<Vector2> UV, Texture2D TargetTexture, Color WriteColor)
         {

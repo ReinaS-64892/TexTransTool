@@ -10,7 +10,7 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    public abstract class AbstractImageLayer : AbstractLayer
+    internal abstract class AbstractImageLayer : AbstractLayer
     {
         public abstract Texture GetImage();
         public override void EvaluateTexture(CanvasContext canvasContext)

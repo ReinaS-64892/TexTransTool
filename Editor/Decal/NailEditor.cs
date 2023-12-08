@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Decal
 {
 
     [AddComponentMenu("TexTransTool/TTT NailEditor")]
-    public class NailEditor : AbstractDecal
+    internal class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;
 
@@ -192,7 +192,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
+    internal class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
     {
         public UpVector FingerUpVector;
 
@@ -257,7 +257,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    public class NailDecalDescription
+    internal class NailDecalDescription
     {
         public Texture2D DecalTexture;
 
@@ -287,7 +287,7 @@ namespace net.rs64.TexTransTool.Decal
         }
     }
 
-    public enum Finger
+    internal enum Finger
     {
         Thumb,
         Index,
@@ -296,7 +296,7 @@ namespace net.rs64.TexTransTool.Decal
         Little,
     }
 
-    public enum UpVector
+    internal enum UpVector
     {
         ZMinus,
         ZPlus,

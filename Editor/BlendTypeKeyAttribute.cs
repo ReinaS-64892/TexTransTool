@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public class BlendTypeKeyAttribute : PropertyAttribute
+    internal class BlendTypeKeyAttribute : PropertyAttribute
     {
     }
 }

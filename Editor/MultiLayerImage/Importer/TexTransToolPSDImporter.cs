@@ -11,7 +11,7 @@ using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver.MLIResolver;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    public class TexTransToolPSDImporter
+    internal class TexTransToolPSDImporter
     {
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
         public static void ImportPSD()

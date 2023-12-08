@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
-    public class TextureWrap
+    internal class TextureWrap
     {
         public WrapMode Mode;
         public Vector2? WarpRange;
-        public enum WrapMode
+        internal enum WrapMode
         {
             Stretch = TextureWrapMode.Clamp,
             Loop = TextureWrapMode.Repeat,

@@ -9,7 +9,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.EditorIsland;
 namespace net.rs64.TexTransTool
 {
-    public static class AssetSaveHelper
+    internal static class AssetSaveHelper
     {
         static bool _IsTemporary;
         public static bool IsTemporary

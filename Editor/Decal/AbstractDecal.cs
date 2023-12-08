@@ -12,7 +12,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Decal
 {
     [ExecuteInEditMode]
-    public abstract class AbstractDecal : TextureTransformer
+    internal abstract class AbstractDecal : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;

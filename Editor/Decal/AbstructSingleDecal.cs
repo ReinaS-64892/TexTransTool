@@ -10,7 +10,7 @@ using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public abstract class AbstractSingleDecal<SpaceConverter, UVDimension> : AbstractDecal
+    internal abstract class AbstractSingleDecal<SpaceConverter, UVDimension> : AbstractDecal
     where SpaceConverter : DecalUtility.IConvertSpace<UVDimension>
     where UVDimension : struct
     {

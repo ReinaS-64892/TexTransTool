@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
 {
     [RequireComponent(typeof(MultiLayerImageCanvas))]
     [AddComponentMenu("TexTransTool/Resolver/TTT MultiLayerImageCanvas AbsoluteTextureResolver")]
-    public class AbsoluteTextureResolver : AbstractResolver
+    internal class AbsoluteTextureResolver : AbstractResolver
     {
         public Texture2D Texture;
 

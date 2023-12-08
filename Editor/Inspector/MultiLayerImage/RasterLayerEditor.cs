@@ -5,7 +5,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(RasterLayer))]
     [CanEditMultipleObjects]
-    public class RasterLayerEditor : UnityEditor.Editor
+    internal class RasterLayerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

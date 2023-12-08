@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public class AvatarDomainAsset : ScriptableObject
+    internal class AvatarDomainAsset : ScriptableObject
     {
         public UnityEngine.Object OverrideContainer;
         [SerializeField] List<Object> SubAssets = new List<Object>();

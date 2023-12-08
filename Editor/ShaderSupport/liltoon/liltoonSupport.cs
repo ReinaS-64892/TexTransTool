@@ -9,7 +9,7 @@ using TexLU = net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public class liltoonSupport : IShaderSupport
+    internal class liltoonSupport : IShaderSupport
     {
         public string ShaderName => "lilToon";
 

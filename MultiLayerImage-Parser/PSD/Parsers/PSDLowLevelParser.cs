@@ -11,7 +11,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
     //https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
 
-    public static class PSDLowLevelParser
+    internal static class PSDLowLevelParser
     {
         public static readonly byte[] OctBPSSignature = new byte[] { 0x38, 0x42, 0x50, 0x53 };
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
@@ -59,7 +59,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
 
         [Serializable]
-        public class PSDLowLevelData
+        internal class PSDLowLevelData
         {
             // File Header Section
             public ushort channels;
@@ -67,7 +67,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             public uint width;
             public ushort Depth;
             public ColorModeEnum ColorMode;
-            public enum ColorModeEnum : ushort
+            internal enum ColorModeEnum : ushort
             {
                 Bitmap = 0,
                 Grayscale = 1,

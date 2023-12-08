@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 {
-    public class PreviewExit
+    internal class PreviewExit
     {
         [MenuItem("Tools/TexTransTool/Exit Previews")]
         public static void ExitPreviews()

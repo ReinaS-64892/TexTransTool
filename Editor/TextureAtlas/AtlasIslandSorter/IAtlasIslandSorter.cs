@@ -15,14 +15,14 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public interface IAtlasIslandSorter
+    internal interface IAtlasIslandSorter
     {
         string SorterName { get; }
         bool RectTangleMove { get; }
         Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float Padding);
     }
 
-    public static class AtlasIslandSorterUtility
+    internal static class AtlasIslandSorterUtility
     {
         static Dictionary<string, IAtlasIslandSorter> Sorters;
         static string[] SortersNames;

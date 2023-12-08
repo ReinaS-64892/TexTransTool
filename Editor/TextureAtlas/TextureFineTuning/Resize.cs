@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Resize : IAddFineTuning
+    internal struct Resize : IAddFineTuning
     {
         public int Size;
         public string PropertyNames;
@@ -37,12 +37,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         }
     }
 
-    public class SizeData : ITuningData
+    internal class SizeData : ITuningData
     {
         public int TextureSize = 2048;
     }
 
-    public class ResizeApplicant : ITuningApplicant
+    internal class ResizeApplicant : ITuningApplicant
     {
         public int Order => -64;
 

@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct MipMapRemove : IAddFineTuning
+    internal struct MipMapRemove : IAddFineTuning
     {
         public string PropertyNames;
         public PropertySelect Select;
@@ -35,12 +35,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         }
     }
 
-    public class MipMapData : ITuningData
+    internal class MipMapData : ITuningData
     {
         public bool UseMipMap = true;
     }
 
-    public class MipMapApplicant : ITuningApplicant
+    internal class MipMapApplicant : ITuningApplicant
     {
         public int Order => -32;
 

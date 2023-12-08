@@ -6,7 +6,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [System.Serializable]
-    public class MatAndTex
+    internal class MatAndTex
     {
         public Material Material;
         public Texture2D Texture;
@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool
         }
     }
     [System.Serializable]
-    public struct MatPair
+    internal struct MatPair
     {
         public Material Material;
         public Material SecondMaterial;

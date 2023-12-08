@@ -6,7 +6,7 @@ using System;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TextureBlender")]
-    public class TextureBlender : TextureTransformer
+    internal class TextureBlender : TextureTransformer
     {
         public RelativeTextureSelector TargetTexture;
 
@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool
         }
     }
     [Serializable]
-    public class RelativeTextureSelector
+    internal class RelativeTextureSelector
     {
         public Renderer TargetRenderer;
         public int MaterialSelect = 0;

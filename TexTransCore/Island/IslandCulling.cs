@@ -12,7 +12,7 @@ using Debug = UnityEngine.Debug;
 namespace net.rs64.TexTransCore.Island
 {
     [Serializable]
-    public struct IslandSelector
+    internal struct IslandSelector
     {
         public Ray Ray;
         public float RayRange;
@@ -23,7 +23,7 @@ namespace net.rs64.TexTransCore.Island
         }
 
     }
-    public static class IslandCulling
+    internal static class IslandCulling
     {
 
         public static List<TriangleIndex> Culling(

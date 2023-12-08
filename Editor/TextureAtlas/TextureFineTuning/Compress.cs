@@ -6,7 +6,7 @@ using static net.rs64.TexTransTool.TextureAtlas.FineSetting.Compress;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public struct Compress : IAddFineTuning
+    internal struct Compress : IAddFineTuning
     {
         public FormatQuality FormatQualityValue;
         public TextureCompressionQuality CompressionQuality;
@@ -48,12 +48,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
     }
 
-    public class CompressionQualityData : ITuningData
+    internal class CompressionQualityData : ITuningData
     {
         public Compress.FormatQuality FormatQualityValue = Compress.FormatQuality.Normal;
         public TextureCompressionQuality CompressionQuality = TextureCompressionQuality.Normal;
     }
-    public class CompressionQualityApplicant : ITuningApplicant
+    internal class CompressionQualityApplicant : ITuningApplicant
     {
         public int Order => 0;
 

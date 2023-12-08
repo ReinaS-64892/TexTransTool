@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public static class GizmosUtility
+    internal static class GizmosUtility
     {
         public static void DrawGizmoQuad(IEnumerable<List<Vector3>> Quads)
         {

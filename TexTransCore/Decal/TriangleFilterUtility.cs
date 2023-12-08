@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public static class TriangleFilterUtility
+    internal static class TriangleFilterUtility
     {
         public interface ITriangleFiltering<InterObject>
         {

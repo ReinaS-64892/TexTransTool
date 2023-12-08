@@ -4,7 +4,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public class ParallelProjectionFilter<UVDimension> : DecalUtility.ITrianglesFilter<ParallelProjectionSpace>
+    internal class ParallelProjectionFilter<UVDimension> : DecalUtility.ITrianglesFilter<ParallelProjectionSpace>
     where UVDimension : struct
     {
         public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> Filters;

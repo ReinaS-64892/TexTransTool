@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.BlendTexture
 {
-    public interface TexBlendExtension
+    internal interface TexBlendExtension
     {
         (HashSet<string> ShaderKeywords, Shader shader) GetExtensionBlender();
     }

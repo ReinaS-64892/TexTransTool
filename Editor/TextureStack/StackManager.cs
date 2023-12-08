@@ -11,12 +11,12 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
-    public interface IStackManager
+    internal interface IStackManager
     {
         void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex);
         List<MargeResult> MargeStacks();
     }
-    public class StackManager<Stack> : IStackManager
+    internal class StackManager<Stack> : IStackManager
      where Stack : TextureStack, new()
     {
         [SerializeField] List<Stack> _textureStacks = new List<Stack>();
@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.TextureStack
         }
 
     }
-    public struct MargeResult
+    internal struct MargeResult
     {
         public Texture2D FirstTexture;
         public Texture2D MargeTexture;
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.TextureStack
         }
     }
 
-    public abstract class TextureStack
+    internal abstract class TextureStack
     {
         public virtual void init(Texture2D firstTexture, ITextureManager textureManager) { FirstTexture = firstTexture; TextureManager = textureManager; }
         public Texture2D FirstTexture;

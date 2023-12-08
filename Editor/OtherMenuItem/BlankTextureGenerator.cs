@@ -7,7 +7,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 {
 
-    public class BlankTextureGenerator
+    internal class BlankTextureGenerator
     {
 
         [MenuItem("Assets/Create/TexTransTool/BlankTexture/2048")]

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Decal
 {
     [CreateAssetMenu(fileName = "NailOffsetData", menuName = "TexTransTool/NailOffsetData", order = 1)]
-    public class NailOffsetData : ScriptableObject , ITexTransToolTag
+    internal class NailOffsetData : ScriptableObject , ITexTransToolTag
     {
         [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Decal
         public NailOffSets RightHand = new NailOffSets();
     }
     [Serializable]
-    public class NailOffSets
+    internal class NailOffSets
     {
         public UpVector UpVector;
 
@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.Decal
 
     }
     [Serializable]
-    public class NailOffset
+    internal class NailOffset
     {
 
         public Vector3 PositionOffset = Vector3.zero;

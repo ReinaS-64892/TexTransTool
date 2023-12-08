@@ -8,11 +8,11 @@ using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class LayerRecordParser
+    internal static class LayerRecordParser
     {
 
         [Serializable]
-        public class LayerRecord
+        internal class LayerRecord
         {
             public RectTangle RectTangle;
             public ushort NumberOfChannels;
@@ -22,7 +22,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             public byte Clipping;
             public LayerFlagEnum LayerFlag;
             [Flags]
-            public enum LayerFlagEnum
+            internal enum LayerFlagEnum
             {
                 TransparencyProtected = 1,
                 NotVisible = 2,
@@ -38,7 +38,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             public AdditionalLayerInfo[] AdditionalLayerInformation;
         }
         [Serializable]
-        public class RectTangle
+        internal class RectTangle
         {
             public int Top;
             public int Left;
@@ -200,7 +200,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
         [Serializable]
-        public class LayerMaskAdjustmentLayerData
+        internal class LayerMaskAdjustmentLayerData
         {
             public uint DataSize;
             public RectTangle RectTangle;
@@ -208,7 +208,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             public MaskOrAdjustmentFlag Flag;
             [Flags]
-            public enum MaskOrAdjustmentFlag
+            internal enum MaskOrAdjustmentFlag
             {
                 PosRelToLayer = 1,
                 MaskDisabled = 2,
@@ -218,7 +218,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
             public MaskParametersBitFlags? MaskParameters;
             [Flags]
-            public enum MaskParametersBitFlags
+            internal enum MaskParametersBitFlags
             {
                 UserDensity = 1,
                 UserFeather = 2,
@@ -237,12 +237,12 @@ namespace net.rs64.MultiLayerImageParser.PSD
             public RectTangle EnclosingLayerMask;
         }
         [Serializable]
-        public class LayerBlendingRangesData
+        internal class LayerBlendingRangesData
         {
             public uint Length;
             public SourceAndDestinationRange[] SourceAndDestinationRanges;
             [Serializable]
-            public class SourceAndDestinationRange
+            internal class SourceAndDestinationRange
             {
                 public byte CompositeGrayBlendSource1;
                 public byte CompositeGrayBlendSource2;

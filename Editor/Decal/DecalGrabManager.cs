@@ -12,7 +12,7 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
-    public class DecalGrabManager : ScriptableSingleton<DecalGrabManager>
+    internal class DecalGrabManager : ScriptableSingleton<DecalGrabManager>
     {
 
         AbstractDecal GrabTarget;

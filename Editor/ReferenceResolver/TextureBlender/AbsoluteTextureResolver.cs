@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.TBResolver
 {
     [RequireComponent(typeof(TextureBlender))]
     [AddComponentMenu("TexTransTool/Resolver/TTT TextureBlender AbsoluteTextureResolver")]
-    public class AbsoluteTextureResolver : AbstractResolver
+    internal class AbsoluteTextureResolver : AbstractResolver
     {
         public Texture2D Texture;
 

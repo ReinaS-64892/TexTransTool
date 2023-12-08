@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(CylindricalDecal), true)]
-    public class CylindricalDecalEditor : UnityEditor.Editor
+    internal class CylindricalDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

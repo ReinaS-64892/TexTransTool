@@ -7,7 +7,7 @@ using System;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
-    public class AbstractDecalEditor : UnityEditor.Editor
+    internal class AbstractDecalEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

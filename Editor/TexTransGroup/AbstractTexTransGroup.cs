@@ -8,7 +8,7 @@ using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool
 {
-    public abstract class AbstractTexTransGroup : TextureTransformer
+    internal abstract class AbstractTexTransGroup : TextureTransformer
     {
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
         public abstract IEnumerable<TextureTransformer> Targets { get; }

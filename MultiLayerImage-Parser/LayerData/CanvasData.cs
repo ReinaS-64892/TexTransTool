@@ -6,7 +6,7 @@ using UnityEngine;
 namespace net.rs64.MultiLayerImageParser.LayerData
 {
     [Serializable]
-    public class CanvasData
+    internal class CanvasData
     {
         public Vector2Int Size;
         public List<AbstractLayerData> RootLayers;

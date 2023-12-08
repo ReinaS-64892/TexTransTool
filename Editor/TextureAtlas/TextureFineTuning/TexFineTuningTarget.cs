@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class TexFineTuningTarget
+    internal class TexFineTuningTarget
     {
         public string PropertyName;
         public Texture2D Texture2D;
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         }
     }
 
-    public class TexFineTuningUtility
+    internal class TexFineTuningUtility
     {
 
         public static void InitTexFineTuning(List<TexFineTuningTarget> texFineTuningTargets)

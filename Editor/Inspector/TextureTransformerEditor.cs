@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(TextureTransformer))]
-    public class TextureTransformerEditor : UnityEditor.Editor
+    internal class TextureTransformerEditor : UnityEditor.Editor
     {
         public static void DrawerWarning(string TypeName)
         {

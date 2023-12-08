@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.ReferenceResolver.ATResolver;
 namespace net.rs64.TexTransTool.Editor.ReferenceResolver
 {
     [CustomEditor(typeof(AddAbsoluteMaterials), true)]
-    public class AddAbsoluteMaterialsEditor : UnityEditor.Editor
+    internal class AddAbsoluteMaterialsEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

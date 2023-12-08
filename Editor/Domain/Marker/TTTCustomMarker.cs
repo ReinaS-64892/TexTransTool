@@ -4,12 +4,12 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
-    public class TTTCustomMarker : MonoBehaviour, ITexTransToolTag
+    internal class TTTCustomMarker : MonoBehaviour, ITexTransToolTag
     {
         [SerializeField, HideInInspector] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
     }
-    public class TTTCustomMarkerFinder : IDomainMarkerFinder
+    internal class TTTCustomMarkerFinder : IDomainMarkerFinder
     {
         public GameObject FindMarker(GameObject StartPoint)
         {

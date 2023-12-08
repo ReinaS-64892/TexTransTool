@@ -8,7 +8,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [DisallowMultipleComponent]
-    public abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
+    internal abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
     {
         public virtual bool ThisEnable => gameObject.activeSelf && enabled;
         public abstract List<Renderer> GetRenderers { get; }
@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool
         public abstract void Apply([NotNull] IDomain domain);
     }
 
-    public enum TexTransPhase
+    internal enum TexTransPhase
     {
         UnDefined,
         BeforeUVModification,

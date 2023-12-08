@@ -12,7 +12,7 @@ using UnityEditor;
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [DisallowMultipleComponent]
-    public abstract class AbstractRayCastRendererResolver : AbstractResolver
+    internal abstract class AbstractRayCastRendererResolver : AbstractResolver
     {
         public float RayCastRange = 1f;
 

@@ -5,7 +5,7 @@ using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public class IslandCullingPPFilter<UVDimension> : ParallelProjectionFilter<UVDimension>
+    internal class IslandCullingPPFilter<UVDimension> : ParallelProjectionFilter<UVDimension>
     where UVDimension : struct
     {
         public List<IslandSelector> IslandSelectors;

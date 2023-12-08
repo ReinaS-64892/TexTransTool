@@ -14,7 +14,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
 
-    public class AtlasIsland : Island
+    internal class AtlasIsland : Island
     {
         public List<Vector2> UV;
 

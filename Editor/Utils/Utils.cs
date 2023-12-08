@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public static class ToolUtils
+    internal static class ToolUtils
     {
         //v0.3.x == 0
         //v0.4.x == 1

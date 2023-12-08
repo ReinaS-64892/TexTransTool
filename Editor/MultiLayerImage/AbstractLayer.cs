@@ -6,11 +6,10 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
-using LayerMaskData = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [DisallowMultipleComponent]
-    public abstract class AbstractLayer : MonoBehaviour, ITexTransToolTag
+    internal abstract class AbstractLayer : MonoBehaviour, ITexTransToolTag
     {
         public bool Visible { get => gameObject.activeSelf; set => gameObject.SetActive(value); }
 
@@ -26,7 +25,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
     }
     [Serializable]
-    public class LayerMask
+    internal class LayerMask
     {
         public bool LayerMaskDisabled;
         public Texture2D MaskTexture;

@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.Build
 {
-    public static class AvatarBuildUtils
+    internal static class AvatarBuildUtils
     {
 
         public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false, bool DisplayProgressBar = false)

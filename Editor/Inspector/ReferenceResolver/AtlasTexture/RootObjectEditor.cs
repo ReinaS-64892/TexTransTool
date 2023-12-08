@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.ReferenceResolver.ATResolver;
 namespace net.rs64.TexTransTool.Editor.ReferenceResolver
 {
     [CustomEditor(typeof(RootObject), true)]
-    public class RootObjectEditor : UnityEditor.Editor
+    internal class RootObjectEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

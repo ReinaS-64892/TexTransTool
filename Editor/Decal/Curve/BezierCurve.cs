@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
-    public class BezierCurve : ICurve
+    internal class BezierCurve : ICurve
     {
         public List<CurveSegment> Segments = new List<CurveSegment>();
         public RollMode RollMode;

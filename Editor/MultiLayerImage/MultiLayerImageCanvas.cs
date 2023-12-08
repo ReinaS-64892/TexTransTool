@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
-    public class MultiLayerImageCanvas : TextureTransformer
+    internal class MultiLayerImageCanvas : TextureTransformer
     {
         public RelativeTextureSelector TextureSelector;
 

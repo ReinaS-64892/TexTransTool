@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 {
     [CustomEditor(typeof(MaterialModifier))]
-    public class MaterialModifierEditor : UnityEditor.Editor
+    internal class MaterialModifierEditor : UnityEditor.Editor
     {
         List<Material> TempMaterial;
         public override void OnInspectorGUI()

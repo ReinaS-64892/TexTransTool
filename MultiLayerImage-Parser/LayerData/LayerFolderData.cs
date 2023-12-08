@@ -5,7 +5,7 @@ using UnityEngine;
 namespace net.rs64.MultiLayerImageParser.LayerData
 {
     [Serializable]
-    public class LayerFolderData : AbstractLayerData
+    internal class LayerFolderData : AbstractLayerData
     {
         public bool PassThrough;
         public List<AbstractLayerData> Layers;

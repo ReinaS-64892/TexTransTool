@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public static class Localize
+    internal static class Localize
     {
         const string JP_GUID = "139e527c0dc01364b97daf9bdbaeb365";
         public const string LANGUAGE_PREFKEY = "net.rs64.tex-trans-tool.language";

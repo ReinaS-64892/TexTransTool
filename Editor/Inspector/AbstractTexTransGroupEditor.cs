@@ -13,7 +13,7 @@ using net.rs64.TexTransCore.Decal;
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(AbstractTexTransGroup), true)]
-    public class AbstractTexTransGroupEditor : UnityEditor.Editor
+    internal class AbstractTexTransGroupEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

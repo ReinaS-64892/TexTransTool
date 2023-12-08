@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CustomEditor(typeof(NailEditor), true)]
-    public class NailEditorEditor : UnityEditor.Editor
+    internal class NailEditorEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

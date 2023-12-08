@@ -10,7 +10,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomPropertyDrawer(typeof(BlendTypeKeyAttribute))]
-    public class BlendTypeKeyDrawer : PropertyDrawer
+    internal class BlendTypeKeyDrawer : PropertyDrawer
     {
         static string[] BlendTypeKeys;
 

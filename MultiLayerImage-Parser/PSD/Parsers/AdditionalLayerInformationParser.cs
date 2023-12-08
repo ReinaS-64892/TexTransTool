@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class AdditionalLayerInformationParser
+    internal static class AdditionalLayerInformationParser
     {
         public static Dictionary<string, Type> AdditionalLayerInfoParsersTypes;
         public static Dictionary<string, Type> GetAdditionalLayerInfoParsersTypes()
@@ -51,13 +51,13 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
         [Serializable]
-        public class AdditionalLayerInfo
+        internal class AdditionalLayerInfo
         {
             public uint Length;
             public virtual void ParseAddLY(ref SubSpanStream stream) { }
         }
         [AttributeUsage(AttributeTargets.Class)]
-        public class AdditionalLayerInfoParserAttribute : Attribute
+        internal class AdditionalLayerInfoParserAttribute : Attribute
         {
             public string Code;
             public AdditionalLayerInfoParserAttribute(string codeStr)
@@ -67,7 +67,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
         [Serializable, AdditionalLayerInfoParser("luni")]
-        public class luni : AdditionalLayerInfo
+        internal class luni : AdditionalLayerInfo
         {
             public string LayerName;
 
@@ -77,7 +77,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
         }
         [Serializable, AdditionalLayerInfoParser("lnsr")]
-        public class lnsr : AdditionalLayerInfo
+        internal class lnsr : AdditionalLayerInfo
         {
             public int IDForLayerName;
 
@@ -87,7 +87,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
         }
         [Serializable, AdditionalLayerInfoParser("lyid")]
-        public class lyid : AdditionalLayerInfo
+        internal class lyid : AdditionalLayerInfo
         {
             public int ChannelID;
 
@@ -97,7 +97,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
         }
         [Serializable, AdditionalLayerInfoParser("lsct")]
-        public class lsct : AdditionalLayerInfo
+        internal class lsct : AdditionalLayerInfo
         {
             public SelectionDividerTypeEnum SelectionDividerType;
             public string BlendModeKey;

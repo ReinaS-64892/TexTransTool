@@ -8,7 +8,7 @@ using net.rs64.TexTransTool.Build;
 namespace net.rs64.TexTransTool.Build.NDMF
 {
 
-    public class NDMFPlugin : Plugin<NDMFPlugin>
+    internal class NDMFPlugin : Plugin<NDMFPlugin>
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
         public override string DisplayName => "TexTransTool";

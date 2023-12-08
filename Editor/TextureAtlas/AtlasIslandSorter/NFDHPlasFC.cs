@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class NFDHPlasFC : IAtlasIslandSorter
+    internal class NFDHPlasFC : IAtlasIslandSorter
     {
         public const string NDFHPlasFCName = "NextFitDecreasingHeightPlusFloorCeiling";
         public string SorterName => NDFHPlasFCName;

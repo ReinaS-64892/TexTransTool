@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public static class TTTConfig
+    internal static class TTTConfig
     {
         public const string TTT_MENU_PATH = "Tools/TexTransTool";
         public const string EXPERIMENTAL_MENU_PATH = TTT_MENU_PATH + "/Experimental";

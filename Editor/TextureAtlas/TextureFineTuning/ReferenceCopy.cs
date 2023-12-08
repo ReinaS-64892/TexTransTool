@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public class ReferenceCopy : IAddFineTuning
+    internal class ReferenceCopy : IAddFineTuning
     {
 
         public string SourcePropertyName;
@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         }
     }
 
-    public class ReferenceCopyData : ITuningData
+    internal class ReferenceCopyData : ITuningData
     {
         public string CopySouse;
 
@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         }
     }
 
-    public class ReferenceCopyApplicant : ITuningApplicant
+    internal class ReferenceCopyApplicant : ITuningApplicant
     {
 
         public int Order => 32;

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Decal.Curve
 {
     [AddComponentMenu("TexTransTool/Experimental/TTT CurveSegment")]
-    public class CurveSegment : MonoBehaviour, ITexTransToolTag
+    internal class CurveSegment : MonoBehaviour, ITexTransToolTag
     {
         [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;

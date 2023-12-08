@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public static class DomainMarkerFinder
+    internal static class DomainMarkerFinder
     {
         static List<IDomainMarkerFinder> Finders;
         public static GameObject FindMarker(GameObject StartPoint)
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
         }
     }
 
-    public interface IDomainMarkerFinder
+    internal interface IDomainMarkerFinder
     {
         GameObject FindMarker(GameObject StartPoint);
     }

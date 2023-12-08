@@ -8,7 +8,7 @@ using System.Linq;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    public struct PropertyName
+    internal struct PropertyName
     {
         [SerializeField] string _propertyName;
 

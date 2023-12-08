@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
     [CanEditMultipleObjects]
     [CustomEditor(typeof(SimpleDecal))]
-    public class SimpleDecalEditor : UnityEditor.Editor
+    internal class SimpleDecalEditor : UnityEditor.Editor
     {
         bool FoldoutOption;
         public override void OnInspectorGUI()

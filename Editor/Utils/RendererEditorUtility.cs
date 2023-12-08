@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public static class RendererEditorUtility
+    internal static class RendererEditorUtility
     {
 
         /// <summary>

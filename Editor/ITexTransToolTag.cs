@@ -8,7 +8,7 @@ using VRC.SDKBase;
 
 namespace net.rs64.TexTransTool
 {
-    public interface ITexTransToolTag
+    internal interface ITexTransToolTag
 
 #if VRC_BASE
 : IEditorOnly

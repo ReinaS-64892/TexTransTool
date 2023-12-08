@@ -8,7 +8,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Utils
 {
     [Serializable]
-    public class OrderedHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
+    internal class OrderedHashSet<T> : IReadOnlyList<T>, IEnumerable<T>
     {
         [SerializeField] List<T> List;
         [SerializeField] HashSet<T> Hash;

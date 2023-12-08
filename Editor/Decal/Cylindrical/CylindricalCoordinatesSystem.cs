@@ -10,7 +10,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Decal.Cylindrical
 {
     [AddComponentMenu("TexTransTool/TTT CylindricalCoordinatesSystem")]
-    public class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
+    internal class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
     {
         public float GizmoRadius = 0.25f;
         public float GizmoHeight = 1f;
@@ -108,7 +108,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
     }
 
 
-    public class CCSSpace : DecalUtility.IConvertSpace<Vector2>
+    internal class CCSSpace : DecalUtility.IConvertSpace<Vector2>
     {
         public CylindricalCoordinatesSystem CCS;
         public IReadOnlyList<Vector3> Quad;
@@ -155,7 +155,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         }
     }
 
-    public class CCSFilter : DecalUtility.ITrianglesFilter<CCSSpace>
+    internal class CCSFilter : DecalUtility.ITrianglesFilter<CCSSpace>
     {
         public IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> Filters;
 

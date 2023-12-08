@@ -6,12 +6,12 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
-    public interface IAssetSaver
+    internal interface IAssetSaver
     {
         void TransferAsset(UnityEngine.Object Asset);
     }
 
-    public interface IDomain : IAssetSaver, IProgressHandling, ITextureManager
+    internal interface IDomain : IAssetSaver, IProgressHandling, ITextureManager
     {
         /// <summary>
         /// Sets the value to specified property with recording for revert
@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool
         void SetMesh(Renderer renderer, Mesh mesh);
         void AddTextureStack(Texture2D dist, BlendTexturePair setTex);
     }
-    public interface IProgressHandling
+    internal interface IProgressHandling
     {
         void ProgressStateEnter(string EnterName);
         void ProgressUpdate(string State, float Value);
@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
         void ProgressFinalize();
     }
 
-    public interface ITextureManager
+    internal interface ITextureManager
     {
         Texture2D GetOriginalTexture2D(Texture2D texture2D);
         void DeferDestroyTexture2D(Texture2D texture2D);
@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool
         void TexCompressDelegationInvoke();
     }
 
-    public static class DomainUtility
+    internal static class DomainUtility
     {
         public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> UnityObjects)
         {

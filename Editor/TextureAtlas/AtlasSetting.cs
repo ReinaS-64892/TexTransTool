@@ -11,7 +11,7 @@ using net.rs64.TexTransCore.Island;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [Serializable]
-    public class AtlasSetting
+    internal class AtlasSetting
     {
         public bool MergeMaterials;
         public Material MergeReferenceMaterial;
@@ -38,14 +38,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
     }
-    public enum PropertyBakeSetting
+    internal enum PropertyBakeSetting
     {
         NotBake,
         Bake,
         BakeAllProperty,
     }
     [Serializable]
-    public class TextureFineTuningData
+    internal class TextureFineTuningData
     {
         [FormerlySerializedAs("select")] public select Select;
         public enum select

@@ -6,7 +6,7 @@ using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.ReferenceResolver
 {
-    public abstract class AbstractResolver : MonoBehaviour, ITexTransToolTag
+    internal abstract class AbstractResolver : MonoBehaviour, ITexTransToolTag
     {
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;

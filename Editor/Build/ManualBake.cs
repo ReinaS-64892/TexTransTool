@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Build
 {
-    public static class ManualBake
+    internal static class ManualBake
     {
         [MenuItem("Tools/TexTransTool/TexTransTool Only Manual Bake Avatar")]
         private static void ManualBakeSelected()

@@ -17,7 +17,7 @@ using System.Buffers;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class PSDHighLevelParser
+    internal static class PSDHighLevelParser
     {
         public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData)
         {
@@ -404,7 +404,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
     }
 
     [Serializable]
-    public class PSDHighLevelData
+    internal class PSDHighLevelData
     {
         public Vector2Int Size;
         public ushort Depth;

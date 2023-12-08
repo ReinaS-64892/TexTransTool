@@ -5,7 +5,7 @@ using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public interface IAtlasShaderSupport
+    internal interface IAtlasShaderSupport
     {
         bool IsThisShader(Material material);
         void AddRecord(Material material);

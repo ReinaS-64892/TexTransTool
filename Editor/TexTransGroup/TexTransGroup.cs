@@ -7,7 +7,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TexTransGroup")]
-    public class TexTransGroup : AbstractTexTransGroup
+    internal class TexTransGroup : AbstractTexTransGroup
     {
         public override IEnumerable<TextureTransformer> Targets => transform.GetChildren().ConvertAll(x => x.GetComponent<TextureTransformer>()).Where(x => x != null);
     }

@@ -10,7 +10,7 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT LayerFolder")]
-    public class LayerFolder : AbstractLayer
+    internal class LayerFolder : AbstractLayer
     {
         public bool PassThrough;
 
