@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MenuItem の Language に CheckMark の表示を追加 `#233`
 - 非常に実験的な機能として UseDepth と DepthInvert が追加 `#150`
 - 無効化されたレンダラーもアトラス化の対象にする IncludeDisableRenderer を追加 `#222`
+- 非常に実験的なAPIを追加 `#258`
 
 ### Changed
 
