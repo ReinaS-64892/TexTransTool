@@ -4,7 +4,7 @@ using VRC.SDKBase;
 
 namespace net.rs64.TexTransTool
 {
-    public class VRCADescriptorFinder : IDomainMarkerFinder
+    internal class VRCADescriptorFinder : IDomainMarkerFinder
     {
         public GameObject FindMarker(GameObject StartPoint)
         {

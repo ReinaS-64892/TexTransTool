@@ -11,7 +11,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     [CustomEditor(typeof(AtlasTexture), true)]
-    public class AtlasTextureEditor : UnityEditor.Editor
+    internal class AtlasTextureEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

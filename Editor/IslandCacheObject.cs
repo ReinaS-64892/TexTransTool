@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 namespace net.rs64.TexTransCore.Island
 {
     [Serializable]
-    public class IslandCacheObject
+    internal class IslandCacheObject
     {
         public byte[] Hash;
         public List<Island> Islands;

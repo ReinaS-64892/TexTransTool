@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
-    public class ImmediateTextureStack : TextureStack
+    internal class ImmediateTextureStack : TextureStack
     {
         RenderTexture renderTexture;
         public override void init(Texture2D firstTexture, ITextureManager textureManager)

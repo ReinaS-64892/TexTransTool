@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class MeshUtility
+    internal static class MeshUtility
     {
         public static List<TriangleIndex> ConvertOnList(int[] triangles)
         {

@@ -13,7 +13,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
-    public class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
+    internal class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
     {
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;

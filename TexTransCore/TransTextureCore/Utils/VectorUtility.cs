@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class VectorUtility
+    internal static class VectorUtility
     {
 
         public static Vector4 CrossTriangle(List<Vector2> Triangle, Vector2 TargetPoint)

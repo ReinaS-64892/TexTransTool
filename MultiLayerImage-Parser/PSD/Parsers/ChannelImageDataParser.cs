@@ -11,14 +11,14 @@ using Debug = UnityEngine.Debug;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class ChannelImageDataParser
+    internal static class ChannelImageDataParser
     {
         [Serializable]
-        public class ChannelInformation
+        internal class ChannelInformation
         {
             public short ChannelIDRawShort;
             public ChannelIDEnum ChannelID;
-            public enum ChannelIDEnum
+            internal enum ChannelIDEnum
             {
                 Red = 0,
                 Green = 1,
@@ -32,7 +32,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
         [Serializable]
-        public class ChannelImageData
+        internal class ChannelImageData
         {
             public ushort CompressionRawUshort;
             public CompressionEnum Compression;

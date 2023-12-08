@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
-    public static class TransTexture
+    internal static class TransTexture
     {
         public struct TransData<UVDimension> where UVDimension : struct
         {

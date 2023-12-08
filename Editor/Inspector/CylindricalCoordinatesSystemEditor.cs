@@ -3,7 +3,7 @@ using net.rs64.TexTransTool.Decal.Cylindrical;
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(CylindricalCoordinatesSystem))]
-    public class CylindricalCoordinatesSystemEditor : UnityEditor.Editor
+    internal class CylindricalCoordinatesSystemEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

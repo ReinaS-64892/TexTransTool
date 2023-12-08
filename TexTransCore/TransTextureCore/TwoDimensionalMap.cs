@@ -6,7 +6,7 @@ using System.Collections;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 namespace net.rs64.TexTransCore.TransTextureCore
 {
-    public struct TwoDimensionalMap<T>
+    internal struct TwoDimensionalMap<T>
     {
         public readonly T[] Array;
         public readonly Vector2Int MapSize;

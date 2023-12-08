@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool
 {
-    public class AssetSaver : IAssetSaver
+    internal class AssetSaver : IAssetSaver
     {
         [NotNull] public AvatarDomainAsset Asset;
 

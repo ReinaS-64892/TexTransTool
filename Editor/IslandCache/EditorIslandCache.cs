@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace net.rs64.TexTransTool.EditorIsland
 {
-    public class EditorIslandCache : IIslandCache
+    internal class EditorIslandCache : IIslandCache
     {
         private List<IslandCacheObject> CacheIslands;
 
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.EditorIsland
 
 
     [Serializable]
-    public class IslandCacheObject
+    internal class IslandCacheObject
     {
         public byte[] Hash;
         public List<Island> Islands;

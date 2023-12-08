@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class CoreUtility
+    internal static class CoreUtility
     {
         public static T[] FilledArray<T>(T DefaultValue, int Length)
         {

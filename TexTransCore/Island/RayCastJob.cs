@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 namespace net.rs64.TexTransCore.Island
 {
     [BurstCompile]
-    public struct RayCastJob : IJobParallelFor
+    internal struct RayCastJob : IJobParallelFor
     {
         [ReadOnly]
         public Matrix4x4 rayMatrix;

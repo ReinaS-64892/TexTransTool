@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class TextureUtility
+    internal static class TextureUtility
     {
         public static Texture2D CopyTexture2D(this RenderTexture Rt, TextureFormat? OverrideFormat = null, bool? OverrideUseMip = null)
         {

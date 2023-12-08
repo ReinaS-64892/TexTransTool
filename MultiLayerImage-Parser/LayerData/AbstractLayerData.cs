@@ -7,7 +7,7 @@ namespace net.rs64.MultiLayerImageParser.LayerData
 {
 
     [Serializable]
-    public abstract class AbstractLayerData
+    internal abstract class AbstractLayerData
     {
         public string LayerName;
         public bool TransparencyProtected;
@@ -19,7 +19,7 @@ namespace net.rs64.MultiLayerImageParser.LayerData
 
     }
     [Serializable]
-    public class LayerMaskData
+    internal class LayerMaskData
     {
         public bool LayerMaskDisabled;
         public TwoDimensionalMap<Color32> MaskTexture;

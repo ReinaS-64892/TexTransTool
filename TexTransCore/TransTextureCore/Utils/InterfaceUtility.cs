@@ -5,7 +5,7 @@ using UnityEngine;
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
 
-    public static class InterfaceUtility
+    internal static class InterfaceUtility
     {
 
         public static List<T> GetInterfaceInstance<T>(Type[] IgnoreType = null)

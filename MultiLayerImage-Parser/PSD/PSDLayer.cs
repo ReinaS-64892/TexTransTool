@@ -6,7 +6,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 {
 
 
-    public enum PSDBlendMode
+    internal enum PSDBlendMode
     {
         PassThrough,
         Normal,
@@ -38,7 +38,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         Luminosity,
     }
     [Serializable]
-    public static class PSDLayer
+    internal static class PSDLayer
     {
 
         public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord)

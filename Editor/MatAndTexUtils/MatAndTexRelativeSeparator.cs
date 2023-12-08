@@ -11,7 +11,7 @@ using System;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexRelativeSeparator")]
-    public class MatAndTexRelativeSeparator : TextureTransformer
+    internal class MatAndTexRelativeSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         }
     }
     [Serializable]
-    public class MatSlotBool
+    internal class MatSlotBool
     {
         public List<bool> Bools;
 

@@ -11,7 +11,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Utils
 {
 
-    public static class TextureUtility
+    internal static class TextureUtility
     {
         public static bool TryGetUnCompress(Texture2D firstTexture, out Texture2D unCompress)
         {

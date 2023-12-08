@@ -11,7 +11,7 @@ using TexUT = net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class AtlasShaderSupportUtils
+    internal class AtlasShaderSupportUtils
     {
         AtlasDefaultShaderSupport _defaultShaderSupport;
         List<IAtlasShaderSupport> _shaderSupports;
@@ -72,7 +72,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
     }
 
-    public class AtlasShaderRecorder
+    internal class AtlasShaderRecorder
     {
         Dictionary<string, PropRecord> propRecords = new Dictionary<string, PropRecord>();
 
@@ -161,7 +161,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public void ClearRecord() { propRecords.Clear(); }
     }
-    public class TextureBaker
+    internal class TextureBaker
     {
         Material material;
         ITextureManager textureManager;

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public interface IShaderSupport
+    internal interface IShaderSupport
     {
         string ShaderName { get; }
 

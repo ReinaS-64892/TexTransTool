@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
+    internal class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
     {
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVert;

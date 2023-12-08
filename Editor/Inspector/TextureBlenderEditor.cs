@@ -6,7 +6,7 @@ namespace net.rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(TextureBlender))]
-    public class TextureBlenderEditor : UnityEditor.Editor
+    internal class TextureBlenderEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

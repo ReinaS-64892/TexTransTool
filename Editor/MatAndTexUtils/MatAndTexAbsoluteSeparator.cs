@@ -12,7 +12,7 @@ using net.rs64.TexTransTool.Build;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
-    public class MatAndTexAbsoluteSeparator : TextureTransformer , IMaterialReplaceEventLiner
+    internal class MatAndTexAbsoluteSeparator : TextureTransformer , IMaterialReplaceEventLiner
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;

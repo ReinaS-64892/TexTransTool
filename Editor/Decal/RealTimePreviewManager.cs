@@ -12,7 +12,7 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
-    public class RealTimePreviewManager : ScriptableSingleton<RealTimePreviewManager>
+    internal class RealTimePreviewManager : ScriptableSingleton<RealTimePreviewManager>
     {
         public Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)> RealTimePreviews = new Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)>();
         private Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>> Previews = new Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>>();

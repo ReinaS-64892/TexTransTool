@@ -9,7 +9,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public static class DecalUtility
+    internal static class DecalUtility
     {
         public interface IConvertSpace<UVDimension>
         where UVDimension : struct
@@ -247,7 +247,7 @@ namespace net.rs64.TexTransCore.Decal
         }
     }
 
-    public enum PolygonCulling
+    internal enum PolygonCulling
     {
         Vertex,
         Edge,

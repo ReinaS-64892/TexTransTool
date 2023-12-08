@@ -8,10 +8,10 @@ using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class LayerInformationParser
+    internal static class LayerInformationParser
     {
         [Serializable]
-        public class LayerInfo
+        internal class LayerInfo
         {
             public uint LayersInfoSectionLength;
             public int LayerCount;

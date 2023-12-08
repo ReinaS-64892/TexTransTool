@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public class ProgressHandler : IProgressHandling
+    internal class ProgressHandler : IProgressHandling
     {
         List<string> ProgressDepth = new List<string>();
         public void ProgressStateEnter(string EnterName)

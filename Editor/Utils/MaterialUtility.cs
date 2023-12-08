@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public static class MaterialUtility
+    internal static class MaterialUtility
     {
         public static void SetTextures(this Material TargetMat, List<PropAndTexture2D> PropAndTextures, bool FocusSetTexture = false)
         {

@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
-    public class AtlasTexture : TextureTransformer, IMaterialReplaceEventLiner
+    internal class AtlasTexture : TextureTransformer, IMaterialReplaceEventLiner
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
@@ -472,7 +472,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             SelectMatList[index] = selectMat;
         }
     }
-    public class AtlasReferenceData
+    internal class AtlasReferenceData
     {
         public OrderedHashSet<Mesh> Meshes;
         public OrderedHashSet<Material> Materials;
@@ -625,7 +625,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return result;
         }
     }
-    public struct AtlasIdenticalTag
+    internal struct AtlasIdenticalTag
     {
         public int AtlasMeshDataIndex;
         public int MaterialSlot;
@@ -653,7 +653,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return AtlasMeshDataIndex.GetHashCode() ^ MaterialSlot.GetHashCode();
         }
     }
-    public struct AtlasIslandID
+    internal struct AtlasIslandID
     {
         public int AtlasMeshDataIndex;
         public int MaterialSlot;

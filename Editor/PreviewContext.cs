@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool
 {
-    public class PreviewContext : ScriptableSingleton<PreviewContext>
+    internal class PreviewContext : ScriptableSingleton<PreviewContext>
     {
         [SerializeField]
         private Object previweing = null;

@@ -10,7 +10,7 @@ using net.rs64.TexTransTool.MatAndTexUtils;
 
 namespace net.rs64.TexTransTool
 {
-    public static class TexTransGroupValidationUtils
+    internal static class TexTransGroupValidationUtils
     {
         public static void ValidateTexTransGroup(AbstractTexTransGroup texTransGroup)
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace net.rs64.MultiLayerImageParser.LayerData
 {
     [Serializable]
-    public class RasterLayerData : AbstractLayerData
+    internal class RasterLayerData : AbstractLayerData
     {
         public TwoDimensionalMap<Color32> RasterTexture;
     }

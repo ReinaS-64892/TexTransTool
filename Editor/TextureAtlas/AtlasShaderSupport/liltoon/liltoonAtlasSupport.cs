@@ -10,7 +10,7 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class liltoonAtlasSupport : IAtlasShaderSupport
+    internal class liltoonAtlasSupport : IAtlasShaderSupport
     {
         public bool IsThisShader(Material material)
         {

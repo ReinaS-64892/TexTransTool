@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class CollectionsUtility
+    internal static class CollectionsUtility
     {
         public static List<Vector3> ZipListVector3(IReadOnlyList<Vector2> XY, IReadOnlyList<float> Z)
         {

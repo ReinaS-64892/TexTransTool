@@ -6,26 +6,26 @@ using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
-    public interface IAddFineTuning
+    internal interface IAddFineTuning
     {
         void AddSetting(List<TexFineTuningTarget> propAndTextures);
 
     }
-    public interface ITuningApplicant
+    internal interface ITuningApplicant
     {
         int Order { get; }
         void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets);
     }
-    public interface ITuningData
+    internal interface ITuningData
     {
     }
-    public enum PropertySelect
+    internal enum PropertySelect
     {
         Equal,
         NotEqual,
     }
 
-    public static class FineSettingUtil
+    internal static class FineSettingUtil
     {
         public static IEnumerable<TexFineTuningTarget> FilteredTarget(string PropertyNames, PropertySelect select, List<TexFineTuningTarget> propAndTextures)
         {

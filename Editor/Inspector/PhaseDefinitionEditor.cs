@@ -5,7 +5,7 @@ using net.rs64.TexTransTool.Editor;
 using net.rs64.TexTransTool;
 
 [CustomEditor(typeof(PhaseDefinition))]
-public class PhaseDefinitionEditor : AbstractTexTransGroupEditor
+internal class PhaseDefinitionEditor : AbstractTexTransGroupEditor
 {
     public override void OnInspectorGUI()
     {

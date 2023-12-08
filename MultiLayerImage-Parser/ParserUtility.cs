@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace net.rs64.MultiLayerImageParser
 {
-    public ref struct SubSpanStream
+    internal ref struct SubSpanStream
     {
         public Span<byte> Span;
         private int _position;
@@ -107,7 +107,7 @@ namespace net.rs64.MultiLayerImageParser
     }
 
 
-    public static class ParserUtility
+    internal static class ParserUtility
     {
         public static bool Signature(ref SubSpanStream stream, byte[] signature)
         {

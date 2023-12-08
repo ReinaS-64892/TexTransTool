@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    public static class PSDParserImageResourceBlocksParser
+    internal static class PSDParserImageResourceBlocksParser
     {
         [Serializable]
-        public class ImageResourceBlock
+        internal class ImageResourceBlock
         {
             public ushort UniqueIdentifier;
             public string PascalStringName;

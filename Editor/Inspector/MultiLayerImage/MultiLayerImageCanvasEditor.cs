@@ -4,7 +4,7 @@ using net.rs64.TexTransTool.MultiLayerImage;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]
-    public class MultiLayerImageCanvasEditor : UnityEditor.Editor
+    internal class MultiLayerImageCanvasEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

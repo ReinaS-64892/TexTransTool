@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public class ShaderSupportUtils
+    internal class ShaderSupportUtils
     {
         DefaultShaderSupport _defaultShaderSupport;
         List<IShaderSupport> _shaderSupports;

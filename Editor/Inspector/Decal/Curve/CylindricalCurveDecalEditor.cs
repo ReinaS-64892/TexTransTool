@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
 
 
     [CustomEditor(typeof(CylindricalCurveDecal), true)]
-    public class CylindricalCurveDecalEditor : CurveDecalEditor
+    internal class CylindricalCurveDecalEditor : CurveDecalEditor
     {
         public override void OnInspectorGUI()
         {

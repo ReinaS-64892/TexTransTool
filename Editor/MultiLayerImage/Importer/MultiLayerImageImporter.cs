@@ -11,7 +11,7 @@ using System.Text;
 using net.rs64.TexTransCore.TransTextureCore;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    public static class MultiLayerImageImporter
+    internal static class MultiLayerImageImporter
     {
         public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> PreSaveCallBack)
         {

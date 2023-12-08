@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.ShaderSupport
 {
-    public class DefaultShaderSupport : IShaderSupport
+    internal class DefaultShaderSupport : IShaderSupport
     {
         public string ShaderName => "DefaultShader";
         public (string PropertyName, string DisplayName)[] GetPropertyNames => Property;

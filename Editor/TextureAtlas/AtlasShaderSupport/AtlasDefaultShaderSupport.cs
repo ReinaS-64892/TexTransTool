@@ -8,7 +8,7 @@ using TexLU = net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class AtlasDefaultShaderSupport : IAtlasShaderSupport
+    internal class AtlasDefaultShaderSupport : IAtlasShaderSupport
     {
         public bool GetAllTexture = false;
         public void AddRecord(Material material) { }

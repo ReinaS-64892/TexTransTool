@@ -2,7 +2,7 @@
 using UnityEngine;
 namespace net.rs64.TexTransTool
 {
-    public interface IMaterialReplaceEventLiner
+    internal interface IMaterialReplaceEventLiner
     {
         void MaterialReplace(Material Souse, Material Target);
     }

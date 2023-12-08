@@ -10,7 +10,7 @@ using UnityEditor;
 namespace net.rs64.TexTransCore.BlendTexture
 {
     [Obsolete("Replaced with BlendTypeKey", true)]
-    public enum BlendType
+    internal enum BlendType
     {
         Normal,
         Mul,
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         AlphaLerp,
         NotBlend,
     }
-    public enum TTTBlendTypeKeyEnum
+    internal enum TTTBlendTypeKeyEnum
     {
         Normal,
         Mul,
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         Luminosity,
         NotBlend,
     }
-    public static class TextureBlend
+    internal static class TextureBlend
     {
         public static Dictionary<string, Shader> BlendShaders;
         [InitializeOnLoadMethod]
@@ -254,7 +254,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         }
     }
 
-    public struct RTActiveSaver : IDisposable
+    internal struct RTActiveSaver : IDisposable
     {
         readonly RenderTexture PreRT;
         public RTActiveSaver(bool empty = false)

@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    public class AvatarDomain : RenderersDomain
+    internal class AvatarDomain : RenderersDomain
     {
         static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
@@ -148,7 +148,7 @@ namespace net.rs64.TexTransTool
         }
     }
 
-    public class FlatMapDict<TKeyValue>
+    internal class FlatMapDict<TKeyValue>
     {
         Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
         Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    public class AtlasExcludeTag : MonoBehaviour, ITexTransToolTag
+    internal class AtlasExcludeTag : MonoBehaviour, ITexTransToolTag
     {
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;

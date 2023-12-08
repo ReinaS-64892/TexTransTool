@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TestCode
 {
-    public class TransTextureTest
+    internal class TransTextureTest
     {
         [TestCase(0)]
         [TestCase(1)]

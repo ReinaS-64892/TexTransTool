@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class RendererUtility
+    internal static class RendererUtility
     {
         /// <summary>
         /// マテリアルをとりあえず集めてくる。同一物を消したりなどしない。

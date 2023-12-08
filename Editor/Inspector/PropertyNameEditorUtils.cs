@@ -7,7 +7,7 @@ using net.rs64.TexTransTool.ShaderSupport;
 
 namespace net.rs64.TexTransTool.Editor
 {
-    public static class PropertyNameEditor
+    internal static class PropertyNameEditor
     {
         static string[] ShadersNames;
         static Dictionary<string, (string[] PropertyName, string[] DisplayName)> PropertyNames;

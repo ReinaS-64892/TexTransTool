@@ -10,7 +10,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 {
     [UnityEditor.CustomEditor(typeof(MatAndTexAbsoluteSeparator))]
-    public class MatAndTexAbsoluteSeparatorEditor : UnityEditor.Editor
+    internal class MatAndTexAbsoluteSeparatorEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

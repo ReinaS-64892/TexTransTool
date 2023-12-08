@@ -9,7 +9,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    public static class TriangleDebug
+    internal static class TriangleDebug
     {
         public static string TriangleToString(IEnumerable<TriangleIndex> triangle, IReadOnlyList<Vector3> vertex)
         {
@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.Utils
         }
     }
 
-    public class DebugTimer
+    internal class DebugTimer
     {
         Stopwatch _Stopwatch;
         Stopwatch _StepStopwatch;

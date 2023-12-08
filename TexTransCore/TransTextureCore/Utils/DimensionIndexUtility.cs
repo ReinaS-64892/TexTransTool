@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
-    public static class DimensionIndexUtility
+    internal static class DimensionIndexUtility
     {
         public static void ForEach2D(Vector2Int Range, Action<int, int> action)
         {

@@ -11,7 +11,7 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
-    public class DeferredTextureStack : TextureStack
+    internal class DeferredTextureStack : TextureStack
     {
         [SerializeField] List<BlendTexturePair> StackTextures = new List<BlendTexturePair>();
 
