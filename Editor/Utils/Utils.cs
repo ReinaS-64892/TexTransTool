@@ -12,6 +12,9 @@ namespace net.rs64.TexTransTool.Utils
 {
     public static class ToolUtils
     {
+        //v0.3.x == 0
+        //v0.4.x == 1
+        //v0.5.x == 2
         public const int ThiSaveDataVersion = 2;
     }
 }

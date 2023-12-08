@@ -31,5 +31,52 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             }
 
         }
+
+
+        public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
+        {
+            using (new RTActiveSaver())
+            {
+                var useMip = Souse.mipmapCount > 1;
+                var rt = RenderTexture.GetTemporary(Size.x, Size.y);
+                if (useMip)
+                {
+                    Graphics.Blit(Souse, rt);
+                }
+                else
+                {
+                    var mipRt = RenderTexture.GetTemporary(Souse.width, Souse.height);
+                    mipRt.Release();
+                    var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
+
+                    mipRt.useMipMap = true;
+                    mipRt.autoGenerateMips = false;
+
+                    Graphics.Blit(Souse, mipRt);
+                    mipRt.GenerateMips();
+                    Graphics.Blit(mipRt, rt);
+
+                    mipRt.Release();
+                    (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
+                    RenderTexture.ReleaseTemporary(mipRt);
+                }
+
+                var resizedTexture = rt.CopyTexture2D(OverrideUseMip: useMip);
+                resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
+
+                RenderTexture.ReleaseTemporary(rt);
+                return resizedTexture;
+            }
+        }
+
+
+        public static Texture2D CreateColorTex(Color Color)
+        {
+            var mainTex2d = new Texture2D(1, 1);
+            mainTex2d.SetPixel(0, 0, Color);
+            mainTex2d.Apply();
+            return mainTex2d;
+        }
+
     }
 }

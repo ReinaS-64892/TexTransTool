@@ -30,11 +30,11 @@ namespace net.rs64.TexTransTool.Decal
 
             if (DecalTexture != null)
             {
-                TextureBlendUtils.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(DecalTexture), Color);
+                TextureBlend.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(DecalTexture), Color);
             }
             else
             {
-                TextureBlendUtils.ColorBlit(mulDecalTexture, Color);
+                TextureBlend.ColorBlit(mulDecalTexture, Color);
             }
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
             foreach (var renderer in TargetRenderers)

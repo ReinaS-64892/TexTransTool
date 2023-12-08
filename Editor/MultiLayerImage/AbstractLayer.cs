@@ -16,10 +16,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
-
         [Range(0, 1)] public float Opacity = 1;
         public bool Clipping;
-        public BlendType BlendMode;
+        [BlendTypeKey]public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public LayerMask LayerMask;
         public abstract void EvaluateTexture(CanvasContext layerStack);
 

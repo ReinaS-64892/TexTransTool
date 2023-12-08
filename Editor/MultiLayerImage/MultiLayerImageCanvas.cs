@@ -9,7 +9,7 @@ using net.rs64.TexTransTool;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlendUtils;
+using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
 
-                CanvasContext.RootLayerStack.Stack[0] = new BlendLayer(CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BlendType.NotBlend);
+                CanvasContext.RootLayerStack.Stack[0] = new BlendLayer(CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BL_KEY_DEFAULT);
 
                 foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
                 {
@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
 
 
-            public void AddRtForClipping(AbstractLayer abstractLayer, RenderTexture tex, BlendType blendType)
+            public void AddRtForClipping(AbstractLayer abstractLayer, RenderTexture tex, string blendTypeKey)
             {
                 var index = Stack.Count;
                 index -= 1;
@@ -100,19 +100,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 if (index < 0)
                 {
-                    Stack.Add(new BlendLayer(abstractLayer, tex, blendType));
+                    Stack.Add(new BlendLayer(abstractLayer, tex, blendTypeKey));
                 }
                 else
                 {
                     var refBlendLayer = Stack[index];
                     var ClippingDist = refBlendLayer.BlendTextures.Texture as RenderTexture;
-                    ClippingDist.BlendBlit(tex, blendType, true);
+                    ClippingDist.BlendBlit(tex, blendTypeKey, true);
                 }
             }
 
-            public void AddRenderTexture(AbstractLayer abstractLayer, RenderTexture tex, BlendType blendType)
+            public void AddRenderTexture(AbstractLayer abstractLayer, RenderTexture tex, string blendTypeKey)
             {
-                Stack.Add(new BlendLayer(abstractLayer, tex, blendType));
+                Stack.Add(new BlendLayer(abstractLayer, tex, blendTypeKey));
             }
         }
 
@@ -121,10 +121,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public AbstractLayer RefLayer;
             public BlendTexturePair BlendTextures;
 
-            public BlendLayer(AbstractLayer refLayer, Texture layer, BlendType blendType)
+            public BlendLayer(AbstractLayer refLayer, Texture layer, string blendTypeKey)
             {
                 RefLayer = refLayer;
-                BlendTextures = new BlendTexturePair(layer, blendType);
+                BlendTextures = new BlendTexturePair(layer, blendTypeKey);
             }
 
         }

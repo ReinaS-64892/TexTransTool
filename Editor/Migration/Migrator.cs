@@ -46,6 +46,16 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV1.MigrationAtlasTextureV1ToV2(atlasTexture);
                         return true;
                     }
+                case AbstractDecal abstractDecal:
+                    {
+                        AbstractDecalV1.MigrationAbstractDecalV1ToV2(abstractDecal);
+                        return true;
+                    }
+                case TextureBlender textureBlender:
+                    {
+                        TextureBlenderV1.MigrationV1ToV2(textureBlender);
+                        return true;
+                    }
                 default:
                     {
                         MigrationUtility.SetSaveDataVersion(texTransToolTag, 1);
@@ -193,7 +203,7 @@ namespace net.rs64.TexTransTool.Migration
         }
 
         [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.3.x to v0.4x")]
-        private static void MigrateEverythingV0ToV1() { MigrateEverythingV0ToV1(); }
+        private static void MigrateEverythingV0ToV1() { MigrateEverythingV0ToV1(false); }
         private static void MigrateEverythingV0ToV1(bool continuesMigrate = false)
         {
             try
@@ -238,7 +248,7 @@ namespace net.rs64.TexTransTool.Migration
             }
         }
         [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.4.x to v0.5.x")]
-        private static void MigrateEverythingV1ToV2() { MigrateEverythingV1ToV2(); }
+        private static void MigrateEverythingV1ToV2() { MigrateEverythingV1ToV2(false); }
         private static void MigrateEverythingV1ToV2(bool continuesMigrate = false)
         {
             try

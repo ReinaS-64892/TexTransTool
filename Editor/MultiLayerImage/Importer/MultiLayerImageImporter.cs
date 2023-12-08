@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             if (rasterLayer.RasterTexture.Array == null) { UnityEngine.Object.DestroyImmediate(NewLayer); continue; }
                             var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
                             ctx.AddTextureCallBack(rasterLayer.RasterTexture, layer.LayerName + "_Tex", (Texture2D tex) => rasterLayerComponent.RasterTexture = tex);
-                            rasterLayerComponent.BlendMode = layer.BlendMode;
+                            rasterLayerComponent.BlendTypeKey = layer.BlendTypeKey;
                             rasterLayerComponent.Opacity = layer.Opacity;
                             rasterLayerComponent.Clipping = layer.Clipping;
                             rasterLayerComponent.Visible = layer.Visible;
@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                             var layerFolderComponent = NewLayer.AddComponent<LayerFolder>();
                             layerFolderComponent.PassThrough = layerFolder.PassThrough;
-                            layerFolderComponent.BlendMode = layer.BlendMode;
+                            layerFolderComponent.BlendTypeKey = layer.BlendTypeKey;
                             layerFolderComponent.Opacity = layer.Opacity;
                             layerFolderComponent.Clipping = layer.Clipping;
                             layerFolderComponent.Visible = layer.Visible;

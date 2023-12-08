@@ -39,8 +39,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var s_Color = This_S_Object.FindProperty("Color");
             EditorGUILayout.PropertyField(s_Color, new GUIContent("Color".GetLocalize()));
 
-            var s_BlendType = This_S_Object.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(s_BlendType, new GUIContent("BlendType".GetLocalize()));
+            var s_BlendType = This_S_Object.FindProperty("BlendTypeKey");
+            EditorGUILayout.PropertyField(s_BlendType, "BlendTypeKey".GetLC());
 
             var s_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
             PropertyNameEditor.DrawInspectorGUI(s_TargetPropertyName, "TargetPropertyName".GetLocalize());

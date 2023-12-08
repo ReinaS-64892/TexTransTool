@@ -7,6 +7,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -15,19 +16,22 @@ namespace net.rs64.TexTransTool.Decal
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
-        public BlendType BlendType = BlendType.Normal;
+        [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        #region V1SaveData
+        [Obsolete("Replaced with BlendTypeKey", true)][HideInInspector] public BlendType BlendType = BlendType.Normal;
+        #endregion
         public Color Color = Color.white;
-        public PropertyName TargetPropertyName =  PropertyName.DefaultValue;
+        public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
 
         #region V0SaveData
-        [Obsolete("V0SaveData", true)] public bool MigrationV0ClearTarget;
-        [Obsolete("V0SaveData", true)] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
-        [Obsolete("V0SaveData", true)] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
-        [Obsolete("V0SaveData", true)] public AbstractDecal MigrationV0DataAbstractDecal;
-        [Obsolete("V0SaveData", true)] public bool IsSeparateMatAndTexture;
-        [Obsolete("V0SaveData", true)] public bool FastMode = true;
+        [Obsolete("V0SaveData", true)][HideInInspector] public bool MigrationV0ClearTarget;
+        [Obsolete("V0SaveData", true)][HideInInspector] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
+        [Obsolete("V0SaveData", true)][HideInInspector] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
+        [Obsolete("V0SaveData", true)][HideInInspector] public AbstractDecal MigrationV0DataAbstractDecal;
+        [Obsolete("V0SaveData", true)][HideInInspector] public bool IsSeparateMatAndTexture;
+        [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
         #endregion
         public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
@@ -60,7 +64,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 foreach (var PramAndRt in matAndTex.Value)
                 {
-                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlendUtils.BlendTexturePair(PramAndRt.Value, BlendType));
+                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlend.BlendTexturePair(PramAndRt.Value, BlendTypeKey));
                 }
             }
 
@@ -80,7 +84,7 @@ namespace net.rs64.TexTransTool.Decal
                     var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
                     if (decalCompiledTextures.ContainsKey(souseTex))
                     {
-                        TextureBlendUtils.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, BlendType.Normal);
+                        TextureBlend.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, TextureBlend.BL_KEY_DEFAULT);
                     }
                     else
                     {

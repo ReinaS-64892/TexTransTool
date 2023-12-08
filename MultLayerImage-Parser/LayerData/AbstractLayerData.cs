@@ -14,7 +14,7 @@ namespace net.rs64.MultiLayerImageParser.LayerData
         public bool Visible;
         public float Opacity;
         public bool Clipping;
-        public BlendType BlendMode;
+        public string BlendTypeKey;
         public LayerMaskData LayerMask;
 
     }
