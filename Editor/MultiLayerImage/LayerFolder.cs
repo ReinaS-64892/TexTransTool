@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public bool PassThrough;
 
-        public override void EvaluateTexture(CanvasContext canvasContext)
+        internal override void EvaluateTexture(CanvasContext canvasContext)
         {
             var layerStack = canvasContext.RootLayerStack;
             if (!Visible) { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
