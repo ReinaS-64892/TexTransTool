@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
-using UnityEditor;
 
 namespace net.rs64.TexTransCore.BlendTexture
 {
@@ -64,7 +63,9 @@ namespace net.rs64.TexTransCore.BlendTexture
     internal static class TextureBlend
     {
         public static Dictionary<string, Shader> BlendShaders;
-        [InitializeOnLoadMethod]
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+#endif
         public static void BlendShadersInit()
         {
             var TTTBlendShader = BlendTexShader;
