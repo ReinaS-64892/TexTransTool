@@ -54,7 +54,8 @@ namespace net.rs64.TexTransTool.Utils
             if (tex.mipmapCount > 1 != CopySouse.mipmapCount > 1)
             {
                 var newTex = new Texture2D(tex.width, tex.height, tex.format, CopySouse.mipmapCount > 1);
-                newTex.SetPixels32(tex.GetPixels32());
+                var pixelData = tex.GetPixelData<Color32>(0);
+                newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.name = tex.name;
                 tex = newTex;
             }

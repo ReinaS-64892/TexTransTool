@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
 
         public (string PropertyName, string DisplayName)[] GetPropertyNames => property;
 
-        static (string PropertyName, string DisplayName)[] property = new (string PropertyName, string DisplayName)[]{
+        static (string PropertyName, string DisplayName)[] property = new []{
                 ("_MainTex", "MainTexture"),
                 ("_EmissionMap", "EmissionMap"),
                 ("_Main2ndTex", "2ndMainTexture"),

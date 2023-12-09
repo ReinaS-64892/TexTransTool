@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         public string ShaderName => "DefaultShader";
         public (string PropertyName, string DisplayName)[] GetPropertyNames => Property;
-        static (string PropertyName, string DisplayName)[] Property = new (string PropertyName, string DisplayName)[] { ("_MainTex", "MainTexture") };
+        static (string PropertyName, string DisplayName)[] Property = new[] { ("_MainTex", "MainTexture") };
 
     }
 }

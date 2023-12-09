@@ -5,6 +5,8 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore.BlendTexture;
+using UnityEngine.Pool;
+using Unity.Collections;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -26,15 +28,25 @@ namespace net.rs64.TexTransCore.TransTextureCore
             public Mesh GenerateTransMesh()
             {
                 var Mesh = new Mesh();
-                var Vertices = TargetUV.Select(I => new Vector3(I.x, I.y, 0)).ToArray();
-                var Triangles = TrianglesToIndex.SelectMany(I => I).ToArray();
-                Mesh.vertices = Vertices;
-                var NativeArray = new Unity.Collections.NativeArray<UVDimension>(SourceUV.ToArray(), Unity.Collections.Allocator.Temp);
+
+                var Vertices = ListPool<Vector3>.Get();
+                Vertices.AddRange(TargetUV.Select(I => new Vector3(I.x, I.y, 0)));
+                Mesh.SetVertices(Vertices);
+                ListPool<Vector3>.Release(Vertices);
+
+                var uv = ListPool<UVDimension>.Get(); uv.AddRange(SourceUV);
+                NativeArray<UVDimension> NativeArray = CollectionsUtility.ListToNativeArray(uv, Allocator.Temp);
                 Mesh.SetUVs(0, NativeArray);
                 NativeArray.Dispose();
-                Mesh.triangles = Triangles;
+
+                var Triangles = ListPool<int>.Get();
+                Triangles.AddRange(TrianglesToIndex.SelectMany(I => I));
+                Mesh.SetTriangles(Triangles, 0);
+                ListPool<int>.Release(Triangles);
+
                 return Mesh;
             }
+
         }
 
 
@@ -45,7 +57,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             Texture SouseTexture,
             TransData<UVDimension> TransUVData,
             float? Padding = null,
-            TextureWrap TexWrap = null,
+            TextureWrap? TexWrap = null,
             bool HighQualityPadding = false,
             bool? DepthInvert = null
             ) where UVDimension : struct
@@ -57,7 +69,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
             var preWarp = SouseTexture.wrapMode;
 
             if (TexWrap == null) { TexWrap = TextureWrap.NotWrap; }
-            SouseTexture.wrapMode = TexWrap.ConvertTextureWrapMode;
+            var texWrap = TexWrap.Value;
+            SouseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
 
 
 
@@ -71,11 +84,11 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 material.EnableKeyword("HighQualityPadding");
             }
 
-            if (TexWrap.WarpRange != null)
+            if (texWrap.WarpRange != null)
             {
                 material.EnableKeyword("WarpRange");
-                material.SetFloat("_WarpRangeX", TexWrap.WarpRange.Value.x);
-                material.SetFloat("_WarpRangeY", TexWrap.WarpRange.Value.y);
+                material.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
+                material.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
             }
 
 
@@ -128,7 +141,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             Texture SouseTexture,
             IEnumerable<TransData<T>> TransUVDataEnumerable,
             float? Padding = null,
-            TextureWrap WarpRange = null
+            TextureWrap? WarpRange = null
             ) where T : struct
         {
             foreach (var transUVData in TransUVDataEnumerable)

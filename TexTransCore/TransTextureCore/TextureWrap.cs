@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
-    internal class TextureWrap
+    internal readonly struct TextureWrap
     {
-        public WrapMode Mode;
-        public Vector2? WarpRange;
+        readonly public WrapMode Mode;
+        readonly public Vector2? WarpRange;
         internal enum WrapMode
         {
             Stretch = TextureWrapMode.Clamp,

@@ -77,6 +77,16 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             mainTex2d.Apply();
             return mainTex2d;
         }
+        public static Texture2D CreateFillTexture(int Size, Color FillColor)
+        {
+            return CreateFillTexture(new Vector2Int(Size, Size), FillColor);
+        }
+        public static Texture2D CreateFillTexture(Vector2Int Size, Color FillColor)
+        {
+            var TestTex = new Texture2D(Size.x, Size.y);
+            TestTex.SetPixels(CollectionsUtility.FilledArray(FillColor, Size.x * Size.y));
+            return TestTex;
+        }
 
     }
 }

@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Pool;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using Object = UnityEngine.Object;
 
@@ -132,7 +134,9 @@ namespace net.rs64.TexTransTool
 
         public virtual void SetTexture(Texture2D Target, Texture2D SetTex)
         {
-            this.ReplaceMaterials(RendererEditorUtility.SetTexture(_renderers, Target, SetTex));
+            var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
+            this.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, Target, SetTex));
+            ListPool<Material>.Release(mats);
         }
 
         public virtual void EditFinish()

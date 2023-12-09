@@ -20,12 +20,12 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         public BezierCurve BezierCurve => new BezierCurve(Segments, RollMode);
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             TextureWrap texWarpRange = TextureWrap.NotWrap;
             if (IsTextureWarp)
             {
-                texWarpRange.WarpRange = TextureWarpRange;
+                texWarpRange = new TextureWrap(texWarpRange.Mode, TextureWarpRange);
             }
 
             decalCompiledRenderTextures = decalCompiledRenderTextures == null ? new Dictionary<Material, Dictionary<string, RenderTexture>>() : decalCompiledRenderTextures;
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                     var CCSfilter = new CCSFilter(GetFilers());
 
 
-                    DecalUtility.CreateDecalTexture<CCSSpace,Vector2>(Renderer,
+                    DecalUtility.CreateDecalTexture<CCSSpace, Vector2>(Renderer,
                                                 decalCompiledRenderTextures,
                                                 targetDecalTexture,
                                                 CCSSpace,

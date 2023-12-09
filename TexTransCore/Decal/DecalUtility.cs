@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransCore.Decal
 {
@@ -15,11 +16,11 @@ namespace net.rs64.TexTransCore.Decal
         where UVDimension : struct
         {
             void Input(MeshData meshData);
-            List<UVDimension> OutPutUV();
+            List<UVDimension> OutPutUV(List<UVDimension> output = null);
         }
         public interface ITrianglesFilter<SpaceConverter>
         {
-            List<TriangleIndex> Filtering(SpaceConverter Space, List<TriangleIndex> Triangles);
+            List<TriangleIndex> Filtering(SpaceConverter Space, List<TriangleIndex> Triangles, List<TriangleIndex> output = null);
         }
         public class MeshData
         {
@@ -34,14 +35,14 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter,UVDimension>(
+        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter, UVDimension>(
             Renderer TargetRenderer,
             Dictionary<Material, Dictionary<string, RenderTexture>> RenderTextures,
             Texture SousTextures,
             SpaceConverter ConvertSpace,
             ITrianglesFilter<SpaceConverter> Filter,
             string TargetPropertyName = "_MainTex",
-            TextureWrap TextureWarp = null,
+            TextureWrap? TextureWarp = null,
             float DefaultPadding = 0.5f,
             bool HighQualityPadding = false,
             bool? UseDepthOrInvert = null
@@ -51,11 +52,14 @@ namespace net.rs64.TexTransCore.Decal
         {
             if (RenderTextures == null) RenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>();
 
-            var vertices = GetWorldSpaceVertices(TargetRenderer);
-            var (tUV, trianglesSubMesh) = RendererMeshToGetUVAndTriangle(TargetRenderer);
+            var vertices = ListPool<Vector3>.Get(); GetWorldSpaceVertices(TargetRenderer, vertices);
+            var targetMesh = TargetRenderer.GetMesh();
+            var tUV = ListPool<Vector2>.Get(); targetMesh.GetUVs(0, tUV);
+            var trianglesSubMesh = targetMesh.GetPooledSubTriangle();
 
             ConvertSpace.Input(new MeshData(vertices, tUV, trianglesSubMesh));
-            var sUV = ConvertSpace.OutPutUV();
+            var sUVPooled = ListPool<UVDimension>.Get();
+            var sUV = ConvertSpace.OutPutUV(sUVPooled);
 
             var materials = TargetRenderer.sharedMaterials;
 
@@ -69,12 +73,16 @@ namespace net.rs64.TexTransCore.Decal
                 if (targetTexture == null) { continue; }
                 var targetTexSize = new Vector2Int(targetTexture.width, targetTexture.height);
 
-                var filteredTriangle = Filter != null ? Filter.Filtering(ConvertSpace, triangle) : triangle;
+                List<TriangleIndex> filteredTriangle;
+                var filteredTrianglePooled = ListPool<TriangleIndex>.Get();
+                if (Filter != null) { filteredTriangle = Filter.Filtering(ConvertSpace, triangle, filteredTrianglePooled); }
+                else { filteredTriangle = triangle; }
+
                 if (filteredTriangle.Any() == false) { continue; }
 
                 if (!RenderTextures.ContainsKey(targetMat))
                 {
-                    RenderTextures.Add(targetMat, new Dictionary<string, RenderTexture>());
+                    RenderTextures.Add(targetMat, new());
                 }
 
                 if (!RenderTextures[targetMat].ContainsKey(TargetPropertyName))
@@ -94,20 +102,25 @@ namespace net.rs64.TexTransCore.Decal
                 );
 
 
+                ListPool<TriangleIndex>.Release(filteredTrianglePooled);
             }
+            ListPool<Vector3>.Release(vertices);
+            ListPool<Vector2>.Release(tUV);
+            ListPool<UVDimension>.Release(sUVPooled);
+            ReleasePooledSubTriangle(trianglesSubMesh);
 
             return RenderTextures;
         }
-        public static List<Vector3> GetWorldSpaceVertices(Renderer Target)
+        public static List<Vector3> GetWorldSpaceVertices(Renderer Target, List<Vector3> outPut = null)
         {
-            List<Vector3> Vertices = new List<Vector3>();
+            outPut?.Clear(); outPut ??= new List<Vector3>();
             switch (Target)
             {
                 case SkinnedMeshRenderer SMR:
                     {
                         Mesh mesh = new Mesh();
                         SMR.BakeMesh(mesh);
-                        mesh.GetVertices(Vertices);
+                        mesh.GetVertices(outPut);
                         Matrix4x4 matrix;
                         if (SMR.bones.Any())
                         {
@@ -121,13 +134,13 @@ namespace net.rs64.TexTransCore.Decal
                         {
                             matrix = SMR.rootBone.localToWorldMatrix;
                         }
-                        ConvertVerticesInMatrix(matrix, Vertices, Vector3.zero);
+                        ConvertVerticesInMatrix(matrix, outPut, Vector3.zero);
                         break;
                     }
                 case MeshRenderer MR:
                     {
-                        MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(Vertices);
-                        ConvertVerticesInMatrix(MR.localToWorldMatrix, Vertices, Vector3.zero);
+                        MR.GetComponent<MeshFilter>().sharedMesh.GetVertices(outPut);
+                        ConvertVerticesInMatrix(MR.localToWorldMatrix, outPut, Vector3.zero);
                         break;
                     }
                 default:
@@ -135,47 +148,36 @@ namespace net.rs64.TexTransCore.Decal
                         throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
                     }
             }
-            return Vertices;
+            return outPut;
         }
-        public static (List<Vector2>, List<List<TriangleIndex>>) RendererMeshToGetUVAndTriangle(Renderer Target)
+        public static List<List<TriangleIndex>> GetPooledSubTriangle(this Mesh mesh)
         {
-            Mesh mesh;
-            switch (Target)
+            var result = ListPool<List<TriangleIndex>>.Get();
+            for (var i = 0; mesh.subMeshCount > i; i += 1)
             {
-                case SkinnedMeshRenderer SMR:
-                    {
-                        mesh = SMR.sharedMesh;
-                        break;
-                    }
-                case MeshRenderer MR:
-                    {
-                        mesh = MR.GetComponent<MeshFilter>().sharedMesh;
-                        break;
-                    }
-                default:
-                    {
-                        throw new System.ArgumentException("Rendererが対応したタイプではありません。");
-                    }
+                var subTri = ListPool<TriangleIndex>.Get();
+                result.Add(mesh.GetSubTriangleIndex(i, subTri));
             }
-            List<Vector2> UV = new List<Vector2>();
-            mesh.GetUVs(0, UV);
-            List<List<TriangleIndex>> triangleIndex2DList = new List<List<TriangleIndex>>();
-            foreach (var Index in Enumerable.Range(0, mesh.subMeshCount))
-            {
-                List<TriangleIndex> triangleIndexList = mesh.GetSubTriangleIndex(Index);
-                triangleIndex2DList.Add(triangleIndexList);
-            }
-            return (UV, triangleIndex2DList);
+            return result;
         }
-        public static List<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, IEnumerable<Vector3> Vertices, Vector3 Offset)
+        public static void ReleasePooledSubTriangle(List<List<TriangleIndex>> subTriList)
         {
-            var convertVertices = new List<Vector3>();
+            foreach (var subTri in subTriList)
+            {
+                ListPool<TriangleIndex>.Release(subTri);
+            }
+            ListPool<List<TriangleIndex>>.Release(subTriList);
+        }
+
+        public static List<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, IEnumerable<Vector3> Vertices, Vector3 Offset, List<Vector3> outPut = null)
+        {
+            outPut?.Clear(); outPut ??= new List<Vector3>();
             foreach (var vert in Vertices)
             {
                 var pos = matrix.MultiplyPoint3x4(vert) + Offset;
-                convertVertices.Add(pos);
+                outPut.Add(pos);
             }
-            return convertVertices;
+            return outPut;
         }
         public static void ConvertVerticesInMatrix(Matrix4x4 matrix, List<Vector3> Vertices, Vector3 Offset)
         {
@@ -208,42 +210,14 @@ namespace net.rs64.TexTransCore.Decal
 
             return new Vector2(x, y);
         }
-        public static List<Vector2> QuadNormalize(IReadOnlyList<Vector2> Quad, List<Vector2> TargetPoss)
+        public static List<Vector2> QuadNormalize(IReadOnlyList<Vector2> Quad, List<Vector2> TargetPoss, List<Vector2> outPut = null)
         {
-            List<Vector2> NormalizedPos = new List<Vector2>(TargetPoss.Count);
+            outPut?.Clear(); outPut ??= new List<Vector2>(TargetPoss.Count);
             foreach (var targetPos in TargetPoss)
             {
-                NormalizedPos.Add(QuadNormalize(Quad, targetPos));
+                outPut.Add(QuadNormalize(Quad, targetPos));
             }
-            return NormalizedPos;
-        }
-
-
-        public static List<(int, Renderer)> FindAtRenderer(Matrix4x4 WorldToLocal, GameObject FindRoot = null)
-        {
-            var ResultList = new List<(int, Renderer)>();
-            var Renderers = FindRoot != null ? FindRoot.GetComponentsInChildren<Renderer>() : UnityEngine.Object.FindObjectsOfType<Renderer>();
-            foreach (var rd in Renderers)
-            {
-                if (!(rd is SkinnedMeshRenderer || rd is MeshRenderer)) { continue; }
-                if (rd.GetMesh() == null) { continue; }
-                var vert = GetWorldSpaceVertices(rd);
-                var count = 0;
-                for (var i = 0; vert.Count > i; i += 1)
-                {
-                    var pos = WorldToLocal.MultiplyPoint3x4(vert[i]);
-                    pos.z -= 0.5f;
-                    if (Mathf.Abs(pos.x) < 0.5f && Mathf.Abs(pos.y) < 0.5f && Mathf.Abs(pos.z) < 0.5f)
-                    {
-                        count += 1;
-                    }
-                }
-                if (count > 0)
-                {
-                    ResultList.Add((count, rd));
-                }
-            }
-            return ResultList;
+            return outPut;
         }
     }
 

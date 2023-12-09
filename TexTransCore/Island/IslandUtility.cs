@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Collections;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransCore.Island
 {
@@ -32,7 +33,7 @@ namespace net.rs64.TexTransCore.Island
             // initialize dictionary for less jumps
             foreach (var uv in uvs)
                 if (!trianglesByUv.ContainsKey(uv))
-                    trianglesByUv.Add(uv, new HashSet<TriangleIndex>());
+                    trianglesByUv.Add(uv, new());
 
             // collect all triangles by each triangle
             foreach (var triangle in triangles)
@@ -74,7 +75,7 @@ namespace net.rs64.TexTransCore.Island
                     }
                 }
 
-                islands.Add(new Island(trianglesOfIsland));
+                islands.Add(new(trianglesOfIsland));
             }
 
             foreach (var island in islands)
@@ -87,14 +88,14 @@ namespace net.rs64.TexTransCore.Island
 
         public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
         {
+            var tempList = ListPool<int>.Get();
             if (OriginIsland.Is90Rotation == MovedIsland.Is90Rotation)
             {
                 var mSize = MovedIsland.Size;
                 var nmSize = OriginIsland.Size;
 
                 var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
-
-                foreach (var vertIndex in OriginIsland.GetVertexIndex())
+                foreach (var vertIndex in OriginIsland.GetVertexIndex(tempList))
                 {
                     var vertPos = UV[vertIndex];
                     var relativeVertPos = vertPos - OriginIsland.Pivot;
@@ -108,14 +109,14 @@ namespace net.rs64.TexTransCore.Island
             }
             else
             {
-                var mSize = MovedIsland.Is90Rotation ? new Vector2(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
-                var nmSize = OriginIsland.Is90Rotation ? new Vector2(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
+                var mSize = MovedIsland.Is90Rotation ? new(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
+                var nmSize = OriginIsland.Is90Rotation ? new(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
 
                 var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
                 var isRotRight = MovedIsland.Is90Rotation;
                 var rotate = Quaternion.Euler(0, 0, isRotRight ? -90 : 90);
 
-                foreach (var vertIndex in OriginIsland.GetVertexIndex())
+                foreach (var vertIndex in OriginIsland.GetVertexIndex(tempList))
                 {
                     var vertPos = UV[vertIndex];
                     var relativeVertPos = vertPos - OriginIsland.Pivot;
@@ -133,6 +134,7 @@ namespace net.rs64.TexTransCore.Island
                     MoveUV[vertIndex] = movedVertPos;
                 }
             }
+            ListPool<int>.Release(tempList);
         }
 
         private static Vector2 ValidateNaN(this Vector2 relativeScale)
@@ -157,7 +159,7 @@ namespace net.rs64.TexTransCore.Island
     [Serializable]
     public class Island
     {
-        public List<TriangleIndex> triangles = new List<TriangleIndex>();
+        public List<TriangleIndex> triangles;
         public Vector2 Pivot;
         public Vector2 Size;
         public bool Is90Rotation;
@@ -173,11 +175,11 @@ namespace net.rs64.TexTransCore.Island
         }
         public Island(TriangleIndex triangleIndex)
         {
-            triangles.Add(triangleIndex);
+            triangles = new List<TriangleIndex> { triangleIndex };
         }
         public Island()
         {
-
+            triangles = new List<TriangleIndex>();
         }
 
         public Island(List<TriangleIndex> trianglesOfIsland)
@@ -185,14 +187,14 @@ namespace net.rs64.TexTransCore.Island
             triangles = trianglesOfIsland;
         }
 
-        public List<int> GetVertexIndex()
+        public List<int> GetVertexIndex(List<int> output = null)
         {
-            var IndexList = new List<int>();
+            output?.Clear(); output ??= new();
             foreach (var triangle in triangles)
             {
-                IndexList.AddRange(triangle.ToArray());
+                output.AddRange(triangle);
             }
-            return IndexList;
+            return output;
         }
         public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> SouseUV)
         {
@@ -212,25 +214,25 @@ namespace net.rs64.TexTransCore.Island
             var relativeTargetPos = TargetPos - Pivot;
             return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
         }
-        public List<Vector2> GenerateRectVertexes(float padding = 0)
+        public List<Vector2> GenerateRectVertexes(float padding = 0, List<Vector2> outPutQuad = null)
         {
             padding = Mathf.Abs(padding);
-            var quad = new List<Vector2>();
+            outPutQuad?.Clear(); outPutQuad ??= new();
             if (!Is90Rotation)
             {
-                quad.Add(Pivot + new Vector2(-padding, -padding));
-                quad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                quad.Add(Pivot + Size + new Vector2(padding, padding));
-                quad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                outPutQuad.Add(Pivot + new Vector2(-padding, -padding));
+                outPutQuad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                outPutQuad.Add(Pivot + Size + new Vector2(padding, padding));
+                outPutQuad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
             }
             else
             {
-                quad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                quad.Add(Pivot + Size + new Vector2(padding, padding));
-                quad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
-                quad.Add(Pivot + new Vector2(-padding, -padding));
+                outPutQuad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
+                outPutQuad.Add(Pivot + Size + new Vector2(padding, padding));
+                outPutQuad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                outPutQuad.Add(Pivot + new Vector2(-padding, -padding));
             }
-            return quad;
+            return outPutQuad;
         }
 
         public void Rotate90()

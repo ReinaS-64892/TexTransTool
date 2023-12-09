@@ -19,7 +19,7 @@ namespace net.rs64.TexTransCore.Decal
             PPSVert = DecalUtility.ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData.Vertex as IEnumerable<Vector3>, new Vector3(0.5f, 0.5f, 0));
         }
 
-        public List<Vector3> OutPutUV() => PPSVert;
+        public List<Vector3> OutPutUV(List<Vector3> output = null) => PPSVert;
 
     }
 }

@@ -8,6 +8,8 @@ using Unity.Jobs;
 using Unity.Collections;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using UnityEngine.Pool;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.Island
 {
@@ -31,11 +33,12 @@ namespace net.rs64.TexTransCore.Island
             List<Vector3> Positions,
             List<Vector2> UV,
             List<TriangleIndex> Triangles,
-            IIslandCache Caches = null
+            IIslandCache Caches = null,
+            List<TriangleIndex> output = null
         )
         {
             var iIslands = IslandUtility.UVtoIsland(Triangles, UV, Caches);
-            var rayCastHitTriangle = new List<TriangleIndex>();
+            var rayCastHitTriangle = ListPool<TriangleIndex>.Get();
             foreach (var i in IslandSelectors)
             {
                 var hits = RayCast(i.Ray, Positions, Triangles);
@@ -48,7 +51,7 @@ namespace net.rs64.TexTransCore.Island
                         rayCastHitTriangle.Add(hit.Triangle);
                 }
             }
-            var hitSelectIsland = new HashSet<Island>();
+            var hitSelectIsland = HashSetPool<Island>.Get();
             foreach (var hitTriangle in rayCastHitTriangle)
             {
                 foreach (var island in iIslands)
@@ -60,21 +63,26 @@ namespace net.rs64.TexTransCore.Island
                     }
                 }
             }
+            output?.Clear(); output ??= new ();
+            output.AddRange(hitSelectIsland.SelectMany(I => I.triangles));
 
-            return hitSelectIsland.SelectMany(I => I.triangles).ToList();
+            ListPool<TriangleIndex>.Release(rayCastHitTriangle);
+            HashSetPool<Island>.Release(hitSelectIsland);
 
+            return output;
         }
 
-        public static List<RayCastHitTriangle> RayCast(Ray Ray, List<Vector3> Positions, List<TriangleIndex> TriangleIs)
+        public static List<RayCastHitTriangle> RayCast(Ray Ray, List<Vector3> Positions, List<TriangleIndex> TriangleIs, List<RayCastHitTriangle> Out = null)
         {
             var rot = Quaternion.LookRotation(Ray.direction);
             var rayMatrix = Matrix4x4.TRS(Ray.origin, rot, Vector3.one).inverse;
 
-            var Triangle = TriangleIs.ConvertAll(I => new Triangle(I, Positions)).ToArray();
+            var Triangle = ListPool<Triangle>.Get();
+            Triangle.AddRange(TriangleIs.ConvertAll(I => new Triangle(I, Positions)));
+            var triangle = CollectionsUtility.ListToNativeArray(Triangle, Allocator.TempJob); ListPool<Triangle>.Release(Triangle);
 
-            var triangle = new NativeArray<Triangle>(Triangle, Allocator.TempJob);
-            var hitResult = new NativeArray<bool>(Triangle.Length, Allocator.TempJob);
-            var distance = new NativeArray<float>(Triangle.Length, Allocator.TempJob);
+            var hitResult = new NativeArray<bool>(triangle.Length, Allocator.TempJob);
+            var distance = new NativeArray<float>(triangle.Length, Allocator.TempJob);
 
             var rayCastJob = new RayCastJob
             {
@@ -87,7 +95,7 @@ namespace net.rs64.TexTransCore.Island
             var handle = rayCastJob.Schedule(triangle.Length, 1);
             handle.Complete();
 
-            var Out = new List<RayCastHitTriangle>();
+            Out?.Clear(); Out ??= new ();
             for (int i = 0; triangle.Length > i; i += 1)
             {
                 if (!hitResult[i]) { continue; }

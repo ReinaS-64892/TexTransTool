@@ -8,9 +8,9 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
     internal static class InterfaceUtility
     {
 
-        public static List<T> GetInterfaceInstance<T>(Type[] IgnoreType = null)
+        public static IEnumerable<T> GetInterfaceInstance<T>(Type[] IgnoreType = null)
         {
-            if (IgnoreType == null) { IgnoreType = new Type[1] { typeof(object) }; }
+            if (IgnoreType == null) { IgnoreType = new[] { typeof(object) }; }
             var shaderSupport = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(I => I.GetTypes())
                 //.Where(I => I != typeof(IShaderSupport) && I != typeof(object)  && I.IsAssignableFrom(typeof(IShaderSupport))) // なぜか...この方法だとうまくいかなかった...
@@ -28,7 +28,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                         Debug.Log(I.ToString());
                         throw e;
                     }
-                }).ToList();
+                });
             return shaderSupport;
         }
 
