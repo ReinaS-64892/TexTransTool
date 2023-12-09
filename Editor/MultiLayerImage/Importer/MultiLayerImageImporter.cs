@@ -9,6 +9,11 @@ using System.IO;
 using UnityEditor;
 using System.Text;
 using net.rs64.TexTransCore.TransTextureCore;
+using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Buffers;
+
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     internal static class MultiLayerImageImporter
@@ -97,45 +102,44 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             public void AddTextureCallBack(TwoDimensionalMap<Color32> rasterTexture, string name, Action<Texture2D> value)
             {
-                TexToNameLoad.Add(rasterTexture, (name, value));
+                TexDict.Add(rasterTexture, (name, value));
             }
 
-            Dictionary<TwoDimensionalMap<Color32>, (string, Action<Texture2D>)> TexToNameLoad = new Dictionary<TwoDimensionalMap<Color32>, (string, Action<Texture2D>)>();
+            Dictionary<TwoDimensionalMap<Color32>, (string name, Action<Texture2D> setAction)> TexDict = new();
 
             public void FinalizeTex2D()
             {
-
-                EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", 0);
+                EditorUtility.DisplayProgressBar("Import Canvas", "Save RasterLayer Data", 0);
                 var RasterDataPath = Path.Combine(SaveDirectory, RasterImageData);
                 if (Directory.Exists(RasterDataPath)) { Directory.Delete(RasterDataPath, true); }
                 Directory.CreateDirectory(RasterDataPath);
 
-                var PathToAction = new Dictionary<string, Action<Texture2D>>();
-                var progressesCount = TexToNameLoad.Count;
+                var PathToSetAction = new Dictionary<string, Action<Texture2D>>();
+                var PathToEncode = new Dictionary<string, TwoDimensionalMap<Color32>>();
+                var progressesCount = TexDict.Count;
                 var imageIndex = 0;
-                foreach (var texToNameLoad in TexToNameLoad)
+                foreach (var texAndSetAct in TexDict)
                 {
-                    EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG-" + texToNameLoad.Value.Item1, (float)imageIndex / progressesCount);
                     imageIndex += 1;
 
-                    var TexName = texToNameLoad.Value.Item1;
-                    var TexMap = texToNameLoad.Key;
+                    var TexName = texAndSetAct.Value.name;
+                    var TexMap = texAndSetAct.Key;
 
                     if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
 
-
                     var path = CreatePath(TexName, imageIndex);
 
-
-                    var tex2D = new Texture2D(TexMap.MapSize.x, TexMap.MapSize.y, TextureFormat.RGBA32, false);
-                    tex2D.SetPixelData(TexMap.Array, 0);
-                    File.WriteAllBytes(path, tex2D.EncodeToPNG());
-                    File.WriteAllText(path + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
-                    UnityEngine.Object.DestroyImmediate(tex2D);
-
-                    PathToAction.Add(path, texToNameLoad.Value.Item2);
+                    PathToEncode.Add(path, TexMap);
+                    PathToSetAction.Add(path, texAndSetAct.Value.setAction);
                 }
-                TexToNameLoad.Clear();
+                TexDict.Clear();
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", 0);
+                PNGEncoderExecuter(PathToEncode);
+                // UnityPNGEncoder(PathToEncode);
+
+                timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
+                foreach (var path2e in PathToEncode) { File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost); }
 
 
                 EditorUtility.DisplayProgressBar("Import Canvas", "AssetDatabase.Refresh();", 0);
@@ -143,7 +147,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 EditorUtility.DisplayProgressBar("Import Canvas", "Refresh End", 1);
 
                 imageIndex = 0;
-                foreach (var loadTex2d in PathToAction)
+                foreach (var loadTex2d in PathToSetAction)
                 {
                     EditorUtility.DisplayProgressBar("Import Canvas", "SetUpLayer for PNG-" + Path.GetFileName(loadTex2d.Key), imageIndex / (float)progressesCount);
                     imageIndex += 1;
@@ -154,9 +158,98 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 EditorUtility.ClearProgressBar();
             }
 
+
+            public static void UnityPNGEncoder(Dictionary<string, TwoDimensionalMap<Color32>> encData)
+            {
+                var encDataCount = encData.Count; var nowIndex = 0;
+                foreach (var path2Tex in encData)
+                {
+                    var texMap = path2Tex.Value;
+                    var path = path2Tex.Key;
+                    var tex2D = new Texture2D(texMap.MapSize.x, texMap.MapSize.y, TextureFormat.RGBA32, false);
+                    tex2D.SetPixelData(texMap.Array, 0);
+                    var pngByte = tex2D.EncodeToPNG();
+                    File.WriteAllBytes(path, pngByte);
+                    UnityEngine.Object.DestroyImmediate(tex2D);
+
+                    nowIndex += 1;
+                    EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", nowIndex / (float)encDataCount);
+                }
+            }
+            public static void PNGEncoderExecuter(Dictionary<string, TwoDimensionalMap<Color32>> encData, int? ForceParallelSize = null)
+            {
+                var parallelSize = ForceParallelSize.HasValue ? ForceParallelSize.Value : Environment.ProcessorCount;
+                var taskQueue = new Queue<KeyValuePair<string, TwoDimensionalMap<Color32>>>(encData);
+                var TaskParallel = new Task[parallelSize];
+                var encDataCount = taskQueue.Count; var nowIndex = 0;
+                while (taskQueue.Count > 0)
+                {
+                    for (int i = 0; TaskParallel.Length > i; i += 1)
+                    {
+                        if (taskQueue.Count > 0)
+                        {
+                            var task = taskQueue.Dequeue();
+                            TaskParallel[i] = Task.Run(() => PNGEncoder(task.Key, task.Value));
+                        }
+                        else
+                        {
+                            TaskParallel[i] = null;
+                            break;
+                        }
+                    }
+
+                    foreach (var task in TaskParallel)
+                    {
+                        if (task == null) { break; }
+                        _ = TaskAwaiter(task).Result;
+                        nowIndex += 1;
+                        EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", nowIndex / (float)encDataCount);
+                    }
+                }
+            }
+
+
+            public static async Task<bool> TaskAwaiter(Task task)
+            {
+                await task.ConfigureAwait(false);
+                return true;
+            }
+
+            public static void PNGEncoder(string path, TwoDimensionalMap<Color32> image)
+            {
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                var bitMap = new System.Drawing.Bitmap(image.MapSize.x, image.MapSize.y);
+                var bmd = bitMap.LockBits(new(0, 0, image.MapSize.x, image.MapSize.y), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                var length = image.Array.Length * 4;
+                var argbValue = ArrayPool<byte>.Shared.Rent(length);
+                var ctime = timer.ElapsedMilliseconds; timer.Restart();
+                var widthByteLen = image.MapSize.x * 4;
+                for (var y = 0; image.MapSize.y > y; y += 1)
+                {
+                    var withByteOffset = widthByteLen * y;
+                    for (var x = 0; image.MapSize.x > x; x += 1)
+                    {
+                        var col = image[x, image.MapSize.y - 1 - y];
+                        var colI = withByteOffset + (x * 4);
+                        argbValue[colI + 0] = col.b;
+                        argbValue[colI + 1] = col.g;
+                        argbValue[colI + 2] = col.r;
+                        argbValue[colI + 3] = col.a;
+                    }
+                }
+
+                System.Runtime.InteropServices.Marshal.Copy(argbValue, 0, bmd.Scan0, length);
+                ArrayPool<byte>.Shared.Return(argbValue);
+                bitMap.UnlockBits(bmd);
+                var wtime = timer.ElapsedMilliseconds; timer.Restart();
+                bitMap.Save(path);
+                timer.Stop(); Debug.Log($"c:{ctime} w:{wtime}ms s:{timer.ElapsedMilliseconds}ms all:{ctime + wtime + timer.ElapsedMilliseconds}");
+            }
+
+
             private string CreatePath(string TexName, int count)
             {
-                return Path.Combine(SaveDirectory, RasterImageData, TexName + "-" + count)  + ".png";
+                return Path.Combine(SaveDirectory, RasterImageData, TexName + "-" + count) + ".png";
             }
 
             public const string MetaGUIDPre =

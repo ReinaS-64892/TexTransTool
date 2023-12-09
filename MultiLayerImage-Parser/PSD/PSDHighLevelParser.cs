@@ -53,7 +53,6 @@ namespace net.rs64.MultiLayerImageParser.PSD
             var TaskParallel = new (Task<TwoDimensionalMap<Color32>>, T)[parallelSize];
             while (taskQueue.Count > 0)
             {
-                var fact = Task.Factory;
                 for (int i = 0; TaskParallel.Length > i; i += 1)
                 {
                     if (taskQueue.Count > 0)
