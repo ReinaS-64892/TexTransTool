@@ -47,16 +47,26 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
         public IEnumerator<int> GetEnumerator()
         {
-            return ToList().GetEnumerator();
+            yield return zero;
+            yield return one;
+            yield return two;
         }
 
         public int[] ToArray()
         {
             return new int[3] { zero, one, two };
         }
-        public List<int> ToList()
+        public List<int> ToList(List<int> output = null)
         {
-            return new List<int> { zero, one, two };
+            if (output == null) { return new List<int>(3) { zero, one, two }; }
+            else
+            {
+                output.Clear();
+                output.Add(zero);
+                output.Add(one);
+                output.Add(two);
+                return output;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -64,9 +74,17 @@ namespace net.rs64.TexTransCore.TransTextureCore
             return ToArray().GetEnumerator();
         }
 
-        public List<T> GetTriangle<T>(List<T> List)
+        public List<T> GetTriangle<T>(List<T> vert, List<T> output = null)
         {
-            return new List<T> { List[zero], List[one], List[two] };
+            if (output == null) { return new List<T> { vert[zero], vert[one], vert[two] }; }
+            else
+            {
+                output.Clear();
+                output.Add(vert[zero]);
+                output.Add(vert[one]);
+                output.Add(vert[two]);
+                return output;
+            }
         }
 
         public override bool Equals(object obj)
@@ -138,16 +156,26 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
         public IEnumerator<Vector3> GetEnumerator()
         {
-            return ToList().GetEnumerator();
+            yield return zero;
+            yield return one;
+            yield return two;
         }
 
         public Vector3[] ToArray()
         {
             return new Vector3[3] { zero, one, two };
         }
-        public List<Vector3> ToList()
+        public List<Vector3> ToList(List<Vector3> output = null)
         {
-            return new List<Vector3>(3) { zero, one, two };
+            if (output == null) { return new List<Vector3>(3) { zero, one, two }; }
+            else
+            {
+                output.Clear();
+                output.Add(zero);
+                output.Add(one);
+                output.Add(two);
+                return output;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

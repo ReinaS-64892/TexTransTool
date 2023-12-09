@@ -208,7 +208,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var propAndTexture = new List<PropAndTexture>();
             foreach (var PropEnv in propEnvsDict)
             {
-                propAndTexture.Add(new PropAndTexture(PropEnv.Key, PropEnv.Value));
+                propAndTexture.Add(new (PropEnv.Key, PropEnv.Value));
             }
             return propAndTexture;
         }
@@ -322,7 +322,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         */
 
-        AtlasShaderRecorder lilDifferenceRecorder = new AtlasShaderRecorder();
+        AtlasShaderRecorder lilDifferenceRecorder = new ();
 
         public void AddRecord(Material material)
         {

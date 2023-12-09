@@ -378,8 +378,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var movedVertexes = Moved.GenerateRectVertexes(padding);
                 var triangleQuad = new List<TriangleIndex>(6)
                 {
-                    new TriangleIndex(nawIndex + 0, nawIndex + 1, nawIndex + 2),
-                    new TriangleIndex( nawIndex + 0, nawIndex + 2, nawIndex + 3)
+                    new (nawIndex + 0, nawIndex + 1, nawIndex + 2),
+                    new ( nawIndex + 0, nawIndex + 2, nawIndex + 3)
                 };
                 nawIndex += 4;
                 triangles.AddRange(triangleQuad);
@@ -428,7 +428,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var indexTag = new HashSet<AtlasIdenticalTag>();
             foreach (var tag in Tags)
             {
-                indexTag.Add(new AtlasIdenticalTag(tag.AtlasMeshDataIndex, tag.MaterialSlot));
+                indexTag.Add(new (tag.AtlasMeshDataIndex, tag.MaterialSlot));
             }
 
             return indexTag;
@@ -481,9 +481,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public AtlasReferenceData(List<Material> TargetMaterials, List<Renderer> InputRenderers)
         {
             var targetMatHash = new HashSet<Material>(TargetMaterials);
-            Meshes = new OrderedHashSet<Mesh>();
-            Materials = new OrderedHashSet<Material>();
-            Renderers = new List<Renderer>();
+            Meshes = new(); Materials = new(); Renderers = new();
+
             foreach (var renderer in InputRenderers)
             {
                 foreach (var mat in renderer.sharedMaterials)
@@ -498,7 +497,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
             }
 
-            AtlasMeshDataList = new List<AtlasMeshData>();
+            AtlasMeshDataList = new();
 
             foreach (var renderer in Renderers)
             {
@@ -512,7 +511,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     var UV = new List<Vector2>();
                     mesh.GetUVs(0, UV);
 
-                    AtlasMeshDataList.Add(new AtlasMeshData(
+                    AtlasMeshDataList.Add(new(
                         refMesh,
                         mesh.GetSubTriangleIndex(),
                         UV,

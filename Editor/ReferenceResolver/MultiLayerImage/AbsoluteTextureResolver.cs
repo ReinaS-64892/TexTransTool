@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
                             var findKVP = allTexture.FirstOrDefault(I => I.Value == texture2D);
                             if (findKVP.Value != null)
                             {
-                                return new RelativeTextureSelector() { TargetRenderer = renderer, MaterialSelect = i, TargetPropertyName = new PropertyName(findKVP.Key) };
+                                return new () { TargetRenderer = renderer, MaterialSelect = i, TargetPropertyName = new (findKVP.Key) };
                             }
                         }
                         searchedMaterial.Add(mat);

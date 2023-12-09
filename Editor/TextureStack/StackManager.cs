@@ -54,10 +54,10 @@ namespace net.rs64.TexTransTool.TextureStack
         }
 
     }
-    internal struct MargeResult
+    internal readonly struct MargeResult
     {
-        public Texture2D FirstTexture;
-        public Texture2D MargeTexture;
+        public readonly Texture2D FirstTexture;
+        public readonly Texture2D MargeTexture;
 
         public MargeResult(Texture2D firstTexture, Texture2D margeTexture)
         {

@@ -13,7 +13,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             var u = Vector3.Cross(Triangle[0] - Triangle[2], TargetPoint - Triangle[2]).z;
             var v = Vector3.Cross(Triangle[1] - Triangle[0], TargetPoint - Triangle[0]).z;
             var wuv = TriangleArea(Triangle);
-            return new Vector4(w, u, v, wuv);
+            return new (w, u, v, wuv);
         }
         public static float TriangleArea(List<Vector2> Triangle)
         {
@@ -26,7 +26,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             var b = CrossT.y / CrossT.w;
             var c = CrossT.z / CrossT.w;
 
-            return new Vector3(a, b, c);
+            return new (a, b, c);
         }
 
         public static Vector2 FromBarycentricCoordinateSystem(List<Vector2> Triangle, Vector3 SourceTBC)
@@ -64,7 +64,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             var w = Vector2.Distance(Triangle[0], TargetPoint);
             var u = Vector2.Distance(Triangle[1], TargetPoint);
             var v = Vector2.Distance(Triangle[2], TargetPoint);
-            return new Vector3(w, u, v);
+            return new (w, u, v);
         }
 
         public static Vector2 NearPointOnLine(Vector2 a, Vector2 b, Vector2 p)
@@ -88,7 +88,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             float DistanceA = Vector2.Distance(NearPointOnLine(Triangle[0], Triangle[1], TargetPoint), TargetPoint);
             float DistanceB = Vector2.Distance(NearPointOnLine(Triangle[1], Triangle[2], TargetPoint), TargetPoint);
             float DistanceC = Vector2.Distance(NearPointOnLine(Triangle[2], Triangle[0], TargetPoint), TargetPoint);
-            return new Vector3(DistanceA, DistanceB, DistanceC);
+            return new (DistanceA, DistanceB, DistanceC);
         }
 
         public static float MinVector(Vector3 Vector)
@@ -98,8 +98,8 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
         public static (Vector2, Vector2) BoxCal(List<Vector2> Triangles)
         {
-            Vector2 min = new Vector2();
-            Vector2 max = new Vector2();
+            Vector2 min = new ();
+            Vector2 max = new ();
             bool Farst = true;
             foreach (var tri in Triangles)
             {

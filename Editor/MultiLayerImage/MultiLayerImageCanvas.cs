@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
 
-                CanvasContext.RootLayerStack.Stack[0] = new BlendLayer(CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BL_KEY_DEFAULT);
+                CanvasContext.RootLayerStack.Stack[0] = new (CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BL_KEY_DEFAULT);
 
                 foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
                 {

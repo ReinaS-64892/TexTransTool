@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.ShaderSupport
         public ShaderSupportUtils()
         {
             _defaultShaderSupport = new DefaultShaderSupport();
-            _shaderSupports = InterfaceUtility.GetInterfaceInstance<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) });
+            _shaderSupports = InterfaceUtility.GetInterfaceInstance<IShaderSupport>(new Type[] { typeof(DefaultShaderSupport) }).ToList();
         }
 
         public List<(string ShaderName, (string PropertyName, string DisplayName)[])> GetPropertyNames()

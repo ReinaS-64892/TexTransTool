@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         public float GizmoRadius = 0.25f;
         public float GizmoHeight = 1f;
 
-        [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
+        [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
         public int SaveDataVersion => _saveDataVersion;
 
         private void OnDrawGizmosSelected()
@@ -144,14 +144,14 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             this.CCSQuad = CCSQuad;
         }
 
-        public List<Vector2> OutPutUV()
+        public List<Vector2> OutPutUV(List<Vector2> output = null)
         {
-            var UV = new List<Vector2>(QuadNormalizedVertex.Capacity);
+            output?.Clear(); output ??= new List<Vector2>(QuadNormalizedVertex.Capacity);
             foreach (var i in QuadNormalizedVertex)
             {
-                UV.Add(i);
+                output.Add(i);
             }
-            return UV;
+            return output;
         }
     }
 
@@ -163,9 +163,9 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         {
             Filters = filters;
         }
-        public List<TriangleIndex> Filtering(CCSSpace Space, List<TriangleIndex> Triangles)
+        public List<TriangleIndex> Filtering(CCSSpace Space, List<TriangleIndex> Triangles, List<TriangleIndex> output = null)
         {
-            return TriangleFilterUtility.FilteringTriangle(Triangles, Space, Filters);
+            return TriangleFilterUtility.FilteringTriangle(Triangles, Space, Filters, output);
         }
 
 

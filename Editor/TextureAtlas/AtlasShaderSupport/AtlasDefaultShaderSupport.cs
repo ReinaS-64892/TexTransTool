@@ -25,16 +25,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
                     var propName = shader.GetPropertyName(i);
                     if (!(material.GetTexture(propName) is Texture2D texture2D)) { continue; }
-                    textures.Add(new PropAndTexture(propName, texture2D));
+                    textures.Add(new (propName, texture2D));
                 }
                 return textures;
             }
 
             if (material.HasProperty("_MainTex"))
             {
-                return new List<PropAndTexture>() { new PropAndTexture("_MainTex", material.GetTexture("_MainTex") as Texture2D) };
+                return new () { new ("_MainTex", material.GetTexture("_MainTex") as Texture2D) };
             }
-            else { return new List<PropAndTexture>(); }
+            else { return new (); }
         }
         public bool IsThisShader(Material material) { return false; }
         public void MaterialCustomSetting(Material material) { }

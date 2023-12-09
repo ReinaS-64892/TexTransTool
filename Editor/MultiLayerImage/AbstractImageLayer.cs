@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
             var layerStack = canvasContext.RootLayerStack;
-            if (!Visible) { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
+            if (!Visible) { layerStack.Stack.Add(new (this, null, BlendTypeKey)); return; }
             var canvasSize = layerStack.CanvasSize;
             var rTex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
 

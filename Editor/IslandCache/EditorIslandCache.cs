@@ -12,11 +12,11 @@ namespace net.rs64.TexTransTool.EditorIsland
 {
     internal class EditorIslandCache : IIslandCache
     {
-        private List<IslandCacheObject> CacheIslands;
+        private static List<IslandCacheObject> CacheIslands;
 
         public EditorIslandCache()
         {
-            CacheIslands = AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+            CacheIslands ??= AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
         }
         public bool TryCache(List<Vector2> UV, List<TriangleIndex> Triangle, out List<Island> island)
         {

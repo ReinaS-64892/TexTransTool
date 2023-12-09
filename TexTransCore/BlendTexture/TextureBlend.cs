@@ -166,7 +166,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {
                     if (material.shader != BlendShaders[Add.BlendTypeKey]) { material.shader = BlendShaders[Add.BlendTypeKey]; }
                     material.SetTexture("_DistTex", swap);
-                    material.shaderKeywords = new string[] { Add.BlendTypeKey };
+                    material.shaderKeywords = new[] { Add.BlendTypeKey };
                     Graphics.Blit(Add.Texture, target, material);
                     (swap, target) = (target, swap);
                 }

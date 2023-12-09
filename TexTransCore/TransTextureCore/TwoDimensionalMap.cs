@@ -21,7 +21,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
         }
         public TwoDimensionalMap(T defaultValue, Vector2Int mapSize)
         {
-            Array = CoreUtility.FilledArray(defaultValue, mapSize.x * mapSize.y);
+            Array = CollectionsUtility.FilledArray(defaultValue, mapSize.x * mapSize.y);
             MapSize = mapSize;
         }
         public TwoDimensionalMap(Vector2Int mapSize)
@@ -32,13 +32,20 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
         public Vector2Int GetPosOn2D(int i)
         {
-            return DimensionIndexUtility.ConvertIndex2D(i, MapSize.x);
+            return ConvertIndex2D(i, MapSize.x);
         }
         public int GetIndexOn1D(Vector2Int pos)
         {
-            return DimensionIndexUtility.TwoDToOneDIndex(pos, MapSize.x);
+            return TwoDToOneDIndex(pos, MapSize.x);
         }
-
+        public static int TwoDToOneDIndex(Vector2Int TowDIndex, int Size)
+        {
+            return (TowDIndex.y * Size) + TowDIndex.x;
+        }
+        public static Vector2Int ConvertIndex2D(int Index1D, int width)
+        {
+            return new Vector2Int(Index1D % width, Index1D / width);
+        }
         public T GetOn2DIndex(Vector2Int pos)
         {
             return Array[GetIndexOn1D(pos)];

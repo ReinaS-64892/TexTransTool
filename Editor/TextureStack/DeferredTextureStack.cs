@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.TextureStack
 {
     internal class DeferredTextureStack : TextureStack
     {
-        [SerializeField] List<BlendTexturePair> StackTextures = new List<BlendTexturePair>();
+        [SerializeField] List<BlendTexturePair> StackTextures = new();
 
         public override void AddStack(BlendTexturePair blendTexturePair) => StackTextures.Add(blendTexturePair);
 

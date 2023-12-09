@@ -14,9 +14,9 @@ namespace net.rs64.TexTransCore.Decal
             this.Filters = Filters;
         }
 
-        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles)
+        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles, List<TriangleIndex> output = null)
         {
-            return TriangleFilterUtility.FilteringTriangle(Triangles, Space.PPSVert, Filters);
+            return TriangleFilterUtility.FilteringTriangle(Triangles, Space.PPSVert, Filters, output);
         }
     }
 }

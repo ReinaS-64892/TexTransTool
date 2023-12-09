@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace net.rs64.TexTransTool
         static List<IDomainMarkerFinder> Finders;
         public static GameObject FindMarker(GameObject StartPoint)
         {
-            if (Finders == null) { Finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>(); }
+            if (Finders == null) { Finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>().ToList(); }
             foreach (var finder in Finders)
             {
                 var marker = finder.FindMarker(StartPoint);

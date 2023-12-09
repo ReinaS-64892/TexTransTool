@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
@@ -11,18 +12,24 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         /// </summary>
         /// <param name="Renderers"></param>
         /// <returns></returns>
-        public static List<Material> GetMaterials(IEnumerable<Renderer> Renderers)
+        public static List<Material> GetMaterials(IEnumerable<Renderer> Renderers, List<Material> output = null)
         {
-            List<Material> matList = new List<Material>();
+            output?.Clear(); output ??= new();
             foreach (var renderer in Renderers)
             {
-                matList.AddRange(renderer.sharedMaterials);
+                output.AddRange(renderer.sharedMaterials);
             }
-            return matList;
+            return output;
         }
-        public static List<Material> GetFilteredMaterials(IEnumerable<Renderer> Renderers)
+        public static List<Material> GetFilteredMaterials(IEnumerable<Renderer> Renderers, List<Material> output = null)
         {
-            return GetMaterials(Renderers).Distinct().Where(I => I != null).ToList();
+            output?.Clear(); output ??= new();
+
+            var tempList = ListPool<Material>.Get();
+            output.AddRange(GetMaterials(Renderers, tempList).Distinct().Where(I => I != null));
+
+            ListPool<Material>.Release(tempList);
+            return output;
         }
         public static Mesh GetMesh(this Renderer Target)
         {

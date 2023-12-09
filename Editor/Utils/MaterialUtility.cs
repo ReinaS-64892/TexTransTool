@@ -7,6 +7,30 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class MaterialUtility
     {
+        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Texture2D Target, Texture2D SetTex, Dictionary<Material, Material> outPut = null)
+        {
+            outPut?.Clear(); outPut ??= new();
+            foreach (var mat in materials)
+            {
+                var Textures = FiltalingUnused(GetPropAndTextures(mat), mat);
+
+                if (Textures.ContainsValue(Target))
+                {
+                    var material = Object.Instantiate(mat);
+
+                    foreach (var KVP in Textures)
+                    {
+                        if (KVP.Value == Target)
+                        {
+                            material.SetTexture(KVP.Key, SetTex);
+                        }
+                    }
+
+                    outPut.Add(mat, material);
+                }
+            }
+            return outPut;
+        }
         public static void SetTextures(this Material TargetMat, List<PropAndTexture2D> PropAndTextures, bool FocusSetTexture = false)
         {
             foreach (var propAndTexture in PropAndTextures)
@@ -19,9 +43,9 @@ namespace net.rs64.TexTransTool.Utils
             }
         }
 
-        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material)
+        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material, Dictionary<string, Texture2D> output = null)
         {
-            var dict = new Dictionary<string, Texture2D>();
+            output?.Clear(); output ??= new();
             var shader = material.shader;
             var propCount = shader.GetPropertyCount();
             for (var i = 0; propCount > i; i += 1)
@@ -31,10 +55,10 @@ namespace net.rs64.TexTransTool.Utils
                 var texture = material.GetTexture(propName);
                 if (texture != null && texture is Texture2D texture2D)
                 {
-                    dict.Add(propName, texture2D);
+                    output.Add(propName, texture2D);
                 }
             }
-            return dict;
+            return output;
         }
 
         //MIT License
@@ -103,7 +127,6 @@ namespace net.rs64.TexTransTool.Utils
             }
             return FiltalingPropAndTextures;
         }
-
     }
 }
 #endif
