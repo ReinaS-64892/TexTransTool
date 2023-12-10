@@ -41,7 +41,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
 
-                CanvasContext.RootLayerStack.Stack[0] = new (CanvasContext.RootLayerStack.Stack[0].RefLayer, CanvasContext.RootLayerStack.Stack[0].BlendTextures.Texture, BL_KEY_DEFAULT);
+                var firstLayer = CanvasContext.RootLayerStack.Stack[0];
+                firstLayer.BlendTextures.BlendTypeKey = "NotBlend";
+                CanvasContext.RootLayerStack.Stack[0] = firstLayer;
 
                 foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
                 {
@@ -98,14 +100,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     if (downLayer.RefLayer is LayerFolder layerFolder && layerFolder.PassThrough) { index = -1; }
                 }
 
-                if (index < 0)
-                {
-                    Stack.Add(new BlendLayer(abstractLayer, tex, blendTypeKey));
-                }
-                else
+                if (index >= 0)
                 {
                     var refBlendLayer = Stack[index];
                     var ClippingDist = refBlendLayer.BlendTextures.Texture as RenderTexture;
+                    if (ClippingDist == null) { return; }
                     ClippingDist.BlendBlit(tex, blendTypeKey, true);
                 }
             }
