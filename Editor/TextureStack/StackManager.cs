@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool.TextureStack
         }
         public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
         {
+            if (Dist == null) { return; }
             var stack = _textureStacks.Find(i => i.FirstTexture == Dist);
             if (stack == null)
             {
