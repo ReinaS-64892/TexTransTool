@@ -23,6 +23,8 @@ namespace net.rs64.TexTransTool
         /// </summary>
         /// <param name="domain">The domain</param>
         public abstract void Apply([NotNull] IDomain domain);
+
+        protected virtual void Start() { }//Force Display Checkbox
     }
 
     internal enum TexTransPhase
