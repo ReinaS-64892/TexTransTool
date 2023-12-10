@@ -28,20 +28,21 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 if (Clipping) { return; }
                 else { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
             }
-            var canvasSize = layerStack.CanvasSize;
+            var canvasSize = canvasContext.CanvasSize;
             var rTex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
 
             var image = GetImage(canvasSize.x, canvasSize.y);
-            if (image is Texture2D texture2D) { image = canvasContext.TextureManage.TryGetUnCompress(texture2D); }
-            if (image is RenderTexture renderTexture) { canvasContext.TextureManage.DestroyTarget.Add(renderTexture); }
+            if (image is Texture2D texture2D) { image = canvasContext.TextureManager.GetOriginalTexture2D(texture2D); }
             Graphics.Blit(image, rTex);
 
             if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity)); }
 
-            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
+            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, canvasContext.TextureManager.GetOriginalTexture2D(LayerMask.MaskTexture)); }
 
             if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendTypeKey); }
             else { layerStack.AddRenderTexture(this, rTex, BlendTypeKey); }
+
+            if (image is RenderTexture renderTexture) { DestroyImmediate(renderTexture); }
         }
     }
 }
