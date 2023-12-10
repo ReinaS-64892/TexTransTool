@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         {
             if (avatarDomainDefinition == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
 
-            var aTTGs = avatarDomainDefinition.gameObject.GetComponents<AbstractTexTransGroup>().Where(I => !(I is PhaseDefinition));
+            var aTTGs = avatarDomainDefinition.gameObject.GetComponents<TexTransGroup>().Where(I => !(I is PhaseDefinition));
 
             foreach (var aTTG in aTTGs)
             {

@@ -12,9 +12,9 @@ namespace net.rs64.TexTransTool
 {
     internal static class TexTransGroupValidationUtils
     {
-        public static void ValidateTexTransGroup(AbstractTexTransGroup texTransGroup)
+        public static void ValidateTexTransGroup(TexTransGroup texTransGroup)
         {
-            var tTFs = AbstractTexTransGroup.TextureTransformerFilter(texTransGroup.Targets);
+            var tTFs = TexTransGroup.TextureTransformerFilter(texTransGroup.Targets);
             var renderersPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
             CollectTexTransForms(tTFs, renderersPeaTTFsDict);
 
@@ -105,9 +105,9 @@ namespace net.rs64.TexTransTool
                             }
                             break;
                         }
-                    case AbstractTexTransGroup abstractTexTransGroup:
+                    case TexTransGroup abstractTexTransGroup:
                         {
-                            CollectTexTransForms(AbstractTexTransGroup.TextureTransformerFilter(abstractTexTransGroup.Targets), renderersPeaTTFsDict);
+                            CollectTexTransForms(TexTransGroup.TextureTransformerFilter(abstractTexTransGroup.Targets), renderersPeaTTFsDict);
                             break;
                         }
 
