@@ -67,13 +67,11 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
                 var s_active = sObj.FindProperty("m_IsActive");
                 EditorGUILayout.PropertyField(s_active, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                sObj.ApplyModifiedProperties();
-
-                EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.ObjectField(tf, typeof(TextureTransformer), true);
-                EditorGUI.EndDisabledGroup();
 
+                sObj.ApplyModifiedProperties();
                 EditorGUILayout.EndHorizontal();
+                
                 EditorGUI.BeginDisabledGroup(!s_active.boolValue);
 
                 switch (tf)

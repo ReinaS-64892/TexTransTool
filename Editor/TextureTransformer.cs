@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool
     [DisallowMultipleComponent]
     internal abstract class TextureTransformer : MonoBehaviour, ITexTransToolTag
     {
-        public virtual bool ThisEnable => gameObject.activeSelf && enabled;
+        public virtual bool ThisEnable => gameObject.activeSelf;
         public abstract List<Renderer> GetRenderers { get; }
         public abstract bool IsPossibleApply { get; }
         public abstract TexTransPhase PhaseDefine { get; }
@@ -23,8 +23,6 @@ namespace net.rs64.TexTransTool
         /// </summary>
         /// <param name="domain">The domain</param>
         public abstract void Apply([NotNull] IDomain domain);
-
-        protected virtual void Start() { }//Force Display Checkbox
     }
 
     internal enum TexTransPhase
