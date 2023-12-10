@@ -214,7 +214,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         private static LowMap<Color32> GenerateTexTowDMap(LayerRecord record, Vector2Int size, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             Color32[] pixels = GenerateTexturePixels(record, channelInfoAndImage);
-            var TexturePivot = new Vector2Int(record.RectTangle.Left, size.y - record.RectTangle.Bottom);
+            var TexturePivot = new Vector2Int(record.RectTangle.Left, record.RectTangle.Top);
             return DrawOffsetEvaluateTexture(new LowMap<Color32>(pixels, record.RectTangle.GetWidth(), record.RectTangle.GetHeight()), TexturePivot, size, null);
         }
 
@@ -252,7 +252,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             if (!channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.UserLayerMask)) { return; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return; }
 
-            var MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, CanvasSize.y - record.LayerMaskAdjustmentLayerData.RectTangle.Bottom);
+            var MaskPivot = new Vector2Int(record.LayerMaskAdjustmentLayerData.RectTangle.Left, record.LayerMaskAdjustmentLayerData.RectTangle.Top);
             var DefaultMaskColor = record.LayerMaskAdjustmentLayerData.DefaultColor / 255;
 
 
@@ -335,7 +335,9 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
             else
             {
-                return new LowMap<Color32>(targetTexture.Array.AsSpan(0, canvasSize.x * canvasSize.y).ToArray(), canvasSize.x, canvasSize.y);
+                var pixels = targetTexture.Array.AsSpan(0, canvasSize.x * canvasSize.y).ToArray();
+                ArrayPool<Color32>.Shared.Return(targetTexture.Array);
+                return new LowMap<Color32>(pixels, canvasSize.x, canvasSize.y);
             }
         }
 

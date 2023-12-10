@@ -218,33 +218,35 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             public static void PNGEncoder(string path, LowMap<Color32> image)
             {
                 var timer = System.Diagnostics.Stopwatch.StartNew();
-                var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
-                var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-                var length = image.Array.Length * 4;
-                var argbValue = ArrayPool<byte>.Shared.Rent(length);
-                var ctime = timer.ElapsedMilliseconds; timer.Restart();
-                var widthByteLen = image.Width * 4;
-                for (var y = 0; image.Height > y; y += 1)
+                using (var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb))
                 {
-                    var withByteOffset = widthByteLen * y;
-                    var withOffset = image.Width * y;
-                    for (var x = 0; image.Width > x; x += 1)
+                    var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                    var length = image.Array.Length * 4;
+                    var argbValue = ArrayPool<byte>.Shared.Rent(length);
+                    var ctime = timer.ElapsedMilliseconds; timer.Restart();
+                    var widthByteLen = image.Width * 4;
+                    for (var y = 0; image.Height > y; y += 1)
                     {
-                        var colI = withByteOffset + (x * 4);
-                        var col = image.Array[withOffset + x];
-                        argbValue[colI + 0] = col.b;
-                        argbValue[colI + 1] = col.g;
-                        argbValue[colI + 2] = col.r;
-                        argbValue[colI + 3] = col.a;
+                        var withByteOffset = widthByteLen * y;
+                        var withOffset = image.Width * y;
+                        for (var x = 0; image.Width > x; x += 1)
+                        {
+                            var colI = withByteOffset + (x * 4);
+                            var col = image.Array[withOffset + x];
+                            argbValue[colI + 0] = col.b;
+                            argbValue[colI + 1] = col.g;
+                            argbValue[colI + 2] = col.r;
+                            argbValue[colI + 3] = col.a;
+                        }
                     }
-                }
 
-                System.Runtime.InteropServices.Marshal.Copy(argbValue, 0, bmd.Scan0, length);
-                ArrayPool<byte>.Shared.Return(argbValue);
-                bitMap.UnlockBits(bmd);
-                var wtime = timer.ElapsedMilliseconds; timer.Restart();
-                bitMap.Save(path);
-                timer.Stop(); Debug.Log($"c:{ctime} w:{wtime}ms s:{timer.ElapsedMilliseconds}ms all:{ctime + wtime + timer.ElapsedMilliseconds}");
+                    System.Runtime.InteropServices.Marshal.Copy(argbValue, 0, bmd.Scan0, length);
+                    ArrayPool<byte>.Shared.Return(argbValue);
+                    bitMap.UnlockBits(bmd);
+                    var wtime = timer.ElapsedMilliseconds; timer.Restart();
+                    bitMap.Save(path);
+                    timer.Stop(); Debug.Log($"c:{ctime} w:{wtime}ms s:{timer.ElapsedMilliseconds}ms all:{ctime + wtime + timer.ElapsedMilliseconds}");
+                }
             }
 
 
