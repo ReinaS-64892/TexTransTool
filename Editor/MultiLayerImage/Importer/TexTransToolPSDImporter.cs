@@ -16,11 +16,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         [MenuItem("Assets/TexTransTool/TTT PSD Importer", false)]
         public static void ImportPSD()
         {
-            var souseTex2D = Selection.activeObject as Texture2D;
-            if (souseTex2D == null) { return; }
-            var targetPSDPath = AssetDatabase.GetAssetPath(souseTex2D);
-            if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
-            if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
             if (!EditorUtility.DisplayDialog(
                 "TexTransTool PSD Importer",
@@ -30,21 +25,29 @@ PSDのインポートは非常に長い時間がかかる可能性がありま�
 本当にインポートしますか？".GetLocalize(),
                  "する".GetLocalize(), "しない".GetLocalize())) { return; }
 
+            foreach (var select in Selection.objects)
+            {
+                var souseTex2D = select as Texture2D;
+                if (souseTex2D == null) { return; }
+                var targetPSDPath = AssetDatabase.GetAssetPath(souseTex2D);
+                if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
+                if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
 
-            EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
-            var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
-            EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
-            var pSDData = PSDHighLevelParser.Parse(lowPSDData);
-            EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+                EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
+                var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
+                EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
+                var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+                EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
 
 
-            MultiLayerImageImporter.ImportCanvasData(
-                new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
-                multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
-                );
+                MultiLayerImageImporter.ImportCanvasData(
+                    new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
+                    multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
+                    );
 
 
-            EditorUtility.ClearProgressBar();
+                EditorUtility.ClearProgressBar();
+            }
         }
 
 
