@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool
             if (DestroyList == null) { return; }
             foreach (var tex in DestroyList)
             {
-                if (tex == null) { continue; }
+                if (tex == null || AssetDatabase.Contains(tex)) { continue; }
                 UnityEngine.Object.DestroyImmediate(tex);
             }
             DestroyList.Clear();
