@@ -28,63 +28,47 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void Apply([NotNull] IDomain domain)
         {
-            using (var CanvasContext = new CanvasContext(TextureSize, false))
+            var CanvasContext = new CanvasContext(TextureSize, domain);
+
+            var replaceTarget = TextureSelector.GetTexture();
+            if (replaceTarget == null) { return; }
+
+            var Layers = transform.GetChildren()
+            .Select(I => I.GetComponent<AbstractLayer>())
+            .Reverse();
+            foreach (var layer in Layers) { layer.EvaluateTexture(CanvasContext); }
+
+
+            if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
+
+            var firstLayer = CanvasContext.RootLayerStack.Stack[0];
+            firstLayer.BlendTextures.BlendTypeKey = "NotBlend";
+            CanvasContext.RootLayerStack.Stack[0] = firstLayer;
+
+            foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
             {
-                var replaceTarget = TextureSelector.GetTexture();
-                if (replaceTarget == null) { return; }
-
-                var Layers = transform.GetChildren()
-                .Select(I => I.GetComponent<AbstractLayer>())
-                .Reverse();
-                foreach (var layer in Layers) { layer.EvaluateTexture(CanvasContext); }
-
-
-                if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
-
-                var firstLayer = CanvasContext.RootLayerStack.Stack[0];
-                firstLayer.BlendTextures.BlendTypeKey = "NotBlend";
-                CanvasContext.RootLayerStack.Stack[0] = firstLayer;
-
-                foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
-                {
-                    domain.AddTextureStack(replaceTarget, layer);
-                }
+                domain.AddTextureStack(replaceTarget, layer);
             }
+
         }
-        public class CanvasContext : IDisposable
+        public class CanvasContext
         {
+            public Vector2Int CanvasSize;
             public LayerStack RootLayerStack;
-            public TextureManageContext TextureManage;
+            public ITextureManager TextureManager;
 
-            public CanvasContext(Vector2Int canvasSize, bool IsRealTimePreview)
+            public CanvasContext(Vector2Int canvasSize, ITextureManager textureManager)
             {
-                RootLayerStack = new LayerStack(canvasSize);
-                TextureManage = new TextureManageContext(IsRealTimePreview);
+                CanvasSize = canvasSize;
+                RootLayerStack = new();
+                TextureManager = textureManager;
             }
-
-            public CanvasContext(Vector2Int canvasSize, TextureManageContext textureManage)
-            {
-                RootLayerStack = new LayerStack(canvasSize);
-                TextureManage = textureManage;
-            }
-
-            public CanvasContext CreateSubContext => new CanvasContext(RootLayerStack.CanvasSize, TextureManage);
-
-            public void Dispose()
-            {
-                TextureManage.Dispose();
-            }
+            public CanvasContext CreateSubCanvas => new CanvasContext(CanvasSize, TextureManager);
         }
 
         public class LayerStack
         {
-            public Vector2Int CanvasSize;
             public List<BlendLayer> Stack = new List<BlendLayer>();
-
-            public LayerStack(Vector2Int textureSize)
-            {
-                CanvasSize = textureSize;
-            }
 
             public IEnumerable<BlendTexturePair> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
 
@@ -127,35 +111,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
 
         }
-    }
-
-    public class TextureManageContext : IDisposable
-    {
-        public readonly bool IsRealTimePreview;
-        public HashSet<Texture> DestroyTarget = new HashSet<Texture>();
-
-        public TextureManageContext(bool isRealTimePreview)
-        {
-            IsRealTimePreview = isRealTimePreview;
-        }
-
-        public Texture2D TryGetUnCompress(Texture2D texture2D)
-        {
-            if (IsRealTimePreview) { return texture2D; }
-            var unCompressed = texture2D.TryGetUnCompress();
-            if (unCompressed != texture2D || !AssetDatabase.Contains(unCompressed)) { DestroyTarget.Add(unCompressed); }
-            return unCompressed;
-        }
-        public void Dispose()
-        {
-            foreach (var tex in DestroyTarget)
-            {
-                UnityEngine.Object.DestroyImmediate(tex);
-            }
-            DestroyTarget.Clear();
-        }
-
-
     }
 }
 #endif
