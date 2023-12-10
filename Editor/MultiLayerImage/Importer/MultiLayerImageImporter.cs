@@ -100,12 +100,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             }
 
 
-            public void AddTextureCallBack(TwoDimensionalMap<Color32> rasterTexture, string name, Action<Texture2D> value)
+            public void AddTextureCallBack(LowMap<Color32> rasterTexture, string name, Action<Texture2D> value)
             {
                 TexDict.Add(rasterTexture, (name, value));
             }
 
-            Dictionary<TwoDimensionalMap<Color32>, (string name, Action<Texture2D> setAction)> TexDict = new();
+            Dictionary<LowMap<Color32>, (string name, Action<Texture2D> setAction)> TexDict = new();
 
             public void FinalizeTex2D()
             {
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Directory.CreateDirectory(RasterDataPath);
 
                 var PathToSetAction = new Dictionary<string, Action<Texture2D>>();
-                var PathToEncode = new Dictionary<string, TwoDimensionalMap<Color32>>();
+                var PathToEncode = new Dictionary<string, LowMap<Color32>>();
                 var progressesCount = TexDict.Count;
                 var imageIndex = 0;
                 foreach (var texAndSetAct in TexDict)
@@ -176,10 +176,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", nowIndex / (float)encDataCount);
                 }
             }
-            public static void PNGEncoderExecuter(Dictionary<string, TwoDimensionalMap<Color32>> encData, int? ForceParallelSize = null)
+            public static void PNGEncoderExecuter(Dictionary<string, LowMap<Color32>> encData, int? ForceParallelSize = null)
             {
                 var parallelSize = ForceParallelSize.HasValue ? ForceParallelSize.Value : Environment.ProcessorCount;
-                var taskQueue = new Queue<KeyValuePair<string, TwoDimensionalMap<Color32>>>(encData);
+                var taskQueue = new Queue<KeyValuePair<string, LowMap<Color32>>>(encData);
                 var TaskParallel = new Task[parallelSize];
                 var encDataCount = taskQueue.Count; var nowIndex = 0;
                 while (taskQueue.Count > 0)
@@ -215,22 +215,23 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 return true;
             }
 
-            public static void PNGEncoder(string path, TwoDimensionalMap<Color32> image)
+            public static void PNGEncoder(string path, LowMap<Color32> image)
             {
                 var timer = System.Diagnostics.Stopwatch.StartNew();
-                var bitMap = new System.Drawing.Bitmap(image.MapSize.x, image.MapSize.y);
-                var bmd = bitMap.LockBits(new(0, 0, image.MapSize.x, image.MapSize.y), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+                var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
                 var length = image.Array.Length * 4;
                 var argbValue = ArrayPool<byte>.Shared.Rent(length);
                 var ctime = timer.ElapsedMilliseconds; timer.Restart();
-                var widthByteLen = image.MapSize.x * 4;
-                for (var y = 0; image.MapSize.y > y; y += 1)
+                var widthByteLen = image.Width * 4;
+                for (var y = 0; image.Height > y; y += 1)
                 {
                     var withByteOffset = widthByteLen * y;
-                    for (var x = 0; image.MapSize.x > x; x += 1)
+                    var withOffset = image.Width * y;
+                    for (var x = 0; image.Width > x; x += 1)
                     {
-                        var col = image[x, image.MapSize.y - 1 - y];
                         var colI = withByteOffset + (x * 4);
+                        var col = image.Array[withOffset + x];
                         argbValue[colI + 0] = col.b;
                         argbValue[colI + 1] = col.g;
                         argbValue[colI + 2] = col.r;

@@ -7,6 +7,6 @@ namespace net.rs64.MultiLayerImageParser.LayerData
     [Serializable]
     internal class RasterLayerData : AbstractLayerData
     {
-        public TwoDimensionalMap<Color32> RasterTexture;
+        public LowMap<Color32> RasterTexture;
     }
 }
