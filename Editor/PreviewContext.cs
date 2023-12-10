@@ -93,12 +93,26 @@ namespace net.rs64.TexTransTool
                 AnimationMode.BeginSampling();
                 try
                 {
-                    RenderersDomain renderersDomain = null;
+                    RenderersDomain previewDomain = null;
                     var marker = DomainMarkerFinder.FindMarker(target1.gameObject);
-                    if (marker != null) { renderersDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false); }
-                    else { renderersDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler()); }
-                    target1.Apply(renderersDomain);
-                    renderersDomain.EditFinish();
+                    if (marker != null) { previewDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false); }
+                    else { previewDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler()); }
+
+                    if (target1 is TexTransGroup abstractTexTransGroup)
+                    {
+                        var phaseOnTf = AvatarBuildUtils.FindAtPhase(abstractTexTransGroup.gameObject);
+                        foreach (var tf in phaseOnTf[TexTransPhase.BeforeUVModification]) { tf.Apply(previewDomain); }
+                        previewDomain.MargeStack();
+                        foreach (var tf in phaseOnTf[TexTransPhase.UVModification]) { tf.Apply(previewDomain); }
+                        foreach (var tf in phaseOnTf[TexTransPhase.AfterUVModification]) { tf.Apply(previewDomain); }
+                        foreach (var tf in phaseOnTf[TexTransPhase.UnDefined]) { tf.Apply(previewDomain); }
+                    }
+                    else
+                    {
+                        target1.Apply(previewDomain);
+                    }
+                    
+                    previewDomain.EditFinish();
                 }
                 finally
                 {
