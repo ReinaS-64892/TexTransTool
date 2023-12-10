@@ -17,8 +17,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
             var layerStack = canvasContext.RootLayerStack;
-            if (!Visible) { layerStack.Stack.Add(new (this, null, BlendTypeKey)); return; }
-            var subContext = canvasContext.CreateSubContext;
+            if (!Visible) { layerStack.Stack.Add(new(this, null, BlendTypeKey)); return; }
+            var subContext = canvasContext.CreateSubCanvas;
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
             .Reverse();
@@ -32,20 +32,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     MultipleRenderTexture((RenderTexture)layer.Texture, new Color(1, 1, 1, Opacity));
 
-                    if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture((RenderTexture)layer.Texture, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
+                    if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture((RenderTexture)layer.Texture, canvasContext.TextureManager.GetOriginalTexture2D(LayerMask.MaskTexture)); }
                     layerStack.AddRenderTexture(this, layer.Texture as RenderTexture, layer.BlendTypeKey);
                 }
             }
             else
             {
-                var rt = new RenderTexture(layerStack.CanvasSize.x, layerStack.CanvasSize.y, 0); rt.Clear();
+                var rt = new RenderTexture(canvasContext.CanvasSize.x, canvasContext.CanvasSize.y, 0); rt.Clear();
                 var first = subStack.Stack[0]; first.BlendTextures.BlendTypeKey = TTTBlendTypeKeyEnum.NotBlend.ToString(); subStack.Stack[0] = first;
                 rt.BlendBlit(subStack.GetLayers);
                 if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity)); }
-                if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rt, canvasContext.TextureManage.TryGetUnCompress(LayerMask.MaskTexture)); }
+                if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rt, canvasContext.TextureManager.GetOriginalTexture2D(LayerMask.MaskTexture)); }
 
                 if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendTypeKey); }
                 else { layerStack.AddRenderTexture(this, rt, PassThrough ? BL_KEY_DEFAULT : BlendTypeKey); }
+
+                foreach (var layer in subStack.GetLayers) { DestroyImmediate(layer.Texture); }
             }
 
         }
