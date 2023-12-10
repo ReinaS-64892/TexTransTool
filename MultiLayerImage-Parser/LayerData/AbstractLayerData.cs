@@ -22,7 +22,7 @@ namespace net.rs64.MultiLayerImageParser.LayerData
     internal class LayerMaskData
     {
         public bool LayerMaskDisabled;
-        public TwoDimensionalMap<Color32> MaskTexture;
+        public LowMap<Color32> MaskTexture;
     }
 
 }

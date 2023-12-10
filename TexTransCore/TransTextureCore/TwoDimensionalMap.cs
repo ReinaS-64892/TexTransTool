@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using System.Runtime.CompilerServices;
+
 namespace net.rs64.TexTransCore.TransTextureCore
 {
     internal struct TwoDimensionalMap<T>
@@ -29,26 +31,46 @@ namespace net.rs64.TexTransCore.TransTextureCore
             Array = new T[mapSize.x * mapSize.y];
             MapSize = mapSize;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector2Int GetPosOn2D(int i)
         {
             return ConvertIndex2D(i, MapSize.x);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetIndexOn1D(Vector2Int pos)
         {
             return TwoDToOneDIndex(pos, MapSize.x);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int TwoDToOneDIndex(Vector2Int TowDIndex, int Size)
         {
             return (TowDIndex.y * Size) + TowDIndex.x;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2Int ConvertIndex2D(int Index1D, int width)
         {
             return new Vector2Int(Index1D % width, Index1D / width);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetOn2DIndex(Vector2Int pos)
         {
             return Array[GetIndexOn1D(pos)];
         }
+    }
+
+    internal readonly struct LowMap<T>
+    {
+        //左上を原点とする。
+        public readonly T[] Array;
+        public readonly int Width;
+        public readonly int Height;
+        public LowMap(T[] array, int width, int height)
+        {
+            Array = array;
+            Width = width;
+            Height = height;
+        }
+
+        public Vector2Int MapSize => new Vector2Int(Width,Height);
     }
 }
