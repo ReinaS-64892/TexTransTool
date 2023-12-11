@@ -28,10 +28,10 @@ PSDのインポートは非常に長い時間がかかる可能性がありま�
             foreach (var select in Selection.objects)
             {
                 var souseTex2D = select as Texture2D;
-                if (souseTex2D == null) { return; }
+                if (souseTex2D == null) { continue; }
                 var targetPSDPath = AssetDatabase.GetAssetPath(souseTex2D);
-                if (string.IsNullOrWhiteSpace(targetPSDPath)) { return; }
-                if (Path.GetExtension(targetPSDPath) != ".psd") { return; }
+                if (string.IsNullOrWhiteSpace(targetPSDPath)) { continue; }
+                if (Path.GetExtension(targetPSDPath) != ".psd") { continue; }
 
                 EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
                 var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
