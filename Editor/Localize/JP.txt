@@ -11,10 +11,12 @@ MultiRendererMode,マルチレンダラーモード
 Color,カラー
 BlendType,合成モード
 TargetPropertyName,ターゲットプロパティネーム
+PropertyName,プロパティネーム
 UseCustomProperty,カスタムプロパティ
 ScaleSettings,スケール設定
 Scale,スケール
 FixedAspect,アスペクト比固定
+Fixed Aspect,アスペクト比固定
 MaxDistance,最大距離
 CullingSettings,カリング設定
 PolygonCulling,ポリゴンカリング
@@ -76,3 +78,9 @@ GroupChildren,グループの子
 SummaryNone,概要はありません
 WriteOriginalUV,元のUVを書き込む
 UnknownShaderAtlasAllTexture,未知のシェーダーのすべてのテクスチャーをアトラス化
+BlendTypeKey,ブレンドタイプキー
+Experimental Future,実験的機能
+UseDepth,深度デカール
+DepthInvert,深度反転
+IslandSorterName,アイランドソーターネーム
+IncludeDisableRenderer,無効なレンダラーを含める

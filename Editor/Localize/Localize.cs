@@ -34,8 +34,12 @@ namespace net.rs64.TexTransTool
         {
             EditorApplication.delayCall += () => Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
         }
-
-        static Dictionary<string, string> JP;
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
+        public static void ReloadLocalize()
+        {
+            s_JP = null;
+        }
+        static Dictionary<string, string> s_JP;
 
         public static string GetLocalize(this string str)
         {
@@ -49,8 +53,8 @@ namespace net.rs64.TexTransTool
 
                 case LanguageEnum.JP:
                     {
-                        if (JP == null) { JP = ParseCSV(JP_GUID); }
-                        if (JP.TryGetValue(str, out var jpStr))
+                        if (s_JP == null) { s_JP = ParseCSV(JP_GUID); }
+                        if (s_JP.TryGetValue(str, out var jpStr))
                         { return jpStr; }
                         else { return str; }
                     }
