@@ -16,7 +16,10 @@ namespace net.rs64.TexTransTool
         [InitializeOnLoadMethod]
         static void Init()
         {
-            isObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
+            EditorApplication.delayCall += () =>
+            {
+                isObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
+            };
         }
 
 

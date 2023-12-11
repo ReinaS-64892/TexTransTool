@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
         [InitializeOnLoadMethod]
         static void Init()
         {
-            Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
+            EditorApplication.delayCall += () => Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
         }
 
         static Dictionary<string, string> JP;
