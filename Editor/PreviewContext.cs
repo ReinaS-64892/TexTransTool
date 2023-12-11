@@ -102,7 +102,7 @@ namespace net.rs64.TexTransTool
                     {
                         var phaseOnTf = AvatarBuildUtils.FindAtPhase(abstractTexTransGroup.gameObject);
                         foreach (var tf in phaseOnTf[TexTransPhase.BeforeUVModification]) { tf.Apply(previewDomain); }
-                        previewDomain.MargeStack();
+                        previewDomain.MergeStack();
                         foreach (var tf in phaseOnTf[TexTransPhase.UVModification]) { tf.Apply(previewDomain); }
                         foreach (var tf in phaseOnTf[TexTransPhase.AfterUVModification]) { tf.Apply(previewDomain); }
                         foreach (var tf in phaseOnTf[TexTransPhase.UnDefined]) { tf.Apply(previewDomain); }

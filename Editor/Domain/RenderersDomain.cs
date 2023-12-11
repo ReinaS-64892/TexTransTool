@@ -142,8 +142,8 @@ namespace net.rs64.TexTransTool
         public virtual void EditFinish()
         {
             ProgressStateEnter("Finalize");
-            ProgressUpdate("MargeStack", 0.0f);
-            MargeStack();
+            ProgressUpdate("MergeStack", 0.0f);
+            MergeStack();
             ProgressUpdate("DeferTexDestroy", 0.3f);
             DeferTexDestroy();
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
@@ -154,18 +154,18 @@ namespace net.rs64.TexTransTool
             _progressHandler?.ProgressFinalize();
         }
 
-        public virtual void MargeStack()
+        public virtual void MergeStack()
         {
-            ProgressUpdate("MargeStack", 0f);
-            var mangedStack = _textureStacks.MargeStacks();
-            ProgressUpdate("MargeStack", 0.9f);
-            foreach (var mergeResult in mangedStack)
+            ProgressUpdate("MergeStack", 0f);
+            var MergedStacks = _textureStacks.MergeStacks();
+            ProgressUpdate("MergeStack", 0.9f);
+            foreach (var mergeResult in MergedStacks)
             {
-                if (mergeResult.FirstTexture == null || mergeResult.MargeTexture == null) continue;
-                SetTexture(mergeResult.FirstTexture, mergeResult.MargeTexture);
-                TransferAsset(mergeResult.MargeTexture);
+                if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
+                SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
+                TransferAsset(mergeResult.MergeTexture);
             }
-            ProgressUpdate("MargeStack", 1);
+            ProgressUpdate("MergeStack", 1);
         }
 
         IProgressHandling _progressHandler;
