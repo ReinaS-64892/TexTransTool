@@ -89,11 +89,11 @@ namespace net.rs64.MultiLayerImageParser.PSD
         [Serializable, AdditionalLayerInfoParser("lyid")]
         internal class lyid : AdditionalLayerInfo
         {
-            public int ChannelID;
+            public int LayerID;
 
             public override void ParseAddLY(ref SubSpanStream stream)
             {
-                ChannelID = stream.ReadInt32();
+                LayerID = stream.ReadInt32();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lsct")]
