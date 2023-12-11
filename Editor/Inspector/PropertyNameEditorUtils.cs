@@ -53,8 +53,9 @@ namespace net.rs64.TexTransTool.Editor
 
                 var shaderName = s_shaderName.stringValue;
                 var shaderSelectIndex = Array.IndexOf(ShadersNames, shaderName);
+                if (s_shaderName.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
                 shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, ShadersNames);
-                s_shaderName.stringValue = 0 <= shaderSelectIndex && shaderSelectIndex < ShadersNames.Length ? ShadersNames[shaderSelectIndex] : shaderName;
+                if (0 <= shaderSelectIndex && shaderSelectIndex < ShadersNames.Length) { s_shaderName.stringValue = ShadersNames[shaderSelectIndex]; }
 
                 rect.x += rect.width;
 
@@ -73,8 +74,9 @@ namespace net.rs64.TexTransTool.Editor
                     var propertyArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].PropertyName : Empty;
                     var displayNameArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].DisplayName : Empty;
                     var propertySelectIndex = Array.IndexOf(propertyArray, propertyName);
+                    if (s_propertyName.hasMultipleDifferentValues) { propertySelectIndex = -1; }
                     propertySelectIndex = EditorGUI.Popup(rect, propertySelectIndex, displayNameArray);
-                    s_propertyName.stringValue = 0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length ? propertyArray[propertySelectIndex] : propertyName;
+                    if (0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length) { s_propertyName.stringValue = propertyArray[propertySelectIndex]; }
 
                     rect.x += rect.width;
 
