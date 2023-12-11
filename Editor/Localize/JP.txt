@@ -84,3 +84,8 @@ UseDepth,深度デカール
 DepthInvert,深度反転
 IslandSorterName,アイランドソーターネーム
 IncludeDisableRenderer,無効なレンダラーを含める
+The PSD Importer is an experimental feature and is subject to change or removal without notice,PSDインポーターは、実験的機能で予告なく変更や削除される可能性があり
+Importing a PSD can take a very long time.,PSDのインポートは非常に長い時間がかかる可能性があります。
+Do you really want to import?,本当にインポートしますか？
+Yes,はい
+No,いいえ

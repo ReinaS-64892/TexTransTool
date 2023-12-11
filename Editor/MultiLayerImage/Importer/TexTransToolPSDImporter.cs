@@ -19,11 +19,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             if (!EditorUtility.DisplayDialog(
                 "TexTransTool PSD Importer",
-@"PSDインポーターは、実験的機能で予告なく変更や削除される可能性があり、
-PSDのインポートは非常に長い時間がかかる可能性があります。
-
-本当にインポートしますか？".GetLocalize(),
-                 "する".GetLocalize(), "しない".GetLocalize())) { return; }
+"The PSD Importer is an experimental feature and is subject to change or removal without notice".GetLocalize() + "\n" +
+"Importing a PSD can take a very long time.".GetLocalize() + "\n" +
+"\n" +
+"Do you really want to import?".GetLocalize(),
+                 "Yes".GetLocalize(), "No".GetLocalize())) { return; }
 
             foreach (var select in Selection.objects)
             {
