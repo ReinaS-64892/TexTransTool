@@ -104,7 +104,7 @@ namespace net.rs64.TexTransTool.Editor
         public static void DrawerObjectReference<T>(SerializedProperty prop, GUIContent gUIContent = null, Filter<T> editAndFilterCollBack = null) where T : UnityEngine.Object
         {
             var Value = prop.objectReferenceValue as T;
-            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.GetLC());
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.name.GetLC());
             if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
             {
                 prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as T);

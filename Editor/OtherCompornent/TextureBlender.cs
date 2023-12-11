@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.BlendTexture;
 using System;
+using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TextureBlender")]
@@ -13,7 +14,7 @@ namespace net.rs64.TexTransTool
         public Texture2D BlendTexture;
         public Color Color = Color.white;
 
-        public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [Obsolete("Replaced with BlendTypeKey", true)] public BlendType BlendType = BlendType.Normal;
 
 
