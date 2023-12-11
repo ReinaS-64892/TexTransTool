@@ -119,6 +119,17 @@ namespace net.rs64.TexTransTool.Build
             var definedChildren = FindChildren(phaseDefinitions);
             var ContainsBy = new HashSet<TextureTransformer>(definedChildren);
 
+            var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>();
+            foreach (var ce in chileExcluders)
+            {
+                var cec = ce as Component;
+                foreach (var tf in cec.GetComponentsInChildren<TextureTransformer>(true))
+                {
+                    if (cec == tf) { continue; }
+                    ContainsBy.Add(tf);
+                }
+            }
+
             foreach (var pd in phaseDefinitions)
             {
                 if (!definedChildren.Contains(pd))
@@ -128,14 +139,14 @@ namespace net.rs64.TexTransTool.Build
                 }
             }
 
-            void PhaseRegister(AbstractTexTransGroup absTTG)
+            void PhaseRegister(TexTransGroup absTTG)
             {
                 if (ContainsBy.Contains(absTTG)) { return; }
                 ContainsBy.Add(absTTG);
-                foreach (var tf in AbstractTexTransGroup.TextureTransformerFilter(absTTG.Targets))
+                foreach (var tf in TexTransGroup.TextureTransformerFilter(absTTG.Targets))
                 {
 
-                    if (tf is AbstractTexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup); }
+                    if (tf is TexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup); }
                     else
                     {
                         if (ContainsBy.Contains(tf)) { continue; }
@@ -144,13 +155,13 @@ namespace net.rs64.TexTransTool.Build
                     }
                 }
             }
-            foreach (var absTTG in avatarGameObject.GetComponentsInChildren<AbstractTexTransGroup>().Where(I => !ContainsBy.Contains(I)))
+            foreach (var absTTG in avatarGameObject.GetComponentsInChildren<TexTransGroup>().Where(I => !ContainsBy.Contains(I)))
             {
                 PhaseRegister(absTTG);
             }
 
 
-            foreach (var tf in AbstractTexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TextureTransformer>()))
+            foreach (var tf in TexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TextureTransformer>()))
             {
                 if (!ContainsBy.Contains(tf))
                 {
@@ -158,10 +169,11 @@ namespace net.rs64.TexTransTool.Build
                 }
             }
 
+
             return phaseDict;
         }
 
-        private static HashSet<TextureTransformer> FindChildren(AbstractTexTransGroup[] abstractTexTransGroups)
+        private static HashSet<TextureTransformer> FindChildren(TexTransGroup[] abstractTexTransGroups)
         {
             var children = new HashSet<TextureTransformer>();
             foreach (var abstractTTG in abstractTexTransGroups)
@@ -170,13 +182,13 @@ namespace net.rs64.TexTransTool.Build
             }
             return children;
         }
-        private static HashSet<TextureTransformer> FindChildren(AbstractTexTransGroup abstractTexTransGroup)
+        private static HashSet<TextureTransformer> FindChildren(TexTransGroup abstractTexTransGroup)
         {
             var children = new HashSet<TextureTransformer>();
             children.UnionWith(abstractTexTransGroup.Targets);
             foreach (var tf in abstractTexTransGroup.Targets)
             {
-                if (tf is AbstractTexTransGroup abstractTexTransGroupC) { children.UnionWith(FindChildren(abstractTexTransGroupC)); }
+                if (tf is TexTransGroup abstractTexTransGroupC) { children.UnionWith(FindChildren(abstractTexTransGroupC)); }
             }
             return children;
         }

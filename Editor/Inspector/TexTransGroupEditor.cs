@@ -9,46 +9,70 @@ using net.rs64.TexTransTool.Editor.MatAndTexUtils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.Editor;
 using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
 {
-    [CustomEditor(typeof(AbstractTexTransGroup), true)]
-    internal class AbstractTexTransGroupEditor : UnityEditor.Editor
+    [CustomEditor(typeof(TexTransGroup), true)]
+    internal class TexTransGroupEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
-            var thisTarget = target as AbstractTexTransGroup;
+            var thisTarget = target as TexTransGroup;
+
+            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
 
             if (!PreviewContext.IsPreviewContains)
             {
-                DrawerSummaryList(thisTarget);
+                DrawerSummaryList(thisTarget.transform);
             }
             else
             {
                 EditorGUILayout.LabelField("Summary display during preview is not supported.".GetLocalize());
             }
-
-            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
         }
 
-        private static void DrawerSummaryList(AbstractTexTransGroup thisTarget)
+        private static void DrawerSummaryList(Transform rootTransform)
         {
 
-            foreach (var tf in thisTarget.Targets)
+            foreach (var ctf in rootTransform.GetChildren())
             {
+                var tf = ctf.GetComponent<TextureTransformer>();
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                if (tf == null)
+                {
+                    var ctfObj = new SerializedObject(ctf.gameObject);
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
+                    var s_ctfActive = ctfObj.FindProperty("m_IsActive");
+                    EditorGUILayout.PropertyField(s_ctfActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
+                    EditorGUILayout.LabelField(ctf.name);
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUI.BeginDisabledGroup(!s_ctfActive.boolValue);
+                    DrawerSummaryList(ctf);
+                    EditorGUI.EndDisabledGroup();
+
+                    EditorGUILayout.EndVertical();
+
+                    ctfObj.ApplyModifiedProperties();
+                    continue;
+                }
+
                 EditorGUILayout.BeginHorizontal();
 
                 var sObj = new SerializedObject(tf.gameObject);
                 EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
-                EditorGUILayout.PropertyField(sObj.FindProperty("m_IsActive"), GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                sObj.ApplyModifiedProperties();
-
-                EditorGUI.BeginDisabledGroup(true);
+                var s_active = sObj.FindProperty("m_IsActive");
+                EditorGUILayout.PropertyField(s_active, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
                 EditorGUILayout.ObjectField(tf, typeof(TextureTransformer), true);
-                EditorGUI.EndDisabledGroup();
 
+                sObj.ApplyModifiedProperties();
                 EditorGUILayout.EndHorizontal();
+                
+                EditorGUI.BeginDisabledGroup(!s_active.boolValue);
 
                 switch (tf)
                 {
@@ -72,10 +96,10 @@ namespace net.rs64.TexTransTool.Editor
                             NailEditorEditor.DrawerSummary(nailEditor);
                             break;
                         }
-                    case AbstractTexTransGroup abstractTexTransGroup:
+                    case TexTransGroup texTransGroup:
                         {
                             EditorGUILayout.LabelField("GroupChildren".GetLocalize());
-                            DrawerSummaryList(abstractTexTransGroup);
+                            DrawerSummaryList(ctf);
                             break;
                         }
                     case MatAndTexAbsoluteSeparator matAndTexAbsoluteSeparator:
@@ -94,6 +118,12 @@ namespace net.rs64.TexTransTool.Editor
                             break;
                         }
                 }
+                if (tf is not ITTTChildExclusion)
+                {
+                    DrawerSummaryList(ctf);
+                }
+
+                EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndVertical();
             }
 

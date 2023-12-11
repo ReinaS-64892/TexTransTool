@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
-    internal class MultiLayerImageCanvas : TextureTransformer
+    internal class MultiLayerImageCanvas : TextureTransformer, ITTTChildExclusion
     {
         public RelativeTextureSelector TextureSelector;
 
@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
+            .Where( I => I != null)
             .Reverse();
             foreach (var layer in Layers) { layer.EvaluateTexture(CanvasContext); }
 

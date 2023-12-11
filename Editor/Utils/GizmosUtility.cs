@@ -38,14 +38,9 @@ namespace net.rs64.TexTransTool.Utils
 
             }
         }
-        public static List<Transform> GetChildren(this Transform Parent)
+        public static IEnumerable<Transform> GetChildren(this Transform Parent)
         {
-            var list = new List<Transform>();
-            foreach (Transform child in Parent)
-            {
-                list.Add(child);
-            }
-            return list;
+            foreach (Transform child in Parent) { yield return child; }
         }
 
 
