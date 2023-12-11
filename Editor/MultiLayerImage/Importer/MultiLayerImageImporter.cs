@@ -132,12 +132,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     PathToSetAction.Add(path, texAndSetAct.Value.setAction);
                 }
                 TexDict.Clear();
-                var timer = System.Diagnostics.Stopwatch.StartNew();
+                // var timer = System.Diagnostics.Stopwatch.StartNew();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", 0);
                 PNGEncoderExecuter(PathToEncode);
                 // UnityPNGEncoder(PathToEncode);
 
-                timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
+                // timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
                 foreach (var path2e in PathToEncode)
                 {
                     if (File.Exists(path2e.Key)) { continue; }
@@ -220,13 +220,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             public static void PNGEncoder(string path, LowMap<Color32> image)
             {
-                var timer = System.Diagnostics.Stopwatch.StartNew();
+                // var timer = System.Diagnostics.Stopwatch.StartNew();
                 using (var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb))
                 {
                     var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
                     var length = image.Array.Length * 4;
                     var argbValue = ArrayPool<byte>.Shared.Rent(length);
-                    var ctime = timer.ElapsedMilliseconds; timer.Restart();
+                    // var ctime = timer.ElapsedMilliseconds; timer.Restart();
                     var widthByteLen = image.Width * 4;
                     for (var y = 0; image.Height > y; y += 1)
                     {
@@ -246,9 +246,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     System.Runtime.InteropServices.Marshal.Copy(argbValue, 0, bmd.Scan0, length);
                     ArrayPool<byte>.Shared.Return(argbValue);
                     bitMap.UnlockBits(bmd);
-                    var wtime = timer.ElapsedMilliseconds; timer.Restart();
+                    // var wtime = timer.ElapsedMilliseconds; timer.Restart();
                     bitMap.Save(path);
-                    timer.Stop(); Debug.Log($"c:{ctime} w:{wtime}ms s:{timer.ElapsedMilliseconds}ms all:{ctime + wtime + timer.ElapsedMilliseconds}");
+                    // timer.Stop(); Debug.Log($"c:{ctime} w:{wtime}ms s:{timer.ElapsedMilliseconds}ms all:{ctime + wtime + timer.ElapsedMilliseconds}");
                 }
             }
 
