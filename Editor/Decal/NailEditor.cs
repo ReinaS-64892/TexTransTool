@@ -102,14 +102,14 @@ namespace net.rs64.TexTransTool.Decal
 
 
 
-            void DrawNailGizmo(NailSet nailSet, bool IsRight)
+            void DrawNailGizmo(NailSet nailSet, bool isRight)
             {
                 foreach (var NailDD in nailSet)
                 {
                     var Finger = NailDD.Item1;
                     var nailDecalDescription = NailDD.nailDecalDescription;
-                    var souseFingerTF = GetFinger(Finger, IsRight);
-                    var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
+                    var souseFingerTF = GetFinger(Finger, isRight);
+                    var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, isRight);
 
                     Gizmos.matrix = matrix;
                     DecalGizmoUtility.DrawGizmoQuad(NailDD.nailDecalDescription.DecalTexture, Color.white, matrix);
@@ -265,12 +265,12 @@ namespace net.rs64.TexTransTool.Decal
         public Vector3 ScaleOffset = Vector3.one;
         public Vector3 RotationOffset = Vector3.zero;
 
-        public void Copy(NailDecalDescription Souse)
+        public void Copy(NailDecalDescription souse)
         {
-            DecalTexture = Souse.DecalTexture;
-            PositionOffset = Souse.PositionOffset;
-            ScaleOffset = Souse.ScaleOffset;
-            RotationOffset = Souse.RotationOffset;
+            DecalTexture = souse.DecalTexture;
+            PositionOffset = souse.PositionOffset;
+            ScaleOffset = souse.ScaleOffset;
+            RotationOffset = souse.RotationOffset;
         }
         public NailDecalDescription Clone()
         {
@@ -279,11 +279,11 @@ namespace net.rs64.TexTransTool.Decal
             return newI;
         }
 
-        public void Copy(NailOffset Souse)
+        public void Copy(NailOffset souse)
         {
-            PositionOffset = Souse.PositionOffset;
-            ScaleOffset = Souse.ScaleOffset;
-            RotationOffset = Souse.RotationOffset;
+            PositionOffset = souse.PositionOffset;
+            ScaleOffset = souse.ScaleOffset;
+            RotationOffset = souse.RotationOffset;
         }
     }
 

@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Build
 
                 session.ApplyFor(TexTransPhase.BeforeUVModification);
 
-                session.MidwayMargeStack();
+                session.MidwayMergeStack();
 
                 session.ApplyFor(TexTransPhase.UVModification);
                 session.ApplyFor(TexTransPhase.AfterUVModification);
@@ -92,10 +92,10 @@ namespace net.rs64.TexTransTool.Build
                 _avatarDomain.ProgressStateExit();
             }
 
-            public void MidwayMargeStack()
+            public void MidwayMergeStack()
             {
-                _avatarDomain.ProgressStateEnter("MidwayMargeStack");
-                _avatarDomain.MargeStack();
+                _avatarDomain.ProgressStateEnter("MidwayMergeStack");
+                _avatarDomain.MergeStack();
                 _avatarDomain.ProgressStateExit();
             }
 

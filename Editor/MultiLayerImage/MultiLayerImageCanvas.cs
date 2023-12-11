@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void Apply([NotNull] IDomain domain)
         {
-            var CanvasContext = new CanvasContext(TextureSize, domain);
+            var canvasContext = new CanvasContext(TextureSize, domain);
 
             var replaceTarget = TextureSelector.GetTexture();
             if (replaceTarget == null) { return; }
@@ -37,16 +37,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Select(I => I.GetComponent<AbstractLayer>())
             .Where( I => I != null)
             .Reverse();
-            foreach (var layer in Layers) { layer.EvaluateTexture(CanvasContext); }
+            foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
 
 
-            if (CanvasContext.RootLayerStack.Stack.Count == 0) { return; }
+            if (canvasContext.RootLayerStack.Stack.Count == 0) { return; }
 
-            var firstLayer = CanvasContext.RootLayerStack.Stack[0];
+            var firstLayer = canvasContext.RootLayerStack.Stack[0];
             firstLayer.BlendTextures.BlendTypeKey = "NotBlend";
-            CanvasContext.RootLayerStack.Stack[0] = firstLayer;
+            canvasContext.RootLayerStack.Stack[0] = firstLayer;
 
-            foreach (var layer in CanvasContext.RootLayerStack.GetLayers)
+            foreach (var layer in canvasContext.RootLayerStack.GetLayers)
             {
                 domain.AddTextureStack(replaceTarget, layer);
             }

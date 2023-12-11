@@ -21,7 +21,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
     {
         public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData)
         {
-            var PSD = new PSDHighLevelData
+            var psd = new PSDHighLevelData
             {
                 Size = new Vector2Int((int)levelData.width, (int)levelData.height),
                 Depth = levelData.Depth,
@@ -32,16 +32,16 @@ namespace net.rs64.MultiLayerImageParser.PSD
             var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
             var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
 
-            var ImageParseTask = new Dictionary<TexCal, RasterLayerData>();
-            var ImageMaskParseTask = new Dictionary<TexCal, AbstractLayerData>();
+            var imageParseTask = new Dictionary<TexCal, RasterLayerData>();
+            var imageMaskParseTask = new Dictionary<TexCal, AbstractLayerData>();
 
-            ParseAsLayers(PSD.Size, rootLayers, imageRecordQueue, imageDataQueue, ImageParseTask, ImageMaskParseTask);
+            ParseAsLayers(psd.Size, rootLayers, imageRecordQueue, imageDataQueue, imageParseTask, imageMaskParseTask);
 
-            PSD.RootLayers = rootLayers;
-            var image = AwaitImage(ImageParseTask, PSD.Depth, PSD.Size);
-            var imageMask = AwaitImageMask(ImageMaskParseTask, PSD.Depth, PSD.Size);
-            PSD.Texture2Ds = image.Concat(imageMask).ToArray();
-            return PSD;
+            psd.RootLayers = rootLayers;
+            var image = AwaitImage(imageParseTask, psd.Depth, psd.Size);
+            var imageMask = AwaitImageMask(imageMaskParseTask, psd.Depth, psd.Size);
+            psd.Texture2Ds = image.Concat(imageMask).ToArray();
+            return psd;
         }
         public delegate LowMap<Color32> TexCal();
 

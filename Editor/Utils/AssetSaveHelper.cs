@@ -11,14 +11,14 @@ namespace net.rs64.TexTransTool
 {
     internal static class AssetSaveHelper
     {
-        static bool _IsTemporary;
+        static bool s_isTemporary;
         public static bool IsTemporary
         {
-            get => _IsTemporary;
+            get => s_isTemporary;
             set
             {
-                _IsTemporary = value;
-                if (!_IsTemporary)
+                s_isTemporary = value;
+                if (!s_isTemporary)
                 {
                     ClearTemp();
                 }
@@ -40,11 +40,11 @@ namespace net.rs64.TexTransTool
             AvatarDomainAssets,
         }
 
-        public static string GenerateAssetPath(string Name, string Extension, SaveType saveType = SaveType.Other)
+        public static string GenerateAssetPath(string name, string extension, SaveType saveType = SaveType.Other)
         {
             SaveDirectoryCheck();
-            var path = GenerateFullPath(Name, saveType);
-            path += Extension;
+            var path = GenerateFullPath(name, saveType);
+            path += extension;
             path = AssetDatabase.GenerateUniqueAssetPath(path);
             return path;
         }
@@ -55,9 +55,9 @@ namespace net.rs64.TexTransTool
             if (!Directory.Exists(Path.Combine(SaveDirectory, IslandCaches))) Directory.CreateDirectory(Path.Combine(SaveDirectory, IslandCaches));
             if (!Directory.Exists(Path.Combine(SaveDirectory, AvatarDomainAssets))) Directory.CreateDirectory(Path.Combine(SaveDirectory, AvatarDomainAssets));
         }
-        private static string GenerateFullPath(string Name, SaveType saveType = SaveType.Other)
+        private static string GenerateFullPath(string name, SaveType saveType = SaveType.Other)
         {
-            var replacedName = Name.Replace("(Clone)", "");
+            var replacedName = name.Replace("(Clone)", "");
             replacedName = string.IsNullOrWhiteSpace(replacedName) ? "GenerateAsset" : replacedName;
             string parentPath;
             if (!IsTemporary)
@@ -101,58 +101,58 @@ namespace net.rs64.TexTransTool
             }
 
         }
-        public static void SaveAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
+        public static void SaveAssets<T>(IEnumerable<T> targets) where T : UnityEngine.Object
         {
-            foreach (var target in Targets)
+            foreach (var target in targets)
             {
                 SaveAsset(target);
             }
         }
 
-        public static void SaveAsset<T>(T Target) where T : UnityEngine.Object
+        public static void SaveAsset<T>(T target) where T : UnityEngine.Object
         {
-            if (Target == null) { return; }
-            if (AssetDatabase.Contains(Target)) { return; }
+            if (target == null) { return; }
+            if (AssetDatabase.Contains(target)) { return; }
             string savePath = null;
-            switch (Target)
+            switch (target)
             {
                 default:
                     {
-                        savePath = GenerateAssetPath(Target.name, ".asset", GetSaveTypeAtAsset(Target));
+                        savePath = GenerateAssetPath(target.name, ".asset", GetSaveTypeAtAsset(target));
                         break;
                     }
                 case Material Mat:
                     {
-                        savePath = GenerateAssetPath(Target.name, ".mat");
+                        savePath = GenerateAssetPath(target.name, ".mat");
                         break;
                     }
             }
-            AssetDatabase.CreateAsset(Target, savePath);
+            AssetDatabase.CreateAsset(target, savePath);
             AssetDatabase.ImportAsset(savePath);
         }
 
-        public static Texture2D SavePng(Texture2D Target)
+        public static Texture2D SavePng(Texture2D target)
         {
-            if (Target == null) { return null; }
+            if (target == null) { return null; }
 
-            var savePath = GenerateAssetPath(Target.name, ".png");
-            File.WriteAllBytes(savePath, Target.EncodeToPNG());
+            var savePath = GenerateAssetPath(target.name, ".png");
+            File.WriteAllBytes(savePath, target.EncodeToPNG());
             AssetDatabase.ImportAsset(savePath);
             return AssetDatabase.LoadAssetAtPath<Texture2D>(savePath);
 
         }
 
-        public static void DeleteAssets<T>(IEnumerable<T> Targets) where T : UnityEngine.Object
+        public static void DeleteAssets<T>(IEnumerable<T> targets) where T : UnityEngine.Object
         {
-            foreach (var target in Targets)
+            foreach (var target in targets)
             {
                 DeleteAsset(target);
             }
         }
-        public static void DeleteAsset<T>(T Target) where T : UnityEngine.Object
+        public static void DeleteAsset<T>(T target) where T : UnityEngine.Object
         {
-            if (Target == null) return;
-            var path = AssetDatabase.GetAssetPath(Target);
+            if (target == null) return;
+            var path = AssetDatabase.GetAssetPath(target);
             if (!string.IsNullOrEmpty(path))
             {
                 AssetDatabase.DeleteAsset(path);
@@ -163,15 +163,15 @@ namespace net.rs64.TexTransTool
         {
             SaveDirectoryCheck();
             var saveType = GetSaveTypeAtAsset<T>();
-            List<T> LoadedAssets = new List<T>();
+            List<T> loadedAssets = new();
             foreach (var path in Directory.GetFiles(GetDirectoryAtType(saveType)))
             {
                 if (AssetDatabase.LoadAssetAtPath(path, typeof(T)) is T instants)
                 {
-                    LoadedAssets.Add(instants);
+                    loadedAssets.Add(instants);
                 }
             }
-            return LoadedAssets;
+            return loadedAssets;
         }
         private static void ClearTemp()
         {

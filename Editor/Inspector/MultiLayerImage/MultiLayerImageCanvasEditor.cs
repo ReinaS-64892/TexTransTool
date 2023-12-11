@@ -10,18 +10,18 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         {
             TextureTransformerEditor.DrawerWarning("MultiImageLayer".GetLocalize());
 
-            var s_Target = serializedObject;
+            var sTarget = serializedObject;
 
-            TextureBlenderEditor.DrawerRelativeTextureSelector(s_Target.FindProperty("TextureSelector"));
+            TextureBlenderEditor.DrawerRelativeTextureSelector(sTarget.FindProperty("TextureSelector"));
             EditorGUI.BeginDisabledGroup(true);
-            var s_TexSize = s_Target.FindProperty("TextureSize");
-            EditorGUILayout.PropertyField(s_TexSize, s_TexSize.displayName.GetLC());
+            var sTexSize = sTarget.FindProperty("TextureSize");
+            EditorGUILayout.PropertyField(sTexSize, sTexSize.displayName.GetLC());
             EditorGUI.EndDisabledGroup();
 
-            var Target = target as MultiLayerImageCanvas;
-            PreviewContext.instance.DrawApplyAndRevert(Target);
+            var thisTarget = target as MultiLayerImageCanvas;
+            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
 
-            s_Target.ApplyModifiedProperties();
+            sTarget.ApplyModifiedProperties();
         }
     }
 }

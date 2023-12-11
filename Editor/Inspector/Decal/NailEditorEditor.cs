@@ -15,91 +15,91 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning("NailEditor");
-            var This_S_Object = serializedObject;
-            var ThisObject = target as NailEditor;
+            var thisSObject = serializedObject;
+            var thisObject = target as NailEditor;
 
-            var S_TargetAvatar = This_S_Object.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(S_TargetAvatar, S_TargetAvatar.name.GetLC());
+            var sTargetAvatar = thisSObject.FindProperty("TargetAvatar");
+            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.GetLC());
 
-            var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var S_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(S_TargetRenderers, S_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(S_MultiRendererMode, S_MultiRendererMode.name.GetLC());
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode, sMultiRendererMode.name.GetLC());
 
-            var S_BlendType = This_S_Object.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(S_BlendType, S_BlendType.name.GetLC());
+            var sBlendType = thisSObject.FindProperty("BlendType");
+            EditorGUILayout.PropertyField(sBlendType, sBlendType.name.GetLC());
 
-            var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
-            PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            PropertyNameEditor.DrawInspectorGUI(sTargetPropertyName);
 
-            var S_UseTextureAspect = This_S_Object.FindProperty("UseTextureAspect");
-            EditorGUILayout.PropertyField(S_UseTextureAspect, S_UseTextureAspect.name.GetLC());
+            var sUseTextureAspect = thisSObject.FindProperty("UseTextureAspect");
+            EditorGUILayout.PropertyField(sUseTextureAspect, sUseTextureAspect.name.GetLC());
 
 
-            var S_LeftHand = This_S_Object.FindProperty("LeftHand");
-            var S_RightHand = This_S_Object.FindProperty("RightHand");
+            var sLeftHand = thisSObject.FindProperty("LeftHand");
+            var sRightHand = thisSObject.FindProperty("RightHand");
             EditorGUILayout.LabelField("LeftHand".GetLocalize());
-            DrawerNailSet(S_LeftHand);
+            DrawerNailSet(sLeftHand);
             EditorGUILayout.LabelField("RightHand".GetLocalize());
-            DrawerNailSet(S_RightHand);
+            DrawerNailSet(sRightHand);
 
 
-            DrawerOffsetUtilEditor(ThisObject);
-            DrawOffsetSaveAndLoader(ThisObject);
+            DrawerOffsetUtilEditor(thisObject);
+            DrawOffsetSaveAndLoader(thisObject);
 
-            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
+            AbstractDecalEditor.DrawerAdvancedOption(thisSObject);
 
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(thisObject);
 
-            This_S_Object.ApplyModifiedProperties();
+            thisSObject.ApplyModifiedProperties();
         }
 
         public static void DrawerNailSet(SerializedProperty serializedProperty)
         {
-            var S_FingerUpVector = serializedProperty.FindPropertyRelative("FingerUpVector");
-            var S_Thumb = serializedProperty.FindPropertyRelative("Thumb");
-            var S_Index = serializedProperty.FindPropertyRelative("Index");
-            var S_Middle = serializedProperty.FindPropertyRelative("Middle");
-            var S_Ring = serializedProperty.FindPropertyRelative("Ring");
-            var S_Little = serializedProperty.FindPropertyRelative("Little");
+            var sFingerUpVector = serializedProperty.FindPropertyRelative("FingerUpVector");
+            var sThumb = serializedProperty.FindPropertyRelative("Thumb");
+            var sIndex = serializedProperty.FindPropertyRelative("Index");
+            var sMiddle = serializedProperty.FindPropertyRelative("Middle");
+            var sRing = serializedProperty.FindPropertyRelative("Ring");
+            var sLittle = serializedProperty.FindPropertyRelative("Little");
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(S_FingerUpVector, S_FingerUpVector.name.GetLC());
+            EditorGUILayout.PropertyField(sFingerUpVector, sFingerUpVector.name.GetLC());
 
             EditorGUILayout.LabelField("Thumb".GetLocalize());
-            DrawerNailDescriptor(S_Thumb);
+            DrawerNailDescriptor(sThumb);
             EditorGUILayout.LabelField("Index".GetLocalize());
-            DrawerNailDescriptor(S_Index);
+            DrawerNailDescriptor(sIndex);
             EditorGUILayout.LabelField("Middle".GetLocalize());
-            DrawerNailDescriptor(S_Middle);
+            DrawerNailDescriptor(sMiddle);
             EditorGUILayout.LabelField("Ring".GetLocalize());
-            DrawerNailDescriptor(S_Ring);
+            DrawerNailDescriptor(sRing);
             EditorGUILayout.LabelField("Little".GetLocalize());
-            DrawerNailDescriptor(S_Little);
+            DrawerNailDescriptor(sLittle);
 
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerNailDescriptor(SerializedProperty serializedProperty)
         {
-            var S_DecalTexture = serializedProperty.FindPropertyRelative("DecalTexture");
-            var S_PositionOffset = serializedProperty.FindPropertyRelative("PositionOffset");
-            var S_ScaleOffset = serializedProperty.FindPropertyRelative("ScaleOffset");
-            var S_RotationOffset = serializedProperty.FindPropertyRelative("RotationOffset");
+            var sDecalTexture = serializedProperty.FindPropertyRelative("DecalTexture");
+            var sPositionOffset = serializedProperty.FindPropertyRelative("PositionOffset");
+            var sScaleOffset = serializedProperty.FindPropertyRelative("ScaleOffset");
+            var sRotationOffset = serializedProperty.FindPropertyRelative("RotationOffset");
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(S_DecalTexture, S_DecalTexture.name.GetLC());
-            DrawerPositionOffset(S_PositionOffset);
-            EditorGUILayout.PropertyField(S_ScaleOffset, S_ScaleOffset.name.GetLC());
-            EditorGUILayout.PropertyField(S_RotationOffset, S_RotationOffset.name.GetLC());
+            EditorGUILayout.PropertyField(sDecalTexture, sDecalTexture.name.GetLC());
+            DrawerPositionOffset(sPositionOffset);
+            EditorGUILayout.PropertyField(sScaleOffset, sScaleOffset.name.GetLC());
+            EditorGUILayout.PropertyField(sRotationOffset, sRotationOffset.name.GetLC());
 
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerPositionOffset(SerializedProperty serializedProperty)
         {
-            var DrawValue = serializedProperty.vector3Value * 100;
-            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "PositionOffset".GetLocalize(), DrawValue) * 0.01f;
+            var drawValue = serializedProperty.vector3Value * 100;
+            serializedProperty.vector3Value = EditorGUI.Vector3Field(EditorGUILayout.GetControlRect(), "PositionOffset".GetLocalize(), drawValue) * 0.01f;
 
         }
 
@@ -161,13 +161,13 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         public static void DrawerSummary(NailEditor target)
         {
-            var s_obj = new SerializedObject(target);
-            var s_TargetAvatar = s_obj.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(s_TargetAvatar, s_TargetAvatar.name.GetLC());
-            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
+            var sObj = new SerializedObject(target);
+            var sTargetAvatar = sObj.FindProperty("TargetAvatar");
+            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.GetLC());
+            var sTargetRenderers = sObj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
 
-            s_obj.ApplyModifiedProperties();
+            sObj.ApplyModifiedProperties();
         }
 
     }

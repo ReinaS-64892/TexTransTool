@@ -18,33 +18,33 @@ namespace net.rs64.TexTransCore.TransTextureCore
             public readonly IEnumerable<Vector2> TargetUV;
             public readonly IEnumerable<UVDimension> SourceUV;
 
-            public TransData(IEnumerable<TriangleIndex> TrianglesToIndex, IEnumerable<Vector2> TargetUV, IEnumerable<UVDimension> SourceUV)
+            public TransData(IEnumerable<TriangleIndex> trianglesToIndex, IEnumerable<Vector2> targetUV, IEnumerable<UVDimension> sourceUV)
             {
-                this.TrianglesToIndex = TrianglesToIndex;
-                this.TargetUV = TargetUV;
-                this.SourceUV = SourceUV;
+                TrianglesToIndex = trianglesToIndex;
+                TargetUV = targetUV;
+                SourceUV = sourceUV;
             }
 
             public Mesh GenerateTransMesh()
             {
-                var Mesh = new Mesh();
+                var mesh = new Mesh();
 
-                var Vertices = ListPool<Vector3>.Get();
-                Vertices.AddRange(TargetUV.Select(I => new Vector3(I.x, I.y, 0)));
-                Mesh.SetVertices(Vertices);
-                ListPool<Vector3>.Release(Vertices);
+                var vertices = ListPool<Vector3>.Get();
+                vertices.AddRange(TargetUV.Select(I => new Vector3(I.x, I.y, 0)));
+                mesh.SetVertices(vertices);
+                ListPool<Vector3>.Release(vertices);
 
                 var uv = ListPool<UVDimension>.Get(); uv.AddRange(SourceUV);
                 NativeArray<UVDimension> NativeArray = CollectionsUtility.ListToNativeArray(uv, Allocator.Temp);
-                Mesh.SetUVs(0, NativeArray);
+                mesh.SetUVs(0, NativeArray);
                 NativeArray.Dispose();
 
-                var Triangles = ListPool<int>.Get();
-                Triangles.AddRange(TrianglesToIndex.SelectMany(I => I));
-                Mesh.SetTriangles(Triangles, 0);
-                ListPool<int>.Release(Triangles);
+                var triangles = ListPool<int>.Get();
+                triangles.AddRange(TrianglesToIndex.SelectMany(I => I));
+                mesh.SetTriangles(triangles, 0);
+                ListPool<int>.Release(triangles);
 
-                return Mesh;
+                return mesh;
             }
 
         }
@@ -53,32 +53,32 @@ namespace net.rs64.TexTransCore.TransTextureCore
         public const string TRANS_SHADER = "Hidden/TransTexture";
         public const string DEPTH_WRITER_SHADER = "Hidden/DepthWriter";
         public static void ForTrans<UVDimension>(
-            RenderTexture TargetTexture,
-            Texture SouseTexture,
-            TransData<UVDimension> TransUVData,
-            float? Padding = null,
-            TextureWrap? TexWrap = null,
-            bool HighQualityPadding = false,
-            bool? DepthInvert = null
+            RenderTexture targetTexture,
+            Texture souseTexture,
+            TransData<UVDimension> transUVData,
+            float? padding = null,
+            TextureWrap? argTexWrap = null,
+            bool highQualityPadding = false,
+            bool? depthInvert = null
             ) where UVDimension : struct
         {
-            var mesh = TransUVData.GenerateTransMesh();
+            var mesh = transUVData.GenerateTransMesh();
 
-            var preBias = SouseTexture.mipMapBias;
-            SouseTexture.mipMapBias = SouseTexture.mipmapCount * -1;
-            var preWarp = SouseTexture.wrapMode;
+            var preBias = souseTexture.mipMapBias;
+            souseTexture.mipMapBias = souseTexture.mipmapCount * -1;
+            var preWarp = souseTexture.wrapMode;
 
-            if (TexWrap == null) { TexWrap = TextureWrap.NotWrap; }
-            var texWrap = TexWrap.Value;
-            SouseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
+            if (argTexWrap == null) { argTexWrap = TextureWrap.NotWrap; }
+            var texWrap = argTexWrap.Value;
+            souseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
 
 
 
 
             var material = new Material(Shader.Find(TRANS_SHADER));
-            material.SetTexture("_MainTex", SouseTexture);
-            if (Padding.HasValue) material.SetFloat("_Padding", Padding.Value);
-            if (Padding.HasValue && HighQualityPadding)
+            material.SetTexture("_MainTex", souseTexture);
+            if (padding.HasValue) material.SetFloat("_Padding", padding.Value);
+            if (padding.HasValue && highQualityPadding)
             {
                 mesh.TTNormalCal();
                 material.EnableKeyword("HighQualityPadding");
@@ -93,10 +93,10 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
             RenderTexture depthRt = null;
-            if (DepthInvert.HasValue)
+            if (depthInvert.HasValue)
             {
-                depthRt = RenderTexture.GetTemporary(TargetTexture.width, TargetTexture.height, 8, RenderTextureFormat.RFloat);
-                material.EnableKeyword(DepthInvert.Value ? "InvertDepth" : "DepthDecal");
+                depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
+                material.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 
                 using (new RTActiveSaver())
                 {
@@ -121,32 +121,32 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
             using (new RTActiveSaver())
             {
-                RenderTexture.active = TargetTexture;
+                RenderTexture.active = targetTexture;
                 material.SetPass(0);
                 Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
-                if (Padding != null)
+                if (padding != null)
                 {
                     material.SetPass(1);
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                 }
 
             }
-            SouseTexture.mipMapBias = preBias;
-            SouseTexture.wrapMode = preWarp;
+            souseTexture.mipMapBias = preBias;
+            souseTexture.wrapMode = preWarp;
             UnityEngine.Object.DestroyImmediate(mesh);
             if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
         }
         public static void ForTrans<T>(
-            RenderTexture TargetTexture,
-            Texture SouseTexture,
-            IEnumerable<TransData<T>> TransUVDataEnumerable,
-            float? Padding = null,
-            TextureWrap? WarpRange = null
+            RenderTexture targetTexture,
+            Texture souseTexture,
+            IEnumerable<TransData<T>> transUVDataEnumerable,
+            float? padding = null,
+            TextureWrap? warpRange = null
             ) where T : struct
         {
-            foreach (var transUVData in TransUVDataEnumerable)
+            foreach (var transUVData in transUVDataEnumerable)
             {
-                ForTrans(TargetTexture, SouseTexture, transUVData, Padding, WarpRange);
+                ForTrans(targetTexture, souseTexture, transUVData, padding, warpRange);
             }
         }
 
@@ -284,8 +284,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
             if (rangeList.Count == 1)
             {
-                var renge = rangeList[0];
-                return RadToVector3(FromMiddle(renge.inRad, renge.OutRad));
+                var range = rangeList[0];
+                return RadToVector3(FromMiddle(range.inRad, range.OutRad));
             }
 
             if (Mathf.Approximately(rangeList[0].inRad, -180 * Mathf.Deg2Rad))

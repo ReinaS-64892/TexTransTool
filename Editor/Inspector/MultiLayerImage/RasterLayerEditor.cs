@@ -12,9 +12,9 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             TextureTransformerEditor.DrawerWarning("MultiImageLayer".GetLocalize());
             base.OnInspectorGUI();
 
-            var Target = target as RasterLayer;
+            var thisTarget = target as RasterLayer;
             if (targets.Length != 1) { return; }
-            EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), Target.RasterTexture, ScaleMode.ScaleToFit);
+            EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), thisTarget.RasterTexture, ScaleMode.ScaleToFit);
         }
 
 

@@ -12,50 +12,50 @@ namespace net.rs64.TexTransTool.Editor
         {
             TextureTransformerEditor.DrawerWarning("TextureBlender");
 
-            var Target = target as TextureBlender;
-            var This_S_Object = serializedObject;
+            var thisTarget = target as TextureBlender;
+            var thisSObject = serializedObject;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(Target));
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisTarget));
 
-            DrawerRelativeTextureSelector(This_S_Object.FindProperty("TargetTexture"));
+            DrawerRelativeTextureSelector(thisSObject.FindProperty("TargetTexture"));
 
-            var S_BlendTexture = This_S_Object.FindProperty("BlendTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_BlendTexture);
+            var sBlendTexture = thisSObject.FindProperty("BlendTexture");
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sBlendTexture);
 
-            var S_Color = This_S_Object.FindProperty("Color");
-            EditorGUILayout.PropertyField(S_Color);
+            var sColor = thisSObject.FindProperty("Color");
+            EditorGUILayout.PropertyField(sColor);
 
-            var S_BlendType = This_S_Object.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(S_BlendType);
+            var sBlendType = thisSObject.FindProperty("BlendType");
+            EditorGUILayout.PropertyField(sBlendType);
 
             EditorGUI.EndDisabledGroup();
 
 
-            PreviewContext.instance.DrawApplyAndRevert(Target);
-            This_S_Object.ApplyModifiedProperties();
+            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            thisSObject.ApplyModifiedProperties();
         }
 
-        public static void DrawerRelativeTextureSelector(SerializedProperty s_RelativeTextureSelector)
+        public static void DrawerRelativeTextureSelector(SerializedProperty sRelativeTextureSelector)
         {
-            var S_TargetRenderer = s_RelativeTextureSelector.FindPropertyRelative("TargetRenderer");
-            TextureTransformerEditor.DrawerObjectReference<Renderer>(S_TargetRenderer, null, TextureTransformerEditor.RendererFiltering);
+            var sTargetRenderer = sRelativeTextureSelector.FindPropertyRelative("TargetRenderer");
+            TextureTransformerEditor.DrawerObjectReference<Renderer>(sTargetRenderer, null, TextureTransformerEditor.RendererFiltering);
 
 
-            var S_MaterialSelect = s_RelativeTextureSelector.FindPropertyRelative("MaterialSelect");
+            var sMaterialSelect = sRelativeTextureSelector.FindPropertyRelative("MaterialSelect");
 
-            var TargetRenderer = S_TargetRenderer.objectReferenceValue as Renderer;
+            var TargetRenderer = sTargetRenderer.objectReferenceValue as Renderer;
             var TargetMaterials = TargetRenderer?.sharedMaterials;
 
-            S_MaterialSelect.intValue = ArraySelector(S_MaterialSelect.intValue, TargetMaterials);
+            sMaterialSelect.intValue = ArraySelector(sMaterialSelect.intValue, TargetMaterials);
 
-            var S_TargetPropertyName = s_RelativeTextureSelector.FindPropertyRelative("TargetPropertyName");
-            PropertyNameEditor.DrawInspectorGUI(S_TargetPropertyName);
+            var sTargetPropertyName = sRelativeTextureSelector.FindPropertyRelative("TargetPropertyName");
+            PropertyNameEditor.DrawInspectorGUI(sTargetPropertyName);
             if (TargetMaterials != null)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("ReplaceTexturePreview".GetLocalize());
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(64f)), TargetMaterials[S_MaterialSelect.intValue].GetTexture(S_TargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D, ScaleMode.ScaleToFit);
+                EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(64f)), TargetMaterials[sMaterialSelect.intValue].GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D, ScaleMode.ScaleToFit);
                 EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndHorizontal();
             }
@@ -85,13 +85,13 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawerSummary(TextureBlender target)
         {
-            var s_obj = new SerializedObject(target);
-            var s_TargetRenderer = s_obj.FindProperty("TargetRenderer");
-            EditorGUILayout.PropertyField(s_TargetRenderer);
-            var s_BlendTexture = s_obj.FindProperty("BlendTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(s_BlendTexture);
+            var sobj = new SerializedObject(target);
+            var sTargetRenderer = sobj.FindProperty("TargetRenderer");
+            EditorGUILayout.PropertyField(sTargetRenderer);
+            var sBlendTexture = sobj.FindProperty("BlendTexture");
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sBlendTexture);
 
-            s_obj.ApplyModifiedProperties();
+            sobj.ApplyModifiedProperties();
         }
     }
 }

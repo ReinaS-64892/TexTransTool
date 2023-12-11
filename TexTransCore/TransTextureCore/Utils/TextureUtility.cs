@@ -7,52 +7,52 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
     internal static class TextureUtility
     {
-        public static Texture2D CopyTexture2D(this RenderTexture Rt, TextureFormat? OverrideFormat = null, bool? OverrideUseMip = null)
+        public static Texture2D CopyTexture2D(this RenderTexture rt, TextureFormat? overrideFormat = null, bool? overrideUseMip = null)
         {
 
             using (new RTActiveSaver())
             {
-                RenderTexture.active = Rt;
-                var useMip = OverrideUseMip.HasValue ? OverrideUseMip.Value : Rt.useMipMap;
-                var texture = OverrideFormat.HasValue ? new Texture2D(Rt.width, Rt.height, OverrideFormat.Value, useMip) : new Texture2D(Rt.width, Rt.height, Rt.graphicsFormat, useMip ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-                texture.ReadPixels(new Rect(0, 0, Rt.width, Rt.height), 0, 0);
+                RenderTexture.active = rt;
+                var useMip = overrideUseMip.HasValue ? overrideUseMip.Value : rt.useMipMap;
+                var texture = overrideFormat.HasValue ? new Texture2D(rt.width, rt.height, overrideFormat.Value, useMip) : new Texture2D(rt.width, rt.height, rt.graphicsFormat, useMip ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+                texture.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
                 texture.Apply();
-                texture.name = Rt.name + "_CopyTex2D";
+                texture.name = rt.name + "_CopyTex2D";
                 return texture;
             }
         }
 
-        public static void Clear(this RenderTexture Rt)
+        public static void Clear(this RenderTexture rt)
         {
             using (new RTActiveSaver())
             {
-                RenderTexture.active = Rt;
+                RenderTexture.active = rt;
                 GL.Clear(true, true, Color.clear);
             }
 
         }
 
 
-        public static Texture2D ResizeTexture(Texture2D Souse, Vector2Int Size)
+        public static Texture2D ResizeTexture(Texture2D souse, Vector2Int size)
         {
             using (new RTActiveSaver())
             {
-                var useMip = Souse.mipmapCount > 1;
-                var rt = RenderTexture.GetTemporary(Size.x, Size.y);
+                var useMip = souse.mipmapCount > 1;
+                var rt = RenderTexture.GetTemporary(size.x, size.y);
                 if (useMip)
                 {
-                    Graphics.Blit(Souse, rt);
+                    Graphics.Blit(souse, rt);
                 }
                 else
                 {
-                    var mipRt = RenderTexture.GetTemporary(Souse.width, Souse.height);
+                    var mipRt = RenderTexture.GetTemporary(souse.width, souse.height);
                     mipRt.Release();
                     var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
 
                     mipRt.useMipMap = true;
                     mipRt.autoGenerateMips = false;
 
-                    Graphics.Blit(Souse, mipRt);
+                    Graphics.Blit(souse, mipRt);
                     mipRt.GenerateMips();
                     Graphics.Blit(mipRt, rt);
 
@@ -61,8 +61,8 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                     RenderTexture.ReleaseTemporary(mipRt);
                 }
 
-                var resizedTexture = rt.CopyTexture2D(OverrideUseMip: useMip);
-                resizedTexture.name = Souse.name + "_Resized_" + Size.x.ToString();
+                var resizedTexture = rt.CopyTexture2D(overrideUseMip: useMip);
+                resizedTexture.name = souse.name + "_Resized_" + size.x.ToString();
 
                 RenderTexture.ReleaseTemporary(rt);
                 return resizedTexture;
@@ -70,21 +70,21 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
 
 
-        public static Texture2D CreateColorTex(Color Color)
+        public static Texture2D CreateColorTex(Color color)
         {
             var mainTex2d = new Texture2D(1, 1);
-            mainTex2d.SetPixel(0, 0, Color);
+            mainTex2d.SetPixel(0, 0, color);
             mainTex2d.Apply();
             return mainTex2d;
         }
-        public static Texture2D CreateFillTexture(int Size, Color FillColor)
+        public static Texture2D CreateFillTexture(int size, Color fillColor)
         {
-            return CreateFillTexture(new Vector2Int(Size, Size), FillColor);
+            return CreateFillTexture(new Vector2Int(size, size), fillColor);
         }
-        public static Texture2D CreateFillTexture(Vector2Int Size, Color FillColor)
+        public static Texture2D CreateFillTexture(Vector2Int size, Color fillColor)
         {
-            var TestTex = new Texture2D(Size.x, Size.y);
-            TestTex.SetPixels(CollectionsUtility.FilledArray(FillColor, Size.x * Size.y));
+            var TestTex = new Texture2D(size.x, size.y);
+            TestTex.SetPixels(CollectionsUtility.FilledArray(fillColor, size.x * size.y));
             return TestTex;
         }
 

@@ -16,71 +16,71 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
         {
             TextureTransformerEditor.DrawerWarning("MatAndTexAbsoluteSeparator");
 
-            var This_S_Object = serializedObject;
-            var ThisObject = target as MatAndTexAbsoluteSeparator;
+            var thisSObject = serializedObject;
+            var thisObject = target as MatAndTexAbsoluteSeparator;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
 
-            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(s_MultiRendererMode);
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode);
 
-            if (TempMaterial == null || GUILayout.Button("Refresh Materials")) { RefreshMaterials(s_TargetRenderers, ref TempMaterial); }
-            var s_SeparateTarget = This_S_Object.FindProperty("SeparateTarget");
-            MaterialSelectEditor(s_SeparateTarget, TempMaterial);
+            if (_tempMaterial == null || GUILayout.Button("Refresh Materials")) { RefreshMaterials(sTargetRenderers, ref _tempMaterial); }
+            var sSeparateTarget = thisSObject.FindProperty("SeparateTarget");
+            MaterialSelectEditor(sSeparateTarget, _tempMaterial);
 
-            if (ThisObject.SeparateTarget.Any(I => I == null)) { Undo.RecordObject(ThisObject, "SeparateTarget Remove Null"); ThisObject.SeparateTarget.RemoveAll(I => I == null); }
+            if (thisObject.SeparateTarget.Any(I => I == null)) { Undo.RecordObject(thisObject, "SeparateTarget Remove Null"); thisObject.SeparateTarget.RemoveAll(I => I == null); }
 
-            var s_IsTextureSeparate = This_S_Object.FindProperty("IsTextureSeparate");
-            EditorGUILayout.PropertyField(s_IsTextureSeparate);
+            var sIsTextureSeparate = thisSObject.FindProperty("IsTextureSeparate");
+            EditorGUILayout.PropertyField(sIsTextureSeparate);
 
-            var s_PropertyName = This_S_Object.FindProperty("PropertyName");
-            PropertyNameEditor.DrawInspectorGUI(s_PropertyName);
+            var sPropertyName = thisSObject.FindProperty("PropertyName");
+            PropertyNameEditor.DrawInspectorGUI(sPropertyName);
 
 
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(thisObject);
 
-            This_S_Object.ApplyModifiedProperties();
+            thisSObject.ApplyModifiedProperties();
         }
 
-        List<Material> TempMaterial;
-        public static void RefreshMaterials(SerializedProperty s_TargetRenderers, ref List<Material> TempMaterial)
+        List<Material> _tempMaterial;
+        public static void RefreshMaterials(SerializedProperty sTargetRenderers, ref List<Material> tempMaterial)
         {
             var renderer = new List<Renderer>();
-            for (var i = 0; s_TargetRenderers.arraySize > i; i += 1)
+            for (var i = 0; sTargetRenderers.arraySize > i; i += 1)
             {
-                var rendererValue = s_TargetRenderers.GetArrayElementAtIndex(i).objectReferenceValue as Renderer;
+                var rendererValue = sTargetRenderers.GetArrayElementAtIndex(i).objectReferenceValue as Renderer;
                 if (rendererValue != null) { renderer.Add(rendererValue); }
             }
-            TempMaterial = RendererUtility.GetMaterials(renderer).Distinct().ToList();
+            tempMaterial = RendererUtility.GetMaterials(renderer).Distinct().ToList();
         }
 
-        public static void MaterialSelectEditor(SerializedProperty TargetMaterials, List<Material> TempMaterial, string Label = "Separate?         Material")
+        public static void MaterialSelectEditor(SerializedProperty targetMaterials, List<Material> tempMaterial, string Label = "Separate?         Material")
         {
             EditorGUI.indentLevel += 1;
             GUILayout.Label(Label);
-            foreach (var mat in TempMaterial)
+            foreach (var mat in tempMaterial)
             {
-                var S_MatSelector = FindMatSelector(TargetMaterials, mat);
+                var sMatSelector = FindMatSelector(targetMaterials, mat);
                 EditorGUILayout.BeginHorizontal();
 
-                var isTarget = S_MatSelector != null;
+                var isTarget = sMatSelector != null;
 
                 var editIsTarget = EditorGUILayout.Toggle(isTarget);
                 if (isTarget != editIsTarget)
                 {
                     if (editIsTarget)
                     {
-                        var index = TargetMaterials.arraySize;
-                        TargetMaterials.arraySize += 1;
-                        TargetMaterials.GetArrayElementAtIndex(index).objectReferenceValue = mat;
+                        var index = targetMaterials.arraySize;
+                        targetMaterials.arraySize += 1;
+                        targetMaterials.GetArrayElementAtIndex(index).objectReferenceValue = mat;
                     }
                     else
                     {
-                        TargetMaterials.DeleteArrayElementAtIndex(FindMatSelectorIndex(TargetMaterials, mat));
+                        targetMaterials.DeleteArrayElementAtIndex(FindMatSelectorIndex(targetMaterials, mat));
                     }
                 }
 
@@ -93,11 +93,11 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             EditorGUI.indentLevel -= 1;
 
         }
-        public static SerializedProperty FindMatSelector(SerializedProperty TargetMaterialArray, Material material)
+        public static SerializedProperty FindMatSelector(SerializedProperty targetMaterialArray, Material material)
         {
-            for (int i = 0; TargetMaterialArray.arraySize > i; i += 1)
+            for (int i = 0; targetMaterialArray.arraySize > i; i += 1)
             {
-                var materialElement = TargetMaterialArray.GetArrayElementAtIndex(i);
+                var materialElement = targetMaterialArray.GetArrayElementAtIndex(i);
                 if (materialElement.objectReferenceValue == material)
                 {
                     return materialElement;
@@ -105,11 +105,11 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             }
             return null;
         }
-        public static int FindMatSelectorIndex(SerializedProperty TargetMaterialArray, Material material)
+        public static int FindMatSelectorIndex(SerializedProperty targetMaterialArray, Material material)
         {
-            for (int i = 0; TargetMaterialArray.arraySize > i; i += 1)
+            for (int i = 0; targetMaterialArray.arraySize > i; i += 1)
             {
-                var materialElement = TargetMaterialArray.GetArrayElementAtIndex(i);
+                var materialElement = targetMaterialArray.GetArrayElementAtIndex(i);
                 if (materialElement.objectReferenceValue == material)
                 {
                     return i;
@@ -120,10 +120,10 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
         public static void DrawerSummary(MatAndTexAbsoluteSeparator target)
         {
-            var s_obj = new SerializedObject(target);
-            var s_TargetRenderers = s_obj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(s_TargetRenderers);
-            s_obj.ApplyModifiedProperties();
+            var sObj = new SerializedObject(target);
+            var sTargetRenderers = sObj.FindProperty("TargetRenderers");
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
+            sObj.ApplyModifiedProperties();
         }
     }
 }

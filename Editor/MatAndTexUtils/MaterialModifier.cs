@@ -78,24 +78,24 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public override void Apply([NotNull] IDomain domain)
         {
-            var ModMatList = new Dictionary<Material, Material>();
+            var modMatList = new Dictionary<Material, Material>();
             foreach (var modTarget in GetContainsMatTarget)
             {
                 var newMat = Instantiate(modTarget);
-                ModMatList.Add(modTarget, newMat);
+                modMatList.Add(modTarget, newMat);
                 foreach (var Modified in ChangeList)
                 {
                     Modified.Modified(newMat);
                 }
             }
-            domain.ReplaceMaterials(ModMatList);
+            domain.ReplaceMaterials(modMatList);
         }
 
-        public void MaterialReplace(Material Souse, Material Target)
+        public void MaterialReplace(Material souse, Material target)
         {
-            var index = ModifiedTarget.IndexOf(Souse);
+            var index = ModifiedTarget.IndexOf(souse);
             if (index == -1) { return; }
-            ModifiedTarget[index] = Target;
+            ModifiedTarget[index] = target;
         }
     }
 }

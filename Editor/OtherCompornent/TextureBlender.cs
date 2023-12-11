@@ -23,15 +23,15 @@ namespace net.rs64.TexTransTool
 
         public override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain domain)
         {
             if (!IsPossibleApply) return;
 
-            var DistTex = TargetTexture.GetTexture();
-            if (DistTex == null) { return; }
+            var distTex = TargetTexture.GetTexture();
+            if (distTex == null) { return; }
 
-            var AddTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
-            Domain.AddTextureStack(DistTex, new(AddTex, BlendTypeKey));
+            var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
+            domain.AddTextureStack(distTex, new(addTex, BlendTypeKey));
         }
     }
 }

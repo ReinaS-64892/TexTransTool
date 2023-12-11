@@ -16,11 +16,11 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
     {
         public float RayCastRange = 1f;
 
-        public List<Renderer> FindRayCast(GameObject FindRoot)
+        public List<Renderer> FindRayCast(GameObject findRoot)
         {
             var hits = new List<Renderer>();
 
-            foreach (var renderer in FindRoot.GetComponentsInChildren<Renderer>())
+            foreach (var renderer in findRoot.GetComponentsInChildren<Renderer>())
             {
                 var souseMesh = renderer.GetMesh();
                 if (souseMesh == null) { continue; }

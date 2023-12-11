@@ -17,7 +17,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
         public static List<ImageResourceBlock> PaseImageResourceBlocks(SubSpanStream stream)
         {
-            var ImageResourceBlockList = new List<ImageResourceBlock>();
+            var imageResourceBlockList = new List<ImageResourceBlock>();
 
             while (stream.Position < stream.Length)
             {
@@ -30,10 +30,10 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 nowIRB.ActualDataSizeFollows = stream.ReadUInt32();
                 nowIRB.ResourceData = stream.ReadSubStream((int)nowIRB.ActualDataSizeFollows).Span.ToArray();
 
-                ImageResourceBlockList.Add(nowIRB);
+                imageResourceBlockList.Add(nowIRB);
             }
 
-            return ImageResourceBlockList;
+            return imageResourceBlockList;
         }
     }
 }

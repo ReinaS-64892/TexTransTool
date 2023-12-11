@@ -12,21 +12,21 @@ namespace net.rs64.TexTransTool.EditorIsland
 {
     internal class EditorIslandCache : IIslandCache
     {
-        private static List<IslandCacheObject> CacheIslands;
+        private static List<IslandCacheObject> s_cacheIslands;
 
         public EditorIslandCache()
         {
-            CacheIslands ??= AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
+            s_cacheIslands ??= AssetSaveHelper.LoadAssets<IslandCache>().ConvertAll(i => i.CacheObject);
         }
-        public bool TryCache(List<Vector2> UV, List<TriangleIndex> Triangle, out List<Island> island)
+        public bool TryCache(List<Vector2> uv, List<TriangleIndex> triangle, out List<Island> island)
         {
-            var NawHash = IslandCacheObject.GenerateHash(Triangle, UV);
+            var nawHash = IslandCacheObject.GenerateHash(triangle, uv);
 
-            foreach (var Cache in CacheIslands)
+            foreach (var cache in s_cacheIslands)
             {
-                if (Cache.Hash.SequenceEqual(NawHash))
+                if (cache.Hash.SequenceEqual(nawHash))
                 {
-                    island = Cache.Islands;
+                    island = cache.Islands;
                     return true;
                 }
             }
@@ -34,14 +34,14 @@ namespace net.rs64.TexTransTool.EditorIsland
             island = null;
             return false;
         }
-        public void AddCache(List<Vector2> UV, List<TriangleIndex> Triangle, List<Island> island)
+        public void AddCache(List<Vector2> uv, List<TriangleIndex> triangle, List<Island> island)
         {
-            var NewCache = new IslandCacheObject(Triangle, UV, island);
-            CacheIslands.Add(NewCache);
+            var newCache = new IslandCacheObject(triangle, uv, island);
+            s_cacheIslands.Add(newCache);
 
-            var SerializableNewCache = ScriptableObject.CreateInstance<IslandCache>();
-            SerializableNewCache.CacheObject = NewCache; SerializableNewCache.name = "IslandCache";
-            AssetSaveHelper.SaveAsset(SerializableNewCache);
+            var serializableNewCache = ScriptableObject.CreateInstance<IslandCache>();
+            serializableNewCache.CacheObject = newCache; serializableNewCache.name = "IslandCache";
+            AssetSaveHelper.SaveAsset(serializableNewCache);
         }
 
 
@@ -59,20 +59,20 @@ namespace net.rs64.TexTransTool.EditorIsland
             Hash = hash;
             Islands = islands;
         }
-        public IslandCacheObject(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
+        public IslandCacheObject(List<TriangleIndex> triangle, List<Vector2> uv, List<Island> island)
         {
-            SetData(Triangle, UV, Island);
+            SetData(triangle, uv, island);
         }
-        public void SetData(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
+        public void SetData(List<TriangleIndex> triangle, List<Vector2> uv, List<Island> island)
         {
-            Islands = Island;
+            Islands = island;
 
-            Hash = GenerateHash(Triangle, UV);
+            Hash = GenerateHash(triangle, uv);
         }
 
-        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> Triangle, IReadOnlyList<Vector2> UV)
+        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uv)
         {
-            var dataJson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(Triangle), UV));
+            var dataJson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(triangle), uv));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(dataJson);
 
             return SHA1.Create().ComputeHash(data);
@@ -84,15 +84,15 @@ namespace net.rs64.TexTransTool.EditorIsland
             public List<TriangleIndex> Triangle;
             public List<Vector2> UV;
 
-            public TriangleAndUVpairs(List<TriangleIndex> triangle, List<Vector2> uV)
+            public TriangleAndUVpairs(List<TriangleIndex> triangle, List<Vector2> uv)
             {
                 Triangle = triangle;
-                UV = uV;
+                UV = uv;
             }
-            public TriangleAndUVpairs(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uV)
+            public TriangleAndUVpairs(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uv)
             {
                 Triangle = triangle.ToList();
-                UV = uV.ToList();
+                UV = uv.ToList();
             }
 
 

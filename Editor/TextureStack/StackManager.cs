@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.TextureStack
     internal interface IStackManager
     {
         void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex);
-        List<MargeResult> MargeStacks();
+        List<MergeResult> MergeStacks();
     }
     internal class StackManager<Stack> : IStackManager
      where Stack : TextureStack, new()
@@ -25,45 +25,45 @@ namespace net.rs64.TexTransTool.TextureStack
         {
             _textureManager = textureManager;
         }
-        public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
+        public void AddTextureStack(Texture2D dist, BlendTexturePair setTex)
         {
-            if (Dist == null) { return; }
-            var stack = _textureStacks.Find(i => i.FirstTexture == Dist);
+            if (dist == null) { return; }
+            var stack = _textureStacks.Find(i => i.FirstTexture == dist);
             if (stack == null)
             {
                 stack = new Stack();
-                stack.init(Dist, _textureManager);
-                stack.AddStack(SetTex);
+                stack.init(dist, _textureManager);
+                stack.AddStack(setTex);
                 _textureStacks.Add(stack);
             }
             else
             {
-                stack.AddStack(SetTex);
+                stack.AddStack(setTex);
             }
 
         }
 
-        public List<MargeResult> MargeStacks()
+        public List<MergeResult> MergeStacks()
         {
-            var margeTex = new List<MargeResult>(_textureStacks.Capacity);
+            var mergeTex = new List<MergeResult>(_textureStacks.Capacity);
             foreach (var stack in _textureStacks)
             {
-                margeTex.Add(new MargeResult(stack.FirstTexture, stack.MergeStack()));
+                mergeTex.Add(new MergeResult(stack.FirstTexture, stack.MergeStack()));
             }
             _textureStacks.Clear();
-            return margeTex;
+            return mergeTex;
         }
 
     }
-    internal readonly struct MargeResult
+    internal readonly struct MergeResult
     {
         public readonly Texture2D FirstTexture;
-        public readonly Texture2D MargeTexture;
+        public readonly Texture2D MergeTexture;
 
-        public MargeResult(Texture2D firstTexture, Texture2D margeTexture)
+        public MergeResult(Texture2D firstTexture, Texture2D mergeTexture)
         {
             FirstTexture = firstTexture;
-            MargeTexture = margeTexture;
+            MergeTexture = mergeTexture;
         }
     }
 

@@ -18,20 +18,20 @@ namespace net.rs64.TexTransCore.Island
             Hash = hash;
             Islands = islands;
         }
-        public IslandCacheObject(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
+        public IslandCacheObject(List<TriangleIndex> triangle, List<Vector2> uv, List<Island> island)
         {
-            SetData(Triangle, UV, Island);
+            SetData(triangle, uv, island);
         }
-        public void SetData(List<TriangleIndex> Triangle, List<Vector2> UV, List<Island> Island)
+        public void SetData(List<TriangleIndex> triangle, List<Vector2> uv, List<Island> island)
         {
-            Islands = Island;
+            Islands = island;
 
-            Hash = GenerateHash(Triangle, UV);
+            Hash = GenerateHash(triangle, uv);
         }
 
-        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> Triangle, IReadOnlyList<Vector2> UV)
+        public static byte[] GenerateHash(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uv)
         {
-            var dataJson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(Triangle), UV));
+            var dataJson = JsonUtility.ToJson(new TriangleAndUVpairs(new List<TriangleIndex>(triangle), uv));
             byte[] data = System.Text.Encoding.UTF8.GetBytes(dataJson);
 
             return SHA1.Create().ComputeHash(data);
@@ -43,15 +43,15 @@ namespace net.rs64.TexTransCore.Island
             public List<TriangleIndex> Triangle;
             public List<Vector2> UV;
 
-            public TriangleAndUVpairs(List<TriangleIndex> triangle, List<Vector2> uV)
+            public TriangleAndUVpairs(List<TriangleIndex> triangle, List<Vector2> uv)
             {
                 Triangle = triangle;
-                UV = uV;
+                UV = uv;
             }
-            public TriangleAndUVpairs(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uV)
+            public TriangleAndUVpairs(IReadOnlyList<TriangleIndex> triangle, IReadOnlyList<Vector2> uv)
             {
                 Triangle = triangle.ToList();
-                UV = uV.ToList();
+                UV = uv.ToList();
             }
 
 

@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
 
         public override bool IsPossibleApply => PossibleApplyCheck();
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain domain)
         {
             if (!IsPossibleApply)
             {
@@ -24,33 +24,33 @@ namespace net.rs64.TexTransTool
                 return;
             }
 
-            Domain.ProgressStateEnter("TexTransGroup");
+            domain.ProgressStateEnter("TexTransGroup");
 
             var targetList = TextureTransformerFilter(Targets).ToArray();
             var count = 0;
             foreach (var tf in targetList)
             {
                 count += 1;
-                tf.Apply(Domain);
-                Domain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
+                tf.Apply(domain);
+                domain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
             }
-            Domain.ProgressStateExit();
+            domain.ProgressStateExit();
         }
         public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> targets) => targets.Where(tf => tf != null && tf.ThisEnable);
 
         bool PossibleApplyCheck()
         {
-            bool PossibleFlag = true;
+            bool possibleFlag = true;
             foreach (var tf in Targets)
             {
                 if (tf == null) continue;
                 if (tf.ThisEnable == false) continue;
                 if (!tf.IsPossibleApply)
                 {
-                    PossibleFlag = false;
+                    possibleFlag = false;
                 }
             }
-            return PossibleFlag;
+            return possibleFlag;
         }
 
     }

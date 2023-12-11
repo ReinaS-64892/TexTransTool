@@ -7,67 +7,67 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
     [CustomEditor(typeof(MaterialModifier))]
     internal class MaterialModifierEditor : UnityEditor.Editor
     {
-        List<Material> TempMaterial;
+        List<Material> _tempMaterial;
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning("MaterialModifier");
 
-            var This_S_Object = serializedObject;
-            var ThisObject = target as MaterialModifier;
+            var thisSObject = serializedObject;
+            var thisObject = target as MaterialModifier;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
 
 
-            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(s_MultiRendererMode);
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode);
 
-            if (TempMaterial == null || GUILayout.Button("Refresh Materials")) { MatAndTexAbsoluteSeparatorEditor.RefreshMaterials(s_TargetRenderers, ref TempMaterial); }
-            var s_ModifiedTarget = This_S_Object.FindProperty("ModifiedTarget");
-            MatAndTexAbsoluteSeparatorEditor.MaterialSelectEditor(s_ModifiedTarget, TempMaterial, "Target? Material");
+            if (_tempMaterial == null || GUILayout.Button("Refresh Materials")) { MatAndTexAbsoluteSeparatorEditor.RefreshMaterials(sTargetRenderers, ref _tempMaterial); }
+            var sModifiedTarget = thisSObject.FindProperty("ModifiedTarget");
+            MatAndTexAbsoluteSeparatorEditor.MaterialSelectEditor(sModifiedTarget, _tempMaterial, "Target? Material");
 
 
             EditorGUILayout.LabelField("Modify Settings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var s_ChangeList = This_S_Object.FindProperty("ChangeList");
+            var sChangeList = thisSObject.FindProperty("ChangeList");
 
-            for (var i = 0; s_ChangeList.arraySize > i; i += 1)
+            for (var i = 0; sChangeList.arraySize > i; i += 1)
             {
                 EditorGUILayout.LabelField("Setting " + i + "---");
-                var s_Change = s_ChangeList.GetArrayElementAtIndex(i);
-                var s_ModTypeEnum = s_Change.FindPropertyRelative("ModType");
-                EditorGUILayout.PropertyField(s_ModTypeEnum);
-                switch (s_ModTypeEnum.enumValueIndex)
+                var sChange = sChangeList.GetArrayElementAtIndex(i);
+                var sModTypeEnum = sChange.FindPropertyRelative("ModType");
+                EditorGUILayout.PropertyField(sModTypeEnum);
+                switch (sModTypeEnum.enumValueIndex)
                 {
                     case 0://Float
                         {
-                            EditorGUILayout.PropertyField(s_Change.FindPropertyRelative("Float_PropertyName"));
-                            EditorGUILayout.PropertyField(s_Change.FindPropertyRelative("Float_Value"));
+                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Float_PropertyName"));
+                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Float_Value"));
                             break;
                         }
                     case 1://Texture
                         {
-                            PropertyNameEditor.DrawInspectorGUI(s_Change.FindPropertyRelative("Texture_PropertyName"));
-                            EditorGUILayout.PropertyField(s_Change.FindPropertyRelative("Texture_Value"));
+                            PropertyNameEditor.DrawInspectorGUI(sChange.FindPropertyRelative("Texture_PropertyName"));
+                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Texture_Value"));
                             break;
                         }
                     case 2://Color
                         {
-                            EditorGUILayout.PropertyField(s_Change.FindPropertyRelative("Color_PropertyName"));
-                            EditorGUILayout.PropertyField(s_Change.FindPropertyRelative("Color_Value"));
+                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Color_PropertyName"));
+                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Color_Value"));
                             break;
                         }
                 }
             }
 
-            TextureTransformerEditor.DrawerArrayResizeButton(s_ChangeList);
+            TextureTransformerEditor.DrawerArrayResizeButton(sChangeList);
             EditorGUI.indentLevel -= 1;
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
-            This_S_Object.ApplyModifiedProperties();
+            PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            thisSObject.ApplyModifiedProperties();
         }
     }
 }

@@ -111,12 +111,12 @@ namespace net.rs64.MultiLayerImageParser
     {
         public static bool Signature(ref SubSpanStream stream, byte[] signature)
         {
-            bool HitSignature = false;
-            while (!HitSignature)
+            bool hitSignature = false;
+            while (!hitSignature)
             {
                 byte readValue = stream.ReadByte();
                 if (stream.Position == stream.Length - 3) { return false; }
-                if (readValue == signature[0]) { HitSignature = true; stream.Position -= 1; }
+                if (readValue == signature[0]) { hitSignature = true; stream.Position -= 1; }
             }
 
             return stream.ReadSubStream(signature.Length).Span.SequenceEqual(signature);

@@ -6,9 +6,9 @@ namespace net.rs64.TexTransTool
 {
     internal class VRCADescriptorFinder : IDomainMarkerFinder
     {
-        public GameObject FindMarker(GameObject StartPoint)
+        public GameObject FindMarker(GameObject startPoint)
         {
-            return StartPoint.GetComponentInParent<VRC_AvatarDescriptor>()?.gameObject;
+            return startPoint.GetComponentInParent<VRC_AvatarDescriptor>()?.gameObject;
         }
     }
 }

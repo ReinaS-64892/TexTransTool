@@ -25,31 +25,31 @@ namespace net.rs64.TexTransTool.Decal
         public NailOffset Ring = new NailOffset();
         public NailOffset Little = new NailOffset();
 
-        public void Copy(NailOffSets Souse)
+        public void Copy(NailOffSets souse)
         {
-            UpVector = Souse.UpVector;
+            UpVector = souse.UpVector;
 
-            Thumb.Copy(Souse.Thumb);
-            Index.Copy(Souse.Index);
-            Middle.Copy(Souse.Middle);
-            Ring.Copy(Souse.Ring);
-            Little.Copy(Souse.Little);
+            Thumb.Copy(souse.Thumb);
+            Index.Copy(souse.Index);
+            Middle.Copy(souse.Middle);
+            Ring.Copy(souse.Ring);
+            Little.Copy(souse.Little);
         }
-        public void Copy(NailSet Souse)
+        public void Copy(NailSet souse)
         {
-            UpVector = Souse.FingerUpVector;
+            UpVector = souse.FingerUpVector;
 
-            Thumb.Copy(Souse.Thumb);
-            Index.Copy(Souse.Index);
-            Middle.Copy(Souse.Middle);
-            Ring.Copy(Souse.Ring);
-            Little.Copy(Souse.Little);
+            Thumb.Copy(souse.Thumb);
+            Index.Copy(souse.Index);
+            Middle.Copy(souse.Middle);
+            Ring.Copy(souse.Ring);
+            Little.Copy(souse.Little);
         }
         public NailOffSets Clone()
         {
-            var New = new NailOffSets();
-            New.Copy(this);
-            return New;
+            var newNailOffsets = new NailOffSets();
+            newNailOffsets.Copy(this);
+            return newNailOffsets;
         }
 
     }
@@ -61,24 +61,24 @@ namespace net.rs64.TexTransTool.Decal
         public Vector3 ScaleOffset = Vector3.one;
         public Vector3 RotationOffset = Vector3.zero;
 
-        public void Copy(NailOffset Souse)
+        public void Copy(NailOffset souse)
         {
-            PositionOffset = Souse.PositionOffset;
-            ScaleOffset = Souse.ScaleOffset;
-            RotationOffset = Souse.RotationOffset;
+            PositionOffset = souse.PositionOffset;
+            ScaleOffset = souse.ScaleOffset;
+            RotationOffset = souse.RotationOffset;
         }
-        public void Copy(NailDecalDescription Souse)
+        public void Copy(NailDecalDescription souse)
         {
-            PositionOffset = Souse.PositionOffset;
-            ScaleOffset = Souse.ScaleOffset;
-            RotationOffset = Souse.RotationOffset;
+            PositionOffset = souse.PositionOffset;
+            ScaleOffset = souse.ScaleOffset;
+            RotationOffset = souse.RotationOffset;
         }
 
         public NailOffset Clone()
         {
-            var New = new NailOffset();
-            New.Copy(this);
-            return New;
+            var newNailOffset = new NailOffset();
+            newNailOffset.Copy(this);
+            return newNailOffset;
         }
     }
 }

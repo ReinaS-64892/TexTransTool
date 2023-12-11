@@ -34,11 +34,11 @@ namespace net.rs64.TexTransTool.Build.NDMF
             TTTContext(context).ApplyFor(TexTransPhase.BeforeUVModification);
         }
     }
-    internal class MidwayMargeStackPass : TTTPass<MidwayMargeStackPass>
+    internal class MidwayMergeStackPass : TTTPass<MidwayMergeStackPass>
     {
         protected override void Execute(BuildContext context)
         {
-            TTTContext(context).MidwayMargeStack();
+            TTTContext(context).MidwayMergeStack();
         }
     }
     internal class UVModificationPass : TTTPass<UVModificationPass>

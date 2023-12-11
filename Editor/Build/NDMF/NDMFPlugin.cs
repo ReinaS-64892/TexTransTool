@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
             {
                 seq.Run(FindAtPhasePass.Instance);
                 seq.Run(BeforeUVModificationPass.Instance);
-                seq.Run(MidwayMargeStackPass.Instance);
+                seq.Run(MidwayMergeStackPass.Instance);
                 seq.Run(UVModificationPass.Instance);
                 seq.Run(AfterUVModificationPass.Instance);
                 seq.Run(UnDefinedPass.Instance);

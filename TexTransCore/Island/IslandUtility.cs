@@ -11,18 +11,18 @@ namespace net.rs64.TexTransCore.Island
 {
     internal static class IslandUtility
     {
-        public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> UV, IIslandCache Caches = null)
+        public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> uv, IIslandCache caches = null)
         {
-            if (Caches != null && Caches.TryCache(UV, triangles, out List<Island> cacheHitIslands))
+            if (caches != null && caches.TryCache(uv, triangles, out List<Island> cacheHitIslands))
                 return cacheHitIslands;
 
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            var Islands = UVToIslandImpl(triangles, UV);
-            Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}: {Islands.Count}");
+            // var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var islands = UVToIslandImpl(triangles, uv);
+            // Debug.Log($"UVtoIsland {triangles.Count} took {stopwatch.Elapsed}: {islands.Count}");
 
-            if (Caches != null) { Caches.AddCache(UV, triangles, Islands); }
+            if (caches != null) { caches.AddCache(uv, triangles, islands); }
 
-            return Islands;
+            return islands;
         }
 
         private static List<Island> UVToIslandImpl(IEnumerable<TriangleIndex> trianglesIn, List<Vector2> uvs)
@@ -86,52 +86,52 @@ namespace net.rs64.TexTransCore.Island
             return islands;
         }
 
-        public static void IslandMoveUV(List<Vector2> UV, List<Vector2> MoveUV, Island OriginIsland, Island MovedIsland)
+        public static void IslandMoveUV(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, Island movedIsland)
         {
             var tempList = ListPool<int>.Get();
-            if (OriginIsland.Is90Rotation == MovedIsland.Is90Rotation)
+            if (originIsland.Is90Rotation == movedIsland.Is90Rotation)
             {
-                var mSize = MovedIsland.Size;
-                var nmSize = OriginIsland.Size;
+                var mSize = movedIsland.Size;
+                var nmSize = originIsland.Size;
 
                 var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
-                foreach (var vertIndex in OriginIsland.GetVertexIndex(tempList))
+                foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
                 {
-                    var vertPos = UV[vertIndex];
-                    var relativeVertPos = vertPos - OriginIsland.Pivot;
+                    var vertPos = uv[vertIndex];
+                    var relativeVertPos = vertPos - originIsland.Pivot;
 
                     relativeVertPos.x *= relativeScale.x;
                     relativeVertPos.y *= relativeScale.y;
 
-                    var movedVertPos = MovedIsland.Pivot + relativeVertPos;
-                    MoveUV[vertIndex] = movedVertPos;
+                    var movedVertPos = movedIsland.Pivot + relativeVertPos;
+                    moveUV[vertIndex] = movedVertPos;
                 }
             }
             else
             {
-                var mSize = MovedIsland.Is90Rotation ? new(MovedIsland.Size.y, MovedIsland.Size.x) : MovedIsland.Size;
-                var nmSize = OriginIsland.Is90Rotation ? new(OriginIsland.Size.y, OriginIsland.Size.x) : OriginIsland.Size;
+                var mSize = movedIsland.Is90Rotation ? new(movedIsland.Size.y, movedIsland.Size.x) : movedIsland.Size;
+                var nmSize = originIsland.Is90Rotation ? new(originIsland.Size.y, originIsland.Size.x) : originIsland.Size;
 
                 var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
-                var isRotRight = MovedIsland.Is90Rotation;
+                var isRotRight = movedIsland.Is90Rotation;
                 var rotate = Quaternion.Euler(0, 0, isRotRight ? -90 : 90);
 
-                foreach (var vertIndex in OriginIsland.GetVertexIndex(tempList))
+                foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
                 {
-                    var vertPos = UV[vertIndex];
-                    var relativeVertPos = vertPos - OriginIsland.Pivot;
+                    var vertPos = uv[vertIndex];
+                    var relativeVertPos = vertPos - originIsland.Pivot;
 
                     relativeVertPos.x *= relativeScale.x;
                     relativeVertPos.y *= relativeScale.y;
 
                     relativeVertPos = rotate * relativeVertPos;
 
-                    var movedVertPos = MovedIsland.Pivot + relativeVertPos;
+                    var movedVertPos = movedIsland.Pivot + relativeVertPos;
 
-                    if (isRotRight) { movedVertPos.y += MovedIsland.Size.y; }
-                    else { movedVertPos.x += MovedIsland.Size.x; }
+                    if (isRotRight) { movedVertPos.y += movedIsland.Size.y; }
+                    else { movedVertPos.x += movedIsland.Size.x; }
 
-                    MoveUV[vertIndex] = movedVertPos;
+                    moveUV[vertIndex] = movedVertPos;
                 }
             }
             ListPool<int>.Release(tempList);
@@ -144,14 +144,14 @@ namespace net.rs64.TexTransCore.Island
             return relativeScale;
         }
 
-        public static void IslandPoolMoveUV<ID, TIsland>(List<Vector2> UV, List<Vector2> MoveUV, Dictionary<ID, TIsland> OriginPool, Dictionary<ID, TIsland> MovedPool)
+        public static void IslandPoolMoveUV<ID, TIsland>(List<Vector2> uv, List<Vector2> moveUV, Dictionary<ID, TIsland> originPool, Dictionary<ID, TIsland> movedPool)
         where TIsland : Island
         {
-            if (UV.Count != MoveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
-            foreach (var islandKVP in MovedPool)
+            if (uv.Count != moveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
+            foreach (var islandKVP in movedPool)
             {
-                var originIsland = OriginPool[islandKVP.Key];
-                IslandMoveUV(UV, MoveUV, originIsland, islandKVP.Value);
+                var originIsland = originPool[islandKVP.Key];
+                IslandMoveUV(uv, moveUV, originIsland, islandKVP.Value);
             }
         }
 
@@ -166,12 +166,12 @@ namespace net.rs64.TexTransCore.Island
 
         public Vector2 GetMaxPos => Pivot + Size;
 
-        public Island(Island Souse)
+        public Island(Island souse)
         {
-            triangles = new List<TriangleIndex>(Souse.triangles);
-            Pivot = Souse.Pivot;
-            Size = Souse.Size;
-            Is90Rotation = Souse.Is90Rotation;
+            triangles = new List<TriangleIndex>(souse.triangles);
+            Pivot = souse.Pivot;
+            Size = souse.Size;
+            Is90Rotation = souse.Is90Rotation;
         }
         public Island(TriangleIndex triangleIndex)
         {
@@ -196,22 +196,22 @@ namespace net.rs64.TexTransCore.Island
             }
             return output;
         }
-        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> SouseUV)
+        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> souseUV)
         {
             var vertIndexes = GetVertexIndex();
-            return vertIndexes.ConvertAll<Vector2>(i => SouseUV[i]);
+            return vertIndexes.ConvertAll<Vector2>(i => souseUV[i]);
         }
-        public void BoxCalculation(IReadOnlyList<Vector2> SouseUV)
+        public void BoxCalculation(IReadOnlyList<Vector2> souseUV)
         {
-            var vertPoss = GetVertexPos(SouseUV);
+            var vertPoss = GetVertexPos(souseUV);
             var Box = VectorUtility.BoxCal(vertPoss);
             Pivot = Box.Item1;
             Size = Box.Item2 - Box.Item1;
         }
 
-        public bool BoxInOut(Vector2 TargetPos)
+        public bool BoxInOut(Vector2 targetPos)
         {
-            var relativeTargetPos = TargetPos - Pivot;
+            var relativeTargetPos = targetPos - Pivot;
             return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
         }
         public List<Vector2> GenerateRectVertexes(float padding = 0, List<Vector2> outPutQuad = null)
@@ -246,14 +246,14 @@ namespace net.rs64.TexTransCore.Island
 
     internal static class IslandUtilsDebug
     {
-        public static void DrawUV(List<Vector2> UV, Texture2D TargetTexture, Color WriteColor)
+        public static void DrawUV(List<Vector2> uv, Texture2D targetTexture, Color writeColor)
         {
-            foreach (var uvPos in UV)
+            foreach (var uvPos in uv)
             {
                 if (0 <= uvPos.x && uvPos.x <= 1 && 0 <= uvPos.y && uvPos.y <= 1) continue;
-                int x = Mathf.RoundToInt(uvPos.x * TargetTexture.width);
-                int y = Mathf.RoundToInt(uvPos.y * TargetTexture.height);
-                TargetTexture.SetPixel(x, y, WriteColor);
+                int x = Mathf.RoundToInt(uvPos.x * targetTexture.width);
+                int y = Mathf.RoundToInt(uvPos.y * targetTexture.height);
+                targetTexture.SetPixel(x, y, writeColor);
             }
         }
     }

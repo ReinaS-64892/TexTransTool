@@ -35,46 +35,46 @@ namespace net.rs64.TexTransTool.Editor
         private static void DrawerSummaryList(Transform rootTransform)
         {
 
-            foreach (var ctf in rootTransform.GetChildren())
+            foreach (var childeTransform in rootTransform.GetChildren())
             {
-                var tf = ctf.GetComponent<TextureTransformer>();
+                var textureTransformer = childeTransform.GetComponent<TextureTransformer>();
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                if (tf == null)
+                if (textureTransformer == null)
                 {
-                    var ctfObj = new SerializedObject(ctf.gameObject);
+                    var sChildeGameObject = new SerializedObject(childeTransform.gameObject);
 
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
-                    var s_ctfActive = ctfObj.FindProperty("m_IsActive");
-                    EditorGUILayout.PropertyField(s_ctfActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                    EditorGUILayout.LabelField(ctf.name);
+                    var sChildeIsActive = sChildeGameObject.FindProperty("m_IsActive");
+                    EditorGUILayout.PropertyField(sChildeIsActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
+                    EditorGUILayout.LabelField(childeTransform.name);
                     EditorGUILayout.EndHorizontal();
 
-                    EditorGUI.BeginDisabledGroup(!s_ctfActive.boolValue);
-                    DrawerSummaryList(ctf);
+                    EditorGUI.BeginDisabledGroup(!sChildeIsActive.boolValue);
+                    DrawerSummaryList(childeTransform);
                     EditorGUI.EndDisabledGroup();
 
                     EditorGUILayout.EndVertical();
 
-                    ctfObj.ApplyModifiedProperties();
+                    sChildeGameObject.ApplyModifiedProperties();
                     continue;
                 }
 
                 EditorGUILayout.BeginHorizontal();
 
-                var sObj = new SerializedObject(tf.gameObject);
+                var sObj = new SerializedObject(textureTransformer.gameObject);
                 EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
-                var s_active = sObj.FindProperty("m_IsActive");
-                EditorGUILayout.PropertyField(s_active, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                EditorGUILayout.ObjectField(tf, typeof(TextureTransformer), true);
+                var sActive = sObj.FindProperty("m_IsActive");
+                EditorGUILayout.PropertyField(sActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
+                EditorGUILayout.ObjectField(textureTransformer, typeof(TextureTransformer), true);
 
                 sObj.ApplyModifiedProperties();
                 EditorGUILayout.EndHorizontal();
                 
-                EditorGUI.BeginDisabledGroup(!s_active.boolValue);
+                EditorGUI.BeginDisabledGroup(!sActive.boolValue);
 
-                switch (tf)
+                switch (textureTransformer)
                 {
                     case SimpleDecal simpleDecal:
                         {
@@ -99,7 +99,7 @@ namespace net.rs64.TexTransTool.Editor
                     case TexTransGroup texTransGroup:
                         {
                             EditorGUILayout.LabelField("GroupChildren".GetLocalize());
-                            DrawerSummaryList(ctf);
+                            DrawerSummaryList(childeTransform);
                             break;
                         }
                     case MatAndTexAbsoluteSeparator matAndTexAbsoluteSeparator:
@@ -118,9 +118,9 @@ namespace net.rs64.TexTransTool.Editor
                             break;
                         }
                 }
-                if (tf is not ITTTChildExclusion)
+                if (textureTransformer is not ITTTChildExclusion)
                 {
-                    DrawerSummaryList(ctf);
+                    DrawerSummaryList(childeTransform);
                 }
 
                 EditorGUI.EndDisabledGroup();

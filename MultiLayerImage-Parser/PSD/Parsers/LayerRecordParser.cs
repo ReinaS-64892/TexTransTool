@@ -82,7 +82,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 NumberOfChannels = stream.ReadUInt16(),
             };
 
-            var ChannelInformationList = new List<ChannelInformation>();
+            var channelInformationList = new List<ChannelInformation>();
             for (int i = 0; layerRecord.NumberOfChannels > i; i += 1)
             {
                 var channelInfo = new ChannelInformation()
@@ -91,9 +91,9 @@ namespace net.rs64.MultiLayerImageParser.PSD
                     CorrespondingChannelDataLength = stream.ReadInt32()
                 };
                 channelInfo.ChannelID = (ChannelInformation.ChannelIDEnum)channelInfo.ChannelIDRawShort;
-                ChannelInformationList.Add(channelInfo);
+                channelInformationList.Add(channelInfo);
             }
-            layerRecord.ChannelInformationArray = ChannelInformationList.ToArray();
+            layerRecord.ChannelInformationArray = channelInformationList.ToArray();
 
             if (!stream.ReadSubStream(4).Span.SequenceEqual(PSDLowLevelParser.OctBIMSignature)) { return layerRecord; }//throw new Exception(); }
 
@@ -108,14 +108,14 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             var firstPos = stream.Position;
 
-            var LayerMaskAdjustmentLayerData = new LayerMaskAdjustmentLayerData
+            var layerMaskAdjustmentLayerData = new LayerMaskAdjustmentLayerData
             {
                 DataSize = stream.ReadUInt32()
             };
 
-            if (LayerMaskAdjustmentLayerData.DataSize != 0)
+            if (layerMaskAdjustmentLayerData.DataSize != 0)
             {
-                LayerMaskAdjustmentLayerData.RectTangle = new RectTangle()
+                layerMaskAdjustmentLayerData.RectTangle = new RectTangle()
                 {
                     Top = stream.ReadInt32(),
                     Left = stream.ReadInt32(),
@@ -123,36 +123,36 @@ namespace net.rs64.MultiLayerImageParser.PSD
                     Right = stream.ReadInt32(),
                 };
 
-                LayerMaskAdjustmentLayerData.DefaultColor = stream.ReadByte();
-                LayerMaskAdjustmentLayerData.Flag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
-                if (LayerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.UserOrVectorMasksHave))
+                layerMaskAdjustmentLayerData.DefaultColor = stream.ReadByte();
+                layerMaskAdjustmentLayerData.Flag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
+                if (layerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.UserOrVectorMasksHave))
                 {
-                    LayerMaskAdjustmentLayerData.MaskParameters = (LayerMaskAdjustmentLayerData.MaskParametersBitFlags)stream.ReadByte();
-                    var maskParm = LayerMaskAdjustmentLayerData.MaskParameters.Value;
+                    layerMaskAdjustmentLayerData.MaskParameters = (LayerMaskAdjustmentLayerData.MaskParametersBitFlags)stream.ReadByte();
+                    var maskParm = layerMaskAdjustmentLayerData.MaskParameters.Value;
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserDensity))
                     {
-                        LayerMaskAdjustmentLayerData.UserMaskDensity = stream.ReadByte();
+                        layerMaskAdjustmentLayerData.UserMaskDensity = stream.ReadByte();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserFeather))
                     {
-                        LayerMaskAdjustmentLayerData.UserMaskFeather = stream.ReadDouble();
+                        layerMaskAdjustmentLayerData.UserMaskFeather = stream.ReadDouble();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorDensity))
                     {
-                        LayerMaskAdjustmentLayerData.VectorMaskDensity = stream.ReadByte();
+                        layerMaskAdjustmentLayerData.VectorMaskDensity = stream.ReadByte();
                     }
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorFeather))
                     {
-                        LayerMaskAdjustmentLayerData.VectorMaskFeather = stream.ReadDouble();
+                        layerMaskAdjustmentLayerData.VectorMaskFeather = stream.ReadDouble();
                     }
                 }
 
-                if (LayerMaskAdjustmentLayerData.DataSize == 20) { stream.ReadSubStream(2); }
+                if (layerMaskAdjustmentLayerData.DataSize == 20) { stream.ReadSubStream(2); }
                 else
                 {
-                    LayerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
-                    LayerMaskAdjustmentLayerData.RealUserMaskBackground = stream.ReadByte();
-                    LayerMaskAdjustmentLayerData.EnclosingLayerMask = new RectTangle()
+                    layerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
+                    layerMaskAdjustmentLayerData.RealUserMaskBackground = stream.ReadByte();
+                    layerMaskAdjustmentLayerData.EnclosingLayerMask = new RectTangle()
                     {
                         Top = stream.ReadInt32(),
                         Left = stream.ReadInt32(),
@@ -163,7 +163,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             }
 
-            layerRecord.LayerMaskAdjustmentLayerData = LayerMaskAdjustmentLayerData;
+            layerRecord.LayerMaskAdjustmentLayerData = layerMaskAdjustmentLayerData;
 
             var layerBlendingRangesData = new LayerBlendingRangesData
             {

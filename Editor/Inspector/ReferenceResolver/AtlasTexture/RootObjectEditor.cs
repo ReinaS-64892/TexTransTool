@@ -12,12 +12,12 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
         {
             TextureTransformerEditor.DrawerWarning("RootObject");
 
-            var s_Obj = serializedObject;
+            var sObj = serializedObject;
 
-            var s_SelectType = s_Obj.FindProperty("SelectType");
-            EditorGUILayout.PropertyField(s_SelectType);
+            var sSelectType = sObj.FindProperty("SelectType");
+            EditorGUILayout.PropertyField(sSelectType);
 
-            switch (s_SelectType.enumValueIndex)
+            switch (sSelectType.enumValueIndex)
             {
                 case 0://AvatarRoot
                     {
@@ -25,13 +25,13 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
                     }
                 case 1://RootFormPath
                     {
-                        var s_RootFormPath = s_Obj.FindProperty("RootFormPath");
-                        EditorGUILayout.PropertyField(s_RootFormPath);
+                        var sRootFormPath = sObj.FindProperty("RootFormPath");
+                        EditorGUILayout.PropertyField(sRootFormPath);
                         break;
                     }
             }
 
-            s_Obj.ApplyModifiedProperties();
+            sObj.ApplyModifiedProperties();
         }
     }
 }

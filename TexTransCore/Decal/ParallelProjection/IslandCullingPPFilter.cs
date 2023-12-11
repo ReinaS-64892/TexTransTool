@@ -12,17 +12,17 @@ namespace net.rs64.TexTransCore.Decal
         public List<IslandSelector> IslandSelectors;
         public IIslandCache IslandCache;
 
-        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> Filters, List<IslandSelector> IslandSelectors, IIslandCache islandCache = null) : base(Filters)
+        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> filters, List<IslandSelector> islandSelectors, IIslandCache islandCache = null) : base(filters)
         {
-            this.IslandSelectors = IslandSelectors;
-            this.IslandCache = islandCache;
+            IslandSelectors = islandSelectors;
+            IslandCache = islandCache;
         }
 
-        public override List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles, List<TriangleIndex> output = null)
+        public override List<TriangleIndex> Filtering(ParallelProjectionSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
         {
             var cullied = ListPool<TriangleIndex>.Get();
-            Triangles = Island.IslandCulling.Culling(IslandSelectors, Space.MeshData.Vertex, Space.MeshData.UV, Triangles, IslandCache);
-            var result = base.Filtering(Space, Triangles, output);
+            triangles = Island.IslandCulling.Culling(IslandSelectors, space.MeshData.Vertex, space.MeshData.UV, triangles, IslandCache);
+            var result = base.Filtering(space, triangles, output);
             ListPool<TriangleIndex>.Release(cullied);
             return result;
         }

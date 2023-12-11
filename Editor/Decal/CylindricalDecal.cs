@@ -5,13 +5,14 @@ using UnityEngine;
 using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/TTT CylindricalDecal")]
     internal class CylindricalDecal : AbstractSingleDecal<CCSSpace,Vector2>
     {
-        public CylindricalCoordinatesSystem cylindricalCoordinatesSystem;
+        [FormerlySerializedAs("cylindricalCoordinatesSystem")]public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FixedAspect = true;
         public Vector2 Scale = Vector2.one;
         public bool SideCulling = true;
@@ -19,7 +20,7 @@ namespace net.rs64.TexTransTool.Decal
         public float OutDistanceCulling = 1f;
         public float OutOfRangeOffset = 1f;
 
-        public override CCSSpace GetSpaceConverter => new CCSSpace(cylindricalCoordinatesSystem, GetQuad());
+        public override CCSSpace GetSpaceConverter => new CCSSpace(CylindricalCoordinatesSystem, GetQuad());
         public override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
 
         private List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilters()
@@ -30,7 +31,7 @@ namespace net.rs64.TexTransTool.Decal
                 new CCSFilter.OutOfPerigonStruct(PolygonCulling.Edge, OutOfRangeOffset, false)
             };
 
-            var thisCCSZ = cylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
+            var thisCCSZ = CylindricalCoordinatesSystem.GetCCSPoint(transform.position).z;
 
             filters.Add(new CCSFilter.OutDistanceStruct(OutDistanceCulling + thisCCSZ, false));
             filters.Add(new CCSFilter.InDistanceStruct(Mathf.Max(thisCCSZ - InDistanceCulling, 0f), false));
@@ -61,7 +62,7 @@ namespace net.rs64.TexTransTool.Decal
 
         void OnDrawGizmosSelected()
         {
-            if (cylindricalCoordinatesSystem == null) { return; }
+            if (CylindricalCoordinatesSystem == null) { return; }
             Gizmos.color = Color.black;
             var Matrix = Matrix4x4.identity;
             Gizmos.matrix = Matrix;
@@ -71,13 +72,13 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var fromPoint in quad)
             {
-                var CCSPoint = cylindricalCoordinatesSystem.GetCCSPoint(fromPoint);
-                CCSPoint.z = Mathf.Max(CCSPoint.z - InDistanceCulling, 0f);
-                var offSetToPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSPoint);
+                var ccsPoint = CylindricalCoordinatesSystem.GetCCSPoint(fromPoint);
+                ccsPoint.z = Mathf.Max(ccsPoint.z - InDistanceCulling, 0f);
+                var offSetToPoint = CylindricalCoordinatesSystem.GetWorldPoint(ccsPoint);
 
-                var CCSFromPoint = cylindricalCoordinatesSystem.GetCCSPoint(fromPoint);
-                CCSFromPoint.z += OutDistanceCulling;
-                var OffSetFromPoint = cylindricalCoordinatesSystem.GetWorldPoint(CCSFromPoint);
+                var ccsFromPoint = CylindricalCoordinatesSystem.GetCCSPoint(fromPoint);
+                ccsFromPoint.z += OutDistanceCulling;
+                var OffSetFromPoint = CylindricalCoordinatesSystem.GetWorldPoint(ccsFromPoint);
 
                 Gizmos.DrawLine(OffSetFromPoint, offSetToPoint);
             }
@@ -91,26 +92,26 @@ namespace net.rs64.TexTransTool.Decal
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, transform.localToWorldMatrix);
 
         }
-        public static (Vector3, Vector3) GetEdge(IReadOnlyList<Vector3> Quad, int Count)
+        public static (Vector3, Vector3) GetEdge(IReadOnlyList<Vector3> quad, int Count)
         {
             switch (Count)
             {
                 default:
                 case 0:
                     {
-                        return (Quad[0], Quad[1]);
+                        return (quad[0], quad[1]);
                     }
                 case 1:
                     {
-                        return (Quad[0], Quad[2]);
+                        return (quad[0], quad[2]);
                     }
                 case 2:
                     {
-                        return (Quad[2], Quad[3]);
+                        return (quad[2], quad[3]);
                     }
                 case 3:
                     {
-                        return (Quad[1], Quad[3]);
+                        return (quad[1], quad[3]);
                     }
             }
         }

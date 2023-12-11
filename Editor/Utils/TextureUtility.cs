@@ -45,33 +45,33 @@ namespace net.rs64.TexTransTool.Utils
         /// ならない場合もあるため注意。
         /// </summary>
         /// <param name="tex"></param>
-        /// <param name="CopySouse"></param>
+        /// <param name="copySouse"></param>
         /// <returns></returns>
-        public static Texture2D CopySetting(this Texture2D tex, Texture2D CopySouse, bool CopyCompress = true, TextureFormat? OverrideFormat = null)
+        public static Texture2D CopySetting(this Texture2D tex, Texture2D copySouse, bool copyCompress = true, TextureFormat? overrideFormat = null)
         {
-            var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(CopySouse)) as TextureImporter;
-            if (TextureImporter != null && TextureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
-            if (tex.mipmapCount > 1 != CopySouse.mipmapCount > 1)
+            var textureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(copySouse)) as TextureImporter;
+            if (textureImporter != null && textureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
+            if (tex.mipmapCount > 1 != copySouse.mipmapCount > 1)
             {
-                var newTex = new Texture2D(tex.width, tex.height, tex.format, CopySouse.mipmapCount > 1);
+                var newTex = new Texture2D(tex.width, tex.height, tex.format, copySouse.mipmapCount > 1);
                 var pixelData = tex.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.name = tex.name;
                 tex = newTex;
             }
-            tex.filterMode = CopySouse.filterMode;
-            tex.anisoLevel = CopySouse.anisoLevel;
-            tex.alphaIsTransparency = CopySouse.alphaIsTransparency;
-            tex.requestedMipmapLevel = CopySouse.requestedMipmapLevel;
-            tex.mipMapBias = CopySouse.mipMapBias;
-            tex.wrapModeU = CopySouse.wrapModeU;
-            tex.wrapModeV = CopySouse.wrapModeV;
-            tex.wrapMode = CopySouse.wrapMode;
+            tex.filterMode = copySouse.filterMode;
+            tex.anisoLevel = copySouse.anisoLevel;
+            tex.alphaIsTransparency = copySouse.alphaIsTransparency;
+            tex.requestedMipmapLevel = copySouse.requestedMipmapLevel;
+            tex.mipMapBias = copySouse.mipMapBias;
+            tex.wrapModeU = copySouse.wrapModeU;
+            tex.wrapModeV = copySouse.wrapModeV;
+            tex.wrapMode = copySouse.wrapMode;
             if (tex.mipmapCount > 1) { tex.Apply(true); }
-            if (CopyCompress && tex.format != CopySouse.format)
+            if (copyCompress && tex.format != copySouse.format)
             {
-                var format = OverrideFormat.HasValue ? OverrideFormat.Value : CopySouse.format;
-                EditorUtility.CompressTexture(tex, format, TextureImporter == null ? 50 : TextureImporter.compressionQuality);
+                var format = overrideFormat.HasValue ? overrideFormat.Value : copySouse.format;
+                EditorUtility.CompressTexture(tex, format, textureImporter == null ? 50 : textureImporter.compressionQuality);
             }
 
             return tex;
@@ -98,40 +98,40 @@ namespace net.rs64.TexTransTool.Utils
         {
             throw new NotImplementedException();
         }
-        public static void NotFIlterAndReadWritTexture2D(ref Texture2D SouseTex)
+        public static void NotFIlterAndReadWritTexture2D(ref Texture2D souseTex)
         {
-            var SouseTexPath = AssetDatabase.GetAssetPath(SouseTex);
-            var IsEmpty = string.IsNullOrEmpty(SouseTexPath);
-            if (!IsEmpty)
+            var SouseTexPath = AssetDatabase.GetAssetPath(souseTex);
+            var isEmpty = string.IsNullOrEmpty(SouseTexPath);
+            if (!isEmpty)
             {
-                var TextureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(SouseTex)) as TextureImporter;
-                if (TextureImporter == null) return;
-                if (TextureImporter.textureType == TextureImporterType.Default && TextureImporter.isReadable) { return; }
+                var textureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(souseTex)) as TextureImporter;
+                if (textureImporter == null) return;
+                if (textureImporter.textureType == TextureImporterType.Default && textureImporter.isReadable) { return; }
             }
             else
             {
-                if (SouseTex.isReadable) return;
+                if (souseTex.isReadable) return;
             }
 
-            byte[] ImageBytes = IsEmpty ? SouseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
+            byte[] imageBytes = isEmpty ? souseTex.EncodeToPNG() : File.ReadAllBytes(SouseTexPath);
             var pngTex = new Texture2D(2, 2);
-            pngTex.LoadImage(ImageBytes);
+            pngTex.LoadImage(imageBytes);
 
             var newTex = new Texture2D(pngTex.width, pngTex.height, TextureFormat.RGBA32, false);
             newTex.SetPixels32(pngTex.GetPixels32());
             newTex.Apply();
-            SouseTex = newTex;
+            souseTex = newTex;
         }
 
-        public static Vector2Int NativeSize(this Texture2D SouseTex)
+        public static Vector2Int NativeSize(this Texture2D souseTex)
         {
-            var souseTexPath = AssetDatabase.GetAssetPath(SouseTex);
+            var souseTexPath = AssetDatabase.GetAssetPath(souseTex);
             Stream stream;
             bool isJPG = false;
-            if (string.IsNullOrEmpty(souseTexPath) || AssetDatabase.IsSubAsset(SouseTex))
+            if (string.IsNullOrEmpty(souseTexPath) || AssetDatabase.IsSubAsset(souseTex))
             {
                 //メモリに直接乗っかってる場合かunityアセットの場合、Texture2Dが誤った値を返さない。
-                return new Vector2Int(SouseTex.width, SouseTex.height);
+                return new Vector2Int(souseTex.width, souseTex.height);
             }
             else if (Path.GetExtension(souseTexPath) == ".png")
             {
@@ -144,12 +144,12 @@ namespace net.rs64.TexTransTool.Utils
             }
             else if (Path.GetExtension(souseTexPath) == ".asset")
             {
-                return new Vector2Int(SouseTex.width, SouseTex.height);
+                return new Vector2Int(souseTex.width, souseTex.height);
             }
             else
             {
                 //非対応形式だった場合を雑に処理。
-                return new Vector2Int(SouseTex.width, SouseTex.height);
+                return new Vector2Int(souseTex.width, souseTex.height);
             }
 
 

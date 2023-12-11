@@ -13,9 +13,9 @@ namespace net.rs64.TexTransTool.ShaderSupport
     {
         public string ShaderName => "lilToon";
 
-        public (string PropertyName, string DisplayName)[] GetPropertyNames => property;
+        public (string PropertyName, string DisplayName)[] GetPropertyNames => s_property;
 
-        static (string PropertyName, string DisplayName)[] property = new []{
+        static (string PropertyName, string DisplayName)[] s_property = new []{
                 ("_MainTex", "MainTexture"),
                 ("_EmissionMap", "EmissionMap"),
                 ("_Main2ndTex", "2ndMainTexture"),

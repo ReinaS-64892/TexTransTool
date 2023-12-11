@@ -24,10 +24,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         {
             foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
-                var SizeData = target.TuningDataList.Find(I => I is SizeData) as SizeData;
-                if (SizeData != null)
+                var sizeData = target.TuningDataList.Find(I => I is SizeData) as SizeData;
+                if (sizeData != null)
                 {
-                    SizeData.TextureSize = Size;
+                    sizeData.TextureSize = Size;
                 }
                 else
                 {

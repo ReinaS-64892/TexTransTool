@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public PropertyName PropertyName = PropertyName.DefaultValue;
 
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain domain)
         {
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                                 separatedMaterial = Instantiate(material);
                                 separatedMaterials.Add(material, separatedMaterial);
                             }
-                            Domain.SetSerializedProperty(property, separatedMaterial);
+                            domain.SetSerializedProperty(property, separatedMaterial);
                         }
 
                     serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -78,14 +78,14 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                 }
             }
 
-            Domain.transferAssets(separatedMaterials.Values);
-            Domain.transferAssets(separatedTextures.Values);
+            domain.transferAssets(separatedMaterials.Values);
+            domain.transferAssets(separatedTextures.Values);
         }
-        public void MaterialReplace(Material Souse, Material Target)
+        public void MaterialReplace(Material souse, Material target)
         {
-            var index = SeparateTarget.IndexOf(Souse);
+            var index = SeparateTarget.IndexOf(souse);
             if (index == -1) { return; }
-            SeparateTarget[index] = Target;
+            SeparateTarget[index] = target;
         }
     }
 }

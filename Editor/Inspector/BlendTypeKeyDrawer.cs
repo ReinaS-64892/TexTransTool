@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Editor
     [CustomPropertyDrawer(typeof(BlendTypeKeyAttribute))]
     internal class BlendTypeKeyDrawer : PropertyDrawer
     {
-        static string[] BlendTypeKeys;
+        static string[] s_blendTypeKeys;
 
         public override void OnGUI(Rect rect, SerializedProperty serializedProperty, GUIContent label)
         {
@@ -21,12 +21,12 @@ namespace net.rs64.TexTransTool.Editor
 
         public static void DrawBlendModeKey(Rect rect, SerializedProperty serializedProperty, GUIContent label)
         {
-            if (BlendTypeKeys == null)
+            if (s_blendTypeKeys == null)
             {
-                BlendTypeKeys = TextureBlend.BlendShaders.Keys.ToArray();
+                s_blendTypeKeys = TextureBlend.BlendShaders.Keys.ToArray();
             }
 
-            var s_Target = serializedProperty;
+            var sTarget = serializedProperty;
 
             GUILayout.BeginHorizontal();
             var PropWith = rect.width / 4;
@@ -39,16 +39,16 @@ namespace net.rs64.TexTransTool.Editor
             var strWidth = (PropWith * 3f) - enumWidth;
             rect.width = enumWidth;
 
-            var keyName = s_Target.stringValue;
-            var shaderSelectIndex = Array.IndexOf(BlendTypeKeys, keyName);
-            if (s_Target.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
-            shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, BlendTypeKeys);
-            if (0 <= shaderSelectIndex && shaderSelectIndex < BlendTypeKeys.Length) { s_Target.stringValue = BlendTypeKeys[shaderSelectIndex]; }
+            var keyName = sTarget.stringValue;
+            var shaderSelectIndex = Array.IndexOf(s_blendTypeKeys, keyName);
+            if (sTarget.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
+            shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, s_blendTypeKeys);
+            if (0 <= shaderSelectIndex && shaderSelectIndex < s_blendTypeKeys.Length) { sTarget.stringValue = s_blendTypeKeys[shaderSelectIndex]; }
 
             rect.x += rect.width;
             rect.width = strWidth;
 
-            EditorGUI.PropertyField(rect, s_Target, new GUIContent("O"));
+            EditorGUI.PropertyField(rect, sTarget, new GUIContent("O"));
 
 
             GUILayout.EndHorizontal();

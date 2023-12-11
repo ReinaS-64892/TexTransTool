@@ -29,12 +29,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public List<IAddFineTuning> GetTextureFineTuning()
         {
-            var IFineSettings = new List<IAddFineTuning>();
+            var iFineSettings = new List<IAddFineTuning>();
             foreach (var fineSetting in TextureFineTuningDataList)
             {
-                IFineSettings.Add(fineSetting.GetFineSetting());
+                iFineSettings.Add(fineSetting.GetFineSetting());
             }
-            return IFineSettings;
+            return iFineSettings;
         }
 
     }

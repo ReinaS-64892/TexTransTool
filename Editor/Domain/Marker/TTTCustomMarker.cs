@@ -11,9 +11,9 @@ namespace net.rs64.TexTransTool
     }
     internal class TTTCustomMarkerFinder : IDomainMarkerFinder
     {
-        public GameObject FindMarker(GameObject StartPoint)
+        public GameObject FindMarker(GameObject startPoint)
         {
-            return StartPoint.GetComponentInParent<TTTCustomMarker>()?.gameObject;
+            return startPoint.GetComponentInParent<TTTCustomMarker>()?.gameObject;
         }
     }
 }

@@ -10,31 +10,31 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         /// <summary>
         /// マテリアルをとりあえず集めてくる。同一物を消したりなどしない。
         /// </summary>
-        /// <param name="Renderers"></param>
+        /// <param name="renderers"></param>
         /// <returns></returns>
-        public static List<Material> GetMaterials(IEnumerable<Renderer> Renderers, List<Material> output = null)
+        public static List<Material> GetMaterials(IEnumerable<Renderer> renderers, List<Material> output = null)
         {
             output?.Clear(); output ??= new();
-            foreach (var renderer in Renderers)
+            foreach (var renderer in renderers)
             {
                 output.AddRange(renderer.sharedMaterials);
             }
             return output;
         }
-        public static List<Material> GetFilteredMaterials(IEnumerable<Renderer> Renderers, List<Material> output = null)
+        public static List<Material> GetFilteredMaterials(IEnumerable<Renderer> renderers, List<Material> output = null)
         {
             output?.Clear(); output ??= new();
 
             var tempList = ListPool<Material>.Get();
-            output.AddRange(GetMaterials(Renderers, tempList).Distinct().Where(I => I != null));
+            output.AddRange(GetMaterials(renderers, tempList).Distinct().Where(I => I != null));
 
             ListPool<Material>.Release(tempList);
             return output;
         }
-        public static Mesh GetMesh(this Renderer Target)
+        public static Mesh GetMesh(this Renderer target)
         {
             Mesh mesh = null;
-            switch (Target)
+            switch (target)
             {
                 case SkinnedMeshRenderer SMR:
                     {

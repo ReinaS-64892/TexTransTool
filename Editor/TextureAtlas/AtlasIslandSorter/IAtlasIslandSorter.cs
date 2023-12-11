@@ -34,29 +34,29 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         string SorterName { get; }
         bool RectTangleMove { get; }
-        Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float Padding);
+        Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float padding);
     }
 
     internal static class AtlasIslandSorterUtility
     {
-        static Dictionary<string, IAtlasIslandSorter> Sorters;
-        static string[] SortersNames;
+        static Dictionary<string, IAtlasIslandSorter> s_sorters;
+        static string[] s_sortersNames;
         [InitializeOnLoadMethod]
         static void Init()
         {
             var interfaces = InterfaceUtility.GetInterfaceInstance<IAtlasIslandSorter>();
-            Sorters = new Dictionary<string, IAtlasIslandSorter>();
-            foreach (var sorter in interfaces) { Sorters.Add(sorter.SorterName, sorter); }
-            SortersNames = Sorters.Keys.ToArray();
+            s_sorters = new Dictionary<string, IAtlasIslandSorter>();
+            foreach (var sorter in interfaces) { s_sorters.Add(sorter.SorterName, sorter); }
+            s_sortersNames = s_sorters.Keys.ToArray();
         }
-        public static IAtlasIslandSorter GetSorter(string SorterName)
+        public static IAtlasIslandSorter GetSorter(string sorterName)
         {
-            if (Sorters == null) { Debug.LogError("Not Init"); return null; }
-            if (!Sorters.ContainsKey(SorterName)) { Debug.LogError("Sorter Is not Exist"); return null; }
-            return Sorters[SorterName];
+            if (s_sorters == null) { Debug.LogError("Not Init"); return null; }
+            if (!s_sorters.ContainsKey(sorterName)) { Debug.LogError("Sorter Is not Exist"); return null; }
+            return s_sorters[sorterName];
         }
 
-        public static string[] GetSorterName() => SortersNames;
+        public static string[] GetSorterName() => s_sortersNames;
     }
 }
 #endif

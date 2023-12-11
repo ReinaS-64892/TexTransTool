@@ -18,12 +18,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         public List<Vector2> UV;
 
-        public AtlasIsland(AtlasIsland Souse) : base(Souse)
+        public AtlasIsland(AtlasIsland souse) : base(souse)
         {
-            UV = Souse.UV;
+            UV = souse.UV;
         }
 
-        public AtlasIsland(Island Souse, List<Vector2> uv) : base(Souse)
+        public AtlasIsland(Island souse, List<Vector2> uv) : base(souse)
         {
             UV = uv;
         }

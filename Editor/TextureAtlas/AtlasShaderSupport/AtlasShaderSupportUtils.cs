@@ -179,7 +179,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public void ColorMul(string texPropName, string colorPropName)
         {
-            var Color = material.GetColor(colorPropName);
+            var color = material.GetColor(colorPropName);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<Color>;
 
             if (!record.IsDifferenceValue.HasValue) { return; }
@@ -191,19 +191,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexUT.CreateColorTex(Color);
+                    propEnvs[texPropName] = TexUT.CreateColorTex(color);
                 }
             }
             else
             {
                 var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originTexture, Color);
+                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originTexture, color);
             }
         }
 
         public void FloatMul(string texPropName, string floatProp)
         {
-            var PropFloat = material.GetFloat(floatProp);
+            var propFloat = material.GetFloat(floatProp);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<float>;
 
             if (!record.IsDifferenceValue.HasValue) { return; }
@@ -214,19 +214,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexUT.CreateColorTex(new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                    propEnvs[texPropName] = TexUT.CreateColorTex(new Color(propFloat, propFloat, propFloat, propFloat));
                 }
             }
             else
             {
                 var originPropTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
-                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(PropFloat, PropFloat, PropFloat, PropFloat));
+                propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(propFloat, propFloat, propFloat, propFloat));
             }
         }
 
         public void ColorMulAndHSVG(string texPropName, string colorPropName, string hsvgPropName)
         {
-            var Color = material.GetColor(colorPropName);
+            var color = material.GetColor(colorPropName);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndTowValue<Color>;
 
             var texture = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
@@ -237,22 +237,22 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
-                        propEnvs[texPropName] = TexUT.CreateColorTex(Color);
+                        propEnvs[texPropName] = TexUT.CreateColorTex(color);
                     }
                 }
                 else
                 {
                     var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                    texture = TexLU.CreateMultipliedRenderTexture(originTexture, Color);
+                    texture = TexLU.CreateMultipliedRenderTexture(originTexture, color);
                 }
             }
 
             if (record.IsDifferenceValue2.HasValue && record.IsDifferenceValue2.Value)
             {
-                var ColorAdjustMask = propEnvs.ContainsKey("_MainColorAdjustMask") ? propEnvs["_MainColorAdjustMask"] : null;
+                var colorAdjustMask = propEnvs.ContainsKey("_MainColorAdjustMask") ? propEnvs["_MainColorAdjustMask"] : null;
 
                 var colorAdjustMat = new Material(Shader.Find("Hidden/ColorAdjustShader"));
-                if (ColorAdjustMask != null) { colorAdjustMat.SetTexture("_Mask", ColorAdjustMask); }
+                if (colorAdjustMask != null) { colorAdjustMat.SetTexture("_Mask", colorAdjustMask); }
                 colorAdjustMat.SetColor("_HSVG", material.GetColor(hsvgPropName));
 
                 if (texture is Texture2D texture2d && texture2d != null)
@@ -263,12 +263,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else if (texture is RenderTexture textureRt && textureRt != null)
                 {
-                    var SwapRt = RenderTexture.GetTemporary(textureRt.descriptor);
+                    var swapRt = RenderTexture.GetTemporary(textureRt.descriptor);
 
-                    Graphics.CopyTexture(textureRt, SwapRt);
-                    Graphics.Blit(SwapRt, textureRt, colorAdjustMat);
+                    Graphics.CopyTexture(textureRt, swapRt);
+                    Graphics.Blit(swapRt, textureRt, colorAdjustMat);
 
-                    RenderTexture.ReleaseTemporary(SwapRt);
+                    RenderTexture.ReleaseTemporary(swapRt);
                     texture = textureRt;
                 }
                 UnityEngine.Object.DestroyImmediate(colorAdjustMat);

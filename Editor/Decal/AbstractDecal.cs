@@ -39,9 +39,9 @@ namespace net.rs64.TexTransTool.Decal
 
         public override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain domain)
         {
-            if (Domain == null)
+            if (domain == null)
             {
                 Debug.LogWarning("Decal : ドメインが存在しません。通常ではありえないエラーです。");
                 return;
@@ -52,24 +52,24 @@ namespace net.rs64.TexTransTool.Decal
                 return;
             }
 
-            Domain.ProgressStateEnter("AbstractDecal");
+            domain.ProgressStateEnter("AbstractDecal");
 
-            Domain.ProgressUpdate("DecalCompile", 0.25f);
+            domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            var decalCompiledTextures = CompileDecal(Domain);
+            var decalCompiledTextures = CompileDecal(domain);
 
-            Domain.ProgressUpdate("AddStack", 0.75f);
+            domain.ProgressUpdate("AddStack", 0.75f);
 
             foreach (var matAndTex in decalCompiledTextures)
             {
                 foreach (var PramAndRt in matAndTex.Value)
                 {
-                    Domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlend.BlendTexturePair(PramAndRt.Value, BlendTypeKey));
+                    domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlend.BlendTexturePair(PramAndRt.Value, BlendTypeKey));
                 }
             }
 
-            Domain.ProgressUpdate("End", 1);
-            Domain.ProgressStateExit();
+            domain.ProgressUpdate("End", 1);
+            domain.ProgressStateExit();
         }
 
 

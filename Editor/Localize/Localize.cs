@@ -12,16 +12,16 @@ namespace net.rs64.TexTransTool
         const string JP_GUID = "139e527c0dc01364b97daf9bdbaeb365";
         public const string LANGUAGE_PREFKEY = "net.rs64.tex-trans-tool.language";
         public const string LANGUAGE_MENU_PATH = TTTConfig.TTT_MENU_PATH + "/Language";
-        private static LanguageEnum _Language;
+        private static LanguageEnum s_language;
         public static LanguageEnum Language
         {
-            get => _Language;
+            get => s_language;
             private set
             {
-                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + _Language.ToString(), false);
-                _Language = value;
-                EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)_Language);
-                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + _Language.ToString(), true);
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), false);
+                s_language = value;
+                EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)s_language);
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), true);
             }
         }
         public enum LanguageEnum
@@ -37,31 +37,31 @@ namespace net.rs64.TexTransTool
 
         static Dictionary<string, string> JP;
 
-        public static string GetLocalize(this string Str)
+        public static string GetLocalize(this string str)
         {
             switch (Language)
             {
                 default:
                 case LanguageEnum.EN:
                     {
-                        return Str;
+                        return str;
                     }
 
                 case LanguageEnum.JP:
                     {
                         if (JP == null) { JP = ParseCSV(JP_GUID); }
-                        if (JP.TryGetValue(Str, out var jpStr))
+                        if (JP.TryGetValue(str, out var jpStr))
                         { return jpStr; }
-                        else { return Str; }
+                        else { return str; }
                     }
             }
         }
 
 #if UNITY_EDITOR
 
-        private static Dictionary<string, string> ParseCSV(string GUID)
+        private static Dictionary<string, string> ParseCSV(string guid)
         {
-            var path = AssetDatabase.GUIDToAssetPath(GUID);
+            var path = AssetDatabase.GUIDToAssetPath(guid);
             var strPears = File.ReadAllLines(path);
             var strDict = new Dictionary<string, string>();
             foreach (var strPear in strPears)
