@@ -120,28 +120,28 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawTextureFineTuningDataList(SerializedProperty sfineTunings)
+        private static void DrawTextureFineTuningDataList(SerializedProperty sFineTunings)
         {
             EditorGUILayout.LabelField("TextureFineTuning".GetLocalize(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            for (int i = 0; sfineTunings.arraySize > i; i += 1)
+            for (int i = 0; sFineTunings.arraySize > i; i += 1)
             {
-                var sfineSettingData = sfineTunings.GetArrayElementAtIndex(i);
-                var sselect = sfineSettingData.FindPropertyRelative("Select");
-                EditorGUILayout.PropertyField(sselect, new GUIContent("Setting".GetLocalize() + " " + i));
-                switch (sselect.enumValueIndex)
+                var sFineSettingData = sFineTunings.GetArrayElementAtIndex(i);
+                var sSelect = sFineSettingData.FindPropertyRelative("Select");
+                EditorGUILayout.PropertyField(sSelect, new GUIContent("Setting".GetLocalize() + " " + i));
+                switch (sSelect.enumValueIndex)
                 {
                     default:
                         {
-                            EditorGUILayout.LabelField($"{sselect.enumValueIndex} enumValue Not Found");
+                            EditorGUILayout.LabelField($"{sSelect.enumValueIndex} enumValue Not Found");
                             break;
                         }
                     case 0:
                         {
-                            var sResize_Size = sfineSettingData.FindPropertyRelative("Resize_Size");
-                            var sResize_PropertyNames = sfineSettingData.FindPropertyRelative("Resize_PropertyNames");
-                            var sResize_select = sfineSettingData.FindPropertyRelative("Resize_Select");
+                            var sResize_Size = sFineSettingData.FindPropertyRelative("Resize_Size");
+                            var sResize_PropertyNames = sFineSettingData.FindPropertyRelative("Resize_PropertyNames");
+                            var sResize_select = sFineSettingData.FindPropertyRelative("Resize_Select");
                             EditorGUI.indentLevel += 1;
                             EditorGUILayout.PropertyField(sResize_Size, new GUIContent("Size".GetLocalize()));
                             PropertyNameEditor.DrawInspectorGUI(sResize_PropertyNames);
@@ -151,22 +151,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 1:
                         {
-                            var sCompressFormatQuality = sfineSettingData.FindPropertyRelative("CompressFormatQuality");
-                            var sCompressCompressionQuality = sfineSettingData.FindPropertyRelative("CompressCompressionQuality");
-                            var sCompressPropertyNames = sfineSettingData.FindPropertyRelative("CompressPropertyNames");
-                            var sCompressSelect = sfineSettingData.FindPropertyRelative("CompressSelect");
+                            var sCompressFormatQuality = sFineSettingData.FindPropertyRelative("Compress_FormatQuality");
+                            var sCompressCompressionQuality = sFineSettingData.FindPropertyRelative("Compress_CompressionQuality");
+                            var sCompressPropertyNames = sFineSettingData.FindPropertyRelative("Compress_PropertyNames");
+                            var sCompressSelect = sFineSettingData.FindPropertyRelative("Compress_Select");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(sCompressFormatQuality, new GUIContent("FormatQuality"));
-                            EditorGUILayout.PropertyField(sCompressCompressionQuality, new GUIContent("CompressionQuality"));
+                            EditorGUILayout.PropertyField(sCompressFormatQuality, new GUIContent("FormatQuality".GetLocalize()));
+                            EditorGUILayout.PropertyField(sCompressCompressionQuality, new GUIContent("CompressionQuality".GetLocalize()));
                             PropertyNameEditor.DrawInspectorGUI(sCompressPropertyNames);
-                            EditorGUILayout.PropertyField(sCompressSelect, new GUIContent("Select"));
+                            EditorGUILayout.PropertyField(sCompressSelect, new GUIContent("Select".GetLocalize()));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
                     case 2:
                         {
-                            var sReferenceCopy_SousePropertyName = sfineSettingData.FindPropertyRelative("ReferenceCopy_SourcePropertyName");
-                            var sReferenceCopy_TargetPropertyName = sfineSettingData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
+                            var sReferenceCopy_SousePropertyName = sFineSettingData.FindPropertyRelative("ReferenceCopy_SourcePropertyName");
+                            var sReferenceCopy_TargetPropertyName = sFineSettingData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(sReferenceCopy_SousePropertyName, "Source".GetLocalize() + "PropertyName".GetLocalize());
                             PropertyNameEditor.DrawInspectorGUI(sReferenceCopy_TargetPropertyName, "Target".GetLocalize() + "PropertyName".GetLocalize());
@@ -175,21 +175,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         }
                     case 3:
                         {
-                            var sRemove_PropertyNames = sfineSettingData.FindPropertyRelative("Remove_PropertyNames");
-                            var sRemove_Select = sfineSettingData.FindPropertyRelative("Remove_Select");
+                            var sRemove_PropertyNames = sFineSettingData.FindPropertyRelative("Remove_PropertyNames");
+                            var sRemove_Select = sFineSettingData.FindPropertyRelative("Remove_Select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(sRemove_PropertyNames);
-                            EditorGUILayout.PropertyField(sRemove_Select, new GUIContent("Select"));
+                            EditorGUILayout.PropertyField(sRemove_Select, new GUIContent("Select".GetLocalize()));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
                     case 4:
                         {
-                            var sMipMapRemove_PropertyNames = sfineSettingData.FindPropertyRelative("MipMapRemove_PropertyNames");
-                            var sMipMapRemove_Select = sfineSettingData.FindPropertyRelative("MipMapRemove_Select");
+                            var sMipMapRemove_PropertyNames = sFineSettingData.FindPropertyRelative("MipMapRemove_PropertyNames");
+                            var sMipMapRemove_Select = sFineSettingData.FindPropertyRelative("MipMapRemove_Select");
                             EditorGUI.indentLevel += 1;
                             PropertyNameEditor.DrawInspectorGUI(sMipMapRemove_PropertyNames);
-                            EditorGUILayout.PropertyField(sMipMapRemove_Select, new GUIContent("Select"));
+                            EditorGUILayout.PropertyField(sMipMapRemove_Select, new GUIContent("Select".GetLocalize()));
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
@@ -199,7 +199,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("[" + "NewFineTuningSetting".GetLocalize() + "]");
-            TextureTransformerEditor.DrawerArrayResizeButton(sfineTunings, true);
+            TextureTransformerEditor.DrawerArrayResizeButton(sFineTunings, true);
         }
 
 
