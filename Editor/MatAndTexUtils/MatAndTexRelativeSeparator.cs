@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
-        public override void Apply(IDomain Domain)
+        public override void Apply(IDomain domain)
         {
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();
@@ -34,14 +34,14 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                 var slotIndex = 0;
 
                 if (SeparateTarget.Count <= rendererIndex) { break; }
-                var SeparateTargetRenderer = SeparateTarget[rendererIndex].Bools;
+                var separateTargetRenderer = SeparateTarget[rendererIndex].BoolList;
 
                 if (renderer == null) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
                     {
-                        if (property.objectReferenceValue is Material material && material != null && SeparateTargetRenderer.Count > slotIndex && SeparateTargetRenderer[slotIndex])
+                        if (property.objectReferenceValue is Material material && material != null && separateTargetRenderer.Count > slotIndex && separateTargetRenderer[slotIndex])
                         {
 
                             if (!separatedMaterials.TryGetValue(material, out var separatedMaterial))
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                                 separatedMaterial = Instantiate(material);
                                 separatedMaterials.Add(material, separatedMaterial);
                             }
-                            Domain.SetSerializedProperty(property, separatedMaterial);
+                            domain.SetSerializedProperty(property, separatedMaterial);
 
                         }
 
@@ -87,18 +87,18 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                 }
             }
 
-            Domain.transferAssets(separatedMaterials.Values);
-            Domain.transferAssets(separatedTextures.Values);
+            domain.transferAssets(separatedMaterials.Values);
+            domain.transferAssets(separatedTextures.Values);
         }
     }
     [Serializable]
     internal class MatSlotBool
     {
-        public List<bool> Bools;
+        public List<bool> BoolList;
 
-        public MatSlotBool(List<bool> bools)
+        public MatSlotBool(List<bool> boolList)
         {
-            Bools = bools;
+            BoolList = boolList;
         }
 
     }

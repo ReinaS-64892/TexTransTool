@@ -25,20 +25,20 @@ namespace net.rs64.TexTransTool.TextureStack
         {
             _textureManager = textureManager;
         }
-        public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
+        public void AddTextureStack(Texture2D dist, BlendTexturePair setTex)
         {
-            if (Dist == null) { return; }
-            var stack = _textureStacks.Find(i => i.FirstTexture == Dist);
+            if (dist == null) { return; }
+            var stack = _textureStacks.Find(i => i.FirstTexture == dist);
             if (stack == null)
             {
                 stack = new Stack();
-                stack.init(Dist, _textureManager);
-                stack.AddStack(SetTex);
+                stack.init(dist, _textureManager);
+                stack.AddStack(setTex);
                 _textureStacks.Add(stack);
             }
             else
             {
-                stack.AddStack(SetTex);
+                stack.AddStack(setTex);
             }
 
         }

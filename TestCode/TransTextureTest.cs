@@ -14,12 +14,12 @@ namespace net.rs64.TexTransTool.TestCode
         [TestCase(2)]
         [TestCase(3)]
         [TestCase(4)]
-        public void TransTest(int? TestSeed)
+        public void TransTest(int? testSeed)
         {
             var sourcesTex = new UnityEngine.Texture2D(512, 512, UnityEngine.TextureFormat.ARGB32, false);
 
             var sourceTexPixel = sourcesTex.GetPixels();
-            var randomI = TestSeed.HasValue ? new System.Random(TestSeed.Value) : new System.Random();
+            var randomI = testSeed.HasValue ? new System.Random(testSeed.Value) : new System.Random();
 
             for (var i = 0; sourceTexPixel.Length > i; i += 1)
             {

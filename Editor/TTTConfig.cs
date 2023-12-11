@@ -23,8 +23,8 @@ namespace net.rs64.TexTransTool
 #region ObjectReplaceInvoke
         public const string OBJECT_REPLACE_INVOKE_MENU_PATH = EXPERIMENTAL_MENU_PATH + "/ObjectReplaceInvoke";
         public const string OBJECT_REPLACE_INVOKE_PREFKEY = "net.rs64.tex-trans-tool.ObjectReplaceInvoke";
-        private static bool _isObjectReplaceInvoke;
-        public static bool isObjectReplaceInvoke { get => _isObjectReplaceInvoke; private set { _isObjectReplaceInvoke = value; ObjectReplaceInvokeConfigUpdate(); } }
+        private static bool s_isObjectReplaceInvoke;
+        public static bool isObjectReplaceInvoke { get => s_isObjectReplaceInvoke; private set { s_isObjectReplaceInvoke = value; ObjectReplaceInvokeConfigUpdate(); } }
 
         [MenuItem(OBJECT_REPLACE_INVOKE_MENU_PATH)]
         static void ToggleObjectReplaceInvoke()

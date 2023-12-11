@@ -8,9 +8,9 @@ namespace net.rs64.TexTransCore.Decal
         public Matrix4x4 ParallelProjectionMatrix;
         public List<Vector3> PPSVert;
         public DecalUtility.MeshData MeshData;
-        public ParallelProjectionSpace(Matrix4x4 ParallelProjectionMatrix)
+        public ParallelProjectionSpace(Matrix4x4 parallelProjectionMatrix)
         {
-            this.ParallelProjectionMatrix = ParallelProjectionMatrix;
+            ParallelProjectionMatrix = parallelProjectionMatrix;
 
         }
         public void Input(DecalUtility.MeshData meshData)

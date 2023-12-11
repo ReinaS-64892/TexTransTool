@@ -8,11 +8,11 @@ namespace net.rs64.TexTransTool
 {
     internal static class DomainMarkerFinder
     {
-        static List<IDomainMarkerFinder> Finders;
+        static List<IDomainMarkerFinder> s_finders;
         public static GameObject FindMarker(GameObject StartPoint)
         {
-            if (Finders == null) { Finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>().ToList(); }
-            foreach (var finder in Finders)
+            if (s_finders == null) { s_finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>().ToList(); }
+            foreach (var finder in s_finders)
             {
                 var marker = finder.FindMarker(StartPoint);
                 if (marker != null) { return marker; }

@@ -169,8 +169,8 @@ namespace net.rs64.TexTransTool
         }
 
         IProgressHandling _progressHandler;
-        public void ProgressStateEnter(string EnterName) => _progressHandler?.ProgressStateEnter(EnterName);
-        public void ProgressUpdate(string State, float Value) => _progressHandler?.ProgressUpdate(State, Value);
+        public void ProgressStateEnter(string enterName) => _progressHandler?.ProgressStateEnter(enterName);
+        public void ProgressUpdate(string state, float value) => _progressHandler?.ProgressUpdate(state, value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
         public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
 
@@ -179,8 +179,8 @@ namespace net.rs64.TexTransTool
         public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager?.DeferDestroyTexture2D(texture2D);
         public void DeferTexDestroy() => _textureManager?.DeferTexDestroy();
 
-        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) CompressSetting, Texture2D Target) => _textureManager?.TextureCompressDelegation(CompressSetting, Target);
-        public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target) => _textureManager?.ReplaceTextureCompressDelegation(Souse, Target);
+        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target) => _textureManager?.TextureCompressDelegation(compressSetting, target);
+        public void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target) => _textureManager?.ReplaceTextureCompressDelegation(souse, target);
         public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
 
     }

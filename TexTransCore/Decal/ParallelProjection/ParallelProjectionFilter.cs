@@ -9,14 +9,14 @@ namespace net.rs64.TexTransCore.Decal
     {
         public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> Filters;
 
-        public ParallelProjectionFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> Filters)
+        public ParallelProjectionFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> filters)
         {
-            this.Filters = Filters;
+            Filters = filters;
         }
 
-        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpace Space, List<TriangleIndex> Triangles, List<TriangleIndex> output = null)
+        public virtual List<TriangleIndex> Filtering(ParallelProjectionSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
         {
-            return TriangleFilterUtility.FilteringTriangle(Triangles, Space.PPSVert, Filters, output);
+            return TriangleFilterUtility.FilteringTriangle(triangles, space.PPSVert, Filters, output);
         }
     }
 }

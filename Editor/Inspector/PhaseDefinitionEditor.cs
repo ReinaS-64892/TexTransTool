@@ -9,8 +9,8 @@ internal class PhaseDefinitionEditor : TexTransGroupEditor
 {
     public override void OnInspectorGUI()
     {
-        var s_TexTransPhase = serializedObject.FindProperty("TexTransPhase");
-        EditorGUILayout.PropertyField(s_TexTransPhase, s_TexTransPhase.name.GetLC());
+        var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
+        EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.GetLC());
         base.OnInspectorGUI();
         serializedObject.ApplyModifiedProperties();
     }

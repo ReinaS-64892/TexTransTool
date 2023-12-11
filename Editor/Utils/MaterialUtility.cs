@@ -7,22 +7,22 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class MaterialUtility
     {
-        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Texture2D Target, Texture2D SetTex, Dictionary<Material, Material> outPut = null)
+        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Texture2D target, Texture2D setTex, Dictionary<Material, Material> outPut = null)
         {
             outPut?.Clear(); outPut ??= new();
             foreach (var mat in materials)
             {
-                var Textures = FiltalingUnused(GetPropAndTextures(mat), mat);
+                var textures = FiltalingUnused(GetPropAndTextures(mat), mat);
 
-                if (Textures.ContainsValue(Target))
+                if (textures.ContainsValue(target))
                 {
                     var material = Object.Instantiate(mat);
 
-                    foreach (var KVP in Textures)
+                    foreach (var kvp in textures)
                     {
-                        if (KVP.Value == Target)
+                        if (kvp.Value == target)
                         {
-                            material.SetTexture(KVP.Key, SetTex);
+                            material.SetTexture(kvp.Key, setTex);
                         }
                     }
 
@@ -31,14 +31,14 @@ namespace net.rs64.TexTransTool.Utils
             }
             return outPut;
         }
-        public static void SetTextures(this Material TargetMat, List<PropAndTexture2D> PropAndTextures, bool FocusSetTexture = false)
+        public static void SetTextures(this Material targetMat, List<PropAndTexture2D> propAndTextures, bool focusSetTexture = false)
         {
-            foreach (var propAndTexture in PropAndTextures)
+            foreach (var propAndTexture in propAndTextures)
             {
-                if (!TargetMat.HasProperty(propAndTexture.PropertyName)) { continue; }
-                if (FocusSetTexture || TargetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                if (!targetMat.HasProperty(propAndTexture.PropertyName)) { continue; }
+                if (focusSetTexture || targetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
                 {
-                    TargetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
+                    targetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
                 }
             }
         }

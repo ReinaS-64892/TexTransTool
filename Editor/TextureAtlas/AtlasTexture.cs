@@ -131,13 +131,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
             shaderSupports.BakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
             var matDataList = new List<MatData>();
-            foreach (var MatSelector in targetMaterialSelectors)
+            foreach (var matSelector in targetMaterialSelectors)
             {
-                shaderSupports.AddRecord(MatSelector.Material);
+                shaderSupports.AddRecord(matSelector.Material);
             }
-            foreach (var MatSelector in targetMaterialSelectors)
+            foreach (var matSelector in targetMaterialSelectors)
             {
-                matDataList.Add(new MatData(MatSelector, shaderSupports.GetTextures(MatSelector.Material, textureManager)));
+                matDataList.Add(new MatData(matSelector, shaderSupports.GetTextures(matSelector.Material, textureManager)));
             }
             shaderSupports.ClearRecord();
 
@@ -174,15 +174,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var poolContainsTags = ToIndexTags(moveIslandPool.Keys);
             for (int I = 0; I < atlasReferenceData.AtlasMeshDataList.Count; I += 1)
             {
-                var AMD = atlasReferenceData.AtlasMeshDataList[I];
+                var atlasMeshData = atlasReferenceData.AtlasMeshDataList[I];
 
-                var distMesh = atlasReferenceData.Meshes[AMD.ReferenceMesh];
-                var NewMesh = UnityEngine.Object.Instantiate<Mesh>(distMesh);
-                NewMesh.name = "AtlasMesh_" + I + "_" + distMesh.name;
+                var distMesh = atlasReferenceData.Meshes[atlasMeshData.ReferenceMesh];
+                var newMesh = UnityEngine.Object.Instantiate<Mesh>(distMesh);
+                newMesh.name = "AtlasMesh_" + I + "_" + distMesh.name;
 
                 var meshTags = new List<AtlasIdenticalTag>();
 
-                for (var slotIndex = 0; AMD.MaterialIndex.Length > slotIndex; slotIndex += 1)
+                for (var slotIndex = 0; atlasMeshData.MaterialIndex.Length > slotIndex; slotIndex += 1)
                 {
                     var thisTag = new AtlasIdenticalTag(I, slotIndex);
                     if (poolContainsTags.Contains(thisTag))
@@ -191,9 +191,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                     else
                     {
-                        var thisTagMeshRef = AMD.ReferenceMesh;
+                        var thisTagMeshRef = atlasMeshData.ReferenceMesh;
                         var thisTagMatSlot = slotIndex;
-                        var thisTagMatRef = AMD.MaterialIndex[slotIndex];
+                        var thisTagMatRef = atlasMeshData.MaterialIndex[slotIndex];
                         AtlasIdenticalTag? identicalTag = FindIdenticalTag(atlasReferenceData, poolContainsTags, thisTagMeshRef, thisTagMatSlot, thisTagMatRef);
 
                         if (identicalTag.HasValue)
@@ -204,23 +204,23 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
 
-                var MovedPool = new Dictionary<AtlasIslandID, AtlasIsland>();
+                var movedPool = new Dictionary<AtlasIslandID, AtlasIsland>();
                 foreach (var tag in meshTags)
                 {
                     foreach (var islandKVP in moveIslandPool.Where(i => i.Key.AtlasMeshDataIndex == tag.AtlasMeshDataIndex && i.Key.MaterialSlot == tag.MaterialSlot))
                     {
-                        MovedPool.Add(islandKVP.Key, islandKVP.Value);
+                        movedPool.Add(islandKVP.Key, islandKVP.Value);
                     }
                 }
 
-                var movedUV = new List<Vector2>(AMD.UV);
-                IslandUtility.IslandPoolMoveUV(AMD.UV, movedUV, originIslandPool, MovedPool);
-                AMD.MovedUV = movedUV;
+                var movedUV = new List<Vector2>(atlasMeshData.UV);
+                IslandUtility.IslandPoolMoveUV(atlasMeshData.UV, movedUV, originIslandPool, movedPool);
+                atlasMeshData.MovedUV = movedUV;
 
-                NewMesh.SetUVs(0, movedUV);
-                if (AtlasSetting.WriteOriginalUV) { NewMesh.SetUVs(1, AMD.UV); }
+                newMesh.SetUVs(0, movedUV);
+                if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, atlasMeshData.UV); }
 
-                compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, NewMesh, AMD.MaterialIndex.Select(Index => atlasReferenceData.Materials[Index]).ToArray()));
+                compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, atlasMeshData.MaterialIndex.Select(Index => atlasReferenceData.Materials[Index]).ToArray()));
             }
             atlasData.Meshes = compiledMeshes;
 
@@ -229,9 +229,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var compiledAtlasTextures = new List<PropAndTexture2D>();
 
             var propertyNames = new HashSet<string>();
-            foreach (var MatData in matDataList)
+            foreach (var matData in matDataList)
             {
-                propertyNames.UnionWith(MatData.PropAndTextures.ConvertAll(PaT => PaT.PropertyName));
+                propertyNames.UnionWith(matData.PropAndTextures.ConvertAll(PaT => PaT.PropertyName));
             }
 
 
@@ -285,7 +285,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
         }
 
-        public override void Apply(IDomain Domain = null)
+        public override void Apply(IDomain domain = null)
         {
             if (!IsPossibleApply)
             {
@@ -293,16 +293,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return;
             }
 
-            Domain.ProgressStateEnter("AtlasTexture");
-            Domain.ProgressUpdate("CompileAtlasTexture", 0f);
+            domain.ProgressStateEnter("AtlasTexture");
+            domain.ProgressUpdate("CompileAtlasTexture", 0f);
 
-            if (!TryCompileAtlasTextures(Domain, out var atlasData)) { return; }
+            if (!TryCompileAtlasTextures(domain, out var atlasData)) { return; }
 
-            Domain.ProgressUpdate("MeshChange", 0.5f);
+            domain.ProgressUpdate("MeshChange", 0.5f);
 
             var nowRenderers = Renderers;
 
-            var ShaderSupport = new AtlasShaderSupportUtils();
+            var shaderSupport = new AtlasShaderSupportUtils();
 
             //Mesh Change
             foreach (var renderer in nowRenderers)
@@ -313,11 +313,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (atlasMeshAndDist.AtlasMesh == null) { continue; }
 
                 var atlasMesh = atlasMeshAndDist.AtlasMesh;
-                Domain.SetMesh(renderer, atlasMesh);
-                Domain.TransferAsset(atlasMesh);
+                domain.SetMesh(renderer, atlasMesh);
+                domain.TransferAsset(atlasMesh);
             }
 
-            Domain.ProgressUpdate("Texture Fine Tuning", 0.75f);
+            domain.ProgressUpdate("Texture Fine Tuning", 0.75f);
 
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
@@ -329,45 +329,45 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
             var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
-            Domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
+            domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
                 var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting.FormatQualityValue), (int)compressSetting.CompressionQuality);
-                Domain.TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
+                domain.TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
             }
 
-            Domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
+            domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
 
             //MaterialGenerate And Change
             if (AtlasSetting.MergeMaterials)
             {
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First().Material;
-                Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);
+                Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
 
-                Domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x.Material, _ => generateMat), rendererOnly: true);
+                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x.Material, _ => generateMat), rendererOnly: true);
             }
             else
             {
                 var materialMap = new Dictionary<Material, Material>();
                 foreach (var MatSelector in atlasData.AtlasInMaterials)
                 {
-                    var DistMat = MatSelector.Material;
-                    var generateMat = GenerateAtlasMat(DistMat, atlasTexture, ShaderSupport, AtlasSetting.ForceSetTexture);
-                    materialMap.Add(DistMat, generateMat);
+                    var distMat = MatSelector.Material;
+                    var generateMat = GenerateAtlasMat(distMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
+                    materialMap.Add(distMat, generateMat);
                 }
-                Domain.ReplaceMaterials(materialMap);
+                domain.ReplaceMaterials(materialMap);
             }
 
-            Domain.ProgressUpdate("End", 1);
-            Domain.ProgressStateExit();
+            domain.ProgressUpdate("End", 1);
+            domain.ProgressStateExit();
         }
 
-        private void TransMoveRectIsland(Texture SouseTex, RenderTexture targetRT, Dictionary<Island, Island> islandPairs, float padding)
+        private void TransMoveRectIsland(Texture souseTex, RenderTexture targetRT, Dictionary<Island, Island> islandPairs, float padding)
         {
             padding *= 0.5f;
-            var SUV = new List<Vector2>();
-            var TUV = new List<Vector2>();
+            var sUV = new List<Vector2>();
+            var tUV = new List<Vector2>();
             var triangles = new List<TriangleIndex>();
 
             var nawIndex = 0;
@@ -383,25 +383,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 };
                 nawIndex += 4;
                 triangles.AddRange(triangleQuad);
-                SUV.AddRange(originVertexes);
-                TUV.AddRange(movedVertexes);
+                sUV.AddRange(originVertexes);
+                tUV.AddRange(movedVertexes);
             }
 
-            TransTexture.ForTrans(targetRT, SouseTex, new TransData<Vector2>(triangles, TUV, SUV), TexWrap: TextureWrap.Loop);
+            TransTexture.ForTrans(targetRT, souseTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
 
         }
 
-        public static AtlasIdenticalTag? FindIdenticalTag(AtlasReferenceData AtlasData, HashSet<AtlasIdenticalTag> PoolTags, int FindTagMeshRef, int FindTagMatSlot, int FindTagMatRef)
+        public static AtlasIdenticalTag? FindIdenticalTag(AtlasReferenceData atlasData, HashSet<AtlasIdenticalTag> poolTags, int findTagMeshRef, int findTagMatSlot, int findTagMatRef)
         {
             AtlasIdenticalTag? identicalTag = null;
-            foreach (var pTag in PoolTags)
+            foreach (var pTag in poolTags)
             {
-                var pTagTargetAMD = AtlasData.AtlasMeshDataList[pTag.AtlasMeshDataIndex];
+                var pTagTargetAMD = atlasData.AtlasMeshDataList[pTag.AtlasMeshDataIndex];
                 var pTagMeshRef = pTagTargetAMD.ReferenceMesh;
                 var pTagMatSlot = pTag.MaterialSlot;
                 var pTagMatRef = pTagTargetAMD.MaterialIndex[pTag.MaterialSlot];
 
-                if (FindTagMeshRef == pTagMeshRef && FindTagMatSlot == pTagMatSlot && FindTagMatRef == pTagMatRef)
+                if (findTagMeshRef == pTagMeshRef && findTagMatSlot == pTagMatSlot && findTagMatRef == pTagMatRef)
                 {
                     identicalTag = pTag;
                     break;
@@ -411,22 +411,22 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return identicalTag;
         }
 
-        private static Dictionary<MatData, Dictionary<AtlasIslandID, AtlasIsland>> GetMatDataPool(AtlasReferenceData AtlasData, Dictionary<AtlasIslandID, AtlasIsland> OriginIslandPool, List<MatData> MatDataList)
+        private static Dictionary<MatData, Dictionary<AtlasIslandID, AtlasIsland>> GetMatDataPool(AtlasReferenceData atlasData, Dictionary<AtlasIslandID, AtlasIsland> originIslandPool, List<MatData> matDataList)
         {
             var matDataPairPool = new Dictionary<MatData, Dictionary<AtlasIslandID, AtlasIsland>>();
-            foreach (var matData in MatDataList)
+            foreach (var matData in matDataList)
             {
-                var separatePool = AtlasData.FindMatIslandPool(OriginIslandPool, matData.Material, true);
+                var separatePool = atlasData.FindMatIslandPool(originIslandPool, matData.Material, true);
                 matDataPairPool.Add(matData, separatePool);
             }
 
             return matDataPairPool;
         }
 
-        public static HashSet<AtlasIdenticalTag> ToIndexTags(IEnumerable<AtlasIslandID> Tags)
+        public static HashSet<AtlasIdenticalTag> ToIndexTags(IEnumerable<AtlasIslandID> tags)
         {
             var indexTag = new HashSet<AtlasIdenticalTag>();
-            foreach (var tag in Tags)
+            foreach (var tag in tags)
             {
                 indexTag.Add(new (tag.AtlasMeshDataIndex, tag.MaterialSlot));
             }
@@ -434,11 +434,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return indexTag;
         }
 
-        private static Material GenerateAtlasMat(Material TargetMat, List<PropAndTexture2D> AtlasTex, AtlasShaderSupportUtils shaderSupport, bool ForceSetTexture)
+        private static Material GenerateAtlasMat(Material targetMat, List<PropAndTexture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
         {
-            var editableTMat = UnityEngine.Object.Instantiate(TargetMat);
+            var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
-            editableTMat.SetTextures(AtlasTex, ForceSetTexture);
+            editableTMat.SetTextures(atlasTex, forceSetTexture);
             editableTMat.RemoveUnusedProperties();
             shaderSupport.MaterialCustomSetting(editableTMat);
             return editableTMat;
@@ -446,10 +446,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
-        public List<Renderer> FilteredRenderers(GameObject TargetRoot)
+        public List<Renderer> FilteredRenderers(GameObject targetRoot)
         {
             var result = new List<Renderer>();
-            foreach (var item in TargetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisableRenderer))
+            foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisableRenderer))
             {
                 if (item.tag == "EditorOnly") continue;
                 if (item.GetMesh() == null) continue;
@@ -463,12 +463,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return result;
         }
 
-        public void MaterialReplace(Material Souse, Material Target)
+        public void MaterialReplace(Material souse, Material target)
         {
-            var index = SelectMatList.FindIndex(I => I.Material == Souse);
+            var index = SelectMatList.FindIndex(I => I.Material == souse);
             if (index == -1) { return; }
             var selectMat = SelectMatList[index];
-            selectMat.Material = Target;
+            selectMat.Material = target;
             SelectMatList[index] = selectMat;
         }
     }
@@ -478,12 +478,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public OrderedHashSet<Material> Materials;
         public List<AtlasMeshData> AtlasMeshDataList;
         public List<Renderer> Renderers;
-        public AtlasReferenceData(List<Material> TargetMaterials, List<Renderer> InputRenderers)
+        public AtlasReferenceData(List<Material> targetMaterials, List<Renderer> inputRenderers)
         {
-            var targetMatHash = new HashSet<Material>(TargetMaterials);
+            var targetMatHash = new HashSet<Material>(targetMaterials);
             Meshes = new(); Materials = new(); Renderers = new();
 
-            foreach (var renderer in InputRenderers)
+            foreach (var renderer in inputRenderers)
             {
                 foreach (var mat in renderer.sharedMaterials)
                 {
@@ -508,13 +508,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var index = AtlasMeshDataList.FindIndex(AMD => AMD.ReferenceMesh == refMesh && AMD.MaterialIndex.SequenceEqual(materialIndex));
                 if (index == -1)
                 {
-                    var UV = new List<Vector2>();
-                    mesh.GetUVs(0, UV);
+                    var uv = new List<Vector2>();
+                    mesh.GetUVs(0, uv);
 
                     AtlasMeshDataList.Add(new(
                         refMesh,
                         mesh.GetSubTriangleIndex(),
-                        UV,
+                        uv,
                         materialIndex
                         ));
                 }
@@ -546,9 +546,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
 
-        public Dictionary<AtlasIslandID, AtlasIsland> GeneratedIslandPool(bool UseIslandCache)
+        public Dictionary<AtlasIslandID, AtlasIsland> GeneratedIslandPool(bool useIslandCache)
         {
-            return GeneratedIslandPool(UseIslandCache ? new EditorIslandCache() : null);
+            return GeneratedIslandPool(useIslandCache ? new EditorIslandCache() : null);
         }
         /// <summary>
         ///  すべてをアイランドにし、同一の物を指すアイランドは排除したものを返します。
@@ -558,16 +558,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Dictionary<AtlasIslandID, AtlasIsland> GeneratedIslandPool(IIslandCache islandCache)
         {
             var islandPool = new Dictionary<AtlasIslandID, AtlasIsland>();
-            var AMDCount = AtlasMeshDataList.Count;
+            var amdCount = AtlasMeshDataList.Count;
             var islandIndex = 0;
-            for (int AMDIndex = 0; AMDIndex < AMDCount; AMDIndex += 1)
+            for (int amdIndex = 0; amdIndex < amdCount; amdIndex += 1)
             {
-                var AMD = AtlasMeshDataList[AMDIndex];
+                var atlasMeshData = AtlasMeshDataList[amdIndex];
 
-                for (var SlotIndex = 0; AMD.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
+                for (var SlotIndex = 0; atlasMeshData.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
-                    var islands = IslandUtility.UVtoIsland(AMD.Triangles[SlotIndex], AMD.UV, islandCache);
-                    foreach (var island in islands) { islandPool.Add(new AtlasIslandID(AMDIndex, SlotIndex, islandIndex), new AtlasIsland(island, AMD.UV)); islandIndex += 1; }
+                    var islands = IslandUtility.UVtoIsland(atlasMeshData.Triangles[SlotIndex], atlasMeshData.UV, islandCache);
+                    foreach (var island in islands) { islandPool.Add(new AtlasIslandID(amdIndex, SlotIndex, islandIndex), new AtlasIsland(island, atlasMeshData.UV)); islandIndex += 1; }
                 }
             }
 
@@ -575,10 +575,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var deleteTags = new HashSet<AtlasIdenticalTag>();
             foreach (var tag in islandPool.Keys.Select(i => new AtlasIdenticalTag(i.AtlasMeshDataIndex, i.MaterialSlot)).Distinct())
             {
-                var AMD = AtlasMeshDataList[tag.AtlasMeshDataIndex];
-                var refMesh = AMD.ReferenceMesh;
+                var atlasMeshData = AtlasMeshDataList[tag.AtlasMeshDataIndex];
+                var refMesh = atlasMeshData.ReferenceMesh;
                 var materialSlot = tag.MaterialSlot;
-                var refMat = AMD.MaterialIndex[tag.MaterialSlot];
+                var refMat = atlasMeshData.MaterialIndex[tag.MaterialSlot];
                 var refs = (refMesh, materialSlot, refMat);
 
                 if (refsHash.Contains(refs)) { deleteTags.Add(tag); }
@@ -611,14 +611,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
 
 
-        public Dictionary<AtlasIslandID, AtlasIsland> FindMatIslandPool(Dictionary<AtlasIslandID, AtlasIsland> Souse, Material MatRef, bool DeepClone = true)
+        public Dictionary<AtlasIslandID, AtlasIsland> FindMatIslandPool(Dictionary<AtlasIslandID, AtlasIsland> souse, Material matRef, bool deepClone = true)
         {
             var result = new Dictionary<AtlasIslandID, AtlasIsland>();
-            foreach (var islandKVP in Souse)
+            foreach (var islandKVP in souse)
             {
-                if (GetMaterialReference(islandKVP.Key) == MatRef)
+                if (GetMaterialReference(islandKVP.Key) == matRef)
                 {
-                    result.Add(islandKVP.Key, DeepClone ? new AtlasIsland(islandKVP.Value) : islandKVP.Value);
+                    result.Add(islandKVP.Key, deepClone ? new AtlasIsland(islandKVP.Value) : islandKVP.Value);
                 }
             }
             return result;

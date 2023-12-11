@@ -6,20 +6,20 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class GizmosUtility
     {
-        public static void DrawGizmoQuad(IEnumerable<List<Vector3>> Quads)
+        public static void DrawGizmoQuad(IEnumerable<List<Vector3>> quads)
         {
-            foreach (var Quad in Quads)
+            foreach (var quad in quads)
             {
-                DrawQuad(Quad);
+                DrawQuad(quad);
             }
         }
 
-        public static void DrawQuad(IReadOnlyList<Vector3> Quad)
+        public static void DrawQuad(IReadOnlyList<Vector3> quad)
         {
-            Gizmos.DrawLine(Quad[0], Quad[1]);
-            Gizmos.DrawLine(Quad[0], Quad[2]);
-            Gizmos.DrawLine(Quad[2], Quad[3]);
-            Gizmos.DrawLine(Quad[1], Quad[3]);
+            Gizmos.DrawLine(quad[0], quad[1]);
+            Gizmos.DrawLine(quad[0], quad[2]);
+            Gizmos.DrawLine(quad[2], quad[3]);
+            Gizmos.DrawLine(quad[1], quad[3]);
         }
 
         public static void DrawGizmoLine(List<Vector3> Line)
@@ -74,11 +74,11 @@ namespace net.rs64.TexTransTool.Utils
             DisplayDecalMat = new Material(Shader.Find("Hidden/DisplayDecalTexture"));
         }
 
-        public static void DrawGizmoQuad(Texture2D texture2D, Color MulColor, Matrix4x4 matrix4X4)
+        public static void DrawGizmoQuad(Texture2D texture2D, Color mulColor, Matrix4x4 matrix4X4)
         {
             if (Quad == null || DisplayDecalMat == null) { DecalGizmoUtilityInit(); }
             DisplayDecalMat.SetTexture("_MainTex", texture2D);
-            DisplayDecalMat.SetColor("_MulColor", MulColor);
+            DisplayDecalMat.SetColor("_MulColor", mulColor);
             DisplayDecalMat.SetPass(0);
             Graphics.DrawMeshNow(Quad, matrix4X4);
         }

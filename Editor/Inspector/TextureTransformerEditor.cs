@@ -12,16 +12,16 @@ namespace net.rs64.TexTransTool.Editor
     [CustomEditor(typeof(TextureTransformer))]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
-        public static void DrawerWarning(string TypeName)
+        public static void DrawerWarning(string typeName)
         {
-            EditorGUILayout.HelpBox(TypeName + "is an experimental feature. Features may be changed or removed without notice.".GetLocalize(), MessageType.Warning);
+            EditorGUILayout.HelpBox(typeName + "is an experimental feature. Features may be changed or removed without notice.".GetLocalize(), MessageType.Warning);
         }
-        public static Renderer RendererFiltering(Renderer TargetRendererEditValue)
+        public static Renderer RendererFiltering(Renderer targetRendererEditValue)
         {
             Renderer FilteredRenderer;
-            if (TargetRendererEditValue is SkinnedMeshRenderer || TargetRendererEditValue is MeshRenderer)
+            if (targetRendererEditValue is SkinnedMeshRenderer || targetRendererEditValue is MeshRenderer)
             {
-                FilteredRenderer = TargetRendererEditValue;
+                FilteredRenderer = targetRendererEditValue;
             }
             else
             {
@@ -30,103 +30,103 @@ namespace net.rs64.TexTransTool.Editor
 
             return FilteredRenderer;
         }
-        public static void DrawerArrayResizeButton(SerializedProperty ArrayProperty, bool AllowZero = false)
+        public static void DrawerArrayResizeButton(SerializedProperty arrayProperty, bool allowZero = false)
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+")) ArrayProperty.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(ArrayProperty.arraySize <= (AllowZero ? 0 : 1));
-            if (GUILayout.Button("-")) ArrayProperty.arraySize -= 1;
+            if (GUILayout.Button("+")) arrayProperty.arraySize += 1;
+            EditorGUI.BeginDisabledGroup(arrayProperty.arraySize <= (allowZero ? 0 : 1));
+            if (GUILayout.Button("-")) arrayProperty.arraySize -= 1;
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void DrawerRenderer(SerializedProperty RendererListSP, bool MultiRendererMode)
+        public static void DrawerRenderer(SerializedProperty sRendererList, bool multiRendererMode)
         {
 
-            if (!MultiRendererMode)
+            if (!multiRendererMode)
             {
-                RendererListSP.arraySize = 1;
-                var S_TRArrayElement = RendererListSP.GetArrayElementAtIndex(0);
-                var TRArrayElementValue = S_TRArrayElement.objectReferenceValue;
-                var TRArrayElementEditValue = EditorGUILayout.ObjectField("TargetRenderer".GetLocalize(), TRArrayElementValue, typeof(Renderer), true) as Renderer;
-                if (TRArrayElementValue != TRArrayElementEditValue)
+                sRendererList.arraySize = 1;
+                var sArrayElement = sRendererList.GetArrayElementAtIndex(0);
+                var arrayElementValue = sArrayElement.objectReferenceValue;
+                var arrayElementEditValue = EditorGUILayout.ObjectField("TargetRenderer".GetLocalize(), arrayElementValue, typeof(Renderer), true) as Renderer;
+                if (arrayElementValue != arrayElementEditValue)
                 {
-                    Renderer FlatlingRenderer = TextureTransformerEditor.RendererFiltering(TRArrayElementEditValue);
-                    S_TRArrayElement.objectReferenceValue = FlatlingRenderer;
+                    Renderer flatlingRenderer = TextureTransformerEditor.RendererFiltering(arrayElementEditValue);
+                    sArrayElement.objectReferenceValue = flatlingRenderer;
                 }
             }
             else
             {
                 EditorGUILayout.LabelField("TargetRenderer".GetLocalize());
-                foreach (var Index in Enumerable.Range(0, RendererListSP.arraySize))
+                foreach (var Index in Enumerable.Range(0, sRendererList.arraySize))
                 {
-                    var S_TargetRendererValue = RendererListSP.GetArrayElementAtIndex(Index);
-                    var TargetRendererValue = S_TargetRendererValue.objectReferenceValue;
-                    var TargetRendererEditValue = EditorGUILayout.ObjectField("Target".GetLocalize() + " " + (Index + 1), TargetRendererValue, typeof(Renderer), true) as Renderer;
-                    if (TargetRendererValue != TargetRendererEditValue)
+                    var sTargetRendererValue = sRendererList.GetArrayElementAtIndex(Index);
+                    var targetRendererValue = sTargetRendererValue.objectReferenceValue;
+                    var targetRendererEditValue = EditorGUILayout.ObjectField("Target".GetLocalize() + " " + (Index + 1), targetRendererValue, typeof(Renderer), true) as Renderer;
+                    if (targetRendererValue != targetRendererEditValue)
                     {
-                        Renderer FilteredRenderer = TextureTransformerEditor.RendererFiltering(TargetRendererEditValue);
-                        S_TargetRendererValue.objectReferenceValue = FilteredRenderer;
+                        Renderer filteredRenderer = TextureTransformerEditor.RendererFiltering(targetRendererEditValue);
+                        sTargetRendererValue.objectReferenceValue = filteredRenderer;
                     }
                 }
 
-                DrawerArrayResizeButton(RendererListSP);
+                DrawerArrayResizeButton(sRendererList);
             }
         }
 
         #region DrawerProperty
 
         public delegate T Filter<T>(T Target);
-        public static void DrawerPropertyBool(SerializedProperty Prop, GUIContent gUIContent = null, Filter<bool> EditAndFilterCollBack = null)
+        public static void DrawerPropertyBool(SerializedProperty prop, GUIContent gUIContent = null, Filter<bool> editAndFilterCollBack = null)
         {
-            var preValue = Prop.boolValue;
-            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
-            var postValue = Prop.boolValue;
-            if (EditAndFilterCollBack != null && preValue != postValue) { Prop.boolValue = EditAndFilterCollBack.Invoke(postValue); }
+            var preValue = prop.boolValue;
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : new GUIContent(prop.displayName));
+            var postValue = prop.boolValue;
+            if (editAndFilterCollBack != null && preValue != postValue) { prop.boolValue = editAndFilterCollBack.Invoke(postValue); }
         }
-        public static void DrawerPropertyFloat(SerializedProperty Prop, GUIContent gUIContent = null, Filter<float> EditAndFilterCollBack = null)
+        public static void DrawerPropertyFloat(SerializedProperty prop, GUIContent gUIContent = null, Filter<float> editAndFilterCollBack = null)
         {
-            var preValue = Prop.floatValue;
-            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : new GUIContent(Prop.displayName));
-            var postValue = Prop.floatValue;
-            if (EditAndFilterCollBack != null && !Mathf.Approximately(preValue, postValue)) { Prop.floatValue = EditAndFilterCollBack.Invoke(postValue); }
+            var preValue = prop.floatValue;
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : new GUIContent(prop.displayName));
+            var postValue = prop.floatValue;
+            if (editAndFilterCollBack != null && !Mathf.Approximately(preValue, postValue)) { prop.floatValue = editAndFilterCollBack.Invoke(postValue); }
         }
-        public static void DrawerTexture2D(SerializedProperty Prop, GUIContent gUIContent = null, Filter<Texture2D> EditAndFilterCollBack = null, float PreviewTextureSize = 64f)
+        public static void DrawerTexture2D(SerializedProperty prop, GUIContent gUIContent = null, Filter<Texture2D> editAndFilterCollBack = null, float PreviewTextureSize = 64f)
         {
-            var Value = Prop.objectReferenceValue as Texture2D;
+            var Value = prop.objectReferenceValue as Texture2D;
             if (Value != null) { EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(PreviewTextureSize)), Value, ScaleMode.ScaleToFit); }
-            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : Prop.displayName.GetLC());
-            if (EditAndFilterCollBack != null && Prop.objectReferenceValue != Value)
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.GetLC());
+            if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
             {
-                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Prop.objectReferenceValue as Texture2D);
+                prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as Texture2D);
             }
         }
-        public static void DrawerObjectReference<T>(SerializedProperty Prop, GUIContent gUIContent = null, Filter<T> EditAndFilterCollBack = null) where T : UnityEngine.Object
+        public static void DrawerObjectReference<T>(SerializedProperty prop, GUIContent gUIContent = null, Filter<T> editAndFilterCollBack = null) where T : UnityEngine.Object
         {
-            var Value = Prop.objectReferenceValue as T;
-            EditorGUILayout.PropertyField(Prop, gUIContent != null ? gUIContent : Prop.displayName.GetLC());
-            if (EditAndFilterCollBack != null && Prop.objectReferenceValue != Value)
+            var Value = prop.objectReferenceValue as T;
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.GetLC());
+            if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
             {
-                Prop.objectReferenceValue = EditAndFilterCollBack.Invoke(Prop.objectReferenceValue as T);
+                prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as T);
             }
         }
 
         #endregion
 
-        public static void DrawerTargetRenderersSummary(SerializedProperty s_TargetRenderers)
+        public static void DrawerTargetRenderersSummary(SerializedProperty sTargetRenderers)
         {
-            if (s_TargetRenderers.arraySize == 1)
+            if (sTargetRenderers.arraySize == 1)
             {
-                var s_rd = s_TargetRenderers.GetArrayElementAtIndex(0);
-                EditorGUILayout.PropertyField(s_rd, "TargetRenderer".GetLC());
+                var srd = sTargetRenderers.GetArrayElementAtIndex(0);
+                EditorGUILayout.PropertyField(srd, "TargetRenderer".GetLC());
             }
             else
             {
                 EditorGUILayout.LabelField("TargetRenderer".GetLocalize());
-                for (var i = 0; s_TargetRenderers.arraySize > i; i += 1)
+                for (var i = 0; sTargetRenderers.arraySize > i; i += 1)
                 {
-                    var s_rd = s_TargetRenderers.GetArrayElementAtIndex(i);
-                    EditorGUILayout.PropertyField(s_rd, GUIContent.none);
+                    var srd = sTargetRenderers.GetArrayElementAtIndex(i);
+                    EditorGUILayout.PropertyField(srd, GUIContent.none);
                 }
             }
         }

@@ -15,9 +15,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public string SorterName => NDFHPlasFCName;
         public bool RectTangleMove => true;
 
-        public Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float Padding)
+        public Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float padding)
         {
-            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands.Values.ToList(), Padding);
+            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands.Values.ToList(), padding);
             return atlasIslands;
         }
         public static List<TIsland> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<TIsland>(
@@ -117,9 +117,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Padding = padding;
             }
 
-            public bool TrySetBox(Island Box)
+            public bool TrySetBox(Island box)
             {
-                var Island = Box;
+                var Island = box;
                 if (Height + 0.01f < Island.Size.y) return false;
 
 
@@ -129,7 +129,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (withSize > Padding + Island.Size.x + Padding)
                 {
                     Island.Pivot = new Vector2(withMin + Padding, Floor);
-                    Lower.Add(Box);
+                    Lower.Add(box);
                     return true;
                 }
 
@@ -140,7 +140,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (withSize > Padding + Island.Size.x + Padding)
                 {
                     Island.Pivot = new Vector2(withMax - Island.Size.x - Padding, Ceil - Island.Size.y);
-                    Upper.Add(Box);
+                    Upper.Add(box);
                     return true;
                 }
 
@@ -148,41 +148,41 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return false;
             }
 
-            public float GetFloorWithEmpty(float TargetHeight)
+            public float GetFloorWithEmpty(float targetHeight)
             {
-                if (!VectorUtility.InRange(Floor, Ceil, TargetHeight)) { throw new Exception("TargetHeight is not in range!"); }
+                if (!VectorUtility.InRange(Floor, Ceil, targetHeight)) { throw new Exception("TargetHeight is not in range!"); }
 
-                var MinWith = 0f;
+                var minWith = 0f;
 
-                foreach (var Box in Lower)
+                foreach (var box in Lower)
                 {
-                    var Island = Box;
-                    if (VectorUtility.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
+                    var island = box;
+                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos.y, targetHeight))
                     {
-                        if (MinWith < Island.GetMaxPos.x) { MinWith = Island.GetMaxPos.x; }
+                        if (minWith < island.GetMaxPos.x) { minWith = island.GetMaxPos.x; }
                     }
                 }
 
 
 
-                return MinWith;
+                return minWith;
             }
-            public float GetCeilWithEmpty(float TargetHeight)
+            public float GetCeilWithEmpty(float targetHeight)
             {
-                if (!VectorUtility.InRange(Floor, Ceil, TargetHeight)) throw new Exception("TargetHeight is not in range!");
+                if (!VectorUtility.InRange(Floor, Ceil, targetHeight)) throw new Exception("TargetHeight is not in range!");
 
-                var MaxWith = with;
+                var maxWith = with;
 
                 foreach (var Box in Upper)
                 {
-                    var Island = Box;
-                    if (VectorUtility.InRange(Island.Pivot.y, Island.GetMaxPos.y, TargetHeight))
+                    var island = Box;
+                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos.y, targetHeight))
                     {
-                        if (Island.GetMaxPos.x < MaxWith) { MaxWith = Island.GetMaxPos.x; }
+                        if (island.GetMaxPos.x < maxWith) { maxWith = island.GetMaxPos.x; }
                     }
                 }
 
-                return MaxWith;
+                return maxWith;
             }
         }
     }

@@ -53,9 +53,9 @@ namespace net.rs64.TexTransTool.Utils
             return List.IndexOf(item);
         }
 
-        public void AddRange(IEnumerable<T> Items)
+        public void AddRange(IEnumerable<T> items)
         {
-            foreach (var item in Items)
+            foreach (var item in items)
             {
                 Add(item);
             }
@@ -82,9 +82,9 @@ namespace net.rs64.TexTransTool.Utils
             Hash = new HashSet<T>();
         }
 
-        public List<T> ToList(bool DeepClone = false)
+        public List<T> ToList(bool deepClone = false)
         {
-            if (DeepClone)
+            if (deepClone)
             {
                 return new List<T>(List);
             }

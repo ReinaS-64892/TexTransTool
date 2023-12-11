@@ -23,10 +23,10 @@ namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
             }
         }
 
-        public static RelativeTextureSelector FindRelativeTexture(GameObject FindRoot, Texture2D texture2D)
+        public static RelativeTextureSelector FindRelativeTexture(GameObject findRoot, Texture2D texture2D)
         {
             var searchedMaterial = new HashSet<Material>();
-            foreach (var renderer in FindRoot.GetComponentsInChildren<Renderer>())
+            foreach (var renderer in findRoot.GetComponentsInChildren<Renderer>())
             {
                 if (renderer is SkinnedMeshRenderer || renderer is MeshRenderer)
                 {

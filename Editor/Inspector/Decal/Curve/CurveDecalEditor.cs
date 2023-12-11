@@ -14,85 +14,85 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
     {
         public override void OnInspectorGUI()
         {
-            var This_S_Object = serializedObject;
+            var thisSObj = serializedObject;
 
-            DrawerCurveDecalEditor(This_S_Object);
+            DrawerCurveDecalEditor(thisSObj);
 
-            This_S_Object.ApplyModifiedProperties();
+            thisSObj.ApplyModifiedProperties();
         }
 
-        public static void DrawerCurveDecalEditor(SerializedObject This_S_Object)
+        public static void DrawerCurveDecalEditor(SerializedObject thisSObject)
         {
-            var S_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var S_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(S_TargetRenderers, S_MultiRendererMode.boolValue);
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
 
-            var S_isUseStartAndEnd = This_S_Object.FindProperty("UseFirstAndEnd");
-            EditorGUILayout.PropertyField(S_isUseStartAndEnd);
+            var sIsUseStartAndEnd = thisSObject.FindProperty("UseFirstAndEnd");
+            EditorGUILayout.PropertyField(sIsUseStartAndEnd);
 
-            var isUseStartAndEnd = S_isUseStartAndEnd.boolValue;
+            var isUseStartAndEnd = sIsUseStartAndEnd.boolValue;
             if (isUseStartAndEnd)
             {
-                var S_End = This_S_Object.FindProperty("EndTexture");
-                TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_End);
+                var sEnd = thisSObject.FindProperty("EndTexture");
+                TextureTransformerEditor.DrawerObjectReference<Texture2D>(sEnd);
             }
 
-            var S_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_DecalTexture);
+            var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture);
 
             if (isUseStartAndEnd)
             {
-                var S_Start = This_S_Object.FindProperty("FirstTexture");
-                TextureTransformerEditor.DrawerObjectReference<Texture2D>(S_Start);
+                var sStart = thisSObject.FindProperty("FirstTexture");
+                TextureTransformerEditor.DrawerObjectReference<Texture2D>(sStart);
             }
-            var S_BlendType = This_S_Object.FindProperty("BlendType");
+            // var sBlendType = thisSObject.FindProperty("BlendType");
 
-            var S_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(S_TargetPropertyName);
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            EditorGUILayout.PropertyField(sTargetPropertyName);
 
 
-            var S_Segments = This_S_Object.FindProperty("Segments");
-            DrawerSegmentFiled(S_Segments);
+            var sSegments = thisSObject.FindProperty("Segments");
+            DrawerSegmentFiled(sSegments);
 
-            var S_CylindricalCoordinatesSystem = This_S_Object.FindProperty("CylindricalCoordinatesSystem");
-            EditorGUILayout.PropertyField(S_CylindricalCoordinatesSystem);
+            var sCylindricalCoordinatesSystem = thisSObject.FindProperty("CylindricalCoordinatesSystem");
+            EditorGUILayout.PropertyField(sCylindricalCoordinatesSystem);
 
-            var S_Size = This_S_Object.FindProperty("Size");
-            EditorGUILayout.PropertyField(S_Size);
+            var sSize = thisSObject.FindProperty("Size");
+            EditorGUILayout.PropertyField(sSize);
 
-            var S_LoopCount = This_S_Object.FindProperty("LoopCount");
-            EditorGUILayout.PropertyField(S_LoopCount);
+            var sLoopCount = thisSObject.FindProperty("LoopCount");
+            EditorGUILayout.PropertyField(sLoopCount);
 
-            var S_CurveStartOffset = This_S_Object.FindProperty("CurveStartOffset");
-            EditorGUILayout.PropertyField(S_CurveStartOffset);
+            var sCurveStartOffset = thisSObject.FindProperty("CurveStartOffset");
+            EditorGUILayout.PropertyField(sCurveStartOffset);
 
-            var S_RollMode = This_S_Object.FindProperty("RollMode");
-            EditorGUILayout.PropertyField(S_RollMode);
+            var sRollMode = thisSObject.FindProperty("RollMode");
+            EditorGUILayout.PropertyField(sRollMode);
 
-            var S_DrawGizmoAlways = This_S_Object.FindProperty("DrawGizmoAlways");
-            EditorGUILayout.PropertyField(S_DrawGizmoAlways);
+            var sDrawGizmoAlways = thisSObject.FindProperty("DrawGizmoAlways");
+            EditorGUILayout.PropertyField(sDrawGizmoAlways);
         }
 
-        public static void DrawerSegmentFiled(SerializedProperty Segment)
+        public static void DrawerSegmentFiled(SerializedProperty segment)
         {
             EditorGUILayout.LabelField("Segments");
-            var arraySize = Segment.arraySize;
+            var arraySize = segment.arraySize;
             int count = 0;
             while (arraySize > count)
             {
-                var S_Segment = Segment.GetArrayElementAtIndex(count);
+                var sSegment = segment.GetArrayElementAtIndex(count);
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PropertyField(S_Segment);
+                EditorGUILayout.PropertyField(sSegment);
                 /*
-                var S_SegmentRoll = S_Segment.FindPropertyRelative("Roll");
-                if (S_SegmentRoll != null) S_SegmentRoll.floatValue = EditorGUI.Slider(EditorGUILayout.GetControlRect(), S_SegmentRoll.floatValue, -360, 360);
+                var sSegmentRoll = sSegment.FindPropertyRelative("Roll");
+                if (sSegmentRoll != null) sSegmentRoll.floatValue = EditorGUI.Slider(EditorGUILayout.GetControlRect(), sSegmentRoll.floatValue, -360, 360);
                 */
                 EditorGUILayout.EndHorizontal();
 
                 count += 1;
             }
 
-            TextureTransformerEditor.DrawerArrayResizeButton(Segment);
+            TextureTransformerEditor.DrawerArrayResizeButton(segment);
 
         }
     }

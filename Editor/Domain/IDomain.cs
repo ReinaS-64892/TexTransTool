@@ -8,7 +8,7 @@ namespace net.rs64.TexTransTool
 {
     internal interface IAssetSaver
     {
-        void TransferAsset(UnityEngine.Object Asset);
+        void TransferAsset(UnityEngine.Object asset);
     }
 
     internal interface IDomain : IAssetSaver, IProgressHandling, ITextureManager
@@ -24,8 +24,8 @@ namespace net.rs64.TexTransTool
     }
     internal interface IProgressHandling
     {
-        void ProgressStateEnter(string EnterName);
-        void ProgressUpdate(string State, float Value);
+        void ProgressStateEnter(string enterName);
+        void ProgressUpdate(string state, float value);
         void ProgressStateExit();
         void ProgressFinalize();
     }
@@ -35,8 +35,8 @@ namespace net.rs64.TexTransTool
         void DeferDestroyTexture2D(Texture2D texture2D);
         void DeferTexDestroy();
 
-        void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) CompressFormat, Texture2D Target);
-        void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target);
+        void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
+        void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target);
         void TexCompressDelegationInvoke();
     }
     public interface IGetOriginTex2DManager
@@ -46,9 +46,9 @@ namespace net.rs64.TexTransTool
 
     internal static class DomainUtility
     {
-        public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> UnityObjects)
+        public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
-            foreach (var unityObject in UnityObjects)
+            foreach (var unityObject in unityObjects)
             {
                 domain.TransferAsset(unityObject);
             }

@@ -17,17 +17,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            var TexTarget = propAndTextures.Find(x => x.PropertyName == SourcePropertyName);
-            if (TexTarget == null) return;
+            var texTarget = propAndTextures.Find(x => x.PropertyName == SourcePropertyName);
+            if (texTarget == null) return;
 
-            var referenceCopyData = TexTarget.TuningDataList.Find(I => I is ReferenceCopyData) as ReferenceCopyData;
+            var referenceCopyData = texTarget.TuningDataList.Find(I => I is ReferenceCopyData) as ReferenceCopyData;
             if (referenceCopyData != null)
             {
                 referenceCopyData.CopySouse = TargetPropertyName;
             }
             else
             {
-                TexTarget.TuningDataList.Add(new ReferenceCopyData(TargetPropertyName));
+                texTarget.TuningDataList.Add(new ReferenceCopyData(TargetPropertyName));
             }
 
         }

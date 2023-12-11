@@ -27,20 +27,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
     internal static class FineSettingUtil
     {
-        public static IEnumerable<TexFineTuningTarget> FilteredTarget(string PropertyNames, PropertySelect select, List<TexFineTuningTarget> propAndTextures)
+        public static IEnumerable<TexFineTuningTarget> FilteredTarget(string propertyNames, PropertySelect select, List<TexFineTuningTarget> propAndTextures)
         {
-            var PropertyNameList = PropertyNames.Split(' ');
+            var propertyNameList = propertyNames.Split(' ');
             switch (select)
             {
                 default:
                 case PropertySelect.Equal:
                     {
-                        return propAndTextures.Where(x => PropertyNameList.Contains(x.PropertyName));
+                        return propAndTextures.Where(x => propertyNameList.Contains(x.PropertyName));
 
                     }
                 case PropertySelect.NotEqual:
                     {
-                        return propAndTextures.Where(x => !PropertyNameList.Contains(x.PropertyName));
+                        return propAndTextures.Where(x => !propertyNameList.Contains(x.PropertyName));
 
                     }
             }

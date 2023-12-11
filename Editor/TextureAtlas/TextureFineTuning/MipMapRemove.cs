@@ -21,10 +21,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         {
             foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
-                var MipMapData = target.TuningDataList.Find(I => I is MipMapData) as MipMapData;
-                if (MipMapData != null)
+                var mipMapData = target.TuningDataList.Find(I => I is MipMapData) as MipMapData;
+                if (mipMapData != null)
                 {
-                    MipMapData.UseMipMap = false;
+                    mipMapData.UseMipMap = false;
                 }
                 else
                 {

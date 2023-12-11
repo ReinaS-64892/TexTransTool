@@ -16,45 +16,45 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             TextureTransformerEditor.DrawerWarning("CylindricalDecal");
 
-            var This_S_Object = serializedObject;
-            var ThisObject = target as CylindricalDecal;
+            var thisSObject = serializedObject;
+            var thisObject = target as CylindricalDecal;
 
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(ThisObject));
+            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
 
-            var cylindricalCoordinatesSystem = This_S_Object.FindProperty("cylindricalCoordinatesSystem");
-            EditorGUILayout.PropertyField(cylindricalCoordinatesSystem);
+            var sCylindricalCoordinatesSystem = thisSObject.FindProperty("CylindricalCoordinatesSystem");
+            EditorGUILayout.PropertyField(sCylindricalCoordinatesSystem);
 
-            AbstractDecalEditor.DrawerDecalEditor(This_S_Object);
+            AbstractDecalEditor.DrawerDecalEditor(thisSObject);
 
             if (targets.Length == 1)
             {
-                var tf_S_Obg = new SerializedObject(ThisObject.transform);
-                SimpleDecalEditor.DrawerScale(This_S_Object, tf_S_Obg, ThisObject.DecalTexture);
-                tf_S_Obg.ApplyModifiedProperties();
+                var tf_sObg = new SerializedObject(thisObject.transform);
+                SimpleDecalEditor.DrawerScale(thisSObject, tf_sObg, thisObject.DecalTexture);
+                tf_sObg.ApplyModifiedProperties();
             }
 
 
 
             EditorGUILayout.LabelField("CullingSettings", EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
-            var s_SideCulling = This_S_Object.FindProperty("SideCulling");
-            EditorGUILayout.PropertyField(s_SideCulling);
-            var s_FarCulling = This_S_Object.FindProperty("OutDistanceCulling");
-            EditorGUILayout.PropertyField(s_FarCulling, new GUIContent("Far Culling OffSet"));
-            var s_NearCullingOffSet = This_S_Object.FindProperty("InDistanceCulling");
-            EditorGUILayout.PropertyField(s_NearCullingOffSet, new GUIContent("Near Culling OffSet"));
+            var sSideCulling = thisSObject.FindProperty("SideCulling");
+            EditorGUILayout.PropertyField(sSideCulling);
+            var sFarCulling = thisSObject.FindProperty("OutDistanceCulling");
+            EditorGUILayout.PropertyField(sFarCulling, new GUIContent("Far Culling OffSet"));
+            var sNearCullingOffSet = thisSObject.FindProperty("InDistanceCulling");
+            EditorGUILayout.PropertyField(sNearCullingOffSet, new GUIContent("Near Culling OffSet"));
             EditorGUI.indentLevel -= 1;
 
 
-            AbstractDecalEditor.DrawerAdvancedOption(This_S_Object);
+            AbstractDecalEditor.DrawerAdvancedOption(thisSObject);
 
 
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(ThisObject);
+            PreviewContext.instance.DrawApplyAndRevert(thisObject);
 
-            This_S_Object.ApplyModifiedProperties();
+            thisSObject.ApplyModifiedProperties();
         }
 
 

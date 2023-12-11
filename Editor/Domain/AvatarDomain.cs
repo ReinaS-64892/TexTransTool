@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
     /// </summary>
     internal class AvatarDomain : RenderersDomain
     {
-        static readonly HashSet<Type> IgnoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
+        static readonly HashSet<Type> s_ignoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
         public AvatarDomain(GameObject avatarRoot,
                             bool previewing,
@@ -83,10 +83,10 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public override void SetTexture(Texture2D Target, Texture2D SetTex)
+        public override void SetTexture(Texture2D target, Texture2D setTex)
         {
-            base.SetTexture(Target, SetTex);
-            _texMap.Add(Target, SetTex);
+            base.SetTexture(target, setTex);
+            _texMap.Add(target, setTex);
         }
         public override void SetMesh(Renderer renderer, Mesh mesh)
         {
@@ -107,7 +107,7 @@ namespace net.rs64.TexTransTool
                 foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
                 {
                     if (component == null) continue;
-                    if (IgnoreTypes.Contains(component.GetType())) continue;
+                    if (s_ignoreTypes.Contains(component.GetType())) continue;
 
                     using (var serializeObj = new SerializedObject(component))
                     {

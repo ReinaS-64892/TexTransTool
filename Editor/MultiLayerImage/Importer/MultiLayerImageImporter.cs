@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     internal static class MultiLayerImageImporter
     {
-        public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> PreSaveCallBack)
+        public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> preSaveCallBack)
         {
             EditorUtility.DisplayProgressBar("Import Canvas", "Build Layer", 0);
 
@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             multiLayerImageCanvas.TextureSize = canvasData.Size;
             AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
             ctx.FinalizeTex2D();
-            PreSaveCallBack.Invoke(multiLayerImageCanvas);
+            preSaveCallBack.Invoke(multiLayerImageCanvas);
             PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
             UnityEngine.Object.DestroyImmediate(rootCanvas);
 
@@ -41,17 +41,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var count = 0;
             foreach (var layer in abstractLayers.Reverse<AbstractLayerData>())
             {
-                var NewLayer = new GameObject(layer.LayerName);
+                var newLayer = new GameObject(layer.LayerName);
                 // var NewLayer = new GameObject(count + "-" + layer.LayerName);
                 count += 1;
-                NewLayer.transform.SetParent(parent);
+                newLayer.transform.SetParent(parent);
 
                 switch (layer)
                 {
                     case RasterLayerData rasterLayer:
                         {
-                            if (rasterLayer.RasterTexture.Array == null) { UnityEngine.Object.DestroyImmediate(NewLayer); continue; }
-                            var rasterLayerComponent = NewLayer.AddComponent<RasterLayer>();
+                            if (rasterLayer.RasterTexture.Array == null) { UnityEngine.Object.DestroyImmediate(newLayer); continue; }
+                            var rasterLayerComponent = newLayer.AddComponent<RasterLayer>();
                             ctx.AddTextureCallBack(rasterLayer.RasterTexture, layer.LayerName + "_Tex", (Texture2D tex) => rasterLayerComponent.RasterTexture = tex);
                             rasterLayerComponent.BlendTypeKey = layer.BlendTypeKey;
                             rasterLayerComponent.Opacity = layer.Opacity;
@@ -63,14 +63,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     case LayerFolderData layerFolder:
                         {
 
-                            var layerFolderComponent = NewLayer.AddComponent<LayerFolder>();
+                            var layerFolderComponent = newLayer.AddComponent<LayerFolder>();
                             layerFolderComponent.PassThrough = layerFolder.PassThrough;
                             layerFolderComponent.BlendTypeKey = layer.BlendTypeKey;
                             layerFolderComponent.Opacity = layer.Opacity;
                             layerFolderComponent.Clipping = layer.Clipping;
                             layerFolderComponent.Visible = layer.Visible;
                             SetMaskTexture(layerFolderComponent, layerFolder);
-                            AddLayers(NewLayer.transform, ctx, layerFolder.Layers);
+                            AddLayers(newLayer.transform, ctx, layerFolder.Layers);
                             break;
                         }
                 }
@@ -113,32 +113,32 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 var RasterDataPath = Path.Combine(SaveDirectory, RasterImageData);
                 if (!Directory.Exists(RasterDataPath)) { Directory.CreateDirectory(RasterDataPath); }
 
-                var PathToSetAction = new Dictionary<string, Action<Texture2D>>();
-                var PathToEncode = new Dictionary<string, LowMap<Color32>>();
+                var pathToSetAction = new Dictionary<string, Action<Texture2D>>();
+                var pathToEncode = new Dictionary<string, LowMap<Color32>>();
                 var progressesCount = TexDict.Count;
                 var imageIndex = 0;
                 foreach (var texAndSetAct in TexDict)
                 {
                     imageIndex += 1;
 
-                    var TexName = texAndSetAct.Value.name;
-                    var TexMap = texAndSetAct.Key;
+                    var texName = texAndSetAct.Value.name;
+                    var texMap = texAndSetAct.Key;
 
                     if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
 
-                    var path = CreatePath(TexName, imageIndex);
+                    var path = CreatePath(texName, imageIndex);
 
-                    PathToEncode.Add(path, TexMap);
-                    PathToSetAction.Add(path, texAndSetAct.Value.setAction);
+                    pathToEncode.Add(path, texMap);
+                    pathToSetAction.Add(path, texAndSetAct.Value.setAction);
                 }
                 TexDict.Clear();
                 // var timer = System.Diagnostics.Stopwatch.StartNew();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", 0);
-                PNGEncoderExecuter(PathToEncode);
+                PNGEncoderExecuter(pathToEncode);
                 // UnityPNGEncoder(PathToEncode);
 
                 // timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
-                foreach (var path2e in PathToEncode)
+                foreach (var path2e in pathToEncode)
                 {
                     if (File.Exists(path2e.Key)) { continue; }
                     File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
@@ -150,7 +150,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 EditorUtility.DisplayProgressBar("Import Canvas", "Refresh End", 1);
 
                 imageIndex = 0;
-                foreach (var loadTex2d in PathToSetAction)
+                foreach (var loadTex2d in pathToSetAction)
                 {
                     EditorUtility.DisplayProgressBar("Import Canvas", "SetUpLayer for PNG-" + Path.GetFileName(loadTex2d.Key), imageIndex / (float)progressesCount);
                     imageIndex += 1;
@@ -179,29 +179,29 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     EditorUtility.DisplayProgressBar("Import Canvas", "SavePNG", nowIndex / (float)encDataCount);
                 }
             }
-            public static void PNGEncoderExecuter(Dictionary<string, LowMap<Color32>> encData, int? ForceParallelSize = null)
+            public static void PNGEncoderExecuter(Dictionary<string, LowMap<Color32>> encData, int? forceParallelSize = null)
             {
-                var parallelSize = ForceParallelSize.HasValue ? ForceParallelSize.Value : Environment.ProcessorCount;
+                var parallelSize = forceParallelSize.HasValue ? forceParallelSize.Value : Environment.ProcessorCount;
                 var taskQueue = new Queue<KeyValuePair<string, LowMap<Color32>>>(encData);
-                var TaskParallel = new Task[parallelSize];
+                var taskParallel = new Task[parallelSize];
                 var encDataCount = taskQueue.Count; var nowIndex = 0;
                 while (taskQueue.Count > 0)
                 {
-                    for (int i = 0; TaskParallel.Length > i; i += 1)
+                    for (int i = 0; taskParallel.Length > i; i += 1)
                     {
                         if (taskQueue.Count > 0)
                         {
                             var task = taskQueue.Dequeue();
-                            TaskParallel[i] = Task.Run(() => PNGEncoder(task.Key, task.Value));
+                            taskParallel[i] = Task.Run(() => PNGEncoder(task.Key, task.Value));
                         }
                         else
                         {
-                            TaskParallel[i] = null;
+                            taskParallel[i] = null;
                             break;
                         }
                     }
 
-                    foreach (var task in TaskParallel)
+                    foreach (var task in taskParallel)
                     {
                         if (task == null) { break; }
                         _ = TaskAwaiter(task).Result;
@@ -253,9 +253,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             }
 
 
-            private string CreatePath(string TexName, int count)
+            private string CreatePath(string texName, int count)
             {
-                return Path.Combine(SaveDirectory, RasterImageData, TexName + "-" + count) + ".png";
+                return Path.Combine(SaveDirectory, RasterImageData, texName + "-" + count) + ".png";
             }
 
             public const string MetaGUIDPre =

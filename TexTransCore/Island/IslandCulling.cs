@@ -29,19 +29,19 @@ namespace net.rs64.TexTransCore.Island
     {
 
         public static List<TriangleIndex> Culling(
-            List<IslandSelector> IslandSelectors,
-            List<Vector3> Positions,
-            List<Vector2> UV,
-            List<TriangleIndex> Triangles,
-            IIslandCache Caches = null,
+            List<IslandSelector> islandSelectors,
+            List<Vector3> positions,
+            List<Vector2> uv,
+            List<TriangleIndex> triangles,
+            IIslandCache caches = null,
             List<TriangleIndex> output = null
         )
         {
-            var iIslands = IslandUtility.UVtoIsland(Triangles, UV, Caches);
+            var iIslands = IslandUtility.UVtoIsland(triangles, uv, caches);
             var rayCastHitTriangle = ListPool<TriangleIndex>.Get();
-            foreach (var i in IslandSelectors)
+            foreach (var i in islandSelectors)
             {
-                var hits = RayCast(i.Ray, Positions, Triangles);
+                var hits = RayCast(i.Ray, positions, triangles);
                 FilteredBackTriangle(hits);
                 FilteredRangeTriangle(hits, i.RayRange);
 
@@ -72,50 +72,50 @@ namespace net.rs64.TexTransCore.Island
             return output;
         }
 
-        public static List<RayCastHitTriangle> RayCast(Ray Ray, List<Vector3> Positions, List<TriangleIndex> TriangleIs, List<RayCastHitTriangle> Out = null)
+        public static List<RayCastHitTriangle> RayCast(Ray ray, List<Vector3> positions, List<TriangleIndex> triangleIs, List<RayCastHitTriangle> output = null)
         {
-            var rot = Quaternion.LookRotation(Ray.direction);
-            var rayMatrix = Matrix4x4.TRS(Ray.origin, rot, Vector3.one).inverse;
+            var rot = Quaternion.LookRotation(ray.direction);
+            var rayMatrix = Matrix4x4.TRS(ray.origin, rot, Vector3.one).inverse;
 
-            var Triangle = ListPool<Triangle>.Get();
-            Triangle.AddRange(TriangleIs.ConvertAll(I => new Triangle(I, Positions)));
-            var triangle = CollectionsUtility.ListToNativeArray(Triangle, Allocator.TempJob); ListPool<Triangle>.Release(Triangle);
+            var triangle = ListPool<Triangle>.Get();
+            triangle.AddRange(triangleIs.ConvertAll(I => new Triangle(I, positions)));
+            var nativeTriangleArray = CollectionsUtility.ListToNativeArray(triangle, Allocator.TempJob); ListPool<Triangle>.Release(triangle);
 
-            var hitResult = new NativeArray<bool>(triangle.Length, Allocator.TempJob);
-            var distance = new NativeArray<float>(triangle.Length, Allocator.TempJob);
+            var hitResult = new NativeArray<bool>(nativeTriangleArray.Length, Allocator.TempJob);
+            var distance = new NativeArray<float>(nativeTriangleArray.Length, Allocator.TempJob);
 
             var rayCastJob = new RayCastJob
             {
                 rayMatrix = rayMatrix,
-                triangles = triangle,
+                triangles = nativeTriangleArray,
                 HitResult = hitResult,
                 Distance = distance
             };
 
-            var handle = rayCastJob.Schedule(triangle.Length, 1);
+            var handle = rayCastJob.Schedule(nativeTriangleArray.Length, 1);
             handle.Complete();
 
-            Out?.Clear(); Out ??= new ();
-            for (int i = 0; triangle.Length > i; i += 1)
+            output?.Clear(); output ??= new ();
+            for (int i = 0; nativeTriangleArray.Length > i; i += 1)
             {
                 if (!hitResult[i]) { continue; }
-                Out.Add(new RayCastHitTriangle(TriangleIs[i], distance[i]));
+                output.Add(new RayCastHitTriangle(triangleIs[i], distance[i]));
             }
 
-            Out.Sort((a, b) => a.Distance.CompareTo(b.Distance));
+            output.Sort((a, b) => a.Distance.CompareTo(b.Distance));
 
-            triangle.Dispose();
+            nativeTriangleArray.Dispose();
             hitResult.Dispose();
             distance.Dispose();
-            return Out;
+            return output;
         }
-        public static void FilteredBackTriangle(List<RayCastHitTriangle> RCHTri)
+        public static void FilteredBackTriangle(List<RayCastHitTriangle> rayCastHitTriangles)
         {
-            RCHTri.RemoveAll(I => I.Distance < 0);
+            rayCastHitTriangles.RemoveAll(I => I.Distance < 0);
         }
-        public static void FilteredRangeTriangle(List<RayCastHitTriangle> RCHTri, float Range)
+        public static void FilteredRangeTriangle(List<RayCastHitTriangle> rayCastHitTriangles, float range)
         {
-            RCHTri.RemoveAll(I => I.Distance > Range);
+            rayCastHitTriangles.RemoveAll(I => I.Distance > range);
         }
         public struct RayCastHitTriangle
         {

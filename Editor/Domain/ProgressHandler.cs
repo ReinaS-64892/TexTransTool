@@ -7,20 +7,20 @@ namespace net.rs64.TexTransTool
 {
     internal class ProgressHandler : IProgressHandling
     {
-        List<string> ProgressDepth = new List<string>();
-        public void ProgressStateEnter(string EnterName)
+        List<string> _progressDepth = new List<string>();
+        public void ProgressStateEnter(string enterName)
         {
-            ProgressDepth.Add(EnterName);
+            _progressDepth.Add(enterName);
         }
 
         public void ProgressStateExit()
         {
-            ProgressDepth.RemoveAt(ProgressDepth.Count - 1);
+            _progressDepth.RemoveAt(_progressDepth.Count - 1);
         }
 
-        public void ProgressUpdate(string State, float Value)
+        public void ProgressUpdate(string state, float value)
         {
-            EditorUtility.DisplayProgressBar(string.Join("-", ProgressDepth), State, Value);
+            EditorUtility.DisplayProgressBar(string.Join("-", _progressDepth), state, value);
         }
 
         public void ProgressFinalize()

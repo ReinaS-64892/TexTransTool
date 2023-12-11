@@ -11,32 +11,32 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning("AddAbsoluteMaterials");
-            var s_Obj = serializedObject;
-            var t_Obj = target as AddAbsoluteMaterials;
+            var sObj = serializedObject;
+            var obj = target as AddAbsoluteMaterials;
 
-            var s_AddSelectors = s_Obj.FindProperty("AddSelectors");
+            var sAddSelectors = sObj.FindProperty("AddSelectors");
 
             GUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Count".GetLocalize() + "-" + "TextureSizeOffSet".GetLocalize()  + " : " + "Material".GetLocalize() );
             GUILayout.EndHorizontal();
-            for (int i = 0; i < s_AddSelectors.arraySize; i += 1)
+            for (int i = 0; i < sAddSelectors.arraySize; i += 1)
             {
-                var selector = s_AddSelectors.GetArrayElementAtIndex(i);
+                var selector = sAddSelectors.GetArrayElementAtIndex(i);
                 GUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(i.ToString(), GUILayout.Width(10f));
                 EditorGUILayout.PropertyField(selector.FindPropertyRelative("AdditionalTextureSizeOffSet"), GUIContent.none);
                 EditorGUILayout.PropertyField(selector.FindPropertyRelative("Material"), GUIContent.none);
-                if (GUILayout.Button("X")) { s_AddSelectors.DeleteArrayElementAtIndex(i); break; }
+                if (GUILayout.Button("X")) { sAddSelectors.DeleteArrayElementAtIndex(i); break; }
                 GUILayout.EndHorizontal();
             }
 
             var addMat = EditorGUILayout.ObjectField("Add Material".GetLocalize(), null, typeof(Material), false) as Material;
-            if (addMat != null && t_Obj.AddSelectors.FindIndex(I => I.Material == addMat) == -1)
+            if (addMat != null && obj.AddSelectors.FindIndex(I => I.Material == addMat) == -1)
             {
-                var index = s_AddSelectors.arraySize;
-                s_AddSelectors.arraySize += 1;
+                var index = sAddSelectors.arraySize;
+                sAddSelectors.arraySize += 1;
 
-                var newSelector = s_AddSelectors.GetArrayElementAtIndex(index);
+                var newSelector = sAddSelectors.GetArrayElementAtIndex(index);
                 newSelector.FindPropertyRelative("Material").objectReferenceValue = addMat;
                 newSelector.FindPropertyRelative("AdditionalTextureSizeOffSet").floatValue = 1;
             }
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.Editor.ReferenceResolver
 
 
 
-            s_Obj.ApplyModifiedProperties();
+            sObj.ApplyModifiedProperties();
         }
     }
 }

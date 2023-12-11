@@ -11,21 +11,21 @@ namespace net.rs64.TexTransTool.Editor.Decal
     {
         public override void OnInspectorGUI()
         {
-            var This_S_Object = serializedObject;
-            DrawerDecalEditor(This_S_Object);
+            var thisSObject = serializedObject;
+            DrawerDecalEditor(thisSObject);
 
-            This_S_Object.ApplyModifiedProperties();
+            thisSObject.ApplyModifiedProperties();
         }
 
-        public static void DrawerDecalEditor(SerializedObject This_S_Object)
+        public static void DrawerDecalEditor(SerializedObject thisSObject)
         {
             EditorGUILayout.LabelField("RenderersSettings".GetLocalize(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var s_TargetRenderers = This_S_Object.FindProperty("TargetRenderers");
-            var s_MultiRendererMode = This_S_Object.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(s_TargetRenderers, s_MultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(s_MultiRendererMode, new GUIContent("MultiRendererMode".GetLocalize()));
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode, new GUIContent("MultiRendererMode".GetLocalize()));
 
 
             EditorGUI.indentLevel -= 1;
@@ -33,29 +33,29 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel += 1;
 
 
-            var s_DecalTexture = This_S_Object.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerTexture2D(s_DecalTexture, "DecalTexture".GetLC());
+            var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "DecalTexture".GetLC());
 
-            var s_Color = This_S_Object.FindProperty("Color");
-            EditorGUILayout.PropertyField(s_Color, new GUIContent("Color".GetLocalize()));
+            var sColor = thisSObject.FindProperty("Color");
+            EditorGUILayout.PropertyField(sColor, new GUIContent("Color".GetLocalize()));
 
-            var s_BlendType = This_S_Object.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(s_BlendType, "BlendTypeKey".GetLC());
+            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
+            EditorGUILayout.PropertyField(sBlendType, "BlendTypeKey".GetLC());
 
-            var s_TargetPropertyName = This_S_Object.FindProperty("TargetPropertyName");
-            PropertyNameEditor.DrawInspectorGUI(s_TargetPropertyName, "TargetPropertyName".GetLocalize());
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            PropertyNameEditor.DrawInspectorGUI(sTargetPropertyName, "TargetPropertyName".GetLocalize());
             EditorGUI.indentLevel -= 1;
         }
-        public static void DrawerRealTimePreviewEditor(AbstractDecal Target)
+        public static void DrawerRealTimePreviewEditor(AbstractDecal target)
         {
-            if (Target == null) return;
+            if (target == null) return;
             {
-                if (!RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(Target))
+                if (!RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(target))
                 {
                     var IsPossibleRealTimePreview = false;
                     if (RealTimePreviewManager.IsContainsRealTimePreview)
                     {
-                        IsPossibleRealTimePreview = Target.IsPossibleApply;
+                        IsPossibleRealTimePreview = target.IsPossibleApply;
                     }
                     else
                     {
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                     if (GUILayout.Button(IsPossibleRealTimePreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
                     {
-                        RealTimePreviewManager.instance.RegtAbstractDecal(Target);
+                        RealTimePreviewManager.instance.RegtAbstractDecal(target);
                     }
                     EditorGUI.EndDisabledGroup();
                 }
@@ -73,11 +73,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 {
                     if (GUILayout.Button("ExitRealTimePreview".GetLocalize()))
                     {
-                        RealTimePreviewManager.instance.UnRegtAbstractDecal(Target);
+                        RealTimePreviewManager.instance.UnRegtAbstractDecal(target);
                     }
                     else
                     {
-                        Target.ThisIsForces = true;
+                        target.ThisIsForces = true;
                     }
                 }
             }
@@ -85,18 +85,18 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
         static bool FoldoutAdvancedOption;
-        public static void DrawerAdvancedOption(SerializedObject S_Object)
+        public static void DrawerAdvancedOption(SerializedObject sObject)
         {
             FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "AdvancedOption".GetLocalize());
             if (FoldoutAdvancedOption)
             {
                 EditorGUI.indentLevel += 1;
 
-                var s_HighQualityPadding = S_Object.FindProperty("HighQualityPadding");
-                EditorGUILayout.PropertyField(s_HighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
+                var sHighQualityPadding = sObject.FindProperty("HighQualityPadding");
+                EditorGUILayout.PropertyField(sHighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
 
-                var s_Padding = S_Object.FindProperty("Padding");
-                EditorGUILayout.PropertyField(s_Padding, "Padding".GetLC());
+                var sPadding = sObject.FindProperty("Padding");
+                EditorGUILayout.PropertyField(sPadding, "Padding".GetLC());
 
                 EditorGUI.indentLevel -= 1;
             }

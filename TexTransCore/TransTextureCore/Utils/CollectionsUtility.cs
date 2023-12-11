@@ -13,28 +13,28 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             for (var i = 0; length > i; i += 1) { NativeArray[i] = list[i]; }
             return NativeArray;
         }
-        public static List<Vector3> ZipListVector3(IReadOnlyList<Vector2> XY, IReadOnlyList<float> Z)
+        public static List<Vector3> ZipListVector3(IReadOnlyList<Vector2> xy, IReadOnlyList<float> z)
         {
-            var count = XY.Count;
-            if (count != Z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
+            var count = xy.Count;
+            if (count != z.Count) { throw new System.ArgumentException("XY.Count != Z.Count"); }
 
             List<Vector3> result = new(count);
 
             for (int index = 0; index < count; index += 1)
             {
-                result.Add(new (XY[index].x, XY[index].y, Z[index]));
+                result.Add(new (xy[index].x, xy[index].y, z[index]));
             }
 
             return result;
         }
 
 
-        public static T[] FilledArray<T>(T DefaultValue, int Length)
+        public static T[] FilledArray<T>(T defaultValue, int length)
         {
-            var array = new T[Length];
+            var array = new T[length];
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = DefaultValue;
+                array[i] = defaultValue;
             }
             return array;
         }

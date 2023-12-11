@@ -8,14 +8,14 @@ namespace net.rs64.TexTransTool
     internal class AvatarDomainAsset : ScriptableObject
     {
         public UnityEngine.Object OverrideContainer;
-        [SerializeField] List<Object> SubAssets = new List<Object>();
+        [SerializeField] List<Object> _subAssets = new List<Object>();
 
-        public void AddSubObject(Object UnityObject)
+        public void AddSubObject(Object unityObject)
         {
-            if (UnityObject != null && !SubAssets.Contains(UnityObject) && !AssetDatabase.Contains(UnityObject))
+            if (unityObject != null && !_subAssets.Contains(unityObject) && !AssetDatabase.Contains(unityObject))
             {
-                AssetDatabase.AddObjectToAsset(UnityObject, OverrideContainer == null ? this : OverrideContainer);
-                SubAssets.Add(UnityObject);
+                AssetDatabase.AddObjectToAsset(unityObject, OverrideContainer == null ? this : OverrideContainer);
+                _subAssets.Add(unityObject);
             }
             EditorUtility.SetDirty(this);
         }

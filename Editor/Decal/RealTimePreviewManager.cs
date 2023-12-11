@@ -38,13 +38,13 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private void SwapMaterial(Renderer renderer, Material Souse, Material Target)
+        private void SwapMaterial(Renderer renderer, Material souse, Material target)
         {
             using (var serialized = new SerializedObject(renderer))
             {
                 foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
                 {
-                    if (property.objectReferenceValue is Material material && material == Souse)
+                    if (property.objectReferenceValue is Material material && material == souse)
                     {
                         AnimationMode.AddPropertyModification(
                             EditorCurveBinding.PPtrCurve("", renderer.GetType(), property.propertyPath),
@@ -52,10 +52,10 @@ namespace net.rs64.TexTransTool
                             {
                                 target = renderer,
                                 propertyPath = property.propertyPath,
-                                objectReference = Souse,
+                                objectReference = souse,
                             },
                             true);
-                        property.objectReferenceValue = Target;
+                        property.objectReferenceValue = target;
                     }
                 }
                 serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -69,22 +69,22 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private void RegtPreviewRenderTexture(Material material, string PropertyName, BlendTextureClass blendTexture)
+        private void RegtPreviewRenderTexture(Material material, string propertyName, BlendTextureClass blendTexture)
         {
             if (PreviewMatDict.ContainsKey(material)) { material = PreviewMatDict[material]; }
 
             if (Previews.ContainsKey(material))
             {
-                if (Previews[material].ContainsKey(PropertyName))
+                if (Previews[material].ContainsKey(propertyName))
                 {
-                    Previews[material][PropertyName].Decals.Add(blendTexture);
+                    Previews[material][propertyName].Decals.Add(blendTexture);
                 }
                 else
                 {
                     var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
-                    var souseTexture = material.GetTexture(PropertyName) as Texture2D;
-                    material.SetTexture(PropertyName, newTarget);
-                    Previews[material].Add(PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }));
+                    var souseTexture = material.GetTexture(propertyName) as Texture2D;
+                    material.SetTexture(propertyName, newTarget);
+                    Previews[material].Add(propertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }));
                 }
             }
             else
@@ -92,22 +92,22 @@ namespace net.rs64.TexTransTool
                 var editableMat = Instantiate(material);
                 SwapMaterialAll(material, editableMat);
                 PreviewMatDict.Add(material, editableMat);
-                var souseTexture = material.GetTexture(PropertyName) as Texture2D;
+                var souseTexture = material.GetTexture(propertyName) as Texture2D;
                 var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
-                editableMat.SetTexture(PropertyName, newTarget);
+                editableMat.SetTexture(propertyName, newTarget);
                 Graphics.Blit(souseTexture, newTarget);
-                Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { PropertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }) } });
+                Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { propertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }) } });
             }
         }
 
 
-        private void UpdatePreviewTexture(Material material, string PropertyName)
+        private void UpdatePreviewTexture(Material material, string propertyName)
         {
             var TargetMat = material;
             if (!Previews.ContainsKey(TargetMat)) { return; }
-            if (!Previews[TargetMat].ContainsKey(PropertyName)) { return; }
+            if (!Previews[TargetMat].ContainsKey(propertyName)) { return; }
 
-            var target = Previews[TargetMat][PropertyName];
+            var target = Previews[TargetMat][propertyName];
             var targetRt = target.Item1.TargetTexture;
             targetRt.Release();
             var souseTex = target.Item1.SouseTexture;

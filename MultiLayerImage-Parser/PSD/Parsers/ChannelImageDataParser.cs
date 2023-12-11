@@ -47,12 +47,12 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
 
-        public static (ChannelImageData data, Task<byte[]> DecompressTask) PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int ChannelInformationIndex)
+        public static (ChannelImageData data, Task<byte[]> DecompressTask) PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int channelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
-            var channelInfo = refLayerRecord.ChannelInformationArray[ChannelInformationIndex];
+            var channelInfo = refLayerRecord.ChannelInformationArray[channelInformationIndex];
             var Rect = channelInfo.ChannelID != ChannelInformation.ChannelIDEnum.UserLayerMask ? refLayerRecord.RectTangle : refLayerRecord.LayerMaskAdjustmentLayerData.RectTangle;
             var imageLength = (uint)Mathf.Abs(channelInfo.CorrespondingChannelDataLength - 2);
             Task<byte[]> task = null;

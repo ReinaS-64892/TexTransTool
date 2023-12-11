@@ -9,59 +9,59 @@ namespace net.rs64.TexTransTool.Editor
 {
     internal static class PropertyNameEditor
     {
-        static string[] ShadersNames;
-        static Dictionary<string, (string[] PropertyName, string[] DisplayName)> PropertyNames;
-        static string[] Empty = Array.Empty<string>();
+        static string[] s_shadersNames;
+        static Dictionary<string, (string[] PropertyName, string[] DisplayName)> s_propertyNames;
+        static string[] s_empty = Array.Empty<string>();
 
 
-        public static void DrawInspectorGUI(SerializedProperty serializedProperty, string Label = null)
+        public static void DrawInspectorGUI(SerializedProperty serializedProperty, string label = null)
         {
-            if (ShadersNames == null)
+            if (s_shadersNames == null)
             {
                 var getData = new ShaderSupportUtils().GetPropertyNames();
-                ShadersNames = getData.Select(i => i.ShaderName).ToArray();
-                PropertyNames = getData.ToDictionary(
+                s_shadersNames = getData.Select(i => i.ShaderName).ToArray();
+                s_propertyNames = getData.ToDictionary(
                     i => i.ShaderName,
                     i => (i.Item2.Select(v => v.PropertyName).ToArray(), i.Item2.Select(v => v.DisplayName).ToArray()));
             }
-            var s_Target = serializedProperty;
+            var sTarget = serializedProperty;
 
-            var s_propertyName = s_Target.FindPropertyRelative("_propertyName");
-            var s_useCustomProperty = s_Target.FindPropertyRelative("_useCustomProperty");
-            var s_shaderName = s_Target.FindPropertyRelative("_shaderName");
+            var sPropertyName = sTarget.FindPropertyRelative("_propertyName");
+            var sUseCustomProperty = sTarget.FindPropertyRelative("_useCustomProperty");
+            var sShaderName = sTarget.FindPropertyRelative("_shaderName");
 
 
             var rect = EditorGUILayout.GetControlRect();
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, Label == null ? "TargetPropertyName".GetLocalize() : Label);
+            EditorGUI.LabelField(rect, label == null ? "TargetPropertyName".GetLocalize() : label);
             rect.x += rect.width;
 
             var preIndent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
 
-            if (s_useCustomProperty.boolValue)
+            if (sUseCustomProperty.boolValue)
             {
                 rect.width = PropWith * 2;
-                EditorGUI.PropertyField(rect, s_propertyName, GUIContent.none);
+                EditorGUI.PropertyField(rect, sPropertyName, GUIContent.none);
                 rect.x += rect.width;
             }
             else
             {
                 rect.width = PropWith;
 
-                var shaderName = s_shaderName.stringValue;
-                var shaderSelectIndex = Array.IndexOf(ShadersNames, shaderName);
-                if (s_shaderName.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
-                shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, ShadersNames);
-                if (0 <= shaderSelectIndex && shaderSelectIndex < ShadersNames.Length) { s_shaderName.stringValue = ShadersNames[shaderSelectIndex]; }
+                var shaderName = sShaderName.stringValue;
+                var shaderSelectIndex = Array.IndexOf(s_shadersNames, shaderName);
+                if (sShaderName.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
+                shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, s_shadersNames);
+                if (0 <= shaderSelectIndex && shaderSelectIndex < s_shadersNames.Length) { sShaderName.stringValue = s_shadersNames[shaderSelectIndex]; }
 
                 rect.x += rect.width;
 
                 rect.width = 15;
                 EditorGUI.indentLevel = 1;
-                EditorGUI.PropertyField(rect, s_shaderName, new GUIContent(""));
+                EditorGUI.PropertyField(rect, sShaderName, new GUIContent(""));
                 EditorGUI.indentLevel = 0;
                 rect.x += 10f;
 
@@ -70,19 +70,19 @@ namespace net.rs64.TexTransTool.Editor
                 if (shaderSelectIndex != -1)
                 {
 
-                    var propertyName = s_propertyName.stringValue;
-                    var propertyArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].PropertyName : Empty;
-                    var displayNameArray = PropertyNames.ContainsKey(shaderName) ? PropertyNames[shaderName].DisplayName : Empty;
+                    var propertyName = sPropertyName.stringValue;
+                    var propertyArray = s_propertyNames.ContainsKey(shaderName) ? s_propertyNames[shaderName].PropertyName : s_empty;
+                    var displayNameArray = s_propertyNames.ContainsKey(shaderName) ? s_propertyNames[shaderName].DisplayName : s_empty;
                     var propertySelectIndex = Array.IndexOf(propertyArray, propertyName);
-                    if (s_propertyName.hasMultipleDifferentValues) { propertySelectIndex = -1; }
+                    if (sPropertyName.hasMultipleDifferentValues) { propertySelectIndex = -1; }
                     propertySelectIndex = EditorGUI.Popup(rect, propertySelectIndex, displayNameArray);
-                    if (0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length) { s_propertyName.stringValue = propertyArray[propertySelectIndex]; }
+                    if (0 <= propertySelectIndex && propertySelectIndex < propertyArray.Length) { sPropertyName.stringValue = propertyArray[propertySelectIndex]; }
 
                     rect.x += rect.width;
 
                     rect.width = 15;
                     EditorGUI.indentLevel = 1;
-                    EditorGUI.PropertyField(rect, s_propertyName, new GUIContent(""));
+                    EditorGUI.PropertyField(rect, sPropertyName, new GUIContent(""));
                     EditorGUI.indentLevel = 0;
                     rect.x += 10f;
 
@@ -90,7 +90,7 @@ namespace net.rs64.TexTransTool.Editor
                 else
                 {
                     EditorGUI.BeginDisabledGroup(true);
-                    EditorGUI.PropertyField(rect, s_propertyName, GUIContent.none);
+                    EditorGUI.PropertyField(rect, sPropertyName, GUIContent.none);
                     EditorGUI.EndDisabledGroup();
                     rect.x += rect.width;
 
@@ -98,7 +98,7 @@ namespace net.rs64.TexTransTool.Editor
             }
             rect.x += 5f;
             rect.width = 30f;
-            EditorGUI.PropertyField(rect, s_useCustomProperty, GUIContent.none);
+            EditorGUI.PropertyField(rect, sUseCustomProperty, GUIContent.none);
             rect.x += 15f;
             rect.width = PropWith - rect.width;
             EditorGUI.LabelField(rect, new GUIContent("UseCustomProperty".GetLocalize()));
