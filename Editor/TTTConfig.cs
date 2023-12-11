@@ -11,6 +11,7 @@ namespace net.rs64.TexTransTool
     {
         public const string TTT_MENU_PATH = "Tools/TexTransTool";
         public const string EXPERIMENTAL_MENU_PATH = TTT_MENU_PATH + "/Experimental";
+        public const string DEBUG_MENU_PATH = TTT_MENU_PATH + "/Debug";
 
 
         [InitializeOnLoadMethod]
@@ -23,7 +24,7 @@ namespace net.rs64.TexTransTool
         }
 
 
-#region ObjectReplaceInvoke
+        #region ObjectReplaceInvoke
         public const string OBJECT_REPLACE_INVOKE_MENU_PATH = EXPERIMENTAL_MENU_PATH + "/ObjectReplaceInvoke";
         public const string OBJECT_REPLACE_INVOKE_PREFKEY = "net.rs64.tex-trans-tool.ObjectReplaceInvoke";
         private static bool s_isObjectReplaceInvoke;
@@ -40,7 +41,7 @@ namespace net.rs64.TexTransTool
             EditorPrefs.SetBool(OBJECT_REPLACE_INVOKE_PREFKEY, isObjectReplaceInvoke);
             Menu.SetChecked(OBJECT_REPLACE_INVOKE_MENU_PATH, isObjectReplaceInvoke);
         }
-#endregion
+        #endregion
     }
 }
 #endif
