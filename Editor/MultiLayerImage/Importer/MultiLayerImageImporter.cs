@@ -111,8 +111,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             {
                 EditorUtility.DisplayProgressBar("Import Canvas", "Save RasterLayer Data", 0);
                 var RasterDataPath = Path.Combine(SaveDirectory, RasterImageData);
-                if (Directory.Exists(RasterDataPath)) { Directory.Delete(RasterDataPath, true); }
-                Directory.CreateDirectory(RasterDataPath);
+                if (!Directory.Exists(RasterDataPath)) { Directory.CreateDirectory(RasterDataPath); }
 
                 var PathToSetAction = new Dictionary<string, Action<Texture2D>>();
                 var PathToEncode = new Dictionary<string, LowMap<Color32>>();
@@ -139,7 +138,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 // UnityPNGEncoder(PathToEncode);
 
                 timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
-                foreach (var path2e in PathToEncode) { File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost); }
+                foreach (var path2e in PathToEncode)
+                {
+                    if (File.Exists(path2e.Key)) { continue; }
+                    File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
+                }
 
 
                 EditorUtility.DisplayProgressBar("Import Canvas", "AssetDatabase.Refresh();", 0);
