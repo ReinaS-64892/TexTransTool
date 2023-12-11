@@ -41,8 +41,9 @@ namespace net.rs64.TexTransTool.Editor
 
             var keyName = s_Target.stringValue;
             var shaderSelectIndex = Array.IndexOf(BlendTypeKeys, keyName);
+            if (s_Target.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
             shaderSelectIndex = EditorGUI.Popup(rect, shaderSelectIndex, BlendTypeKeys);
-            s_Target.stringValue = 0 <= shaderSelectIndex && shaderSelectIndex < BlendTypeKeys.Length ? BlendTypeKeys[shaderSelectIndex] : keyName;
+            if (0 <= shaderSelectIndex && shaderSelectIndex < BlendTypeKeys.Length) { s_Target.stringValue = BlendTypeKeys[shaderSelectIndex]; }
 
             rect.x += rect.width;
             rect.width = strWidth;
