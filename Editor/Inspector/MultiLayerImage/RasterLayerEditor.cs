@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var thisTarget = target as RasterLayer;
             if (targets.Length != 1) { return; }
-            EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), thisTarget.RasterTexture, ScaleMode.ScaleToFit);
+            if (thisTarget.RasterTexture != null) { EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), thisTarget.RasterTexture, ScaleMode.ScaleToFit); }
         }
 
 
