@@ -27,10 +27,27 @@ namespace net.rs64.TexTransTool.TextureAtlas
             int MaxLoopCount = 128)
             where TIsland : Island
         {
-            var Islands = TargetPool;
-            if (!Islands.Any()) return TargetPool;
-            foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
+            var islands = TargetPool;
+            if (!islands.Any()) return TargetPool;
+            foreach (var Island in islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+
+            islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 1073741824));
+
+            var posValue = 1f;
+            foreach (var island in islands)
+            {
+                if (posValue >= island.Size.y)
+                {
+                    posValue = island.Size.y;
+                }
+                else
+                {
+                    Debug.LogWarning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.".GetLocalize());
+                    break;
+                }
+            }
+
+
             bool success = false;
             float nawScale = 1f;
             int loopCount = -1;
@@ -45,7 +62,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var boxList = new List<UVWithBox>();
 
 
-                foreach (var islandAndTag in Islands)
+                foreach (var islandAndTag in islands)
                 {
                     var Result = false;
                     foreach (var withBox in boxList)
@@ -90,7 +107,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             void ScaleApply(float Scale)
             {
-                foreach (var islandAndTag in Islands)
+                foreach (var islandAndTag in islands)
                 {
                     if ((islandAndTag.Size.x * Scale) > (0.999f - IslandPadding)) { continue; }
                     islandAndTag.Size *= Scale;

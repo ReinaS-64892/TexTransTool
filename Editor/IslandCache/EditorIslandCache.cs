@@ -7,6 +7,7 @@ using UnityEditor;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.Island;
 using System.Security.Cryptography;
+using System.IO;
 
 namespace net.rs64.TexTransTool.EditorIsland
 {
@@ -42,6 +43,16 @@ namespace net.rs64.TexTransTool.EditorIsland
             var serializableNewCache = ScriptableObject.CreateInstance<IslandCache>();
             serializableNewCache.CacheObject = newCache; serializableNewCache.name = "IslandCache";
             AssetSaveHelper.SaveAsset(serializableNewCache);
+        }
+
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/IslandCachePurge")]
+        static void IslandCachePurge()
+        {
+            s_cacheIslands = null;
+            foreach (var islandCache in Directory.GetFiles(Path.Combine(AssetSaveHelper.SaveDirectory, AssetSaveHelper.IslandCaches)))
+            {
+                File.Delete(islandCache);
+            }
         }
 
 

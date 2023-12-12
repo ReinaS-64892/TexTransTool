@@ -159,7 +159,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var tex = matDataPool.Key.Material.mainTexture;
                 var defaultTextureSizeOffset = tex != null ? (tex.width * tex.height) / (float)maxTexturePixelCount : 0.01f;
                 var sizeOffset = matDataPool.Key.TextureSizeOffSet * defaultTextureSizeOffset;
-                foreach (var island in matDataPool.Value.Values) { island.Size *= sizeOffset; }
+                foreach (var island in matDataPool.Value.Values)
+                {
+                    island.Size *= sizeOffset;
+                    if (island.Size.x > 0.99) { island.Size *= 0.99f / island.Size.x; }
+                    if (island.Size.y > 0.99) { island.Size *= 0.99f / island.Size.y; }
+                }
                 foreach (var islandKVP in matDataPool.Value) { moveIslandPool.Add(islandKVP.Key, islandKVP.Value); }
             }
 
@@ -428,7 +433,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var indexTag = new HashSet<AtlasIdenticalTag>();
             foreach (var tag in tags)
             {
-                indexTag.Add(new (tag.AtlasMeshDataIndex, tag.MaterialSlot));
+                indexTag.Add(new(tag.AtlasMeshDataIndex, tag.MaterialSlot));
             }
 
             return indexTag;

@@ -205,8 +205,8 @@ namespace net.rs64.TexTransCore.Island
         {
             var vertPoss = GetVertexPos(souseUV);
             var Box = VectorUtility.BoxCal(vertPoss);
-            Pivot = Box.Item1;
-            Size = Box.Item2 - Box.Item1;
+            Pivot = Box.min;
+            Size = Box.max - Box.min;
         }
 
         public bool BoxInOut(Vector2 targetPos)

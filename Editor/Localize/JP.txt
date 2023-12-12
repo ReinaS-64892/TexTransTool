@@ -90,3 +90,4 @@ Do you really want to import?,本当にインポートしますか？
 Yes,はい
 No,いいえ
 Summary display during preview is not supported.,プレビュー中の概要表示はできません。
+NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.,アイランドの高さ準の並び替えが正常に行われていません。好ましくない並び替えがされる可能性があります。
