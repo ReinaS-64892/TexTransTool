@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
@@ -21,8 +22,25 @@ namespace net.rs64.TexTransTool.Decal.Curve
         public Texture2D EndTexture;
         public float CurveStartOffset;
 
-        public bool IsPossibleSegments => Segments.Count > 1 && !Segments.Any(i => i == null);
-        public override bool IsPossibleApply => DecalTexture != null && TargetRenderers.Any(i => i != null) && (UseFirstAndEnd ? FirstTexture != null && EndTexture != null : true) && IsPossibleSegments;
+        public bool IsPossibleSegments
+        {
+            get
+            {
+                if (Segments.Count <= 1 || Segments.Any(i => i == null)) { return false; }
+                var segmentPosHash = HashSetPool<Vector3>.Get();
+                foreach (var seg in Segments)
+                {
+                    if (!segmentPosHash.Add(seg.position))
+                    {
+                        HashSetPool<Vector3>.Release(segmentPosHash);
+                        return false;
+                    }
+                }
+                HashSetPool<Vector3>.Release(segmentPosHash);
+                return true;
+            }
+        }
+        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null) && IsPossibleSegments;
 
 
 

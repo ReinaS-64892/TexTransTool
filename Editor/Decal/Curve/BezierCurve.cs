@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -47,13 +48,15 @@ namespace net.rs64.TexTransTool.Decal.Curve
             return getPoint;
 
         }
-        public (Vector3, float) GetOfLength(float FormWight, float Length)
+        public (Vector3 point, float weight) GetOfLength(float formWight, float length)
         {
-            var fromPoint = GetPoint(FormWight);
+            var fromPoint = GetPoint(formWight);
 
-            var point2 = new (Vector3, float, float)?[2] { null, (fromPoint, 0f, FormWight) };
-            var nawWight = FormWight;
-            while (true)
+            Span<(Vector3, float, float)?> point2 = stackalloc (Vector3, float, float)?[2] { null, (fromPoint, 0f, formWight) };
+            var nawWight = formWight;
+
+            var safetyCount = 0;
+            while (safetyCount < 512)
             {
                 nawWight += DefaultWightStep;
                 var nawPoint = GetPoint(nawWight);
@@ -62,10 +65,12 @@ namespace net.rs64.TexTransTool.Decal.Curve
                 point2[0] = point2[1];
                 point2[1] = (nawPoint, nawLength, nawWight);
 
-                if (nawLength > Length)
+                if (nawLength > length)
                 {
                     break;
                 }
+
+                safetyCount += 1;
             }
 
             var minV = point2[0].Value;
@@ -75,7 +80,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
             var minWight = minV.Item3;
             var maxWight = maxV.Item3;
 
-            var wight = (Length - minLength) / (maxLength - minLength);
+            var wight = (length - minLength) / (maxLength - minLength);
             var resWight = Mathf.LerpUnclamped(minWight, maxWight, wight);
 
             return (GetPoint(resWight), resWight);
@@ -196,7 +201,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
     {
         Vector3 GetPoint(float wight);
         float GetRoll(float wight);
-        (Vector3, float) GetOfLength(float FormWight, float Lengs);
+        (Vector3 point, float weight) GetOfLength(float formWight, float length);
     }
 
     public enum RollMode
