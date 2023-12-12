@@ -43,9 +43,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif HardLight
   BlendColor = lerp(Mulc * 2, Scrc * 2 - 1, 1 - step(Acol, 0.5));
 #elif SoftLight
-  BlendColor = lerp((Acol * 2.0 - Bcol) * Bcol,
-                    2.0 * (Bcol - Mulc + sqrt(Bcol) * (Acol - 0.5)),
-                    1 - step(Acol, 0.5));
+  BlendColor = lerp(  2.0 * (Bcol - Mulc + sqrt(Bcol) * (Acol - 0.5)) , (Acol * 2.0 - Bcol) * Bcol , 1 - step(Acol, 0.5));
 #elif ColorDodge
   BlendColor = dodge;
 #elif ColorBurn
