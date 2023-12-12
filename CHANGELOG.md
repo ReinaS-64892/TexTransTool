@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 一部の色合成が一般的なソフトと大きく異なっている問題を修正 `#237`
 - AtlasTexture の FineTuning の Resize の品質が低い問題を修正 `#96`
 - Decal などのコンポーネントがオリジナルのテクスチャーを取得する際、不必要に別のインスタンスを生成していた問題を修正 `#249`
+- 一部の衣装などで AtlasTexture の NFDHPlasFC が正常に並び替えできない問題を修正 `#255`
 
 ### Deprecated
 
