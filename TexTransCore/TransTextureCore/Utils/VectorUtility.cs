@@ -95,7 +95,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         {
             return Mathf.Min(vector.x, Mathf.Min(vector.y, vector.z));
         }
-        public static (Vector2, Vector2) BoxCal(List<Vector2> triangles)
+        public static (Vector2 min, Vector2 max) BoxCal(List<Vector2> triangles)
         {
             Vector2 min = new ();
             Vector2 max = new ();
