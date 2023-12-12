@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
-    [AddComponentMenu("TexTransTool/Experimental/TTT CylindricalCurveDecal")]
+    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/Unfinished/TTT CylindricalCurveDecal")]
     internal class CylindricalCurveDecal : CurveDecal
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;

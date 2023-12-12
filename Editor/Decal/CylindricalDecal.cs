@@ -9,10 +9,10 @@ using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/TTT CylindricalDecal")]
-    internal class CylindricalDecal : AbstractSingleDecal<CCSSpace,Vector2>
+    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/TTT CylindricalDecal")]
+    internal class CylindricalDecal : AbstractSingleDecal<CCSSpace, Vector2>
     {
-        [FormerlySerializedAs("cylindricalCoordinatesSystem")]public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
+        [FormerlySerializedAs("cylindricalCoordinatesSystem")] public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FixedAspect = true;
         public Vector2 Scale = Vector2.one;
         public bool SideCulling = true;

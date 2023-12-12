@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/TTT TexTransGroup")]
+    [AddComponentMenu("TexTransTool/Group/TTT TexTransGroup")]
     internal class TexTransGroup : TextureTransformer
     {
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
