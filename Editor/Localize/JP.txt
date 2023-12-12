@@ -89,3 +89,4 @@ Importing a PSD can take a very long time.,PSDのインポートは非常に長�
 Do you really want to import?,本当にインポートしますか？
 Yes,はい
 No,いいえ
+Summary display during preview is not supported.,プレビュー中の概要表示はできません。
