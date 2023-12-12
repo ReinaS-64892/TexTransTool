@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MenuItem の Language に CheckMark の表示を追加 `#233`
 - 非常に実験的な機能として UseDepth と DepthInvert が追加 `#150`
 - 無効化されたレンダラーもアトラス化の対象にする IncludeDisableRenderer を追加 `#222`
-- 非常に実験的なAPIを追加 `#258`
+- 非常に実験的な API を追加 `#258`
 
 ### Changed
 
@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の FineTuning の Resize の品質が低い問題を修正 `#96`
 - Decal などのコンポーネントがオリジナルのテクスチャーを取得する際、不必要に別のインスタンスを生成していた問題を修正 `#249`
 - 一部の衣装などで AtlasTexture の NFDHPlasFC が正常に並び替えできない問題を修正 `#255`
+- CylindricalCurveDecal でセグメントの座標が重複したり同一のセグメントが複数個入っていた場合に無限ループが発生する問題を修正 `#273`
 
 ### Deprecated
 
