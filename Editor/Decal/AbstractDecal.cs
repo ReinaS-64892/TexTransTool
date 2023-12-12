@@ -94,6 +94,24 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
+        public static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
+        {
+            RenderTexture mulDecalTexture;
+            if (targetDecalTexture != null) { mulDecalTexture = RenderTexture.GetTemporary(targetDecalTexture.width, targetDecalTexture.height, 0); }
+            else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
+            mulDecalTexture.Clear();
+            if (targetDecalTexture != null)
+            {
+                TextureBlend.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(targetDecalTexture), color);
+            }
+            else
+            {
+                TextureBlend.ColorBlit(mulDecalTexture, color);
+            }
+            return mulDecalTexture;
+        }
+
+
         [NonSerialized] public bool ThisIsForces = false;
         private void Update()
         {

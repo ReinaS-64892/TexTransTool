@@ -22,20 +22,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
-            RenderTexture mulDecalTexture;
-            if (DecalTexture != null) { mulDecalTexture = RenderTexture.GetTemporary(DecalTexture.width, DecalTexture.height, 0); }
-            else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
-
-            mulDecalTexture.Clear();
-
-            if (DecalTexture != null)
-            {
-                TextureBlend.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(DecalTexture), Color);
-            }
-            else
-            {
-                TextureBlend.ColorBlit(mulDecalTexture, Color);
-            }
+            RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
             foreach (var renderer in TargetRenderers)
             {

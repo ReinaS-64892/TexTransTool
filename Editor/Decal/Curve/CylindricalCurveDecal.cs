@@ -46,6 +46,8 @@ namespace net.rs64.TexTransTool.Decal.Curve
                         targetDecalTexture = EndTexture;
                     }
                 }
+                RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, targetDecalTexture, Color);
+
                 foreach (var Renderer in TargetRenderers)
                 {
                     var CCSSpace = new CCSSpace(CylindricalCoordinatesSystem, quad);
@@ -54,7 +56,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
                     DecalUtility.CreateDecalTexture<CCSSpace, Vector2>(Renderer,
                                                 decalCompiledRenderTextures,
-                                                targetDecalTexture,
+                                                mulDecalTexture,
                                                 CCSSpace,
                                                 CCSfilter,
                                                 TargetPropertyName,
@@ -65,11 +67,11 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
                     count += 1;
                 }
+                RenderTexture.ReleaseTemporary(mulDecalTexture);
             }
 
             return decalCompiledRenderTextures;
         }
-
         public List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilers()
         {
             var filters = new List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>>
