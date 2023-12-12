@@ -73,7 +73,8 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             public override void ParseAddLY(ref SubSpanStream stream)
             {
-                LayerName = stream.ReadSubStream((int)Length).Span.ParseUTF16();
+                var byteLength = stream.ReadUInt32() * 2;
+                LayerName = stream.ReadSubStream((int)byteLength).Span.ParseBigUTF16();
             }
         }
         [Serializable, AdditionalLayerInfoParser("lnsr")]

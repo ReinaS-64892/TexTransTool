@@ -196,6 +196,9 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(AdditionalLayerInformationSpan);
 
+            var unicodeLayerName = layerRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.luni) as AdditionalLayerInformationParser.luni;
+            if (unicodeLayerName != null) { layerRecord.LayerName = unicodeLayerName.LayerName; }
+
             return layerRecord;
         }
 

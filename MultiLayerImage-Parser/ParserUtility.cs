@@ -154,6 +154,10 @@ namespace net.rs64.MultiLayerImageParser
         {
             return Encoding.Unicode.GetString(bytes.ToArray());
         }
+        public static string ParseBigUTF16(this Span<byte> bytes)
+        {
+            return Encoding.BigEndianUnicode.GetString(bytes.ToArray());
+        }
         public static string ReadUnicodeString(Stream stream)
         {
             throw new NotImplementedException();
