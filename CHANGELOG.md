@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 非常に実験的な機能として UseDepth と DepthInvert が追加 `#150`
 - 無効化されたレンダラーもアトラス化の対象にする IncludeDisableRenderer を追加 `#222`
 - 非常に実験的な API を追加 `#258`
+- AtlasTexture のアトラス化するときに、アップスケーリングを許可するオプションを追加 `#279`
 
 ### Changed
 
@@ -41,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Texture のブレンドを即時実行するように変更し、VRAM + RAM 容量が Decal などのコンポーネントの最大数にならないように変更 `#188`
 - AtlasTexture や Decal などのセーブデータに大きな変更 `#252 #256`
 - Unity の最小バージョン指定を 2021.3 に変更 `#260`
+- AtlasTexture のアトラス化するとき、標準の動作はアップスケーリングできない仕様に変更 `#279`
 
 ### Removed
 
