@@ -65,9 +65,24 @@ namespace net.rs64.TexTransCore.BlendTexture
         public static Dictionary<string, Shader> BlendShaders;
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
+        static void EditorInitDerayCall()
+        {
+            UnityEditor.EditorApplication.delayCall += EditorInitDerayCaller;
+        }
+        static void EditorInitDerayCaller()
+        {
+            BlendShadersInit();
+            UnityEditor.EditorApplication.delayCall -= EditorInitDerayCaller;
+        }
 #endif
         public static void BlendShadersInit()
         {
+            BlendTexShader = Shader.Find(BLEND_TEX_SHADER);
+            ColorMulShader = Shader.Find(COLOR_MUL_SHADER);
+            MaskShader = Shader.Find(MASK_SHADER);
+            UnlitColorAlphaShader = Shader.Find(UNLIT_COLOR_ALPHA_SHADER);
+            AlphaCopyShader = Shader.Find(ALPHA_COPY_SHADER);
+
             var tttBlendShader = BlendTexShader;
             BlendShaders = new Dictionary<string, Shader>()
             {
@@ -111,18 +126,19 @@ namespace net.rs64.TexTransCore.BlendTexture
                     }
                 }
             }
+
         }
         public const string BL_KEY_DEFAULT = "Normal";
         public const string BLEND_TEX_SHADER = "Hidden/BlendTexture";
-        public static Shader BlendTexShader = Shader.Find(BLEND_TEX_SHADER);
+        public static Shader BlendTexShader;
         public const string COLOR_MUL_SHADER = "Hidden/ColorMulShader";
-        public static Shader ColorMulShader = Shader.Find(COLOR_MUL_SHADER);
+        public static Shader ColorMulShader;
         public const string MASK_SHADER = "Hidden/MaskShader";
-        public static Shader MaskShader = Shader.Find(MASK_SHADER);
+        public static Shader MaskShader;
         public const string UNLIT_COLOR_ALPHA_SHADER = "Hidden/UnlitColorAndAlpha";
-        public static Shader UnlitColorAlphaShader = Shader.Find(UNLIT_COLOR_ALPHA_SHADER);
+        public static Shader UnlitColorAlphaShader;
         public const string ALPHA_COPY_SHADER = "Hidden/AlphaCopy";
-        public static Shader AlphaCopyShader = Shader.Find(ALPHA_COPY_SHADER);
+        public static Shader AlphaCopyShader;
         public static void BlendBlit(this RenderTexture baseRenderTexture, Texture Add, string blendTypeKey, bool keepAlpha = false)
         {
             using (new RTActiveSaver())
