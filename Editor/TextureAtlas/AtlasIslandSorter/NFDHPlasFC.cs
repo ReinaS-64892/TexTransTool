@@ -15,20 +15,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public string SorterName => NDFHPlasFCName;
         public bool RectTangleMove => true;
 
-        public Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float padding)
+        public Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, bool useUpScaling,float padding)
         {
-            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands.Values.ToList(), padding);
+            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands.Values.ToList(), useUpScaling, padding);
             return atlasIslands;
         }
         public static List<TIsland> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<TIsland>(
-            List<TIsland> TargetPool,
-            float IslandPadding = 0.01f,
-            float CrawlingStep = 0.01f,
-            int MaxLoopCount = 128)
+            List<TIsland> targetPool,
+            bool useUpScaling = true,
+            float islandPadding = 0.01f,
+            float crawlingStep = 0.01f,
+            int safetyCount = 256)
             where TIsland : Island
         {
-            var islands = TargetPool;
-            if (!islands.Any()) return TargetPool;
+            var islands = targetPool;
+            if (!islands.Any()) return targetPool;
             foreach (var Island in islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
 
             islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 1073741824));
@@ -54,7 +55,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             bool isBigger = false;
             bool nextSuccessEnd = false;
 
-            while (!success && MaxLoopCount > loopCount)
+            while (!success && safetyCount > loopCount)
             {
                 loopCount += 1;
                 success = true;
@@ -73,43 +74,44 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                     if (!Result)
                     {
-                        var Floor = boxList.Any() ? boxList.Last().Ceil + IslandPadding : IslandPadding;
+                        var Floor = boxList.Any() ? boxList.Last().Ceil + islandPadding : islandPadding;
                         var Ceil = islandAndTag.Size.y + Floor;
-                        var newWithBox = new UVWithBox(Ceil, Floor, IslandPadding);
+                        var newWithBox = new UVWithBox(Ceil, Floor, islandPadding);
                         var res = newWithBox.TrySetBox(islandAndTag);
                         boxList.Add(newWithBox);
                     }
                 }
 
-                var lastHeight = boxList.Last().Ceil + IslandPadding;
+                var lastHeight = boxList.Last().Ceil + islandPadding;
                 success = lastHeight < 1;
 
                 if (!success)
                 {
                     if (isBigger) { nextSuccessEnd = true; }
-                    ScaleApply(1 - CrawlingStep);
+                    ScaleApply(1 - crawlingStep);
 
                 }
-                else if (success)
+                else
                 {
-                    if (!nextSuccessEnd)
+                    if (!nextSuccessEnd && useUpScaling)
                     {
                         success = false;
                         isBigger = true;
-                        ScaleApply(1 + CrawlingStep);
+                        ScaleApply(1 + crawlingStep);
                     }
                 }
 
 
             }
+            if (safetyCount == loopCount) { Debug.Log("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
 
-            return TargetPool;
+            return targetPool;
 
             void ScaleApply(float Scale)
             {
                 foreach (var islandAndTag in islands)
                 {
-                    if ((islandAndTag.Size.x * Scale) > (0.999f - IslandPadding)) { continue; }
+                    if ((islandAndTag.Size.x * Scale) > (0.999f - islandPadding)) { continue; }
                     islandAndTag.Size *= Scale;
                 }
                 nawScale *= Scale;

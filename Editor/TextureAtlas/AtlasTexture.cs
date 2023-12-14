@@ -157,7 +157,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var matDataPool in matDataPools)
             {
                 var tex = matDataPool.Key.Material.mainTexture;
-                var defaultTextureSizeOffset = tex != null ? (tex.width * tex.height) / (float)maxTexturePixelCount : 0.01f;
+                float defaultTextureSizeOffset;
+                if (tex != null)
+                {
+                    var atlasTexPixelCount = atlasSetting.AtlasTextureSize * atlasSetting.AtlasTextureSize;
+                    var texPixelCount = tex.width * tex.height;
+                    if (maxTexturePixelCount < atlasTexPixelCount)
+                    { defaultTextureSizeOffset = texPixelCount / (float)maxTexturePixelCount; }
+                    else
+                    { defaultTextureSizeOffset = texPixelCount / (float)atlasTexPixelCount; }
+                }
+                else
+                {
+                    defaultTextureSizeOffset = (float)0.01f;
+                }
+
                 var sizeOffset = matDataPool.Key.TextureSizeOffSet * defaultTextureSizeOffset;
                 foreach (var island in matDataPool.Value.Values)
                 {
@@ -170,7 +184,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var sorter = AtlasIslandSorterUtility.GetSorter(atlasSetting.SorterName);
             if (sorter == null) { return false; }
-            moveIslandPool = sorter.Sorting(moveIslandPool, atlasSetting.GetTexScalePadding);
+            moveIslandPool = sorter.Sorting(moveIslandPool, atlasSetting.UseUpScaling, atlasSetting.GetTexScalePadding);
             var rectTangleMove = sorter.RectTangleMove;
 
 

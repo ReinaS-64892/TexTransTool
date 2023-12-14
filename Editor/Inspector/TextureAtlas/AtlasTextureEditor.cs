@@ -95,6 +95,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sUnknownShaderAtlasAllTexture = sAtlasSettings.FindPropertyRelative("UnknownShaderAtlasAllTexture");
             var sIncludeDisableRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisableRenderer");
+            var sUseUpScaling = sAtlasSettings.FindPropertyRelative("UseUpScaling");
             var sTextureFineTuningDataList = sAtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
 
 
@@ -113,6 +114,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(sUnknownShaderAtlasAllTexture, "UnknownShaderAtlasAllTexture".GetLC());
             EditorGUILayout.PropertyField(sIncludeDisableRenderer, sIncludeDisableRenderer.name.GetLC());
+            EditorGUILayout.PropertyField(sUseUpScaling, sUseUpScaling.name.GetLC());
             DrawTextureFineTuningDataList(sTextureFineTuningDataList);
 
 

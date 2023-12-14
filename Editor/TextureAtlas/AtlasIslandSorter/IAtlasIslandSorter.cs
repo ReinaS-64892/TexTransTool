@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         string SorterName { get; }
         bool RectTangleMove { get; }
-        Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, float padding);
+        Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, bool useUpScaling, float padding);
     }
 
     internal static class AtlasIslandSorterUtility
