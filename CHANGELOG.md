@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Decal などのコンポーネントがオリジナルのテクスチャーを取得する際、不必要に別のインスタンスを生成していた問題を修正 `#249`
 - 一部の衣装などで AtlasTexture の NFDHPlasFC が正常に並び替えできない問題を修正 `#255`
 - CylindricalCurveDecal でセグメントの座標が重複したり同一のセグメントが複数個入っていた場合に無限ループが発生する問題を修正 `#273`
+- 透過合成周りで黒いふちがプレビューで発生する問題を修正 `#274`
 
 ### Deprecated
 
