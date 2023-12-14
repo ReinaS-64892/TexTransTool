@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+using System;
 using System.IO;
 using net.rs64.MultiLayerImageParser.PSD;
 using net.rs64.MultiLayerImageParser.LayerData;
@@ -33,20 +33,24 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 if (string.IsNullOrWhiteSpace(targetPSDPath)) { continue; }
                 if (Path.GetExtension(targetPSDPath) != ".psd") { continue; }
 
-                EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
-                var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
-                EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
-                var pSDData = PSDHighLevelParser.Parse(lowPSDData);
-                EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+                try
+                {
+                    EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
+                    var lowPSDData = PSDLowLevelParser.Parse(targetPSDPath);
+                    EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
+                    var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+                    EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
 
 
-                MultiLayerImageImporter.ImportCanvasData(
-                    new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
-                    multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
-                    );
-
-
-                EditorUtility.ClearProgressBar();
+                    MultiLayerImageImporter.ImportCanvasData(
+                        new MultiLayerImageImporter.HandlerForFolderSaver(targetPSDPath.Replace(".psd", "")), (CanvasData)pSDData,
+                        multiLayerImageCanvas => multiLayerImageCanvas.gameObject.AddComponent<AbsoluteTextureResolver>().Texture = souseTex2D
+                        );
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
             }
         }
 

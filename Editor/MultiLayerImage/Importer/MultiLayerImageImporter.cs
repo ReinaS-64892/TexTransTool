@@ -20,20 +20,24 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     {
         public static void ImportCanvasData(HandlerForFolderSaver ctx, CanvasData canvasData, Action<MultiLayerImageCanvas> preSaveCallBack)
         {
-            EditorUtility.DisplayProgressBar("Import Canvas", "Build Layer", 0);
+            try
+            {
+                EditorUtility.DisplayProgressBar("Import Canvas", "Build Layer", 0);
 
-            var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
-            var rootCanvas = new GameObject(prefabName);
-            var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
-            multiLayerImageCanvas.TextureSize = canvasData.Size;
-            AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
-            ctx.FinalizeTex2D();
-            preSaveCallBack.Invoke(multiLayerImageCanvas);
-            PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
-            UnityEngine.Object.DestroyImmediate(rootCanvas);
-
-
-            EditorUtility.ClearProgressBar();
+                var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
+                var rootCanvas = new GameObject(prefabName);
+                var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
+                multiLayerImageCanvas.TextureSize = canvasData.Size;
+                AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
+                ctx.FinalizeTex2D();
+                preSaveCallBack.Invoke(multiLayerImageCanvas);
+                PrefabUtility.SaveAsPrefabAsset(rootCanvas, Path.Combine(ctx.SaveDirectory, prefabName + ".prefab"));
+                UnityEngine.Object.DestroyImmediate(rootCanvas);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
         }
         public static void AddLayers(Transform thisTransForm, HandlerForFolderSaver ctx, List<AbstractLayerData> abstractLayers)
         {
