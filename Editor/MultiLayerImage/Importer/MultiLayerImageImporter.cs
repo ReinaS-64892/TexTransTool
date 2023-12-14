@@ -140,7 +140,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 // timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
                 foreach (var path2e in pathToEncode)
                 {
-                    if (File.Exists(path2e.Key)) { continue; }
+                    if (File.Exists(path2e.Key + ".meta")) { continue; }
                     File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
                 }
 
@@ -312,7 +312,7 @@ guid: ";
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
-  alphaIsTransparency: 0
+  alphaIsTransparency: 1
   spriteTessellationDetail: -1
   textureType: 0
   textureShape: 1
