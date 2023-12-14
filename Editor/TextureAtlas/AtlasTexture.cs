@@ -339,15 +339,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var nawIndex = 0;
             foreach ((var Origin, var Moved) in islandPairs)
             {
-                var originVertexes = Origin.GenerateRectVertexes(padding);
-                var movedVertexes = Moved.GenerateRectVertexes(padding);
-                var triangleQuad = new List<TriangleIndex>(6)
-                {
-                    new TriangleIndex(nawIndex + 0, nawIndex + 1, nawIndex + 2),
-                    new TriangleIndex( nawIndex + 0, nawIndex + 2, nawIndex + 3)
-                };
+                var rectScalePadding = Moved.TexToRectScale(padding);
+
+                var originVertexes = Origin.GenerateRectVertexes(rectScalePadding);
+                var movedVertexes = Moved.GenerateRectVertexes(rectScalePadding);
+
+                triangles.Add(new TriangleIndex(nawIndex + 0, nawIndex + 1, nawIndex + 2));
+                triangles.Add(new TriangleIndex(nawIndex + 0, nawIndex + 2, nawIndex + 3));
                 nawIndex += 4;
-                triangles.AddRange(triangleQuad);
                 SUV.AddRange(originVertexes);
                 TUV.AddRange(movedVertexes);
             }
