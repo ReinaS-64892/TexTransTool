@@ -214,27 +214,36 @@ namespace net.rs64.TexTransCore.Island
             var relativeTargetPos = targetPos - Pivot;
             return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
         }
-        public List<Vector2> GenerateRectVertexes(float padding = 0, List<Vector2> outPutQuad = null)
+        public List<Vector2> GenerateRectVertexes(float rectScalePadding = 1.1f, List<Vector2> outPutQuad = null)
         {
-            padding = Mathf.Abs(padding);
+            rectScalePadding = Mathf.Abs(rectScalePadding);
             outPutQuad?.Clear(); outPutQuad ??= new();
+
+            var center = Pivot + (Size * 0.5f);
+
             if (!Is90Rotation)
             {
-                outPutQuad.Add(Pivot + new Vector2(-padding, -padding));
-                outPutQuad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                outPutQuad.Add(Pivot + Size + new Vector2(padding, padding));
-                outPutQuad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot, rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x, Pivot.y + Size.y), rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot + Size, rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x + Size.x, Pivot.y), rectScalePadding));
             }
             else
             {
-                outPutQuad.Add(new Vector2(Pivot.x, Pivot.y + Size.y) + new Vector2(-padding, padding));
-                outPutQuad.Add(Pivot + Size + new Vector2(padding, padding));
-                outPutQuad.Add(new Vector2(Pivot.x + Size.x, Pivot.y) + new Vector2(padding, -padding));
-                outPutQuad.Add(Pivot + new Vector2(-padding, -padding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x, Pivot.y + Size.y), rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot + Size, rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x + Size.x, Pivot.y), rectScalePadding));
+                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot, rectScalePadding));
             }
+
             return outPutQuad;
         }
 
+        public float TexToRectScale(float texScaleValue)
+        {
+            var center = Pivot + (Size * 0.5f);
+            return Vector2.Distance(center, Pivot - new Vector2(texScaleValue, texScaleValue)) / Vector2.Distance(center, Pivot);
+        }
         public void Rotate90()
         {
             Is90Rotation = !Is90Rotation;
