@@ -140,7 +140,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 // timer.Stop(); Debug.Log("EncAllTime : " + timer.ElapsedMilliseconds + "ms");
                 foreach (var path2e in pathToEncode)
                 {
-                    if (File.Exists(path2e.Key)) { continue; }
+                    if (File.Exists(path2e.Key + ".meta")) { continue; }
                     File.WriteAllText(path2e.Key + ".meta", MetaGUIDPre + GUID.Generate().ToString() + MetaGUIDPost);
                 }
 
