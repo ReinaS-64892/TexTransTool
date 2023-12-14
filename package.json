@@ -15,5 +15,8 @@
   },
   "legacyFolders": {
     "Packages\\rs64.tex-trans-tool": ""
+  },
+  "dependencies": {
+    "com.unity.burst": "1.8.0"
   }
 }
