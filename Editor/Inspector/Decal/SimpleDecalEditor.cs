@@ -110,7 +110,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 TextureTransformerEditor.DrawerPropertyFloat(
                     sLocalScale.FindPropertyRelative("x"),
-                    sLocalScale.displayName.GetLC(),
+                    "Scale".GetLC(),
                     editCollBack
                 );
             }
