@@ -1,7 +1,7 @@
 {
   "name": "net.rs64.tex-trans-tool",
   "displayName": "TexTransTool",
-  "version": "0.5.0-Beta.7",
+  "version": "0.5.0-Beta.8",
   "unity": "2021.3",
   "description": "Non-destructive modification to Texture!",
   "author": {
