@@ -23,6 +23,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (s_blendTypeKeys == null)
             {
+                if (TextureBlend.BlendShaders == null) { return; }//次フレームを待つ
                 s_blendTypeKeys = TextureBlend.BlendShaders.Keys.ToArray();
             }
 
