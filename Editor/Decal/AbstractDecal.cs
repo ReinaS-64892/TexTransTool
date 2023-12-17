@@ -75,25 +75,6 @@ namespace net.rs64.TexTransTool.Decal
 
         public abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
 
-        public static void DecalCompiledConvert(Dictionary<Texture2D, Texture> decalCompiledTextures, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures)
-        {
-            foreach (var matAndTex in decalCompiledRenderTextures)
-            {
-                foreach (var texture in matAndTex.Value)
-                {
-                    var souseTex = matAndTex.Key.GetTexture(texture.Key) as Texture2D;
-                    if (decalCompiledTextures.ContainsKey(souseTex))
-                    {
-                        TextureBlend.BlendBlit(decalCompiledTextures[souseTex] as RenderTexture, texture.Value, TextureBlend.BL_KEY_DEFAULT);
-                    }
-                    else
-                    {
-                        decalCompiledTextures.Add(souseTex, texture.Value);
-                    }
-                }
-            }
-        }
-
         public static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
         {
             RenderTexture mulDecalTexture;
@@ -120,39 +101,6 @@ namespace net.rs64.TexTransTool.Decal
                 RealTimePreviewManager.instance.UpdateAbstractDecal(this);
             }
             ThisIsForces = false;
-        }
-        [ContextMenu("ExtractDecalCompiledTexture")]
-        public void ExtractDecalCompiledTexture()
-        {
-            if (!IsPossibleApply) { Debug.LogError("Applyできないためデカールをコンパイルできません。"); return; }
-
-
-            var path = EditorUtility.OpenFolderPanel("ExtractDecalCompiledTexture", "Assets", "");
-            if (string.IsNullOrEmpty(path) && !Directory.Exists(path)) return;
-
-            var decalCompiledTextures = CompileDecal(new TextureManager(false));
-            var decalCompiledTexPier = new Dictionary<Texture2D, Texture>();
-            DecalCompiledConvert(decalCompiledTexPier, decalCompiledTextures);
-            foreach (var TexturePair in decalCompiledTexPier)
-            {
-                var name = TexturePair.Key.name;
-                Texture2D extractDCtex;
-                switch (TexturePair.Value)
-                {
-                    case RenderTexture rt:
-                        extractDCtex = rt.CopyTexture2D();
-                        break;
-                    case Texture2D tex:
-                        extractDCtex = tex;
-                        break;
-                    default:
-                        continue;
-                }
-                var pngByte = extractDCtex.EncodeToPNG();
-
-                System.IO.File.WriteAllBytes(Path.Combine(path, name + ".png"), pngByte);
-
-            }
         }
 
     }
