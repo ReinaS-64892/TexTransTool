@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 色合成の改修に伴い ClassicNormal は削除されました `#237`
 - TexTransListGroup は削除されました `#230`
 - AtlasTexture の改修に伴い EvenlySpaced, NextFitDecreasingHeight は削除されました `#252`
+- Decal系の ExtractDecalCompiledTexture は削除されました `#283`
 
 ### Fixed
 
