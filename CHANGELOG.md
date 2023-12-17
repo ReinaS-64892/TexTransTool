@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 色合成の改修に伴い ClassicNormal は削除されました `#237`
 - TexTransListGroup は削除されました `#230`
 - AtlasTexture の改修に伴い EvenlySpaced, NextFitDecreasingHeight は削除されました `#252`
-- Decal系の ExtractDecalCompiledTexture は削除されました `#283`
+- Decal 系の ExtractDecalCompiledTexture は削除されました `#283`
 
 ### Fixed
 
@@ -60,7 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CylindricalCurveDecal でセグメントの座標が重複したり同一のセグメントが複数個入っていた場合に無限ループが発生する問題を修正 `#273`
 - 透過合成周りで黒いふちがプレビューで発生する問題を修正 `#274`
 - AtlasTexture でアトラス化した時にテクスチャがずれる問題を修正 `#280`
-- ShaderがNullとなりBlendTexture全般が動作しなくなる問題を修正 `#278`
+- Shader が Null となり BlendTexture 全般が動作しなくなる問題を修正 `#278`
+- Blend 用の Shader が初期化されていないタイミングで BlendTypeKey のプロパティを描画しようとしたときに例外が発生する問題を修正 `#284`
+
 ### Deprecated
 
 ## [0.4.4]
