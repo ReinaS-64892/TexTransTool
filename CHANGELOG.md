@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture でアトラス化した時にテクスチャがずれる問題を修正 `#280`
 - Shader が Null となり BlendTexture 全般が動作しなくなる問題を修正 `#278`
 - Blend 用の Shader が初期化されていないタイミングで BlendTypeKey のプロパティを描画しようとしたときに例外が発生する問題を修正 `#284`
+- Target のプロパティを持ったテクスチャーが存在しない場合 ReferenceCopy が動作しない問題を修正 `#`
 
 ### Deprecated
 
