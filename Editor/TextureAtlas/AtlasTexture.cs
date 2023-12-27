@@ -341,20 +341,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
-            var fineSettings = AtlasSetting.GetTextureFineTuning();
-            foreach (var fineSetting in fineSettings)
+            var fineTunings = AtlasSetting.GetTextureFineTuning();
+            foreach (var fineTuning in fineTunings)
             {
-                fineSetting.AddSetting(atlasTexFineTuningTargets);
+                fineTuning.AddSetting(atlasTexFineTuningTargets);
             }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
             var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
-            domain.transferAssets(atlasTexFineTuningTargets.Select(PaT => PaT.Texture2D));
+            domain.transferAssets(atlasTexture.Select(PaT => PaT.Texture2D));
+
+            //CompressDelegation
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
                 var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting.FormatQualityValue), (int)compressSetting.CompressionQuality);
                 domain.TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
             }
+
 
             domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
 
