@@ -74,6 +74,7 @@ namespace net.rs64.TexTransCore.BlendTexture
             BlendShadersInit();
             UnityEditor.EditorApplication.delayCall -= EditorInitDerayCaller;
         }
+        [UnityEditor.InitializeOnEnterPlayMode]
 #endif
         public static void BlendShadersInit()
         {
