@@ -77,6 +77,11 @@ namespace net.rs64.TexTransTool.Decal
                 Gizmos.DrawLine(selectorOrigin, selectorTail);
             }
         }
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (RealTimePreviewManager.instance.IsRealTimePreview(this)) { RealTimePreviewManager.instance.UnRegtAbstractDecal(this); }
+        }
     }
 }
 
