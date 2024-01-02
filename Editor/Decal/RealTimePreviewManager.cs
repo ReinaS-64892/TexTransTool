@@ -175,9 +175,11 @@ namespace net.rs64.TexTransTool
             foreach (var render in abstractDecal.GetRenderers) { RegtRenderer(render); }
             RealTimePreviews.Add(abstractDecal, (abstractDecal.TargetPropertyName, blends, decalTargets));
         }
+
+        public bool IsRealTimePreview(AbstractDecal abstractDecal) => RealTimePreviews.ContainsKey(abstractDecal);
         public void UnRegtAbstractDecal(AbstractDecal abstractDecal)
         {
-            if (!RealTimePreviews.ContainsKey(abstractDecal)) { return; }
+            if (!IsRealTimePreview(abstractDecal)) { return; }
             var absDecalData = RealTimePreviews[abstractDecal];
 
             foreach (var decalTarget in absDecalData.decalTargets)
