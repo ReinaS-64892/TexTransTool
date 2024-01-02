@@ -49,7 +49,7 @@ FormatQuality,フォーマット品質
 CompressionQuality,圧縮品質
 Source,ソース
 NewFineTuningSetting,テクスチャー詳細設定を追加
-Other Previewing. Override Preview this,他がプレビュー中 プレビューを乗っ取る
+Other Previewing. Override Preview this,他のプレビューを中断してこれをプレビューする
 (Other Previewing Or Previewing Animation),(他かアニメーションのプレビュー中)
 BlendTexture,ブレンドテクスチャー
 TargetAvatar,ターゲットアバター
