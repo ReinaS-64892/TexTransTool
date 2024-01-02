@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TexTransListGroup は削除されました `#230`
 - AtlasTexture の改修に伴い EvenlySpaced, NextFitDecreasingHeight は削除されました `#252`
 - Decal 系の ExtractDecalCompiledTexture は削除されました `#283`
+- VRCAvatarCallBackToProcessAvatar は削除されました `#302`
 
 ### Fixed
 
@@ -65,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Target のプロパティを持ったテクスチャーが存在しない場合 ReferenceCopy が動作しない問題を修正 `#289`
 - `#278` での変更で Apply On Play に限り Shader が Null となる問題を修正 `#288`
 - プレビュー中にプレビューしているコンポーネントを削除したとき、プレビューが解除されない問題を修正 `#300`
+- PreviewCancelerPass が追加され、プレビューの状態のままアップロードできてしまう問題を修正 `#299`
 
 ### Deprecated
 
