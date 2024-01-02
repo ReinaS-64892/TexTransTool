@@ -105,7 +105,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sLocalScale = tf_sObg.FindProperty("m_LocalScale");
             var sFixedAspect = thisSObject.FindProperty("FixedAspect");
 
-            TextureTransformerEditor.Filter<float> editCollBack = (value) => { if (decalTexture != null) { sLocalScale.FindPropertyRelative("y").floatValue = value * ((float)decalTexture.height / (float)decalTexture.width); } return value; };
+            TextureTransformerEditor.Filter<float> editCollBack = (value) =>
+            {
+                var aspectValue = 1f;
+                if (decalTexture != null) { aspectValue = ((float)decalTexture.height / (float)decalTexture.width); }
+                sLocalScale.FindPropertyRelative("y").floatValue = value * aspectValue;
+                return value;
+            };
+
             if (sFixedAspect.boolValue)
             {
                 TextureTransformerEditor.DrawerPropertyFloat(
