@@ -46,19 +46,7 @@ namespace net.rs64.TexTransTool
             {
                 if (GUILayout.Button(previewMessage))
                 {
-                    previweing = target;
-                    AnimationMode.StartAnimationMode();
-                    try
-                    {
-                        apply(target);
-                    }
-                    catch
-                    {
-                        AnimationMode.StopAnimationMode();
-                        EditorUtility.ClearProgressBar();
-                        previweing = null;
-                        throw;
-                    }
+                    StartPreview(target, apply);
                 }
             }
             else if (previweing == target)
@@ -70,9 +58,28 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("(Other Previewing)".GetLocalize());
-                EditorGUI.EndDisabledGroup();
+                if (GUILayout.Button("Other Previewing. Override Preview this".GetLocalize()))
+                {
+                    ExitPreview();
+                    StartPreview(target,apply);
+                }
+            }
+
+            void StartPreview(T target, Action<T> apply)
+            {
+                previweing = target;
+                AnimationMode.StartAnimationMode();
+                try
+                {
+                    apply(target);
+                }
+                catch
+                {
+                    AnimationMode.StopAnimationMode();
+                    EditorUtility.ClearProgressBar();
+                    previweing = null;
+                    throw;
+                }
             }
         }
 
@@ -111,7 +118,7 @@ namespace net.rs64.TexTransTool
                     {
                         target1.Apply(previewDomain);
                     }
-                    
+
                     previewDomain.EditFinish();
                 }
                 finally
