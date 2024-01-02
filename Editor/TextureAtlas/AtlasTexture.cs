@@ -471,7 +471,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<Renderer> FilteredRenderers(GameObject targetRoot)
         {
             var result = new List<Renderer>();
-            foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisableRenderer))
+            foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisabledRenderer))
             {
                 if (item.tag == "EditorOnly") continue;
                 if (item.GetMesh() == null) continue;

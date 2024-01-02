@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public string SorterName = NFDHPlasFC.NDFHPlasFCName;
         public bool WriteOriginalUV = false;
         public bool UnknownShaderAtlasAllTexture = false;
-        public bool IncludeDisableRenderer = false;
+        [FormerlySerializedAs("IncludeDisableRenderer")]public bool IncludeDisabledRenderer = false;
         public bool UseUpScaling = false;
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         public float GetTexScalePadding => Padding / AtlasTextureSize;
