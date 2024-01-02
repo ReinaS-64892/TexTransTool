@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Blend 用の Shader が初期化されていないタイミングで BlendTypeKey のプロパティを描画しようとしたときに例外が発生する問題を修正 `#284`
 - Target のプロパティを持ったテクスチャーが存在しない場合 ReferenceCopy が動作しない問題を修正 `#289`
 - `#278` での変更で Apply On Play に限り Shader が Null となる問題を修正 `#288`
+- プレビュー中にプレビューしているコンポーネントを削除したとき、プレビューが解除されない問題を修正 `#300`
 
 ### Deprecated
 
