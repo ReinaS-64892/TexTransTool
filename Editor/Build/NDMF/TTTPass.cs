@@ -1,5 +1,6 @@
 #if NDMF
 using nadena.dev.ndmf;
+using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransTool.ReferenceResolver;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
@@ -10,6 +11,13 @@ namespace net.rs64.TexTransTool.Build.NDMF
         protected TexTransBuildSession TTTContext(BuildContext context)
         {
             return context.Extension<TexTransToolContext>().TTTBuildContext;
+        }
+    }
+    internal class PreviewCancelerPass : Pass<PreviewCancelerPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            PreviewExit.ExitPreviews();
         }
     }
     internal class ResolvingPass : Pass<ResolvingPass>
