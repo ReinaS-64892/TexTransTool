@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `#278` での変更で Apply On Play に限り Shader が Null となる問題を修正 `#288`
 - プレビュー中にプレビューしているコンポーネントを削除したとき、プレビューが解除されない問題を修正 `#300`
 - PreviewCancelerPass が追加され、プレビューの状態のままアップロードできてしまう問題を修正 `#299`
+- `#202`で発生した FixedAspect がデカールテクスチャーが存在しないときに、正常に動作しない問題を修正 `#303`
 
 ### Deprecated
 
