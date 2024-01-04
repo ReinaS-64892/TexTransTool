@@ -43,12 +43,12 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (domain == null)
             {
-                Debug.LogWarning("Decal : ドメインが存在しません。通常ではありえないエラーです。");
+                TTTLog.Fatal("Decal : ドメインが存在しません。通常ではありえないエラーです。");
                 return;
             }
             if (!IsPossibleApply)
             {
-                Debug.LogWarning("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
+                TTTLog.Fatal("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
                 return;
             }
 

@@ -308,7 +308,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             if (!IsPossibleApply)
             {
-                Debug.LogWarning("AtlasTexture : アトラス化実行不可能な状態です、設定を見直しましょう。");
+                TTTLog.Fatal("AtlasTexture : アトラス化実行不可能な状態です、設定を見直しましょう。");
                 return;
             }
 
