@@ -1,5 +1,6 @@
 {
     "name": "net.rs64.tex-trans-tool.build.ndmf",
+    "rootNamespace": "",
     "references": [
         "GUID:9bc83561c99cfbe4ba0457cda3f96218",
         "GUID:62ced99b048af7f4d8dfe4bed8373d76"
@@ -16,7 +17,7 @@
     "versionDefines": [
         {
             "name": "nadena.dev.ndmf",
-            "expression": "",
+            "expression": "1.0.0",
             "define": "NDMF"
         }
     ],
