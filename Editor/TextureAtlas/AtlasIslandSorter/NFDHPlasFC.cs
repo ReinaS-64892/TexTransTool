@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    Debug.LogWarning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.".GetLocalize());
+                    TTTLog.Warning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.".GetLocalize());
                     break;
                 }
             }
@@ -103,7 +103,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             }
-            if (safetyCount == loopCount) { Debug.Log("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
+            if (safetyCount == loopCount) { TTTLog.Fatal("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
 
             return targetPool;
 

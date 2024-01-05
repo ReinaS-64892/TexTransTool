@@ -59,12 +59,17 @@ namespace net.rs64.TexTransTool
 
                 case LanguageEnum.JP:
                     {
-                        if (s_JP == null) { s_JP = ParseCSV(JP_GUID); }
-                        if (s_JP.TryGetValue(str, out var jpStr))
-                        { return jpStr; }
-                        else { return str; }
+                        return GetLocalizeJP(str);
                     }
             }
+        }
+
+        public static string GetLocalizeJP(string str)
+        {
+            if (s_JP == null) { s_JP = ParseCSV(JP_GUID); }
+            if (s_JP.TryGetValue(str, out var jpStr))
+            { return jpStr; }
+            else { return str; }
         }
 
 #if UNITY_EDITOR

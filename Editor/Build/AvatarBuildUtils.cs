@@ -83,7 +83,7 @@ namespace net.rs64.TexTransTool.Build
                 foreach (var tf in _phaseAtList[texTransPhase])
                 {
                     timer.Restart();
-                    tf.Apply(_avatarDomain);
+                    TTTLog.ReportingObject(tf, () => { tf.Apply(_avatarDomain); });
                     timer.Stop();
                     count += 1;
                     Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply : {timer.ElapsedMilliseconds}ms");

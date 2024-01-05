@@ -1,8 +1,10 @@
 {
     "name": "net.rs64.tex-trans-tool",
+    "rootNamespace": "",
     "references": [
-        "GUID:5282758b83062964bb8be6e82a433ef2",
-        "GUID:714415f88c976294bae3b39a55cfd883"
+        "net.rs64.tex-trans-core",
+        "net.rs64.multi-layer-image-parser",
+        "nadena.dev.ndmf"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -16,6 +18,11 @@
             "name": "com.vrchat.base",
             "expression": "3.1.13",
             "define": "VRC_BASE"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.3.0-rc.0",
+            "define": "NDMF"
         }
     ],
     "noEngineReferences": false
