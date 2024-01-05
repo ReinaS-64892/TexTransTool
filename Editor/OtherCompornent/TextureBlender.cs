@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool
 
         public override void Apply(IDomain domain)
         {
-            if (!IsPossibleApply) return;
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
             var distTex = TargetTexture.GetTexture();
             if (distTex == null) { return; }

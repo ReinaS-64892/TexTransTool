@@ -306,11 +306,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public override void Apply(IDomain domain = null)
         {
-            if (!IsPossibleApply)
-            {
-                TTTLog.Fatal("AtlasTexture : アトラス化実行不可能な状態です、設定を見直しましょう。");
-                return;
-            }
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
             domain.ProgressStateEnter("AtlasTexture");
             domain.ProgressUpdate("CompileAtlasTexture", 0f);

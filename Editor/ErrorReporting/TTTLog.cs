@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
+using nadena.dev.ndmf.localization;
+
 
 
 #if NDMF
 using nadena.dev.ndmf;
 #endif
-
-[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool")]
-[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.Inspector")]
 
 namespace net.rs64.TexTransTool
 {
@@ -20,7 +19,7 @@ namespace net.rs64.TexTransTool
 #if NDMF
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Information, code, objects);
 #else
-            Debug.Log(code);
+                        Debug.Log(code);
 #endif
                 }
                 public static void Warning(string code, params object[] objects)
@@ -28,7 +27,7 @@ namespace net.rs64.TexTransTool
 #if NDMF
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.NonFatal, code, objects);
 #else
-            Debug.LogWarning(code);
+                        Debug.LogWarning(code);
 #endif
                 }
                 public static void Fatal(string code, params object[] objects)
@@ -36,7 +35,7 @@ namespace net.rs64.TexTransTool
 #if NDMF
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Error, code, objects);
 #else
-            Debug.LogError(code);
+                        Debug.LogError(code);
 #endif
                 }
                 public static void Exception(Exception e, string additionalStackTrace = "")
@@ -44,7 +43,7 @@ namespace net.rs64.TexTransTool
 #if NDMF
                         ErrorReport.ReportException(e, additionalStackTrace);
 #else
-            Debug.LogException(e);
+                        Debug.LogException(e);
 #endif
                 }
 
@@ -53,31 +52,36 @@ namespace net.rs64.TexTransTool
 #if NDMF
                         ErrorReport.WithContextObject(obj, action);
 #else
-            try
-            {
-                action.Invoke();
-            }
-            catch (Exception e)
-            {
-                LogException(e);
-                throw e;
-            }
+                        try
+                        {
+                                action.Invoke();
+                        }
+                        catch (Exception e)
+                        {
+                                Debug.LogException(e);
+                                throw e;
+                        }
 #endif
                 }
 
 #if NDMF
-                private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer =>
-                        new nadena.dev.ndmf.localization.Localizer("ja-JP", () => { return new() { ("ja-JP", Localize.GetLocalize) }; });
+                private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer = new nadena.dev.ndmf.localization.Localizer("en-US",
+                () =>
+                {
+                        return new() {
+                        // TODO : このありえないほど治安の悪いKeyへのフォールバック回避をどうするか考えないといけないというか、
+                        //そもそもこのツールのローカライズ対応をどうするべきかをそろそろ考えるべきだ...
+                        ("en-US", (str) => str + "\u0020"),
+                        ("ja-JP", (str) => {
+                                var lcStr = Localize.GetLocalizeJP(str);
+                                if(lcStr == str){ lcStr += "\u0020";}
+                                return lcStr;
+                        })
+                        };
+                });
 #endif
         }
 
 
-        [System.Serializable]
-        public class TTTException : System.Exception
-        {
-                public TTTException() { }
-                public TTTException(string message) : base(message) { }
-                public TTTException(string message, System.Exception inner) : base(message, inner) { }
-                protected TTTException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
-        }
+
 }

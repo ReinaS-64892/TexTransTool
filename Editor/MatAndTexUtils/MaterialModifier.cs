@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         public override List<Renderer> GetRenderers => TargetRenderers;
-        public override bool IsPossibleApply => ModifiedTarget.Any();
+        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         public List<Material> ModifiedTarget = new List<Material>();
         public List<Material> GetContainsMatTarget
         {
@@ -78,6 +78,8 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public override void Apply([NotNull] IDomain domain)
         {
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
+
             var modMatList = new Dictionary<Material, Material>();
             foreach (var modTarget in GetContainsMatTarget)
             {

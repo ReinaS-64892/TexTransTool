@@ -18,11 +18,7 @@ namespace net.rs64.TexTransTool
 
         public override void Apply(IDomain domain)
         {
-            if (!IsPossibleApply)
-            {
-                Debug.LogWarning("TexTransGroup : このグループ内のどれかがプレビューできる状態ではないため実行できません。");
-                return;
-            }
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
             domain.ProgressStateEnter("TexTransGroup");
 

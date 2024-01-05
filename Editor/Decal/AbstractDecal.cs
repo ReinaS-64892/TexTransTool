@@ -41,16 +41,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public override void Apply(IDomain domain)
         {
-            if (domain == null)
-            {
-                TTTLog.Fatal("Decal : ドメインが存在しません。通常ではありえないエラーです。");
-                return;
-            }
-            if (!IsPossibleApply)
-            {
-                TTTLog.Fatal("Decal : デカールを張ることができない状態です。ターゲットレンダラーや、デカールテクスチャーなどが設定されているかどうかご確認ください。");
-                return;
-            }
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
             domain.ProgressStateEnter("AbstractDecal");
 

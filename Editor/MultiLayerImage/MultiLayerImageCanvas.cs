@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
 
-        public override bool IsPossibleApply => true;
+        public override bool IsPossibleApply => TextureSelector.TargetRenderer != null;
 
         public override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void Apply([NotNull] IDomain domain)
         {
+            if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
             var canvasContext = new CanvasContext(TextureSize, domain);
 
             var replaceTarget = TextureSelector.GetTexture();
@@ -35,7 +36,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
-            .Where( I => I != null)
+            .Where(I => I != null)
             .Reverse();
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
 
