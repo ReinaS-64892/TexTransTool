@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 無効化されたレンダラーもアトラス化の対象にする IncludeDisableRenderer を追加 `#222`
 - 非常に実験的な API を追加 `#258`
 - AtlasTexture のアトラス化するときに、アップスケーリングを許可するオプションを追加 `#279`
+- 最低限のNDMFのErrorReportへの対応 `#293`
 
 ### Changed
 
