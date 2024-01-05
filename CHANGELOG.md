@@ -42,9 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PropertyName の保存形式を調整し、データが勝手に変わらないように変更 `#228`
 - Texture のブレンドを即時実行するように変更し、VRAM + RAM 容量が Decal などのコンポーネントの最大数にならないように変更 `#188`
 - AtlasTexture や Decal などのセーブデータに大きな変更 `#252 #256`
-- Unity の最小バージョン指定を 2021.3 に変更 `#260`
+- ~~Unity の最小バージョン指定を 2021.3 に変更 `#260`~~
 - AtlasTexture のアトラス化するとき、標準の動作はアップスケーリングできない仕様に変更 `#279`
 - 他がプレビュー中のときにプレビューができないのではなく、プレビューを乗っ取るボタンに変更 `#298`
+- Unity の最小バージョン指定を 2021.3 に変更 `#310`
 
 ### Removed
 
