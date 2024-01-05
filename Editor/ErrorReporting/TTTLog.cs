@@ -1,12 +1,12 @@
 using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
-using nadena.dev.ndmf.localization;
 
 
 
 #if NDMF
 using nadena.dev.ndmf;
+using nadena.dev.ndmf.localization;
 #endif
 
 namespace net.rs64.TexTransTool
