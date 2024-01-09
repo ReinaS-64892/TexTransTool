@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.4.5]
+
+### Fixed
+
+Cherry-Pick
+
+> - AtlasTexture でアトラス化した時にテクスチャがずれる問題を修正 `#280`
+> - 一部の衣装などで AtlasTexture の NFDHPlasFC が正常に並び替えできない問題を修正 `#255`
+
 ## [0.4.4]
 
 ### Fixed
