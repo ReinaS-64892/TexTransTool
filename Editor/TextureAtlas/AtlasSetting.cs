@@ -22,7 +22,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool UseIslandCache = true;
         public string SorterName = NFDHPlasFC.NDFHPlasFCName;
         public bool WriteOriginalUV = false;
-        public bool UnknownShaderAtlasAllTexture = false;
         [FormerlySerializedAs("IncludeDisableRenderer")]public bool IncludeDisabledRenderer = false;
         public bool UseUpScaling = false;
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
