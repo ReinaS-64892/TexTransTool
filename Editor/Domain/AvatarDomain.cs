@@ -100,50 +100,13 @@ namespace net.rs64.TexTransTool
 
             if (_isObjectReplaceInvoke)
             {
-                var matModifiedDict = _matMap.GetMapping;
-                var texModifiedDict = _texMap.GetMapping;
-                var meshModifiedDict = _meshMap.GetMapping;
+                var modMap = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
 
-                foreach (var component in _avatarRoot.GetComponentsInChildren<Component>())
-                {
-                    if (component == null) continue;
-                    if (s_ignoreTypes.Contains(component.GetType())) continue;
+                foreach (var map in _matMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+                foreach (var map in _texMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+                foreach (var map in _meshMap.GetMapping) { modMap.Add(map.Key, map.Value); }
 
-                    using (var serializeObj = new SerializedObject(component))
-                    {
-                        var iter = serializeObj.GetIterator();
-                        while (iter.Next(true))
-                        {
-                            if (iter.propertyType != SerializedPropertyType.ObjectReference) continue;
-                            switch (iter.objectReferenceValue)
-                            {
-                                case Material originalMat:
-                                    {
-                                        if (!matModifiedDict.TryGetValue(originalMat, out var value)) { continue; }
-                                        SetSerializedProperty(iter, value);
-                                        break;
-                                    }
-                                case Texture2D originalTexture2D:
-                                    {
-                                        if (!texModifiedDict.TryGetValue(originalTexture2D, out var value)) { continue; }
-                                        SetSerializedProperty(iter, value);
-                                        break;
-                                    }
-                                case Mesh originalMesh:
-                                    {
-                                        if (!meshModifiedDict.TryGetValue(originalMesh, out var value)) { continue; }
-                                        SetSerializedProperty(iter, value);
-                                        break;
-                                    }
-                                default:
-                                    break;
-                            }
-
-                        }
-
-                        serializeObj.ApplyModifiedPropertiesWithoutUndo();
-                    }
-                }
+                SerializedObjectCrawler.ReplaceSerializedObjects(_avatarRoot, modMap);
             }
         }
     }
@@ -169,5 +132,6 @@ namespace net.rs64.TexTransTool
         }
         public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;
     }
+
 }
 #endif
