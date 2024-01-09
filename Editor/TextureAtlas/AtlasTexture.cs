@@ -153,6 +153,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 matDataPool.Value.IslandPoolSizeOffset(matDataPool.Key.TextureSizeOffSet);
                 moveIslandPool.AddRangeIsland(matDataPool.Value);
+
+                foreach (var island in matDataPool.Value)
+                {
+                    if (island.Size.x > 0.99) { island.Size *= 0.99f / island.Size.x; }
+                    if (island.Size.y > 0.99) { island.Size *= 0.99f / island.Size.y; }
+                }
             }
             IslandSorting.GenerateMovedIslands(atlasSetting.SortingType, moveIslandPool, atlasSetting.GetTexScalePadding);
 
