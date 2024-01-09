@@ -17,9 +17,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         List<IAtlasShaderSupport> _shaderSupports;
 
         public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
-        public AtlasShaderSupportUtils(bool DefaultShaderSupportForGetAllTexture = false)
+        public AtlasShaderSupportUtils()
         {
-            _defaultShaderSupport = new AtlasDefaultShaderSupport() { GetAllTexture = DefaultShaderSupportForGetAllTexture };
+            _defaultShaderSupport = new AtlasDefaultShaderSupport();
             _shaderSupports = InterfaceUtility.GetInterfaceInstance<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) }).ToList();
         }
 

@@ -125,7 +125,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             atlasData.AtlasInMaterials = targetMaterialSelectors;
             var atlasSetting = AtlasSetting;
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
-            var shaderSupports = new AtlasShaderSupportUtils(AtlasSetting.UnknownShaderAtlasAllTexture);
+            var shaderSupports = new AtlasShaderSupportUtils();
 
 
             //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ReferenceResolver が追加されました `#183`
 - BeforeUVModification と UVModification の間にスタックをマージし、デカール系統や MultiLayerImageCanvas の効果が消えないように MidwayMergeStack を追加 `#200`
 - SimpleDecal のインスペクターに複数編集を追加 `#203`
-- 未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加
+- ~~未知のシェーダーですべてのテクスチャーをアトラス化の対象にするオプション UnknownShaderAtlasAllTexture を追加~~ キャンセルされました`#321`
 - MultiLayerImageCanvas と TextureBlender にリゾルバー AbsoluteTextureResolver を追加 `#216`
 - Preview でもビルドと同じようにアバター全体の影響になる DomainMarkerFinder を追加 `#219`
 - 実験的機能として、GrabDecal が SimpleDecal に追加 `#233`

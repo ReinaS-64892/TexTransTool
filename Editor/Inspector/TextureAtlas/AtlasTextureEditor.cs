@@ -93,7 +93,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sUseIslandCache = sAtlasSettings.FindPropertyRelative("UseIslandCache");
             var sSorterName = sAtlasSettings.FindPropertyRelative("SorterName");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
-            var sUnknownShaderAtlasAllTexture = sAtlasSettings.FindPropertyRelative("UnknownShaderAtlasAllTexture");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
             var sUseUpScaling = sAtlasSettings.FindPropertyRelative("UseUpScaling");
             var sTextureFineTuningDataList = sAtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
@@ -112,7 +111,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sUseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
             EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
-            EditorGUILayout.PropertyField(sUnknownShaderAtlasAllTexture, "UnknownShaderAtlasAllTexture".GetLC());
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, sIncludeDisabledRenderer.name.GetLC());
             EditorGUILayout.PropertyField(sUseUpScaling, sUseUpScaling.name.GetLC());
             DrawTextureFineTuningDataList(sTextureFineTuningDataList);
