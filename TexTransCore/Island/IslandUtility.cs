@@ -276,7 +276,23 @@ namespace net.rs64.TexTransCore.Island
             var Islands = TargetPool.Islands;
             if (!Islands.Any()) return TargetPool;
             foreach (var Island in Islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
-            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 100));
+
+            Islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 1073741824));
+
+            var posValue = 1f;
+            foreach (var island in Islands)
+            {
+                if (posValue >= island.Size.y)
+                {
+                    posValue = island.Size.y;
+                }
+                else
+                {
+                    Debug.LogWarning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.");
+                    break;
+                }
+            }
+
             bool success = false;
             float nawScale = 1f;
             int loopCount = -1;
