@@ -29,6 +29,7 @@ namespace net.rs64.TexTransTool
 
         public readonly bool Previewing;
         [CanBeNull] private readonly IAssetSaver _saver;
+        [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
 
         public RenderersDomain(List<Renderer> previewRenderers,
                                bool previewing,
@@ -106,6 +107,14 @@ namespace net.rs64.TexTransTool
                     serialized.ApplyModifiedPropertiesWithoutUndo();
                 }
             }
+
+            if (!rendererOnly)
+            {
+                foreach (var keyValuePair in mapping)
+                {
+                    _objectMap.Add(keyValuePair.Key, keyValuePair.Value);
+                }
+            }
         }
 
         public virtual void SetMesh(Renderer renderer, Mesh mesh)
@@ -128,26 +137,44 @@ namespace net.rs64.TexTransTool
                 default:
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
+
+            _objectMap.Add(renderer.GetMesh(), mesh);
+        }
+        public virtual void SetTexture(Texture2D target, Texture2D setTex)
+        {
+            var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
+            this.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
+            ListPool<Material>.Release(mats);
+
+            _objectMap.Add(target, setTex);
         }
 
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
-        public virtual void SetTexture(Texture2D Target, Texture2D SetTex)
-        {
-            var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
-            this.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, Target, SetTex));
-            ListPool<Material>.Release(mats);
-        }
 
+        public bool TryReplaceQuery(Object oldObject, out Object nowObject)
+        {
+            return _objectMap.GetMapping.TryGetValue(oldObject, out nowObject);
+        }
+        public void RegisterReplace(Object oldObject, Object nowObject)
+        {
+            _objectMap.Add(oldObject, nowObject);
+        }
         public virtual void EditFinish()
         {
             ProgressStateEnter("Finalize");
             ProgressUpdate("MergeStack", 0.0f);
+
             MergeStack();
+
             ProgressUpdate("DeferTexDestroy", 0.3f);
+
             DeferTexDestroy();
+
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
+
             TexCompressDelegationInvoke();
+
             ProgressUpdate("End", 1f);
             ProgressStateExit();
             ProgressStateExit();
@@ -182,7 +209,6 @@ namespace net.rs64.TexTransTool
         public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target) => _textureManager?.TextureCompressDelegation(compressSetting, target);
         public void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target) => _textureManager?.ReplaceTextureCompressDelegation(souse, target);
         public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
-
     }
 }
 #endif

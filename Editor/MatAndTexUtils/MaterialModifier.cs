@@ -10,21 +10,14 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
-    internal class MaterialModifier : TextureTransformer, IMaterialReplaceEventLiner
+    internal class MaterialModifier : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         public override List<Renderer> GetRenderers => TargetRenderers;
         public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         public List<Material> ModifiedTarget = new List<Material>();
-        public List<Material> GetContainsMatTarget
-        {
-            get
-            {
-                var hashSet = new HashSet<Material>(RendererUtility.GetMaterials(GetRenderers));
-                return ModifiedTarget.Where(I => hashSet.Contains(I)).ToList();
-            }
-        }
+
         public List<MatMod> ChangeList = new List<MatMod>();
         [Serializable]
         public class MatMod
@@ -81,7 +74,15 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
             var modMatList = new Dictionary<Material, Material>();
-            foreach (var modTarget in GetContainsMatTarget)
+
+            var hashSet = new HashSet<Material>(RendererUtility.GetMaterials(GetRenderers));
+            var containedModTarget = ModifiedTarget
+                .Select(mat => domain.TryReplaceQuery(mat, out var rMat) ? (Material)rMat : mat)
+                .Where(I => hashSet.Contains(I))
+                .ToList();
+
+
+            foreach (var modTarget in containedModTarget)
             {
                 var newMat = Instantiate(modTarget);
                 modMatList.Add(modTarget, newMat);
@@ -91,13 +92,6 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
                 }
             }
             domain.ReplaceMaterials(modMatList);
-        }
-
-        public void MaterialReplace(Material souse, Material target)
-        {
-            var index = ModifiedTarget.IndexOf(souse);
-            if (index == -1) { return; }
-            ModifiedTarget[index] = target;
         }
     }
 }

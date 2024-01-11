@@ -32,7 +32,6 @@ namespace net.rs64.TexTransTool
         {
             _avatarRoot = avatarRoot;
             _previewing = previewing;
-            if (!_previewing) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
             _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
         public AvatarDomain(GameObject avatarRoot,
@@ -46,53 +45,14 @@ namespace net.rs64.TexTransTool
         {
             _avatarRoot = avatarRoot;
             _previewing = previewing;
-            if (!_previewing) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
             _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
 
         bool _previewing;
-        IMaterialReplaceEventLiner[] _liners;
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
         bool _isObjectReplaceInvoke;
-        [NotNull] FlatMapDict<Material> _matMap = new FlatMapDict<Material>();
-        [NotNull] FlatMapDict<Texture2D> _texMap = new FlatMapDict<Texture2D>();
-        [NotNull] FlatMapDict<Mesh> _meshMap = new FlatMapDict<Mesh>();
-
-        public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
-        {
-            base.ReplaceMaterials(mapping, rendererOnly);
-
-            if (!rendererOnly)
-            {
-                foreach (var keyValuePair in mapping)
-                {
-                    _matMap.Add(keyValuePair.Key, keyValuePair.Value);
-                    InvokeMaterialReplace(keyValuePair.Key, keyValuePair.Value);
-                }
-            }
-        }
-
-        private void InvokeMaterialReplace(Material key, Material value)
-        {
-            if (_previewing) { return; }
-            foreach (var liner in _liners)
-            {
-                liner.MaterialReplace(key, value);
-            }
-        }
-
-        public override void SetTexture(Texture2D target, Texture2D setTex)
-        {
-            base.SetTexture(target, setTex);
-            _texMap.Add(target, setTex);
-        }
-        public override void SetMesh(Renderer renderer, Mesh mesh)
-        {
-            base.SetMesh(renderer, mesh);
-            _meshMap.Add(renderer.GetMesh(), mesh);
-        }
 
         public override void EditFinish()
         {
@@ -100,10 +60,7 @@ namespace net.rs64.TexTransTool
 
             if (_previewing) { return; }
 
-            var modMap = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
-            foreach (var map in _matMap.GetMapping) { modMap.Add(map.Key, map.Value); }
-            foreach (var map in _texMap.GetMapping) { modMap.Add(map.Key, map.Value); }
-            foreach (var map in _meshMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+            var modMap = _objectMap.GetMapping;
 
 #if NDMF_1_3_x
             foreach (var replaceKV in modMap)
@@ -123,18 +80,18 @@ namespace net.rs64.TexTransTool
         Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
         Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();
 
-        public void Add(TKeyValue key, TKeyValue value)
+        public void Add(TKeyValue old, TKeyValue now)
         {
-            if (_reverseDict.TryGetValue(key, out var tKey))
+            if (_reverseDict.TryGetValue(old, out var tKey))
             {
-                _dict[tKey] = value;
-                _reverseDict.Remove(key);
-                _reverseDict.Add(value, tKey);
+                _dict[tKey] = now;
+                _reverseDict.Remove(old);
+                _reverseDict.Add(now, tKey);
             }
-            else if (!_dict.ContainsKey(key))
+            else if (!_dict.ContainsKey(old))
             {
-                _dict.Add(key, value);
-                _reverseDict.Add(value, key);
+                _dict.Add(old, now);
+                _reverseDict.Add(now, old);
             }
         }
         public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;

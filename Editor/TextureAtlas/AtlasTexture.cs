@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
-    internal class AtlasTexture : TextureTransformer, IMaterialReplaceEventLiner
+    internal class AtlasTexture : TextureTransformer
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
@@ -114,14 +114,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        bool TryCompileAtlasTextures(ITextureManager textureManager, out AtlasData atlasData)
+        bool TryCompileAtlasTextures(IDomain domain, out AtlasData atlasData)
         {
             atlasData = new AtlasData();
 
 
             //情報を集めるフェーズ
             var NowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers));
-            var targetMaterialSelectors = SelectMatList.Where(I => NowContainsMatSet.Contains(I.Material)).ToList();
+            var targetMaterialSelectors = SelectMatList.Select(matS =>
+            {
+                matS.Material = domain.TryReplaceQuery(matS.Material, out var rMat) ? (Material)rMat : matS.Material;
+                return matS;
+            }).Where(I => NowContainsMatSet.Contains(I.Material)).ToList();
             atlasData.AtlasInMaterials = targetMaterialSelectors;
             var atlasSetting = AtlasSetting;
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
@@ -137,7 +141,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             foreach (var matSelector in targetMaterialSelectors)
             {
-                matDataList.Add(new MatData(matSelector, shaderSupports.GetTextures(matSelector.Material, textureManager)));
+                matDataList.Add(new MatData(matSelector, shaderSupports.GetTextures(matSelector.Material, domain)));
             }
             shaderSupports.ClearRecord();
 
@@ -263,7 +267,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     var souseProp2Tex = matData.PropAndTextures.Find(I => I.PropertyName == propName);
                     if (souseProp2Tex == null) continue;
-                    var souseTex = souseProp2Tex.Texture is Texture2D ? textureManager.GetOriginalTexture2D(souseProp2Tex.Texture as Texture2D) : souseProp2Tex.Texture;
+                    var souseTex = souseProp2Tex.Texture is Texture2D ? domain.GetOriginalTexture2D(souseProp2Tex.Texture as Texture2D) : souseProp2Tex.Texture;
 
                     if (rectTangleMove)
                     {
@@ -481,14 +485,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return result;
         }
 
-        public void MaterialReplace(Material souse, Material target)
-        {
-            var index = SelectMatList.FindIndex(I => I.Material == souse);
-            if (index == -1) { return; }
-            var selectMat = SelectMatList[index];
-            selectMat.Material = target;
-            SelectMatList[index] = selectMat;
-        }
     }
     internal class AtlasReferenceData
     {

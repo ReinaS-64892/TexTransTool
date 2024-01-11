@@ -12,7 +12,7 @@ using net.rs64.TexTransTool.Build;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
-    internal class MatAndTexAbsoluteSeparator : TextureTransformer , IMaterialReplaceEventLiner
+    internal class MatAndTexAbsoluteSeparator : TextureTransformer
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -32,13 +32,16 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();
 
+
+            var separateTarget = SeparateTarget.Select(mat => domain.TryReplaceQuery(mat, out var rMat) ? (Material)rMat : mat).ToHashSet();
+
             foreach (var renderer in TargetRenderers)
             {
                 if (renderer == null) { continue; }
                 using (var serialized = new SerializedObject(renderer))
                 {
                     foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                        if (property.objectReferenceValue is Material material && SeparateTarget.Contains(material))
+                        if (property.objectReferenceValue is Material material && separateTarget.Contains(material))
                         {
 
                             if (!separatedMaterials.TryGetValue(material, out var separatedMaterial))
@@ -80,12 +83,6 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
             domain.transferAssets(separatedMaterials.Values);
             domain.transferAssets(separatedTextures.Values);
-        }
-        public void MaterialReplace(Material souse, Material target)
-        {
-            var index = SeparateTarget.IndexOf(souse);
-            if (index == -1) { return; }
-            SeparateTarget[index] = target;
         }
     }
 }
