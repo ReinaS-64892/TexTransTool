@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 非常に実験的な API を追加 `#258`
 - AtlasTexture のアトラス化するときに、アップスケーリングを許可するオプションを追加 `#279`
 - 最低限のNDMFのErrorReportへの対応 `#293`
+- プレビューの場合でもマテリアルの置き換えによる実行不可や設定が外れる問題を解決する ReplacementQuery を追加 `#318`
 
 ### Changed
 
