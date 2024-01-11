@@ -18,7 +18,7 @@
         {
             "name": "nadena.dev.ndmf",
             "expression": "1.0.0",
-            "define": "NDMF"
+            "define": "NDMF_1_0_x"
         }
     ],
     "noEngineReferences": false

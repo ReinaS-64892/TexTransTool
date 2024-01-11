@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 
 
-#if NDMF
+#if NDMF_1_3_x
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.localization;
 #endif
@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
         {
                 public static void Info(string code, params object[] objects)
                 {
-#if NDMF
+#if NDMF_1_3_x
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Information, code, objects);
 #else
                         Debug.Log(code);
@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool
                 }
                 public static void Warning(string code, params object[] objects)
                 {
-#if NDMF
+#if NDMF_1_3_x
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.NonFatal, code, objects);
 #else
                         Debug.LogWarning(code);
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
                 }
                 public static void Fatal(string code, params object[] objects)
                 {
-#if NDMF
+#if NDMF_1_3_x
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Error, code, objects);
 #else
                         Debug.LogError(code);
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool
                 }
                 public static void Exception(Exception e, string additionalStackTrace = "")
                 {
-#if NDMF
+#if NDMF_1_3_x
                         ErrorReport.ReportException(e, additionalStackTrace);
 #else
                         Debug.LogException(e);
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool
 
                 public static void ReportingObject(UnityEngine.Object obj, Action action)
                 {
-#if NDMF
+#if NDMF_1_3_x
                         ErrorReport.WithContextObject(obj, action);
 #else
                         try
@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool
 #endif
                 }
 
-#if NDMF
+#if NDMF_1_3_x
                 private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer = new nadena.dev.ndmf.localization.Localizer("en-US",
                 () =>
                 {
