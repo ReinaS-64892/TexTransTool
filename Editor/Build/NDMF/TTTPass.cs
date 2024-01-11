@@ -1,4 +1,4 @@
-#if NDMF
+#if NDMF_1_0_x
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransTool.ReferenceResolver;
