@@ -31,8 +31,8 @@ namespace net.rs64.TexTransTool
                             ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
         {
             _avatarRoot = avatarRoot;
-            _useMaterialReplaceEvent = !previewing;
-            if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
+            _previewing = previewing;
+            if (!_previewing) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
             _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
         public AvatarDomain(GameObject avatarRoot,
@@ -45,12 +45,12 @@ namespace net.rs64.TexTransTool
                             ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager)
         {
             _avatarRoot = avatarRoot;
-            _useMaterialReplaceEvent = !previewing;
-            if (_useMaterialReplaceEvent) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
+            _previewing = previewing;
+            if (!_previewing) { _liners = avatarRoot.GetComponentsInChildren<IMaterialReplaceEventLiner>().ToArray(); }
             _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
         }
 
-        bool _useMaterialReplaceEvent;
+        bool _previewing;
         IMaterialReplaceEventLiner[] _liners;
 
         [SerializeField] GameObject _avatarRoot;
@@ -76,7 +76,7 @@ namespace net.rs64.TexTransTool
 
         private void InvokeMaterialReplace(Material key, Material value)
         {
-            if (!_useMaterialReplaceEvent) { return; }
+            if (_previewing) { return; }
             foreach (var liner in _liners)
             {
                 liner.MaterialReplace(key, value);
@@ -98,14 +98,21 @@ namespace net.rs64.TexTransTool
         {
             base.EditFinish();
 
+            if (_previewing) { return; }
+
+            var modMap = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
+            foreach (var map in _matMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+            foreach (var map in _texMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+            foreach (var map in _meshMap.GetMapping) { modMap.Add(map.Key, map.Value); }
+
+#if NDMF_1_3_x
+            foreach (var replaceKV in modMap)
+            {
+                nadena.dev.ndmf.ObjectRegistry.RegisterReplacedObject(replaceKV.Key, replaceKV.Value);
+            }
+#endif
             if (_isObjectReplaceInvoke)
             {
-                var modMap = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
-
-                foreach (var map in _matMap.GetMapping) { modMap.Add(map.Key, map.Value); }
-                foreach (var map in _texMap.GetMapping) { modMap.Add(map.Key, map.Value); }
-                foreach (var map in _meshMap.GetMapping) { modMap.Add(map.Key, map.Value); }
-
                 SerializedObjectCrawler.ReplaceSerializedObjects(_avatarRoot, modMap);
             }
         }
