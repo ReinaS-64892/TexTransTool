@@ -2,9 +2,9 @@
     "name": "net.rs64.tex-trans-tool.build.ndmf",
     "rootNamespace": "",
     "references": [
-        "GUID:2fe7529676c271848908484d778358fb",
-        "GUID:9bc83561c99cfbe4ba0457cda3f96218",
-        "GUID:62ced99b048af7f4d8dfe4bed8373d76"
+        "net.rs64.tex-trans-tool.runtime",
+        "net.rs64.tex-trans-tool.editor",
+        "nadena.dev.ndmf"
     ],
     "includePlatforms": [
         "Editor"
