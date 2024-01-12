@@ -1,7 +1,6 @@
-using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
@@ -13,3 +12,4 @@ namespace net.rs64.TexTransTool
         void SetSerializedProperty(SerializedProperty property, Object value);
     }
 }
+#endif

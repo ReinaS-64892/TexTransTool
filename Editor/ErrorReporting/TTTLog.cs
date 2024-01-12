@@ -1,6 +1,9 @@
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
+using UnityEditor;
+
 
 
 
@@ -14,6 +17,14 @@ namespace net.rs64.TexTransTool
 
         internal static class TTTLog
         {
+                [InitializeOnLoadMethod]
+                static void RegisterCall()
+                {
+                        TTTRuntimeLog.InfoCall += Info;
+                        TTTRuntimeLog.WarningCall += Warning;
+                }
+
+
                 public static void Info(string code, params object[] objects)
                 {
 #if NDMF_1_3_x
@@ -66,22 +77,11 @@ namespace net.rs64.TexTransTool
 
 #if NDMF_1_3_x
                 private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer = new nadena.dev.ndmf.localization.Localizer("en-US",
-                () =>
-                {
-                        return new() {
-                        // TODO : このありえないほど治安の悪いKeyへのフォールバック回避をどうするか考えないといけないというか、
-                        //そもそもこのツールのローカライズ対応をどうするべきかをそろそろ考えるべきだ...
-                        ("en-US", (str) => str + "\u0020"),
-                        ("ja-JP", (str) => {
-                                var lcStr = Localize.GetLocalizeJP(str);
-                                if(lcStr == str){ lcStr += "\u0020";}
-                                return lcStr;
-                        })
-                        };
-                });
+                () => { return new() { ("en-US", (str) => str), ("ja-JP", Localize.GetLocalizeJP) }; });
 #endif
         }
 
 
 
 }
+#endif

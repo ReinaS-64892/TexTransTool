@@ -77,21 +77,34 @@ namespace net.rs64.TexTransTool
 
     internal class FlatMapDict<TKeyValue>
     {
-        Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
-        Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();
+        Dictionary<TKeyValue, TKeyValue> _dict = new();
+        Dictionary<TKeyValue, TKeyValue> _reverseDict = new();
+        HashSet<TKeyValue> _invalidObjects = new();
 
         public void Add(TKeyValue old, TKeyValue now)
         {
+            if (_invalidObjects.Contains(old)) { return; }
+
             if (_reverseDict.TryGetValue(old, out var tKey))
             {
+                //Mapping Update
                 _dict[tKey] = now;
                 _reverseDict.Remove(old);
                 _reverseDict.Add(now, tKey);
             }
             else if (!_dict.ContainsKey(old))
             {
+                //Mapping Add
                 _dict.Add(old, now);
                 _reverseDict.Add(now, old);
+            }
+            else
+            {
+                //InvalidMapping
+                _invalidObjects.Add(old);
+
+                _reverseDict.Remove(_dict[old]);
+                _dict.Remove(old);
             }
         }
         public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;

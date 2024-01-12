@@ -77,7 +77,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     }
                     else
                     {
-                        target.ThisIsForces = true;
+                        // TODO : リアルタイムプレビューの改修...
+                        // target.ThisIsForces = true;
                     }
                 }
             }

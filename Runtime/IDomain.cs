@@ -1,18 +1,13 @@
 using System.Collections.Generic;
-using UnityEditor;
+using net.rs64.TexTransCore.Island;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
-    internal interface IAssetSaver
-    {
-        void TransferAsset(UnityEngine.Object asset);
-    }
 
-    internal interface IDomain : IAssetSaver, IProgressHandling, ITextureManager
+    internal interface IDomain : IAssetSaver, IProgressHandling
     {
-
 
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
@@ -20,6 +15,14 @@ namespace net.rs64.TexTransTool
         bool TryReplaceQuery(UnityEngine.Object oldObject, out UnityEngine.Object nowObject);
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
+
+
+        ITextureManager GetTextureManager();
+        IIslandCache GetIslandCacheManager();
+    }
+    internal interface IAssetSaver
+    {
+        void TransferAsset(UnityEngine.Object asset);
     }
     internal interface IProgressHandling
     {

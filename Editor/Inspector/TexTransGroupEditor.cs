@@ -96,10 +96,9 @@ namespace net.rs64.TexTransTool.Editor
                             NailEditorEditor.DrawerSummary(nailEditor);
                             break;
                         }
-                    case TexTransGroup texTransGroup:
+                    case TexTransGroup:
                         {
                             EditorGUILayout.LabelField("GroupChildren".GetLocalize());
-                            DrawerSummaryList(childeTransform);
                             break;
                         }
                     case MatAndTexAbsoluteSeparator matAndTexAbsoluteSeparator:

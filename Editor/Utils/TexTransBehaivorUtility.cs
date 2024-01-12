@@ -1,4 +1,5 @@
-
+#if UNITY_EDITOR
+using net.rs64.TexTransTool.EditorProcessor;
 
 namespace net.rs64.TexTransTool
 {
@@ -10,9 +11,10 @@ namespace net.rs64.TexTransTool
             {
                 case TexTransRuntimeBehavior texTransRuntime:
                     { texTransRuntime.Apply(domain); break; }
-                    // case TexTransCallEditorBehavior texTransCallEditorBehavior:
-                    // { texTransCallEditorBehavior.Apply(domain); break; }
+                case TexTransCallEditorBehavior texTransCallEditorBehavior:
+                    { EditorProcessorUtility.CallProcessorApply(texTransCallEditorBehavior, domain); break; }
             }
         }
     }
 }
+#endif

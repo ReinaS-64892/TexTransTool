@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using net.rs64.TexTransTool.Utils;
@@ -119,6 +120,7 @@ namespace net.rs64.TexTransTool
 
         public virtual void SetMesh(Renderer renderer, Mesh mesh)
         {
+            var preMesh = renderer.GetMesh();
             switch (renderer)
             {
                 case SkinnedMeshRenderer skinnedRenderer:
@@ -138,12 +140,12 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            _objectMap.Add(renderer.GetMesh(), mesh);
+            _objectMap.Add(preMesh, mesh);
         }
         public virtual void SetTexture(Texture2D target, Texture2D setTex)
         {
             var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
-            this.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
+            ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
             ListPool<Material>.Release(mats);
 
             _objectMap.Add(target, setTex);
@@ -169,11 +171,11 @@ namespace net.rs64.TexTransTool
 
             ProgressUpdate("DeferTexDestroy", 0.3f);
 
-            DeferTexDestroy();
+            _textureManager.DeferTexDestroy();
 
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
 
-            TexCompressDelegationInvoke();
+            _textureManager.TexCompressDelegationInvoke();
 
             ProgressUpdate("End", 1f);
             ProgressStateExit();
@@ -202,13 +204,13 @@ namespace net.rs64.TexTransTool
         public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
 
         ITextureManager _textureManager;
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager?.GetOriginalTexture2D(texture2D);
-        public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager?.DeferDestroyTexture2D(texture2D);
-        public void DeferTexDestroy() => _textureManager?.DeferTexDestroy();
 
-        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target) => _textureManager?.TextureCompressDelegation(compressSetting, target);
-        public void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target) => _textureManager?.ReplaceTextureCompressDelegation(souse, target);
-        public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
+        public ITextureManager GetTextureManager() => _textureManager;
+
+        public IIslandCache GetIslandCacheManager()
+        {
+            return null; // TODO : this!!!
+        }
     }
 }
 #endif
