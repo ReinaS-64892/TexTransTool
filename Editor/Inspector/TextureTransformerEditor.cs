@@ -9,7 +9,7 @@ using net.rs64.TexTransTool.Editor.Decal;
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TextureTransformer))]
+    [CustomEditor(typeof(TexTransBehavior))]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
         public static void DrawerWarning(string typeName)

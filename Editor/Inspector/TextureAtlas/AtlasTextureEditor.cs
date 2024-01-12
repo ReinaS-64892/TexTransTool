@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
 
 #pragma warning disable CS0612
-            if (thisTarget.SaveDataVersion != ToolUtils.ThiSaveDataVersion)
+            if (thisTarget.SaveDataVersion != TexTransBehavior.TTTDataVersion)
             {
                 if (thisTarget.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
                 {

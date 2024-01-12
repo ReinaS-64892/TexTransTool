@@ -11,7 +11,7 @@ using System;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexRelativeSeparator")]
-    internal class MatAndTexRelativeSeparator : TextureTransformer
+    internal class MatAndTexRelativeSeparator : TexTransCallEditorBehavior
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
 
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
-        public override void Apply(IDomain domain)
+        public void Apply(IEditorCallDomain domain)
         {
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();

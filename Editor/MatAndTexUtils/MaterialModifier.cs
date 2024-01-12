@@ -10,7 +10,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
-    internal class MaterialModifier : TextureTransformer
+    internal class MaterialModifier : TexTransRuntimeBehavior
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;

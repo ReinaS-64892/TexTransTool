@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using UnityEditor;
@@ -35,4 +34,3 @@ namespace net.rs64.TexTransTool
         public static implicit operator string(PropertyName p) => p._propertyName;
     }
 }
-#endif

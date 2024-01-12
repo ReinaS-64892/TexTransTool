@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
@@ -7,4 +6,3 @@ namespace net.rs64.TexTransTool.Utils
     {
     }
 }
-#endif

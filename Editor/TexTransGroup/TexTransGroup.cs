@@ -7,16 +7,16 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/Group/TTT TexTransGroup")]
-    internal class TexTransGroup : TextureTransformer
+    internal class TexTransGroup : TexTransCallEditorBehavior
     {
         public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
-        public IEnumerable<TextureTransformer> Targets => transform.GetChildren().Select(x => x.GetComponent<TextureTransformer>()).Where(x => x != null);
+        public IEnumerable<TexTransBehavior> Targets => transform.GetChildren().Select(x => x.GetComponent<TexTransBehavior>()).Where(x => x != null);
 
         public override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
 
         public override bool IsPossibleApply => PossibleApplyCheck();
 
-        public override void Apply(IDomain domain)
+        public void Apply(IEditorCallDomain domain)
         {
             if (!IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
 
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
             }
             domain.ProgressStateExit();
         }
-        public static IEnumerable<TextureTransformer> TextureTransformerFilter(IEnumerable<TextureTransformer> targets) => targets.Where(tf => tf != null && tf.ThisEnable);
+        public static IEnumerable<TexTransBehavior> TextureTransformerFilter(IEnumerable<TexTransBehavior> targets) => targets.Where(tf => tf != null && tf.ThisEnable);
 
         bool PossibleApplyCheck()
         {

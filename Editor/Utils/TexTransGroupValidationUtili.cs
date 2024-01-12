@@ -15,10 +15,10 @@ namespace net.rs64.TexTransTool
         public static void ValidateTexTransGroup(TexTransGroup texTransGroup)
         {
             var tTFs = TexTransGroup.TextureTransformerFilter(texTransGroup.Targets);
-            var renderersPeaTTFsDict = new Dictionary<Renderer, List<TextureTransformer>>();
+            var renderersPeaTTFsDict = new Dictionary<Renderer, List<TexTransBehavior>>();
             CollectTexTransForms(tTFs, renderersPeaTTFsDict);
 
-            var warnTarget = new List<TextureTransformer>();
+            var warnTarget = new List<TexTransBehavior>();
 
             foreach (var rendererPadTTF in renderersPeaTTFsDict)
             {
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool
 
         }
 
-        private static void CollectTexTransForms(IEnumerable<TextureTransformer> tTFs, Dictionary<Renderer, List<TextureTransformer>> renderersPeaTTFsDict)
+        private static void CollectTexTransForms(IEnumerable<TexTransBehavior> tTFs, Dictionary<Renderer, List<TexTransBehavior>> renderersPeaTTFsDict)
         {
             foreach (var ttf in tTFs)
             {
@@ -85,7 +85,7 @@ namespace net.rs64.TexTransTool
                                 }
                                 else
                                 {
-                                    renderersPeaTTFsDict.Add(tRenderer, new List<TextureTransformer>() { abstractDecal });
+                                    renderersPeaTTFsDict.Add(tRenderer, new List<TexTransBehavior>() { abstractDecal });
                                 }
                             }
                             break;
@@ -100,7 +100,7 @@ namespace net.rs64.TexTransTool
                                 }
                                 else
                                 {
-                                    renderersPeaTTFsDict.Add(tRenderer, new List<TextureTransformer>() { atlasTexture });
+                                    renderersPeaTTFsDict.Add(tRenderer, new List<TexTransBehavior>() { atlasTexture });
                                 }
                             }
                             break;

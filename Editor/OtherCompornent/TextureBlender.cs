@@ -7,7 +7,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TextureBlender")]
-    internal class TextureBlender : TextureTransformer
+    internal class TextureBlender : TexTransRuntimeBehavior
     {
         public RelativeTextureSelector TargetTexture;
 

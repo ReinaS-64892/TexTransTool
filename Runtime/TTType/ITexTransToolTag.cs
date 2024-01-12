@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-
 using UnityEngine;
 
 #if VRC_BASE
@@ -18,4 +16,3 @@ namespace net.rs64.TexTransTool
         int SaveDataVersion { get; }
     }
 }
-#endif

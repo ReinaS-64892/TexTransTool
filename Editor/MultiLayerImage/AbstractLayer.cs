@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         internal bool Visible { get => gameObject.activeSelf; set => gameObject.SetActive(value); }
 
-        [HideInInspector, SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
+        [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
         [SerializeField]internal bool Clipping;

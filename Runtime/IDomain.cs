@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -13,10 +12,7 @@ namespace net.rs64.TexTransTool
 
     internal interface IDomain : IAssetSaver, IProgressHandling, ITextureManager
     {
-        /// <summary>
-        /// Sets the value to specified property with recording for revert
-        /// </summary>
-        void SetSerializedProperty(SerializedProperty property, Object value);
+
 
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
@@ -58,4 +54,3 @@ namespace net.rs64.TexTransTool
         }
     }
 }
-#endif

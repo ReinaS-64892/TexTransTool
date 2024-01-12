@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Decal
     [CreateAssetMenu(fileName = "NailOffsetData", menuName = "TexTransTool/NailOffsetData", order = 1)]
     internal class NailOffsetData : ScriptableObject , ITexTransToolTag
     {
-        [HideInInspector,SerializeField] int _saveDataVersion = ToolUtils.ThiSaveDataVersion;
+        [HideInInspector,SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         public int SaveDataVersion => _saveDataVersion;
         public NailOffSets LeftHand = new NailOffSets();
         public NailOffSets RightHand = new NailOffSets();

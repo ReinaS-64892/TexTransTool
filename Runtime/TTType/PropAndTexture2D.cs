@@ -1,22 +1,20 @@
-#if UNITY_EDITOR
 using System;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    public class PropAndTexture
+    internal class PropAndTexture2D
     {
         public string PropertyName;
-        public Texture Texture;
+        public Texture2D Texture2D;
 
-        public PropAndTexture(string propertyName, Texture textures)
+        public PropAndTexture2D(string propertyName, Texture2D textures)
         {
             PropertyName = propertyName;
-            Texture = textures;
+            Texture2D = textures;
         }
     }
 
 }
 
-#endif

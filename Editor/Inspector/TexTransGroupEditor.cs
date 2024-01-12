@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.Editor
 
             foreach (var childeTransform in rootTransform.GetChildren())
             {
-                var textureTransformer = childeTransform.GetComponent<TextureTransformer>();
+                var textureTransformer = childeTransform.GetComponent<TexTransBehavior>();
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 if (textureTransformer == null)
@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
                 var sActive = sObj.FindProperty("m_IsActive");
                 EditorGUILayout.PropertyField(sActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                EditorGUILayout.ObjectField(textureTransformer, typeof(TextureTransformer), true);
+                EditorGUILayout.ObjectField(textureTransformer, typeof(TexTransBehavior), true);
 
                 sObj.ApplyModifiedProperties();
                 EditorGUILayout.EndHorizontal();

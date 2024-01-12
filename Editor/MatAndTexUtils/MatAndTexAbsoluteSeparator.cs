@@ -12,7 +12,7 @@ using net.rs64.TexTransTool.Build;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
-    internal class MatAndTexAbsoluteSeparator : TextureTransformer
+    internal class MatAndTexAbsoluteSeparator : TexTransCallEditorBehavior
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         public PropertyName PropertyName = PropertyName.DefaultValue;
 
 
-        public override void Apply(IDomain domain)
+        public void Apply(IEditorCallDomain domain)
         {
             var separatedMaterials = new Dictionary<Material, Material>();
             var separatedTextures = new Dictionary<Texture2D, Texture2D>();

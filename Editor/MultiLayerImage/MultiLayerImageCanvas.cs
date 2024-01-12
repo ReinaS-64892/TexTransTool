@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
-    internal class MultiLayerImageCanvas : TextureTransformer, ITTTChildExclusion
+    internal class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
     {
         public RelativeTextureSelector TextureSelector;
 

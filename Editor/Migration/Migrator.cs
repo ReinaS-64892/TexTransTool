@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.Migration
         {
             if (!File.Exists(SaveDataVersionPath))
             {
-                MigrationUtility.WriteVersion(ToolUtils.ThiSaveDataVersion);
+                MigrationUtility.WriteVersion(TexTransBehavior.TTTDataVersion);
             }
 
             EditorApplication.update += Update;
@@ -140,7 +140,7 @@ namespace net.rs64.TexTransTool.Migration
                 {
                     DoMigrate();
                 }
-                else if (SaveDataVersionJsonI.SaveDataVersion > ToolUtils.ThiSaveDataVersion)
+                else if (SaveDataVersionJsonI.SaveDataVersion > TexTransBehavior.TTTDataVersion)
                 {
                     EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
                      "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
@@ -183,7 +183,7 @@ namespace net.rs64.TexTransTool.Migration
         {
             PreMigration();
             var nowVersion = GetSaveDataVersion;
-            foreach (var version in Enumerable.Range(nowVersion.SaveDataVersion, ToolUtils.ThiSaveDataVersion))
+            foreach (var version in Enumerable.Range(nowVersion.SaveDataVersion, TexTransBehavior.TTTDataVersion))
             {
                 switch (version)
                 {

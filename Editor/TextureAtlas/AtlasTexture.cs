@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
-    internal class AtlasTexture : TextureTransformer
+    internal class AtlasTexture : TexTransRuntimeBehavior
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);

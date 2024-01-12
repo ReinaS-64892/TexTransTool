@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    internal class RenderersDomain : IDomain
+    internal class RenderersDomain : IEditorCallDomain
     {
         List<Renderer> _renderers;
         IStackManager _textureStacks;
