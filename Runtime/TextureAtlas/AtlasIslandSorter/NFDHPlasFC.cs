@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    // TTTLog.Warning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.".GetLocalize());
+                    TTTRuntimeLog.Warning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.");
                     break;
                 }
             }
