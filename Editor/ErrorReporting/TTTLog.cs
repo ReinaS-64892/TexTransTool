@@ -1,7 +1,4 @@
-#if UNITY_EDITOR
 using System;
-using UnityEngine;
-using System.Runtime.CompilerServices;
 using UnityEditor;
 
 
@@ -9,7 +6,6 @@ using UnityEditor;
 
 #if NDMF_1_3_x
 using nadena.dev.ndmf;
-using nadena.dev.ndmf.localization;
 #endif
 
 namespace net.rs64.TexTransTool
@@ -84,4 +80,3 @@ namespace net.rs64.TexTransTool
 
 
 }
-#endif

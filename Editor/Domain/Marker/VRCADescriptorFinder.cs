@@ -1,4 +1,4 @@
-#if UNITY_EDITOR && VRC_BASE
+#if VRC_BASE
 using UnityEngine;
 using VRC.SDKBase;
 

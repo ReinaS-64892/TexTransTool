@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using net.rs64.TexTransTool.EditorProcessor;
 
 namespace net.rs64.TexTransTool
@@ -17,4 +16,3 @@ namespace net.rs64.TexTransTool
         }
     }
 }
-#endif

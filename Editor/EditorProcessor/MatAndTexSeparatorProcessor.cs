@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Utils;
@@ -81,4 +80,3 @@ namespace net.rs64.TexTransTool.EditorProcessor
         }
     }
 }
-#endif

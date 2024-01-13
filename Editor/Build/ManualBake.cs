@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,4 +25,3 @@ namespace net.rs64.TexTransTool.Build
         }
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -53,4 +52,3 @@ namespace net.rs64.TexTransTool.EditorIsland
         }
     }
 }
-#endif

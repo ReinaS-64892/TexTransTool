@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
@@ -255,4 +253,3 @@ namespace net.rs64.TexTransTool
         }
     }
 }
-#endif

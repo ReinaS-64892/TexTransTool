@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -72,7 +70,7 @@ namespace net.rs64.TexTransTool
             else { return str; }
         }
 
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
 
         private static Dictionary<string, string> ParseCSV(string guid)
         {
@@ -93,7 +91,6 @@ namespace net.rs64.TexTransTool
         public static void SwitchEN() => Language = LanguageEnum.EN;
         [MenuItem(LANGUAGE_MENU_PATH + "/JP")]
         public static void SwitchJP() => Language = LanguageEnum.JP;
-#endif
+// #endif
     }
 }
-#endif

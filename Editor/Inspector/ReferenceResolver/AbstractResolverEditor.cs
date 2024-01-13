@@ -1,4 +1,3 @@
-using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.ReferenceResolver;
 

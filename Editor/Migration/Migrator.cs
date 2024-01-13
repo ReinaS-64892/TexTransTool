@@ -1,16 +1,12 @@
-#if UNITY_EDITOR
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.Migration.V1;
 using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.SceneManagement;
@@ -542,4 +538,3 @@ namespace net.rs64.TexTransTool.Migration
 
     }
 }
-#endif

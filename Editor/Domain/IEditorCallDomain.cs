@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -12,4 +11,3 @@ namespace net.rs64.TexTransTool
         void SetSerializedProperty(SerializedProperty property, Object value);
     }
 }
-#endif

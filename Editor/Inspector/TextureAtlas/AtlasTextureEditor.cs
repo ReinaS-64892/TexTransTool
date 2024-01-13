@@ -1,11 +1,8 @@
-
-#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
@@ -289,4 +286,3 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
     }
 }
-#endif

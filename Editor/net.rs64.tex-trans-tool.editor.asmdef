@@ -7,7 +7,9 @@
         "net.rs64.multi-layer-image-parser",
         "nadena.dev.ndmf"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

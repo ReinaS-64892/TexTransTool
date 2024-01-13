@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
@@ -26,4 +25,3 @@ namespace net.rs64.TexTransTool
         GameObject FindMarker(GameObject StartPoint);
     }
 }
-#endif

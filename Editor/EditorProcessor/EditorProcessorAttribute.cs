@@ -1,7 +1,5 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -79,4 +77,3 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public EditorProcessorNotFound(string message, System.Exception inner) : base(message, inner) { }
     }
 }
-#endif

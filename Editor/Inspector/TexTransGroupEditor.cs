@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System.Net.Mime;
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
@@ -8,7 +6,6 @@ using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Editor.MatAndTexUtils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.Editor;
-using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
@@ -129,4 +126,3 @@ namespace net.rs64.TexTransTool.Editor
         }
     }
 }
-#endif

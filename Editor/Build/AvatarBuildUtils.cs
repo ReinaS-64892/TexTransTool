@@ -1,10 +1,8 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -212,4 +210,3 @@ namespace net.rs64.TexTransTool.Build
     }
 
 }
-#endif

@@ -1,12 +1,8 @@
-#if UNITY_EDITOR
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
-using JetBrains.Annotations;
-using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using net.rs64.TexTransCore.Island;
 
@@ -110,4 +106,3 @@ namespace net.rs64.TexTransTool
     }
 
 }
-#endif

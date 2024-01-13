@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-
 using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor.OtherMenuItem
@@ -15,4 +13,3 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
     }
 }
-#endif

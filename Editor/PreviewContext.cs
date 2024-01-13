@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
@@ -130,4 +129,3 @@ namespace net.rs64.TexTransTool
 
     }
 }
-#endif

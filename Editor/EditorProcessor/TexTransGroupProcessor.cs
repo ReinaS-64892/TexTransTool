@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Linq;
 
 namespace net.rs64.TexTransTool.EditorProcessor
@@ -26,4 +25,3 @@ namespace net.rs64.TexTransTool.EditorProcessor
         }
     }
 }
-#endif

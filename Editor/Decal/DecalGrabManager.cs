@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using net.rs64.TexTransTool.Decal;
 using UnityEditor;
 
@@ -37,4 +36,3 @@ namespace net.rs64.TexTransTool
         }
     }
 }
-#endif
