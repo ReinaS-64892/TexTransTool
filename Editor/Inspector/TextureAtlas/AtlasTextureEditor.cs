@@ -17,14 +17,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
 
 #pragma warning disable CS0612
-            if (thisTarget.SaveDataVersion != TexTransBehavior.TTTDataVersion)
+            if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
             {
-                if (thisTarget.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
+                if (TTTag.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
                 {
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(thisTarget);
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(thisTarget);
                 }
-                if (thisTarget.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
+                if (TTTag.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
                 {
                     net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
                 }

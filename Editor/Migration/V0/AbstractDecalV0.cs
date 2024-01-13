@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAbstractDecalV0ToV1(AbstractDecal abstractDecal)
         {
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (abstractDecal.SaveDataVersion > 1) { Debug.Log(abstractDecal.name + " AbstractDecal : マイグレーション不可能なバージョンです。"); return; }
+            if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 1) { Debug.Log(abstractDecal.name + " AbstractDecal : マイグレーション不可能なバージョンです。"); return; }
 
             var GameObject = abstractDecal.gameObject;
 
