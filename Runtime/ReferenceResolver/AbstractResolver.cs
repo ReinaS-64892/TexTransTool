@@ -1,8 +1,4 @@
-#if UNITY_EDITOR
-using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.ReferenceResolver
 {
@@ -15,4 +11,3 @@ namespace net.rs64.TexTransTool.ReferenceResolver
 
     }
 }
-#endif

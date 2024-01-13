@@ -209,15 +209,6 @@ namespace net.rs64.TexTransTool.Build
                 }
             }
         }
-        public class ResolverContext
-        {
-            public readonly GameObject AvatarRoot;
-
-            public ResolverContext(GameObject avatarGameObject)
-            {
-                AvatarRoot = avatarGameObject;
-            }
-        }
     }
 
 }

@@ -1,11 +1,9 @@
-#if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
+
 namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
 {
     [RequireComponent(typeof(MultiLayerImageCanvas))]
@@ -14,7 +12,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
     {
         public Texture2D Texture;
 
-        public override void Resolving(AvatarBuildUtils.ResolverContext avatar)
+        public override void Resolving(ResolverContext avatar)
         {
             var relativeTexture = FindRelativeTexture(avatar.AvatarRoot, Texture);
             if (relativeTexture != null)
@@ -54,4 +52,3 @@ namespace net.rs64.TexTransTool.ReferenceResolver.MLIResolver
         }
     }
 }
-#endif

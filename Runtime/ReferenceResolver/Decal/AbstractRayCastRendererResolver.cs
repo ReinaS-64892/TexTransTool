@@ -1,13 +1,9 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
-using UnityEditor;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
@@ -64,4 +60,3 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
         }
     }
 }
-#endif
