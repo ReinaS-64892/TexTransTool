@@ -8,12 +8,12 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
-    internal class MaterialModifier : TexTransRuntimeBehavior
+    public class MaterialModifier : TexTransRuntimeBehavior
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
-        public override List<Renderer> GetRenderers => TargetRenderers;
-        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
+        internal override List<Renderer> GetRenderers => TargetRenderers;
+        internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         public List<Material> ModifiedTarget = new List<Material>();
 
         public List<MatMod> ChangeList = new List<MatMod>();
@@ -65,9 +65,9 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             }
 
         }
-        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
-        public override void Apply([NotNull] IDomain domain)
+        internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 

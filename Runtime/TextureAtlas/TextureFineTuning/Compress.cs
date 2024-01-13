@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureAtlas.FineSetting.Compress;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 {
@@ -20,13 +19,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         }
 
-        public enum FormatQuality
-        {
-            None,
-            Low,
-            Normal,
-            High,
-        }
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
             foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
@@ -46,7 +38,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
     }
 
-    enum TextureCompressionQuality
+    public enum FormatQuality
+    {
+        None,
+        Low,
+        Normal,
+        High,
+    }
+    public enum TextureCompressionQuality
     {
         Fast = 0,
         Normal = 50,
@@ -55,7 +54,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
     internal class CompressionQualityData : ITuningData
     {
-        public Compress.FormatQuality FormatQualityValue = Compress.FormatQuality.Normal;
+        public FormatQuality FormatQualityValue = FormatQuality.Normal;
         public TextureCompressionQuality CompressionQuality = TextureCompressionQuality.Normal;
     }
     internal class CompressionQualityApplicant : ITuningApplicant

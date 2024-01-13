@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/TTT CylindricalDecal")]
-    internal class CylindricalDecal : AbstractSingleDecal<CCSSpace, Vector2>
+    internal sealed class CylindricalDecal : AbstractSingleDecal<CCSSpace, Vector2>
     {
         [FormerlySerializedAs("cylindricalCoordinatesSystem")] public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
         public bool FixedAspect = true;
@@ -18,8 +18,8 @@ namespace net.rs64.TexTransTool.Decal
         public float OutDistanceCulling = 1f;
         public float OutOfRangeOffset = 1f;
 
-        public override CCSSpace GetSpaceConverter => new CCSSpace(CylindricalCoordinatesSystem, GetQuad());
-        public override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
+        internal override CCSSpace GetSpaceConverter => new CCSSpace(CylindricalCoordinatesSystem, GetQuad());
+        internal override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
 
         private List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilters()
         {

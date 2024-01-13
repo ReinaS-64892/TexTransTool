@@ -14,19 +14,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
-        [SerializeField]internal bool Clipping;
+        public bool Clipping;
         [BlendTypeKey]public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
-        [SerializeField]internal LayerMask LayerMask;
+        public LayerMask LayerMask;
         internal abstract void EvaluateTexture(CanvasContext layerStack);
 
 
 
     }
     [Serializable]
-    internal class LayerMask
+    public class LayerMask
     {
-        [SerializeField]internal bool LayerMaskDisabled;
-        [SerializeField]internal Texture2D MaskTexture;
+        public bool LayerMaskDisabled;
+        public Texture2D MaskTexture;
     }
 
 

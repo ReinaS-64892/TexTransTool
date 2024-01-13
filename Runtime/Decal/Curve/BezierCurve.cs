@@ -196,14 +196,14 @@ namespace net.rs64.TexTransTool.Decal.Curve
         }
     }
 
-    public interface ICurve
+    internal interface ICurve
     {
         Vector3 GetPoint(float wight);
         float GetRoll(float wight);
         (Vector3 point, float weight) GetOfLength(float formWight, float length);
     }
 
-    public enum RollMode
+    internal enum RollMode
     {
         WorldUp,
         Cross,

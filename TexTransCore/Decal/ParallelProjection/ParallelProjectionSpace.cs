@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    internal class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
+    public class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
     {
-        public Matrix4x4 ParallelProjectionMatrix;
-        public List<Vector3> PPSVert;
-        public DecalUtility.MeshData MeshData;
-        public ParallelProjectionSpace(Matrix4x4 parallelProjectionMatrix)
+        internal Matrix4x4 ParallelProjectionMatrix;
+        internal List<Vector3> PPSVert;
+        internal DecalUtility.MeshData MeshData;
+        internal ParallelProjectionSpace(Matrix4x4 parallelProjectionMatrix)
         {
             ParallelProjectionMatrix = parallelProjectionMatrix;
 

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal abstract class TexTransCallEditorBehavior : TexTransBehavior, ITexTransToolTag
+    public abstract class TexTransCallEditorBehavior : TexTransBehavior, ITexTransToolTag
     {
 
     }

@@ -3,13 +3,13 @@ using System;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    internal class RelativeTextureSelector
+    public class RelativeTextureSelector
     {
         public Renderer TargetRenderer;
         public int MaterialSelect = 0;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
 
-        public Texture2D GetTexture()
+        internal Texture2D GetTexture()
         {
             var DistMaterials = TargetRenderer.sharedMaterials;
 

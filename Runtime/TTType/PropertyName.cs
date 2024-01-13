@@ -4,7 +4,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    internal struct PropertyName
+    public struct PropertyName
     {
         [SerializeField] string _propertyName;
 

@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [Serializable]
-    internal class AtlasSetting
+    public class AtlasSetting
     {
         public bool MergeMaterials;
         public Material MergeReferenceMaterial;
@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         public float GetTexScalePadding => Padding / AtlasTextureSize;
 
-        public List<IAddFineTuning> GetTextureFineTuning()
+        internal List<IAddFineTuning> GetTextureFineTuning()
         {
             var iFineSettings = new List<IAddFineTuning>();
             foreach (var fineSetting in TextureFineTuningDataList)
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return iFineSettings;
         }
         #region V1SaveData
-        [Obsolete("V1SaveData", true)] public bool UseIslandCache = true;
+        [Obsolete("V1SaveData", true)][SerializeField] internal bool UseIslandCache = true;
         #endregion
 
     }
@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         BakeAllProperty,
     }
     [Serializable]
-    internal class TextureFineTuningData
+    public class TextureFineTuningData
     {
         [FormerlySerializedAs("select")] public select Select;
         public enum select
@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName Resize_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Resize_Select = PropertySelect.NotEqual;
         //Compress
-        public Compress.FormatQuality Compress_FormatQuality = Compress.FormatQuality.High;
+        public FormatQuality Compress_FormatQuality = FormatQuality.High;
         public TextureCompressionQuality Compress_CompressionQuality = TextureCompressionQuality.Best;
         public PropertyName Compress_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Compress_Select = PropertySelect.Equal;
@@ -74,7 +74,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
-        public IAddFineTuning GetFineSetting()
+        internal IAddFineTuning GetFineSetting()
         {
             switch (Select)
             {

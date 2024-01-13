@@ -13,7 +13,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineSetting;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
-    internal class AtlasTexture : TexTransRuntimeBehavior
+    public sealed class AtlasTexture : TexTransRuntimeBehavior
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
@@ -21,11 +21,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public AtlasSetting AtlasSetting = new AtlasSetting();
 
-        public override bool IsPossibleApply => TargetRoot != null;
+        internal override bool IsPossibleApply => TargetRoot != null;
 
-        public override List<Renderer> GetRenderers => Renderers;
+        internal override List<Renderer> GetRenderers => Renderers;
 
-        public override TexTransPhase PhaseDefine => TexTransPhase.UVModification;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.UVModification;
 
         #region V0SaveData
         [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public int AtlasChannel = 0;
             public float TextureSizeOffSet = 1;
         }
-        [Obsolete("V0SaveData", true)] public List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
+        [Obsolete("V0SaveData", true)][SerializeField] internal List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
         [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
         #endregion
 
@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public Material Material;
             public float AdditionalTextureSizeOffSet;
             #region V1SaveData
-            [Obsolete("V1SaveData", true)] public float TextureSizeOffSet;
+            [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
             #endregion
 
         }
@@ -307,7 +307,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
         }
 
-        public override void Apply(IDomain domain = null)
+        internal override void Apply(IDomain domain = null)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 
@@ -412,7 +412,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        public static AtlasIdenticalTag? FindIdenticalTag(AtlasReferenceData atlasData, HashSet<AtlasIdenticalTag> poolTags, int findTagMeshRef, int findTagMatSlot, int findTagMatRef)
+        internal static AtlasIdenticalTag? FindIdenticalTag(AtlasReferenceData atlasData, HashSet<AtlasIdenticalTag> poolTags, int findTagMeshRef, int findTagMatSlot, int findTagMatRef)
         {
             AtlasIdenticalTag? identicalTag = null;
             foreach (var pTag in poolTags)
@@ -444,7 +444,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return matDataPairPool;
         }
 
-        public static HashSet<AtlasIdenticalTag> ToIndexTags(IEnumerable<AtlasIslandID> tags)
+        internal static HashSet<AtlasIdenticalTag> ToIndexTags(IEnumerable<AtlasIslandID> tags)
         {
             var indexTag = new HashSet<AtlasIdenticalTag>();
             foreach (var tag in tags)
@@ -468,7 +468,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
-        public List<Renderer> FilteredRenderers(GameObject targetRoot)
+        internal List<Renderer> FilteredRenderers(GameObject targetRoot)
         {
             var result = new List<Renderer>();
             foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisabledRenderer))

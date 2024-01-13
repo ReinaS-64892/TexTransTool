@@ -10,7 +10,7 @@ using UnityEngine.Pool;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    internal static class DecalUtility
+    public static class DecalUtility
     {
         public interface IConvertSpace<UVDimension>
         where UVDimension : struct
@@ -24,18 +24,18 @@ namespace net.rs64.TexTransCore.Decal
         }
         public class MeshData
         {
-            public readonly List<Vector3> Vertex;
-            public readonly List<Vector2> UV;
-            public readonly List<List<TriangleIndex>> TrianglesSubMesh;
+            internal readonly List<Vector3> Vertex;
+            internal readonly List<Vector2> UV;
+            internal readonly List<List<TriangleIndex>> TrianglesSubMesh;
 
-            public MeshData(List<Vector3> vertex, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
+            internal MeshData(List<Vector3> vertex, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
             {
                 Vertex = vertex;
                 UV = uV;
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        public static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter, UVDimension>(
+        internal static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter, UVDimension>(
             Renderer targetRenderer,
             Dictionary<Material, Dictionary<string, RenderTexture>> renderTextures,
             Texture sousTextures,
@@ -111,7 +111,7 @@ namespace net.rs64.TexTransCore.Decal
 
             return renderTextures;
         }
-        public static List<Vector3> GetWorldSpaceVertices(Renderer target, List<Vector3> outPut = null)
+        internal static List<Vector3> GetWorldSpaceVertices(Renderer target, List<Vector3> outPut = null)
         {
             outPut?.Clear(); outPut ??= new List<Vector3>();
             switch (target)
@@ -160,7 +160,7 @@ namespace net.rs64.TexTransCore.Decal
             }
             return result;
         }
-        public static void ReleasePooledSubTriangle(List<List<TriangleIndex>> subTriList)
+        internal static void ReleasePooledSubTriangle(List<List<TriangleIndex>> subTriList)
         {
             foreach (var subTri in subTriList)
             {
@@ -169,7 +169,7 @@ namespace net.rs64.TexTransCore.Decal
             ListPool<List<TriangleIndex>>.Release(subTriList);
         }
 
-        public static List<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, IEnumerable<Vector3> vertices, Vector3 offset, List<Vector3> outPut = null)
+        internal static List<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, IEnumerable<Vector3> vertices, Vector3 offset, List<Vector3> outPut = null)
         {
             outPut?.Clear(); outPut ??= new List<Vector3>();
             foreach (var vert in vertices)
@@ -179,14 +179,14 @@ namespace net.rs64.TexTransCore.Decal
             }
             return outPut;
         }
-        public static void ConvertVerticesInMatrix(Matrix4x4 matrix, List<Vector3> vertices, Vector3 Offset)
+        internal static void ConvertVerticesInMatrix(Matrix4x4 matrix, List<Vector3> vertices, Vector3 Offset)
         {
             for (int i = 0; i < vertices.Count; i++)
             {
                 vertices[i] = matrix.MultiplyPoint3x4(vertices[i]) + Offset;
             }
         }
-        public static Vector2 QuadNormalize(IReadOnlyList<Vector2> quad, Vector2 targetPos)
+        internal static Vector2 QuadNormalize(IReadOnlyList<Vector2> quad, Vector2 targetPos)
         {
             var oneNearPoint = VectorUtility.NearPoint(quad[0], quad[2], targetPos);
             var oneCross = Vector3.Cross(quad[2] - quad[0], targetPos - quad[0]).z > 0 ? -1 : 1;
@@ -210,7 +210,7 @@ namespace net.rs64.TexTransCore.Decal
 
             return new Vector2(x, y);
         }
-        public static List<Vector2> QuadNormalize(IReadOnlyList<Vector2> quad, List<Vector2> targetPoss, List<Vector2> outPut = null)
+        internal static List<Vector2> QuadNormalize(IReadOnlyList<Vector2> quad, List<Vector2> targetPoss, List<Vector2> outPut = null)
         {
             outPut?.Clear(); outPut ??= new List<Vector2>(targetPoss.Count);
             foreach (var targetPos in targetPoss)
@@ -221,7 +221,7 @@ namespace net.rs64.TexTransCore.Decal
         }
     }
 
-    internal enum PolygonCulling
+    public enum PolygonCulling
     {
         Vertex,
         Edge,

@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
     internal interface ITuningData
     {
     }
-    internal enum PropertySelect
+    public enum PropertySelect
     {
         Equal,
         NotEqual,

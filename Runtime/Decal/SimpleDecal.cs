@@ -8,7 +8,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
-    internal class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
+    public sealed class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
     {
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
@@ -20,9 +20,9 @@ namespace net.rs64.TexTransTool.Decal
 
         public bool UseDepth;
         public bool DepthInvert;
-        public override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
-        public override ParallelProjectionSpace GetSpaceConverter => new ParallelProjectionSpace(transform.worldToLocalMatrix);
-        public override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter
+        internal override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
+        internal override ParallelProjectionSpace GetSpaceConverter => new ParallelProjectionSpace(transform.worldToLocalMatrix);
+        internal override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter
         {
             get
             {
@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
+        internal List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
             var filters = new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
             {
@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool.Decal
             return filters;
         }
 
-        public List<IslandSelector> GetIslandSelector()
+        internal List<IslandSelector> GetIslandSelector()
         {
             if (!IslandCulling) return null;
             return new List<IslandSelector>() {
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal
                 };
         }
 
-        protected virtual void OnDrawGizmosSelected()
+        internal void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
             var matrix = transform.localToWorldMatrix;

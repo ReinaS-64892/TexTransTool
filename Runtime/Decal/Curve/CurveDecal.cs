@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
                 return true;
             }
         }
-        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null) && IsPossibleSegments;
+        internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null) && IsPossibleSegments;
 
 
 

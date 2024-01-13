@@ -6,17 +6,17 @@ using System;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexRelativeSeparator")]
-    internal class MatAndTexRelativeSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
+    public class MatAndTexRelativeSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
-        public override List<Renderer> GetRenderers => TargetRenderers;
-        public override bool IsPossibleApply => SeparateTarget.Any();
-        public List<MatSlotBool> SeparateTarget = new List<MatSlotBool>();
+        internal override List<Renderer> GetRenderers => TargetRenderers;
+        internal override bool IsPossibleApply => SeparateTarget.Any();
+        internal List<MatSlotBool> SeparateTarget = new List<MatSlotBool>();
         public bool IsTextureSeparate;
         public PropertyName PropertyName = PropertyName.DefaultValue;
 
-        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
         bool IMatAndTexSeparator.IsTextureSeparate => IsTextureSeparate;
         PropertyName IMatAndTexSeparator.PropertyName => PropertyName;

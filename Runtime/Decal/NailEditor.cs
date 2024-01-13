@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.Decal
 {
 
     [AddComponentMenu("TexTransTool/OtherDecal/TTT NailEditor")]
-    internal class NailEditor : AbstractDecal
+    public sealed class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;
 
@@ -22,9 +22,9 @@ namespace net.rs64.TexTransTool.Decal
 
 
 
-        public override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
+        internal override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
 
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool.Decal
             return spaceList;
         }
 
-        public List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
+        internal List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
         {
             return new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
             {
@@ -157,20 +157,20 @@ namespace net.rs64.TexTransTool.Decal
             return Matrix4x4.TRS(nailPos, nailRot, nailSize);
         }
 
-        public Vector3 PosOffsetInverseRight(Vector3 positionOffset)
+        internal Vector3 PosOffsetInverseRight(Vector3 positionOffset)
         {
             return new Vector3(positionOffset.x * -1, positionOffset.y, positionOffset.z);
         }
-        public Vector3 RotOffsetInverseRight(Vector3 rotationOffset)
+        internal Vector3 RotOffsetInverseRight(Vector3 rotationOffset)
         {
             return new Vector3(rotationOffset.x, rotationOffset.y * -1, rotationOffset.z * -1);
         }
-        public Transform GetFinger(Finger finger, bool IsRight)
+        internal Transform GetFinger(Finger finger, bool IsRight)
         {
             return TargetAvatar.GetBoneTransform(ConvertHumanBodyBones(finger, IsRight));
         }
 
-        public HumanBodyBones ConvertHumanBodyBones(Finger finger, bool IsRight)
+        internal HumanBodyBones ConvertHumanBodyBones(Finger finger, bool IsRight)
         {
             switch (finger)
             {
@@ -190,7 +190,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    internal class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
+    public class NailSet : IEnumerable<(Finger finger, NailDecalDescription nailDecalDescription)>
     {
         public UpVector FingerUpVector;
 
@@ -255,7 +255,7 @@ namespace net.rs64.TexTransTool.Decal
     }
 
     [Serializable]
-    internal class NailDecalDescription
+    public class NailDecalDescription
     {
         public Texture2D DecalTexture;
 
@@ -294,7 +294,7 @@ namespace net.rs64.TexTransTool.Decal
         Little,
     }
 
-    internal enum UpVector
+    public enum UpVector
     {
         ZMinus,
         ZPlus,

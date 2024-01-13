@@ -5,17 +5,17 @@ using net.rs64.TexTransCore.Decal;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal abstract class AbstractSingleDecal<SpaceConverter, UVDimension> : AbstractDecal
+    public abstract class AbstractSingleDecal<SpaceConverter, UVDimension> : AbstractDecal
     where SpaceConverter : DecalUtility.IConvertSpace<UVDimension>
     where UVDimension : struct
     {
         public Texture2D DecalTexture;
-        public override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
-        public abstract SpaceConverter GetSpaceConverter { get; }
-        public abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
-        public virtual bool? GetUseDepthOrInvert => null;
+        internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
+        internal abstract SpaceConverter GetSpaceConverter { get; }
+        internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
+        internal virtual bool? GetUseDepthOrInvert => null;
 
-        public override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }

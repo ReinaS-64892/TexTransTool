@@ -6,15 +6,15 @@ using UnityEditor;
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
     [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
-    internal class MatAndTexAbsoluteSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
+    public class MatAndTexAbsoluteSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
-        public override List<Renderer> GetRenderers => TargetRenderers;
+        internal override List<Renderer> GetRenderers => TargetRenderers;
 
-        public override bool IsPossibleApply => SeparateTarget.Any();
+        internal override bool IsPossibleApply => SeparateTarget.Any();
 
-        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
         public List<Material> SeparateTarget = new List<Material>();
         public bool IsTextureSeparate;

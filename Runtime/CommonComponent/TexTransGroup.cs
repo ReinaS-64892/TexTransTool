@@ -6,16 +6,16 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/Group/TTT TexTransGroup")]
-    internal class TexTransGroup : TexTransCallEditorBehavior
+    public class TexTransGroup : TexTransCallEditorBehavior
     {
-        public override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
-        public IEnumerable<TexTransBehavior> Targets => transform.GetChildren().Select(x => x.GetComponent<TexTransBehavior>()).Where(x => x != null);
+        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal IEnumerable<TexTransBehavior> Targets => transform.GetChildren().Select(x => x.GetComponent<TexTransBehavior>()).Where(x => x != null);
 
-        public override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
+        internal override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
 
-        public override bool IsPossibleApply => PossibleApplyCheck();
+        internal override bool IsPossibleApply => PossibleApplyCheck();
 
-        public static IEnumerable<TexTransBehavior> TextureTransformerFilter(IEnumerable<TexTransBehavior> targets) => targets.Where(tf => tf != null && tf.ThisEnable);
+        internal static IEnumerable<TexTransBehavior> TextureTransformerFilter(IEnumerable<TexTransBehavior> targets) => targets.Where(tf => tf != null && tf.ThisEnable);
 
         bool PossibleApplyCheck()
         {

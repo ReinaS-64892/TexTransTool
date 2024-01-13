@@ -9,19 +9,20 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool.Decal
 {
     [ExecuteInEditMode]
-    internal abstract class AbstractDecal : TexTransRuntimeBehavior
+    public abstract class AbstractDecal : TexTransRuntimeBehavior
     {
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
-        #region V1SaveData
-        [Obsolete("Replaced with BlendTypeKey", true)][HideInInspector] public BlendType BlendType = BlendType.Normal;
-        #endregion
+
         public Color Color = Color.white;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
 
+        #region V1SaveData
+        [Obsolete("Replaced with BlendTypeKey", true)][HideInInspector][SerializeField] internal BlendType BlendType = BlendType.Normal;
+        #endregion
         #region V0SaveData
         [Obsolete("V0SaveData", true)][HideInInspector] public bool MigrationV0ClearTarget;
         [Obsolete("V0SaveData", true)][HideInInspector] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
@@ -30,13 +31,13 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V0SaveData", true)][HideInInspector] public bool IsSeparateMatAndTexture;
         [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
         #endregion
-        public virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
+        internal virtual TextureWrap GetTextureWarp { get => TextureWrap.NotWrap; }
 
-        public override List<Renderer> GetRenderers => TargetRenderers;
+        internal override List<Renderer> GetRenderers => TargetRenderers;
 
-        public override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
-        public override void Apply(IDomain domain)
+        internal override void Apply(IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 
@@ -61,9 +62,9 @@ namespace net.rs64.TexTransTool.Decal
         }
 
 
-        public abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
+        internal abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
 
-        public static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
+        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
         {
             RenderTexture mulDecalTexture;
             if (targetDecalTexture != null) { mulDecalTexture = RenderTexture.GetTemporary(targetDecalTexture.width, targetDecalTexture.height, 0); }

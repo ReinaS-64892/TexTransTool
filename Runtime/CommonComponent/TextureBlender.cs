@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu("TexTransTool/TTT TextureBlender")]
-    internal class TextureBlender : TexTransRuntimeBehavior
+    public sealed class TextureBlender : TexTransRuntimeBehavior
     {
         public RelativeTextureSelector TargetTexture;
 
@@ -14,16 +14,16 @@ namespace net.rs64.TexTransTool
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
-        [Obsolete("Replaced with BlendTypeKey", true)] public BlendType BlendType = BlendType.Normal;
+        [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
 
-        public override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.TargetRenderer };
+        internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.TargetRenderer };
 
-        public override bool IsPossibleApply => TargetTexture.TargetRenderer != null && BlendTexture != null;
+        internal override bool IsPossibleApply => TargetTexture.TargetRenderer != null && BlendTexture != null;
 
-        public override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public override void Apply(IDomain domain)
+        internal override void Apply(IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 

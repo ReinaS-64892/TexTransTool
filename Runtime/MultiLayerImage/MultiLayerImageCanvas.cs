@@ -12,19 +12,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
-    internal class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
+    public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
     {
         public RelativeTextureSelector TextureSelector;
-
-        public override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
-
-        public override bool IsPossibleApply => TextureSelector.TargetRenderer != null;
-
-        public override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
-
         public Vector2Int TextureSize = new Vector2Int(2048, 2048);
 
-        public override void Apply([NotNull] IDomain domain)
+        internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
+
+        internal override bool IsPossibleApply => TextureSelector.TargetRenderer != null;
+
+        internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
+
+        internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
             var canvasContext = new CanvasContext(TextureSize, domain.GetTextureManager());
@@ -51,7 +50,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
 
         }
-        public class CanvasContext
+        internal class CanvasContext
         {
             public Vector2Int CanvasSize;
             public LayerStack RootLayerStack;
@@ -66,7 +65,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public CanvasContext CreateSubCanvas => new CanvasContext(CanvasSize, TextureManager);
         }
 
-        public class LayerStack
+        internal class LayerStack
         {
             public List<BlendLayer> Stack = new List<BlendLayer>();
 
@@ -99,7 +98,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
-        public struct BlendLayer
+        internal struct BlendLayer
         {
             public AbstractLayer RefLayer;
             public BlendTexturePair BlendTextures;

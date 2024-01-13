@@ -2,7 +2,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu("TexTransTool/MultiLayer/TTT RasterLayer")]
-    internal class RasterLayer : AbstractImageLayer
+    public sealed class RasterLayer : AbstractImageLayer
     {
         public Texture2D RasterTexture;
 
