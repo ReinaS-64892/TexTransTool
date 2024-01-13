@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture のアトラス化するときに、アップスケーリングを許可するオプションを追加 `#279`
 - 最低限のNDMFのErrorReportへの対応 `#293`
 - プレビューの場合でもマテリアルの置き換えによる実行不可や設定が外れる問題を解決する ReplacementQuery を追加 `#318`
+- グローバル設定として、 UseIslandCache が追加 `#321`
 
 ### Changed
 
@@ -55,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の改修に伴い EvenlySpaced, NextFitDecreasingHeight は削除されました `#252`
 - Decal 系の ExtractDecalCompiledTexture は削除されました `#283`
 - VRCAvatarCallBackToProcessAvatar は削除されました `#302`
+- AtlasTexture の UseIslandCache グローバル設定に追加され、それに伴って削除されました `#312`
 
 ### Fixed
 

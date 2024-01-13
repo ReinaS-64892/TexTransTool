@@ -1,5 +1,3 @@
-#if UNITY_EDITOR
-using System.Net.Mime;
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
@@ -8,7 +6,6 @@ using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.Editor.MatAndTexUtils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.Editor;
-using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
@@ -37,7 +34,7 @@ namespace net.rs64.TexTransTool.Editor
 
             foreach (var childeTransform in rootTransform.GetChildren())
             {
-                var textureTransformer = childeTransform.GetComponent<TextureTransformer>();
+                var textureTransformer = childeTransform.GetComponent<TexTransBehavior>();
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 if (textureTransformer == null)
@@ -67,7 +64,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
                 var sActive = sObj.FindProperty("m_IsActive");
                 EditorGUILayout.PropertyField(sActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
-                EditorGUILayout.ObjectField(textureTransformer, typeof(TextureTransformer), true);
+                EditorGUILayout.ObjectField(textureTransformer, typeof(TexTransBehavior), true);
 
                 sObj.ApplyModifiedProperties();
                 EditorGUILayout.EndHorizontal();
@@ -96,10 +93,9 @@ namespace net.rs64.TexTransTool.Editor
                             NailEditorEditor.DrawerSummary(nailEditor);
                             break;
                         }
-                    case TexTransGroup texTransGroup:
+                    case TexTransGroup:
                         {
                             EditorGUILayout.LabelField("GroupChildren".GetLocalize());
-                            DrawerSummaryList(childeTransform);
                             break;
                         }
                     case MatAndTexAbsoluteSeparator matAndTexAbsoluteSeparator:
@@ -130,4 +126,3 @@ namespace net.rs64.TexTransTool.Editor
         }
     }
 }
-#endif

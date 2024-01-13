@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -34,4 +33,3 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         }
     }
 }
-#endif

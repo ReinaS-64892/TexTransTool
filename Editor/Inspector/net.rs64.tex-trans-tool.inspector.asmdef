@@ -1,0 +1,24 @@
+{
+    "name": "net.rs64.tex-trans-tool.inspector",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.tex-trans-core",
+        "net.rs64.tex-trans-tool.editor",
+        "net.rs64.tex-trans-tool.runtime",
+        "VRC.SDK3A",
+        "VRC.SDK3A.Editor",
+        "VRC.SDKBase",
+        "VRC.SDKBase.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

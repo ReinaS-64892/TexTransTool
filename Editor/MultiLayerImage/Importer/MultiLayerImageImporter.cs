@@ -1,13 +1,10 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using net.rs64.MultiLayerImageParser.LayerData;
-using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using System.Linq;
 using System;
 using System.IO;
 using UnityEditor;
-using System.Text;
 using net.rs64.TexTransCore.TransTextureCore;
 using System.Threading.Tasks;
 using System.Drawing;
@@ -371,4 +368,3 @@ guid: ";
 
     }
 }
-#endif

@@ -1,12 +1,6 @@
-#if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,14 +13,13 @@ namespace net.rs64.TexTransTool.Migration.V1
         public static void MigrationAbstractDecalV1ToV2(AbstractDecal abstractDecal)
         {
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (abstractDecal.SaveDataVersion > 2) { Debug.Log(abstractDecal.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
+            if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 2) { Debug.Log(abstractDecal.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
 
             var convertBlendTypeKey = abstractDecal.BlendType == TexTransCore.BlendTexture.BlendType.AlphaLerp ? TextureBlend.BL_KEY_DEFAULT : abstractDecal.BlendType.ToString();
             abstractDecal.BlendTypeKey = convertBlendTypeKey;
-            
+
             EditorUtility.SetDirty(abstractDecal);
             MigrationUtility.SetSaveDataVersion(abstractDecal, 2);
         }
     }
 }
-#endif

@@ -1,8 +1,8 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using net.rs64.TexTransTool.Utils;
@@ -22,44 +22,53 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    internal class RenderersDomain : IDomain
+    internal class RenderersDomain : IEditorCallDomain
     {
         List<Renderer> _renderers;
-        IStackManager _textureStacks;
-
         public readonly bool Previewing;
+
         [CanBeNull] private readonly IAssetSaver _saver;
+        private readonly IProgressHandling _progressHandler;
+        private readonly ITextureManager _textureManager;
+        private readonly IStackManager _textureStacks;
+        private readonly IIslandCache _islandCache;
+
         [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
 
-        public RenderersDomain(List<Renderer> previewRenderers,
-                               bool previewing,
-                               [CanBeNull] IAssetSaver saver = null,
-                               IProgressHandling progressHandler = null
-                               )
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool progressDisplay = false)
+        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
-            _saver = saver;
-            _progressHandler = progressHandler;
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
+            _saver = assetSaver;
+            _progressHandler = progressDisplay ? new ProgressHandler() : null;
             _textureManager = new TextureManager(Previewing);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
+            _islandCache = TTTConfig.UseIslandCache ? new EditorIsland.EditorIslandCache() : null;
+
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
+
         public RenderersDomain(List<Renderer> previewRenderers,
-                       bool previewing,
-                       [CanBeNull] IAssetSaver saver,
-                       IProgressHandling progressHandler,
-                       ITextureManager textureManager,
-                       IStackManager stackManager
+                        bool previewing,
+                        IAssetSaver saver,
+                        IProgressHandling progressHandler,
+                        ITextureManager textureManager,
+                        IStackManager stackManager,
+                        IIslandCache islandCache
                        )
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = saver;
             _progressHandler = progressHandler;
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
             _textureManager = textureManager;
             _textureStacks = stackManager;
+            _islandCache = islandCache;
+
+
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
         public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
@@ -119,6 +128,7 @@ namespace net.rs64.TexTransTool
 
         public virtual void SetMesh(Renderer renderer, Mesh mesh)
         {
+            var preMesh = renderer.GetMesh();
             switch (renderer)
             {
                 case SkinnedMeshRenderer skinnedRenderer:
@@ -138,12 +148,12 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            _objectMap.Add(renderer.GetMesh(), mesh);
+            _objectMap.Add(preMesh, mesh);
         }
         public virtual void SetTexture(Texture2D target, Texture2D setTex)
         {
             var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
-            this.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
+            ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
             ListPool<Material>.Release(mats);
 
             _objectMap.Add(target, setTex);
@@ -169,11 +179,11 @@ namespace net.rs64.TexTransTool
 
             ProgressUpdate("DeferTexDestroy", 0.3f);
 
-            DeferTexDestroy();
+            _textureManager.DeferTexDestroy();
 
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
 
-            TexCompressDelegationInvoke();
+            _textureManager.TexCompressDelegationInvoke();
 
             ProgressUpdate("End", 1f);
             ProgressStateExit();
@@ -195,20 +205,19 @@ namespace net.rs64.TexTransTool
             ProgressUpdate("MergeStack", 1);
         }
 
-        IProgressHandling _progressHandler;
+
         public void ProgressStateEnter(string enterName) => _progressHandler?.ProgressStateEnter(enterName);
         public void ProgressUpdate(string state, float value) => _progressHandler?.ProgressUpdate(state, value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
         public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
 
-        ITextureManager _textureManager;
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D) => _textureManager?.GetOriginalTexture2D(texture2D);
-        public void DeferDestroyTexture2D(Texture2D texture2D) => _textureManager?.DeferDestroyTexture2D(texture2D);
-        public void DeferTexDestroy() => _textureManager?.DeferTexDestroy();
 
-        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target) => _textureManager?.TextureCompressDelegation(compressSetting, target);
-        public void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target) => _textureManager?.ReplaceTextureCompressDelegation(souse, target);
-        public void TexCompressDelegationInvoke() => _textureManager?.TexCompressDelegationInvoke();
+
+        public ITextureManager GetTextureManager() => _textureManager;
+
+        public IIslandCache GetIslandCacheManager()
+        {
+            return _islandCache;
+        }
     }
 }
-#endif

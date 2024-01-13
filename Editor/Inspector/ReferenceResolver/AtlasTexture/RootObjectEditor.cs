@@ -1,6 +1,4 @@
-using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.ReferenceResolver;
 using net.rs64.TexTransTool.ReferenceResolver.ATResolver;
 
 namespace net.rs64.TexTransTool.Editor.ReferenceResolver

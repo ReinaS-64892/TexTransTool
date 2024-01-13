@@ -1,15 +1,11 @@
-#if UNITY_EDITOR
-using System;
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransTool.Editor.Decal;
 
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TextureTransformer))]
+    [CustomEditor(typeof(TexTransBehavior))]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
         public static void DrawerWarning(string typeName)
@@ -132,4 +128,3 @@ namespace net.rs64.TexTransTool.Editor
         }
     }
 }
-#endif

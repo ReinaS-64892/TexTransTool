@@ -1,12 +1,7 @@
-#if UNITY_EDITOR
-using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
-using System.Linq;
 using UnityEditor;
-using System.IO;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using net.rs64.TexTransCore.BlendTexture;
 
@@ -49,4 +44,3 @@ namespace net.rs64.TexTransTool.TextureStack
         }
     }
 }
-#endif

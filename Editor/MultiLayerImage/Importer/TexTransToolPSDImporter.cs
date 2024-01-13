@@ -1,13 +1,8 @@
-﻿#if UNITY_EDITOR
-using System;
-using System.IO;
+﻿using System.IO;
 using net.rs64.MultiLayerImageParser.PSD;
 using net.rs64.MultiLayerImageParser.LayerData;
 using UnityEditor;
-using UnityEditor.Experimental;
-using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
-using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver.MLIResolver;
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -57,4 +52,3 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
     }
 }
-#endif

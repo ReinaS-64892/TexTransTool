@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
@@ -29,7 +28,7 @@ namespace net.rs64.TexTransTool
             };
         }
 
-        public static bool IsPreviewing(TextureTransformer transformer) => transformer == instance.previweing;
+        public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
 
         private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
@@ -61,7 +60,7 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button("Other Previewing. Override Preview this".GetLocalize()))
                 {
                     ExitPreview();
-                    StartPreview(target,apply);
+                    StartPreview(target, apply);
                 }
             }
 
@@ -93,19 +92,19 @@ namespace net.rs64.TexTransTool
         {
             ExitPreview();
         }
-        public void DrawApplyAndRevert(TextureTransformer target)
+        public void DrawApplyAndRevert(TexTransBehavior target)
         {
-            DrawApplyAndRevert(target, "Preview".GetLocalize(), target1 =>
+            DrawApplyAndRevert(target, "Preview".GetLocalize(), targetTTBehavior =>
             {
                 AnimationMode.BeginSampling();
                 try
                 {
                     RenderersDomain previewDomain = null;
-                    var marker = DomainMarkerFinder.FindMarker(target1.gameObject);
-                    if (marker != null) { previewDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false); }
-                    else { previewDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler()); }
+                    var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
+                    if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
+                    else { previewDomain = new RenderersDomain(target.GetRenderers, true, false, true); }
 
-                    if (target1 is TexTransGroup abstractTexTransGroup)
+                    if (targetTTBehavior is TexTransGroup abstractTexTransGroup)
                     {
                         var phaseOnTf = AvatarBuildUtils.FindAtPhase(abstractTexTransGroup.gameObject);
                         foreach (var tf in phaseOnTf[TexTransPhase.BeforeUVModification]) { tf.Apply(previewDomain); }
@@ -116,7 +115,7 @@ namespace net.rs64.TexTransTool
                     }
                     else
                     {
-                        target1.Apply(previewDomain);
+                        targetTTBehavior.Apply(previewDomain);
                     }
 
                     previewDomain.EditFinish();
@@ -130,4 +129,3 @@ namespace net.rs64.TexTransTool
 
     }
 }
-#endif

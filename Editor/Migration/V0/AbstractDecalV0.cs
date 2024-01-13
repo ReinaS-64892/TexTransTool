@@ -1,12 +1,7 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.MatAndTexUtils;
-using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,7 +13,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAbstractDecalV0ToV1(AbstractDecal abstractDecal)
         {
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (abstractDecal.SaveDataVersion > 1) { Debug.Log(abstractDecal.name + " AbstractDecal : マイグレーション不可能なバージョンです。"); return; }
+            if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 1) { Debug.Log(abstractDecal.name + " AbstractDecal : マイグレーション不可能なバージョンです。"); return; }
 
             var GameObject = abstractDecal.gameObject;
 
@@ -139,4 +134,3 @@ namespace net.rs64.TexTransTool.Migration.V0
         }
     }
 }
-#endif

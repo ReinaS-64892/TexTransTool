@@ -1,13 +1,10 @@
-#if UNITY_EDITOR
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
-using JetBrains.Annotations;
-using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool
 {
@@ -23,29 +20,27 @@ namespace net.rs64.TexTransTool
     {
         static readonly HashSet<Type> s_ignoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
 
-        public AvatarDomain(GameObject avatarRoot,
-                            bool previewing,
-                            [CanBeNull] IAssetSaver saver = null,
-                            IProgressHandling progressHandler = null,
-                            bool? isObjectReplaceInvoke = null
-                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, bool saveAsset = false, bool progressDisplay = false)
+        : this(avatarRoot, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
+        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
+        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, assetSaver, progressDisplay)
         {
             _avatarRoot = avatarRoot;
             _previewing = previewing;
-            _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
+            _isObjectReplaceInvoke = TTTConfig.IsObjectReplaceInvoke;
         }
-        public AvatarDomain(GameObject avatarRoot,
-                            bool previewing,
-                            [CanBeNull] IAssetSaver saver,
+        public AvatarDomain(GameObject avatarRoot, bool previewing,
+                            IAssetSaver saver,
                             IProgressHandling progressHandler,
                             ITextureManager textureManager,
                             IStackManager stackManager,
+                            IIslandCache islandCache,
                             bool? isObjectReplaceInvoke = null
-                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager)
+                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager, islandCache)
         {
             _avatarRoot = avatarRoot;
             _previewing = previewing;
-            _isObjectReplaceInvoke = isObjectReplaceInvoke.HasValue ? isObjectReplaceInvoke.Value : TTTConfig.isObjectReplaceInvoke;
+            _isObjectReplaceInvoke = isObjectReplaceInvoke ?? TTTConfig.IsObjectReplaceInvoke;
         }
 
         bool _previewing;
@@ -77,25 +72,37 @@ namespace net.rs64.TexTransTool
 
     internal class FlatMapDict<TKeyValue>
     {
-        Dictionary<TKeyValue, TKeyValue> _dict = new Dictionary<TKeyValue, TKeyValue>();
-        Dictionary<TKeyValue, TKeyValue> _reverseDict = new Dictionary<TKeyValue, TKeyValue>();
+        Dictionary<TKeyValue, TKeyValue> _dict = new();
+        Dictionary<TKeyValue, TKeyValue> _reverseDict = new();
+        HashSet<TKeyValue> _invalidObjects = new();
 
         public void Add(TKeyValue old, TKeyValue now)
         {
+            if (_invalidObjects.Contains(old)) { return; }
+
             if (_reverseDict.TryGetValue(old, out var tKey))
             {
+                //Mapping Update
                 _dict[tKey] = now;
                 _reverseDict.Remove(old);
                 _reverseDict.Add(now, tKey);
             }
             else if (!_dict.ContainsKey(old))
             {
+                //Mapping Add
                 _dict.Add(old, now);
                 _reverseDict.Add(now, old);
+            }
+            else
+            {
+                //InvalidMapping
+                _invalidObjects.Add(old);
+
+                _reverseDict.Remove(_dict[old]);
+                _dict.Remove(old);
             }
         }
         public Dictionary<TKeyValue, TKeyValue> GetMapping => _dict;
     }
 
 }
-#endif

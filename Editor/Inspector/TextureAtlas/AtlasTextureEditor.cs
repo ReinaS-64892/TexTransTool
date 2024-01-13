@@ -1,11 +1,8 @@
-
-#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
@@ -20,14 +17,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
 
 #pragma warning disable CS0612
-            if (thisTarget.SaveDataVersion != ToolUtils.ThiSaveDataVersion)
+            if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
             {
-                if (thisTarget.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
+                if (TTTag.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
                 {
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(thisTarget);
                     net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(thisTarget);
                 }
-                if (thisTarget.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
+                if (TTTag.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
                 {
                     net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
                 }
@@ -90,7 +87,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sForceSetTexture = sAtlasSettings.FindPropertyRelative("ForceSetTexture");
             var sPropertyBakeSetting = sAtlasSettings.FindPropertyRelative("PropertyBakeSetting");
             var sPadding = sAtlasSettings.FindPropertyRelative("Padding");
-            var sUseIslandCache = sAtlasSettings.FindPropertyRelative("UseIslandCache");
             var sSorterName = sAtlasSettings.FindPropertyRelative("SorterName");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
@@ -108,7 +104,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             EditorGUILayout.PropertyField(sForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
             EditorGUILayout.PropertyField(sPadding, new GUIContent("Padding".GetLocalize()));
-            EditorGUILayout.PropertyField(sUseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
             EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, sIncludeDisabledRenderer.name.GetLC());
@@ -291,4 +286,3 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
     }
 }
-#endif

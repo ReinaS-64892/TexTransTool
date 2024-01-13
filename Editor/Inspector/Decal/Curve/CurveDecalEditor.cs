@@ -1,9 +1,6 @@
-#if UNITY_EDITOR
-
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal.Curve;
-using net.rs64.TexTransTool.Decal;
 
 namespace net.rs64.TexTransTool.Editor.Decal.Curve
 {
@@ -98,4 +95,3 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
     }
 
 }
-#endif

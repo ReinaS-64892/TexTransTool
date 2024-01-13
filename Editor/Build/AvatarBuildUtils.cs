@@ -1,10 +1,8 @@
-#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -23,7 +21,7 @@ namespace net.rs64.TexTransTool.Build
                 var resolverContext = new ResolverContext(avatarGameObject);
                 resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
 
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar ? new ProgressHandler() : null, TTTConfig.isObjectReplaceInvoke));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar));
 
                 session.FindAtPhaseTTT();
 
@@ -57,11 +55,11 @@ namespace net.rs64.TexTransTool.Build
         public class TexTransBuildSession
         {
             AvatarDomain _avatarDomain;
-            Dictionary<TexTransPhase, List<TextureTransformer>> _phaseAtList;
+            Dictionary<TexTransPhase, List<TexTransBehavior>> _phaseAtList;
             public AvatarDomain AvatarDomain => _avatarDomain;
-            public Dictionary<TexTransPhase, List<TextureTransformer>> PhaseAtList => _phaseAtList;
+            public Dictionary<TexTransPhase, List<TexTransBehavior>> PhaseAtList => _phaseAtList;
 
-            public TexTransBuildSession(AvatarDomain avatarDomain, Dictionary<TexTransPhase, List<TextureTransformer>> phaseAtList)
+            public TexTransBuildSession(AvatarDomain avatarDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseAtList)
             {
                 _avatarDomain = avatarDomain;
                 _phaseAtList = phaseAtList;
@@ -106,24 +104,24 @@ namespace net.rs64.TexTransTool.Build
             }
         }
 
-        public static Dictionary<TexTransPhase, List<TextureTransformer>> FindAtPhase(GameObject avatarGameObject)
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject)
         {
-            var phaseDict = new Dictionary<TexTransPhase, List<TextureTransformer>>(){
-                    {TexTransPhase.UnDefined,new List<TextureTransformer>()},
-                    {TexTransPhase.BeforeUVModification,new List<TextureTransformer>()},
-                    {TexTransPhase.UVModification,new List<TextureTransformer>()},
-                    {TexTransPhase.AfterUVModification,new List<TextureTransformer>()}
+            var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
                 };
 
             var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>();
             var definedChildren = FindChildren(phaseDefinitions);
-            var ContainsBy = new HashSet<TextureTransformer>(definedChildren);
+            var ContainsBy = new HashSet<TexTransBehavior>(definedChildren);
 
             var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>();
             foreach (var ce in chileExcluders)
             {
                 var cec = ce as Component;
-                foreach (var tf in cec.GetComponentsInChildren<TextureTransformer>(true))
+                foreach (var tf in cec.GetComponentsInChildren<TexTransBehavior>(true))
                 {
                     if (cec == tf) { continue; }
                     ContainsBy.Add(tf);
@@ -161,7 +159,7 @@ namespace net.rs64.TexTransTool.Build
             }
 
 
-            foreach (var tf in TexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TextureTransformer>()))
+            foreach (var tf in TexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()))
             {
                 if (!ContainsBy.Contains(tf))
                 {
@@ -173,18 +171,18 @@ namespace net.rs64.TexTransTool.Build
             return phaseDict;
         }
 
-        private static HashSet<TextureTransformer> FindChildren(TexTransGroup[] abstractTexTransGroups)
+        private static HashSet<TexTransBehavior> FindChildren(TexTransGroup[] abstractTexTransGroups)
         {
-            var children = new HashSet<TextureTransformer>();
+            var children = new HashSet<TexTransBehavior>();
             foreach (var abstractTTG in abstractTexTransGroups)
             {
                 children.UnionWith(FindChildren(abstractTTG));
             }
             return children;
         }
-        private static HashSet<TextureTransformer> FindChildren(TexTransGroup abstractTexTransGroup)
+        private static HashSet<TexTransBehavior> FindChildren(TexTransGroup abstractTexTransGroup)
         {
-            var children = new HashSet<TextureTransformer>();
+            var children = new HashSet<TexTransBehavior>();
             children.UnionWith(abstractTexTransGroup.Targets);
             foreach (var tf in abstractTexTransGroup.Targets)
             {
@@ -209,16 +207,6 @@ namespace net.rs64.TexTransTool.Build
                 }
             }
         }
-        public class ResolverContext
-        {
-            public readonly GameObject AvatarRoot;
-
-            public ResolverContext(GameObject avatarGameObject)
-            {
-                AvatarRoot = avatarGameObject;
-            }
-        }
     }
 
 }
-#endif

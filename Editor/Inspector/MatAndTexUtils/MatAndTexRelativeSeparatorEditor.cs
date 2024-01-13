@@ -1,9 +1,4 @@
-#if UNITY_EDITOR
-using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.MatAndTexUtils;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -79,4 +74,3 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
         }
     }
 }
-#endif

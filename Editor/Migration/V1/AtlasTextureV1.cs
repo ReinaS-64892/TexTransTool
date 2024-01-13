@@ -1,10 +1,5 @@
-#if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,7 +11,7 @@ namespace net.rs64.TexTransTool.Migration.V1
         public static void MigrationAtlasTextureV1ToV2(AtlasTexture atlasTexture)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (atlasTexture.SaveDataVersion > 2) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
+            if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 2) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
 
 
             var maxTexturePixelCount = 0;
@@ -60,4 +55,3 @@ namespace net.rs64.TexTransTool.Migration.V1
         }
     }
 }
-#endif
