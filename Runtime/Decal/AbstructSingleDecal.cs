@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -11,11 +12,11 @@ namespace net.rs64.TexTransTool.Decal
     {
         public Texture2D DecalTexture;
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
-        internal abstract SpaceConverter GetSpaceConverter { get; }
-        internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter { get; }
+        internal abstract SpaceConverter GetSpaceConverter(IIslandCache islandCacheManager);
+        internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter(IIslandCache islandCacheManager);
         internal virtual bool? GetUseDepthOrInvert => null;
 
-        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
@@ -26,8 +27,8 @@ namespace net.rs64.TexTransTool.Decal
                    renderer,
                    decalCompiledRenderTextures,
                    mulDecalTexture,
-                   GetSpaceConverter,
-                   GetTriangleFilter,
+                   GetSpaceConverter(islandCacheManager),
+                   GetTriangleFilter(islandCacheManager),
                    TargetPropertyName,
                    GetTextureWarp,
                    Padding,

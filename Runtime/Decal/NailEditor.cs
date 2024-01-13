@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
-        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
 
@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Decal
                 foreach (var renderer in TargetRenderers)
                 {
                     if (renderer == null) { continue; }
-                    DecalUtility.CreateDecalTexture<ParallelProjectionSpace,Vector3>(
+                    DecalUtility.CreateDecalTexture<ParallelProjectionSpace, Vector3>(
                         renderer,
                         decalCompiledRenderTextures,
                         nailTexSpaceFilter.Item1,

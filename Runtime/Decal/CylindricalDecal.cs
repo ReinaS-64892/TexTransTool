@@ -4,6 +4,7 @@ using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Serialization;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -18,8 +19,8 @@ namespace net.rs64.TexTransTool.Decal
         public float OutDistanceCulling = 1f;
         public float OutOfRangeOffset = 1f;
 
-        internal override CCSSpace GetSpaceConverter => new CCSSpace(CylindricalCoordinatesSystem, GetQuad());
-        internal override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter => new CCSFilter(GetFilters());
+        internal override CCSSpace GetSpaceConverter(IIslandCache islandCacheManager) => new CCSSpace(CylindricalCoordinatesSystem, GetQuad());
+        internal override DecalUtility.ITrianglesFilter<CCSSpace> GetTriangleFilter(IIslandCache islandCacheManager) => new CCSFilter(GetFilters());
 
         private List<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> GetFilters()
         {

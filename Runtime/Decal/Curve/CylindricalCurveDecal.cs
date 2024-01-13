@@ -4,6 +4,7 @@ using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool.Decal.Curve
 
         public BezierCurve BezierCurve => new BezierCurve(Segments, RollMode);
 
-        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
         {
             TextureWrap texWarpRange = TextureWrap.NotWrap;
             if (IsTextureWarp)

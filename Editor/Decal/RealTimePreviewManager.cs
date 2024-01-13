@@ -3,6 +3,7 @@ using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.EditorIsland;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -227,7 +228,7 @@ namespace net.rs64.TexTransTool
                 }
             }
 
-            abstractDecal.CompileDecal(new TextureManager(true), absDecalData.decalTargets);
+            abstractDecal.CompileDecal(new TextureManager(true), new EditorIslandCache(), absDecalData.decalTargets);
 
             foreach (var mat in absDecalData.decalTargets.Keys)
             {

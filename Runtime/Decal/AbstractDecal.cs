@@ -5,6 +5,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -45,7 +46,7 @@ namespace net.rs64.TexTransTool.Decal
 
             domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            var decalCompiledTextures = CompileDecal(domain.GetTextureManager());
+            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), domain.GetIslandCacheManager());
 
             domain.ProgressUpdate("AddStack", 0.75f);
 
@@ -62,7 +63,7 @@ namespace net.rs64.TexTransTool.Decal
         }
 
 
-        internal abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
+        internal abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
 
         internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
         {
