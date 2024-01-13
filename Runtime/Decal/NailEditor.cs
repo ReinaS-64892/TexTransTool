@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
 
-            foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters())
+            foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters(islandCacheManager))
             {
                 foreach (var renderer in TargetRenderers)
                 {
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.Decal
             return decalCompiledRenderTextures;
         }
 
-        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)> GetNailTexSpaceFilters()
+        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)> GetNailTexSpaceFilters(IIslandCache islandCacheManager)
         {
             var spaceList = new List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)>();
 
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.Decal
                     var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
 
                     var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
-                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector });//TODO : Islandのキャッシュ
+                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector },islandCacheManager);
 
                     spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }
