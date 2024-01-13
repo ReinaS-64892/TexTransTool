@@ -26,41 +26,50 @@ namespace net.rs64.TexTransTool
     internal class RenderersDomain : IEditorCallDomain
     {
         List<Renderer> _renderers;
-        IStackManager _textureStacks;
-
         public readonly bool Previewing;
+
         [CanBeNull] private readonly IAssetSaver _saver;
+        private readonly IProgressHandling _progressHandler;
+        private readonly ITextureManager _textureManager;
+        private readonly IStackManager _textureStacks;
+        private readonly IIslandCache _islandCache;
+
         [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
 
-        public RenderersDomain(List<Renderer> previewRenderers,
-                               bool previewing,
-                               [CanBeNull] IAssetSaver saver = null,
-                               IProgressHandling progressHandler = null
-                               )
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool progressDisplay = false)
+        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
-            _saver = saver;
-            _progressHandler = progressHandler;
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
+            _saver = assetSaver;
+            _progressHandler = progressDisplay ? new ProgressHandler() : null;
             _textureManager = new TextureManager(Previewing);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
+            _islandCache = TTTConfig.UseIslandCache ? new EditorIsland.EditorIslandCache() : null;
+
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
+
         public RenderersDomain(List<Renderer> previewRenderers,
-                       bool previewing,
-                       [CanBeNull] IAssetSaver saver,
-                       IProgressHandling progressHandler,
-                       ITextureManager textureManager,
-                       IStackManager stackManager
+                        bool previewing,
+                        IAssetSaver saver,
+                        IProgressHandling progressHandler,
+                        ITextureManager textureManager,
+                        IStackManager stackManager,
+                        IIslandCache islandCache
                        )
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = saver;
             _progressHandler = progressHandler;
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
             _textureManager = textureManager;
             _textureStacks = stackManager;
+            _islandCache = islandCache;
+
+
+            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
         public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
@@ -197,19 +206,19 @@ namespace net.rs64.TexTransTool
             ProgressUpdate("MergeStack", 1);
         }
 
-        IProgressHandling _progressHandler;
+
         public void ProgressStateEnter(string enterName) => _progressHandler?.ProgressStateEnter(enterName);
         public void ProgressUpdate(string state, float value) => _progressHandler?.ProgressUpdate(state, value);
         public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
         public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
 
-        ITextureManager _textureManager;
+
 
         public ITextureManager GetTextureManager() => _textureManager;
 
         public IIslandCache GetIslandCacheManager()
         {
-            return null; // TODO : this!!!
+            return _islandCache;
         }
     }
 }

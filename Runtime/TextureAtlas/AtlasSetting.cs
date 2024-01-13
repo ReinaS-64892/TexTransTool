@@ -15,10 +15,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool ForceSetTexture;
         public int AtlasTextureSize = 2048;
         public float Padding = 10;
-        public bool UseIslandCache = true;
         public string SorterName = NFDHPlasFC.NDFHPlasFCName;
         public bool WriteOriginalUV = false;
-        [FormerlySerializedAs("IncludeDisableRenderer")]public bool IncludeDisabledRenderer = false;
+        [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool UseUpScaling = false;
         public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         public float GetTexScalePadding => Padding / AtlasTextureSize;
@@ -32,6 +31,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             return iFineSettings;
         }
+        #region V1SaveData
+        [Obsolete("V1SaveData", true)] public bool UseIslandCache = true;
+        #endregion
 
     }
     public enum PropertyBakeSetting

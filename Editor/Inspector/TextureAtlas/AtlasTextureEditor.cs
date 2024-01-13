@@ -90,7 +90,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sForceSetTexture = sAtlasSettings.FindPropertyRelative("ForceSetTexture");
             var sPropertyBakeSetting = sAtlasSettings.FindPropertyRelative("PropertyBakeSetting");
             var sPadding = sAtlasSettings.FindPropertyRelative("Padding");
-            var sUseIslandCache = sAtlasSettings.FindPropertyRelative("UseIslandCache");
             var sSorterName = sAtlasSettings.FindPropertyRelative("SorterName");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
@@ -108,7 +107,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             EditorGUILayout.PropertyField(sForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
             EditorGUILayout.PropertyField(sPadding, new GUIContent("Padding".GetLocalize()));
-            EditorGUILayout.PropertyField(sUseIslandCache, new GUIContent("UseIslandCache".GetLocalize()));
             EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, sIncludeDisabledRenderer.name.GetLC());

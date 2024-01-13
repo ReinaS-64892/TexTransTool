@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool
                 if (GUILayout.Button("Other Previewing. Override Preview this".GetLocalize()))
                 {
                     ExitPreview();
-                    StartPreview(target,apply);
+                    StartPreview(target, apply);
                 }
             }
 
@@ -102,8 +102,8 @@ namespace net.rs64.TexTransTool
                 {
                     RenderersDomain previewDomain = null;
                     var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
-                    if (marker != null) { previewDomain = new AvatarDomain(marker, true, null, new ProgressHandler(), false); }
-                    else { previewDomain = new RenderersDomain(target.GetRenderers, true, null, new ProgressHandler()); }
+                    if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
+                    else { previewDomain = new RenderersDomain(target.GetRenderers, true, false, true); }
 
                     if (targetTTBehavior is TexTransGroup abstractTexTransGroup)
                     {
