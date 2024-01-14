@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool
 
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
-        void AddTextureStack(Texture2D dist, BlendTexturePair setTex);
+        void AddTextureStack(Texture2D dist, BlendTexturePair setTex);//RenderTextureを入れる場合 Temp にすること
         bool TryReplaceQuery(UnityEngine.Object oldObject, out UnityEngine.Object nowObject);
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);

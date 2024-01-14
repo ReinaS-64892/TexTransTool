@@ -254,7 +254,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (texture is Texture2D texture2d && texture2d != null)
                 {
-                    var textureRt = new RenderTexture(texture2d.width, texture2d.height, 0);
+                    var textureRt = RenderTexture.GetTemporary(texture2d.width, texture2d.height, 0);
                     Graphics.Blit(texture2d, textureRt, colorAdjustMat);
                     texture = textureRt;
                 }

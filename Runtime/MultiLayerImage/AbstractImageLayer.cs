@@ -1,3 +1,4 @@
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
@@ -23,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 else { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
             }
             var canvasSize = canvasContext.CanvasSize;
-            var rTex = new RenderTexture(canvasSize.x, canvasSize.y, 0);
+            var rTex = RenderTexture.GetTemporary(canvasSize.x, canvasSize.y, 0); rTex.Clear();
 
             var image = GetImage(canvasSize.x, canvasSize.y);
             if (image is Texture2D texture2D) { image = canvasContext.TextureManager.GetOriginalTexture2D(texture2D); }
@@ -36,7 +37,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendTypeKey); }
             else { layerStack.AddRenderTexture(this, rTex, BlendTypeKey); }
 
-            if (image is RenderTexture renderTexture) { DestroyImmediate(renderTexture); }
+            if (image is RenderTexture renderTexture) { RenderTexture.ReleaseTemporary(renderTexture); }
         }
     }
 }

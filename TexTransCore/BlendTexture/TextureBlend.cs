@@ -202,7 +202,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         {
             using (new RTActiveSaver())
             {
-                if (targetRt == null) { targetRt = new RenderTexture(baseRenderTexture.width, baseRenderTexture.height, 0); }
+                if (targetRt == null) { targetRt = RenderTexture.GetTemporary(baseRenderTexture.width, baseRenderTexture.height, 0); }
                 Graphics.Blit(baseRenderTexture, targetRt);
                 targetRt.BlendBlit(add, blendTypeKey);
                 return targetRt;
@@ -232,7 +232,7 @@ namespace net.rs64.TexTransCore.BlendTexture
 
         public static RenderTexture CreateMultipliedRenderTexture(Texture mainTex, Color color)
         {
-            var mainTexRt = new RenderTexture(mainTex.width, mainTex.height, 0);
+            var mainTexRt = RenderTexture.GetTemporary(mainTex.width, mainTex.height, 0);
             MultipleRenderTexture(mainTexRt, mainTex, color);
             return mainTexRt;
         }

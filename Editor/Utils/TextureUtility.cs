@@ -86,9 +86,11 @@ namespace net.rs64.TexTransTool.Utils
             }
             else
             {
-                var newRt = new RenderTexture(texture2D.width, texture2D.height, 0);
+                var newRt = RenderTexture.GetTemporary(texture2D.width, texture2D.height, 0);
                 Graphics.Blit(texture2D, newRt);
-                return newRt.CopyTexture2D().CopySetting(texture2D);
+                var cloneTex = newRt.CopyTexture2D().CopySetting(texture2D);
+                RenderTexture.ReleaseTemporary(newRt);
+                return cloneTex;
             }
         }
         public static Texture2D ConvertNormalMap(this Texture2D tex)

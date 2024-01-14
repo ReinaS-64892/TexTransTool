@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureStack
 
             using (new RTActiveSaver())
             {
-                renderTexture = new RenderTexture(FirstTexture.width, FirstTexture.height, 0);
+                renderTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
                 Graphics.Blit(TextureManager.GetOriginalTexture2D(FirstTexture), renderTexture);
             }
         }
@@ -27,9 +27,7 @@ namespace net.rs64.TexTransTool.TextureStack
             renderTexture.BlendBlit(blendTexturePair.Texture, blendTexturePair.BlendTypeKey);
 
             if (blendTexturePair.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
-            {
-                UnityEngine.Object.DestroyImmediate(rt);
-            }
+            { RenderTexture.ReleaseTemporary(rt); }
         }
 
         public override Texture2D MergeStack()
@@ -39,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureStack
             TextureManager.ReplaceTextureCompressDelegation(FirstTexture, resultTex);
 
 
-            UnityEngine.Object.DestroyImmediate(renderTexture);
+            RenderTexture.ReleaseTemporary(renderTexture);
             return resultTex;
         }
     }

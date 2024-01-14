@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             else
             {
-                var rt = new RenderTexture(canvasContext.CanvasSize.x, canvasContext.CanvasSize.y, 0); rt.Clear();
+                var rt = RenderTexture.GetTemporary(canvasContext.CanvasSize.x, canvasContext.CanvasSize.y, 0); rt.Clear();
                 var first = subStack.Stack[0]; first.BlendTextures.BlendTypeKey = TTTBlendTypeKeyEnum.NotBlend.ToString(); subStack.Stack[0] = first;
                 rt.BlendBlit(subStack.GetLayers);
                 if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity)); }
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendTypeKey); }
                 else { layerStack.AddRenderTexture(this, rt, PassThrough ? BL_KEY_DEFAULT : BlendTypeKey); }
 
-                foreach (var layer in subStack.GetLayers) { DestroyImmediate(layer.Texture); }
+                foreach (var layer in subStack.GetLayers) { RenderTexture.ReleaseTemporary(layer.Texture as RenderTexture); }
             }
 
         }
