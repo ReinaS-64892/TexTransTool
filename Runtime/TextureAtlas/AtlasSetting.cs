@@ -53,6 +53,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             ReferenceCopy,
             Remove,
             MipMapRemove,
+            ColorSpace,
         }
 
         //Resize
@@ -61,6 +62,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertySelect Resize_Select = PropertySelect.NotEqual;
         //Compress
         public FormatQuality Compress_FormatQuality = FormatQuality.High;
+        public bool Compress_UseOverride = false;
+        public TextureFormat Compress_OverrideTextureFormat = TextureFormat.DXT5;
         public TextureCompressionQuality Compress_CompressionQuality = TextureCompressionQuality.Best;
         public PropertyName Compress_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Compress_Select = PropertySelect.Equal;
@@ -74,6 +77,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
+        //ColorSpace
+        public PropertyName ColorSpace_PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect ColorSpace_Select = PropertySelect.Equal;
+        public bool ColorSpace_Linier = false;
+
         internal IAddFineTuning GetFineSetting()
         {
             switch (Select)
@@ -81,13 +89,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case select.Resize:
                     return new Resize(Resize_Size, Resize_PropertyNames, Resize_Select);
                 case select.Compress:
-                    return new Compress(Compress_FormatQuality, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
+                    return new Compress(Compress_FormatQuality, Compress_UseOverride, Compress_OverrideTextureFormat, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
                 case select.ReferenceCopy:
                     return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
                 case select.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
                 case select.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
+                case select.ColorSpace:
+                    return new ColorSpaceMod(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linier);
 
                 default:
                     return null;

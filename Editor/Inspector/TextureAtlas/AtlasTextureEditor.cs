@@ -10,6 +10,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     [CustomEditor(typeof(AtlasTexture), true)]
     internal class AtlasTextureEditor : UnityEditor.Editor
     {
+        public static readonly Dictionary<BuildTarget, (List<string> displayName, List<TextureFormat> formats)> SimpleFormatChoices = new()
+        {
+            {BuildTarget.StandaloneWindows64,
+                (new(){"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
+                 new(){TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
+            {BuildTarget.Android,
+                (new(){"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
+                 new(){TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})}
+        };
         public override void OnInspectorGUI()
         {
 
@@ -147,11 +156,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     case 1:
                         {
                             var sCompressFormatQuality = sFineSettingData.FindPropertyRelative("Compress_FormatQuality");
+                            var sUseOverride = sFineSettingData.FindPropertyRelative("Compress_UseOverride");
+                            var sOverrideTextureFormat = sFineSettingData.FindPropertyRelative("Compress_OverrideTextureFormat");
                             var sCompressCompressionQuality = sFineSettingData.FindPropertyRelative("Compress_CompressionQuality");
                             var sCompressPropertyNames = sFineSettingData.FindPropertyRelative("Compress_PropertyNames");
                             var sCompressSelect = sFineSettingData.FindPropertyRelative("Compress_Select");
                             EditorGUI.indentLevel += 1;
-                            EditorGUILayout.PropertyField(sCompressFormatQuality, new GUIContent("FormatQuality".GetLocalize()));
+                            EditorGUILayout.PropertyField(sUseOverride, new GUIContent("UseOverrideTextureFormat".GetLocalize()));
+                            if (!sUseOverride.boolValue)
+                            { EditorGUILayout.PropertyField(sCompressFormatQuality, new GUIContent("FormatQuality".GetLocalize())); }
+                            else
+                            {
+                                EditorGUILayout.PropertyField(sOverrideTextureFormat, new GUIContent("OverrideTextureFormat".GetLocalize()));
+                            }
                             EditorGUILayout.PropertyField(sCompressCompressionQuality, new GUIContent("CompressionQuality".GetLocalize()));
                             PropertyNameEditor.DrawInspectorGUI(sCompressPropertyNames);
                             EditorGUILayout.PropertyField(sCompressSelect, new GUIContent("Select".GetLocalize()));
@@ -188,7 +205,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             EditorGUI.indentLevel -= 1;
                             break;
                         }
-
+                    case 5:
+                        {
+                            var sColorSpaceSelect = sFineSettingData.FindPropertyRelative("ColorSpace_Select");
+                            var sColorSpacePropertyNames = sFineSettingData.FindPropertyRelative("ColorSpace_PropertyNames");
+                            var sColorSpaceLinier = sFineSettingData.FindPropertyRelative("ColorSpace_Linier");
+                            EditorGUI.indentLevel += 1;
+                            EditorGUILayout.PropertyField(sColorSpaceLinier, new GUIContent("Linier".GetLocalize()));
+                            PropertyNameEditor.DrawInspectorGUI(sColorSpacePropertyNames);
+                            EditorGUILayout.PropertyField(sColorSpaceSelect, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.indentLevel -= 1;
+                            break;
+                        }
                 }
             }
 

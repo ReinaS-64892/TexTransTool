@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                 if (mipMapData == null) { continue; }
                 if (mipMapData.UseMipMap == texf.Texture2D.mipmapCount > 1) { continue; }
 
-                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap);
+                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap, !texf.Texture2D.isDataSRGB);
                 var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();

@@ -6,13 +6,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
     internal struct Compress : IAddFineTuning
     {
         public FormatQuality FormatQualityValue;
+        public bool UseOverride;
+        public TextureFormat OverrideTextureFormat;
         public TextureCompressionQuality CompressionQuality;
         public string PropertyNames;
         public PropertySelect Select;
 
-        public Compress(FormatQuality formatQuality, TextureCompressionQuality compressionQuality, string propertyNames, PropertySelect select)
+
+        public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, TextureCompressionQuality compressionQuality, string propertyNames, PropertySelect select)
         {
             FormatQualityValue = formatQuality;
+            UseOverride = overrideFormat;
+            OverrideTextureFormat = overrideTextureFormat;
             CompressionQuality = compressionQuality;
             PropertyNames = propertyNames;
             Select = select;
@@ -28,10 +33,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                 {
                     compressionQualityData.FormatQualityValue = FormatQualityValue;
                     compressionQualityData.CompressionQuality = CompressionQuality;
+
+                    compressionQualityData.UseOverride = UseOverride;
+                    compressionQualityData.OverrideTextureFormat = OverrideTextureFormat;
                 }
                 else
                 {
-                    target.TuningDataList.Add(new CompressionQualityData() { FormatQualityValue = FormatQualityValue, CompressionQuality = CompressionQuality });
+                    target.TuningDataList.Add(new CompressionQualityData()
+                    {
+                        FormatQualityValue = FormatQualityValue,
+                        UseOverride = UseOverride,
+                        OverrideTextureFormat = OverrideTextureFormat,
+                        CompressionQuality = CompressionQuality
+                    });
                 }
             }
         }
@@ -55,6 +69,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
     internal class CompressionQualityData : ITuningData
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
+
+        public bool UseOverride;
+        public TextureFormat OverrideTextureFormat;
+
+
         public TextureCompressionQuality CompressionQuality = TextureCompressionQuality.Normal;
     }
     internal class CompressionQualityApplicant : ITuningApplicant
@@ -65,11 +84,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         {
             // Delegated to ITextureManager
         }
-        public static TextureFormat GetTextureFormat(FormatQuality formatQuality)
+        public static TextureFormat GetTextureFormat(Texture2D texture2D, CompressionQualityData compressionQualityData)
         {
+            if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
+
             var textureFormat = TextureFormat.RGBA32;
 #if UNITY_STANDALONE_WIN
-            switch (formatQuality)
+            switch (compressionQualityData.FormatQualityValue)
             {
                 case FormatQuality.None:
                     textureFormat = TextureFormat.RGBA32;
