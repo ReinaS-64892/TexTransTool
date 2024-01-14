@@ -26,12 +26,13 @@ jobs:
         run: |
           pwd
           ls -alh
+          ls -alh ../
 
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           repository: ReinaS-64892/TTT-ImageAssets
-          path: ../ImageAssets
+          path: .github/ImageAssets
 
       - name: Debug
         run: |
@@ -42,9 +43,10 @@ jobs:
         run: |
           cp ../ImageAssets/Image/* ./Image/
 
-      - name: RemoveDotgit
+      - name: RemoveDotgitAndDotgithub
         run: |
           rm -r ./.git
+          rm -r ./.github
 
       - name: CreateZip
         run: |
