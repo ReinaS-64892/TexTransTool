@@ -22,6 +22,10 @@ jobs:
           fetch-tags: true
           ref: ${{ github.event.inputs.tag }}
 
+      - name: Debug
+        run: |
+          mkdir ../ImageAssets
+
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
