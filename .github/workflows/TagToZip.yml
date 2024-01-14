@@ -21,9 +21,26 @@ jobs:
         with:
           fetch-tags: true
           ref: ${{ github.event.inputs.tag }}
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          repository: ReinaS-64892/TTT-ImageAssets
+          path: ../ImageAssets
+
+      - name: Debug
+        run: |
+          pwd
+          ls -alh
+
+      - name: ReplaceImageAssets
+        run: |
+          cp ../ImageAssets/Image/* ./Image/
+
       - name: RemoveDotgit
         run: |
           rm -r ./.git
+
       - name: CreateZip
         run: |
           zip -r tex-trans-tool-${{ github.event.inputs.tag }}.zip ./*
