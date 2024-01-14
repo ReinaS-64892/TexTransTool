@@ -32,8 +32,8 @@ namespace net.rs64.TexTransTool.TextureStack
 
         public override Texture2D MergeStack()
         {
-            renderTexture.name = FirstTexture.name + "_MergedStack";
             var resultTex = renderTexture.CopyTexture2D().CopySetting(FirstTexture, false);
+            resultTex.name = FirstTexture.name + "_MergedStack";
             TextureManager.ReplaceTextureCompressDelegation(FirstTexture, resultTex);
 
 

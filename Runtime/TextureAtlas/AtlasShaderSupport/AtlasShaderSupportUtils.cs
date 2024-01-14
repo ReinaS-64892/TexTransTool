@@ -188,7 +188,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexUT.CreateColorTex(color);
+                    propEnvs[texPropName] = TexUT.CreateColorTexForRT(color);
                 }
             }
             else
@@ -211,7 +211,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    propEnvs[texPropName] = TexUT.CreateColorTex(new Color(propFloat, propFloat, propFloat, propFloat));
+                    propEnvs[texPropName] = TexUT.CreateColorTexForRT(new Color(propFloat, propFloat, propFloat, propFloat));
                 }
             }
             else
@@ -234,7 +234,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                     {
-                        propEnvs[texPropName] = TexUT.CreateColorTex(color);
+                        propEnvs[texPropName] = TexUT.CreateColorTexForRT(color);
                     }
                 }
                 else
@@ -288,7 +288,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
                 {
-                    outlineWidthMask = TexUT.CreateColorTex(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                    outlineWidthMask = TexUT.CreateColorTexForRT(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
                 }
             }
             else

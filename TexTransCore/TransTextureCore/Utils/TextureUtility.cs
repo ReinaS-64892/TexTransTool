@@ -77,6 +77,12 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             mainTex2d.Apply();
             return mainTex2d;
         }
+        public static RenderTexture CreateColorTexForRT(Color color)
+        {
+            var rt = RenderTexture.GetTemporary(1, 1, 0);
+            TextureBlend.ColorBlit(rt, color);
+            return rt;
+        }
         public static Texture2D CreateFillTexture(int size, Color fillColor)
         {
             return CreateFillTexture(new Vector2Int(size, size), fillColor);

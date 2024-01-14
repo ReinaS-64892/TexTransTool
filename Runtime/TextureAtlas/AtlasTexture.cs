@@ -102,7 +102,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             public Material Material;
             public float TextureSizeOffSet;
-            public List<PropAndTexture> PropAndTextures;
+            public List<PropAndTexture> PropAndTextures;//ここには Texture2D か TempRendererTextureが入ってる
 
             public MatData(MatSelector matSelector, List<PropAndTexture> propAndTextures)
             {
@@ -302,6 +302,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));
                 RenderTexture.ReleaseTemporary(targetRT);
             }
+            foreach (var matData in matDataList)
+            {
+                foreach (var pTex in matData.PropAndTextures)
+                {
+                    if (pTex.Texture == null) { continue; }
+                    switch (pTex.Texture)
+                    {
+                        case RenderTexture renderTexture:
+                            {
+                                RenderTexture.ReleaseTemporary(renderTexture);
+                                break;
+                            }
+                        case Texture2D texture2D:
+                        default:
+                            { break; }
+                    }
+                }
+            }
+
             atlasData.Textures = compiledAtlasTextures;
 
             return true;
