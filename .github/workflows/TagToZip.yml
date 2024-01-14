@@ -41,7 +41,7 @@ jobs:
 
       - name: ReplaceImageAssets
         run: |
-          cp ../ImageAssets/Image/* ./Image/
+          cp .github/ImageAssets/Image/* ./Image/
 
       - name: RemoveDotgitAndDotgithub
         run: |
