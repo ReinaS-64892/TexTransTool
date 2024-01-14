@@ -24,7 +24,8 @@ jobs:
 
       - name: Debug
         run: |
-          mkdir ../ImageAssets
+          pwd
+          ls -alh
 
       - name: Checkout Repo
         uses: actions/checkout@v4
