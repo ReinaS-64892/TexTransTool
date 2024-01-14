@@ -35,9 +35,9 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglesSubMesh = trianglesSubMesh;
             }
         }
-        internal static Dictionary<Material, Dictionary<string, RenderTexture>> CreateDecalTexture<SpaceConverter, UVDimension>(
+        internal static Dictionary<Material, RenderTexture> CreateDecalTexture<SpaceConverter, UVDimension>(
             Renderer targetRenderer,
-            Dictionary<Material, Dictionary<string, RenderTexture>> renderTextures,
+            Dictionary<Material, RenderTexture> renderTextures,
             Texture sousTextures,
             SpaceConverter convertSpace,
             ITrianglesFilter<SpaceConverter> filter,
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransCore.Decal
         where SpaceConverter : IConvertSpace<UVDimension>
         where UVDimension : struct
         {
-            if (renderTextures == null) renderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>();
+            if (renderTextures == null) renderTextures = new();
 
             var vertices = ListPool<Vector3>.Get(); GetWorldSpaceVertices(targetRenderer, vertices);
             var targetMesh = targetRenderer.GetMesh();
@@ -82,17 +82,11 @@ namespace net.rs64.TexTransCore.Decal
 
                 if (!renderTextures.ContainsKey(targetMat))
                 {
-                    renderTextures.Add(targetMat, new());
-                }
-
-                if (!renderTextures[targetMat].ContainsKey(targetPropertyName))
-                {
-                    var rendererTexture = new RenderTexture(targetTexSize.x, targetTexSize.y, 32);
-                    renderTextures[targetMat].Add(targetPropertyName, rendererTexture);
+                    renderTextures.Add(targetMat, new(targetTexSize.x, targetTexSize.y, 32));
                 }
 
                 TransTexture.ForTrans(
-                    renderTextures[targetMat][targetPropertyName],
+                    renderTextures[targetMat],
                     sousTextures,
                     new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
                     defaultPadding,

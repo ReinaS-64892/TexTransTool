@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 最低限のNDMFのErrorReportへの対応 `#293`
 - プレビューの場合でもマテリアルの置き換えによる実行不可や設定が外れる問題を解決する ReplacementQuery を追加 `#318`
 - グローバル設定として、 UseIslandCache が追加 `#321`
+- SimpleDecal のリアルタイムプレビューが複数同時に行われていた場合に、すべてのリアルタイムプレビューを終了するボタンを追加 `#320`
 
 ### Changed
 
@@ -48,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture のアトラス化するとき、標準の動作はアップスケーリングできない仕様に変更 `#279`
 - 他がプレビュー中のときにプレビューができないのではなく、プレビューを乗っ取るボタンに変更 `#298`
 - Unity の最小バージョン指定を 2022.3 に変更 `#310`
+- SimpleDecal のリアルタイムプレビューが可変レートで更新されるように変更 `#320`
 
 ### Removed
 

@@ -1,22 +1,31 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.EditorIsland;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Pool;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool
 {
     internal class RealTimePreviewManager : ScriptableSingleton<RealTimePreviewManager>
     {
-        public Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)> RealTimePreviews = new Dictionary<AbstractDecal, (string PropertyName, List<BlendTextureClass> blendTextureList, Dictionary<Material, Dictionary<string, RenderTexture>> decalTargets)>();
-        private Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>> Previews = new Dictionary<Material, Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>>();
-        private Dictionary<Material, Material> PreviewMatDict = new Dictionary<Material, Material>();
-        private HashSet<Renderer> PreviewTargetRenderer = new HashSet<Renderer>();
+        private Dictionary<AbstractDecal, DecalTargetInstance> RealTimePreviews = new();
+        private Dictionary<Material, Dictionary<string, CompositePreviewInstance>> PreviewMaterials = new();
+        private Dictionary<Material, Material> PreviewMatSwapDict = new();
+        private HashSet<Renderer> PreviewTargetRenderer = new();
+        private IIslandCache _islandCacheManager;
+        private Stopwatch stopwatch = new();
+        long lastUpdateTime = 0;
+        public long LastDecalUpdateTime => lastUpdateTime;
         protected RealTimePreviewManager()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
@@ -25,18 +34,29 @@ namespace net.rs64.TexTransTool
             EditorSceneManager.sceneClosing += ExitPreview;
         }
 
-        public static bool IsContainsRealTimePreview => RealTimePreviewManager.instance.RealTimePreviews.Count > 0;
+        public static int ContainsPreviewCount => instance.RealTimePreviews.Count;
+        public static bool IsContainsRealTimePreviewDecal => instance.RealTimePreviews.Count > 0;
+        public static bool IsContainsRealTimePreviewRenderer => instance.PreviewTargetRenderer.Count > 0;
+        public static bool Contains(AbstractDecal abstractDecal) => instance.RealTimePreviews.ContainsKey(abstractDecal);
+        public AbstractDecal ForcesDecal;
 
         private void RegtRenderer(Renderer renderer)
         {
             if (PreviewTargetRenderer.Contains(renderer) || renderer == null) { return; }
             PreviewTargetRenderer.Add(renderer);
-            foreach (var MatPair in PreviewMatDict)
+            foreach (var MatPair in PreviewMatSwapDict)
             {
                 SwapMaterial(renderer, MatPair.Key, MatPair.Value);
             }
         }
 
+        private void SwapMaterialAll(Material material, Material editableMat)
+        {
+            foreach (var renderer in PreviewTargetRenderer)
+            {
+                SwapMaterial(renderer, material, editableMat);
+            }
+        }
         private void SwapMaterial(Renderer renderer, Material souse, Material target)
         {
             using (var serialized = new SerializedObject(renderer))
@@ -60,71 +80,76 @@ namespace net.rs64.TexTransTool
                 serialized.ApplyModifiedPropertiesWithoutUndo();
             }
         }
-        private void SwapMaterialAll(Material material, Material editableMat)
-        {
-            foreach (var renderer in PreviewTargetRenderer)
-            {
-                SwapMaterial(renderer, material, editableMat);
-            }
-        }
 
-        private void RegtPreviewRenderTexture(Material material, string propertyName, BlendTextureClass blendTexture)
+        private void RegtPreviewRenderTexture(Material material, string propertyName, BlendRenderTextureClass blendTexture)
         {
-            if (PreviewMatDict.ContainsKey(material)) { material = PreviewMatDict[material]; }
+            if (PreviewMatSwapDict.ContainsKey(material)) { material = PreviewMatSwapDict[material]; }
 
-            if (Previews.ContainsKey(material))
+            if (PreviewMaterials.ContainsKey(material))
             {
-                if (Previews[material].ContainsKey(propertyName))
+                if (PreviewMaterials[material].ContainsKey(propertyName))
                 {
-                    Previews[material][propertyName].Decals.Add(blendTexture);
+                    PreviewMaterials[material][propertyName].DecalLayers.Add(blendTexture);
                 }
-                else
+                else//既にそのマテリアルでプレビューが存在するが、別のプロパティの場合
                 {
                     var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
                     var souseTexture = material.GetTexture(propertyName) as Texture2D;
                     material.SetTexture(propertyName, newTarget);
-                    Previews[material].Add(propertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }));
+
+                    var previewIPair = new CompositePreviewInstance.PreviewTexturePair(souseTexture, newTarget);
+                    previewIPair.ReviewReInit();
+
+                    PreviewMaterials[material].Add(propertyName, new(previewIPair, new List<BlendRenderTextureClass>() { blendTexture }));
                 }
             }
-            else
+            else //そのマテリアルにプレビューが存在しない場合　つまりそのマテリアルの初回
             {
                 var editableMat = Instantiate(material);
+
                 SwapMaterialAll(material, editableMat);
-                PreviewMatDict.Add(material, editableMat);
+                PreviewMatSwapDict.Add(material, editableMat);
+
                 var souseTexture = material.GetTexture(propertyName) as Texture2D;
                 var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
                 editableMat.SetTexture(propertyName, newTarget);
-                Graphics.Blit(souseTexture, newTarget);
-                Previews.Add(editableMat, new Dictionary<string, ((Texture2D SouseTexture, RenderTexture TargetTexture), List<BlendTextureClass> Decals)>() { { propertyName, ((souseTexture, newTarget), new List<BlendTextureClass>() { blendTexture }) } });
+
+                var previewIPair = new CompositePreviewInstance.PreviewTexturePair(souseTexture, newTarget);
+                previewIPair.ReviewReInit();
+
+                PreviewMaterials.Add(editableMat, new() { { propertyName, new(previewIPair, new List<BlendRenderTextureClass>() { blendTexture }) } });
             }
         }
 
 
         private void UpdatePreviewTexture(Material material, string propertyName)
         {
-            var TargetMat = material;
-            if (!Previews.ContainsKey(TargetMat)) { return; }
-            if (!Previews[TargetMat].ContainsKey(propertyName)) { return; }
+            if (!PreviewMaterials.ContainsKey(material)) { return; }
+            if (!PreviewMaterials[material].ContainsKey(propertyName)) { return; }
 
-            var target = Previews[TargetMat][propertyName];
-            var targetRt = target.Item1.TargetTexture;
-            targetRt.Release();
-            var souseTex = target.Item1.SouseTexture;
-            Graphics.Blit(souseTex, targetRt);
+            PreviewMaterials[material][propertyName].CompositeUpdate();
 
-            targetRt.BlendBlit(target.Decals.Where(I => I.RenderTexture != null).Select<BlendTextureClass, BlendTexturePair>(I => I));
         }
-        public bool ContainsPreview => PreviewTargetRenderer.Count != 0;
+        private void PreviewStart()
+        {
+            EditorApplication.update -= PreviewForcesDecalUpdate;
+            EditorApplication.update += PreviewForcesDecalUpdate;
+        }
         public void ExitPreview()
         {
-            if (ContainsPreview)
+            if (IsContainsRealTimePreviewRenderer)
             {
                 AnimationMode.StopAnimationMode();
                 RealTimePreviews.Clear();
-                Previews.Clear();
-                PreviewMatDict.Clear();
+                PreviewMaterials.Clear();
+                PreviewMatSwapDict.Clear();
                 PreviewTargetRenderer.Clear();
-                Previews.Clear();
+                PreviewMaterials.Clear();
+
+                EditorApplication.update -= PreviewForcesDecalUpdate;
+                stopwatch.Stop();
+                stopwatch.Reset();
+                lastUpdateTime = 0;
             }
         }
         private void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
@@ -134,11 +159,13 @@ namespace net.rs64.TexTransTool
 
         public void RegtAbstractDecal(AbstractDecal abstractDecal)
         {
-            if (RealTimePreviews.Count == 0) { AnimationMode.StartAnimationMode(); }
+            if (RealTimePreviews.Count == 0) { AnimationMode.StartAnimationMode(); PreviewStart(); }
             if (RealTimePreviews.ContainsKey(abstractDecal)) { return; }
-            var decalTargets = new Dictionary<Material, Dictionary<string, RenderTexture>>();
-            var blends = new List<BlendTextureClass>();
-            var TargetMats = RendererUtility.GetFilteredMaterials(abstractDecal.TargetRenderers);
+
+            var decalTargets = new Dictionary<Material, RenderTexture>();
+            var blends = new List<BlendRenderTextureClass>();
+            var TargetMats = RendererUtility.GetFilteredMaterials(abstractDecal.TargetRenderers, ListPool<Material>.Get());
+
             foreach (var mat in TargetMats)
             {
                 if (mat.HasProperty(abstractDecal.TargetPropertyName) && mat.GetTexture(abstractDecal.TargetPropertyName) != null)
@@ -161,20 +188,22 @@ namespace net.rs64.TexTransTool
                             { continue; }
                     }
 
-                    var blendTex = new BlendTextureClass(Rt, abstractDecal.BlendTypeKey);
+                    var blendTex = new BlendRenderTextureClass(Rt, abstractDecal.BlendTypeKey);
                     blends.Add(blendTex);
 
                     RegtPreviewRenderTexture(mat, abstractDecal.TargetPropertyName, blendTex);
-                    Material editableMat = PreviewMatDict.ContainsKey(mat) ? PreviewMatDict[mat] : mat;
+                    Material editableMat = PreviewMatSwapDict.ContainsKey(mat) ? PreviewMatSwapDict[mat] : mat;
 
-                    decalTargets.Add(editableMat, new Dictionary<string, RenderTexture>());
-                    decalTargets[editableMat].Add(abstractDecal.TargetPropertyName, Rt);
+                    decalTargets.Add(editableMat, Rt);
                 }
             }
-            foreach (var render in abstractDecal.GetRenderers) { RegtRenderer(render); }
-            RealTimePreviews.Add(abstractDecal, (abstractDecal.TargetPropertyName, blends, decalTargets));
-        }
 
+            foreach (var render in abstractDecal.GetRenderers) { RegtRenderer(render); }
+
+            RealTimePreviews.Add(abstractDecal, new(abstractDecal.TargetPropertyName, abstractDecal.BlendTypeKey, abstractDecal.GetRenderers, blends, decalTargets));
+
+            ListPool<Material>.Release(TargetMats);
+        }
         public bool IsRealTimePreview(AbstractDecal abstractDecal) => RealTimePreviews.ContainsKey(abstractDecal);
         public void UnRegtAbstractDecal(AbstractDecal abstractDecal)
         {
@@ -184,20 +213,26 @@ namespace net.rs64.TexTransTool
             foreach (var decalTarget in absDecalData.decalTargets)
             {
                 var mat = decalTarget.Key;
-                foreach (var target in decalTarget.Value)
+                var rt = decalTarget.Value;
+
+                if (!PreviewMaterials.ContainsKey(mat)) { continue; }
+
+                bool RTRemoveComparer(BlendRenderTextureClass btc) => btc.RenderTexture == rt;
+
+                PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers
+                .Remove(PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Find(RTRemoveComparer));
+
+
+                if (PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Count == 0)
                 {
-                    if (!Previews.ContainsKey(mat) || !Previews[mat].ContainsKey(target.Key)) { continue; }
-                    Previews[mat][target.Key].Decals.Remove(Previews[mat][target.Key].Decals.Find(I => I.RenderTexture == target.Value));
-                    if (Previews[mat][target.Key].Decals.Count == 0)
-                    {
-                        mat.SetTexture(target.Key, Previews[mat][target.Key].Item1.SouseTexture);
-                        Previews[mat].Remove(target.Key);
-                    }
-                    else
-                    {
-                        UpdatePreviewTexture(mat, target.Key);
-                    }
+                    mat.SetTexture(absDecalData.PropertyName, PreviewMaterials[mat][absDecalData.PropertyName].ViewTexture.SouseTexture);
+                    PreviewMaterials[mat].Remove(absDecalData.PropertyName);
                 }
+                else
+                {
+                    UpdatePreviewTexture(mat, absDecalData.PropertyName);
+                }
+
             }
 
             RealTimePreviews.Remove(abstractDecal);
@@ -207,50 +242,140 @@ namespace net.rs64.TexTransTool
         public void UpdateAbstractDecal(AbstractDecal abstractDecal)
         {
             if (!RealTimePreviews.ContainsKey(abstractDecal)) { return; }
+            _islandCacheManager ??= new EditorIslandCache();
             var absDecalData = RealTimePreviews[abstractDecal];
 
-            if (absDecalData.PropertyName != abstractDecal.TargetPropertyName)
-            {
-                UnRegtAbstractDecal(abstractDecal);
-                RegtAbstractDecal(abstractDecal);
-            }
+            if (absDecalData.PropertyName != abstractDecal.TargetPropertyName
+             || !absDecalData.RendererEqual(abstractDecal.GetRenderers))
+            { UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal); }
 
-            foreach (var blendData in absDecalData.blendTextureList)
-            {
-                blendData.BlendTypeKey = abstractDecal.BlendTypeKey;
-            }
+            if (absDecalData.BlendTypeKey != abstractDecal.BlendTypeKey)
+            { absDecalData.SetBlendTypeKey(abstractDecal.BlendTypeKey); }
 
-            foreach (var decalTarget in absDecalData.decalTargets)
-            {
-                foreach (var rt in decalTarget.Value)
-                {
-                    rt.Value.Release();
-                }
-            }
 
-            abstractDecal.CompileDecal(new TextureManager(true), new EditorIslandCache(), absDecalData.decalTargets);
+            absDecalData.ClearDecalTarget();
+            abstractDecal.CompileDecal(new TextureManager(true), _islandCacheManager, absDecalData.decalTargets);
 
             foreach (var mat in absDecalData.decalTargets.Keys)
-            {
-                UpdatePreviewTexture(mat, absDecalData.PropertyName);
-            }
+            { UpdatePreviewTexture(mat, absDecalData.PropertyName); }
+        }
+
+        public void PreviewForcesDecalUpdate()
+        {
+            if (ForcesDecal == null) { return; }
+
+            if (!Contains(ForcesDecal)) { return; }
+            if ((lastUpdateTime * lastUpdateTime) > stopwatch.ElapsedMilliseconds) { return; }
+            stopwatch.Stop();
+
+            stopwatch.Restart();
+            UpdateAbstractDecal(ForcesDecal);
+            stopwatch.Stop();
+            lastUpdateTime = stopwatch.ElapsedMilliseconds;
+
+            stopwatch.Restart();
         }
 
 
-
-
-        public class BlendTextureClass
+        public class BlendRenderTextureClass : IBlendTexturePair
         {
             public RenderTexture RenderTexture;
             public string BlendTypeKey;
 
-            public BlendTextureClass(RenderTexture renderTexture, string blendTypeKey)
+            public BlendRenderTextureClass(RenderTexture renderTexture, string blendTypeKey)
             {
                 RenderTexture = renderTexture;
                 BlendTypeKey = blendTypeKey;
             }
 
-            public static implicit operator BlendTexturePair(BlendTextureClass bl) => new BlendTexturePair(bl.RenderTexture, bl.BlendTypeKey);
+            public Texture Texture => RenderTexture;
+            string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
         }
+        internal struct DecalTargetInstance
+        {
+            public string PropertyName;
+            public string BlendTypeKey;
+            public List<Renderer> TargetRenderers;
+            public List<BlendRenderTextureClass> blendTextureList;
+            public Dictionary<Material, RenderTexture> decalTargets;//CompileDealの型合わせ
+            public DecalTargetInstance(string propertyName, string blendTypeKey, List<Renderer> targetRenderers, List<BlendRenderTextureClass> blendTextureList, Dictionary<Material, RenderTexture> decalTargets)
+            {
+                PropertyName = propertyName;
+                BlendTypeKey = blendTypeKey;
+                TargetRenderers = new(targetRenderers);
+                this.blendTextureList = blendTextureList;
+                this.decalTargets = decalTargets;
+            }
+
+            public void ClearDecalTarget()
+            {
+                foreach (var target in decalTargets)
+                { target.Value.Clear(); }
+            }
+
+            public void SetBlendTypeKey(string blendTypeKey)
+            {
+                BlendTypeKey = blendTypeKey;
+
+                foreach (var blendData in blendTextureList)
+                { blendData.BlendTypeKey = BlendTypeKey; }
+
+            }
+
+            public bool RendererEqual(List<Renderer> renderers)
+            {
+                var count = TargetRenderers.Count;
+                var nCount = renderers.Count;
+
+                if (count != nCount) { return false; }
+
+                for (var i = 0; count > i; i += 1)
+                {
+                    if (TargetRenderers[i] != renderers[i]) { return false; }
+                }
+
+                return true;
+            }
+
+        }
+
+        internal struct CompositePreviewInstance
+        {
+            public PreviewTexturePair ViewTexture;
+            public List<BlendRenderTextureClass> DecalLayers;
+
+            public void CompositeUpdate()
+            {
+                ViewTexture.ReviewReInit();
+                ViewTexture.TargetTexture.BlendBlit(DecalLayers);
+            }
+
+            public CompositePreviewInstance(PreviewTexturePair viewTex, List<BlendRenderTextureClass> decals)
+            {
+                ViewTexture = viewTex;
+                DecalLayers = decals;
+            }
+            internal struct PreviewTexturePair
+            {
+                public Texture2D SouseTexture;
+                public RenderTexture TargetTexture;
+
+                public void ReviewReInit()
+                {
+                    TargetTexture.Clear();
+                    Graphics.Blit(SouseTexture, TargetTexture);
+                }
+
+                public PreviewTexturePair(Texture2D souseTexture, RenderTexture targetTexture)
+                {
+                    SouseTexture = souseTexture;
+                    TargetTexture = targetTexture;
+                }
+            }
+        }
+
+
+
     }
+
 }

@@ -169,7 +169,8 @@ namespace net.rs64.TexTransCore.BlendTexture
                 UnityEngine.Object.DestroyImmediate(material);
             }
         }
-        public static void BlendBlit(this RenderTexture baseRenderTexture, IEnumerable<BlendTexturePair> adds)
+        public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, IEnumerable<BlendTex> adds)
+        where BlendTex : IBlendTexturePair
         {
             using (new RTActiveSaver())
             {
@@ -181,6 +182,7 @@ namespace net.rs64.TexTransCore.BlendTexture
 
                 foreach (var Add in adds)
                 {
+                    if (Add == null || Add.Texture == null || Add.BlendTypeKey == null) { continue; }
                     if (material.shader != BlendShaders[Add.BlendTypeKey]) { material.shader = BlendShaders[Add.BlendTypeKey]; }
                     material.SetTexture("_DistTex", swap);
                     material.shaderKeywords = new[] { Add.BlendTypeKey };
@@ -206,7 +208,13 @@ namespace net.rs64.TexTransCore.BlendTexture
                 return targetRt;
             }
         }
-        public struct BlendTexturePair
+        public interface IBlendTexturePair
+        {
+            public Texture Texture { get; }
+            public string BlendTypeKey { get; }
+
+        }
+        public struct BlendTexturePair : IBlendTexturePair
         {
             public Texture Texture;
             public string BlendTypeKey;
@@ -216,6 +224,10 @@ namespace net.rs64.TexTransCore.BlendTexture
                 Texture = texture;
                 BlendTypeKey = blendTypeKey;
             }
+
+            Texture IBlendTexturePair.Texture => Texture;
+
+            string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
         }
 
         public static RenderTexture CreateMultipliedRenderTexture(Texture mainTex, Color color)

@@ -24,9 +24,9 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override bool IsPossibleApply => TargetAvatar != null && TargetRenderers.Any(i => i != null);
 
-        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
         {
-            if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
+            decalCompiledRenderTextures ??= new();
 
             foreach (var nailTexSpaceFilter in GetNailTexSpaceFilters(islandCacheManager))
             {
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.Decal
                     var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
 
                     var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
-                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector },islandCacheManager);
+                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector }, islandCacheManager);
 
                     spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }
