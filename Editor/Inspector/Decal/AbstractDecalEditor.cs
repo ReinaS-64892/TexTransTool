@@ -45,40 +45,44 @@ namespace net.rs64.TexTransTool.Editor.Decal
         }
         public static void DrawerRealTimePreviewEditor(AbstractDecal target)
         {
-            if (target == null) return;
+            if (target == null) { return; }
+
+
+            if (!RealTimePreviewManager.Contains(target))
             {
-                if (!RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(target))
+                bool IsPossibleRealTimePreview;
+                if (RealTimePreviewManager.IsContainsRealTimePreviewDecal)
                 {
-                    var IsPossibleRealTimePreview = false;
-                    if (RealTimePreviewManager.IsContainsRealTimePreview)
-                    {
-                        IsPossibleRealTimePreview = target.IsPossibleApply;
-                    }
-                    else
-                    {
-                        IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
-                        IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
-                    }
-                    EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
-                    if (GUILayout.Button(IsPossibleRealTimePreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
-                    {
-                        RealTimePreviewManager.instance.RegtAbstractDecal(target);
-                    }
-                    EditorGUI.EndDisabledGroup();
+                    IsPossibleRealTimePreview = target.IsPossibleApply;
                 }
                 else
                 {
-                    if (GUILayout.Button("ExitRealTimePreview".GetLocalize()))
-                    {
-                        RealTimePreviewManager.instance.UnRegtAbstractDecal(target);
-                    }
-                    else
-                    {
-                        // TODO : リアルタイムプレビューの改修...
-                        // target.ThisIsForces = true;
-                    }
+                    IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
+                    IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
                 }
+                EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
+                if (GUILayout.Button(IsPossibleRealTimePreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
+                {
+                    RealTimePreviewManager.instance.RegtAbstractDecal(target);
+                }
+                EditorGUI.EndDisabledGroup();
             }
+            else
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
+
+                if (GUILayout.Button("ExitRealTimePreview".GetLocalize()))
+                {
+                    RealTimePreviewManager.instance.UnRegtAbstractDecal(target);
+                }
+                if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("AllExit".GetLocalize(), GUILayout.Width(60)))
+                {
+                    RealTimePreviewManager.instance.ExitPreview();
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
         }
 
 

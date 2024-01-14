@@ -17,6 +17,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             output?.Clear(); output ??= new();
             foreach (var renderer in renderers)
             {
+                if (renderer == null) { continue; }
                 output.AddRange(renderer.sharedMaterials);
             }
             return output;

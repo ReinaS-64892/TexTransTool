@@ -6,6 +6,7 @@ using System;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Island;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -46,24 +47,23 @@ namespace net.rs64.TexTransTool.Decal
 
             domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), domain.GetIslandCacheManager());
+            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), domain.GetIslandCacheManager(), DictionaryPool<Material, RenderTexture>.Get());
 
             domain.ProgressUpdate("AddStack", 0.75f);
 
             foreach (var matAndTex in decalCompiledTextures)
             {
-                foreach (var PramAndRt in matAndTex.Value)
-                {
-                    domain.AddTextureStack(matAndTex.Key.GetTexture(PramAndRt.Key) as Texture2D, new TextureBlend.BlendTexturePair(PramAndRt.Value, BlendTypeKey));
-                }
+                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName) as Texture2D, new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
             }
+
+            DictionaryPool<Material, RenderTexture>.Release(decalCompiledTextures);
 
             domain.ProgressUpdate("End", 1);
             domain.ProgressStateExit();
         }
 
 
-        internal abstract Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager,IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null);
+        internal abstract Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null);
 
         internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
         {

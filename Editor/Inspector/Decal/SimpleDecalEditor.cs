@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             if (!isMultiEdit)
             {
                 AbstractDecalEditor.DrawerRealTimePreviewEditor(thisObject);
-                EditorGUI.BeginDisabledGroup(RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(thisObject));
+                EditorGUI.BeginDisabledGroup(RealTimePreviewManager.Contains(thisObject));
                 PreviewContext.instance.DrawApplyAndRevert(thisObject);
                 EditorGUI.EndDisabledGroup();
             }
@@ -147,6 +147,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
             TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, sDecalTexture.name.GetLC());
 
             sObj.ApplyModifiedProperties();
+        }
+
+        private void OnEnable()
+        {
+            RealTimePreviewManager.instance.ForcesDecal = target as AbstractDecal;
+        }
+
+        private void OnDisable()
+        {
+            if (RealTimePreviewManager.instance.ForcesDecal == target) { RealTimePreviewManager.instance.ForcesDecal = null; }
         }
 
 

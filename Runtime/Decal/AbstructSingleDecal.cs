@@ -16,10 +16,10 @@ namespace net.rs64.TexTransTool.Decal
         internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter(IIslandCache islandCacheManager);
         internal virtual bool? GetUseDepthOrInvert => null;
 
-        internal override Dictionary<Material, Dictionary<string, RenderTexture>> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, Dictionary<string, RenderTexture>> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
         {
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
-            if (decalCompiledRenderTextures == null) { decalCompiledRenderTextures = new Dictionary<Material, Dictionary<string, RenderTexture>>(); }
+            decalCompiledRenderTextures ??= new();
             foreach (var renderer in TargetRenderers)
             {
                 if (renderer == null) { continue; }
