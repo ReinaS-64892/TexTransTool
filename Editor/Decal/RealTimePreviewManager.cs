@@ -246,7 +246,7 @@ namespace net.rs64.TexTransTool
             var absDecalData = RealTimePreviews[abstractDecal];
 
             if (absDecalData.PropertyName != abstractDecal.TargetPropertyName
-             || !absDecalData.TargetRenderers.SequenceEqual(abstractDecal.GetRenderers))
+             || !absDecalData.RendererEqual(abstractDecal.GetRenderers))
             { UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal); }
 
             if (absDecalData.BlendTypeKey != abstractDecal.BlendTypeKey)
@@ -322,6 +322,21 @@ namespace net.rs64.TexTransTool
 
             }
 
+            public bool RendererEqual(List<Renderer> renderers)
+            {
+                var count = TargetRenderers.Count;
+                var nCount = renderers.Count;
+
+                if (count != nCount) { return false; }
+
+                for (var i = 0; count > i; i += 1)
+                {
+                    if (TargetRenderers[i] != renderers[i]) { return false; }
+                }
+
+                return true;
+            }
+
         }
 
         internal struct CompositePreviewInstance
@@ -332,8 +347,7 @@ namespace net.rs64.TexTransTool
             public void CompositeUpdate()
             {
                 ViewTexture.ReviewReInit();
-                ViewTexture.TargetTexture.BlendBlit(DecalLayers.Where(IsNotNull));
-                static bool IsNotNull(BlendRenderTextureClass btc) => btc.RenderTexture != null;
+                ViewTexture.TargetTexture.BlendBlit(DecalLayers);
             }
 
             public CompositePreviewInstance(PreviewTexturePair viewTex, List<BlendRenderTextureClass> decals)
