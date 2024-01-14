@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.TextureStack
             Graphics.Blit(TextureManager.GetOriginalTexture2D(FirstTexture), renderTexture);
 
             renderTexture.BlendBlit(StackTextures);
-            foreach (var bTex in StackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { UnityEngine.Object.DestroyImmediate(rt); } }
+            foreach (var bTex in StackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { RenderTexture.ReleaseTemporary(rt); } }
 
             renderTexture.name = FirstTexture.name + "_MergedStack";
             var resultTex = renderTexture.CopyTexture2D().CopySetting(FirstTexture, false);

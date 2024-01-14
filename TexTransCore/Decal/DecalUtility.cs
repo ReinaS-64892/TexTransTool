@@ -52,7 +52,7 @@ namespace net.rs64.TexTransCore.Decal
         {
             if (renderTextures == null) renderTextures = new();
 
-            var vertices = ListPool<Vector3>.Get(); GetWorldSpaceVertices(targetRenderer, vertices);
+            var vertices = GetWorldSpaceVertices(targetRenderer, ListPool<Vector3>.Get());
             var targetMesh = targetRenderer.GetMesh();
             var tUV = ListPool<Vector2>.Get(); targetMesh.GetUVs(0, tUV);
             var trianglesSubMesh = targetMesh.GetPooledSubTriangle();
@@ -82,7 +82,8 @@ namespace net.rs64.TexTransCore.Decal
 
                 if (!renderTextures.ContainsKey(targetMat))
                 {
-                    renderTextures.Add(targetMat, new(targetTexSize.x, targetTexSize.y, 32));
+                    var tempRt = RenderTexture.GetTemporary(targetTexSize.x, targetTexSize.y, 32); tempRt.Clear();
+                    renderTextures.Add(targetMat, tempRt);
                 }
 
                 TransTexture.ForTrans(
@@ -129,6 +130,8 @@ namespace net.rs64.TexTransCore.Decal
                             matrix = smr.rootBone.localToWorldMatrix;
                         }
                         ConvertVerticesInMatrix(matrix, outPut, Vector3.zero);
+
+                        UnityEngine.Object.DestroyImmediate(mesh);
                         break;
                     }
                 case MeshRenderer mr:

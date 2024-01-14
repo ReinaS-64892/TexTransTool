@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool
                 }
                 else//既にそのマテリアルでプレビューが存在するが、別のプロパティの場合
                 {
-                    var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
+                    var newTarget = RenderTexture.GetTemporary(blendTexture.RenderTexture.descriptor);
                     var souseTexture = material.GetTexture(propertyName) as Texture2D;
                     material.SetTexture(propertyName, newTarget);
 
@@ -111,7 +111,7 @@ namespace net.rs64.TexTransTool
                 PreviewMatSwapDict.Add(material, editableMat);
 
                 var souseTexture = material.GetTexture(propertyName) as Texture2D;
-                var newTarget = new RenderTexture(blendTexture.RenderTexture.descriptor);
+                var newTarget = RenderTexture.GetTemporary(blendTexture.RenderTexture.descriptor);
                 editableMat.SetTexture(propertyName, newTarget);
 
                 var previewIPair = new CompositePreviewInstance.PreviewTexturePair(souseTexture, newTarget);
@@ -132,6 +132,9 @@ namespace net.rs64.TexTransTool
         }
         private void PreviewStart()
         {
+            lastUpdateTime = 0;
+            stopwatch.Stop();
+            stopwatch.Reset();
             EditorApplication.update -= PreviewForcesDecalUpdate;
             EditorApplication.update += PreviewForcesDecalUpdate;
         }
@@ -176,12 +179,12 @@ namespace net.rs64.TexTransTool
                     {
                         case Texture2D texture2D:
                             {
-                                Rt = new RenderTexture(texture2D.width, texture2D.height, 0);
+                                Rt = RenderTexture.GetTemporary(texture2D.width, texture2D.height, 0);
                                 break;
                             }
-                        case RenderTexture renderTexture:
+                        case RenderTexture renderTexture://すでにプレビューが入っている場合でRenderTextureをこぴる感じ
                             {
-                                Rt = new RenderTexture(renderTexture.descriptor);
+                                Rt = RenderTexture.GetTemporary(renderTexture.descriptor);
                                 break;
                             }
                         default:
@@ -219,8 +222,9 @@ namespace net.rs64.TexTransTool
 
                 bool RTRemoveComparer(BlendRenderTextureClass btc) => btc.RenderTexture == rt;
 
-                PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers
-                .Remove(PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Find(RTRemoveComparer));
+                var targetLayer = PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Find(RTRemoveComparer);
+                PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Remove(targetLayer);
+                targetLayer.Dispose();
 
 
                 if (PreviewMaterials[mat][absDecalData.PropertyName].DecalLayers.Count == 0)
@@ -277,7 +281,7 @@ namespace net.rs64.TexTransTool
         }
 
 
-        public class BlendRenderTextureClass : IBlendTexturePair
+        public class BlendRenderTextureClass : IBlendTexturePair, IDisposable
         {
             public RenderTexture RenderTexture;
             public string BlendTypeKey;
@@ -290,6 +294,11 @@ namespace net.rs64.TexTransTool
 
             public Texture Texture => RenderTexture;
             string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
+
+            public void Dispose()
+            {
+                RenderTexture.ReleaseTemporary(RenderTexture);
+            }
         }
         internal struct DecalTargetInstance
         {
