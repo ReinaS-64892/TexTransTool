@@ -182,7 +182,7 @@ namespace net.rs64.TexTransTool
                                 Rt = RenderTexture.GetTemporary(texture2D.width, texture2D.height, 0);
                                 break;
                             }
-                        case RenderTexture renderTexture:
+                        case RenderTexture renderTexture://すでにプレビューが入っている場合でRenderTextureをこぴる感じ
                             {
                                 Rt = RenderTexture.GetTemporary(renderTexture.descriptor);
                                 break;
