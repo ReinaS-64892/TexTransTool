@@ -97,3 +97,4 @@ Not executable,実行不可能な状態です
 OverrideTextureFormat,オーバーライドするフォーマット
 UseOverrideTextureFormat,フォーマットをオーバーライドする
 Linear,リニア
+SimpleFormatChoices,シンプルフォーマット選択

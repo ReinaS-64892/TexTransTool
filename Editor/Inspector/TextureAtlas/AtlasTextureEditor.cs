@@ -4,20 +4,21 @@ using System.Linq;
 using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using System;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     [CustomEditor(typeof(AtlasTexture), true)]
     internal class AtlasTextureEditor : UnityEditor.Editor
     {
-        public static readonly Dictionary<BuildTarget, (List<string> displayName, List<TextureFormat> formats)> SimpleFormatChoices = new()
+        public static readonly Dictionary<BuildTarget, (string[] displayName, TextureFormat[] formats)> SimpleFormatChoices = new()
         {
             {BuildTarget.StandaloneWindows64,
-                (new(){"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
-                 new(){TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
+                (new string[]{"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
+                 new TextureFormat[]{TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
             {BuildTarget.Android,
-                (new(){"RGBA-ASTC_4x4","RGBA-ASTC_5x5","RGBA-ASTC_6x6","RGBA-ASTC_8x8","RGBA-ASTC_10x10","RGBA-ASTC_12x12"},
-                 new(){TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})}
+                (new string[]{"RGBA-ASTC_4x4","RGBA-ASTC_5x5","RGBA-ASTC_6x6","RGBA-ASTC_8x8","RGBA-ASTC_10x10","RGBA-ASTC_12x12"},
+                 new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})}
         };
         public override void OnInspectorGUI()
         {
@@ -166,6 +167,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             { EditorGUILayout.PropertyField(sCompressFormatQuality, new GUIContent("FormatQuality".GetLocalize())); }
                             else
                             {
+                                var nowChoicer = SimpleFormatChoices[EditorUserBuildSettings.activeBuildTarget];
+                                var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);//なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
+                                var postIndex = EditorGUI.Popup(EditorGUILayout.GetControlRect(), "SimpleFormatChoices".GetLocalize(), preIndex, nowChoicer.displayName);
+                                if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
+
                                 EditorGUILayout.PropertyField(sOverrideTextureFormat, new GUIContent("OverrideTextureFormat".GetLocalize()));
                                 EditorGUILayout.PropertyField(sCompressCompressionQuality, new GUIContent("CompressionQuality".GetLocalize()));
                             }
