@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public FormatQuality Compress_FormatQuality = FormatQuality.High;
         public bool Compress_UseOverride = false;
         public TextureFormat Compress_OverrideTextureFormat = TextureFormat.DXT5;
-        public TextureCompressionQuality Compress_CompressionQuality = TextureCompressionQuality.Best;
+        [Range(0, 100)] public int Compress_CompressionQuality = 50;
         public PropertyName Compress_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Compress_Select = PropertySelect.Equal;
         //ReferenceCopy
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         //ColorSpace
         public PropertyName ColorSpace_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect ColorSpace_Select = PropertySelect.Equal;
-        public bool ColorSpace_Linier = false;
+        public bool ColorSpace_Linear = false;
 
         internal IAddFineTuning GetFineSetting()
         {
@@ -97,7 +97,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case select.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
                 case select.ColorSpace:
-                    return new ColorSpaceMod(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linier);
+                    return new ColorSpaceMod(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linear);
 
                 default:
                     return null;
