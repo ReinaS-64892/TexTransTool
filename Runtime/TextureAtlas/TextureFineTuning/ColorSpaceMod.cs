@@ -8,13 +8,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
     {
         public string PropertyNames;
         public PropertySelect Select;
-        public bool Linier;
+        public bool Linear;
 
-        public ColorSpaceMod(string propertyNames, PropertySelect select, bool linier)
+        public ColorSpaceMod(string propertyNames, PropertySelect select, bool linear)
         {
             PropertyNames = propertyNames;
             Select = select;
-            Linier = linier;
+            Linear = linear;
         }
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
@@ -24,11 +24,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                 var colorSpaceData = target.TuningDataList.Find(I => I is ColorSpaceData) as ColorSpaceData;
                 if (colorSpaceData != null)
                 {
-                    colorSpaceData.Linier = Linier;
+                    colorSpaceData.Linear = Linear;
                 }
                 else
                 {
-                    target.TuningDataList.Add(new ColorSpaceData() { Linier = Linier });
+                    target.TuningDataList.Add(new ColorSpaceData() { Linear = Linear });
                 }
             }
 
@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
     internal class ColorSpaceData : ITuningData
     {
-        public bool Linier = true;
+        public bool Linear = true;
     }
 
     internal class ColorSpaceApplicant : ITuningApplicant
@@ -50,11 +50,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
             {
                 var colorSpaceData = texf.TuningDataList.Find(I => I is ColorSpaceData) as ColorSpaceData;
                 if (colorSpaceData == null) { continue; }
-                if (colorSpaceData.Linier == !texf.Texture2D.isDataSRGB) { continue; }
+                if (colorSpaceData.Linear == !texf.Texture2D.isDataSRGB) { continue; }
                 // GraphicsFormatUtility.GetLinearFormat()
                 // GraphicsFormatUtility.IsSRGBFormat()
 
-                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, texf.Texture2D.mipmapCount > 1, colorSpaceData.Linier);
+                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, texf.Texture2D.mipmapCount > 1, colorSpaceData.Linear);
                 var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();

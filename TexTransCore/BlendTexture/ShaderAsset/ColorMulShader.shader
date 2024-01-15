@@ -44,7 +44,7 @@ Shader "Hidden/ColorMulShader"
             {
                 return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), (col.a));
             }
-            float4 GammaToLinier(float4 col)
+            float4 GammaToLinear(float4 col)
             {
                 return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), (col.a));
             }
@@ -54,7 +54,7 @@ Shader "Hidden/ColorMulShader"
                 float4 MainColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
                 float4 GammaColor = LiniearToGamma(_Color);
 
-                return  GammaToLinier(MainColor * GammaColor);
+                return  GammaToLinear(MainColor * GammaColor);
             }
             ENDHLSL
         }

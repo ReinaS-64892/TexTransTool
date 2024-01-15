@@ -94,3 +94,6 @@ NFDHPlusFC : The islands are not sorted correctly according to height. It is pos
 UseUpScaling,アップスケーリングを許可
 Domain not found,ドメインが存在しません
 Not executable,実行不可能な状態です
+OverrideTextureFormat,オーバーライドするフォーマット
+UseOverrideTextureFormat,フォーマットをオーバーライドする
+Linear,リニア

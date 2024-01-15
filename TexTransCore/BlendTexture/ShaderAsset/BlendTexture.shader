@@ -49,7 +49,7 @@ Shader "Hidden/BlendTexture"
             {
                 return float4(LinearToGammaSpaceExact(col.r), LinearToGammaSpaceExact(col.g), LinearToGammaSpaceExact(col.b), (col.a));
             }
-            float4 GammaToLinier(float4 col)
+            float4 GammaToLinear(float4 col)
             {
                 return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), (col.a));
             }
@@ -67,7 +67,7 @@ Shader "Hidden/BlendTexture"
                 #endif
 
 
-                return GammaToLinier(BlendColor);
+                return GammaToLinear(BlendColor);
             }
             ENDHLSL
         }
