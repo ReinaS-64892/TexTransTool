@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool
 {

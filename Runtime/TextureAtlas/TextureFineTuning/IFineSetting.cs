@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal interface IAddFineTuning
     {
@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         NotEqual,
     }
 
-    internal static class FineSettingUtil
+    internal static class FineTuningUtil
     {
         public static IEnumerable<TexFineTuningTarget> FilteredTarget(string propertyNames, PropertySelect select, List<TexFineTuningTarget> propAndTextures)
         {

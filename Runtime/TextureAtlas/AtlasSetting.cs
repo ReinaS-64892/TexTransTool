@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using net.rs64.TexTransTool.TextureAtlas.FineSetting;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 
@@ -24,12 +24,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal List<IAddFineTuning> GetTextureFineTuning()
         {
-            var iFineSettings = new List<IAddFineTuning>();
-            foreach (var fineSetting in TextureFineTuningDataList)
+            var iFineTunings = new List<IAddFineTuning>();
+            foreach (var FineTuning in TextureFineTuningDataList)
             {
-                iFineSettings.Add(fineSetting.GetFineSetting());
+                iFineTunings.Add(FineTuning.GetFineTuning());
             }
-            return iFineSettings;
+            return iFineTunings;
         }
         #region V1SaveData
         [Obsolete("V1SaveData", true)][SerializeField] internal bool UseIslandCache = true;
@@ -53,6 +53,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             ReferenceCopy,
             Remove,
             MipMapRemove,
+            ColorSpace,
         }
 
         //Resize
@@ -61,7 +62,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertySelect Resize_Select = PropertySelect.NotEqual;
         //Compress
         public FormatQuality Compress_FormatQuality = FormatQuality.High;
-        public TextureCompressionQuality Compress_CompressionQuality = TextureCompressionQuality.Best;
+        public bool Compress_UseOverride = false;
+        public TextureFormat Compress_OverrideTextureFormat = TextureFormat.DXT5;
+        [Range(0, 100)] public int Compress_CompressionQuality = 50;
         public PropertyName Compress_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect Compress_Select = PropertySelect.Equal;
         //ReferenceCopy
@@ -74,20 +77,27 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyName MipMapRemove_PropertyNames = PropertyName.DefaultValue;
         public PropertySelect MipMapRemove_Select = PropertySelect.Equal;
 
-        internal IAddFineTuning GetFineSetting()
+        //ColorSpace
+        public PropertyName ColorSpace_PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect ColorSpace_Select = PropertySelect.Equal;
+        public bool ColorSpace_Linear = false;
+
+        internal IAddFineTuning GetFineTuning()
         {
             switch (Select)
             {
                 case select.Resize:
                     return new Resize(Resize_Size, Resize_PropertyNames, Resize_Select);
                 case select.Compress:
-                    return new Compress(Compress_FormatQuality, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
+                    return new Compress(Compress_FormatQuality, Compress_UseOverride, Compress_OverrideTextureFormat, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
                 case select.ReferenceCopy:
                     return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
                 case select.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
                 case select.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
+                case select.ColorSpace:
+                    return new ColorSpaceMod(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linear);
 
                 default:
                     return null;

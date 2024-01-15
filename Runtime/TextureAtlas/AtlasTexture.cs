@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.Island;
 using Island = net.rs64.TexTransCore.Island.Island;
 using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
-using net.rs64.TexTransTool.TextureAtlas.FineSetting;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -371,9 +371,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //CompressDelegation
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
+                var tex = atlasTexFTData.Texture2D;
                 var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
                 if (compressSetting == null) { continue; }
-                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting.FormatQualityValue), (int)compressSetting.CompressionQuality);
+                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
                 domain.GetTextureManager().TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
             }
 

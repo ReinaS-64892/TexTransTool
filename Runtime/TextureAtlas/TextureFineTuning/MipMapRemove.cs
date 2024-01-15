@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal struct MipMapRemove : IAddFineTuning
     {
@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var mipMapData = target.TuningDataList.Find(I => I is MipMapData) as MipMapData;
                 if (mipMapData != null)
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                 if (mipMapData == null) { continue; }
                 if (mipMapData.UseMipMap == texf.Texture2D.mipmapCount > 1) { continue; }
 
-                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap);
+                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap, !texf.Texture2D.isDataSRGB);
                 var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();

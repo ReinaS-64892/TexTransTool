@@ -1,18 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal struct Compress : IAddFineTuning
     {
         public FormatQuality FormatQualityValue;
-        public TextureCompressionQuality CompressionQuality;
+        public bool UseOverride;
+        public TextureFormat OverrideTextureFormat;
+        public int CompressionQuality;
         public string PropertyNames;
         public PropertySelect Select;
 
-        public Compress(FormatQuality formatQuality, TextureCompressionQuality compressionQuality, string propertyNames, PropertySelect select)
+
+        public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, int compressionQuality, string propertyNames, PropertySelect select)
         {
             FormatQualityValue = formatQuality;
+            UseOverride = overrideFormat;
+            OverrideTextureFormat = overrideTextureFormat;
             CompressionQuality = compressionQuality;
             PropertyNames = propertyNames;
             Select = select;
@@ -21,17 +26,26 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var compressionQualityData = target.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
                 if (compressionQualityData != null)
                 {
                     compressionQualityData.FormatQualityValue = FormatQualityValue;
                     compressionQualityData.CompressionQuality = CompressionQuality;
+
+                    compressionQualityData.UseOverride = UseOverride;
+                    compressionQualityData.OverrideTextureFormat = OverrideTextureFormat;
                 }
                 else
                 {
-                    target.TuningDataList.Add(new CompressionQualityData() { FormatQualityValue = FormatQualityValue, CompressionQuality = CompressionQuality });
+                    target.TuningDataList.Add(new CompressionQualityData()
+                    {
+                        FormatQualityValue = FormatQualityValue,
+                        UseOverride = UseOverride,
+                        OverrideTextureFormat = OverrideTextureFormat,
+                        CompressionQuality = CompressionQuality
+                    });
                 }
             }
         }
@@ -45,17 +59,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         Normal,
         High,
     }
-    public enum TextureCompressionQuality
-    {
-        Fast = 0,
-        Normal = 50,
-        Best = 100,
-    }
 
     internal class CompressionQualityData : ITuningData
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
-        public TextureCompressionQuality CompressionQuality = TextureCompressionQuality.Normal;
+
+        public bool UseOverride;
+        public TextureFormat OverrideTextureFormat;
+
+
+        public int CompressionQuality = 50;
     }
     internal class CompressionQualityApplicant : ITuningApplicant
     {
@@ -65,11 +78,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
         {
             // Delegated to ITextureManager
         }
-        public static TextureFormat GetTextureFormat(FormatQuality formatQuality)
+        public static TextureFormat GetTextureFormat(Texture2D texture2D, CompressionQualityData compressionQualityData)
         {
+            if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
+
             var textureFormat = TextureFormat.RGBA32;
 #if UNITY_STANDALONE_WIN
-            switch (formatQuality)
+            switch (compressionQualityData.FormatQualityValue)
             {
                 case FormatQuality.None:
                     textureFormat = TextureFormat.RGBA32;
@@ -86,7 +101,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
                     break;
             }
 #elif UNITY_ANDROID
-            switch (formatQuality)
+            switch (compressionQualityData.FormatQualityValue)
             {
                 case FormatQuality.None:
                     textureFormat = TextureFormat.RGBA32;

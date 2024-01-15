@@ -280,7 +280,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<float>;
             var outlineWidth = material.GetFloat(floatProp) / record.RecordValue;
 
-            if (record.IsDifferenceValue.HasValue) { return; }
+            if (!record.IsDifferenceValue.HasValue) { return; }
             if (!record.IsDifferenceValue.Value) { return; }
 
             var outlineWidthMask = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;

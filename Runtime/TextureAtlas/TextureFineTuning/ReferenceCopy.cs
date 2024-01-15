@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal class ReferenceCopy : IAddFineTuning
     {

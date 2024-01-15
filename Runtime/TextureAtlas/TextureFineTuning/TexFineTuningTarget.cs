@@ -3,7 +3,7 @@ using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal class TexFineTuningTarget
     {
