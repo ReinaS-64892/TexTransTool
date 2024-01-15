@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using net.rs64.TexTransTool.TextureAtlas.FineSetting;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 
@@ -24,12 +24,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal List<IAddFineTuning> GetTextureFineTuning()
         {
-            var iFineSettings = new List<IAddFineTuning>();
-            foreach (var fineSetting in TextureFineTuningDataList)
+            var iFineTunings = new List<IAddFineTuning>();
+            foreach (var FineTuning in TextureFineTuningDataList)
             {
-                iFineSettings.Add(fineSetting.GetFineSetting());
+                iFineTunings.Add(FineTuning.GetFineTuning());
             }
-            return iFineSettings;
+            return iFineTunings;
         }
         #region V1SaveData
         [Obsolete("V1SaveData", true)][SerializeField] internal bool UseIslandCache = true;
@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertySelect ColorSpace_Select = PropertySelect.Equal;
         public bool ColorSpace_Linear = false;
 
-        internal IAddFineTuning GetFineSetting()
+        internal IAddFineTuning GetFineTuning()
         {
             switch (Select)
             {

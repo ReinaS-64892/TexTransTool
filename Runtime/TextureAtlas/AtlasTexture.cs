@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.Island;
 using Island = net.rs64.TexTransCore.Island.Island;
 using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
-using net.rs64.TexTransTool.TextureAtlas.FineSetting;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {

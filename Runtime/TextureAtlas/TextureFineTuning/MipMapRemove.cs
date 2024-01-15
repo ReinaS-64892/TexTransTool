@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal struct MipMapRemove : IAddFineTuning
     {
@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var mipMapData = target.TuningDataList.Find(I => I is MipMapData) as MipMapData;
                 if (mipMapData != null)

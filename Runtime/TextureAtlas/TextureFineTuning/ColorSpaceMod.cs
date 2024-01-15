@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal struct ColorSpaceMod : IAddFineTuning
     {
@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var colorSpaceData = target.TuningDataList.Find(I => I is ColorSpaceData) as ColorSpaceData;
                 if (colorSpaceData != null)

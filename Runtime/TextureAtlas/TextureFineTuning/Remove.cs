@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal class Remove : IAddFineTuning
     {
@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var referenceCopyData = target.TuningDataList.Find(I => I is RemoveData) as RemoveData;
                 if (referenceCopyData == null)

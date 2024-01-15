@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
+namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     internal struct Resize : IAddFineTuning
     {
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineSetting
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
-            foreach (var target in FineSettingUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
             {
                 var sizeData = target.TuningDataList.Find(I => I is SizeData) as SizeData;
                 if (sizeData != null)
