@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - プレビューの場合でもマテリアルの置き換えによる実行不可や設定が外れる問題を解決する ReplacementQuery を追加 `#318`
 - グローバル設定として、 UseIslandCache が追加 `#321`
 - SimpleDecal のリアルタイムプレビューが複数同時に行われていた場合に、すべてのリアルタイムプレビューを終了するボタンを追加 `#320`
+- AtlasTexture の FineTuning の Compress に UseOverrideTextureFormat とそれに伴う様々が追加 `#326`
+- AtlasTexture の FineTuning に色空間の設定ができる ColorSpace が追加 `#326`
 
 ### Changed
 
