@@ -14,12 +14,14 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "NDMF_1_x_x"
+    ],
     "versionDefines": [
         {
             "name": "nadena.dev.ndmf",
             "expression": "1.0.0",
-            "define": "NDMF_1_0_x"
+            "define": "NDMF_1_x_x"
         }
     ],
     "noEngineReferences": false
