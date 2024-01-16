@@ -15,8 +15,9 @@ namespace net.rs64.TexTransTool.Editor
         static string[] s_empty = Array.Empty<string>();
 
 
-        public static void DrawInspectorGUI(SerializedProperty serializedProperty, string label = null)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+
             if (s_shadersNames == null)
             {
                 var getData = new ShaderSupportUtils().GetPropertyNames();
@@ -25,18 +26,18 @@ namespace net.rs64.TexTransTool.Editor
                     i => i.ShaderName,
                     i => (i.Item2.Select(v => v.PropertyName).ToArray(), i.Item2.Select(v => v.DisplayName).ToArray()));
             }
-            var sTarget = serializedProperty;
+            var sTarget = property;
 
             var sPropertyName = sTarget.FindPropertyRelative("_propertyName");
             var sUseCustomProperty = sTarget.FindPropertyRelative("_useCustomProperty");
             var sShaderName = sTarget.FindPropertyRelative("_shaderName");
 
 
-            var rect = EditorGUILayout.GetControlRect();
+            var rect = position;
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, label == null ? "TargetPropertyName".GetLocalize() : label);
+            EditorGUI.LabelField(rect, label ?? "TargetPropertyName".GetLC());
             rect.x += rect.width;
 
             var preIndent = EditorGUI.indentLevel;
@@ -107,7 +108,5 @@ namespace net.rs64.TexTransTool.Editor
 
             EditorGUI.indentLevel = preIndent;
         }
-
-
     }
 }

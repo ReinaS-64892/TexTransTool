@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             EditorGUILayout.PropertyField(sIsTextureSeparate);
 
             var sPropertyName = thisSObject.FindProperty("PropertyName");
-            PropertyNameEditor.DrawInspectorGUI(sPropertyName);
+            EditorGUILayout.PropertyField(sPropertyName);
 
 
             EditorGUI.EndDisabledGroup();
