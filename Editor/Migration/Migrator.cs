@@ -174,7 +174,7 @@ namespace net.rs64.TexTransTool.Migration
             InProgress = false;
             return result;
         }
-        [MenuItem("Tools/TexTransTool/Migration/Migrate Everything All")]
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything All")]
         private static void MigrateEverything()
         {
             PreMigration();
@@ -198,7 +198,7 @@ namespace net.rs64.TexTransTool.Migration
             PostMigration();
         }
 
-        [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.3.x to v0.4x")]
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.3.x to v0.4x")]
         private static void MigrateEverythingV0ToV1() { MigrateEverythingV0ToV1(false); }
         private static void MigrateEverythingV0ToV1(bool continuesMigrate = false)
         {
@@ -243,7 +243,7 @@ namespace net.rs64.TexTransTool.Migration
                 if (!continuesMigrate) PostMigration();
             }
         }
-        [MenuItem("Tools/TexTransTool/Migration/Migrate Everything v0.4.x to v0.5.x")]
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.4.x to v0.5.x")]
         private static void MigrateEverythingV1ToV2() { MigrateEverythingV1ToV2(false); }
         private static void MigrateEverythingV1ToV2(bool continuesMigrate = false)
         {
