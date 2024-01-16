@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sBlendType, "BlendTypeKey".GetLC());
 
             var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-            PropertyNameEditor.DrawInspectorGUI(sTargetPropertyName, "TargetPropertyName".GetLocalize());
+            EditorGUILayout.PropertyField(sTargetPropertyName, "TargetPropertyName".GetLC());
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerRealTimePreviewEditor(AbstractDecal target)
