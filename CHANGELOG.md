@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unity の最小バージョン指定を 2022.3 に変更 `#310`
 - SimpleDecal のリアルタイムプレビューが可変レートで更新されるように変更 `#320`
 - AtlasTexture の TextureFineTuning などが Unity 標準の並び替え可能なリスト表示に変更 `#328`
+- MenuItem の配置に調整 `#329`
 
 ### Removed
 
