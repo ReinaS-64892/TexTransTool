@@ -98,3 +98,9 @@ OverrideTextureFormat,オーバーライドするフォーマット
 UseOverrideTextureFormat,フォーマットをオーバーライドする
 Linear,リニア
 SimpleFormatChoices,シンプルフォーマット選択
+Resize,リサイズ
+Compress,圧縮
+ReferenceCopy,参照のコピー
+Remove,削除
+MipMapRemove,ミップマップの削除
+ColorSpace,色空間

@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.Editor
             sMaterialSelect.intValue = ArraySelector(sMaterialSelect.intValue, TargetMaterials);
 
             var sTargetPropertyName = sRelativeTextureSelector.FindPropertyRelative("TargetPropertyName");
-            PropertyNameEditor.DrawInspectorGUI(sTargetPropertyName);
+            EditorGUILayout.PropertyField(sTargetPropertyName);
             if (TargetMaterials != null)
             {
                 EditorGUILayout.BeginHorizontal();
