@@ -29,45 +29,61 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
 
             EditorGUILayout.LabelField("Modify Settings", EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
 
             var sChangeList = thisSObject.FindProperty("ChangeList");
+            EditorGUILayout.PropertyField(sChangeList);
 
-            for (var i = 0; sChangeList.arraySize > i; i += 1)
-            {
-                EditorGUILayout.LabelField("Setting " + i + "---");
-                var sChange = sChangeList.GetArrayElementAtIndex(i);
-                var sModTypeEnum = sChange.FindPropertyRelative("ModType");
-                EditorGUILayout.PropertyField(sModTypeEnum);
-                switch (sModTypeEnum.enumValueIndex)
-                {
-                    case 0://Float
-                        {
-                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Float_PropertyName"));
-                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Float_Value"));
-                            break;
-                        }
-                    case 1://Texture
-                        {
-                            PropertyNameEditor.DrawInspectorGUI(sChange.FindPropertyRelative("Texture_PropertyName"));
-                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Texture_Value"));
-                            break;
-                        }
-                    case 2://Color
-                        {
-                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Color_PropertyName"));
-                            EditorGUILayout.PropertyField(sChange.FindPropertyRelative("Color_Value"));
-                            break;
-                        }
-                }
-            }
 
-            TextureTransformerEditor.DrawerArrayResizeButton(sChangeList);
-            EditorGUI.indentLevel -= 1;
             EditorGUI.EndDisabledGroup();
 
             PreviewContext.instance.DrawApplyAndRevert(thisObject);
             thisSObject.ApplyModifiedProperties();
+        }
+    }
+
+
+    [CustomPropertyDrawer(typeof(MaterialModifier.MatMod))]
+    public class MatModDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            var sChange = property;
+            var sModTypeEnum = sChange.FindPropertyRelative("ModType");
+            position.height = 18;
+            EditorGUI.PropertyField(position, sModTypeEnum);
+            position.y += position.height;
+            switch (sModTypeEnum.enumValueIndex)
+            {
+                case 0://Float
+                    {
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Float_PropertyName"));
+                        position.y += position.height;
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Float_Value"));
+                        position.y += position.height;
+                        break;
+                    }
+                case 1://Texture
+                    {
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Texture_Value"));
+                        position.y += position.height;
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Texture_PropertyName"));
+                        position.y += position.height;
+                        break;
+                    }
+                case 2://Color
+                    {
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Color_PropertyName"));
+                        position.y += position.height;
+                        EditorGUI.PropertyField(position, sChange.FindPropertyRelative("Color_Value"));
+                        position.y += position.height;
+                        break;
+                    }
+            }
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return 18 * 3;
         }
     }
 }

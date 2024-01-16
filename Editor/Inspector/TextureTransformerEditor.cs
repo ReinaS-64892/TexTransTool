@@ -43,30 +43,29 @@ namespace net.rs64.TexTransTool.Editor
             {
                 sRendererList.arraySize = 1;
                 var sArrayElement = sRendererList.GetArrayElementAtIndex(0);
-                var arrayElementValue = sArrayElement.objectReferenceValue;
-                var arrayElementEditValue = EditorGUILayout.ObjectField("TargetRenderer".GetLocalize(), arrayElementValue, typeof(Renderer), true) as Renderer;
-                if (arrayElementValue != arrayElementEditValue)
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(sArrayElement, "TargetRenderer".GetLC());
+
+                if (EditorGUI.EndChangeCheck())
                 {
-                    Renderer flatlingRenderer = TextureTransformerEditor.RendererFiltering(arrayElementEditValue);
+                    Renderer flatlingRenderer = TextureTransformerEditor.RendererFiltering(sArrayElement.objectReferenceValue as Renderer);
                     sArrayElement.objectReferenceValue = flatlingRenderer;
                 }
             }
             else
             {
-                EditorGUILayout.LabelField("TargetRenderer".GetLocalize());
-                foreach (var Index in Enumerable.Range(0, sRendererList.arraySize))
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(sRendererList, "TargetRenderer".GetLC());
+
+                if (EditorGUI.EndChangeCheck())
                 {
-                    var sTargetRendererValue = sRendererList.GetArrayElementAtIndex(Index);
-                    var targetRendererValue = sTargetRendererValue.objectReferenceValue;
-                    var targetRendererEditValue = EditorGUILayout.ObjectField("Target".GetLocalize() + " " + (Index + 1), targetRendererValue, typeof(Renderer), true) as Renderer;
-                    if (targetRendererValue != targetRendererEditValue)
+                    foreach (SerializedProperty sTargetRendererValue in sRendererList)
                     {
-                        Renderer filteredRenderer = TextureTransformerEditor.RendererFiltering(targetRendererEditValue);
+                        Renderer filteredRenderer = TextureTransformerEditor.RendererFiltering(sTargetRendererValue.objectReferenceValue as Renderer);
                         sTargetRendererValue.objectReferenceValue = filteredRenderer;
                     }
                 }
 
-                DrawerArrayResizeButton(sRendererList);
             }
         }
 
