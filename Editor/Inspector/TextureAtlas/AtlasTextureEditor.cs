@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
             EditorGUILayout.PropertyField(sPadding, new GUIContent("Padding".GetLocalize()));
             EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
-            EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("WriteOriginalUV".GetLocalize()));
+            EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("(" + "Experimental Future".GetLocalize() + ")" + "WriteOriginalUV".GetLocalize()));
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, sIncludeDisabledRenderer.name.GetLC());
             EditorGUILayout.PropertyField(sUseUpScaling, sUseUpScaling.name.GetLC());
             EditorGUILayout.PropertyField(sTextureFineTuningDataList, "TextureFineTuning".GetLC());
