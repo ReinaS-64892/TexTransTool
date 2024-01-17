@@ -40,11 +40,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
         {
-            foreach (var removeTarget in texFineTuningTargets.Where(I => I.TuningDataList.Any(T => T is RemoveData)))
-            {
-                texFineTuningTargets.Remove(removeTarget);
-            }
-
+            texFineTuningTargets.RemoveAll(I => I.TuningDataList.Any(T => T is RemoveData));
         }
     }
 
