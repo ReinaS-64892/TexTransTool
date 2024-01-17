@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var sTarget = serializedObject;
 
-            TextureBlenderEditor.DrawerRelativeTextureSelector(sTarget.FindProperty("TextureSelector"));
+            EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
             EditorGUI.BeginDisabledGroup(true);
             var sTexSize = sTarget.FindProperty("TextureSize");
             EditorGUILayout.PropertyField(sTexSize, sTexSize.displayName.GetLC());
