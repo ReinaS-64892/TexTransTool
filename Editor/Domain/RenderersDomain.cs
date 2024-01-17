@@ -183,7 +183,7 @@ namespace net.rs64.TexTransTool
 
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
 
-            _textureManager.TexCompressDelegationInvoke();
+            _textureManager.TextureFinalize();
 
             ProgressUpdate("End", 1f);
             ProgressStateExit();

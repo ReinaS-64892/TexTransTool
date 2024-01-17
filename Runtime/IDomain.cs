@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool
 
         void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
         void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target);
-        void TexCompressDelegationInvoke();
+        void TextureFinalize();
     }
     public interface IGetOriginTex2DManager
     {

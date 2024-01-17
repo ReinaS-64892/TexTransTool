@@ -83,12 +83,27 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public void TexCompressDelegationInvoke()
+        public void TextureFinalize()
         {
             if (CompressDict == null) { return; }
             foreach (var texAndFormat in CompressDict)
             {
                 EditorUtility.CompressTexture(texAndFormat.Key, texAndFormat.Value.CompressFormat, texAndFormat.Value.Quality);
+            }
+
+            foreach (var tex in CompressDict.Keys)
+            {
+                tex.Apply(true, true);
+            }
+
+            foreach (var tex in CompressDict.Keys)
+            {
+                var sTexture = new SerializedObject(tex);
+
+                var sStreamingMipmaps = sTexture.FindProperty("m_StreamingMipmaps");
+                sStreamingMipmaps.boolValue = true;
+
+                sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
         }
     }

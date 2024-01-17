@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal のリアルタイムプレビューが可変レートで更新されるように変更 `#320`
 - AtlasTexture の TextureFineTuning などが Unity 標準の並び替え可能なリスト表示に変更 `#328`
 - MenuItem の配置に調整 `#329`
+- TexTransTool によって新しく生成されたテクスチャーの isReadable が無効に、StreamingMipmap を有効化するように変更 `#331`
 
 ### Removed
 
