@@ -5,9 +5,15 @@ using System.Linq;
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TexTransBehavior))]
+    [CustomEditor(typeof(TexTransBehavior), true)]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
+        public override void OnInspectorGUI()
+        {
+            DrawerWarning(target.GetType().Name);
+            base.OnInspectorGUI();
+            PreviewContext.instance.DrawApplyAndRevert(target as TexTransBehavior);
+        }
         public static void DrawerWarning(string typeName)
         {
             EditorGUILayout.HelpBox(typeName + "is an experimental feature. Features may be changed or removed without notice.".GetLocalize(), MessageType.Warning);
