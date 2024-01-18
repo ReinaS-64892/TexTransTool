@@ -18,6 +18,8 @@ namespace net.rs64.TexTransTool
             AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
             EditorSceneManager.sceneClosing -= ExitPreview;
             EditorSceneManager.sceneClosing += ExitPreview;
+            DestroyCall.OnDestroy -= DestroyObserve;
+            DestroyCall.OnDestroy += DestroyObserve;
         }
 
         private void OnEnable()
@@ -125,6 +127,11 @@ namespace net.rs64.TexTransTool
                     AnimationMode.EndSampling();
                 }
             });
+        }
+
+        public void DestroyObserve(TexTransBehavior texTransBehavior)
+        {
+            if (IsPreviewing(texTransBehavior)) { instance.ExitPreview(); }
         }
 
     }
