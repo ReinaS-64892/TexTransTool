@@ -32,8 +32,9 @@ namespace net.rs64.TexTransTool
             AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
             EditorSceneManager.sceneClosing -= ExitPreview;
             EditorSceneManager.sceneClosing += ExitPreview;
+            DestroyCall.OnDestroy -= DestroyObserve;
+            DestroyCall.OnDestroy += DestroyObserve;
         }
-
         public static int ContainsPreviewCount => instance.RealTimePreviews.Count;
         public static bool IsContainsRealTimePreviewDecal => instance.RealTimePreviews.Count > 0;
         public static bool IsContainsRealTimePreviewRenderer => instance.PreviewTargetRenderer.Count > 0;
@@ -383,6 +384,11 @@ namespace net.rs64.TexTransTool
             }
         }
 
+
+        public void DestroyObserve(TexTransBehavior behavior)
+        {
+            if (behavior is AbstractDecal abstractDecal && Contains(abstractDecal)) { UnRegtAbstractDecal(abstractDecal); }
+        }
 
 
     }

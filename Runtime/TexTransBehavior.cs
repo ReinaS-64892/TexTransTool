@@ -38,7 +38,6 @@ namespace net.rs64.TexTransTool
         internal void OnDestroy()
         {
             DestroyCall.DestroyThis(this);
-            // if (PreviewContext.IsPreviewing(this)) { PreviewContext.instance.ExitPreview(); }
         }
     }
 
