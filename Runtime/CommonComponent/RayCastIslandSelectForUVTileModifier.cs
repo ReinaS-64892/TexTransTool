@@ -13,7 +13,9 @@ using net.rs64.TexTransCore.TransTextureCore;
 
 namespace net.rs64.TexTransTool
 {
-    public class UVTileModifier : TexTransRuntimeBehavior
+
+    [AddComponentMenu("TexTransTool/Other/TTT RayCastIslandSelectForUVTileModifier")]
+    public class RayCastIslandSelectForUVTileModifier : TexTransRuntimeBehavior
     {
         public GameObject TargetRoot;
         public List<Renderer> Renderers => TargetRoot.GetComponentsInChildren<Renderer>(true).Where(RendererFilter).ToList();
