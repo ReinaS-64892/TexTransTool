@@ -9,6 +9,7 @@ using UnityEngine.Pool;
 using net.rs64.TexTransTool.TextureAtlas;
 using Unity.Collections;
 using System;
+using net.rs64.TexTransCore.TransTextureCore;
 
 namespace net.rs64.TexTransTool
 {
@@ -34,44 +35,37 @@ namespace net.rs64.TexTransTool
                 if (souseMesh == null) { continue; }
                 var vertex = DecalUtility.GetWorldSpaceVertices(renderer);
                 var triangle = souseMesh.GetTriangleIndex();
+                var uv = souseMesh.GetUVList(0, ListPool<Vector2>.Get());
 
                 var ray = new Ray(transform.position, transform.forward);
-                var hitTriangles = IslandCulling.RayCast(ray, vertex, triangle, ListPool<IslandCulling.RayCastHitTriangle>.Get());
+                var targetCullied = ListPool<TriangleIndex>.Get();
+                targetCullied = IslandCulling.Culling(new List<IslandSelector>() { new(ray, RayCastRange) }, vertex, uv, triangle, domain.GetIslandCacheManager(), targetCullied);
 
-                hitTriangles.RemoveAll(FilterTriangle);
 
-                if (hitTriangles.Any())
+
+                if (targetCullied.Any())
                 {
                     var editableMesh = UnityEngine.Object.Instantiate(souseMesh);
+                    editableMesh.name += "_TileModified";
 
-                    var uv = editableMesh.GetUVList(0, ListPool<Vector2>.Get());
                     var mvUV = ListPool<Vector2>.Get();
                     mvUV.AddRange(uv);
 
-                    foreach (var tri in hitTriangles)
+                    foreach (var tri in targetCullied)
                     {
-                        foreach (var index in tri.Triangle)
+                        foreach (var index in tri)
                         {
                             mvUV[index] = TileSet(uv[index], Tile);
                         }
                     }
 
                     editableMesh.SetUVs(0, mvUV);
-
-                    ListPool<Vector2>.Release(uv);
-                    ListPool<Vector2>.Release(mvUV);
-
                     domain.SetMesh(renderer, editableMesh);
-                }
-                ListPool<IslandCulling.RayCastHitTriangle>.Release(hitTriangles);
 
-
-                bool FilterTriangle(IslandCulling.RayCastHitTriangle rayCastHitTriangle)
-                {
-                    if (rayCastHitTriangle.Distance < 0) { return true; }
-                    if (rayCastHitTriangle.Distance > RayCastRange) { return true; }
-                    return false;
+                    ListPool<Vector2>.Release(mvUV);
                 }
+                ListPool<TriangleIndex>.Release(targetCullied);
+                ListPool<Vector2>.Release(uv);
             }
 
         }
@@ -79,16 +73,22 @@ namespace net.rs64.TexTransTool
         private Vector2 TileSet(Vector2 vector2, Vector2Int tile)
         {
             vector2.x = vector2.x - Mathf.Floor(vector2.x) + tile.x;
-            vector2.y = vector2.y - Mathf.Floor(vector2.y) + tile.x;
+            vector2.y = vector2.y - Mathf.Floor(vector2.y) + tile.y;
             return vector2;
         }
 
         internal static bool RendererFilter(Renderer renderer)
         {
-            if (renderer.tag == "EditorOnly") { return true; }
-            if (renderer.GetMesh() == null) { return true; }
-            if (renderer.GetMesh().uv.Any() == false) { return true; }
-            return false;
+            if (renderer.tag == "EditorOnly") { return false; }
+            if (renderer.GetMesh() == null) { return false; }
+            if (renderer.GetMesh().uv.Any() == false) { return false; }
+            return true;
+        }
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(transform.position, transform.position + (transform.forward * RayCastRange));
         }
     }
 }
