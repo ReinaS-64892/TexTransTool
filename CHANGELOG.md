@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+### Deprecated
+
+## [0.5.0]
+
+### Added
+
 - 画像編集ソフトのコンポジットを再現する MultiLayerImageCanvas を追加 `#160`
   - それに伴い LayerFolder と RasterLayer を追加
   - 特殊なレイヤーとして SolidLayer を追加
@@ -317,7 +329,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...master
+[0.5.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0
 [0.4.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...v0.4.3
