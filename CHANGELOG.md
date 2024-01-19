@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- ブレンドタイプキー SoftLight が一般的な画像編集ソフトに近くなりました `#295`
+
 ### Deprecated
 
 ## [0.5.0]
