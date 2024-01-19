@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 実験的機能として RayCastIslandSelectForUVTileModifier が追加 `#335`
-
 ### Changed
 
 ### Removed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Deprecated
+
+## [0.5.1]
+
+### Fixed
+
+- ブレンドタイプキー SoftLight が一般的な画像編集ソフトに近くなりました `#295`
 
 ## [0.5.0]
 
@@ -331,7 +335,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...master
+[0.5.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0
 [0.4.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...v0.4.4
