@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
             var replaceTarget = TextureSelector.GetTexture();
             if (replaceTarget == null) { throw new TTTNotExecutable(); }
-            var timer = System.Diagnostics.Stopwatch.StartNew();
+            
             var canvasContext = new CanvasContext(replaceTarget.width, domain.GetTextureManager());
 
 
@@ -50,8 +50,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
 
             domain.GetTextureManager().DestroyTextures();
-            timer.Stop();
-            Debug.Log(timer.ElapsedMilliseconds);
         }
         internal class CanvasContext
         {

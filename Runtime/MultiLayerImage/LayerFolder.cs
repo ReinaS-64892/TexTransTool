@@ -57,6 +57,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                 subStack.ReleaseLayers();
             }
+            canvasContext.TextureManager.DestroyTextures();
 
         }
     }
