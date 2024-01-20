@@ -7,15 +7,12 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     {
         public override void OnInspectorGUI()
         {
-            TextureTransformerEditor.DrawerWarning("MultiImageLayer".GetLocalize());
+            TextureTransformerEditor.DrawerWarning("MultiLayerImageCanvas".GetLocalize());
 
             var sTarget = serializedObject;
 
             EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
-            EditorGUI.BeginDisabledGroup(true);
-            var sTexSize = sTarget.FindProperty("TextureSize");
-            EditorGUILayout.PropertyField(sTexSize, sTexSize.displayName.GetLC());
-            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.PropertyField(sTarget.FindProperty("AdditionalCanvasMode"), "AdditionalCanvasMode".GetLC());
 
             var thisTarget = target as MultiLayerImageCanvas;
             PreviewContext.instance.DrawApplyAndRevert(thisTarget);

@@ -22,12 +22,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
+        public bool AdditionalCanvasMode;
+
         internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
             var replaceTarget = TextureSelector.GetTexture();
             if (replaceTarget == null) { throw new TTTNotExecutable(); }
-            
+
             var canvasContext = new CanvasContext(replaceTarget.width, domain.GetTextureManager());
 
 
@@ -40,9 +42,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (canvasContext.RootLayerStack.Stack.Count == 0) { return; }
 
-            var firstLayer = canvasContext.RootLayerStack.Stack[0];
-            firstLayer.BlendTextures.BlendTypeKey = "NotBlend";
-            canvasContext.RootLayerStack.Stack[0] = firstLayer;
+            if (!AdditionalCanvasMode) { domain.AddTextureStack(replaceTarget, new BlendTexturePair(RenderTexture.GetTemporary(2, 2), "NotBlend")); }
 
             foreach (var layer in canvasContext.RootLayerStack.GetLayers)
             {
