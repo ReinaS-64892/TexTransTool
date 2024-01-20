@@ -6,9 +6,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public Texture2D RasterTexture;
 
-        public override Texture GetImage(int width, int height)
+        public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {
-            return RasterTexture;
+            originTexture.WriteOriginalTexture(RasterTexture, renderTexture);
         }
     }
 }

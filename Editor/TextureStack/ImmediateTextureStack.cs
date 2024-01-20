@@ -18,11 +18,11 @@ namespace net.rs64.TexTransTool.TextureStack
             using (new RTActiveSaver())
             {
                 renderTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
-                Graphics.Blit(TextureManager.GetOriginalTexture2D(FirstTexture), renderTexture);
+                Graphics.Blit(FirstTexture, renderTexture);
             }
         }
 
-        public override void AddStack(BlendTexturePair blendTexturePair)
+        public override void AddStack<BlendTex>(BlendTex blendTexturePair)
         {
             renderTexture.BlendBlit(blendTexturePair.Texture, blendTexturePair.BlendTypeKey);
 

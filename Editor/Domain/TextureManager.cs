@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
             DestroyList.Add(texture2D);
         }
 
-        public void DeferTexDestroy()
+        public void DestroyTextures()
         {
             if (DestroyList == null) { return; }
             foreach (var tex in DestroyList)
@@ -42,7 +42,15 @@ namespace net.rs64.TexTransTool
             if (OriginDict != null) { OriginDict.Clear(); }
         }
 
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D)
+        public int GetOriginalTextureSize(Texture2D texture2D)
+        {
+            return NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+        }
+        public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
+        {
+            Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
+        }
+        public Texture2D GetOriginalTexture(Texture2D texture2D)
         {
             if (Previewing)
             {
@@ -106,5 +114,10 @@ namespace net.rs64.TexTransTool
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
         }
+
+        public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
+
+
+
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
@@ -11,7 +12,7 @@ namespace net.rs64.TexTransTool
 
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
-        void AddTextureStack(Texture2D dist, BlendTexturePair setTex);//RenderTextureを入れる場合 Temp にすること
+        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;//RenderTextureを入れる場合 Temp にすること
         bool TryReplaceQuery(UnityEngine.Object oldObject, out UnityEngine.Object nowObject);
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
@@ -32,18 +33,19 @@ namespace net.rs64.TexTransTool
         void ProgressFinalize();
     }
 
-    internal interface ITextureManager : IGetOriginTex2DManager
+    internal interface ITextureManager : IOriginTexture
     {
         void DeferDestroyTexture2D(Texture2D texture2D);
-        void DeferTexDestroy();
+        void DestroyTextures();
 
         void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
         void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target);
         void TextureFinalize();
     }
-    public interface IGetOriginTex2DManager
+    public interface IOriginTexture
     {
-        Texture2D GetOriginalTexture2D(Texture2D texture2D);
+        int GetOriginalTextureSize(Texture2D texture2D);
+        void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
     }
 
     internal static class DomainUtility
@@ -54,6 +56,21 @@ namespace net.rs64.TexTransTool
             {
                 domain.TransferAsset(unityObject);
             }
+        }
+
+        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D)
+        {
+            var originSize = origin.GetOriginalTextureSize(texture2D);
+            var tempRt = RenderTexture.GetTemporary(originSize, originSize, 0);
+            origin.WriteOriginalTexture(texture2D, tempRt);
+            return tempRt;
+        }
+        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
+        {
+            var tempRt = RenderTexture.GetTemporary(size, size, 0);
+            tempRt.Clear();
+            origin.WriteOriginalTexture(texture2D, tempRt);
+            return tempRt;
         }
     }
 }

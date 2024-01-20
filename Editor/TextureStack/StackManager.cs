@@ -6,7 +6,7 @@ namespace net.rs64.TexTransTool.TextureStack
 {
     internal interface IStackManager
     {
-        void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex);
+        void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;
         List<MergeResult> MergeStacks();
     }
     internal class StackManager<Stack> : IStackManager
@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.TextureStack
         {
             _textureManager = textureManager;
         }
-        public void AddTextureStack(Texture2D dist, BlendTexturePair setTex)
+        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair
         {
             if (dist == null) { return; }
             var stack = _textureStacks.Find(i => i.FirstTexture == dist);
@@ -35,7 +35,6 @@ namespace net.rs64.TexTransTool.TextureStack
             }
 
         }
-
         public List<MergeResult> MergeStacks()
         {
             var mergeTex = new List<MergeResult>(_textureStacks.Capacity);
@@ -65,7 +64,8 @@ namespace net.rs64.TexTransTool.TextureStack
         public virtual void init(Texture2D firstTexture, ITextureManager textureManager) { FirstTexture = firstTexture; TextureManager = textureManager; }
         public Texture2D FirstTexture;
         public ITextureManager TextureManager;
-        public abstract void AddStack(BlendTexturePair blendTexturePair);
+        // RenderTextureの場合解放責任はこっちにわたるが、Texture2Dの場合は渡らない
+        public abstract void AddStack<BlendTex>(BlendTex blendTexturePair) where BlendTex : IBlendTexturePair;
         public abstract Texture2D MergeStack();
     }
 }

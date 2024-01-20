@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 var prefabName = Path.GetFileName(ctx.SaveDirectory) + "-Canvas";
                 var rootCanvas = new GameObject(prefabName);
                 var multiLayerImageCanvas = rootCanvas.AddComponent<MultiLayerImageCanvas>();
-                multiLayerImageCanvas.TextureSize = canvasData.Size;
+                // multiLayerImageCanvas.TextureSize = canvasData.Size;
                 AddLayers(multiLayerImageCanvas.transform, ctx, canvasData.RootLayers);
                 ctx.FinalizeTex2D();
                 preSaveCallBack.Invoke(multiLayerImageCanvas);

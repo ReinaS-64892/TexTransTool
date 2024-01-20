@@ -15,7 +15,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
     {
         public RelativeTextureSelector TextureSelector;
-        public Vector2Int TextureSize = new Vector2Int(2048, 2048);
 
         internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
 
@@ -26,10 +25,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
-            var canvasContext = new CanvasContext(TextureSize, domain.GetTextureManager());
-
             var replaceTarget = TextureSelector.GetTexture();
-            if (replaceTarget == null) { return; }
+            if (replaceTarget == null) { throw new TTTNotExecutable(); }
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            var canvasContext = new CanvasContext(replaceTarget.width, domain.GetTextureManager());
+
 
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
@@ -49,14 +49,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 domain.AddTextureStack(replaceTarget, layer);
             }
 
+            domain.GetTextureManager().DestroyTextures();
+            timer.Stop();
+            Debug.Log(timer.ElapsedMilliseconds);
         }
         internal class CanvasContext
         {
-            public Vector2Int CanvasSize;
+            public int CanvasSize;
             public LayerStack RootLayerStack;
             public ITextureManager TextureManager;
 
-            public CanvasContext(Vector2Int canvasSize, ITextureManager textureManager)
+            public CanvasContext(int canvasSize, ITextureManager textureManager)
             {
                 CanvasSize = canvasSize;
                 RootLayerStack = new();
@@ -69,7 +72,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             public List<BlendLayer> Stack = new List<BlendLayer>();
 
-            public IEnumerable<BlendTexturePair> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
+            public IEnumerable<BlendLayer.BlendRenderTexture> GetLayers => Stack.Where(I => I.BlendTextures.Texture != null).Select(I => I.BlendTextures);
 
 
 
@@ -86,27 +89,53 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 if (index >= 0)
                 {
                     var refBlendLayer = Stack[index];
-                    var ClippingDist = refBlendLayer.BlendTextures.Texture as RenderTexture;
-                    if (ClippingDist == null) { return; }
+                    var ClippingDist = refBlendLayer.BlendTextures.Texture;
+                    if (ClippingDist == null) { RenderTexture.ReleaseTemporary(tex); return; }
                     ClippingDist.BlendBlit(tex, blendTypeKey, true);
                 }
+                RenderTexture.ReleaseTemporary(tex);
             }
 
             public void AddRenderTexture(AbstractLayer abstractLayer, RenderTexture tex, string blendTypeKey)
             {
                 Stack.Add(new BlendLayer(abstractLayer, tex, blendTypeKey));
             }
+
+            public void ReleaseLayers()
+            {
+                foreach (var layer in Stack)
+                {
+                    RenderTexture.ReleaseTemporary(layer.BlendTextures.Texture);
+                }
+                Stack.Clear();
+            }
         }
 
         internal struct BlendLayer
         {
             public AbstractLayer RefLayer;
-            public BlendTexturePair BlendTextures;
+            public BlendRenderTexture BlendTextures;
 
-            public BlendLayer(AbstractLayer refLayer, Texture layer, string blendTypeKey)
+            public BlendLayer(AbstractLayer refLayer, RenderTexture layer, string blendTypeKey)
             {
                 RefLayer = refLayer;
-                BlendTextures = new BlendTexturePair(layer, blendTypeKey);
+                BlendTextures = new BlendRenderTexture(layer, blendTypeKey);
+            }
+
+            public struct BlendRenderTexture : IBlendTexturePair
+            {
+                public RenderTexture Texture;
+                public string BlendTypeKey;
+
+                public BlendRenderTexture(RenderTexture texture, string blendTypeKey)
+                {
+                    Texture = texture;
+                    BlendTypeKey = blendTypeKey;
+                }
+
+                Texture IBlendTexturePair.Texture => Texture;
+
+                string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
             }
 
         }

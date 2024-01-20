@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool
             if (distTex == null) { return; }
 
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
-            domain.AddTextureStack(distTex, new(addTex, BlendTypeKey));
+            domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
         }
     }
 }
