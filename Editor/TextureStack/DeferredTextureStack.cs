@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureStack
             if (!StackTextures.Any()) { return FirstTexture; }
             var renderTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
             renderTexture.Clear();
-            Graphics.Blit(FirstTexture, renderTexture);
+            TextureManager.WriteOriginalTexture(FirstTexture, renderTexture);
 
             renderTexture.BlendBlit(StackTextures);
             foreach (var bTex in StackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { RenderTexture.ReleaseTemporary(rt); } }
