@@ -107,12 +107,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         {
             PNGEncoderExecuter(EncodeTask);
 
-            foreach (var iPNG in EncodeTask.Keys)
+            foreach (var task in EncodeTask)
             {
-                var pTex = iPNG.PreviewTexture = PNGByte2Preview(iPNG.PngBytes);
-                pTex.name = iPNG.name + "_Preview";
-                ctx.AddObjectToAsset(pTex.name, pTex);
-                EditorUtility.SetDirty(iPNG);
+                PNGByte2Preview(task.Value, task.Key);
             }
         }
         public static void PNGEncoderExecuter(Dictionary<TTTImportedPng, LowMap<Color32>> encData, int? forceParallelSize = null)
@@ -221,51 +218,49 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 throw e;
             }
         }
-        private static Texture2D PNGByte2Preview(byte[] pngBytes)
+        private void PNGByte2Preview(LowMap<Color32> image, TTTImportedPng sObj)
         {
-            var originTex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-            originTex.LoadImage(pngBytes);
-            var rawData = originTex.GetRawTextureData<Color32>();
 
-            ColorChannelSwap(rawData);
-
-            var setting = new TextureGenerationSettings(TextureImporterType.Default);
-            setting.textureImporterSettings.alphaIsTransparency = true;
-            setting.textureImporterSettings.mipmapEnabled = false;
-            setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
-
-            setting.platformSettings.maxTextureSize = 1024;
-            setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
-            setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
-            setting.platformSettings.compressionQuality = 100;
-
-            setting.sourceTextureInformation.width = originTex.width;
-            setting.sourceTextureInformation.height = originTex.height;
-            setting.sourceTextureInformation.containsAlpha = true;
-            setting.sourceTextureInformation.hdr = false;
-
-            var output = TextureGenerator.GenerateTexture(setting, rawData);
-
-
-            rawData.Dispose();
-            UnityEngine.Object.DestroyImmediate(originTex);
-
-            return output.texture;
-
-            static NativeArray<Color32> ColorChannelSwap(NativeArray<Color32> rawData)
+            using (var rawData = HeightInvert(image))
             {
-                for (var i = 0; rawData.Length > i; i += 1)
-                {
-                    var color = rawData[i];
-                    (color.r, color.a) = (color.a, color.r);
-                    (color.g, color.b) = (color.b, color.g);
-                    (color.r, color.b) = (color.b, color.r);
-                    rawData[i] = color;
-                }
 
-                return rawData;
+                var setting = new TextureGenerationSettings(TextureImporterType.Default);
+                setting.textureImporterSettings.alphaIsTransparency = true;
+                setting.textureImporterSettings.mipmapEnabled = false;
+                setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
+
+                setting.platformSettings.maxTextureSize = 1024;
+                setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+                setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
+                setting.platformSettings.compressionQuality = 100;
+
+                setting.sourceTextureInformation.width = image.Width;
+                setting.sourceTextureInformation.height = image.Height;
+                setting.sourceTextureInformation.containsAlpha = true;
+                setting.sourceTextureInformation.hdr = false;
+
+                var output = TextureGenerator.GenerateTexture(setting, rawData);
+
+                sObj.PreviewTexture = output.texture;
+                sObj.PreviewTexture.name = sObj.name + "_Preview";
+                ctx.AddObjectToAsset(output.texture.name, output.texture);
+
             }
 
+        }
+
+        static NativeArray<Color32> HeightInvert(LowMap<Color32> lowMap)
+        {
+            var width = lowMap.Width;
+            var map = new NativeArray<Color32>(lowMap.Array.Length, Allocator.Persistent);
+
+            for (var y = 0; lowMap.Height > y; y += 1)
+            {
+                var from = lowMap.Array.Slice((lowMap.Height - 1 - y) * width, width);
+                var to = map.Slice(y * width, width);
+                to.CopyFrom(from);
+            }
+            return map;
         }
 
 
