@@ -31,10 +31,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity)); }
 
-            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null)
+            if (LayerMask.ContainedMask)
             {
-                var tempRtMask = canvasContext.TextureManager.GetOriginTempRt(LayerMask.MaskTexture, canvasSize);
-                MaskDrawRenderTexture(rTex, tempRtMask); RenderTexture.ReleaseTemporary(tempRtMask);
+                var tmpRtMask = RenderTexture.GetTemporary(canvasSize, canvasSize, 0);
+                LayerMask.WriteMaskTexture(tmpRtMask, canvasContext.TextureManager);
+                MaskDrawRenderTexture(rTex, tmpRtMask); RenderTexture.ReleaseTemporary(tmpRtMask);
             }
 
             if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendTypeKey); }

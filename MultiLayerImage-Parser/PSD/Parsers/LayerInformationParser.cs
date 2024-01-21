@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Unity.Collections;
 using UnityEngine;
 using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
 using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
@@ -11,7 +12,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
     internal static class LayerInformationParser
     {
         [Serializable]
-        internal class LayerInfo
+        internal class LayerInfo : IDisposable
         {
             public uint LayersInfoSectionLength;
             public int LayerCount;
@@ -19,6 +20,14 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             public List<LayerRecord> LayerRecords;
             public List<ChannelImageData> ChannelImageData;
+
+            public void Dispose()
+            {
+                foreach (var imgData in ChannelImageData)
+                {
+                    imgData.Dispose();
+                }
+            }
         }
         public static LayerInfo PaseLayerInfo(SubSpanStream stream)
         {
@@ -39,7 +48,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             // var movedLength = stream.Position - firstPos;
             // Debug.Log($"moved length:{movedLength} LayersInfoSectionLength:{layerInfo.LayersInfoSectionLength}");
 
-            var channelImageDataAndTask = new List<(ChannelImageData, Task<byte[]>)>();
+            var channelImageDataAndTask = new List<(ChannelImageData, Task<NativeArray<byte>>)>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
@@ -53,7 +62,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             return layerInfo;
         }
 
-        private static async Task<List<ChannelImageData>> AwaitDecompress(List<(ChannelImageData, Task<byte[]>)> channelImageDataAndTask)
+        private static async Task<List<ChannelImageData>> AwaitDecompress(List<(ChannelImageData, Task<NativeArray<byte>>)> channelImageDataAndTask)
         {
             var channelImageDataList = new List<ChannelImageData>(channelImageDataAndTask.Count);
             foreach (var cidATask in channelImageDataAndTask)

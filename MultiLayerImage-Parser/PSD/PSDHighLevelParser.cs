@@ -14,6 +14,7 @@ using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
 using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
 using System.Buffers;
+using Unity.Collections;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
@@ -213,15 +214,15 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
         private static LowMap<Color32> GenerateTexTowDMap(LayerRecord record, Vector2Int size, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
-            Color32[] pixels = GenerateTexturePixels(record, channelInfoAndImage);
+            NativeArray<Color32> pixels = GenerateTexturePixels(record, channelInfoAndImage);
             var TexturePivot = new Vector2Int(record.RectTangle.Left, record.RectTangle.Top);
             return DrawOffsetEvaluateTexture(new LowMap<Color32>(pixels, record.RectTangle.GetWidth(), record.RectTangle.GetHeight()), TexturePivot, size, null);
         }
 
-        private static Color32[] GenerateTexturePixels(LayerRecord record, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
+        private static NativeArray<Color32> GenerateTexturePixels(LayerRecord record, Dictionary<ChannelInformation.ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             var length = record.RectTangle.GetWidth() * record.RectTangle.GetHeight();
-            var pixels = ArrayPool<Color32>.Shared.Rent(length);
+            var pixels = new NativeArray<Color32>(length, Allocator.Persistent);
             if (channelInfoAndImage.ContainsKey(ChannelInformation.ChannelIDEnum.Transparency))
             {
                 var redImage = channelInfoAndImage[ChannelInformation.ChannelIDEnum.Red].ImageData;
@@ -275,7 +276,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             var maskImage = channelInfoAndImage[ChannelInformation.ChannelIDEnum.UserLayerMask].ImageData;
 
             var length = record.LayerMaskAdjustmentLayerData.RectTangle.GetWidth() * record.LayerMaskAdjustmentLayerData.RectTangle.GetHeight();
-            var pixels = ArrayPool<Color32>.Shared.Rent(length);
+            var pixels = new NativeArray<Color32>(length, Allocator.Persistent);
             for (var i = 1; length > i; i += 1)
             {
                 try
@@ -335,18 +336,17 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
             else
             {
-                var pixels = targetTexture.Array.AsSpan(0, canvasSize.x * canvasSize.y).ToArray();
-                ArrayPool<Color32>.Shared.Return(targetTexture.Array);
-                return new LowMap<Color32>(pixels, canvasSize.x, canvasSize.y);
+                return targetTexture;
             }
         }
 
         public static LowMap<Color32> TextureOffset(LowMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
         {
             var sTex2D = texture;
-            var tTex2D = new LowMap<Color32>(new Color32[TargetSize.x * TargetSize.y], TargetSize.x, TargetSize.y);
+            var tTex2D = new LowMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.Persistent), TargetSize.x, TargetSize.y);
             var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
-            tTex2D.Array.AsSpan(0, TargetSize.x * TargetSize.y).Fill(initColor);
+            tTex2D.Array.Fill(initColor);
+
 
             var xStart = Mathf.Max(-Pivot.x, 0);
             var xEnd = Mathf.Min(Pivot.x + sTex2D.Width, TargetSize.x) - Pivot.x;
@@ -357,7 +357,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             if (xLength < 0)
             {
-                ArrayPool<Color32>.Shared.Return(texture.Array);
+                texture.Dispose();
                 return tTex2D;
             }
 
@@ -365,23 +365,63 @@ namespace net.rs64.MultiLayerImageParser.PSD
             for (var yi = yStart; yEnd > yi; yi += 1)
             {
                 var sPos = new Vector2Int(xStart, yi);
-                var sSpan = sTex2D.Array.AsSpan(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos, sTex2D.Width), xLength);
-                var tSpan = tTex2D.Array.AsSpan(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos + Pivot, tTex2D.Width), xLength);
+                var sSpan = sTex2D.Array.Slice(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos, sTex2D.Width), xLength);
+                var tSpan = tTex2D.Array.Slice(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos + Pivot, tTex2D.Width), xLength);
                 sSpan.CopyTo(tSpan);
             }
-            ArrayPool<Color32>.Shared.Return(texture.Array);
+            texture.Dispose();
             return tTex2D;
+        }
+
+        public static void Fill<T>(this NativeArray<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+        public static void Fill<T>(this NativeSlice<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+
+        public static void CopyTo<T>(this NativeSlice<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+        public static void CopyTo<T>(this NativeArray<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+
+        public static void CopyFrom<T>(this NativeArray<T> to, Span<T> from) where T : struct
+        {
+            for (var i = 0; to.Length > i; i += 1)
+            {
+                to[i] = from[i];
+            }
         }
     }
 
     [Serializable]
-    internal class PSDHighLevelData
+    internal class PSDHighLevelData : IDisposable
     {
         public Vector2Int Size;
         public ushort Depth;
         public ushort channels;
         public List<AbstractLayerData> RootLayers;
         public LowMap<Color32>[] Texture2Ds;
+
+        public void Dispose()
+        {
+            for (var i = 0; Texture2Ds.Length > i; i += 1)
+            {
+                Texture2Ds[i].Dispose();
+            }
+        }
 
         public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Size = hData.Size, RootLayers = hData.RootLayers };
     }

@@ -34,13 +34,16 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUI.PropertyField(position, sTargetPropertyName, "TargetPropertyName".GetLC());
             position.y += position.height;
 
-            var texture = TargetMaterials[sMaterialSelect.intValue].GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
-            if (TargetMaterials != null && texture != null)
+            if (TargetMaterials != null)
             {
-                EditorGUI.LabelField(position, "ReplaceTexturePreview".GetLocalize());
-                var previewTexRect = position;
-                previewTexRect.height = 64f;
-                EditorGUI.DrawTextureTransparent(previewTexRect, texture, ScaleMode.ScaleToFit);
+                var texture = TargetMaterials[sMaterialSelect.intValue].GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
+                if (texture != null)
+                {
+                    EditorGUI.LabelField(position, "ReplaceTexturePreview".GetLocalize());
+                    var previewTexRect = position;
+                    previewTexRect.height = 64f;
+                    EditorGUI.DrawTextureTransparent(previewTexRect, texture, ScaleMode.ScaleToFit);
+                }
             }
 
             EditorGUI.indentLevel -= 1;

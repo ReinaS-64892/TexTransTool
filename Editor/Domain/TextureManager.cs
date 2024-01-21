@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.Build;
@@ -71,6 +72,20 @@ namespace net.rs64.TexTransTool
                 }
             }
         }
+        public void WriteOriginalTexture(TTTImportedPng texture, RenderTexture writeTarget)
+        {
+            if (Previewing)
+            {
+                Graphics.Blit(texture.PreviewTexture, writeTarget);
+            }
+            else
+            {
+                var fullPng = new Texture2D(2, 2);
+                fullPng.LoadImage(texture.PngBytes);
+                Graphics.Blit(fullPng, writeTarget);
+                UnityEngine.Object.DestroyImmediate(fullPng);
+            }
+        }
         public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
         {
             if (CompressDict == null) { return; }
@@ -116,8 +131,6 @@ namespace net.rs64.TexTransTool
         }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
-
-
 
     }
 }

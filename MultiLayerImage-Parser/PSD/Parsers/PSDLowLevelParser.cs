@@ -59,7 +59,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
 
         [Serializable]
-        internal class PSDLowLevelData
+        internal class PSDLowLevelData : IDisposable
         {
             // File Header Section
             public ushort channels;
@@ -95,6 +95,11 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             public LayerInfo LayerInfo;
             public GlobalLayerMaskInfo GlobalLayerMaskInfo;
+
+            public void Dispose()
+            {
+                LayerInfo.Dispose();
+            }
         }
     }
 }

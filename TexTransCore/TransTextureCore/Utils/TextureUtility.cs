@@ -38,7 +38,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             using (new RTActiveSaver())
             {
                 var useMip = souse.mipmapCount > 1;
-                var rt = RenderTexture.GetTemporary(size.x, size.y);
+                var rt = RenderTexture.GetTemporary(size.x, size.y); rt.Clear();
                 if (useMip)
                 {
                     Graphics.Blit(souse, rt);

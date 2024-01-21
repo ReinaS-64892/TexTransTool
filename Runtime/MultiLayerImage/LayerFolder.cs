@@ -31,10 +31,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(layer.Texture, new Color(1, 1, 1, Opacity)); }
 
-                    if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null)
+                    if (LayerMask.ContainedMask)
                     {
-                        var maskTempRT = canvasContext.TextureManager.GetOriginTempRt(LayerMask.MaskTexture, canvasContext.CanvasSize);
-                        MaskDrawRenderTexture(layer.Texture, maskTempRT); RenderTexture.ReleaseTemporary(maskTempRT);
+                        var tmpRtMask = RenderTexture.GetTemporary(subContext.CanvasSize, subContext.CanvasSize, 0);
+                        LayerMask.WriteMaskTexture(tmpRtMask, canvasContext.TextureManager);
+                        MaskDrawRenderTexture(layer.Texture, tmpRtMask); RenderTexture.ReleaseTemporary(tmpRtMask);
                     }
 
                     layerStack.AddRenderTexture(this, layer.Texture, layer.BlendTypeKey);
@@ -46,10 +47,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 var first = subStack.Stack[0]; first.BlendTextures.BlendTypeKey = TTTBlendTypeKeyEnum.NotBlend.ToString(); subStack.Stack[0] = first;
                 rt.BlendBlit(subStack.GetLayers);
                 if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rt, new Color(1, 1, 1, Opacity)); }
-                if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null)
+                if (LayerMask.ContainedMask)
                 {
-                    var maskTempRT = canvasContext.TextureManager.GetOriginTempRt(LayerMask.MaskTexture, canvasContext.CanvasSize);
-                    MaskDrawRenderTexture(rt, maskTempRT); RenderTexture.ReleaseTemporary(maskTempRT);
+                    var tmpRtMask = RenderTexture.GetTemporary(subContext.CanvasSize, subContext.CanvasSize, 0);
+                    LayerMask.WriteMaskTexture(tmpRtMask, canvasContext.TextureManager);
+                    MaskDrawRenderTexture(rt, tmpRtMask); RenderTexture.ReleaseTemporary(tmpRtMask);
                 }
 
                 if (Clipping) { layerStack.AddRtForClipping(this, rt, BlendTypeKey); }
