@@ -19,6 +19,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool LayerMaskDisabled;
         public TTTImportedPng MaskTexture;
 
+        public TTTImportedPngLayerMask(bool layerMaskDisabled, TTTImportedPng maskPNG)
+        {
+            LayerMaskDisabled = layerMaskDisabled;
+            MaskTexture = maskPNG;
+        }
+
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
 
         void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)

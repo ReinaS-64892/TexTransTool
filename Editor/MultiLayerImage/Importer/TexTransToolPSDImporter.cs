@@ -15,10 +15,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public override void OnImportAsset(AssetImportContext ctx)
         {
             EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0);
+
             var lowPSDData = PSDLowLevelParser.Parse(ctx.assetPath);
+
             EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.5f);
+
             var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+
             EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+
             lowPSDData.Dispose();
 
             try
@@ -33,9 +38,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.AddObjectToAsset("RootCanvas", rootCanvas);
                 ctx.SetMainObject(rootCanvas);
 
-                MultiLayerImageImporter.AddLayers(multiLayerImageCanvas.transform, ctx, pSDData.RootLayers);
-
-                // deploy.FinalizeTex2D();
+                var mliImporter = new MultiLayerImageImporter(ctx);
+                mliImporter.AddLayers(multiLayerImageCanvas.transform, pSDData.RootLayers);
+                mliImporter.EncodeExecution();
             }
             finally
             {
