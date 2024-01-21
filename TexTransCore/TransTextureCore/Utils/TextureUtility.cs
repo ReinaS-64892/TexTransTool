@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
 {
@@ -9,17 +11,18 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
     {
         public static Texture2D CopyTexture2D(this RenderTexture rt, TextureFormat? overrideFormat = null, bool? overrideUseMip = null)
         {
+            var request = AsyncGPUReadback.Request(rt, 0);
 
-            using (new RTActiveSaver())
-            {
-                RenderTexture.active = rt;
-                var useMip = overrideUseMip.HasValue ? overrideUseMip.Value : rt.useMipMap;
-                var texture = overrideFormat.HasValue ? new Texture2D(rt.width, rt.height, overrideFormat.Value, useMip) : new Texture2D(rt.width, rt.height, rt.graphicsFormat, useMip ? UnityEngine.Experimental.Rendering.TextureCreationFlags.MipChain : UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-                texture.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
-                texture.Apply();
-                texture.name = rt.name + "_CopyTex2D";
-                return texture;
-            }
+            var useMip = overrideUseMip.HasValue ? overrideUseMip.Value : rt.useMipMap;
+            var texture = overrideFormat.HasValue ? new Texture2D(rt.width, rt.height, overrideFormat.Value, useMip, !rt.sRGB) : new Texture2D(rt.width, rt.height, GraphicsFormatUtility.GetTextureFormat(rt.graphicsFormat), useMip, !rt.sRGB);
+            texture.name = rt.name + "_CopyTex2D";
+
+            request.WaitForCompletion();
+            var data = request.GetData<Color32>();
+            texture.LoadRawTextureData(data);
+            texture.Apply();
+
+            return texture;
         }
 
         public static void Clear(this RenderTexture rt)
