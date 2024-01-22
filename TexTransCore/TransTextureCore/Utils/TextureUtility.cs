@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
@@ -11,16 +12,43 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
     {
         public static Texture2D CopyTexture2D(this RenderTexture rt, TextureFormat? overrideFormat = null, bool? overrideUseMip = null)
         {
-            var request = AsyncGPUReadback.Request(rt, 0);
+            var useMip = overrideUseMip ?? rt.useMipMap;
+            var format = overrideFormat ?? GraphicsFormatUtility.GetTextureFormat(rt.graphicsFormat);
+            var readMapCount = rt.useMipMap && useMip ? rt.mipmapCount : 1;
 
-            var useMip = overrideUseMip.HasValue ? overrideUseMip.Value : rt.useMipMap;
-            var texture = overrideFormat.HasValue ? new Texture2D(rt.width, rt.height, overrideFormat.Value, useMip, !rt.sRGB) : new Texture2D(rt.width, rt.height, GraphicsFormatUtility.GetTextureFormat(rt.graphicsFormat), useMip, !rt.sRGB);
+            Span<AsyncGPUReadbackRequest> asyncGPUReadbackRequests = stackalloc AsyncGPUReadbackRequest[readMapCount];
+            for (var i = 0; readMapCount > i; i += 1)
+            {
+                asyncGPUReadbackRequests[i] = AsyncGPUReadback.Request(rt, i);
+            }
+
+
+            var texture = new Texture2D(rt.width, rt.height, format, useMip, !rt.sRGB);
             texture.name = rt.name + "_CopyTex2D";
 
-            request.WaitForCompletion();
-            var data = request.GetData<Color32>();
-            texture.LoadRawTextureData(data);
-            texture.Apply();
+            if (rt.useMipMap && useMip)
+            {
+                for (var layer = 0; readMapCount > layer; layer += 1)
+                {
+                    asyncGPUReadbackRequests[layer].WaitForCompletion();
+                    using (var data = asyncGPUReadbackRequests[layer].GetData<Color32>())
+                    {
+                        texture.SetPixelData(data, layer);
+                    }
+                }
+                texture.Apply(false);
+            }
+            else
+            {
+                asyncGPUReadbackRequests[0].WaitForCompletion();
+                using (var data = asyncGPUReadbackRequests[0].GetData<Color32>())
+                {
+                    texture.SetPixelData(data, 0);
+                }
+                texture.Apply(true);
+            }
+
+
 
             return texture;
         }
