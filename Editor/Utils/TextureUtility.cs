@@ -47,13 +47,14 @@ namespace net.rs64.TexTransTool.Utils
         public static Texture2D CopySetting(this Texture2D tex, Texture2D copySouse, bool copyCompress = true, TextureFormat? overrideFormat = null)
         {
             var textureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(copySouse)) as TextureImporter;
-            if (textureImporter != null && textureImporter.textureType == TextureImporterType.NormalMap) tex = tex.ConvertNormalMap();
-            if (tex.mipmapCount > 1 != copySouse.mipmapCount > 1)
+            if ((textureImporter != null) && (textureImporter.textureType == TextureImporterType.NormalMap)) tex = tex.ConvertNormalMap();
+            if ((tex.mipmapCount > 1) != (copySouse.mipmapCount > 1))
             {
                 var newTex = new Texture2D(tex.width, tex.height, tex.format, copySouse.mipmapCount > 1);
                 var pixelData = tex.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.name = tex.name;
+                newTex.Apply(true);
                 tex = newTex;
             }
             tex.filterMode = copySouse.filterMode;
@@ -64,8 +65,7 @@ namespace net.rs64.TexTransTool.Utils
             tex.wrapModeU = copySouse.wrapModeU;
             tex.wrapModeV = copySouse.wrapModeV;
             tex.wrapMode = copySouse.wrapMode;
-            if (tex.mipmapCount > 1) { tex.Apply(true); }
-            if (copyCompress && tex.format != copySouse.format)
+            if (copyCompress && (tex.format != copySouse.format))
             {
                 var format = overrideFormat.HasValue ? overrideFormat.Value : copySouse.format;
                 EditorUtility.CompressTexture(tex, format, textureImporter == null ? 50 : textureImporter.compressionQuality);
