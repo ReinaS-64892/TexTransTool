@@ -191,15 +191,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             argbValue[colI + 3] = col.a;
                         }
                     }
-                    unsafe
-                    {
-                        // var to = new Span<byte>((void*)bmd.Scan0, length);
-                        // Span<byte> form = argbValue;
-                        // form.CopyTo(to);
 
-                        // System.Runtime.InteropServices.Marshal.Copy(argbValue, 0, bmd.Scan0, length);
-                        Buffer.MemoryCopy(argbValue.GetUnsafeReadOnlyPtr(), (void*)bmd.Scan0, length, length);
-                    }
+                    TexTransTool.Unsafe.UnsafeBitMapDataUtility.WriteBitMapData(argbValue, bmd);
+
                     argbValue.Dispose();
                     bitMap.UnlockBits(bmd);
 
