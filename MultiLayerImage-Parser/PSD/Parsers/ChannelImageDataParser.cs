@@ -8,6 +8,7 @@ using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 using Unity.Collections;
+using System.Buffers.Binary;
 
 
 namespace net.rs64.MultiLayerImageParser.PSD
@@ -33,7 +34,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
         }
 
         [Serializable]
-        internal class ChannelImageData : IDisposable
+        internal class ChannelImageData
         {
             public ushort CompressionRawUshort;
             public CompressionEnum Compression;
@@ -44,140 +45,128 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 ZIPWithoutPrediction = 2,
                 ZIPWithPrediction = 3,
             }
-            [NonSerialized] public NativeArray<byte> ImageData;
 
-            public void Dispose()
+            //PSDのどこからどこまでの範囲にあるかを指す
+            public int StartIndex;
+            public int Length;
+
+            public NativeArray<byte> GetImageData(byte[] psdBytes, RectTangle thisRect)
             {
-                ImageData.Dispose();
+                var data = psdBytes.AsSpan(StartIndex, Length);
+                switch (Compression)
+                {
+                    case CompressionEnum.RawData:
+                        {
+                            var rawArray = new NativeArray<byte>(Length, Allocator.Persistent);
+                            rawArray.CopyFrom(data);
+                            return rawArray;
+
+                        }
+                    case CompressionEnum.RLECompressed:
+                        {
+                            return ParseRLECompressed(data, (uint)thisRect.GetWidth(), (uint)thisRect.GetHeight());
+                        }
+                    default:
+                        throw new NotSupportedException("ZIP圧縮のPSDは非対応です。");
+                }
             }
+
+
+            static NativeArray<T> HeightInvert<T>(NativeArray<T> lowMap, int width, int height) where T : struct
+            {
+                var map = new NativeArray<T>(lowMap.Length, Allocator.Persistent);
+
+                for (var y = 0; height > y; y += 1)
+                {
+                    var from = lowMap.Slice((height - 1 - y) * width, width);
+                    var to = map.Slice(y * width, width);
+                    to.CopyFrom(from);
+                }
+                return map;
+            }
+
+
         }
 
 
-        public static (ChannelImageData data, Task<NativeArray<byte>> DecompressTask) PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int channelInformationIndex)
+        public static ChannelImageData PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int channelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
+
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
-            var channelInfo = refLayerRecord.ChannelInformationArray[channelInformationIndex];
-            var Rect = channelInfo.ChannelID != ChannelInformation.ChannelIDEnum.UserLayerMask ? refLayerRecord.RectTangle : refLayerRecord.LayerMaskAdjustmentLayerData.RectTangle;
-            var imageLength = (uint)Mathf.Abs(channelInfo.CorrespondingChannelDataLength - 2);
-            Task<NativeArray<byte>> task = null;
-            switch (channelImageData.Compression)
-            {
-                case ChannelImageData.CompressionEnum.RawData:
-                    {
-                        var imageDataSpan = stream.ReadSubStream((int)imageLength).Span;
-                        channelImageData.ImageData = new NativeArray<byte>(imageDataSpan.Length, Allocator.Persistent);
-                        channelImageData.ImageData.CopyFrom(imageDataSpan);
-                        break;
-                    }
-                case ChannelImageData.CompressionEnum.RLECompressed:
-                    {
-                        var imageSpan = stream.ReadSubStream((int)imageLength);
-                        var buffer = new NativeArray<byte>(imageSpan.Length, Allocator.Persistent);
-                        imageSpan.Span.CopyTo(buffer);
-                        task = Task.Run(() => ParseRLECompressed(buffer, (uint)Rect.GetWidth(), (uint)Rect.GetHeight()));
-                        break;
-                    }
-                case ChannelImageData.CompressionEnum.ZIPWithoutPrediction:
-                    {
-                        var imageDataSpan = stream.ReadSubStream((int)imageLength).Span;
-                        channelImageData.ImageData = new NativeArray<byte>(imageDataSpan.Length, Allocator.Persistent);
-                        channelImageData.ImageData.CopyFrom(imageDataSpan);
-                        Debug.LogWarning("ZIPWithoutPredictionは現在非対応です。");
-                        break;
-                    }
-                case ChannelImageData.CompressionEnum.ZIPWithPrediction:
-                    {
-                        var imageDataSpan = stream.ReadSubStream((int)imageLength).Span;
-                        channelImageData.ImageData = new NativeArray<byte>(imageDataSpan.Length, Allocator.Persistent);
-                        channelImageData.ImageData.CopyFrom(imageDataSpan);
-                        Debug.LogWarning("ZIPWithPredictionは現在非対応です。");
-                        break;
-                    }
-                default:
-                    {
-                        Debug.LogError("PaseError:" + channelImageData.Compression);
-                        return (channelImageData, task);
-                    }
-            }
-            return (channelImageData, task);
+
+            var imageLength = (uint)Mathf.Abs(refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2);
+
+            var imageData = stream.ReadSubStream((int)imageLength);
+            channelImageData.StartIndex = imageData.FirstToPosition;
+            channelImageData.Length = imageData.Length;
+
+            return channelImageData;
         }
 
 
 
 
 
-        private static NativeArray<byte> ParseRLECompressed(NativeArray<byte> RentBufBytes, uint Width, uint Height)
+
+        private static NativeArray<byte> ParseRLECompressed(Span<byte> imageDataSpan, uint Width, uint Height)
         {
-            var rLEStream = new SubSpanStream(RentBufBytes);
-            var rawDataArray = new NativeArray<byte>((int)(Width * Height), Allocator.Persistent);
-            var lengthShorts = new NativeArray<ushort>((int)Height, Allocator.Persistent);
-            var pos = 0;
+            var rawDataArray = new NativeArray<byte>((int)(Width * Height), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            var rawDataSpan = rawDataArray.AsSpan();
+
+            int intWidth = (int)Width;
+            var position = (int)Height * 2;
 
             for (var i = 0; Height > i; i += 1)
             {
-                lengthShorts[i] = rLEStream.ReadUInt16();
+                var writeSpan = rawDataSpan.Slice(i * intWidth, intWidth);
+
+                var widthLength = BinaryPrimitives.ReadUInt16BigEndian(imageDataSpan.Slice(i * 2, 2));
+                if (widthLength == 0) { writeSpan.Fill(byte.MinValue); continue; }
+
+                var rleSpan = imageDataSpan.Slice(position, widthLength);
+                position += widthLength;
+
+                ParseRLECompressedWidthLine(writeSpan, rleSpan);
             }
 
-            for (var widthIndex = 0; lengthShorts.Length > widthIndex; widthIndex += 1)
-            {
-                var widthLength = lengthShorts[widthIndex];
-                if (widthLength == 0) { continue; }
-
-                var withStream = rLEStream.ReadSubStream(widthLength);
-                using (var RawWithRendBuf = ParseRLECompressedWidthLine(withStream, Width))
-                {
-
-                    var toSlice = rawDataArray.Slice(pos, (int)Width);
-                    RawWithRendBuf.CopyTo(toSlice);
-                    pos += (int)Width;
-
-                }
-            }
-
-
-            RentBufBytes.Dispose();
-            lengthShorts.Dispose();
             return rawDataArray;
         }
 
-        private static NativeArray<byte> ParseRLECompressedWidthLine(SubSpanStream withStream, uint width)
+        private static void ParseRLECompressedWidthLine(Span<byte> writeWidthLine, Span<byte> readRLEBytes)
         {
-            var rawDataBuf = new NativeArray<byte>((int)width, Allocator.Persistent);
-            var pos = 0;
+            var writePos = 0;
+            var readPos = 0;
 
-            while (withStream.Position < withStream.Length)
+            while (readPos < readRLEBytes.Length)
             {
-                var runLength = (sbyte)withStream.ReadByte();
+                var runLength = (sbyte)readRLEBytes[readPos]; readPos += 1;
                 if (runLength >= 0)
                 {
                     var count = runLength + 1;
-                    var subSpan = withStream.ReadSubStream(count).Span;
-                    for (var i = 0; subSpan.Length > i; i += 1)
-                    {
-                        rawDataBuf[pos] = subSpan[i];
-                        pos += 1;
-                    }
-                    // subSpan.CopyTo(rawDataBuf.AsSpan(pos, count));// なぜか遅い
-                    // pos += count;
+                    var subSpan = readRLEBytes.Slice(readPos, count); readPos += count;
+                    var writeSpan = writeWidthLine.Slice(writePos, subSpan.Length);
+
+                    subSpan.CopyTo(writeSpan);
+                    writePos += count;
                 }
                 else
                 {
-                    var count = Mathf.Abs(runLength) + 1;
-                    var value = (byte)withStream.ReadByte();
-                    for (var i = 0; count > i; i += 1)
+                    var count = Math.Abs(runLength) + 1;
+                    var value = readRLEBytes[readPos]; readPos += 1;
+                    var writeRange = writePos + count;
+                    for (; writeRange > writePos; writePos += 1)
                     {
-                        rawDataBuf[pos] = value;
-                        pos += 1;
+                        writeWidthLine[writePos] = value;
                     }
-                    // rawDataBuf.AsSpan(pos, count).Fill(value);
-                    // pos += count;
                 }
             }
-
-            return rawDataBuf;
         }
+
+
+
+
 
     }
 }

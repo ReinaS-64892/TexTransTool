@@ -27,16 +27,10 @@ namespace net.rs64.TexTransTool
             EN,
             JP,
         }
-        [InitializeOnLoadMethod]
-        static void Init()
-        {
-            EditorApplication.delayCall += EditorInitDerayCaller;
-        }
-        static void EditorInitDerayCaller()
+
+        internal static void LocalizeInitializer()
         {
             Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
-
-            UnityEditor.EditorApplication.delayCall -= EditorInitDerayCaller;
         }
         [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
         public static void ReloadLocalize()

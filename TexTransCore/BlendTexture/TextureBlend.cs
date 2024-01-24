@@ -63,19 +63,7 @@ namespace net.rs64.TexTransCore.BlendTexture
     internal static class TextureBlend
     {
         public static Dictionary<string, Shader> BlendShaders;
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        static void EditorInitDerayCall()
-        {
-            UnityEditor.EditorApplication.delayCall += EditorInitDerayCaller;
-        }
-        static void EditorInitDerayCaller()
-        {
-            BlendShadersInit();
-            UnityEditor.EditorApplication.delayCall -= EditorInitDerayCaller;
-        }
-        [UnityEditor.InitializeOnEnterPlayMode]
-#endif
+
         public static void BlendShadersInit()
         {
             BlendTexShader = Shader.Find(BLEND_TEX_SHADER);

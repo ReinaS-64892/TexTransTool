@@ -62,7 +62,6 @@ namespace net.rs64.TexTransCore.TransTextureCore
     internal readonly struct LowMap<T> : IDisposable
     where T : struct
     {
-        //左上を原点とする。
         public readonly NativeArray<T> Array;
         public readonly int Width;
         public readonly int Height;

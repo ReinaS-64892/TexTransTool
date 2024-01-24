@@ -7,19 +7,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
     public class RasterImportedLayer : AbstractImageLayer
     {
-        public TTTImportedPng ImportedPNG;
+        public TTTImportedImage ImportedImage;
         public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {
-            originTexture.WriteOriginalTexture(ImportedPNG, renderTexture);
+            originTexture.WriteOriginalTexture(ImportedImage, renderTexture);
         }
     }
     [Serializable]
-    public class TTTImportedPngLayerMask : ILayerMask
+    public class TTTImportedLayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
-        public TTTImportedPng MaskTexture;
+        [SerializeField] internal TTTImportedImage MaskTexture;
 
-        public TTTImportedPngLayerMask(bool layerMaskDisabled, TTTImportedPng maskPNG)
+        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage maskPNG)
         {
             LayerMaskDisabled = layerMaskDisabled;
             MaskTexture = maskPNG;

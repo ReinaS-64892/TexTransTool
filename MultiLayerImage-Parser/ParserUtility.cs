@@ -13,6 +13,7 @@ namespace net.rs64.MultiLayerImageParser
     {
         public Span<byte> Span;
         private int _position;
+        private int _firstToPosition;
         public int Position
         {
             get => _position;
@@ -30,17 +31,20 @@ namespace net.rs64.MultiLayerImageParser
         }
         public int Length => Span.Length;
 
-        public SubSpanStream(Span<byte> bytes)
+        public int FirstToPosition => _firstToPosition;
+
+        public SubSpanStream(Span<byte> bytes, int firstToPosition = 0)
         {
             Span = bytes;
             _position = 0;
+            _firstToPosition = firstToPosition;
         }
-
         public SubSpanStream ReadSubStream(int length)
         {
+            var ftOffset = _firstToPosition + _position;
             var subSpan = Span.Slice(Position, length);
             Position += length;
-            return new SubSpanStream(subSpan);
+            return new SubSpanStream(subSpan, ftOffset);
         }
 
         public byte ReadByte()

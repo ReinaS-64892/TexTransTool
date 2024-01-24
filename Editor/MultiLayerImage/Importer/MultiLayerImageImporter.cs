@@ -19,12 +19,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     internal class MultiLayerImageImporter
     {
-        Dictionary<TTTImportedPng, LowMap<Color32>> EncodeTask = new();
-        AssetImportContext ctx;
+        TTTImportedCanvasDescription _tttImportedCanvasDescription;
+        AssetImportContext _ctx;
+        List<TTTImportedImage> _tttImportedImages = new();
+        CreateImportedImage _imageImporter;
+        GetPreviewImage _previewImageTaskGenerator;
+        byte[] _souseBytes;
 
-        internal MultiLayerImageImporter(AssetImportContext assetImportContext)
+        internal delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
+        internal delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] souseBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
+
+        internal MultiLayerImageImporter(TTTImportedCanvasDescription tttImportedCanvasDescription,
+                                         AssetImportContext assetImportContext,
+                                         byte[] souseBytes,
+                                         CreateImportedImage imageImporter,
+                                         GetPreviewImage previewImageTaskGenerator)
         {
-            ctx = assetImportContext;
+            _ctx = assetImportContext;
+            _imageImporter = imageImporter;
+            _tttImportedCanvasDescription = tttImportedCanvasDescription;
+            _souseBytes = souseBytes;
+            _previewImageTaskGenerator = previewImageTaskGenerator;
         }
 
         internal void AddLayers(Transform thisTransForm, List<AbstractLayerData> abstractLayers)
@@ -57,36 +72,35 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)
         {
-            if (!rasterLayer.RasterTexture.Array.IsCreated) { Debug.Log(rasterLayer.LayerName + " is Not RasterLayer"); UnityEngine.Object.DestroyImmediate(newLayer); return; }//ラスターレイヤーじゃないものはインポートできない。
+            if (rasterLayer.RasterTexture == null) { Debug.Log(rasterLayer.LayerName + " is Not RasterLayer"); UnityEngine.Object.DestroyImmediate(newLayer); return; }//ラスターレイヤーじゃないものはインポートできない。
             var rasterLayerComponent = newLayer.AddComponent<RasterImportedLayer>();
             rasterLayerComponent.BlendTypeKey = rasterLayer.BlendTypeKey;
             rasterLayerComponent.Opacity = rasterLayer.Opacity;
             rasterLayerComponent.Clipping = rasterLayer.Clipping;
             rasterLayerComponent.Visible = rasterLayer.Visible;
 
-            var importedPng = rasterLayerComponent.ImportedPNG = ScriptableObject.CreateInstance<TTTImportedPng>();
-            EncodeTask.Add(importedPng, rasterLayer.RasterTexture);
-            importedPng.name = rasterLayer.LayerName + "_Tex";
-            ctx.AddObjectToAsset(importedPng.name, importedPng);
+            var importedImage = _imageImporter.Invoke(rasterLayer.RasterTexture);
+            importedImage.name = rasterLayer.LayerName + "_Tex";
+            importedImage.CanvasDescription = _tttImportedCanvasDescription;
+            _ctx.AddObjectToAsset(importedImage.name, importedImage);
+            _tttImportedImages.Add(importedImage);
+            rasterLayerComponent.ImportedImage = importedImage;
 
-            SetMaskTexture(rasterLayer, rasterLayerComponent);
+            rasterLayerComponent.LayerMask = MaskTexture(rasterLayer.LayerMask, rasterLayer.LayerName);
 
         }
 
-        private void SetMaskTexture(AbstractLayerData rasterLayer, AbstractLayer rasterLayerComponent)
+        private ILayerMask MaskTexture(LayerMaskData maskData, string layerName)
         {
-            if (rasterLayer.LayerMask != null)
-            {
-                var maskPNG = ScriptableObject.CreateInstance<TTTImportedPng>();
-                maskPNG.name = rasterLayer.LayerName + "_MaskTex";
-                EncodeTask.Add(maskPNG, rasterLayer.LayerMask.MaskTexture);
-                ctx.AddObjectToAsset(maskPNG.name, maskPNG);
-                rasterLayerComponent.LayerMask = new TTTImportedPngLayerMask(rasterLayer.LayerMask.LayerMaskDisabled, maskPNG);
-            }
-            else
-            {
-                rasterLayerComponent.LayerMask = new LayerMask();
-            }
+            if (maskData == null) { return new LayerMask(); }
+
+            var importMask = _imageImporter.Invoke(maskData.MaskTexture);
+            importMask.name = layerName + "_MaskTex";
+            importMask.CanvasDescription = _tttImportedCanvasDescription;
+            _ctx.AddObjectToAsset(importMask.name, importMask);
+            _tttImportedImages.Add(importMask);
+            return new TTTImportedLayerMask(maskData.LayerMaskDisabled, importMask);
+
         }
 
         private void CreateLayerFolder(GameObject newLayer, LayerFolderData layerFolder)
@@ -98,30 +112,67 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             layerFolderComponent.Clipping = layerFolder.Clipping;
             layerFolderComponent.Visible = layerFolder.Visible;
 
-            SetMaskTexture(layerFolder, layerFolderComponent);
+            layerFolderComponent.LayerMask = MaskTexture(layerFolder.LayerMask, layerFolder.LayerName);
 
             AddLayers(newLayer.transform, layerFolder.Layers);
         }
 
-        internal void EncodeExecution()
+        internal void CreatePreview()
         {
-            PNGEncoderExecuter(EncodeTask);
-
-            foreach (var task in EncodeTask)
+            var imageCount = _tttImportedImages.Count;
+            var task = new Task<NativeArray<Color32>>[imageCount];
+            for (var i = 0; imageCount > i; i += 1)
             {
-                PNGByte2Preview(task.Value, task.Key);
-            }
-        }
-        public static void PNGEncoderExecuter(Dictionary<TTTImportedPng, LowMap<Color32>> encData, int? forceParallelSize = null)
-        {
-            ParallelExecuter<KeyValuePair<TTTImportedPng, LowMap<Color32>>>(PNGEncoder, encData, forceParallelSize, ProgressDisplay);
-
-            static void ProgressDisplay(float progress)
-            {
-                EditorUtility.DisplayProgressBar("Import Canvas", "EncodePNG", progress);
+                task[i] = _previewImageTaskGenerator.Invoke(_souseBytes, _tttImportedImages[i]);
             }
 
+            var setting = new TextureGenerationSettings(TextureImporterType.Default);
+            setting.textureImporterSettings.alphaIsTransparency = true;
+            setting.textureImporterSettings.mipmapEnabled = false;
+            setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
+            setting.textureImporterSettings.readable = false;
+
+            setting.platformSettings.maxTextureSize = 1024;
+            setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+            setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
+            setting.platformSettings.compressionQuality = 100;
+
+            setting.sourceTextureInformation.width = _tttImportedCanvasDescription.Width;
+            setting.sourceTextureInformation.height = _tttImportedCanvasDescription.Height;
+            setting.sourceTextureInformation.containsAlpha = true;
+            setting.sourceTextureInformation.hdr = false;
+
+            for (var i = 0; imageCount > i; i += 1)
+            {
+                using (var data = TaskAwaiter(task[i]).Result)
+                {
+                    var image = _tttImportedImages[i];
+
+                    var output = TextureGenerator.GenerateTexture(setting, data);
+
+                    image.PreviewTexture = output.texture;
+                    image.PreviewTexture.name = image.name + "_Preview";
+                    _ctx.AddObjectToAsset(output.texture.name, output.texture);
+                }
+            }
+
+            async static Task<NativeArray<Color32>> TaskAwaiter(Task<NativeArray<Color32>> task)
+            {
+                return await task.ConfigureAwait(false);
+            }
+
+
         }
+        // public static void PNGEncoderExecuter(Dictionary<TTTImportedPng, LowMap<Color32>> encData, int? forceParallelSize = null)
+        // {
+        //     ParallelExecuter<KeyValuePair<TTTImportedPng, LowMap<Color32>>>(PNGEncoder, encData, forceParallelSize, ProgressDisplay);
+
+        //     static void ProgressDisplay(float progress)
+        //     {
+        //         EditorUtility.DisplayProgressBar("Import Canvas", "EncodePNG", progress);
+        //     }
+
+        // }
 
         private static void ParallelExecuter<T>(Action<T> taskExecute, IEnumerable<T> taskData, int? forceParallelSize, Action<float> progressCallBack = null)
         {
@@ -162,100 +213,86 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         }
 
 
-        public static void PNGEncoder(KeyValuePair<TTTImportedPng, LowMap<Color32>> keyValuePair)
-        {
-            PNGEncoder(keyValuePair.Value, keyValuePair.Key);
-        }
-        public static void PNGEncoder(LowMap<Color32> image, TTTImportedPng sObj)
-        {
-            try
-            {
-                using (var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb))
-                {
-                    var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-                    var length = image.Array.Length * 4;
-                    var argbValue = new NativeArray<byte>(length, Allocator.Persistent);
+        // public static void PNGEncoder(KeyValuePair<TTTImportedPng, LowMap<Color32>> keyValuePair)
+        // {
+        //     PNGEncoder(keyValuePair.Value, keyValuePair.Key);
+        // }
+        // public static void PNGEncoder(LowMap<Color32> image, TTTImportedPng sObj)
+        // {
+        //     try
+        //     {
+        //         using (var bitMap = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb))
+        //         {
+        //             var bmd = bitMap.LockBits(new(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        //             var length = image.Array.Length * 4;
+        //             var argbValue = new NativeArray<byte>(length, Allocator.Persistent);
 
-                    var widthByteLen = image.Width * 4;
-                    for (var y = 0; image.Height > y; y += 1)
-                    {
-                        var withByteOffset = widthByteLen * y;
-                        var withOffset = image.Width * y;
-                        for (var x = 0; image.Width > x; x += 1)
-                        {
-                            var colI = withByteOffset + (x * 4);
-                            var col = image.Array[withOffset + x];
-                            argbValue[colI + 0] = col.b;
-                            argbValue[colI + 1] = col.g;
-                            argbValue[colI + 2] = col.r;
-                            argbValue[colI + 3] = col.a;
-                        }
-                    }
+        //             var widthByteLen = image.Width * 4;
+        //             for (var y = 0; image.Height > y; y += 1)
+        //             {
+        //                 var withByteOffset = widthByteLen * y;
+        //                 var withOffset = image.Width * y;
+        //                 for (var x = 0; image.Width > x; x += 1)
+        //                 {
+        //                     var colI = withByteOffset + (x * 4);
+        //                     var col = image.Array[withOffset + x];
+        //                     argbValue[colI + 0] = col.b;
+        //                     argbValue[colI + 1] = col.g;
+        //                     argbValue[colI + 2] = col.r;
+        //                     argbValue[colI + 3] = col.a;
+        //                 }
+        //             }
 
-                    TexTransTool.Unsafe.UnsafeBitMapDataUtility.WriteBitMapData(argbValue, bmd);
+        //             TexTransTool.Unsafe.UnsafeBitMapDataUtility.WriteBitMapData(argbValue, bmd);
 
-                    argbValue.Dispose();
-                    bitMap.UnlockBits(bmd);
+        //             argbValue.Dispose();
+        //             bitMap.UnlockBits(bmd);
 
-                    using (var memStream = new MemoryStream())
-                    {
-                        bitMap.Save(memStream, ImageFormat.Png);
-                        sObj.PngBytes = memStream.ToArray();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                var code = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
-                Debug.LogError($"GetLastWin32Error:{code}");
-                Debug.Log($"{image.Array.Length}-ArrayLength {image.Width}-{image.Height}-Size {image.Array.IsCreated}-IsCrated");
-                throw e;
-            }
-        }
-        private void PNGByte2Preview(LowMap<Color32> image, TTTImportedPng sObj)
-        {
+        //             using (var memStream = new MemoryStream())
+        //             {
+        //                 bitMap.Save(memStream, ImageFormat.Png);
+        //                 sObj.PngBytes = memStream.ToArray();
+        //             }
+        //         }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         var code = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+        //         Debug.LogError($"GetLastWin32Error:{code}");
+        //         Debug.Log($"{image.Array.Length}-ArrayLength {image.Width}-{image.Height}-Size {image.Array.IsCreated}-IsCrated");
+        //         throw e;
+        //     }
+        // }
+        // private void PNGByte2Preview(LowMap<Color32> image, TTTImportedPng sObj)
+        // {
 
-            using (var rawData = HeightInvert(image))
-            {
+        //     using (var rawData = HeightInvert(image))
+        //     {
 
-                var setting = new TextureGenerationSettings(TextureImporterType.Default);
-                setting.textureImporterSettings.alphaIsTransparency = true;
-                setting.textureImporterSettings.mipmapEnabled = false;
-                setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
+        //         var setting = new TextureGenerationSettings(TextureImporterType.Default);
+        //         setting.textureImporterSettings.alphaIsTransparency = true;
+        //         setting.textureImporterSettings.mipmapEnabled = false;
+        //         setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
 
-                setting.platformSettings.maxTextureSize = 1024;
-                setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
-                setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
-                setting.platformSettings.compressionQuality = 100;
+        //         setting.platformSettings.maxTextureSize = 1024;
+        //         setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+        //         setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
+        //         setting.platformSettings.compressionQuality = 100;
 
-                setting.sourceTextureInformation.width = image.Width;
-                setting.sourceTextureInformation.height = image.Height;
-                setting.sourceTextureInformation.containsAlpha = true;
-                setting.sourceTextureInformation.hdr = false;
+        //         setting.sourceTextureInformation.width = image.Width;
+        //         setting.sourceTextureInformation.height = image.Height;
+        //         setting.sourceTextureInformation.containsAlpha = true;
+        //         setting.sourceTextureInformation.hdr = false;
 
-                var output = TextureGenerator.GenerateTexture(setting, rawData);
+        //         var output = TextureGenerator.GenerateTexture(setting, rawData);
 
-                sObj.PreviewTexture = output.texture;
-                sObj.PreviewTexture.name = sObj.name + "_Preview";
-                ctx.AddObjectToAsset(output.texture.name, output.texture);
+        //         sObj.PreviewTexture = output.texture;
+        //         sObj.PreviewTexture.name = sObj.name + "_Preview";
+        //         ctx.AddObjectToAsset(output.texture.name, output.texture);
 
-            }
+        //     }
 
-        }
-
-        static NativeArray<Color32> HeightInvert(LowMap<Color32> lowMap)
-        {
-            var width = lowMap.Width;
-            var map = new NativeArray<Color32>(lowMap.Array.Length, Allocator.Persistent);
-
-            for (var y = 0; lowMap.Height > y; y += 1)
-            {
-                var from = lowMap.Array.Slice((lowMap.Height - 1 - y) * width, width);
-                var to = map.Slice(y * width, width);
-                to.CopyFrom(from);
-            }
-            return map;
-        }
+        // }
 
 
 

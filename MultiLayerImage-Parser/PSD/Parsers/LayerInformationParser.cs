@@ -12,7 +12,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
     internal static class LayerInformationParser
     {
         [Serializable]
-        internal class LayerInfo : IDisposable
+        internal class LayerInfo
         {
             public uint LayersInfoSectionLength;
             public int LayerCount;
@@ -21,13 +21,6 @@ namespace net.rs64.MultiLayerImageParser.PSD
             public List<LayerRecord> LayerRecords;
             public List<ChannelImageData> ChannelImageData;
 
-            public void Dispose()
-            {
-                foreach (var imgData in ChannelImageData)
-                {
-                    imgData.Dispose();
-                }
-            }
         }
         public static LayerInfo PaseLayerInfo(SubSpanStream stream)
         {
@@ -48,30 +41,17 @@ namespace net.rs64.MultiLayerImageParser.PSD
             // var movedLength = stream.Position - firstPos;
             // Debug.Log($"moved length:{movedLength} LayersInfoSectionLength:{layerInfo.LayersInfoSectionLength}");
 
-            var channelImageDataAndTask = new List<(ChannelImageData, Task<NativeArray<byte>>)>();
+            var channelImageData = new List<ChannelImageData>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
                 {
-                    channelImageDataAndTask.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
+                    channelImageData.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
                 }
             }
-            var channelImageDataList = AwaitDecompress(channelImageDataAndTask).Result;
-            layerInfo.ChannelImageData = channelImageDataList;
+            layerInfo.ChannelImageData = channelImageData;
 
             return layerInfo;
-        }
-
-        private static async Task<List<ChannelImageData>> AwaitDecompress(List<(ChannelImageData, Task<NativeArray<byte>>)> channelImageDataAndTask)
-        {
-            var channelImageDataList = new List<ChannelImageData>(channelImageDataAndTask.Count);
-            foreach (var cidATask in channelImageDataAndTask)
-            {
-                var channelImageData = cidATask.Item1;
-                if (cidATask.Item2 != null) { channelImageData.ImageData = await cidATask.Item2.ConfigureAwait(false); }
-                channelImageDataList.Add(channelImageData);
-            }
-            return channelImageDataList;
         }
     }
 }
