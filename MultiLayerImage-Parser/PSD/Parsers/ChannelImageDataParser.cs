@@ -72,7 +72,7 @@ namespace net.rs64.MultiLayerImageParser.PSD
             }
 
 
-            static NativeArray<T> HeightInvert<T>(NativeArray<T> lowMap, int width, int height) where T : struct
+            internal static NativeArray<T> HeightInvert<T>(NativeArray<T> lowMap, int width, int height) where T : struct
             {
                 var map = new NativeArray<T>(lowMap.Length, Allocator.Persistent);
 

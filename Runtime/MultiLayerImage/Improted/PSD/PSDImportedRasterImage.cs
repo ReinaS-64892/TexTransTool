@@ -79,16 +79,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal static NativeArray<Color32> LoadPSDRasterLayerData(PSDImportedRasterImageData rasterImageData, byte[] importSouse)
         {
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            var timer = System.Diagnostics.Stopwatch.StartNew();
 
-            getImageTask[0] = Task.Run(() => rasterImageData.R.GetImageData(importSouse, rasterImageData.RectTangle));
-            getImageTask[1] = Task.Run(() => rasterImageData.G.GetImageData(importSouse, rasterImageData.RectTangle));
-            getImageTask[2] = Task.Run(() => rasterImageData.B.GetImageData(importSouse, rasterImageData.RectTangle));
-            if (rasterImageData.A != null) { getImageTask[3] = Task.Run(() => rasterImageData.A.GetImageData(importSouse, rasterImageData.RectTangle)); }
+            getImageTask[0] = Task.Run(() => ChannelImageDataParser.ChannelImageData.HeightInvert(rasterImageData.R.GetImageData(importSouse, rasterImageData.RectTangle), rasterImageData.RectTangle.GetWidth(), rasterImageData.RectTangle.GetHeight()));
+            getImageTask[1] = Task.Run(() => ChannelImageDataParser.ChannelImageData.HeightInvert(rasterImageData.G.GetImageData(importSouse, rasterImageData.RectTangle), rasterImageData.RectTangle.GetWidth(), rasterImageData.RectTangle.GetHeight()));
+            getImageTask[2] = Task.Run(() => ChannelImageDataParser.ChannelImageData.HeightInvert(rasterImageData.B.GetImageData(importSouse, rasterImageData.RectTangle), rasterImageData.RectTangle.GetWidth(), rasterImageData.RectTangle.GetHeight()));
+            if (rasterImageData.A != null) { getImageTask[3] = Task.Run(() => ChannelImageDataParser.ChannelImageData.HeightInvert(rasterImageData.A.GetImageData(importSouse, rasterImageData.RectTangle), rasterImageData.RectTangle.GetWidth(), rasterImageData.RectTangle.GetHeight())); }
 
             var image = WeightTask(getImageTask).Result;
 
-            timer.Stop(); Debug.Log("RLE-Decode:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
             var textureData = new NativeArray<Color32>(rasterImageData.RectTangle.GetWidth() * rasterImageData.RectTangle.GetHeight(), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
             var textureSpan = textureData.AsSpan();
 
@@ -101,8 +99,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 for (var i = 0; textureData.Length > i; i += 1)
                 {
-                    textureSpan[i].r = r[i];//シェーダーで4つを読み込んで、誤魔化すか
-                    textureSpan[i].g = g[i];//こいつへの書き込みをRLEのばしょで書き込む
+                    textureSpan[i].r = r[i];
+                    textureSpan[i].g = g[i];
                     textureSpan[i].b = b[i];
                     textureSpan[i].a = a[i];
                 }
@@ -117,8 +115,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     textureSpan[i].a = byte.MaxValue;
                 }
             }
-
-            timer.Stop(); Debug.Log("ColorWrite:" + timer.ElapsedMilliseconds + "ms---Length:" + textureData.Length); timer.Restart();
 
             image[0].Dispose();
             image[1].Dispose();

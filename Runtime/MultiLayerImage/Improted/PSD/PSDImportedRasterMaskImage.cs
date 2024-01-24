@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal static NativeArray<byte> LoadPSDMaskImageData(PSDImportedRasterMaskImageData maskImageData, byte[] importSouse)
         {
-            return maskImageData.MaskImage.GetImageData(importSouse, maskImageData.RectTangle);
+            return ChannelImageDataParser.ChannelImageData.HeightInvert(maskImageData.MaskImage.GetImageData(importSouse, maskImageData.RectTangle), maskImageData.RectTangle.GetWidth(), maskImageData.RectTangle.GetHeight());
         }
 
     }
