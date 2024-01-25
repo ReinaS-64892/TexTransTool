@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - TextureSelector が NullReferenceException を吐き続ける問題を修正 `#342`
+- ColorDodge,ColorBurn (覆い焼カラー、焼きこみカラー) の色合成を修正 `#344`
 
 ### Deprecated
 
