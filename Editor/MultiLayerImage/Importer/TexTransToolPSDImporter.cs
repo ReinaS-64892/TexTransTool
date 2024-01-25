@@ -54,16 +54,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 var mliImporter = new MultiLayerImageImporter(canvasDescription, ctx, psdBytes, CreatePSDImportedImage, GetPreviewImage);
                 mliImporter.AddLayers(multiLayerImageCanvas.transform, pSDData.RootLayers);
-                mliImporter.CreatePreview();
 
-                //PSDの特定のポイントにあることを示すオブジェクトに変えて随時ロードに書き換えよう。
-                //ダウンスケーリングは最後にやるように書き換えたいな
+                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0.1f);
+                mliImporter.CreatePreview();
+                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 1f);
             }
             finally
             {
                 EditorUtility.ClearProgressBar();
             }
-
         }
 
         internal TTTImportedImage CreatePSDImportedImage(ImportRasterImageData importRasterImage)

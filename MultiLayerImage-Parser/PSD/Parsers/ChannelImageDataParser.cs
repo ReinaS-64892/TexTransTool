@@ -122,13 +122,13 @@ namespace net.rs64.MultiLayerImageParser.PSD
             {
                 var writeSpan = rawDataSpan.Slice(i * intWidth, intWidth);
 
-                var widthLength = BinaryPrimitives.ReadUInt16BigEndian(imageDataSpan.Slice(i * 2, 2));
-                if (widthLength == 0) { writeSpan.Fill(byte.MinValue); continue; }
+                var widthRLEBytesCount = BinaryPrimitives.ReadUInt16BigEndian(imageDataSpan.Slice(i * 2, 2));
+                if (widthRLEBytesCount == 0) { writeSpan.Fill(byte.MinValue); continue; }
 
-                var rleSpan = imageDataSpan.Slice(position, widthLength);
-                position += widthLength;
+                var rleEncodedSpan = imageDataSpan.Slice(position, widthRLEBytesCount);
+                position += widthRLEBytesCount;
 
-                ParseRLECompressedWidthLine(writeSpan, rleSpan);
+                ParseRLECompressedWidthLine(writeSpan, rleEncodedSpan);
             }
 
             return rawDataArray;
@@ -141,27 +141,33 @@ namespace net.rs64.MultiLayerImageParser.PSD
 
             while (readPos < readRLEBytes.Length)
             {
-                var runLength = (sbyte)readRLEBytes[readPos]; readPos += 1;
+                var runLength = (sbyte)readRLEBytes[readPos++]; ;
                 if (runLength >= 0)
                 {
                     var count = runLength + 1;
-                    var subSpan = readRLEBytes.Slice(readPos, count); readPos += count;
-                    var writeSpan = writeWidthLine.Slice(writePos, subSpan.Length);
+                    var subSpan = readRLEBytes.Slice(readPos, count);
+                    var writeSpan = writeWidthLine.Slice(writePos, count);
 
                     subSpan.CopyTo(writeSpan);
+
                     writePos += count;
+                    readPos += count;
                 }
                 else
                 {
-                    var count = Math.Abs(runLength) + 1;
-                    var value = readRLEBytes[readPos]; readPos += 1;
-                    var writeRange = writePos + count;
-                    for (; writeRange > writePos; writePos += 1)
-                    {
-                        writeWidthLine[writePos] = value;
-                    }
+                    var count = (-runLength) + 1;
+                    var value = readRLEBytes[readPos++];
+
+                    writeWidthLine.Slice(writePos, count).Fill(value);
+
+                    writePos += count;
+                    // for (; writeRange > writePos; writePos += 1)
+                    // {
+                    //     writeWidthLine[writePos] = value;
+                    // }
                 }
             }
+
         }
 
 

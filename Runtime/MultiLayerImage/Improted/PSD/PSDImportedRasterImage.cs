@@ -20,23 +20,24 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSouse, RasterImageData.RectTangle));
             if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSouse, RasterImageData.RectTangle)); }
 
-            var mat = new Material(MargeColorAndOffsetShader);
+            var texWidth = RasterImageData.RectTangle.GetWidth();
+            var texHeight = RasterImageData.RectTangle.GetHeight();
 
-            var texR = new Texture2D(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
-            var texG = new Texture2D(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
-            var texB = new Texture2D(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
-            var texA = RasterImageData.A != null ? new Texture2D(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight(), TextureFormat.R8, false) : null;
-
+            var texR = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
             texR.filterMode = FilterMode.Point;
+            var texG = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
             texG.filterMode = FilterMode.Point;
+            var texB = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
             texB.filterMode = FilterMode.Point;
+            var texA = RasterImageData.A != null ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
             if (RasterImageData.A != null) { texA.filterMode = FilterMode.Point; }
 
+            var mat = new Material(MargeColorAndOffsetShader);
             mat.SetTexture("_RTex", texR);
             mat.SetTexture("_GTex", texG);
             mat.SetTexture("_BTex", texB);
             mat.SetTexture("_ATex", texA);
-            mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, RasterImageData.RectTangle.GetWidth() / (float)CanvasDescription.Width, RasterImageData.RectTangle.GetHeight() / (float)CanvasDescription.Height));
+            mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, texWidth / (float)CanvasDescription.Width, texHeight / (float)CanvasDescription.Height));
             mat.EnableKeyword(SHADER_KEYWORD_SRGB);
 
             // timer.Stop(); Debug.Log(name + "+SetUp:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
