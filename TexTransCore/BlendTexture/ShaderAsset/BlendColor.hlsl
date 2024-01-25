@@ -25,8 +25,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float3 BcolPM = BaseColor.rgb * LinearToGammaSpaceExact(BaseColor.a);
   float3 AcolPM = AddColor.rgb * LinearToGammaSpaceExact(AddColor.a);
 
-  float3 burn = BcolPM == 1 ? 1 : AcolPM == 0 ? 0 : 1.0 - (1.0 - BcolPM) / AcolPM;
-  float3 dodge = BcolPM == 0 ? 0 : AcolPM == 1 ? 1 : BcolPM / (1.0 - AcolPM);
+  float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
+  float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
 
   float3 Bhsv = RGBtoHSV(Bcol);
   float3 Ahsv = RGBtoHSV(Acol);
