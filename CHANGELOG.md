@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.5.2]
+
+### Fixed
+
+- TextureSelector が NullReferenceException を吐き続ける問題を修正 `#342`
+- ColorDodge,ColorBurn (覆い焼カラー、焼きこみカラー) の色合成を修正 `#344`
+
 ## [0.5.1]
 
 ### Fixed
@@ -335,7 +342,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...master
+[0.5.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0
 [0.4.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...v0.4.5
