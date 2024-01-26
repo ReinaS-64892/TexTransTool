@@ -51,6 +51,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 canvasDescription.Height = pSDData.Size.y;
                 canvasDescription.name = "CanvasDescription";
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
+                multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
 
                 var mliImporter = new MultiLayerImageImporter(canvasDescription, ctx, psdBytes, CreatePSDImportedImage, GetPreviewImage);
                 mliImporter.AddLayers(multiLayerImageCanvas.transform, pSDData.RootLayers);

@@ -12,7 +12,6 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             var sTarget = serializedObject;
 
             EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
-            EditorGUILayout.PropertyField(sTarget.FindProperty("AdditionalCanvasMode"), "AdditionalCanvasMode".GetLC());
 
             var thisTarget = target as MultiLayerImageCanvas;
             PreviewContext.instance.DrawApplyAndRevert(thisTarget);

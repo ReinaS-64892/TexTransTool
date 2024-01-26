@@ -10,7 +10,6 @@ namespace net.rs64.TexTransTool
 
     internal interface IDomain : IAssetSaver, IProgressHandling
     {
-
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;//RenderTextureを入れる場合 Temp にすること、そしてこちら側でそれが解放される。

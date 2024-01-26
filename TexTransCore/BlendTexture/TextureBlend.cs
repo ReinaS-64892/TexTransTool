@@ -157,6 +157,9 @@ namespace net.rs64.TexTransCore.BlendTexture
                 UnityEngine.Object.DestroyImmediate(material);
             }
         }
+        public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, BlendTex add, bool keepAlpha = false)
+        where BlendTex : IBlendTexturePair
+        { baseRenderTexture.BlendBlit(add.Texture, add.BlendTypeKey,keepAlpha); }
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, IEnumerable<BlendTex> adds)
         where BlendTex : IBlendTexturePair
         {

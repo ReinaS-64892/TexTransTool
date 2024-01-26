@@ -18,29 +18,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
-            var layerStack = canvasContext.RootLayerStack;
-            if (!Visible)
-            {
-                if (Clipping) { return; }
-                else { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
-            }
+            if (!Visible) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(false, Clipping)); return; }
+
             var canvasSize = canvasContext.CanvasSize;
             var rTex = RenderTexture.GetTemporary(canvasSize, canvasSize, 0); rTex.Clear();
 
             GetImage(rTex, canvasContext.TextureManager);
 
-            if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity)); }
-
-            if (LayerMask.ContainedMask)
+            using (canvasContext.LayerCanvas.AlphaModScope(GetLayerAlphaMod(canvasContext)))
             {
-                var tmpRtMask = RenderTexture.GetTemporary(canvasSize, canvasSize, 0);
-                LayerMask.WriteMaskTexture(tmpRtMask, canvasContext.TextureManager);
-                MaskDrawRenderTexture(rTex, tmpRtMask); RenderTexture.ReleaseTemporary(tmpRtMask);
+                canvasContext.LayerCanvas.AddLayer(new(false, false, Clipping, rTex, BlendTypeKey));
             }
-
-            if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendTypeKey); }
-            else { layerStack.AddRenderTexture(this, rTex, BlendTypeKey); }
-
         }
+
+
     }
 }

@@ -8,6 +8,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public class RasterImportedLayer : AbstractImageLayer
     {
         public TTTImportedImage ImportedImage;
+
+
         public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {
             originTexture.WriteOriginalTexture(ImportedImage, renderTexture);

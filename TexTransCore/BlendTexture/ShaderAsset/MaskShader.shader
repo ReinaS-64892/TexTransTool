@@ -44,7 +44,7 @@ Shader "Hidden/MaskShader"
             float4 frag (v2f i) : SV_Target
             {
                 float4 col = tex2Dlod(_MainTex ,float4(i.uv,0,0));
-                float MaskColor =  tex2Dlod(_MaskTex ,float4(i.uv,0,0)).r;
+                float MaskColor =  tex2Dlod(_MaskTex ,float4(i.uv,0,0)).a;
 
                 col.a *= MaskColor;
 
