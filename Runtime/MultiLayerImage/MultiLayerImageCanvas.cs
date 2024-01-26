@@ -83,16 +83,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                         RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
                         return;
                     }
-
-                    if (BeforeLayer.layer.NotVisible)//クリッピング対象が無効化されてる場合クリッピングレイヤーは消失する
-                    {
-                        RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
-                        return;
-                    }
                     if (BeforeLayer.layer.DisallowClipping)//クリッピング不可能な対象なので通常の合成にフォールバック
                     {
                         blendLayer.ThisClipping = false;
                         Composite(blendLayer);
+                        return;
+                    }
+                    if (BeforeLayer.layer.NotVisible)//クリッピング対象が無効化されてる場合クリッピングレイヤーは消失する
+                    {
+                        RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
                         return;
                     }
 
