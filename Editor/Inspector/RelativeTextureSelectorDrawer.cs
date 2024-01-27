@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Editor
 
             if (TargetMaterials != null)
             {
-                var texture = TargetMaterials[sMaterialSelect.intValue].GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
+                var texture = TargetMaterials[sMaterialSelect.intValue]?.GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
                 if (texture != null)
                 {
                     EditorGUI.LabelField(position, "ReplaceTexturePreview".GetLocalize());
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool.Editor
 
             var sMaterialSelect = property.FindPropertyRelative("MaterialSelect");
             var sTargetPropertyName = property.FindPropertyRelative("TargetPropertyName");
-            var selectTex = TargetMaterials[sMaterialSelect.intValue].GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
+            var selectTex = TargetMaterials[sMaterialSelect.intValue]?.GetTexture(sTargetPropertyName.FindPropertyRelative("_propertyName").stringValue) as Texture2D;
             if (selectTex == null) { return 18f * (TargetMaterials.Length + 3); }
             else { return 18f * (TargetMaterials.Length + 3) + 64f; }
 

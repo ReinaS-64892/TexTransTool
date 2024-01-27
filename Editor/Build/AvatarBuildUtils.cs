@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.Build
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogException(e);
                 return false;
             }
 
