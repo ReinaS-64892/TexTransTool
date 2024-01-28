@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.Utils
             Localize.LocalizeInitializer();
             TextureBlend.BlendShadersInit();
             PSDImportedRasterImage.MargeColorAndOffsetShader = Shader.Find(PSDImportedRasterImage.MARGE_COLOR_AND_OFFSET_SHADER);
+            SpecialLayerShaders.Init();
         }
     }
 }
