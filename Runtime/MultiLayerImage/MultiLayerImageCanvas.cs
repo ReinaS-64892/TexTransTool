@@ -38,7 +38,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var result = canvasContext.LayerCanvas.FinalizeCanvas();
             domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
 
-
         }
         internal class CanvasContext
         {
@@ -105,8 +104,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     {
                         MultipleRenderTexture(rTex, new Color(1, 1, 1, NowAlphaMod.Opacity));
                     }
+                    var swap = RenderTexture.GetTemporary(BeforeLayer.layer.BlendTexture.Texture.descriptor);
+                    Graphics.CopyTexture(BeforeLayer.layer.BlendTexture.Texture, swap);
 
-                    BeforeLayer.layer.BlendTexture.Texture.BlendBlit(blendLayer.BlendTexture, true);
+                    TextureBlend.AlphaOne(BeforeLayer.layer.BlendTexture.Texture);
+                    BeforeLayer.layer.BlendTexture.Texture.BlendBlit(blendLayer.BlendTexture);
+                    TextureBlend.AlphaCopy(swap, BeforeLayer.layer.BlendTexture.Texture);
+
+                    RenderTexture.ReleaseTemporary(swap);
                     RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
 
                 }
@@ -117,7 +122,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 }
             }
 
-            public RenderTexture GrabCanvas(bool GrabForClipping)
+            public RenderTexture GrabCanvas(bool GrabForClipping)//Tempが返ってくるのでちゃんと開放するように
             {
                 if (GrabForClipping)
                 {
@@ -125,8 +130,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     {
                         if (BeforeLayer.layer.DisallowClipping)
                         {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作へのフォールバック
-                            Composite(new(false, true, false, null, null));
-                            return Canvas;
+                            return GrabCanvasImpl();
                         }
                         else
                         {//無効化、消失
@@ -137,20 +141,30 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     {
                         if (BeforeLayer.layer.DisallowClipping)
                         {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作へのフォールバック
-                            Composite(new(false, true, false, null, null));
-                            return Canvas;
+                            return GrabCanvasImpl();
                         }
                         else
                         {//クリッピングを正常にできる通常動作
-                            return BeforeLayer.layer.BlendTexture.Texture;
+                            var grabRt = RenderTexture.GetTemporary(BeforeLayer.layer.BlendTexture.Texture.descriptor);
+                            Graphics.CopyTexture(BeforeLayer.layer.BlendTexture.Texture, grabRt);
+                            TextureBlend.AlphaOne(grabRt);
+                            return grabRt;
                         }
                     }
                 }
                 else
                 {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作
-                    Composite(new(false, true, false, null, null));
-                    return Canvas;
+                    return GrabCanvasImpl();
                 }
+            }
+
+            private RenderTexture GrabCanvasImpl()
+            {
+                Composite(new(false, true, false, null, null));
+                var grabRt = RenderTexture.GetTemporary(Canvas.descriptor);
+                Graphics.CopyTexture(Canvas, grabRt);
+                TextureBlend.AlphaOne(grabRt);
+                return grabRt;
             }
 
             private void Composite(BlendLayer newLayer)
@@ -173,7 +187,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                         MultipleRenderTexture(rTex, new Color(1, 1, 1, BeforeLayer.alphaMod.Opacity));
                     }
 
-                    Canvas.BlendBlit(BeforeLayer.layer.BlendTexture);
+                    Canvas.BlendBlit(BeforeLayer.layer.BlendTexture, BeforeLayer.layer.AlphaKeep);
                     RenderTexture.ReleaseTemporary(rTex);
                 }
                 _BeforeLayer = (newLayer, NowAlphaMod);
@@ -234,13 +248,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public bool DisallowClipping;
             public bool ThisClipping;
             public BlendRenderTexture BlendTexture;
+            public bool AlphaKeep;
 
-            public BlendLayer(bool notVisible, bool disallowClipping, bool thisClipping, RenderTexture layer, string blendTypeKey)
+            public BlendLayer(bool notVisible, bool disallowClipping, bool thisClipping, RenderTexture layer, string blendTypeKey, bool alphaKeep = false)
             {
                 NotVisible = notVisible;
                 DisallowClipping = disallowClipping;
                 ThisClipping = thisClipping;
                 BlendTexture = new BlendRenderTexture(layer, blendTypeKey);
+                AlphaKeep = alphaKeep;
             }
 
             public struct BlendRenderTexture : IBlendTexturePair

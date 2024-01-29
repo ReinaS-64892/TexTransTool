@@ -10,8 +10,8 @@
 
 float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
-  if(BaseColor.a < 0.001){return AddColor;}
-  if(AddColor.a < 0.001){return BaseColor;}
+  if(BaseColor.a <= 0.0){return AddColor;}
+  if(AddColor.a <= 0.0){return BaseColor;}
 
   float3 Bcol = BaseColor.rgb;
   float3 Acol = AddColor.rgb;

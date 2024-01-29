@@ -159,7 +159,7 @@ namespace net.rs64.TexTransCore.BlendTexture
         }
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, BlendTex add, bool keepAlpha = false)
         where BlendTex : IBlendTexturePair
-        { baseRenderTexture.BlendBlit(add.Texture, add.BlendTypeKey,keepAlpha); }
+        { baseRenderTexture.BlendBlit(add.Texture, add.BlendTypeKey, keepAlpha); }
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, IEnumerable<BlendTex> adds)
         where BlendTex : IBlendTexturePair
         {
@@ -271,6 +271,32 @@ namespace net.rs64.TexTransCore.BlendTexture
                 unlitMat.SetColor("_Color", color);
                 Graphics.Blit(null, mulDecalTexture, unlitMat);
                 UnityEngine.Object.DestroyImmediate(unlitMat);
+            }
+        }
+        public static void AlphaOne(RenderTexture rt)
+        {
+            using (new RTActiveSaver())
+            {
+                var mat = new Material(AlphaCopyShader);
+                mat.SetTexture("_AlphaTex", Texture2D.whiteTexture);
+                var swap = RenderTexture.GetTemporary(rt.descriptor);
+                Graphics.CopyTexture(rt, swap);
+                Graphics.Blit(swap, rt, mat);
+                RenderTexture.ReleaseTemporary(swap);
+                UnityEngine.Object.DestroyImmediate(mat);
+            }
+        }
+        public static void AlphaCopy(RenderTexture alphaSouse, RenderTexture rt)
+        {
+            using (new RTActiveSaver())
+            {
+                var mat = new Material(AlphaCopyShader);
+                mat.SetTexture("_AlphaTex", alphaSouse);
+                var swap = RenderTexture.GetTemporary(rt.descriptor);
+                Graphics.CopyTexture(rt, swap);
+                Graphics.Blit(swap, rt, mat);
+                RenderTexture.ReleaseTemporary(swap);
+                UnityEngine.Object.DestroyImmediate(mat);
             }
         }
     }

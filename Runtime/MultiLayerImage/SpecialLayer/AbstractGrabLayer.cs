@@ -7,7 +7,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
     public abstract class AbstractGrabLayer : AbstractLayer
     {
-        //GrabSouseには絶対に書き込まないように
         public abstract void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture);
 
         internal override void EvaluateTexture(CanvasContext canvasContext)
@@ -21,10 +20,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             GetImage(grabTex, rTex, canvasContext.TextureManager);
 
+            RenderTexture.ReleaseTemporary(grabTex);
 
             using (canvasContext.LayerCanvas.AlphaModScope(GetLayerAlphaMod(canvasContext)))
             {
-                canvasContext.LayerCanvas.AddLayer(new(false, true, Clipping, rTex, BlendTypeKey));
+                canvasContext.LayerCanvas.AddLayer(new(false, true, Clipping, rTex, BlendTypeKey, true));
             }
         }
 
