@@ -22,9 +22,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 {
                     var colorStructure = (DescriptorStructureParser.DescriptorStructure)descriptor.Structures["Clr "];
 
-                    Color.r = (float)(double)colorStructure.Structures["Rd  "];
-                    Color.g = (float)(double)colorStructure.Structures["Grn "];
-                    Color.b = (float)(double)colorStructure.Structures["Bl  "];
+                    Color.r = (float)((double)colorStructure.Structures["Rd  "] / (double)byte.MaxValue);
+                    Color.g = (float)((double)colorStructure.Structures["Grn "] / (double)byte.MaxValue);
+                    Color.b = (float)((double)colorStructure.Structures["Bl  "] / (double)byte.MaxValue);
                     Color.a = 1;//PSDのソリッドカラーにはアルファの値は含まれていないが、TTTのソリッドカラーは持っているため、適当な値を入れておく。
                 }
                 catch
