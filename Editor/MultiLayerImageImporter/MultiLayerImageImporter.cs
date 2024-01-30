@@ -125,13 +125,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         internal void CreatePreview()
         {
-            var imageCount = _tttImportedImages.Count;
-            var task = new Task<NativeArray<Color32>>[imageCount];
-            for (var i = 0; imageCount > i; i += 1)
-            {
-                task[i] = _previewImageTaskGenerator.Invoke(_souseBytes, _tttImportedImages[i]);
-            }
-
             var setting = new TextureGenerationSettings(TextureImporterType.Default);
             setting.textureImporterSettings.alphaIsTransparency = true;
             setting.textureImporterSettings.mipmapEnabled = false;
@@ -148,11 +141,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             setting.sourceTextureInformation.containsAlpha = true;
             setting.sourceTextureInformation.hdr = false;
 
-            for (var i = 0; imageCount > i; i += 1)
+            foreach (var taskResult in ParallelExecuter<(byte[] souseBytes, TTTImportedImage importRasterImage), NativeArray<Color32>>(
+                i => _previewImageTaskGenerator.Invoke(i.souseBytes, i.importRasterImage),
+                 _tttImportedImages.Select(i => (_souseBytes, i))))
             {
-                using (var data = TaskAwaiter(task[i]).Result)
+                using (var data = taskResult.TaskResult)
                 {
-                    var image = _tttImportedImages[i];
+                    var image = taskResult.TaskData.importRasterImage;
 
                     var output = TextureGenerator.GenerateTexture(setting, data);
 
@@ -161,20 +156,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     _ctx.AddObjectToAsset(output.texture.name, output.texture);
                 }
             }
-
-            async static Task<NativeArray<Color32>> TaskAwaiter(Task<NativeArray<Color32>> task)
-            {
-                return await task.ConfigureAwait(false);
-            }
-
-
         }
-
-        private static void ParallelExecuter<T>(Action<T> taskExecute, IEnumerable<T> taskData, int? forceParallelSize, Action<float> progressCallBack = null)
+        private static IEnumerable<(T TaskData, T2 TaskResult)> ParallelExecuter<T, T2>(Func<T, Task<T2>> taskExecute, IEnumerable<T> taskData, int? forceParallelSize = null, Action<float> progressCallBack = null)
         {
             var parallelSize = forceParallelSize.HasValue ? forceParallelSize.Value : Environment.ProcessorCount;
             var taskQueue = new Queue<T>(taskData);
-            var taskParallel = new Task[parallelSize];
+            var taskParallel = new (T TaskData, Task<T2> Task)[parallelSize];
             var encDataCount = taskQueue.Count; var nowIndex = 0;
             while (taskQueue.Count > 0)
             {
@@ -183,33 +170,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     if (taskQueue.Count > 0)
                     {
                         var task = taskQueue.Dequeue();
-                        taskParallel[i] = Task.Run(() => taskExecute.Invoke(task));
+                        taskParallel[i] = (task, Task.Run(() => taskExecute.Invoke(task)));
                     }
                     else
                     {
-                        taskParallel[i] = null;
+                        taskParallel[i] = (default, null);
                         break;
                     }
                 }
 
-                foreach (var task in taskParallel)
+                foreach (var taskPair in taskParallel)
                 {
-                    if (task == null) { break; }
-                    _ = TaskAwaiter(task).Result;
+                    if (taskPair.Task == null) { break; }
+                    yield return (taskPair.TaskData, TaskAwaiter(taskPair.Task).Result);
                     nowIndex += 1;
                     progressCallBack?.Invoke(nowIndex / (float)encDataCount);
                 }
             }
+            static async Task<T3> TaskAwaiter<T3>(Task<T3> task)
+            {
+                return await task.ConfigureAwait(false);
+            }
         }
-
-        public static async Task<bool> TaskAwaiter(Task task)
-        {
-            await task.ConfigureAwait(false);
-            return true;
-        }
-
-
-
-
     }
 }
