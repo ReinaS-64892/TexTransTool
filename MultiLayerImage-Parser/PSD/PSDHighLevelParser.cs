@@ -212,7 +212,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         public static LowMap<Color32> TextureOffset(LowMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
         {
             var sTex2D = texture;
-            var tTex2D = new LowMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.Persistent), TargetSize.x, TargetSize.y);
+            var tTex2D = new LowMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
             var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
             tTex2D.Array.Fill(initColor);
 

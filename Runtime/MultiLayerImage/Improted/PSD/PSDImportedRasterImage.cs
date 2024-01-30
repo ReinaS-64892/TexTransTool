@@ -86,7 +86,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var image = WeightTask(getImageTask).Result;
 
-            var textureData = new NativeArray<Color32>(rasterImageData.RectTangle.GetWidth() * rasterImageData.RectTangle.GetHeight(), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            var textureData = new NativeArray<Color32>(rasterImageData.RectTangle.GetWidth() * rasterImageData.RectTangle.GetHeight(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var textureSpan = textureData.AsSpan();
 
             var r = image[0];

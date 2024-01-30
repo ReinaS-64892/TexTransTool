@@ -15,6 +15,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     {
         public override void OnImportAsset(AssetImportContext ctx)
         {
+            NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
             EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.2f);
 
             var psdBytes = File.ReadAllBytes(ctx.assetPath);
@@ -112,7 +113,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             {
                 using (var rBytes = PSDImportedRasterMaskImage.LoadPSDMaskImageData(psdMaskData, souseBytes))
                 {
-                    var bytes = new NativeArray<Color32>(rBytes.Length, Allocator.Persistent);
+                    var bytes = new NativeArray<Color32>(rBytes.Length, Allocator.TempJob);
                     for (var i = 0; bytes.Length > i; i += 1)
                     {
                         var col = rBytes[i];

@@ -57,7 +57,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 {
                     case CompressionEnum.RawData:
                         {
-                            var rawArray = new NativeArray<byte>(Length, Allocator.Persistent);
+                            var rawArray = new NativeArray<byte>(Length, Allocator.TempJob);
                             rawArray.CopyFrom(data);
                             return rawArray;
 
@@ -74,7 +74,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             internal static NativeArray<T> HeightInvert<T>(NativeArray<T> lowMap, int width, int height) where T : struct
             {
-                var map = new NativeArray<T>(lowMap.Length, Allocator.Persistent);
+                var map = new NativeArray<T>(lowMap.Length, Allocator.TempJob);
 
                 for (var y = 0; height > y; y += 1)
                 {
@@ -113,7 +113,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         private static NativeArray<byte> ParseRLECompressed(Span<byte> imageDataSpan, uint Width, uint Height)
         {
-            var rawDataArray = new NativeArray<byte>((int)(Width * Height), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            var rawDataArray = new NativeArray<byte>((int)(Width * Height), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var rawDataSpan = rawDataArray.AsSpan();
 
             int intWidth = (int)Width;
