@@ -5,7 +5,7 @@ Shader "Hidden/HSVAdjustment"
         _MainTex ("Texture", 2D) = "white" {}
         _Hue ("Hue", float) = 0
         _Saturation ("Saturation",float) = 0
-        _Brightness ("Brightness",float) = 0
+        _Lightness ("Brightness",float) = 0
 
     }
     SubShader
@@ -38,7 +38,7 @@ Shader "Hidden/HSVAdjustment"
             sampler2D _MainTex;
             float _Hue;
             float _Saturation;
-            float _Brightness;
+            float _Lightness;
 
             v2f vert (appdata v)
             {
@@ -85,7 +85,7 @@ Shader "Hidden/HSVAdjustment"
                     col.rgb = saturate( lightness + ( (col.rgb - lightness)  *   (1 + _Saturation) ) );
                 }
 
-                col.rgb = _Brightness > 0 ? lerp( col.rgb , 1, _Brightness) : lerp( col.rgb , 0 ,-1 * _Brightness);
+                col.rgb = _Lightness > 0 ? lerp( col.rgb , 1, _Lightness) : lerp( col.rgb , 0 ,-1 * _Lightness);
 
                 return GammaToLinear(col);
             }

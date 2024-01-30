@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Unity.Collections;
 using UnityEngine;
 
 namespace net.rs64.MultiLayerImageParser
@@ -165,6 +166,45 @@ namespace net.rs64.MultiLayerImageParser
         public static string ReadUnicodeString(Stream stream)
         {
             throw new NotImplementedException();
+        }
+
+
+
+
+
+
+
+
+        public static void Fill<T>(this NativeArray<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+        public static void Fill<T>(this NativeSlice<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+
+        public static void CopyTo<T>(this NativeSlice<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+        public static void CopyTo<T>(this NativeArray<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+
+        public static void CopyFrom<T>(this NativeArray<T> to, Span<T> from) where T : struct
+        {
+            for (var i = 0; to.Length > i; i += 1)
+            {
+                to[i] = from[i];
+            }
         }
     }
 }

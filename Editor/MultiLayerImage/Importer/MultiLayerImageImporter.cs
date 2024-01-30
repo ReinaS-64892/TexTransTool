@@ -64,20 +64,31 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateLayerFolder(newLayer, layerFolder);
                             break;
                         }
+                    case HSVAdjustmentLayerData hSVAdjustmentLayerData:
+                        {
+                            CreateHSVAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
+                            break;
+                        }
                 }
             }
 
         }
 
+        private void CreateHSVAdjustmentLayer(GameObject newLayer, HSVAdjustmentLayerData hSVAdjustmentLayerData)
+        {
+            var HSVAdjustmentLayerComponent = newLayer.AddComponent<HSVAdjustmentLayer>();
+            CopyFromData(HSVAdjustmentLayerComponent, hSVAdjustmentLayerData);
+
+            HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
+            HSVAdjustmentLayerComponent.Saturation = hSVAdjustmentLayerData.Saturation;
+            HSVAdjustmentLayerComponent.Lightness = hSVAdjustmentLayerData.Lightness;
+        }
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)
         {
             if (rasterLayer.RasterTexture == null) { Debug.Log(rasterLayer.LayerName + " is Not RasterLayer"); UnityEngine.Object.DestroyImmediate(newLayer); return; }//ラスターレイヤーじゃないものはインポートできない。
             var rasterLayerComponent = newLayer.AddComponent<RasterImportedLayer>();
-            rasterLayerComponent.BlendTypeKey = rasterLayer.BlendTypeKey;
-            rasterLayerComponent.Opacity = rasterLayer.Opacity;
-            rasterLayerComponent.Clipping = rasterLayer.Clipping;
-            rasterLayerComponent.Visible = rasterLayer.Visible;
+            CopyFromData(rasterLayerComponent, rasterLayer);
 
             var importedImage = _imageImporter.Invoke(rasterLayer.RasterTexture);
             importedImage.name = rasterLayer.LayerName + "_Tex";
@@ -85,9 +96,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             _ctx.AddObjectToAsset(importedImage.name, importedImage);
             _tttImportedImages.Add(importedImage);
             rasterLayerComponent.ImportedImage = importedImage;
-
-            rasterLayerComponent.LayerMask = MaskTexture(rasterLayer.LayerMask, rasterLayer.LayerName);
-
         }
 
         private ILayerMask MaskTexture(LayerMaskData maskData, string layerName)
@@ -106,15 +114,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         private void CreateLayerFolder(GameObject newLayer, LayerFolderData layerFolder)
         {
             var layerFolderComponent = newLayer.AddComponent<LayerFolder>();
-            layerFolderComponent.PassThrough = layerFolder.PassThrough;
-            layerFolderComponent.BlendTypeKey = layerFolder.BlendTypeKey;
-            layerFolderComponent.Opacity = layerFolder.Opacity;
-            layerFolderComponent.Clipping = layerFolder.Clipping;
-            layerFolderComponent.Visible = layerFolder.Visible;
 
-            layerFolderComponent.LayerMask = MaskTexture(layerFolder.LayerMask, layerFolder.LayerName);
+            CopyFromData(layerFolderComponent, layerFolder);
+            layerFolderComponent.PassThrough = layerFolder.PassThrough;
 
             AddLayers(newLayer.transform, layerFolder.Layers);
+        }
+
+        internal void CopyFromData(AbstractLayer abstractLayer, AbstractLayerData abstractLayerData)
+        {
+            abstractLayer.BlendTypeKey = abstractLayerData.BlendTypeKey;
+            abstractLayer.Opacity = abstractLayerData.Opacity;
+            abstractLayer.Clipping = abstractLayerData.Clipping;
+            abstractLayer.Visible = abstractLayerData.Visible;
+            abstractLayer.LayerMask = MaskTexture(abstractLayerData.LayerMask, abstractLayerData.LayerName);
         }
 
         internal void CreatePreview()

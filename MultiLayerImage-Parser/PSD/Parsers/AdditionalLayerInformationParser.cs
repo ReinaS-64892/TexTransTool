@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace net.rs64.MultiLayerImageParser.PSD
 {
-    internal static class AdditionalLayerInformationParser
+    internal static partial class AdditionalLayerInformationParser
     {
         public static Dictionary<string, Type> AdditionalLayerInfoParsersTypes;
         public static Dictionary<string, Type> GetAdditionalLayerInfoParsersTypes()
@@ -43,88 +43,11 @@ namespace net.rs64.MultiLayerImageParser.PSD
                 {
                     var parser = Activator.CreateInstance(addLayerInfoParsers[keyCode]) as AdditionalLayerInfo;
                     parser.Length = length;
-                    parser.ParseAddLY(ref stream);
+                    parser.ParseAddLY(stream.ReadSubStream((int)length));
                     addLayerInfoList.Add(parser);
                 }
             }
             return addLayerInfoList.ToArray();
-        }
-
-        [Serializable]
-        internal class AdditionalLayerInfo
-        {
-            public uint Length;
-            public virtual void ParseAddLY(ref SubSpanStream stream) { }
-        }
-        [AttributeUsage(AttributeTargets.Class)]
-        internal class AdditionalLayerInfoParserAttribute : Attribute
-        {
-            public string Code;
-            public AdditionalLayerInfoParserAttribute(string codeStr)
-            {
-                Code = codeStr;
-            }
-        }
-
-        [Serializable, AdditionalLayerInfoParser("luni")]
-        internal class luni : AdditionalLayerInfo
-        {
-            public string LayerName;
-
-            public override void ParseAddLY(ref SubSpanStream stream)
-            {
-                var byteLength = stream.ReadUInt32() * 2;
-                LayerName = stream.ReadSubStream((int)byteLength).Span.ParseBigUTF16();
-            }
-        }
-        [Serializable, AdditionalLayerInfoParser("lnsr")]
-        internal class lnsr : AdditionalLayerInfo
-        {
-            public int IDForLayerName;
-
-            public override void ParseAddLY(ref SubSpanStream stream)
-            {
-                IDForLayerName = stream.ReadInt32();
-            }
-        }
-        [Serializable, AdditionalLayerInfoParser("lyid")]
-        internal class lyid : AdditionalLayerInfo
-        {
-            public int LayerID;
-
-            public override void ParseAddLY(ref SubSpanStream stream)
-            {
-                LayerID = stream.ReadInt32();
-            }
-        }
-        [Serializable, AdditionalLayerInfoParser("lsct")]
-        internal class lsct : AdditionalLayerInfo
-        {
-            public SelectionDividerTypeEnum SelectionDividerType;
-            public string BlendModeKey;
-            public int SubType;
-
-            public enum SelectionDividerTypeEnum
-            {
-                AnyOther = 0,
-                OpenFolder = 1,
-                ClosedFolder = 2,
-                BoundingSectionDivider = 3,
-            }
-
-            public override void ParseAddLY(ref SubSpanStream stream)
-            {
-                SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
-                if (Length >= 12)
-                {
-                    stream.ReadSubStream(4);
-                    BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
-                }
-                if (Length >= 16)
-                {
-                    SubType = stream.ReadInt32();
-                }
-            }
         }
 
     }
