@@ -62,9 +62,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateHSVAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
                             break;
                         }
+                    case SolidColorLayerData solidColorLayerData:
+                        {
+                            CreateSolidColorLayer(newLayer, solidColorLayerData);
+                            break;
+                        }
                 }
             }
 
+        }
+
+        private void CreateSolidColorLayer(GameObject newLayer, SolidColorLayerData solidColorLayerData)
+        {
+            var SolidColorLayerComponent = newLayer.AddComponent<SolidColorLayer>();
+            CopyFromData(SolidColorLayerComponent, solidColorLayerData);
+
+            SolidColorLayerComponent.Color = solidColorLayerData.Color;
         }
 
         private void CreateHSVAdjustmentLayer(GameObject newLayer, HSVAdjustmentLayerData hSVAdjustmentLayerData)

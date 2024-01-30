@@ -151,17 +151,21 @@ namespace net.rs64.MultiLayerImage.Parser
                 return "";
             }
         }
+        public static string ParseASCII(this Span<byte> bytes)
+        {
+            return Encoding.ASCII.GetString(bytes);
+        }
         public static string ParseUTF8(this Span<byte> bytes)
         {
-            return Encoding.UTF8.GetString(bytes.ToArray());
+            return Encoding.UTF8.GetString(bytes);
         }
         public static string ParseUTF16(this Span<byte> bytes)
         {
-            return Encoding.Unicode.GetString(bytes.ToArray());
+            return Encoding.Unicode.GetString(bytes);
         }
         public static string ParseBigUTF16(this Span<byte> bytes)
         {
-            return Encoding.BigEndianUnicode.GetString(bytes.ToArray());
+            return Encoding.BigEndianUnicode.GetString(bytes);
         }
         public static string ReadUnicodeString(Stream stream)
         {

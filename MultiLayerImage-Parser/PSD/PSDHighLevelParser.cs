@@ -104,9 +104,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
 
+            if (TryParseSpecialLayer(record, out var abstractLayerData)) { return abstractLayerData; }
+
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRawCompressLength() == 0)
-            { return ParseSpecialLayer(record); }
+            || record.RectTangle.CalculateRawCompressLength() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record); return emptyData; }
 
             var rasterLayer = new RasterLayerData();
             rasterLayer.CopyFromRecord(record);
@@ -116,19 +117,34 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             return rasterLayer;
         }
-        internal static AbstractLayerData ParseSpecialLayer(LayerRecord record)
+        internal static bool TryParseSpecialLayer(LayerRecord record, out AbstractLayerData abstractLayerData)
         {
             var addLayerInfoTypes = record.AdditionalLayerInformation.Select(i => i.GetType()).ToHashSet();
             var spPair = SpecialParserDict.FirstOrDefault(i => addLayerInfoTypes.Contains(i.Key));
-            if (spPair.Key == null || spPair.Value == null) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record); return emptyData; }
-            return spPair.Value.Invoke(record);
+
+            if (spPair.Key == null || spPair.Value == null) { abstractLayerData = null; return false; }
+
+            abstractLayerData = spPair.Value.Invoke(record);
+            return true;
         }
         internal delegate AbstractLayerData SpecialLayerParser(LayerRecord record);
         internal static Dictionary<Type, SpecialLayerParser> SpecialParserDict = new()
         {
             {typeof(AdditionalLayerInformationParser.hue2),SpecialHueLayer},
             {typeof(AdditionalLayerInformationParser.hueOld),SpecialHueLayer},
+            {typeof(AdditionalLayerInformationParser.SoCo), SpecialSolidColorLayer}
         };
+
+        private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record)
+        {
+            var solidColorData = new SolidColorLayerData();
+            var soCo = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInformationParser.SoCo) as AdditionalLayerInformationParser.SoCo;
+
+            solidColorData.CopyFromRecord(record);
+            solidColorData.Color = soCo.Color;
+
+            return solidColorData;
+        }
 
         internal static AbstractLayerData SpecialHueLayer(LayerRecord record)
         {
