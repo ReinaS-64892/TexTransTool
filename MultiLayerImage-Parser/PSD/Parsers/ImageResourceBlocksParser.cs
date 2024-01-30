@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class PSDParserImageResourceBlocksParser
     {

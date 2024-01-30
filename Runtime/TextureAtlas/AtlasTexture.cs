@@ -266,7 +266,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     var souseProp2Tex = matData.PropAndTextures.Find(I => I.PropertyName == propName);
                     if (souseProp2Tex == null) continue;
-                    var souseTex = souseProp2Tex.Texture is Texture2D ? texManage.GetOriginalTexture2D(souseProp2Tex.Texture as Texture2D) : souseProp2Tex.Texture;
+                    var souseTex = souseProp2Tex.Texture is Texture2D ? texManage.GetOriginTempRt(souseProp2Tex.Texture as Texture2D, souseProp2Tex.Texture.width) : souseProp2Tex.Texture;
 
                     if (rectTangleMove)
                     {
@@ -297,6 +297,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         }
                     }
 
+                    if (souseProp2Tex.Texture is Texture2D && souseTex is RenderTexture tempRt ) { RenderTexture.ReleaseTemporary(tempRt); }
                 }
 
                 compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));

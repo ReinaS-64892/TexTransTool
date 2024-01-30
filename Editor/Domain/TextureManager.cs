@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.IO;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
+using Unity.Collections;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
@@ -13,6 +17,7 @@ namespace net.rs64.TexTransTool
         private readonly List<Texture2D> DestroyList;
         private readonly Dictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> CompressDict;
         private readonly Dictionary<Texture2D, Texture2D> OriginDict;
+        private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSouse;
 
         public TextureManager(bool previewing)
         {
@@ -23,6 +28,10 @@ namespace net.rs64.TexTransTool
             else { CompressDict = null; }
             if (!Previewing) { OriginDict = new Dictionary<Texture2D, Texture2D>(); }
             else { OriginDict = null; }
+            if (!Previewing) { CanvasSouse = new(); }
+            else { CanvasSouse = null; }
+
+
         }
 
         public void DeferDestroyTexture2D(Texture2D texture2D)
@@ -30,7 +39,7 @@ namespace net.rs64.TexTransTool
             DestroyList.Add(texture2D);
         }
 
-        public void DeferTexDestroy()
+        public void DestroyTextures()
         {
             if (DestroyList == null) { return; }
             foreach (var tex in DestroyList)
@@ -42,7 +51,15 @@ namespace net.rs64.TexTransTool
             if (OriginDict != null) { OriginDict.Clear(); }
         }
 
-        public Texture2D GetOriginalTexture2D(Texture2D texture2D)
+        public int GetOriginalTextureSize(Texture2D texture2D)
+        {
+            return NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+        }
+        public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
+        {
+            Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
+        }
+        public Texture2D GetOriginalTexture(Texture2D texture2D)
         {
             if (Previewing)
             {
@@ -61,6 +78,20 @@ namespace net.rs64.TexTransTool
                     OriginDict.Add(texture2D, originTex);
                     return originTex;
                 }
+            }
+        }
+        public void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget)
+        {
+            if (Previewing)
+            {
+                Graphics.Blit(texture.PreviewTexture, writeTarget);
+            }
+            else
+            {
+                if (!CanvasSouse.ContainsKey(texture.CanvasDescription)) { CanvasSouse[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
+                // var timer = System.Diagnostics.Stopwatch.StartNew();
+                texture.LoadImage(CanvasSouse[texture.CanvasDescription], writeTarget);
+                // timer.Stop(); Debug.Log(texture.name + ":" + timer.ElapsedMilliseconds + "ms");
             }
         }
         public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
@@ -106,5 +137,8 @@ namespace net.rs64.TexTransTool
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
         }
+
+        public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
+
     }
 }

@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         public void AddRecord(Material material) { }
         public void ClearRecord() { }
-        public List<PropAndTexture> GetPropertyAndTextures(IGetOriginTex2DManager textureManager, Material material, PropertyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(IOriginTexture textureManager, Material material, PropertyBakeSetting bakeSetting)
         {
             if (material.HasProperty("_MainTex"))
             {
