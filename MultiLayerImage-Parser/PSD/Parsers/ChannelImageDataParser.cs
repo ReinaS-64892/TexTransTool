@@ -82,6 +82,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     var to = map.Slice(y * width, width);
                     to.CopyFrom(from);
                 }
+                lowMap.Dispose();
                 return map;
             }
 
