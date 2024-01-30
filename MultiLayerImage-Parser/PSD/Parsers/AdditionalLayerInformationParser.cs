@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static partial class AdditionalLayerInformationParser
     {

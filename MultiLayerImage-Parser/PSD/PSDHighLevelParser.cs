@@ -2,22 +2,22 @@ using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.MultiLayerImageParser.LayerData;
+using net.rs64.MultiLayerImage.LayerData;
 using UnityEngine;
 using net.rs64.TexTransCore;
-using static net.rs64.MultiLayerImageParser.PSD.PSDLowLevelParser.PSDLowLevelData;
-using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.PSDLowLevelParser.PSDLowLevelData;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
-using LayerMask = net.rs64.MultiLayerImageParser.LayerData.LayerMaskData;
+using LayerMask = net.rs64.MultiLayerImage.LayerData.LayerMaskData;
 using System.Buffers;
 using Unity.Collections;
-using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class PSDHighLevelParser
     {

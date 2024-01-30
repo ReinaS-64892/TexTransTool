@@ -1,9 +1,7 @@
-using System;
 using System.Threading.Tasks;
-using net.rs64.MultiLayerImageParser.PSD;
+using net.rs64.MultiLayerImage.Parser.PSD;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal class PSDImportedRasterImage : TTTImportedImage

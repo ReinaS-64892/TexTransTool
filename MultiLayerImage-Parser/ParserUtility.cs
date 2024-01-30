@@ -8,7 +8,7 @@ using System.Text;
 using Unity.Collections;
 using UnityEngine;
 
-namespace net.rs64.MultiLayerImageParser
+namespace net.rs64.MultiLayerImage.Parser
 {
     internal ref struct SubSpanStream
     {

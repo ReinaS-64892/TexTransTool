@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using net.rs64.MultiLayerImageParser.LayerData;
-using net.rs64.MultiLayerImageParser.PSD;
+using net.rs64.MultiLayerImage.LayerData;
+using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransTool.MultiLayerImage;
-using net.rs64.TexTransTool.MultiLayerImage.Importer;
 using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;
@@ -32,7 +28,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var pSDData = PSDHighLevelParser.Parse(lowPSDData);
 
             EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
-
 
             try
             {

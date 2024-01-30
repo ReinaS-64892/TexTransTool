@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 using Unity.Collections;
 using System.Buffers.Binary;
 
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class ChannelImageDataParser
     {

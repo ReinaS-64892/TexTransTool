@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static partial class AdditionalLayerInformationParser
     {

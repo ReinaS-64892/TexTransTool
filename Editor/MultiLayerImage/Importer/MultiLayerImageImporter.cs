@@ -1,19 +1,12 @@
 using System.Collections.Generic;
-using net.rs64.MultiLayerImageParser.LayerData;
+using net.rs64.MultiLayerImage.LayerData;
 using UnityEngine;
 using System.Linq;
 using System;
-using System.IO;
 using UnityEditor;
-using net.rs64.TexTransCore.TransTextureCore;
 using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Buffers;
 using UnityEditor.AssetImporters;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {

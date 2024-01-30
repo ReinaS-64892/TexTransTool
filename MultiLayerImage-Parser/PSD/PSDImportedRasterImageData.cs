@@ -1,10 +1,10 @@
 using System;
-using net.rs64.MultiLayerImageParser.LayerData;
+using net.rs64.MultiLayerImage.LayerData;
 using UnityEngine;
-using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImageParser.PSD.LayerRecordParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     [Serializable]
     internal abstract class AbstractPSDImportedRasterImageData : ImportRasterImageData

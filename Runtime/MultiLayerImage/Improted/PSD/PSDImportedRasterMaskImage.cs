@@ -1,4 +1,4 @@
-using net.rs64.MultiLayerImageParser.PSD;
+using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore.BlendTexture;
 using Unity.Collections;
 using UnityEngine;

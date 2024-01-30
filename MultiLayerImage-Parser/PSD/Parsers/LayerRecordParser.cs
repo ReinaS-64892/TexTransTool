@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static net.rs64.MultiLayerImageParser.PSD.AdditionalLayerInformationParser;
-using static net.rs64.MultiLayerImageParser.PSD.ChannelImageDataParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInformationParser;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 
 
-namespace net.rs64.MultiLayerImageParser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class LayerRecordParser
     {
