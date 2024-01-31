@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor
                         EditorGUI.BeginDisabledGroup(component is not Component);
                         if (GUI.Button(position, "OpenSelector"))
                         {
-                            DomainTexturesSelect.OpenSelector(sTexture2D, component as Component);
+                            DomainTextureSelector.OpenSelector(sTexture2D, component as Component);
                         }
                         EditorGUI.EndDisabledGroup();
 
