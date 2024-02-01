@@ -14,18 +14,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
     public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
     {
-        internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.TargetRenderer };
+        internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.RendererAsPath };
         internal override bool IsPossibleApply => TextureSelector.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public RelativeTextureSelector TextureSelector;
+        public TextureSelector TextureSelector;
 
         [SerializeField, HideInInspector] internal TTTImportedCanvasDescription tttImportedCanvasDescription;
 
         internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
-            var replaceTarget = TextureSelector.GetTexture();
+            var replaceTarget = TextureSelector.GetTexture(domain);
 
 
             var Layers = transform.GetChildren()
@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Where(I => I != null)
             .Reverse();
 
-            var canvasContext = new CanvasContext(tttImportedCanvasDescription?.Width ?? replaceTarget.width, domain.GetTextureManager());
+            var canvasContext = new CanvasContext(tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width), domain.GetTextureManager());
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
             var result = canvasContext.LayerCanvas.FinalizeCanvas();
             domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
@@ -318,6 +318,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 return new LayerAlphaMod(value.Mask, value.Opacity);
             }
         }
+
+        internal static int NormalizePowOfTow(int v)
+        {
+            if (Mathf.IsPowerOfTwo(v)) { return v; }
+
+            var nextV = Mathf.NextPowerOfTwo(v);
+            var closetV = Mathf.ClosestPowerOfTwo(v);
+
+            if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
+            else { return nextV; }
+        }
+
+
     }
 
 }
