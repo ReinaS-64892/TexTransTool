@@ -2,6 +2,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
+    [AddComponentMenu("TexTransTool/MultiLayer/TTT HSVAdjustmentLayer")]
     public class HSVAdjustmentLayer : AbstractGrabLayer
     {
         [Range(-1, 1)] public float Hue;
