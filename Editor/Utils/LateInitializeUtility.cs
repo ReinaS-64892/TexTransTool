@@ -23,6 +23,7 @@ namespace net.rs64.TexTransTool.Utils
             TextureBlend.BlendShadersInit();
             PSDImportedRasterImage.MargeColorAndOffsetShader = Shader.Find(PSDImportedRasterImage.MARGE_COLOR_AND_OFFSET_SHADER);
             SpecialLayerShaders.Init();
+            TTTImageAssets.Init();
         }
     }
 }
