@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         void AddRecord(Material material);
         void ClearRecord();
 
-        List<PropAndTexture> GetPropertyAndTextures(IGetOriginTex2DManager textureManager, Material material, PropertyBakeSetting bakeSetting);
+        List<PropAndTexture> GetPropertyAndTextures(IOriginTexture textureManager, Material material, PropertyBakeSetting bakeSetting);
         void MaterialCustomSetting(Material material);
     }
 }

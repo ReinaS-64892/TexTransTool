@@ -5,14 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Unity.Collections;
 using UnityEngine;
 
-namespace net.rs64.MultiLayerImageParser
+namespace net.rs64.MultiLayerImage.Parser
 {
     internal ref struct SubSpanStream
     {
         public Span<byte> Span;
         private int _position;
+        private int _firstToPosition;
         public int Position
         {
             get => _position;
@@ -30,17 +32,20 @@ namespace net.rs64.MultiLayerImageParser
         }
         public int Length => Span.Length;
 
-        public SubSpanStream(Span<byte> bytes)
+        public int FirstToPosition => _firstToPosition;
+
+        public SubSpanStream(Span<byte> bytes, int firstToPosition = 0)
         {
             Span = bytes;
             _position = 0;
+            _firstToPosition = firstToPosition;
         }
-
         public SubSpanStream ReadSubStream(int length)
         {
+            var ftOffset = _firstToPosition + _position;
             var subSpan = Span.Slice(Position, length);
             Position += length;
-            return new SubSpanStream(subSpan);
+            return new SubSpanStream(subSpan, ftOffset);
         }
 
         public byte ReadByte()
@@ -146,21 +151,64 @@ namespace net.rs64.MultiLayerImageParser
                 return "";
             }
         }
+        public static string ParseASCII(this Span<byte> bytes)
+        {
+            return Encoding.ASCII.GetString(bytes);
+        }
         public static string ParseUTF8(this Span<byte> bytes)
         {
-            return Encoding.UTF8.GetString(bytes.ToArray());
+            return Encoding.UTF8.GetString(bytes);
         }
         public static string ParseUTF16(this Span<byte> bytes)
         {
-            return Encoding.Unicode.GetString(bytes.ToArray());
+            return Encoding.Unicode.GetString(bytes);
         }
         public static string ParseBigUTF16(this Span<byte> bytes)
         {
-            return Encoding.BigEndianUnicode.GetString(bytes.ToArray());
+            return Encoding.BigEndianUnicode.GetString(bytes);
         }
         public static string ReadUnicodeString(Stream stream)
         {
             throw new NotImplementedException();
+        }
+
+
+
+
+
+
+
+
+        public static void Fill<T>(this NativeArray<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+        public static void Fill<T>(this NativeSlice<T> values, T val) where T : struct
+        {
+            for (var i = 0; values.Length > i; i += 1)
+            {
+                values[i] = val;
+            }
+        }
+
+        public static void CopyTo<T>(this NativeSlice<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+        public static void CopyTo<T>(this NativeArray<T> from, NativeSlice<T> to) where T : struct
+        {
+            to.CopyFrom(from);
+        }
+
+        public static void CopyFrom<T>(this NativeArray<T> to, Span<T> from) where T : struct
+        {
+            for (var i = 0; to.Length > i; i += 1)
+            {
+                to[i] = from[i];
+            }
         }
     }
 }

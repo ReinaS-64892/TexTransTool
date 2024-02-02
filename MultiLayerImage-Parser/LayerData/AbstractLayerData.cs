@@ -3,7 +3,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine;
 
-namespace net.rs64.MultiLayerImageParser.LayerData
+namespace net.rs64.MultiLayerImage.LayerData
 {
 
     [Serializable]
@@ -22,7 +22,7 @@ namespace net.rs64.MultiLayerImageParser.LayerData
     internal class LayerMaskData
     {
         public bool LayerMaskDisabled;
-        public LowMap<Color32> MaskTexture;
+        public ImportRasterImageData MaskTexture;
     }
 
 }

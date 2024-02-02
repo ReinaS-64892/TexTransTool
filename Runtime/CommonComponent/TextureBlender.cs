@@ -8,7 +8,7 @@ namespace net.rs64.TexTransTool
     [AddComponentMenu("TexTransTool/Other/TTT TextureBlender")]
     public sealed class TextureBlender : TexTransRuntimeBehavior
     {
-        public RelativeTextureSelector TargetTexture;
+        public TextureSelector TargetTexture;
 
         public Texture2D BlendTexture;
         public Color Color = Color.white;
@@ -17,9 +17,9 @@ namespace net.rs64.TexTransTool
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
 
-        internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.TargetRenderer };
+        internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.RendererAsPath };
 
-        internal override bool IsPossibleApply => TargetTexture.TargetRenderer != null && BlendTexture != null;
+        internal override bool IsPossibleApply => TargetTexture.RendererAsPath != null && BlendTexture != null;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool
             if (distTex == null) { return; }
 
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
-            domain.AddTextureStack(distTex, new(addTex, BlendTypeKey));
+            domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
         }
     }
 }

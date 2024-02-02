@@ -71,9 +71,9 @@ namespace net.rs64.TexTransTool
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
-        public void AddTextureStack(Texture2D Dist, BlendTexturePair SetTex)
+        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair
         {
-            _textureStacks.AddTextureStack(Dist, SetTex);
+            _textureStacks.AddTextureStack(dist, setTex);
         }
 
         private void AddPropertyModification(Object component, string property, Object value)
@@ -179,7 +179,7 @@ namespace net.rs64.TexTransTool
 
             ProgressUpdate("DeferTexDestroy", 0.3f);
 
-            _textureManager.DeferTexDestroy();
+            _textureManager.DestroyTextures();
 
             ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
 

@@ -10,16 +10,17 @@ namespace net.rs64.TexTransTool.TextureStack
 {
     internal class DeferredTextureStack : TextureStack
     {
-        [SerializeField] List<BlendTexturePair> StackTextures = new();
+        [SerializeField] List<IBlendTexturePair> StackTextures = new();
 
-        public override void AddStack(BlendTexturePair blendTexturePair) => StackTextures.Add(blendTexturePair);
+
+        public override void AddStack<BlendTex>(BlendTex blendTexturePair) => StackTextures.Add(blendTexturePair);
 
         public override Texture2D MergeStack()
         {
             if (!StackTextures.Any()) { return FirstTexture; }
             var renderTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
             renderTexture.Clear();
-            Graphics.Blit(TextureManager.GetOriginalTexture2D(FirstTexture), renderTexture);
+            TextureManager.WriteOriginalTexture(FirstTexture, renderTexture);
 
             renderTexture.BlendBlit(StackTextures);
             foreach (var bTex in StackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { RenderTexture.ReleaseTemporary(rt); } }

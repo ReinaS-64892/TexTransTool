@@ -10,34 +10,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     ///
     /// <see cref="MultiLayerImageCanvas"/> がレイヤーとして取り扱い、クリッピングやマスクなどの処理をしなくても、
     /// <see cref="GetImage"/>で Texture を返せばレイヤーとしてと差し込むことができます。
-    /// <see cref="GetImage"/> の引数である 幅と高さはそのサイズでレンダリングする推奨値であり、必要でなければ無視してよい。
+    /// <see cref="GetImage"/> の引数である レンダーテクスチャーにテクスチャを書き込んでね、
+    /// <see cref="IOriginTexture"/> は元画像へのアクセスができるものだけど、プレビューだと例外とかはないけど機能しないよ。
     /// </summary>
     public abstract class AbstractImageLayer : AbstractLayer
     {
-        public abstract Texture GetImage(int width, int height);
+        public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
-            var layerStack = canvasContext.RootLayerStack;
-            if (!Visible)
-            {
-                if (Clipping) { return; }
-                else { layerStack.Stack.Add(new BlendLayer(this, null, BlendTypeKey)); return; }
-            }
+            if (!Visible) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(false, Clipping)); return; }
+
             var canvasSize = canvasContext.CanvasSize;
-            var rTex = RenderTexture.GetTemporary(canvasSize.x, canvasSize.y, 0); rTex.Clear();
+            var rTex = RenderTexture.GetTemporary(canvasSize, canvasSize, 0); rTex.Clear();
 
-            var image = GetImage(canvasSize.x, canvasSize.y);
-            if (image is Texture2D texture2D) { image = canvasContext.TextureManager.GetOriginalTexture2D(texture2D); }
-            Graphics.Blit(image, rTex);
+            GetImage(rTex, canvasContext.TextureManager);
 
-            if (!Mathf.Approximately(Opacity, 1)) { MultipleRenderTexture(rTex, new Color(1, 1, 1, Opacity)); }
-
-            if (!LayerMask.LayerMaskDisabled && LayerMask.MaskTexture != null) { MaskDrawRenderTexture(rTex, canvasContext.TextureManager.GetOriginalTexture2D(LayerMask.MaskTexture)); }
-
-            if (Clipping) { layerStack.AddRtForClipping(this, rTex, BlendTypeKey); }
-            else { layerStack.AddRenderTexture(this, rTex, BlendTypeKey); }
-
-            if (image is RenderTexture renderTexture) { RenderTexture.ReleaseTemporary(renderTexture); }
+            using (canvasContext.LayerCanvas.AlphaModScope(GetLayerAlphaMod(canvasContext)))
+            {
+                canvasContext.LayerCanvas.AddLayer(new(false, false, Clipping, rTex, BlendTypeKey));
+            }
         }
+
+
     }
 }

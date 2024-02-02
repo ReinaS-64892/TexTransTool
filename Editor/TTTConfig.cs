@@ -9,17 +9,10 @@ namespace net.rs64.TexTransTool
         public const string DEBUG_MENU_PATH = TTT_MENU_PATH + "/Debug";
 
 
-        [InitializeOnLoadMethod]
-        static void Init()
-        {
-            EditorApplication.delayCall += EditorInitDerayCaller;
-        }
-        static void EditorInitDerayCaller()
+        internal static void SettingInitializer()
         {
             IsObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
             UseIslandCache = EditorPrefs.GetBool(USE_ISLAND_CACHE_PREFKEY, true);
-
-            UnityEditor.EditorApplication.delayCall -= EditorInitDerayCaller;
         }
         #region UseIslandCache
         public const string USE_ISLAND_CACHE_MENU_PATH = TTT_MENU_PATH + "/UseIslandCache";

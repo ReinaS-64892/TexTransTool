@@ -161,11 +161,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
     internal class TextureBaker
     {
         Material material;
-        IGetOriginTex2DManager textureManager;
+        IOriginTexture textureManager;
         Dictionary<string, Texture> propEnvs;
         AtlasShaderRecorder atlasShaderRecorder;
         PropertyBakeSetting bakeSetting;
-        public TextureBaker(IGetOriginTex2DManager texManager, Dictionary<string, Texture> propEnvDict, Material mat, AtlasShaderRecorder shaderRecorder, PropertyBakeSetting bakeSettingEnum)
+        public TextureBaker(IOriginTexture texManager, Dictionary<string, Texture> propEnvDict, Material mat, AtlasShaderRecorder shaderRecorder, PropertyBakeSetting bakeSettingEnum)
         {
             textureManager = texManager;
             propEnvs = propEnvDict;
@@ -193,8 +193,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
+                var originTexture = texture is Texture2D ? textureManager.GetOriginTempRt(texture as Texture2D, texture.width) : texture;
                 propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originTexture, color);
+                if (originTexture is RenderTexture tempRT) { RenderTexture.ReleaseTemporary(tempRT); }
             }
         }
 
@@ -216,8 +217,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                var originPropTex = propTex is Texture2D ? textureManager.GetOriginalTexture2D(propTex as Texture2D) : propTex;
+                var originPropTex = propTex is Texture2D ? textureManager.GetOriginTempRt(propTex as Texture2D, propTex.width) : propTex;
                 propEnvs[texPropName] = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(propFloat, propFloat, propFloat, propFloat));
+                if (originPropTex is RenderTexture tempRT) { RenderTexture.ReleaseTemporary(tempRT); }
             }
         }
 
@@ -239,8 +241,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 else
                 {
-                    var originTexture = texture is Texture2D ? textureManager.GetOriginalTexture2D(texture as Texture2D) : texture;
-                    texture = TexLU.CreateMultipliedRenderTexture(originTexture, color);
+                    var originPropTex = texture is Texture2D ? textureManager.GetOriginTempRt(texture as Texture2D, texture.width) : texture;
+                    texture = TexLU.CreateMultipliedRenderTexture(originPropTex, color);
+                    if (originPropTex is RenderTexture tempRT) { RenderTexture.ReleaseTemporary(tempRT); }
                 }
             }
 

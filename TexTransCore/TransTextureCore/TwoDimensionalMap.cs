@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Runtime.CompilerServices;
+using Unity.Collections;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -58,19 +59,24 @@ namespace net.rs64.TexTransCore.TransTextureCore
         }
     }
 
-    internal readonly struct LowMap<T>
+    internal readonly struct LowMap<T> : IDisposable
+    where T : struct
     {
-        //左上を原点とする。
-        public readonly T[] Array;
+        public readonly NativeArray<T> Array;
         public readonly int Width;
         public readonly int Height;
-        public LowMap(T[] array, int width, int height)
+        public LowMap(NativeArray<T> array, int width, int height)
         {
             Array = array;
             Width = width;
             Height = height;
         }
 
-        public Vector2Int MapSize => new Vector2Int(Width,Height);
+        public Vector2Int MapSize => new Vector2Int(Width, Height);
+
+        public void Dispose()
+        {
+            Array.Dispose();
+        }
     }
 }

@@ -65,15 +65,22 @@ namespace net.rs64.TexTransTool.Decal
 
         internal abstract Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null);
 
-        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D targetDecalTexture, Color color)
+        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D souseDecalTexture, Color color)
         {
             RenderTexture mulDecalTexture;
-            if (targetDecalTexture != null) { mulDecalTexture = RenderTexture.GetTemporary(targetDecalTexture.width, targetDecalTexture.height, 0); }
+
+            if (souseDecalTexture != null)
+            {
+                var decalSouseSize = textureManager.GetOriginalTextureSize(souseDecalTexture);
+                mulDecalTexture = RenderTexture.GetTemporary(decalSouseSize, decalSouseSize, 0);
+            }
             else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
             mulDecalTexture.Clear();
-            if (targetDecalTexture != null)
+            if (souseDecalTexture != null)
             {
-                TextureBlend.MultipleRenderTexture(mulDecalTexture, textureManager.GetOriginalTexture2D(targetDecalTexture), color);
+                var tempRt = textureManager.GetOriginTempRt(souseDecalTexture);
+                TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
+                RenderTexture.ReleaseTemporary(tempRt);
             }
             else
             {

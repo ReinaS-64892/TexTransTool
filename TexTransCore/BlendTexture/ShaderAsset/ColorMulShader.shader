@@ -49,7 +49,7 @@ Shader "Hidden/ColorMulShader"
                 return float4(GammaToLinearSpaceExact(col.r), GammaToLinearSpaceExact(col.g), GammaToLinearSpaceExact(col.b), (col.a));
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 float4 MainColor = LiniearToGamma(tex2Dlod(_MainTex ,float4(i.uv,0,0)));
                 float4 GammaColor = LiniearToGamma(_Color);

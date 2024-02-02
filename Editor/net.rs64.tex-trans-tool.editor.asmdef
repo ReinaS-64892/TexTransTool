@@ -4,8 +4,10 @@
     "references": [
         "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.runtime",
+        "net.rs64.tex-trans-tool.editor.unsafe",
         "net.rs64.multi-layer-image-parser",
-        "nadena.dev.ndmf"
+        "nadena.dev.ndmf",
+        "Unity.Collections"
     ],
     "includePlatforms": [
         "Editor"

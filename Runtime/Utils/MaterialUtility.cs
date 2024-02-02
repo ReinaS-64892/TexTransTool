@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Utils
             outPut?.Clear(); outPut ??= new();
             foreach (var mat in materials)
             {
-                var textures = GetAllTextureProperty(mat);
+                var textures = GetAllTexture2D(mat);
 
                 if (textures.ContainsValue(target))
                 {
@@ -44,6 +44,7 @@ namespace net.rs64.TexTransTool.Utils
         public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material, Dictionary<string, Texture2D> output = null)
         {
             output?.Clear(); output ??= new();
+            if (material == null || material.shader == null) { return output; }
             var shader = material.shader;
             var propCount = shader.GetPropertyCount();
             for (var i = 0; propCount > i; i += 1)
@@ -59,22 +60,5 @@ namespace net.rs64.TexTransTool.Utils
             return output;
         }
 
-        public static Dictionary<string, Texture> GetAllTextureProperty(this Material material)
-        {
-            var textures = new Dictionary<string, Texture>();
-            var shader = material.shader;
-            var propCount = shader.GetPropertyCount();
-            for (int i = 0; propCount > i; i += 1)
-            {
-                if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
-                var propName = shader.GetPropertyName(i);
-                if (!(material.GetTexture(propName) is Texture2D texture2D))
-                {
-                    continue;
-                }
-                textures.Add(propName, texture2D);
-            }
-            return textures;
-        }
     }
 }
