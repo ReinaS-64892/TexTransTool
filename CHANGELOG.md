@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- NDMFのエラーレポートに最低限の対応が追加 `#349`
+
 ### Changed
 
 ### Removed
