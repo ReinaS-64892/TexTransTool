@@ -7,6 +7,18 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+### Deprecated
+
+## 0.5.3
+
+### Added
+
 - TTT PSD Importer の高速化 `#346`
 - いくつかのレイヤーが追加されました `#346`
   - 色相・彩度・明度 の色調調整レイヤー HSVAdjustmentLayer が追加

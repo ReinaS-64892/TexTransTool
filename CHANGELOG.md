@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- NDMFのエラーレポートに最低限の対応が追加 `#349`
-
 ### Changed
 
 ### Removed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Deprecated
+
+## [0.5.3]
+
+### Added
+
+- NDMFのエラーレポートに最低限の対応が追加 `#349`
 
 ## [0.5.2]
 
@@ -344,7 +348,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...master
+[0.5.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0
