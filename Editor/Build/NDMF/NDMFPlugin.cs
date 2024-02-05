@@ -12,7 +12,9 @@ namespace net.rs64.TexTransTool.Build.NDMF
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
         public override string DisplayName => "TexTransTool";
+#if NDMF_1_3_x
         public override Texture2D LogoTexture => TTTImageAssets.Logo;
+#endif
         protected override void Configure()
         {
             var seq = InPhase(BuildPhase.Resolving);
