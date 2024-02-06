@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- LogoTexture が NDMF v1.3.x ではない環境で存在しないためコンパイルエラーになる問題を修正 `[コミット](https://github.com/ReinaS-64892/TexTransTool/commit/86183088ec5b362700becad4c5baa283a174b392)`
 - BlendTypeKey LinearLight と Addition の色合成を修正 `#354`
 
 ### Deprecated
