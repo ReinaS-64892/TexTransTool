@@ -296,7 +296,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                outlineWidthMask = TexLU.CreateMultipliedRenderTexture(outlineWidthMask, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                var originPropTex = outlineWidthMask is Texture2D ? textureManager.GetOriginTempRt(outlineWidthMask as Texture2D, outlineWidthMask.width) : outlineWidthMask;
+                outlineWidthMask = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                if (originPropTex is RenderTexture tempRT) { RenderTexture.ReleaseTemporary(tempRT); }
             }
             propEnvs[texPropName] = outlineWidthMask;
         }
