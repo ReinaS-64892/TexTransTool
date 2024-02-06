@@ -53,11 +53,12 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif VividLight
   BlendColor = lerp(burn * 2.0 - 1.0, dodge * 2.0, 1 - step(Acol, 0.5));
 #elif LinearLight
-  BlendColor = Bcol + 2.0 * Acol - 1.0;
+  BlendColor = saturate(Bcol + 2.0 * Acol - 1.0);
+  // BlendColor = saturate(Acol > 0.5 ? Bcol + 2 * (Acol - 0.5) : Bcol + 2.0 * Acol - 1.0);
 #elif Divide
   BlendColor = Acol == 0 ? 1 : Bcol / Acol;
 #elif Addition
-  BlendColor = Addc;
+  BlendColor = saturate(Addc);
 #elif Subtract
   BlendColor = Bcol - Acol;
 #elif Difference
