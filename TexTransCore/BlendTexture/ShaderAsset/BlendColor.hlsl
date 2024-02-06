@@ -51,7 +51,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif LinearBurn
   BlendColor = Addc - 1;
 #elif VividLight
-  BlendColor = lerp(burn * 2.0 - 1.0, dodge * 2.0, 1 - step(Acol, 0.5));
+  BlendColor = Acol > 0.5 ? Bcol / ( 1 - 2 * (Acol - 0.5)) : 1 - (1 - Bcol) / (2 * Acol);
 #elif LinearLight
   BlendColor = saturate(Bcol + 2.0 * Acol - 1.0);
   // BlendColor = saturate(Acol > 0.5 ? Bcol + 2 * (Acol - 0.5) : Bcol + 2.0 * Acol - 1.0);
