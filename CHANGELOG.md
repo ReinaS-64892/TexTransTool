@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- BlendTypeKey LinearLight と Addition の色合成を修正 `#354`
+
 ### Deprecated
 
 ## [0.5.3]
