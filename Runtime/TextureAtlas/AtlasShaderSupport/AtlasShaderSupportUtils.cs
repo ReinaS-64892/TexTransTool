@@ -203,11 +203,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var propFloat = material.GetFloat(floatProp);
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<float>;
-
-            if (!record.IsDifferenceValue.HasValue) { return; }
-            if (!record.IsDifferenceValue.Value) { return; }
-
             var propTex = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
+
+            if (!record.IsDifferenceValue.HasValue || !record.IsDifferenceValue.Value)
+            {
+                if (propTex == null && record.ContainsTexture)
+                {
+                    propEnvs[texPropName] = TexUT.CreateColorTexForRT(new Color(propFloat, propFloat, propFloat, propFloat));
+                }
+
+                return;
+            }
+
             if (propTex == null)
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
@@ -283,10 +290,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var record = atlasShaderRecorder.GetRecord(texPropName) as AtlasShaderRecorder.PropRecordAndValue<float>;
             var outlineWidth = material.GetFloat(floatProp) / record.RecordValue;
 
-            if (!record.IsDifferenceValue.HasValue) { return; }
-            if (!record.IsDifferenceValue.Value) { return; }
-
             var outlineWidthMask = propEnvs.ContainsKey(texPropName) ? propEnvs[texPropName] : null;
+
+            if (!record.IsDifferenceValue.HasValue || !record.IsDifferenceValue.Value)
+            {
+                //ほかはテクスチャが存在しているがfloatの値が変わっていない場合にフォールバック用の値を書き込んだものを作らないといけない。
+                if (outlineWidthMask == null && record.ContainsTexture)
+                {
+                    propEnvs[texPropName] = TexUT.CreateColorTexForRT(new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                }
+
+                return;
+            }
+
             if (outlineWidthMask == null)
             {
                 if (record.ContainsTexture || bakeSetting == PropertyBakeSetting.BakeAllProperty)
@@ -296,7 +312,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             else
             {
-                outlineWidthMask = TexLU.CreateMultipliedRenderTexture(outlineWidthMask, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                var originPropTex = outlineWidthMask is Texture2D ? textureManager.GetOriginTempRt(outlineWidthMask as Texture2D, outlineWidthMask.width) : outlineWidthMask;
+                outlineWidthMask = TexLU.CreateMultipliedRenderTexture(originPropTex, new Color(outlineWidth, outlineWidth, outlineWidth, outlineWidth));
+                if (originPropTex is RenderTexture tempRT) { RenderTexture.ReleaseTemporary(tempRT); }
             }
             propEnvs[texPropName] = outlineWidthMask;
         }
