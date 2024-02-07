@@ -15,12 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Deprecated
+
+## [0.5.4]
+
+### Fixed
+
 - LogoTexture が NDMF v1.3.x ではない環境で存在しないためコンパイルエラーになる問題を修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/86183088ec5b362700becad4c5baa283a174b392)
 - BlendTypeKey LinearLight と Addition の色合成を修正 `#354`
 - AtlasTexture のプロパティベイクが値は同じだけどほかにテクスチャーが存在する場合、既定の値のテクスチャーを生成し忘れていた問題の修正 `#355`
 - BlendTypeKey VividLight の色合成を修正 `#356`
-
-### Deprecated
 
 ## [0.5.3]
 
@@ -353,7 +357,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...master
+[0.5.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1
