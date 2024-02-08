@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
     {
         protected override void Execute(BuildContext context)
         {
-            PreviewExit.ExitPreviews();
+            PreviewUtility.ExitPreviews();
         }
     }
     internal class ResolvingPass : Pass<ResolvingPass>
