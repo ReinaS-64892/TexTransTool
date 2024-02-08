@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- プレビューを再度実行できるメニューアイテム & ショートカット(Shift + R)が追加 (#357)
+
 ### Changed
 
 ### Removed
