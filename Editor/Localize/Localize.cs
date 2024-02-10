@@ -2,89 +2,38 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using static net.rs64.TexTransTool.TTTConfig;
 
 namespace net.rs64.TexTransTool
 {
     internal static class Localize
     {
-        const string JP_GUID = "139e527c0dc01364b97daf9bdbaeb365";
-        public const string LANGUAGE_PREFKEY = "net.rs64.tex-trans-tool.language";
-        public const string LANGUAGE_MENU_PATH = TTTConfig.TTT_MENU_PATH + "/Language";
-        private static LanguageEnum s_language;
-        public static LanguageEnum Language
-        {
-            get => s_language;
-            private set
-            {
-                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), false);
-                s_language = value;
-                EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)s_language);
-                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), true);
-            }
-        }
-        public enum LanguageEnum
-        {
-            EN,
-            JP,
-        }
-
+        const string JP_GUID = "42db3dbd5755c844984648836a49629f";
+        const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
         internal static void LocalizeInitializer()
         {
-            Language = (LanguageEnum)EditorPrefs.GetInt(LANGUAGE_PREFKEY);
+            Language = (LanguageEnum)EditorPrefs.GetInt(TTTConfig.LANGUAGE_PREFKEY);
+            LoadLocalize();
         }
-        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
-        public static void ReloadLocalize()
+        public static void LoadLocalize()
         {
-            s_JP = null;
+            LocalizationAssets[LanguageEnum.JP] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JP_GUID));
+            LocalizationAssets[LanguageEnum.EN] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
         }
-        static Dictionary<string, string> s_JP;
+        internal static readonly Dictionary<LanguageEnum, LocalizationAsset> LocalizationAssets = new();
 
         public static string GetLocalize(this string str)
         {
-            switch (Language)
-            {
-                default:
-                case LanguageEnum.EN:
-                    {
-                        return str;
-                    }
-
-                case LanguageEnum.JP:
-                    {
-                        return GetLocalizeJP(str);
-                    }
-            }
+            return LocalizationAssets[Language].GetLocalizedString(str);
         }
 
-        public static string GetLocalizeJP(string str)
+        public static GUIContent Glc(this string str)
         {
-            if (s_JP == null) { s_JP = ParseCSV(JP_GUID); }
-            if (s_JP.TryGetValue(str, out var jpStr))
-            { return jpStr; }
-            else { return str; }
+            var tooltipKey = str + ":tooltip";
+            var tooltipStr = tooltipKey.GetLocalize();
+            if (tooltipKey == tooltipStr) { tooltipStr = ""; }
+            return new GUIContent(str.GetLocalize(), tooltipStr);
         }
 
-// #if UNITY_EDITOR
-
-        private static Dictionary<string, string> ParseCSV(string guid)
-        {
-            var path = AssetDatabase.GUIDToAssetPath(guid);
-            var strPears = File.ReadAllLines(path);
-            var strDict = new Dictionary<string, string>();
-            foreach (var strPear in strPears)
-            {
-                var Pear = strPear.Split(',');
-                strDict.Add(Pear[0], Pear[1]);
-            }
-            return strDict;
-        }
-        public static GUIContent ToGUIContent(this string str) => new GUIContent(str);
-        public static GUIContent GetLC(this string str) => str.GetLocalize().ToGUIContent();
-
-        [MenuItem(LANGUAGE_MENU_PATH + "/EN")]
-        public static void SwitchEN() => Language = LanguageEnum.EN;
-        [MenuItem(LANGUAGE_MENU_PATH + "/JP")]
-        public static void SwitchJP() => Language = LanguageEnum.JP;
-// #endif
     }
 }

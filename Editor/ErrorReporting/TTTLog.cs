@@ -1,6 +1,8 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using System.Linq;
+
 
 
 
@@ -19,6 +21,7 @@ namespace net.rs64.TexTransTool
                 {
                         TTTRuntimeLog.InfoCall += Info;
                         TTTRuntimeLog.WarningCall += Warning;
+                        TTTRuntimeLog.ErrorCall += Error;
                 }
 
 
@@ -38,7 +41,7 @@ namespace net.rs64.TexTransTool
                         Debug.LogWarning(code);
 #endif
                 }
-                public static void Fatal(string code, params object[] objects)
+                public static void Error(string code, params object[] objects)
                 {
 #if NDMF_1_3_x
                         ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Error, code, objects);
@@ -73,8 +76,8 @@ namespace net.rs64.TexTransTool
                 }
 
 #if NDMF_1_3_x
-                private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer = new nadena.dev.ndmf.localization.Localizer("en-US",
-                () => { return new() { ("en-US", (str) => str), ("ja-JP", Localize.GetLocalizeJP) }; });
+                private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer =
+                 new nadena.dev.ndmf.localization.Localizer("en-US", () => Localize.LocalizationAssets.Values.ToList());
 #endif
         }
 

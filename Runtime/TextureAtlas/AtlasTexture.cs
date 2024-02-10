@@ -297,7 +297,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         }
                     }
 
-                    if (souseProp2Tex.Texture is Texture2D && souseTex is RenderTexture tempRt ) { RenderTexture.ReleaseTemporary(tempRt); }
+                    if (souseProp2Tex.Texture is Texture2D && souseTex is RenderTexture tempRt) { RenderTexture.ReleaseTemporary(tempRt); }
                 }
 
                 compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));
@@ -329,7 +329,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override void Apply(IDomain domain = null)
         {
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
+            if (!IsPossibleApply)
+            {
+                TTTRuntimeLog.Error("AtlasTexture:error:TTTNotExecutable");
+                return;
+            }
 
             domain.ProgressStateEnter("AtlasTexture");
             domain.ProgressUpdate("CompileAtlasTexture", 0f);

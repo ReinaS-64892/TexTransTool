@@ -33,10 +33,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel += 1;
 
             var sPolygonCulling = thisSObject.FindProperty("PolygonCulling");
-            EditorGUILayout.PropertyField(sPolygonCulling, sPolygonCulling.name.GetLC());
+            EditorGUILayout.PropertyField(sPolygonCulling, sPolygonCulling.name.Glc());
 
             var sSideCulling = thisSObject.FindProperty("SideCulling");
-            EditorGUILayout.PropertyField(sSideCulling, sSideCulling.name.GetLC());
+            EditorGUILayout.PropertyField(sSideCulling, sSideCulling.name.Glc());
 
 
             EditorGUI.indentLevel -= 1;
@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             if (s_ExperimentalFutureOption)
             {
                 var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                EditorGUILayout.PropertyField(sIslandCulling, sIslandCulling.name.GetLC());
+                EditorGUILayout.PropertyField(sIslandCulling, sIslandCulling.name.Glc());
                 if (sIslandCulling.boolValue)
                 {
                     var sIslandSelectorPos = thisSObject.FindProperty("IslandSelectorPos");
@@ -61,14 +61,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     EditorGUILayout.Slider(sIslandSelectorPosY, 0, 1, new GUIContent("y"));
                     EditorGUI.indentLevel -= 1;
                     var sIslandSelectorRange = thisSObject.FindProperty("IslandSelectorRange");
-                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, sIslandSelectorRange.name.GetLC());
+                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, sIslandSelectorRange.name.Glc());
                     EditorGUI.indentLevel -= 1;
                 }
 
                 var sUseDepth = thisSObject.FindProperty("UseDepth");
                 var sDepthInvert = thisSObject.FindProperty("DepthInvert");
-                EditorGUILayout.PropertyField(sUseDepth, sUseDepth.name.GetLC());
-                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, sDepthInvert.name.GetLC()); }
+                EditorGUILayout.PropertyField(sUseDepth, sUseDepth.name.Glc());
+                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, sDepthInvert.name.Glc()); }
 
 
                 EditorGUI.indentLevel += 1;
@@ -114,7 +114,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 TextureTransformerEditor.DrawerPropertyFloat(
                     sLocalScale.FindPropertyRelative("x"),
-                    "Scale".GetLC(),
+                    "Scale".Glc(),
                     editCollBack
                 );
             }
@@ -129,9 +129,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.EndHorizontal();
             }
 
-            TextureTransformerEditor.DrawerPropertyBool(sFixedAspect, sFixedAspect.displayName.GetLC(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
+            TextureTransformerEditor.DrawerPropertyBool(sFixedAspect, sFixedAspect.displayName.Glc(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
 
-            EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("z"), "MaxDistance".GetLC());
+            EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("z"), "MaxDistance".Glc());
 
             EditorGUI.indentLevel -= 1;
         }
@@ -144,7 +144,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
 
             var sDecalTexture = sObj.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, sDecalTexture.name.GetLC());
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, sDecalTexture.name.Glc());
 
             sObj.ApplyModifiedProperties();
         }

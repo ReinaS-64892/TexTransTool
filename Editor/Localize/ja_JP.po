@@ -1,0 +1,218 @@
+msgid ""
+msgstr ""
+"Language: ja-JP\n"
+
+
+#  Commons
+
+msgid "Common:Preview"
+msgstr "プレビュー"
+
+msgid "Common:ExitPreview"
+msgstr "プレビュー終了"
+
+msgid "Common:TextureSetting"
+msgstr "テクスチャー設定"
+
+msgid "Common:TargetRenderer"
+msgstr "ターゲットレンダラー"
+
+msgid "Common:TargetRenderers"
+msgstr "ターゲットレンダラーズ"
+
+msgid "Common:Material"
+msgstr "マテリアル"
+
+msgid "Common:Color"
+msgstr "カラー"
+
+#  AtlasTexture
+
+msgid "AtlasTexture:error:TTTNotExecutable"
+msgstr "AtlasTexture は実行不可能な状態です。"
+
+msgid "AtlasTexture:error:TTTNotExecutable:hint"
+msgstr "ターゲットルートやマテリアルの選択を見直してください。"
+
+
+msgid "AtlasTexture:prop:TargetRoot"
+msgstr "ターゲットルート"
+
+msgid "AtlasTexture:prop:TargetRoot:tooltip"
+msgstr "アトラス化されるレンダラーの最大範囲"
+
+msgid "AtlasTexture:button:RefreshMaterials"
+msgstr "リフレッシュマテリアル"
+
+msgid "AtlasTexture:label:TSM-Header"
+msgstr "対象    (スケールオフセット)    マテリアル"
+
+msgid "AtlasTexture:label:TSM-Header:tooltip"
+msgstr "アトラス化対象か否か  (テクスチャのスケールオフセット)  マテリアル"
+
+
+msgid "AtlasTexture:label:AtlasSettings"
+msgstr "アトラス化設定"
+
+msgid "AtlasTexture:prop:AtlasTextureSize"
+msgstr "アトラステクスチャーサイズ"
+
+msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
+msgstr "アトラス化したテクスチャーの大きさ、正方形になります。"
+
+msgid "AtlasTexture:prop:MaterialMarge"
+msgstr "マテリアルの結合"
+
+msgid "AtlasTexture:prop:MaterialMarge:tooltip"
+msgstr "アトラス化を適用するときにマテリアルを強制的に結合、見た目を維持できない可能性が高いので注意"
+
+msgid "AtlasTexture:prop:PropertyBakeSetting"
+msgstr "プロパティベイク設定"
+
+msgid "AtlasTexture:prop:PropertyBakeSetting:tooltip"
+msgstr "マテリアル結合時に、マテリアルのプロパティの一部をテクスチャに焼きこむ機能"
+
+msgid "AtlasTexture:prop:MergeReferenceMaterial"
+msgstr "結合時マテリアルの参照"
+
+msgid "AtlasTexture:prop:MergeReferenceMaterial:tooltip"
+msgstr "何も設定されていない場合、アトラス化対象のマテリアルの不定などれか一つが使用されます。"
+
+msgid "AtlasTexture:prop:ForceSetTexture"
+msgstr "テクスチャーを強制的にセット"
+
+msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
+msgstr "アトラス化したテクスチャーをマテリアルに割り当てるとき、マテリアルにテクスチャーが存在しなくても割り当てを行う機能"
+
+msgid "AtlasTexture:prop:Padding"
+msgstr "パディング"
+
+msgid "AtlasTexture:prop:Padding:tooltip"
+msgstr "アイランドを並び替えるときに、アイランド同士の間隔を指定する設定"
+
+msgid "AtlasTexture:prop:IslandSorterName"
+msgstr "アイランドソーターネーム"
+
+msgid "AtlasTexture:prop:IslandSorterName:tooltip"
+msgstr "アイランドを再配置し、並び替えるアルゴリズムの名前、編集不可"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
+msgstr "(実験的機能) 元のUVを書き込む"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "UV1にアトラス化する前のUVを書き込む機能"
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer"
+msgstr "適用時に非アクティブなレンダラーを含める"
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
+msgstr "アトラス化を適用するときに、非アクティブなGameObjectに付いているレンダラーを含めるオプション"
+
+msgid "AtlasTexture:prop:UseUpScaling"
+msgstr "アップスケーリングを許可"
+
+msgid "AtlasTexture:prop:UseUpScaling:tooltip"
+msgstr "アイランドを再配置する時、アイランドのサイズを拡大するのを許可する設定"
+
+msgid "AtlasTexture:prop:TextureFineTuning"
+msgstr "テクスチャー詳細設定"
+
+msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
+msgstr "アトラス化したテクスチャーに様々な設定をするための項目"
+
+msgid "TextureFineTuning:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "TextureFineTuning:prop:Select"
+msgstr "選択"
+
+msgid "TextureFineTuning:prop:Select:tooltip"
+msgstr "プロパティをどのように選択するか"
+
+msgid "TextureFineTuning:prop:Resize"
+msgstr "リサイズ"
+
+msgid "TextureFineTuning:prop:Resize:tooltip"
+msgstr "アトラス化したテクスチャーのサイズを調整する設定"
+
+msgid "TextureFineTuning:prop:Resize:Size"
+msgstr "サイズ"
+
+msgid "TextureFineTuning:prop:Resize:Size:tooltip"
+msgstr "テクスチャーのサイズ"
+
+
+msgid "TextureFineTuning:prop:Compress"
+msgstr "圧縮"
+
+msgid "TextureFineTuning:prop:Compress:tooltip"
+msgstr "テクスチャーのVRAM圧縮を調整する設定"
+
+msgid "TextureFineTuning:prop:FormatQuality"
+msgstr "フォーマットクオリティ"
+
+msgid "TextureFineTuning:prop:FormatQuality:tooltip"
+msgstr "フォーマットクオリティとして大まかな指定方法でフォーマットを指定する"
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat"
+msgstr "フォーマットをオーバーライド"
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat:tooltip"
+msgstr "詳細なフォーマットを指定し、オーバーライドする"
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat"
+msgstr "オーバーライドフォーマット"
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat:tooltip"
+msgstr "詳細なフォーマットの指定"
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices"
+msgstr "シンプルフォーマット選択"
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices:tooltip"
+msgstr "詳細なフォーマットの指定でも、よく使うようなフォーマットを列挙し選択できる項目"
+
+msgid "TextureFineTuning:prop:CompressionQuality"
+msgstr "圧縮品質"
+
+msgid "TextureFineTuning:prop:CompressionQuality:tooltip"
+msgstr "オーバーライドしたフォーマットがクランチ圧縮の物の場合、クランチ圧縮の品質を指定する設定"
+
+msgid "TextureFineTuning:prop:ReferenceCopy"
+msgstr "参照コピー"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:tooltip"
+msgstr "AtlasTextureが生成したテクスチャをプロパティ間でコピーする設定"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName"
+msgstr "ソースプロパティネーム"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName:tooltip"
+msgstr "コピーする元"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName:tooltip"
+msgstr "コピーする先"
+
+msgid "TextureFineTuning:prop:Remove"
+msgstr "削除"
+
+msgid "TextureFineTuning:prop:Remove:tooltip"
+msgstr "指定したテクスチャをマテリアルに割り当てなくする設定"
+
+msgid "TextureFineTuning:prop:MipMapRemove"
+msgstr "ミップマップ削除"
+
+msgid "TextureFineTuning:prop:MipMapRemove:tooltip"
+msgstr "指定したテクスチャのMipMapを削除する設定"
+
+msgid "TextureFineTuning:prop:ColorSpace"
+msgstr "色空間"
+
+msgid "TextureFineTuning:prop:ColorSpace:tooltip"
+msgstr "指定したテクスチャの色空間を指定する設定"
+
+msgid "TextureFineTuning:prop:Linear"
+msgstr "リニア"

@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.Editor
                 sRendererList.arraySize = 1;
                 var sArrayElement = sRendererList.GetArrayElementAtIndex(0);
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sArrayElement, "TargetRenderer".GetLC());
+                EditorGUILayout.PropertyField(sArrayElement, "TargetRenderer".Glc());
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor
             else
             {
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sRendererList, "TargetRenderer".GetLC());
+                EditorGUILayout.PropertyField(sRendererList, "TargetRenderer".Glc());
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             var Value = prop.objectReferenceValue as Texture2D;
             if (Value != null) { EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(PreviewTextureSize)), Value, ScaleMode.ScaleToFit); }
-            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.GetLC());
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.Glc());
             if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
             {
                 prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as Texture2D);
@@ -105,7 +105,7 @@ namespace net.rs64.TexTransTool.Editor
         public static void DrawerObjectReference<T>(SerializedProperty prop, GUIContent gUIContent = null, Filter<T> editAndFilterCollBack = null) where T : UnityEngine.Object
         {
             var Value = prop.objectReferenceValue as T;
-            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.name.GetLC());
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.name.Glc());
             if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
             {
                 prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as T);
@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool.Editor
             if (sTargetRenderers.arraySize == 1)
             {
                 var srd = sTargetRenderers.GetArrayElementAtIndex(0);
-                EditorGUILayout.PropertyField(srd, "TargetRenderer".GetLC());
+                EditorGUILayout.PropertyField(srd, "TargetRenderer".Glc());
             }
             else
             {

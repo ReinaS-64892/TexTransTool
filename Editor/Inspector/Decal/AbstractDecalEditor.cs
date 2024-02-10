@@ -31,16 +31,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
             var sDecalTexture = thisSObject.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "DecalTexture".GetLC());
+            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "DecalTexture".Glc());
 
             var sColor = thisSObject.FindProperty("Color");
             EditorGUILayout.PropertyField(sColor, new GUIContent("Color".GetLocalize()));
 
             var sBlendType = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendType, "BlendTypeKey".GetLC());
+            EditorGUILayout.PropertyField(sBlendType, "BlendTypeKey".Glc());
 
             var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(sTargetPropertyName, "TargetPropertyName".GetLC());
+            EditorGUILayout.PropertyField(sTargetPropertyName, "TargetPropertyName".Glc());
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerRealTimePreviewEditor(AbstractDecal target)
@@ -98,7 +98,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.PropertyField(sHighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
 
                 var sPadding = sObject.FindProperty("Padding");
-                EditorGUILayout.PropertyField(sPadding, "Padding".GetLC());
+                EditorGUILayout.PropertyField(sPadding, "Padding".Glc());
 
                 EditorGUI.indentLevel -= 1;
             }

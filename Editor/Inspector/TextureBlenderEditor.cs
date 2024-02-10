@@ -18,13 +18,13 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"));
 
             var sBlendTexture = thisSObject.FindProperty("BlendTexture");
-            TextureTransformerEditor.DrawerTexture2D(sBlendTexture, sBlendTexture.name.GetLC());
+            TextureTransformerEditor.DrawerTexture2D(sBlendTexture, sBlendTexture.name.Glc());
 
             var sColor = thisSObject.FindProperty("Color");
-            EditorGUILayout.PropertyField(sColor, sColor.name.GetLC());
+            EditorGUILayout.PropertyField(sColor, sColor.name.Glc());
 
             var sBlendTypeKey = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendTypeKey, sBlendTypeKey.name.GetLC());
+            EditorGUILayout.PropertyField(sBlendTypeKey, sBlendTypeKey.name.Glc());
 
             EditorGUI.EndDisabledGroup();
 
