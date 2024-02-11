@@ -29,14 +29,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 tf_sObg.ApplyModifiedProperties();
             }
 
-            EditorGUILayout.LabelField("CullingSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("SimpleDecal:label:CullingSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
             var sPolygonCulling = thisSObject.FindProperty("PolygonCulling");
-            EditorGUILayout.PropertyField(sPolygonCulling, sPolygonCulling.name.Glc());
+            EditorGUILayout.PropertyField(sPolygonCulling, "SimpleDecal:prop:PolygonCulling".Glc());
 
             var sSideCulling = thisSObject.FindProperty("SideCulling");
-            EditorGUILayout.PropertyField(sSideCulling, sSideCulling.name.Glc());
+            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:SideCulling".Glc());
 
 
             EditorGUI.indentLevel -= 1;
@@ -44,16 +44,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
             AbstractDecalEditor.DrawerAdvancedOption(thisSObject);
 
 
-            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Experimental Future".GetLocalize());
+            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
                 var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                EditorGUILayout.PropertyField(sIslandCulling, sIslandCulling.name.Glc());
+                EditorGUILayout.PropertyField(sIslandCulling, "SimpleDecal:prop:ExperimentalFuture:IslandCulling".Glc());
                 if (sIslandCulling.boolValue)
                 {
                     var sIslandSelectorPos = thisSObject.FindProperty("IslandSelectorPos");
                     EditorGUI.indentLevel += 1;
-                    EditorGUILayout.LabelField(sIslandSelectorPos.name.GetLocalize());
+                    EditorGUILayout.LabelField("SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos".Glc());
                     EditorGUI.indentLevel += 1;
                     var sIslandSelectorPosX = sIslandSelectorPos.FindPropertyRelative("x");
                     var sIslandSelectorPosY = sIslandSelectorPos.FindPropertyRelative("y");
@@ -61,14 +61,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     EditorGUILayout.Slider(sIslandSelectorPosY, 0, 1, new GUIContent("y"));
                     EditorGUI.indentLevel -= 1;
                     var sIslandSelectorRange = thisSObject.FindProperty("IslandSelectorRange");
-                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, sIslandSelectorRange.name.Glc());
+                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange".Glc());
                     EditorGUI.indentLevel -= 1;
                 }
 
                 var sUseDepth = thisSObject.FindProperty("UseDepth");
                 var sDepthInvert = thisSObject.FindProperty("DepthInvert");
-                EditorGUILayout.PropertyField(sUseDepth, sUseDepth.name.Glc());
-                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, sDepthInvert.name.Glc()); }
+                EditorGUILayout.PropertyField(sUseDepth, "SimpleDecal:prop:ExperimentalFuture:UseDepth".Glc());
+                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, "SimpleDecal:prop:ExperimentalFuture:DepthInvert".Glc()); }
 
 
                 EditorGUI.indentLevel += 1;
@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         public static void DrawerScale(SerializedObject thisSObject, SerializedObject tf_sObg, Texture2D decalTexture)
         {
-            EditorGUILayout.LabelField("ScaleSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("SimpleDecal:label:ScaleSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
             var sLocalScale = tf_sObg.FindProperty("m_LocalScale");
@@ -114,14 +114,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 TextureTransformerEditor.DrawerPropertyFloat(
                     sLocalScale.FindPropertyRelative("x"),
-                    "Scale".Glc(),
+                    "SimpleDecal:prop:Scale".Glc(),
                     editCollBack
                 );
             }
             else
             {
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Scale".GetLocalize(), GUILayout.Width(60));
+                EditorGUILayout.LabelField("SimpleDecal:prop:Scale".Glc(), GUILayout.Width(60));
                 EditorGUILayout.LabelField("x", GUILayout.Width(30));
                 EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("x"), GUIContent.none);
                 EditorGUILayout.LabelField("y", GUILayout.Width(30));
@@ -129,9 +129,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.EndHorizontal();
             }
 
-            TextureTransformerEditor.DrawerPropertyBool(sFixedAspect, sFixedAspect.displayName.Glc(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
+            TextureTransformerEditor.DrawerPropertyBool(sFixedAspect, "SimpleDecal:prop:FixedAspect".Glc(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
 
-            EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("z"), "MaxDistance".Glc());
+            EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("z"), "SimpleDecal:prop:MaxDistance".Glc());
 
             EditorGUI.indentLevel -= 1;
         }
@@ -141,10 +141,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sObj = new SerializedObject(target);
 
             var sTargetRenderers = sObj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc());
 
             var sDecalTexture = sObj.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, sDecalTexture.name.Glc());
+            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
 
             sObj.ApplyModifiedProperties();
         }

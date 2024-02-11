@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
             EditorGUILayout.PropertyField(sMultiRendererMode, sMultiRendererMode.name.Glc());
 
             var sBlendType = thisSObject.FindProperty("BlendType");
@@ -161,7 +161,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sTargetAvatar = sObj.FindProperty("TargetAvatar");
             EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.Glc());
             var sTargetRenderers = sObj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers, sTargetRenderers.name.Glc());
 
             sObj.ApplyModifiedProperties();
         }

@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve
         {
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
 
             var sIsUseStartAndEnd = thisSObject.FindProperty("UseFirstAndEnd");
             EditorGUILayout.PropertyField(sIsUseStartAndEnd);

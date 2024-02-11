@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawerWarning(string typeName)
         {
-            EditorGUILayout.HelpBox(typeName + "is an experimental feature. Features may be changed or removed without notice.".GetLocalize(), MessageType.Warning);
+            EditorGUILayout.HelpBox(typeName + " " + "Common:ExperimentalWarning".GetLocalize(), MessageType.Warning);
         }
         public static Renderer RendererFiltering(Renderer targetRendererEditValue)
         {
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void DrawerRenderer(SerializedProperty sRendererList, bool multiRendererMode)
+        public static void DrawerRenderer(SerializedProperty sRendererList, GUIContent label, bool multiRendererMode)
         {
 
             if (!multiRendererMode)
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.Editor
                 sRendererList.arraySize = 1;
                 var sArrayElement = sRendererList.GetArrayElementAtIndex(0);
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sArrayElement, "TargetRenderer".Glc());
+                EditorGUILayout.PropertyField(sArrayElement, label);
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor
             else
             {
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sRendererList, "TargetRenderer".Glc());
+                EditorGUILayout.PropertyField(sRendererList, label);
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -114,16 +114,16 @@ namespace net.rs64.TexTransTool.Editor
 
         #endregion
 
-        public static void DrawerTargetRenderersSummary(SerializedProperty sTargetRenderers)
+        public static void DrawerTargetRenderersSummary(SerializedProperty sTargetRenderers, GUIContent gUIContent)
         {
             if (sTargetRenderers.arraySize == 1)
             {
                 var srd = sTargetRenderers.GetArrayElementAtIndex(0);
-                EditorGUILayout.PropertyField(srd, "TargetRenderer".Glc());
+                EditorGUILayout.PropertyField(srd, gUIContent);
             }
             else
             {
-                EditorGUILayout.LabelField("TargetRenderer".GetLocalize());
+                EditorGUILayout.LabelField(gUIContent);
                 for (var i = 0; sTargetRenderers.arraySize > i; i += 1)
                 {
                     var srd = sTargetRenderers.GetArrayElementAtIndex(i);

@@ -11,20 +11,17 @@ msgstr "プレビュー"
 msgid "Common:ExitPreview"
 msgstr "プレビュー終了"
 
-msgid "Common:TextureSetting"
-msgstr "テクスチャー設定"
+msgid "Common:PreviewNotAvailable"
+msgstr "(他かアニメーションのプレビュー中)"
 
-msgid "Common:TargetRenderer"
-msgstr "ターゲットレンダラー"
+msgid "Common:OverridePreviewThis"
+msgstr "他のプレビューを中断してこれをプレビューする"
 
-msgid "Common:TargetRenderers"
-msgstr "ターゲットレンダラーズ"
+msgid "Common:ExperimentalFuture"
+msgstr "実験的機能"
 
-msgid "Common:Material"
-msgstr "マテリアル"
-
-msgid "Common:Color"
-msgstr "カラー"
+msgid "Common:ExperimentalWarning"
+msgstr "は実験的な機能です。予告なく機能変更や削除がされる可能性があります。"
 
 #  AtlasTexture
 
@@ -216,3 +213,159 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
+
+#  CommonDecal
+
+msgid "CommonDecal:label:RenderersSettings"
+msgstr "レンダラー設定"
+
+msgstr "ターゲットレンダラー"
+msgid "CommonDecal:prop:TargetRenderer"
+
+msgid "CommonDecal:prop:TargetRenderer:tooltip"
+msgstr "デカールが張られるレンダラーを設定する項目"
+
+msgid "CommonDecal:prop:MultiRendererMode"
+msgstr "マルチレンダラーモード"
+
+msgid "CommonDecal:prop:MultiRendererMode:tooltip"
+msgstr "複数のレンダラーにまたがってデカールを貼ることができるモード"
+
+msgid "CommonDecal:label:TextureSettings"
+msgstr "テクスチャー設定"
+
+msgid "CommonDecal:prop:DecalTexture"
+msgstr "デカールテクスチャー"
+
+msgid "CommonDecal:prop:DecalTexture:tooltip"
+msgstr "デカールで貼られるテクスチャを指定する項目"
+
+msgid "CommonDecal:prop:Color"
+msgstr "カラー"
+
+msgid "CommonDecal:prop:Color:tooltip"
+msgstr "デカールテクスチャーに対して貼られるときに乗算される色"
+
+msgid "CommonDecal:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+msgid "CommonDecal:prop:BlendTypeKey:tooltip"
+msgstr "貼り付ける先のテクスチャーと合成するときの色合成の指定"
+
+msgid "CommonDecal:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "CommonDecal:prop:TargetPropertyName:tooltip"
+msgstr "貼り付ける先のテクスチャーがマテリアルのどのプロパティか指定する項目"
+
+msgid "CommonDecal:label:AdvancedOption"
+msgstr "詳細設定"
+
+msgid "CommonDecal:prop:HighQualityPadding"
+msgstr "高品質なパディング"
+
+msgid "CommonDecal:prop:HighQualityPadding:tooltip"
+msgstr "ギザギザしない高品質なパディングを生成する機能 (高負荷)"
+
+msgid "CommonDecal:prop:Padding"
+msgstr "パディング"
+
+msgid "CommonDecal:prop:Padding:tooltip"
+msgstr "パディングの生成する幅の設定"
+
+#  SimpleDecal
+
+msgid "SimpleDecal:label:ScaleSettings"
+msgstr "スケール設定"
+
+msgid "SimpleDecal:prop:Scale"
+msgstr "スケール"
+
+msgid "SimpleDecal:prop:Scale:tooltip"
+msgstr "デカールのサイズ、Xは横、Yは縦"
+
+msgid "SimpleDecal:prop:FixedAspect"
+msgstr "アスペクト比固定"
+
+msgid "SimpleDecal:prop:FixedAspect:tooltip"
+msgstr "デカールのサイズの縦をテクスチャの比率と対応するように調整する設定"
+
+msgid "SimpleDecal:prop:MaxDistance"
+msgstr "最大距離"
+
+msgid "SimpleDecal:prop:MaxDistance:tooltip"
+msgstr "デカールが張られる最大の距離"
+
+msgid "SimpleDecal:label:CullingSettings"
+msgstr "カリング設定"
+
+msgid "SimpleDecal:prop:PolygonCulling"
+msgstr "ポリゴンカリング"
+
+msgid "SimpleDecal:prop:PolygonCulling:tooltip"
+msgstr "ポリゴンのカリングをどの基準で行うかの設定"
+
+msgid "SimpleDecal:prop:SideCulling"
+msgstr "サイドカリング"
+
+msgid "SimpleDecal:prop:SideCulling:tooltip"
+msgstr "ポリゴンがデカールから見て裏面のポリゴンにデカールを貼らない設定"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling"
+msgstr "アイランドカリング"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling:tooltip"
+msgstr "UVのまとまりの範囲でデカールをカリングする機能"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos"
+msgstr "アイランドセレクターの位置"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos:tooltip"
+msgstr "Xが横、Yが縦でアイランドセレクターの位置を調整する設定"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange"
+msgstr "アイランドセレクターの最大距離"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange:tooltip"
+msgstr "アイランドセレクターの最大距離の設定"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
+msgstr "深度デカール"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth:tooltip"
+msgstr "深度を用いて、デカールのカリングをする機能"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert"
+msgstr "深度反転"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert:tooltip"
+msgstr "「一番手前だけ」を「一番手前ではない場所すべて」に反転する設定"
+
+msgid "SimpleDecal:button:RealTimePreview"
+msgstr "リアルタイムプレビュー"
+
+msgid "SimpleDecal:button:RealTimePreview:tooltip"
+msgstr "リアルタイムにデカールのプレビューが行える機能、複数同時にプレビューが行える。"
+
+msgid "SimpleDecal:button:ExitRealTimePreview"
+msgstr "プレビュー終了"
+
+msgid "SimpleDecal:button:AllExit"
+msgstr "AllExit"
+
+msgid "SimpleDecal:button:AllExit:tooltip"
+msgstr "すべてのリアルタイムプレビュー中のデカールのプレビューを終了する。"
+
+# TexTransGroup
+
+msgid "TexTransGroup:label:DuringPreviewNoSummary"
+msgstr "プレビュー中の概要表示はできません。"
+
+msgid "TexTransGroup:prop:GOEnable"
+msgstr "有効"
+
+msgid "TexTransGroup:label:SummaryNone"
+msgstr "概要がありません"
+
+msgid "TexTransGroup:label:GroupChildren"
+msgstr "グループの子"

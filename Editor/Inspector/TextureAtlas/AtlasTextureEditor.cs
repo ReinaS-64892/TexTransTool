@@ -343,9 +343,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             var sObj = new SerializedObject(target);
             var sTargetRenderers = sObj.FindProperty("TargetRoot");
-            EditorGUILayout.PropertyField(sTargetRenderers, sTargetRenderers.name.Glc());
+            EditorGUILayout.PropertyField(sTargetRenderers, "AtlasTexture:prop:TargetRoot".Glc());
             var sAtlasTextureSize = sObj.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
-            EditorGUILayout.PropertyField(sAtlasTextureSize, sAtlasTextureSize.name.Glc());
+            EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
             sObj.ApplyModifiedProperties();
         }
     }
