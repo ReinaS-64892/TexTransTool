@@ -26,7 +26,7 @@ msgstr "is an experimental feature. Features may be changed or removed without n
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
-msgstr "AtlasTexture is not executable"
+msgstr "AtlasTexture is not executable."
 
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
@@ -274,6 +274,12 @@ msgid "CommonDecal:prop:Padding:tooltip"
 msgstr "Setting width for padding generate."
 
 #  SimpleDecal
+
+msgid "SimpleDecal:error:TTTNotExecutable"
+msgstr "AtlasTexture is not executable."
+
+msgid "SimpleDecal:error:TTTNotExecutable:hint"
+msgstr "Please review target renderers exist."
 
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "ScaleSettings"

@@ -275,6 +275,12 @@ msgstr "パディングの生成する幅の設定"
 
 #  SimpleDecal
 
+msgid "SimpleDecal:error:TTTNotExecutable"
+msgstr "SimpleDecal は実行不可能な状態です。"
+
+msgid "SimpleDecal:error:TTTNotExecutable:hint"
+msgstr "ターゲットレンダラーが存在しているか確認してください。"
+
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "スケール設定"
 
