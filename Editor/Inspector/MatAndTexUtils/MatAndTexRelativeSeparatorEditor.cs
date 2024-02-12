@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
             EditorGUILayout.PropertyField(sMultiRendererMode);
 
             var sSeparateTarget = thisSObject.FindProperty("SeparateTarget");
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
         {
             var sObj = new SerializedObject(target);
             var sTargetRenderers = sObj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers, sTargetRenderers.name.Glc());
             sObj.ApplyModifiedProperties();
         }
     }

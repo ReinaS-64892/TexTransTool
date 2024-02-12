@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - プレビューを再度実行できるメニューアイテム & ショートカット(Shift + R)が追加 (#357)
+- ローカライズの仕組みが改修され (#360)
+  - AtlasTexture と SimpleDecal が正しく実行不可のエラーを NDMF のエラーレポートに出力するようになりました。
+  - ほとんどのプロパティにツールチップが追加されました。
 
 ### Changed
 

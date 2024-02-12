@@ -41,7 +41,11 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply(IDomain domain)
         {
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
+            if (!IsPossibleApply)
+            {
+                TTTRuntimeLog.Error(GetType().Name + ":error:TTTNotExecutable");
+                return;
+            }
 
             domain.ProgressStateEnter("AbstractDecal");
 

@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
         {
             var ttg = texTransCallEditorBehavior as TexTransGroup;
 
-            if (!ttg.IsPossibleApply) { TTTLog.Fatal("Not executable"); return; }
+            if (!ttg.IsPossibleApply) { TTTLog.Error("Not executable"); return; }
             editorCallDomain.ProgressStateEnter("TexTransGroup");
 
             var targetList = TexTransGroup.TextureTransformerFilter(ttg.Targets).ToArray();

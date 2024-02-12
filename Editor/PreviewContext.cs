@@ -33,33 +33,33 @@ namespace net.rs64.TexTransTool
         public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
 
-        private void DrawApplyAndRevert<T>(T target, string previewMessage, Action<T> apply)
+        private void DrawApplyAndRevert<T>(T target, Action<T> apply)
             where T : Object
         {
             if (target == null) return;
             if (previweing == null && AnimationMode.InAnimationMode())
             {
                 EditorGUI.BeginDisabledGroup(true);
-                GUILayout.Button("(Other Previewing Or Previewing Animation)".GetLocalize());
+                GUILayout.Button("Common:PreviewNotAvailable".Glc());
                 EditorGUI.EndDisabledGroup();
             }
             else if (previweing == null)
             {
-                if (GUILayout.Button(previewMessage))
+                if (GUILayout.Button("Common:Preview".Glc()))
                 {
                     StartPreview(target, apply);
                 }
             }
             else if (previweing == target)
             {
-                if (GUILayout.Button("Revert".GetLocalize()))
+                if (GUILayout.Button("Common:ExitPreview".Glc()))
                 {
                     ExitPreview();
                 }
             }
             else
             {
-                if (GUILayout.Button("Other Previewing. Override Preview this".GetLocalize()))
+                if (GUILayout.Button("Common:OverridePreviewThis".Glc()))
                 {
                     ExitPreview();
                     StartPreview(target, apply);
@@ -68,7 +68,7 @@ namespace net.rs64.TexTransTool
         }
         public void DrawApplyAndRevert(TexTransBehavior target)
         {
-            DrawApplyAndRevert(target, "Preview".GetLocalize(), TexTransBehaviorApply);
+            DrawApplyAndRevert(target, TexTransBehaviorApply);
         }
 
         void StartPreview<T>(T target, Action<T> applyAction) where T : Object

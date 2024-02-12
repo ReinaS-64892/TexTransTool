@@ -25,6 +25,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var thisTarget = target as AtlasTexture;
             var thisSObject = serializedObject;
+            thisSObject.Update();
 
 #pragma warning disable CS0612
             if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
@@ -51,7 +52,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sSelectReferenceMatList = thisSObject.FindProperty("SelectReferenceMat");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
 
-            TextureTransformerEditor.DrawerObjectReference<GameObject>(sTargetRoot, "TargetRoot".GetLC(), newRoot =>
+            TextureTransformerEditor.DrawerObjectReference<GameObject>(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc(), newRoot =>
             {
                 Undo.RecordObject(thisTarget, "AtlasTexture - TargetRoot");
                 RefreshMaterials(thisTarget, sTargetRoot, newRoot);
@@ -60,7 +61,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             });
             if (sTargetRoot.objectReferenceValue != null)
             {
-                if (GUILayout.Button("RefreshMaterials".GetLocalize()))
+                if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()))
                 {
                     Undo.RecordObject(thisTarget, "AtlasTexture - SetTargetRoot");
                     RefreshMaterials(thisTarget, sTargetRoot, thisTarget.TargetRoot);
@@ -87,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private static void DrawAtlasSettings(SerializedProperty sAtlasSettings)
         {
-            EditorGUILayout.LabelField("AtlasSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
 
@@ -105,20 +106,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
 
-            EditorGUILayout.PropertyField(sAtlasTextureSize, new GUIContent("AtlasTextureSize".GetLocalize()));
-            EditorGUILayout.PropertyField(sMergeMaterials, new GUIContent("MergeMaterials".GetLocalize()));
+            EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
+            EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMarge".Glc());
             if (sMergeMaterials.boolValue)
             {
-                EditorGUILayout.PropertyField(sPropertyBakeSetting, new GUIContent("PropertyBakeSetting".GetLocalize()));
-                EditorGUILayout.PropertyField(sMergeReferenceMaterial, new GUIContent("MergeReferenceMaterial".GetLocalize()));
+                EditorGUILayout.PropertyField(sPropertyBakeSetting, "AtlasTexture:prop:PropertyBakeSetting".Glc());
+                EditorGUILayout.PropertyField(sMergeReferenceMaterial, "AtlasTexture:prop:MergeReferenceMaterial".Glc());
             }
-            EditorGUILayout.PropertyField(sForceSetTexture, new GUIContent("ForceSetTexture".GetLocalize()));
-            EditorGUILayout.PropertyField(sPadding, new GUIContent("Padding".GetLocalize()));
-            EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, new GUIContent("IslandSorterName".GetLocalize())); EditorGUI.EndDisabledGroup();
-            EditorGUILayout.PropertyField(sWriteOriginalUV, new GUIContent("(" + "Experimental Future".GetLocalize() + ")" + "WriteOriginalUV".GetLocalize()));
-            EditorGUILayout.PropertyField(sIncludeDisabledRenderer, sIncludeDisabledRenderer.name.GetLC());
-            EditorGUILayout.PropertyField(sUseUpScaling, sUseUpScaling.name.GetLC());
-            EditorGUILayout.PropertyField(sTextureFineTuningDataList, "TextureFineTuning".GetLC());
+            EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".Glc());
+            EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
+            EditorGUI.BeginDisabledGroup(true); EditorGUILayout.PropertyField(sSorterName, "AtlasTexture:prop:IslandSorterName".Glc()); EditorGUI.EndDisabledGroup();
+            EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
+            EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
+            EditorGUILayout.PropertyField(sUseUpScaling, "AtlasTexture:prop:UseUpScaling".Glc());
+            EditorGUILayout.PropertyField(sTextureFineTuningDataList, "AtlasTexture:prop:TextureFineTuning".Glc());
 
 
             EditorGUI.indentLevel -= 1;
@@ -134,7 +135,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 var sFineTuningData = property;
                 var sSelect = sFineTuningData.FindPropertyRelative("Select");
                 position.height = 18f;
-                EditorGUI.PropertyField(position, sSelect, new GUIContent(sSelect.enumNames[sSelect.enumValueIndex].GetLocalize()));
+                EditorGUI.PropertyField(position, sSelect, ("TextureFineTuning:prop:" + sSelect.enumNames[sSelect.enumValueIndex]).Glc());
                 position.y += 18;
                 switch (sSelect.enumValueIndex)
                 {
@@ -149,11 +150,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             var sResize_Size = sFineTuningData.FindPropertyRelative("Resize_Size");
                             var sResize_PropertyNames = sFineTuningData.FindPropertyRelative("Resize_PropertyNames");
                             var sResize_select = sFineTuningData.FindPropertyRelative("Resize_Select");
-                            EditorGUI.PropertyField(position, sResize_Size, new GUIContent("Size".GetLocalize()));
+                            EditorGUI.PropertyField(position, sResize_Size, "TextureFineTuning:prop:Resize:Size".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sResize_PropertyNames, "TargetPropertyName".GetLC());
+                            EditorGUI.PropertyField(position, sResize_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sResize_select, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.PropertyField(position, sResize_select, "TextureFineTuning:prop:Select".Glc());
                             position.y += 18;
                             break;
                         }
@@ -167,27 +168,27 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             var sCompressSelect = sFineTuningData.FindPropertyRelative("Compress_Select");
                             if (!sUseOverride.boolValue)
                             {
-                                EditorGUI.PropertyField(position, sCompressFormatQuality, new GUIContent("FormatQuality".GetLocalize()));
+                                EditorGUI.PropertyField(position, sCompressFormatQuality, "TextureFineTuning:prop:FormatQuality".Glc());
                                 position.y += 18;
                             }
                             else
                             {
                                 var nowChoicer = SimpleFormatChoices[EditorUserBuildSettings.activeBuildTarget];
                                 var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);//なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
-                                var postIndex = EditorGUI.Popup(position, "SimpleFormatChoices".GetLocalize(), preIndex, nowChoicer.displayName);
+                                var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GetLocalize(), preIndex, nowChoicer.displayName);
                                 if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
                                 position.y += 18;
 
-                                EditorGUI.PropertyField(position, sOverrideTextureFormat, new GUIContent("OverrideTextureFormat".GetLocalize()));
+                                EditorGUI.PropertyField(position, sOverrideTextureFormat, "TextureFineTuning:prop:OverrideTextureFormat".Glc());
                                 position.y += 18;
-                                EditorGUI.PropertyField(position, sCompressCompressionQuality, new GUIContent("CompressionQuality".GetLocalize()));
+                                EditorGUI.PropertyField(position, sCompressCompressionQuality, "TextureFineTuning:prop:CompressionQuality".Glc());
                                 position.y += 18;
                             }
-                            EditorGUI.PropertyField(position, sUseOverride, new GUIContent("UseOverrideTextureFormat".GetLocalize()));
+                            EditorGUI.PropertyField(position, sUseOverride, "TextureFineTuning:prop:UseOverrideTextureFormat".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sCompressPropertyNames, "TargetPropertyName".GetLC());
+                            EditorGUI.PropertyField(position, sCompressPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sCompressSelect, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.PropertyField(position, sCompressSelect, "TextureFineTuning:prop:Select".Glc());
                             position.y += 18;
                             break;
                         }
@@ -195,9 +196,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         {
                             var sReferenceCopy_SousePropertyName = sFineTuningData.FindPropertyRelative("ReferenceCopy_SourcePropertyName");
                             var sReferenceCopy_TargetPropertyName = sFineTuningData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
-                            EditorGUI.PropertyField(position, sReferenceCopy_SousePropertyName, new GUIContent("Source".GetLocalize() + "PropertyName".GetLocalize()));
+                            EditorGUI.PropertyField(position, sReferenceCopy_SousePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sReferenceCopy_TargetPropertyName, new GUIContent("Target".GetLocalize() + "PropertyName".GetLocalize()));
+                            EditorGUI.PropertyField(position, sReferenceCopy_TargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".Glc());
                             position.y += 18;
                             break;
                         }
@@ -205,9 +206,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         {
                             var sRemove_PropertyNames = sFineTuningData.FindPropertyRelative("Remove_PropertyNames");
                             var sRemove_Select = sFineTuningData.FindPropertyRelative("Remove_Select");
-                            EditorGUI.PropertyField(position, sRemove_PropertyNames, "TargetPropertyName".GetLC());
+                            EditorGUI.PropertyField(position, sRemove_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sRemove_Select, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.PropertyField(position, sRemove_Select, "TextureFineTuning:prop:Select".Glc());
                             position.y += 18;
                             break;
                         }
@@ -215,9 +216,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         {
                             var sMipMapRemove_PropertyNames = sFineTuningData.FindPropertyRelative("MipMapRemove_PropertyNames");
                             var sMipMapRemove_Select = sFineTuningData.FindPropertyRelative("MipMapRemove_Select");
-                            EditorGUI.PropertyField(position, sMipMapRemove_PropertyNames, "TargetPropertyName".GetLC());
+                            EditorGUI.PropertyField(position, sMipMapRemove_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sMipMapRemove_Select, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.PropertyField(position, sMipMapRemove_Select, "TextureFineTuning:prop:Select".Glc());
                             position.y += 18;
                             break;
                         }
@@ -226,11 +227,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                             var sColorSpaceSelect = sFineTuningData.FindPropertyRelative("ColorSpace_Select");
                             var sColorSpacePropertyNames = sFineTuningData.FindPropertyRelative("ColorSpace_PropertyNames");
                             var sColorSpaceLinear = sFineTuningData.FindPropertyRelative("ColorSpace_Linear");
-                            EditorGUI.PropertyField(position, sColorSpaceLinear, new GUIContent("Linear".GetLocalize()));
+                            EditorGUI.PropertyField(position, sColorSpaceLinear, "TextureFineTuning:prop:Linear".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sColorSpacePropertyNames, "TargetPropertyName".GetLC());
+                            EditorGUI.PropertyField(position, sColorSpacePropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
                             position.y += 18;
-                            EditorGUI.PropertyField(position, sColorSpaceSelect, new GUIContent("Select".GetLocalize()));
+                            EditorGUI.PropertyField(position, sColorSpaceSelect, "TextureFineTuning:prop:Select".Glc());
                             position.y += 18;
                             break;
                         }
@@ -274,7 +275,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)
         {
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("Target".GetLocalize() + "       " + "Scale".GetLocalize() + "       " + "Material".GetLocalize());
+            GUILayout.Label("AtlasTexture:label:TSM-Header".Glc());
             foreach (var mat in tempMaterial)
             {
                 var sMatSelector = FindMatSelector(targetMaterial, mat);
@@ -342,9 +343,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             var sObj = new SerializedObject(target);
             var sTargetRenderers = sObj.FindProperty("TargetRoot");
-            EditorGUILayout.PropertyField(sTargetRenderers, sTargetRenderers.name.GetLC());
+            EditorGUILayout.PropertyField(sTargetRenderers, "AtlasTexture:prop:TargetRoot".Glc());
             var sAtlasTextureSize = sObj.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
-            EditorGUILayout.PropertyField(sAtlasTextureSize, sAtlasTextureSize.name.GetLC());
+            EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
             sObj.ApplyModifiedProperties();
         }
     }

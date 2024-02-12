@@ -16,31 +16,31 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         public static void DrawerDecalEditor(SerializedObject thisSObject)
         {
-            EditorGUILayout.LabelField("RenderersSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(sMultiRendererMode, new GUIContent("MultiRendererMode".GetLocalize()));
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode, "CommonDecal:prop:MultiRendererMode".Glc());
 
 
             EditorGUI.indentLevel -= 1;
-            EditorGUILayout.LabelField("TextureSettings".GetLocalize(), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
 
             var sDecalTexture = thisSObject.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "DecalTexture".GetLC());
+            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
 
             var sColor = thisSObject.FindProperty("Color");
-            EditorGUILayout.PropertyField(sColor, new GUIContent("Color".GetLocalize()));
+            EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
 
             var sBlendType = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendType, "BlendTypeKey".GetLC());
+            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
 
             var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(sTargetPropertyName, "TargetPropertyName".GetLC());
+            EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
             EditorGUI.indentLevel -= 1;
         }
         public static void DrawerRealTimePreviewEditor(AbstractDecal target)
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
                 }
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
-                if (GUILayout.Button(IsPossibleRealTimePreview ? "RealTimePreview".GetLocalize() : "(Other Previewing Or Previewing Animation)".GetLocalize()))
+                if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
                     RealTimePreviewManager.instance.RegtAbstractDecal(target);
                 }
@@ -72,11 +72,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
 
-                if (GUILayout.Button("ExitRealTimePreview".GetLocalize()))
+                if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
                 {
                     RealTimePreviewManager.instance.UnRegtAbstractDecal(target);
                 }
-                if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("AllExit".GetLocalize(), GUILayout.Width(60)))
+                if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("SimpleDecal:button:AllExit".Glc(), GUILayout.Width(60)))
                 {
                     RealTimePreviewManager.instance.ExitPreview();
                 }
@@ -89,16 +89,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
         static bool FoldoutAdvancedOption;
         public static void DrawerAdvancedOption(SerializedObject sObject)
         {
-            FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "AdvancedOption".GetLocalize());
+            FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "CommonDecal:label:AdvancedOption".Glc());
             if (FoldoutAdvancedOption)
             {
                 EditorGUI.indentLevel += 1;
 
                 var sHighQualityPadding = sObject.FindProperty("HighQualityPadding");
-                EditorGUILayout.PropertyField(sHighQualityPadding, new GUIContent("HighQualityPadding".GetLocalize()));
+                EditorGUILayout.PropertyField(sHighQualityPadding, "CommonDecal:prop:HighQualityPadding".Glc());
 
                 var sPadding = sObject.FindProperty("Padding");
-                EditorGUILayout.PropertyField(sPadding, "Padding".GetLC());
+                EditorGUILayout.PropertyField(sPadding, "CommonDecal:prop:Padding".Glc());
 
                 EditorGUI.indentLevel -= 1;
             }

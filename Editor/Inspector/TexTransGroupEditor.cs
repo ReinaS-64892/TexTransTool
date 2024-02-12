@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.Editor
             }
             else
             {
-                EditorGUILayout.LabelField("Summary display during preview is not supported.".GetLocalize());
+                EditorGUILayout.LabelField("TexTransGroup:label:DuringPreviewNoSummary".Glc());
             }
         }
 
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
                     var sChildeGameObject = new SerializedObject(childeTransform.gameObject);
 
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
+                    EditorGUILayout.LabelField("TexTransGroup:prop:GOEnable".Glc(), GUILayout.Width(50));
                     var sChildeIsActive = sChildeGameObject.FindProperty("m_IsActive");
                     EditorGUILayout.PropertyField(sChildeIsActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
                     EditorGUILayout.LabelField(childeTransform.name);
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.BeginHorizontal();
 
                 var sObj = new SerializedObject(textureTransformer.gameObject);
-                EditorGUILayout.LabelField("Enabled".GetLocalize(), GUILayout.Width(50));
+                EditorGUILayout.LabelField("TexTransGroup:prop:GOEnable".Glc(), GUILayout.Width(50));
                 var sActive = sObj.FindProperty("m_IsActive");
                 EditorGUILayout.PropertyField(sActive, GUIContent.none, GUILayout.Width(EditorGUIUtility.singleLineHeight));
                 EditorGUILayout.ObjectField(textureTransformer, typeof(TexTransBehavior), true);
@@ -95,7 +95,7 @@ namespace net.rs64.TexTransTool.Editor
                         }
                     case TexTransGroup:
                         {
-                            EditorGUILayout.LabelField("GroupChildren".GetLocalize());
+                            EditorGUILayout.LabelField("TexTransGroup:label:GroupChildren".Glc());
                             break;
                         }
                     case MatAndTexAbsoluteSeparator matAndTexAbsoluteSeparator:
@@ -110,7 +110,7 @@ namespace net.rs64.TexTransTool.Editor
                         }
                     default:
                         {
-                            EditorGUILayout.LabelField("SummaryNone".GetLocalize());
+                            EditorGUILayout.LabelField("SummaryNone".Glc());
                             break;
                         }
                 }

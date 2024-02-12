@@ -15,21 +15,21 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var thisObject = target as NailEditor;
 
             var sTargetAvatar = thisSObject.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.GetLC());
+            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.Glc());
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, sMultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(sMultiRendererMode, sMultiRendererMode.name.GetLC());
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode, sMultiRendererMode.name.Glc());
 
             var sBlendType = thisSObject.FindProperty("BlendType");
-            EditorGUILayout.PropertyField(sBlendType, sBlendType.name.GetLC());
+            EditorGUILayout.PropertyField(sBlendType, sBlendType.name.Glc());
 
             var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
             EditorGUILayout.PropertyField(sTargetPropertyName);
 
             var sUseTextureAspect = thisSObject.FindProperty("UseTextureAspect");
-            EditorGUILayout.PropertyField(sUseTextureAspect, sUseTextureAspect.name.GetLC());
+            EditorGUILayout.PropertyField(sUseTextureAspect, sUseTextureAspect.name.Glc());
 
 
             var sLeftHand = thisSObject.FindProperty("LeftHand");
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(sFingerUpVector, sFingerUpVector.name.GetLC());
+            EditorGUILayout.PropertyField(sFingerUpVector, sFingerUpVector.name.Glc());
 
             EditorGUILayout.LabelField("Thumb".GetLocalize());
             DrawerNailDescriptor(sThumb);
@@ -85,10 +85,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(sDecalTexture, sDecalTexture.name.GetLC());
+            EditorGUILayout.PropertyField(sDecalTexture, sDecalTexture.name.Glc());
             DrawerPositionOffset(sPositionOffset);
-            EditorGUILayout.PropertyField(sScaleOffset, sScaleOffset.name.GetLC());
-            EditorGUILayout.PropertyField(sRotationOffset, sRotationOffset.name.GetLC());
+            EditorGUILayout.PropertyField(sScaleOffset, sScaleOffset.name.Glc());
+            EditorGUILayout.PropertyField(sRotationOffset, sRotationOffset.name.Glc());
 
             EditorGUI.indentLevel -= 1;
         }
@@ -159,9 +159,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             var sObj = new SerializedObject(target);
             var sTargetAvatar = sObj.FindProperty("TargetAvatar");
-            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.GetLC());
+            EditorGUILayout.PropertyField(sTargetAvatar, sTargetAvatar.name.Glc());
             var sTargetRenderers = sObj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers);
+            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers, sTargetRenderers.name.Glc());
 
             sObj.ApplyModifiedProperties();
         }

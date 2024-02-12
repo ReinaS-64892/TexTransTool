@@ -13,10 +13,14 @@ namespace net.rs64.TexTransTool
             WarningCall?.Invoke(code, objects);
         }
 
-        //実行不可はExceptionに
+        public static void Error(string code, params object[] objects)
+        {
+            ErrorCall?.Invoke(code, objects);
+        }
 
         public static Action<string, object[]> InfoCall;
         public static Action<string, object[]> WarningCall;
+        public static Action<string, object[]> ErrorCall;
 
     }
 }

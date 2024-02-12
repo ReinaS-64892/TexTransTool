@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.Editor
             var PropWith = rect.width / 4;
 
             rect.width = PropWith;
-            EditorGUI.LabelField(rect, label ?? "TargetPropertyName".GetLC());
+            EditorGUI.LabelField(rect, label ?? "TargetPropertyName".Glc());
             rect.x += rect.width;
 
             var preIndent = EditorGUI.indentLevel;

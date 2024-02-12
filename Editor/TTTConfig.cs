@@ -13,7 +13,42 @@ namespace net.rs64.TexTransTool
         {
             IsObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
             UseIslandCache = EditorPrefs.GetBool(USE_ISLAND_CACHE_PREFKEY, true);
+            Localize.LocalizeInitializer();
         }
+        #region Language
+
+
+        public const string LANGUAGE_PREFKEY = "net.rs64.tex-trans-tool.language";
+        public const string LANGUAGE_MENU_PATH = TTTConfig.TTT_MENU_PATH + "/Language";
+        private static LanguageEnum s_language;
+        public static LanguageEnum Language
+        {
+            get => s_language;
+            internal set
+            {
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), false);
+                s_language = value;
+                EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)s_language);
+                Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), true);
+            }
+        }
+        public enum LanguageEnum
+        {
+            EN,
+            JP,
+        }
+
+        [MenuItem(LANGUAGE_MENU_PATH + "/EN")]
+        public static void SwitchEN() => Language = LanguageEnum.EN;
+        [MenuItem(LANGUAGE_MENU_PATH + "/JP")]
+        public static void SwitchJP() => Language = LanguageEnum.JP;
+
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
+        public static void ReloadLocalize() => Localize.LoadLocalize();
+
+        #endregion
+
+
         #region UseIslandCache
         public const string USE_ISLAND_CACHE_MENU_PATH = TTT_MENU_PATH + "/UseIslandCache";
         public const string USE_ISLAND_CACHE_PREFKEY = "net.rs64.tex-trans-tool.UseIslandCache";

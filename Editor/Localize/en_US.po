@@ -1,0 +1,377 @@
+msgid ""
+msgstr ""
+"Language: en-US\n"
+
+
+#  Commons
+
+msgid "Common:Preview"
+msgstr "Preview"
+
+msgid "Common:ExitPreview"
+msgstr "ExitPreview"
+
+msgid "Common:PreviewNotAvailable"
+msgstr "(Other Previewing Or Previewing Animation)"
+
+msgid "Common:OverridePreviewThis"
+msgstr "Other Previewing. Override Preview this"
+
+msgid "Common:ExperimentalFuture"
+msgstr "Experimental Future"
+
+msgid "Common:ExperimentalWarning"
+msgstr "is an experimental feature. Features may be changed or removed without notice."
+
+#  AtlasTexture
+
+msgid "AtlasTexture:error:TTTNotExecutable"
+msgstr "AtlasTexture is not executable."
+
+msgid "AtlasTexture:error:TTTNotExecutable:hint"
+msgstr "Please review TargetRoot and MaterialSelect."
+
+
+msgid "AtlasTexture:prop:TargetRoot"
+msgstr "TargetRoot"
+
+msgid "AtlasTexture:prop:TargetRoot:tooltip"
+msgstr "Maximum Range of renderers atlas"
+
+msgid "AtlasTexture:button:RefreshMaterials"
+msgstr "RefreshMaterials"
+
+msgid "AtlasTexture:label:TSM-Header"
+msgstr "Target    (ScaleOffset)    Material"
+
+msgid "AtlasTexture:label:TSM-Header:tooltip"
+msgstr "atlas target  (texture scale offset)  material"
+
+
+msgid "AtlasTexture:label:AtlasSettings"
+msgstr "AtlasSettings"
+
+msgid "AtlasTexture:prop:AtlasTextureSize"
+msgstr "AtlasTextureSize"
+
+msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
+msgstr "Size of atlas texture, square."
+
+msgid "AtlasTexture:prop:MaterialMarge"
+msgstr "MaterialMarge"
+
+msgid "AtlasTexture:prop:MaterialMarge:tooltip"
+msgstr "Force material to merge when applying atlas. Note quality may not be maintenance."
+
+msgid "AtlasTexture:prop:PropertyBakeSetting"
+msgstr "PropertyBakeSetting"
+
+msgid "AtlasTexture:prop:PropertyBakeSetting:tooltip"
+msgstr "Feature bake some of the material property to texture when material marge."
+
+msgid "AtlasTexture:prop:MergeReferenceMaterial"
+msgstr "MergeReferenceMaterial"
+
+msgid "AtlasTexture:prop:MergeReferenceMaterial:tooltip"
+msgstr "If there nothing in reference Material, use an indeterminate in atlas targets Material."
+
+msgid "AtlasTexture:prop:ForceSetTexture"
+msgstr "ForceSetTexture"
+
+msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
+msgstr "Assign an atlas texture to material even If the texture  not exist in material"
+
+msgid "AtlasTexture:prop:Padding"
+msgstr "Padding"
+
+msgid "AtlasTexture:prop:Padding:tooltip"
+msgstr "Spacing between islands in Island sorting."
+
+msgid "AtlasTexture:prop:IslandSorterName"
+msgstr "IslandSorterName"
+
+msgid "AtlasTexture:prop:IslandSorterName:tooltip"
+msgstr "Name of Island sorter, can not editable."
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
+msgstr "(ExperimentalFuture) WriteOriginalUV"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "Write to UV1 the UV when before atlas."
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer"
+msgstr "IncludeDisabledRenderer"
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
+msgstr "Option to Include disabled renderers in the atlas."
+
+msgid "AtlasTexture:prop:UseUpScaling"
+msgstr "UseUpScaling"
+
+msgid "AtlasTexture:prop:UseUpScaling:tooltip"
+msgstr "Allow upscaling in island sorting."
+
+msgid "AtlasTexture:prop:TextureFineTuning"
+msgstr "TextureFineTuning"
+
+msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
+msgstr "Setting for various fine tuning for atlas texture."
+
+msgid "TextureFineTuning:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "TextureFineTuning:prop:Select"
+msgstr "Select"
+
+msgid "TextureFineTuning:prop:Select:tooltip"
+msgstr "Property select condition."
+
+msgid "TextureFineTuning:prop:Resize"
+msgstr "Resize"
+
+msgid "TextureFineTuning:prop:Resize:tooltip"
+msgstr "Atlas texture tuning of size"
+
+msgid "TextureFineTuning:prop:Resize:Size"
+msgstr "Size"
+
+msgid "TextureFineTuning:prop:Resize:Size:tooltip"
+msgstr "Texture size"
+
+
+msgid "TextureFineTuning:prop:Compress"
+msgstr "Compress"
+
+msgid "TextureFineTuning:prop:Compress:tooltip"
+msgstr "Tuning atlas texture VRAM compression."
+
+msgid "TextureFineTuning:prop:FormatQuality"
+msgstr "FormatQuality"
+
+msgid "TextureFineTuning:prop:FormatQuality:tooltip"
+msgstr "Rough select for texture format."
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat"
+msgstr "UseOverrideTextureFormat"
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat:tooltip"
+msgstr "Override by detail format specify not rough select."
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat"
+msgstr "OverrideTextureFormat"
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat:tooltip"
+msgstr "Detail format specify."
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices"
+msgstr "SimpleFormatChoices"
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices:tooltip"
+msgstr "Choice texture format in enumerate frequently use."
+
+msgid "TextureFineTuning:prop:CompressionQuality"
+msgstr "CompressionQuality"
+
+msgid "TextureFineTuning:prop:CompressionQuality:tooltip"
+msgstr "Crunch compression quality when override texture format in the crunch compression."
+
+msgid "TextureFineTuning:prop:ReferenceCopy"
+msgstr "ReferenceCopy"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:tooltip"
+msgstr "Copy texture generated by AtlasTexture between property."
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName"
+msgstr "SourcePropertyName"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName:tooltip"
+msgstr "Copy source."
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName:tooltip"
+msgstr "Copy target."
+
+msgid "TextureFineTuning:prop:Remove"
+msgstr "Remove"
+
+msgid "TextureFineTuning:prop:Remove:tooltip"
+msgstr "Settings that prevent the specified texture from being assigned to material."
+
+msgid "TextureFineTuning:prop:MipMapRemove"
+msgstr "MipMapRemove"
+
+msgid "TextureFineTuning:prop:MipMapRemove:tooltip"
+msgstr "Setting to remove mipmap in specified texture."
+
+msgid "TextureFineTuning:prop:ColorSpace"
+msgstr "ColorSpace"
+
+msgid "TextureFineTuning:prop:ColorSpace:tooltip"
+msgstr "Settings that specify the color space of specific texture."
+
+msgid "TextureFineTuning:prop:Linear"
+msgstr "Linear"
+
+#  CommonDecal
+
+msgid "CommonDecal:label:RenderersSettings"
+msgstr "RenderersSettings"
+
+msgid "CommonDecal:prop:TargetRenderer"
+msgstr "TargetRenderer"
+
+msgid "CommonDecal:prop:TargetRenderer:tooltip"
+msgstr "Item to set renderer on which decal are applied."
+
+msgid "CommonDecal:prop:MultiRendererMode"
+msgstr "MultiRendererMode"
+
+msgid "CommonDecal:prop:MultiRendererMode:tooltip"
+msgstr "A mode that allows you apply decal across multiple renderers."
+
+msgid "CommonDecal:label:TextureSettings"
+msgstr "TextureSettings"
+
+msgid "CommonDecal:prop:DecalTexture"
+msgstr "DecalTexture"
+
+msgid "CommonDecal:prop:DecalTexture:tooltip"
+msgstr "Item to specify the texture to be decal will be applied."
+
+msgid "CommonDecal:prop:Color"
+msgstr "Color"
+
+msgid "CommonDecal:prop:Color:tooltip"
+msgstr "Multiply color when decal texture is applied."
+
+msgid "CommonDecal:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+msgid "CommonDecal:prop:BlendTypeKey:tooltip"
+msgstr "Specific the Color blending mode when decal to target applied."
+
+msgid "CommonDecal:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "CommonDecal:prop:TargetPropertyName:tooltip"
+msgstr "Item to specify material property which decal to applied target."
+
+msgid "CommonDecal:label:AdvancedOption"
+msgstr "AdvancedOption"
+
+msgid "CommonDecal:prop:HighQualityPadding"
+msgstr "HighQualityPadding"
+
+msgid "CommonDecal:prop:HighQualityPadding:tooltip"
+msgstr "Feature to generate high quality padding without jagged edges. (take a lot of time)"
+
+msgid "CommonDecal:prop:Padding"
+msgstr "Padding"
+
+msgid "CommonDecal:prop:Padding:tooltip"
+msgstr "Setting width for padding generate."
+
+#  SimpleDecal
+
+msgid "SimpleDecal:error:TTTNotExecutable"
+msgstr "AtlasTexture is not executable."
+
+msgid "SimpleDecal:error:TTTNotExecutable:hint"
+msgstr "Please review target renderers exist."
+
+msgid "SimpleDecal:label:ScaleSettings"
+msgstr "ScaleSettings"
+
+msgid "SimpleDecal:prop:Scale"
+msgstr "Scale"
+
+msgid "SimpleDecal:prop:Scale:tooltip"
+msgstr "Size of decal, X is width, Y is height."
+
+msgid "SimpleDecal:prop:FixedAspect"
+msgstr "FixedAspect"
+
+msgid "SimpleDecal:prop:FixedAspect:tooltip"
+msgstr "Setting to adjustment height of the decal to correspond with the texture ratio."
+
+msgid "SimpleDecal:prop:MaxDistance"
+msgstr "MaxDistance"
+
+msgid "SimpleDecal:prop:MaxDistance:tooltip"
+msgstr "デカールが張られる最大の距離"
+
+msgid "SimpleDecal:label:CullingSettings"
+msgstr "CullingSettings"
+
+msgid "SimpleDecal:prop:PolygonCulling"
+msgstr "PolygonCulling"
+
+msgid "SimpleDecal:prop:PolygonCulling:tooltip"
+msgstr "Setting the criteria for polygon culling."
+
+msgid "SimpleDecal:prop:SideCulling"
+msgstr "SideCulling"
+
+msgid "SimpleDecal:prop:SideCulling:tooltip"
+msgstr "Setting to cull back side polygon when view from the decal."
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling"
+msgstr "IslandCulling"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling:tooltip"
+msgstr "Feature to cull decal with uv island."
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos"
+msgstr "IslandSelectorPos"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos:tooltip"
+msgstr "Setting to adjust the position of island selector, X is width, Y is height."
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange"
+msgstr "IslandSelectorRange"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange:tooltip"
+msgstr "アイランドセレクターの最大距離の設定"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
+msgstr "UseDepth"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth:tooltip"
+msgstr "Setting the maximum distance of island selector."
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert"
+msgstr "DepthInvert"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert:tooltip"
+msgstr "Setting to reverse「Foremost only」to「Other than the foremost」."
+
+msgid "SimpleDecal:button:RealTimePreview"
+msgstr "RealTimePreview"
+
+msgid "SimpleDecal:button:RealTimePreview:tooltip"
+msgstr "A feature that allow decal preview in real time. also multiple preview at the some time."
+
+msgid "SimpleDecal:button:ExitRealTimePreview"
+msgstr "ExitRealTimePreview"
+
+msgid "SimpleDecal:button:AllExit"
+msgstr "AllExit"
+
+msgid "SimpleDecal:button:AllExit:tooltip"
+msgstr "Exit all decal real time preview."
+
+# TexTransGroup
+
+msgid "SimpleDecal:label:DuringPreviewNoSummary"
+msgstr "Summary display during preview is not supported."
+
+msgid "TexTransGroup:prop:GOEnable"
+msgstr "Enable"
+
+msgid "TexTransGroup:label:SummaryNone"
+msgstr "SummaryNone"
+
+msgid "TexTransGroup:label:GroupChildren"
+msgstr "GroupChildren"
