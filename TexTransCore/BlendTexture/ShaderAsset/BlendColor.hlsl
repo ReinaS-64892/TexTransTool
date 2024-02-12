@@ -35,6 +35,9 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float3 OneCol = float3(1, 1, 1);
   float3 Scrc = OneCol - (OneCol - Bcol) * (OneCol - Acol);
 
+  float Bsum = Bcol.r + Bcol.g + Bcol.b;
+  float Asum = Acol.r + Acol.g + Acol.b;
+
   float3 BcolPM = BaseColor.rgb * LinearToGammaSpaceExact(BaseColor.a);
   float3 AcolPM = AddColor.rgb * LinearToGammaSpaceExact(AddColor.a);
 
@@ -90,6 +93,10 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = HSVtoRGB(float3(Bhsv.r, Bhsv.g, Ahsv.b));
 #elif Exclusion
   BlendColor = 0.5 - 2 * (Bcol - 0.5) * (Acol - 0.5);
+#elif DarkenColorOnly
+  BlendColor =  Bsum > Asum ?  Acol : Bcol;
+#elif LightenColorOnly
+  BlendColor = Bsum > Asum ? Bcol : Acol;
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
