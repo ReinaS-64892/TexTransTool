@@ -13,13 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ローカライズの仕組みが改修され (#360)
   - AtlasTexture と SimpleDecal が正しく実行不可のエラーを NDMF のエラーレポートに出力するようになりました。
   - ほとんどのプロパティにツールチップが追加されました。
-- BlendTypeKey の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました。(#358)
 
 ### Changed
 
 ### Removed
 
 ### Fixed
+
+- BlendTypeKey の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました。(#358)
+- PropertyName の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました。(#362)
 
 ### Deprecated
 
