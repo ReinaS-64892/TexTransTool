@@ -97,6 +97,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {"Saturation",stdBlendShader},
                 {"Color",stdBlendShader},
                 {"Luminosity",stdBlendShader},
+                {"Exclusion",stdBlendShader},
                 {"NotBlend",stdBlendShader},
             };
 

@@ -88,6 +88,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = HSVtoRGB(float3(Ahsv.r, Ahsv.g, Bhsv.b));
 #elif Luminosity
   BlendColor = HSVtoRGB(float3(Bhsv.r, Bhsv.g, Ahsv.b));
+#elif Exclusion
+  BlendColor = 0.5 - 2 * (Bcol - 0.5) * (Acol - 0.5);
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
