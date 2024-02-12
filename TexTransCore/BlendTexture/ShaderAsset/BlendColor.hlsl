@@ -38,8 +38,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float Bsum = Bcol.r + Bcol.g + Bcol.b;
   float Asum = Acol.r + Acol.g + Acol.b;
 
-  float3 BcolPM = BaseColor.rgb * LinearToGammaSpaceExact(BaseColor.a);
-  float3 AcolPM = AddColor.rgb * LinearToGammaSpaceExact(AddColor.a);
+  float3 BcolPM = BaseColor.rgb * (BaseColor.a);
+  float3 AcolPM = AddColor.rgb * (AddColor.a);
 
   float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
   float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
@@ -101,6 +101,10 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
+#elif AdditionGlow
+  BlendColor = saturate(BcolPM + AcolPM);
+#elif ColorDodgeGlow
+  BlendColor= AcolPM == 1 ? AcolPM : min( BcolPM / (1.0 - AcolPM) , 1.0);
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
