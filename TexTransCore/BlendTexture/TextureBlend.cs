@@ -100,6 +100,8 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {"Exclusion",stdBlendShader},
                 {"DarkenColorOnly",stdBlendShader},
                 {"LightenColorOnly",stdBlendShader},
+                {"PinLight",stdBlendShader},
+                {"HardMix",stdBlendShader},
                 {"NotBlend",stdBlendShader},
             };
 

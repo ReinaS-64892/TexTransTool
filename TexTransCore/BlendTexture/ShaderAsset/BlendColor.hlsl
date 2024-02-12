@@ -97,6 +97,10 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor =  Bsum > Asum ?  Acol : Bcol;
 #elif LightenColorOnly
   BlendColor = Bsum > Asum ? Bcol : Acol;
+#elif PinLight
+  BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
+#elif HardMix
+  BlendColor = ( Acol + Bcol ) > 1.0 ;
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
