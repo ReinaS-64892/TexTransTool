@@ -72,40 +72,42 @@ namespace net.rs64.TexTransCore.BlendTexture
             UnlitColorAlphaShader = Shader.Find(UNLIT_COLOR_ALPHA_SHADER);
             AlphaCopyShader = Shader.Find(ALPHA_COPY_SHADER);
 
-            var tttBlendShader = BlendTexShader;
-            BlendShaders = new Dictionary<string, Shader>()
+            var stdBlendShader = BlendTexShader;
+            var stdBlendShaders = new Dictionary<string, Shader>()
             {
-                {"Normal",tttBlendShader},
-                {"Mul",tttBlendShader},
-                {"Screen",tttBlendShader},
-                {"Overlay",tttBlendShader},
-                {"HardLight",tttBlendShader},
-                {"SoftLight",tttBlendShader},
-                {"ColorDodge",tttBlendShader},
-                {"ColorBurn",tttBlendShader},
-                {"LinearBurn",tttBlendShader},
-                {"VividLight",tttBlendShader},
-                {"LinearLight",tttBlendShader},
-                {"Divide",tttBlendShader},
-                {"Addition",tttBlendShader},
-                {"Subtract",tttBlendShader},
-                {"Difference",tttBlendShader},
-                {"DarkenOnly",tttBlendShader},
-                {"LightenOnly",tttBlendShader},
-                {"Hue",tttBlendShader},
-                {"Saturation",tttBlendShader},
-                {"Color",tttBlendShader},
-                {"Luminosity",tttBlendShader},
-                {"NotBlend",tttBlendShader},
+                {"Normal",stdBlendShader},
+                {"Mul",stdBlendShader},
+                {"Screen",stdBlendShader},
+                {"Overlay",stdBlendShader},
+                {"HardLight",stdBlendShader},
+                {"SoftLight",stdBlendShader},
+                {"ColorDodge",stdBlendShader},
+                {"ColorBurn",stdBlendShader},
+                {"LinearBurn",stdBlendShader},
+                {"VividLight",stdBlendShader},
+                {"LinearLight",stdBlendShader},
+                {"Divide",stdBlendShader},
+                {"Addition",stdBlendShader},
+                {"Subtract",stdBlendShader},
+                {"Difference",stdBlendShader},
+                {"DarkenOnly",stdBlendShader},
+                {"LightenOnly",stdBlendShader},
+                {"Hue",stdBlendShader},
+                {"Saturation",stdBlendShader},
+                {"Color",stdBlendShader},
+                {"Luminosity",stdBlendShader},
+                {"NotBlend",stdBlendShader},
             };
 
-            var extensions = InterfaceUtility.GetInterfaceInstance<TexBlendExtension>();
+            BlendShaders = new();
+            var extensions = InterfaceUtility.GetInterfaceInstance<ITexBlendExtension>();
             foreach (var ext in extensions)
             {
                 var (Keywords, shader) = ext.GetExtensionBlender();
+                if (Keywords.Any(str => !str.Contains("/"))) { Debug.LogWarning($"TexBlendExtension : {ext.GetType().FullName} \"/\" is not Contained!!!"); }
                 foreach (var Keyword in Keywords)
                 {
-                    if (BlendShaders.ContainsKey(Keyword))
+                    if (BlendShaders.ContainsKey(Keyword) || stdBlendShaders.ContainsKey(Keyword))
                     {
                         Debug.LogWarning($"TexBlendExtension : {ext.GetType().FullName} {Keyword} is Contained!!!");
                     }
@@ -115,6 +117,8 @@ namespace net.rs64.TexTransCore.BlendTexture
                     }
                 }
             }
+
+            foreach (var kv in stdBlendShaders) { BlendShaders.Add(kv.Key, kv.Value); }
 
         }
         public const string BL_KEY_DEFAULT = "Normal";
@@ -136,7 +140,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 var swap = RenderTexture.GetTemporary(baseRenderTexture.descriptor);
                 Graphics.CopyTexture(baseRenderTexture, swap);
                 material.SetTexture("_DistTex", swap);
-                material.EnableKeyword(blendTypeKey);
+                material.EnableKeyword(EscapeForShaderKeyword(blendTypeKey));
 
                 Graphics.Blit(Add, baseRenderTexture, material);
 
@@ -157,6 +161,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 UnityEngine.Object.DestroyImmediate(material);
             }
         }
+        private static string EscapeForShaderKeyword(string blendTypeKey) => blendTypeKey.Replace('/','_');
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, BlendTex add, bool keepAlpha = false)
         where BlendTex : IBlendTexturePair
         { baseRenderTexture.BlendBlit(add.Texture, add.BlendTypeKey, keepAlpha); }
@@ -176,7 +181,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                     if (Add == null || Add.Texture == null || Add.BlendTypeKey == null) { continue; }
                     if (material.shader != BlendShaders[Add.BlendTypeKey]) { material.shader = BlendShaders[Add.BlendTypeKey]; }
                     material.SetTexture("_DistTex", swap);
-                    material.shaderKeywords = new[] { Add.BlendTypeKey };
+                    material.shaderKeywords = new[] { EscapeForShaderKeyword(Add.BlendTypeKey) };
                     Graphics.Blit(Add.Texture, target, material);
                     (swap, target) = (target, swap);
                 }
