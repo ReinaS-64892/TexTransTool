@@ -102,7 +102,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
 #elif AdditionGlow
-  BlendColor = saturate(BcolPM + AcolPM);
+  return saturate(AlphaBlending(BaseColor,AddColor,(Bcol + Acol)));
 #elif ColorDodgeGlow
   BlendColor= AcolPM == 1 ? AcolPM : min( BcolPM / (1.0 - AcolPM) , 1.0);
 #endif
