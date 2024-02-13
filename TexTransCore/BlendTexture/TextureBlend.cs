@@ -76,6 +76,7 @@ namespace net.rs64.TexTransCore.BlendTexture
             var stdBlendShaders = new Dictionary<string, Shader>()
             {
                 {"Normal",stdBlendShader},
+                {"Dissolve",stdBlendShader},
                 {"Mul",stdBlendShader},
                 {"Screen",stdBlendShader},
                 {"Overlay",stdBlendShader},
@@ -96,6 +97,13 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {"Saturation",stdBlendShader},
                 {"Color",stdBlendShader},
                 {"Luminosity",stdBlendShader},
+                {"Exclusion",stdBlendShader},
+                {"DarkenColorOnly",stdBlendShader},
+                {"LightenColorOnly",stdBlendShader},
+                {"PinLight",stdBlendShader},
+                {"HardMix",stdBlendShader},
+                {"AdditionGlow",stdBlendShader},
+                {"ColorDodgeGlow",stdBlendShader},
                 {"NotBlend",stdBlendShader},
             };
 

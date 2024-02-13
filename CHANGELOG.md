@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ローカライズの仕組みが改修され (#360)
   - AtlasTexture と SimpleDecal が正しく実行不可のエラーを NDMF のエラーレポートに出力するようになりました。
   - ほとんどのプロパティにツールチップが追加されました。
+- いくつかの合成モードが追加されました (#213)
+  - Dissolve-ディザ合成
+  - Exclusion-除外
+  - DarkenColorOnly-比較カラー(暗)
+  - LightenColorOnly-比較カラー(明)
+  - PinLight-ピンライト
+  - HardMix-ハードミックス
+  - AdditionGlow-加算(発光)
+  - ColorDodgeGlow-覆い焼(発光)
 
 ### Changed
 

@@ -15,7 +15,7 @@ Shader "Hidden/BlendTexture"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_local_fragment Normal Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp ClassicNormal NotBlend
+            #pragma multi_compile_local_fragment Normal Dissolve Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp Exclusion DarkenColorOnly LightenColorOnly PinLight HardMix AdditionGlow ColorDodgeGlow NotBlend
             #pragma shader_feature_local_fragment KeepAlpha
 
             #include "UnityCG.cginc"
@@ -61,7 +61,10 @@ Shader "Hidden/BlendTexture"
 
                 #if NotBlend
                 float4 BlendColor = AddColor;
-                //#elif ~~~
+                #elif Dissolve
+                float sAddAlpha = AddColor.a;
+                AddColor.a = step(frac(sin(dot(i.uv, fixed2(12.9898f, 78.233f))) * 43758.5453),AddColor.a);
+                float4 BlendColor = sAddAlpha <= 0.0 ? BaseColor : AlphaBlending(BaseColor,AddColor,AddColor.rgb);
                 #else
                 float4 BlendColor = ColorBlend(BaseColor,AddColor);
                 #endif

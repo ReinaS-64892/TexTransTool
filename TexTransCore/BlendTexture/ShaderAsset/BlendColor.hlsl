@@ -8,6 +8,19 @@
 
 #include "./HSV.hlsl"
 
+float4 AlphaBlending(float4 BaseColor,float4 AddColor,float3 BlendColor)
+{
+  float BlendRatio = AddColor.a * BaseColor.a;
+  float AddRatio = (1 - BaseColor.a) * AddColor.a;
+  float BaseRatio = (1 - AddColor.a) * BaseColor.a;
+  float Alpha = BlendRatio + AddRatio + BaseRatio;
+
+  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio);
+  ResultColor /= Alpha;
+
+  return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
+}
+
 float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
   if(BaseColor.a <= 0.0){return AddColor;}
@@ -22,8 +35,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float3 OneCol = float3(1, 1, 1);
   float3 Scrc = OneCol - (OneCol - Bcol) * (OneCol - Acol);
 
-  float3 BcolPM = BaseColor.rgb * LinearToGammaSpaceExact(BaseColor.a);
-  float3 AcolPM = AddColor.rgb * LinearToGammaSpaceExact(AddColor.a);
+  float Bsum = Bcol.r + Bcol.g + Bcol.b;
+  float Asum = Acol.r + Acol.g + Acol.b;
 
   float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
   float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
@@ -75,17 +88,21 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = HSVtoRGB(float3(Ahsv.r, Ahsv.g, Bhsv.b));
 #elif Luminosity
   BlendColor = HSVtoRGB(float3(Bhsv.r, Bhsv.g, Ahsv.b));
+#elif Exclusion
+  BlendColor = 0.5 - 2 * (Bcol - 0.5) * (Acol - 0.5);
+#elif DarkenColorOnly
+  BlendColor =  Bsum > Asum ?  Acol : Bcol;
+#elif LightenColorOnly
+  BlendColor = Bsum > Asum ? Bcol : Acol;
+#elif PinLight
+  BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
+#elif HardMix
+  BlendColor = ( Acol + Bcol ) > 1.0 ;
+#elif AdditionGlow
+  return saturate(AlphaBlending(BaseColor,AddColor,(Bcol + Acol)));
+#elif ColorDodgeGlow
+  return saturate(AlphaBlending(BaseColor,AddColor, Bcol / (1.0 - lerp(Acol , Acol * lerp(LinearToGammaSpaceExact(AddColor.a) , AddColor.a , AddColor.a), AddColor.a )) ));
 #endif
 
-  float BlendRatio = AddColor.a * BaseColor.a;
-  float AddRatio = (1 - BaseColor.a) * AddColor.a;
-  float BaseRatio = (1 - AddColor.a) * BaseColor.a;
-  float Alpha = BlendRatio + AddRatio + BaseRatio;
-
-
-  float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio);
-  ResultColor /= Alpha;
-
-
-  return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
+  return AlphaBlending(BaseColor,AddColor,BlendColor);
 }
