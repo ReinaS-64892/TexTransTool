@@ -75,36 +75,47 @@ namespace net.rs64.TexTransCore.BlendTexture
             var stdBlendShader = BlendTexShader;
             var stdBlendShaders = new Dictionary<string, Shader>()
             {
-                {"Normal",stdBlendShader},
-                {"Dissolve",stdBlendShader},
-                {"Mul",stdBlendShader},
-                {"Screen",stdBlendShader},
-                {"Overlay",stdBlendShader},
-                {"HardLight",stdBlendShader},
-                {"SoftLight",stdBlendShader},
-                {"ColorDodge",stdBlendShader},
-                {"ColorBurn",stdBlendShader},
-                {"LinearBurn",stdBlendShader},
-                {"VividLight",stdBlendShader},
-                {"LinearLight",stdBlendShader},
-                {"Divide",stdBlendShader},
-                {"Addition",stdBlendShader},
-                {"Subtract",stdBlendShader},
-                {"Difference",stdBlendShader},
-                {"DarkenOnly",stdBlendShader},
-                {"LightenOnly",stdBlendShader},
-                {"Hue",stdBlendShader},
-                {"Saturation",stdBlendShader},
-                {"Color",stdBlendShader},
-                {"Luminosity",stdBlendShader},
-                {"Exclusion",stdBlendShader},
-                {"DarkenColorOnly",stdBlendShader},
-                {"LightenColorOnly",stdBlendShader},
-                {"PinLight",stdBlendShader},
-                {"HardMix",stdBlendShader},
-                {"AdditionGlow",stdBlendShader},
-                {"ColorDodgeGlow",stdBlendShader},
-                {"NotBlend",stdBlendShader},
+                //特殊な色合成をしない系
+                {"Normal",stdBlendShader},//通常
+                {"Dissolve",stdBlendShader},//ディザ合成
+                {"NotBlend",stdBlendShader},//ほぼTTTの内部処理用の上のレイヤーで置き換えるもの
+
+                //暗くする系
+                {"Mul",stdBlendShader},//乗算
+                {"ColorBurn",stdBlendShader},//焼きこみカラー
+                {"LinearBurn",stdBlendShader},//焼きこみ(リニア)
+                {"DarkenOnly",stdBlendShader},//比較(暗)
+                {"DarkenColorOnly",stdBlendShader},//カラー比較(暗)
+
+                //明るくする系
+                {"Screen",stdBlendShader},//スクリーン
+                {"ColorDodge",stdBlendShader},//覆い焼きカラー
+                {"ColorDodgeGlow",stdBlendShader},//覆い焼き(発光)
+                {"Addition",stdBlendShader},//加算-覆い焼き(リニア)
+                {"AdditionGlow",stdBlendShader},//加算(発光)
+                {"LightenOnly",stdBlendShader},//比較(明)
+                {"LightenColorOnly",stdBlendShader},//カラー比較(明)
+
+                //ライト系
+                {"Overlay",stdBlendShader},//オーバーレイ
+                {"SoftLight",stdBlendShader},//ソフトライト
+                {"HardLight",stdBlendShader},//ハードライト
+                {"VividLight",stdBlendShader},//ビビッドライト
+                {"LinearLight",stdBlendShader},//リニアライト
+                {"PinLight",stdBlendShader},//ピンライト
+                {"HardMix",stdBlendShader},//ハードミックス
+
+                //算術系
+                {"Difference",stdBlendShader},//差の絶対値
+                {"Exclusion",stdBlendShader},//除外
+                {"Subtract",stdBlendShader},//減算
+                {"Divide",stdBlendShader},//除算
+
+                //HSV系
+                {"Hue",stdBlendShader},//色相
+                {"Saturation",stdBlendShader},//彩度
+                {"Color",stdBlendShader},//カラー
+                {"Luminosity",stdBlendShader},//輝度
             };
 
             BlendShaders = new();
