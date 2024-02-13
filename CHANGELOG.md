@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- BlendTypeKey の並び順を変更しました (#365)
+
 ### Removed
 
 ### Fixed
