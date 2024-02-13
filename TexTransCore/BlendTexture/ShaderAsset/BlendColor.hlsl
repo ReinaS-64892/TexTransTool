@@ -38,9 +38,6 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   float Bsum = Bcol.r + Bcol.g + Bcol.b;
   float Asum = Acol.r + Acol.g + Acol.b;
 
-  float3 BcolPM = BaseColor.rgb * (BaseColor.a);
-  float3 AcolPM = AddColor.rgb * (AddColor.a);
-
   float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
   float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
 
@@ -104,7 +101,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif AdditionGlow
   return saturate(AlphaBlending(BaseColor,AddColor,(Bcol + Acol)));
 #elif ColorDodgeGlow
-  BlendColor= AcolPM == 1 ? AcolPM : min( BcolPM / (1.0 - AcolPM) , 1.0);
+  return saturate(AlphaBlending(BaseColor,AddColor, Bcol / (1.0 - lerp(Acol , Acol * lerp(LinearToGammaSpaceExact(AddColor.a) , AddColor.a , AddColor.a), AddColor.a )) ));
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
