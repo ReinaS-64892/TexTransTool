@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.Editor
         public static void DrawerSummary(TextureBlender target)
         {
             var sObj = new SerializedObject(target);
-            var sTargetRenderer = sObj.FindProperty("TargetTexture").FindPropertyRelative("TargetRenderer");
+            var sTargetRenderer = sObj.FindProperty("TargetTexture").FindPropertyRelative("RendererAsPath");
             EditorGUILayout.PropertyField(sTargetRenderer);
             var sBlendTexture = sObj.FindProperty("BlendTexture");
             TextureTransformerEditor.DrawerObjectReference<Texture2D>(sBlendTexture);
