@@ -35,30 +35,44 @@ namespace net.rs64.TexTransCore.BlendTexture
         AlphaLerp,
         NotBlend,
     }
-    internal enum TTTBlendTypeKeyEnum
+    internal enum TTTBlendTypeKeyEnum//これをセーブデータとして使うべきではないから注意、ToStringして使うことを前提として
     {
         Normal,
+        Dissolve,
+        NotBlend,
+
         Mul,
-        Screen,
-        Overlay,
-        HardLight,
-        SoftLight,
-        ColorDodge,
         ColorBurn,
         LinearBurn,
+        DarkenOnly,
+        DarkenColorOnly,
+
+        Screen,
+        ColorDodge,
+        ColorDodgeGlow,
+        Addition,
+        AdditionGlow,
+        LightenOnly,
+        LightenColorOnly,
+
+        Overlay,
+        SoftLight,
+        HardLight,
         VividLight,
         LinearLight,
-        Divide,
-        Addition,
-        Subtract,
+        PinLight,
+        HardMix,
+
         Difference,
-        DarkenOnly,
-        LightenOnly,
+        Exclusion,
+        Subtract,
+        Divide,
+
         Hue,
         Saturation,
         Color,
         Luminosity,
-        NotBlend,
+
     }
     internal static class TextureBlend
     {
@@ -180,7 +194,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 UnityEngine.Object.DestroyImmediate(material);
             }
         }
-        private static string EscapeForShaderKeyword(string blendTypeKey) => blendTypeKey.Replace('/','_');
+        private static string EscapeForShaderKeyword(string blendTypeKey) => blendTypeKey.Replace('/', '_');
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, BlendTex add, bool keepAlpha = false)
         where BlendTex : IBlendTexturePair
         { baseRenderTexture.BlendBlit(add.Texture, add.BlendTypeKey, keepAlpha); }

@@ -1,6 +1,7 @@
 using System;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.MultiLayerImage.LayerData;
+using System.Linq;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
@@ -48,7 +49,36 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             abstractLayer.Visible = !layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible);
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
-            abstractLayer.BlendTypeKey = ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)).ToString();
+            abstractLayer.BlendTypeKey = ResolveGlow(ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)), layerRecord.AdditionalLayerInformation).ToString();
+
+
+        }
+
+        private static TTTBlendTypeKeyEnum ResolveGlow(TTTBlendTypeKeyEnum tttBlendTypeKeyEnum, AdditionalLayerInformationParser.AdditionalLayerInfo[] additionalLayerInformation)
+        {
+            switch (tttBlendTypeKeyEnum)
+            {
+                default: return tttBlendTypeKeyEnum;
+
+                case TTTBlendTypeKeyEnum.Addition:
+                    {
+                        var tsly = GetTransparencyShapesLayerData(additionalLayerInformation);
+                        if (tsly == null || tsly.TransparencyShapesLayer == true) { return tttBlendTypeKeyEnum; }
+                        return TTTBlendTypeKeyEnum.AdditionGlow;
+                    }
+                case TTTBlendTypeKeyEnum.ColorDodge:
+                    {
+                        var tsly = GetTransparencyShapesLayerData(additionalLayerInformation);
+                        if (tsly == null || tsly.TransparencyShapesLayer == true) { return tttBlendTypeKeyEnum; }
+                        return TTTBlendTypeKeyEnum.ColorDodgeGlow;
+                    }
+            }
+
+            AdditionalLayerInformationParser.tsly GetTransparencyShapesLayerData(AdditionalLayerInformationParser.AdditionalLayerInfo[] additionalLayerInformation)
+            {
+                return additionalLayerInformation.FirstOrDefault(IsTSLY) as AdditionalLayerInformationParser.tsly;
+                static bool IsTSLY(AdditionalLayerInformationParser.AdditionalLayerInfo additionalLayerInfo) => additionalLayerInfo is AdditionalLayerInformationParser.tsly;
+            }
         }
 
         public static PSDBlendMode BlendModeKeyToEnum(string blendModeStr)
@@ -125,8 +155,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 //     return TTTBlendTypeKeyEnum;
                 case PSDBlendMode.Normal:
                     return TTTBlendTypeKeyEnum.Normal;
-                // case PSDBlendMode.Dissolve:
-                //     return TTTBlendTypeKeyEnum;
+                case PSDBlendMode.Dissolve:
+                    return TTTBlendTypeKeyEnum.Dissolve;
                 case PSDBlendMode.Darken:
                     return TTTBlendTypeKeyEnum.DarkenOnly;
                 case PSDBlendMode.Multiply:
@@ -135,8 +165,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     return TTTBlendTypeKeyEnum.ColorBurn;
                 case PSDBlendMode.LinearBurn:
                     return TTTBlendTypeKeyEnum.LinearBurn;
-                // case PSDBlendMode.DarkerColor:
-                //     return TTTBlendTypeKeyEnum;
+                case PSDBlendMode.DarkerColor:
+                    return TTTBlendTypeKeyEnum.DarkenColorOnly;
                 case PSDBlendMode.Lighten:
                     return TTTBlendTypeKeyEnum.LightenOnly;
                 case PSDBlendMode.Screen:
@@ -145,8 +175,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     return TTTBlendTypeKeyEnum.ColorDodge;
                 case PSDBlendMode.LinearDodge:
                     return TTTBlendTypeKeyEnum.Addition;
-                // case PSDBlendMode.LighterColor:
-                //     return TTTBlendTypeKeyEnum;
+                case PSDBlendMode.LighterColor:
+                    return TTTBlendTypeKeyEnum.LightenColorOnly;
                 case PSDBlendMode.Overlay:
                     return TTTBlendTypeKeyEnum.Overlay;
                 case PSDBlendMode.SoftLight:
@@ -157,14 +187,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     return TTTBlendTypeKeyEnum.VividLight;
                 case PSDBlendMode.LinearLight:
                     return TTTBlendTypeKeyEnum.LinearLight;
-                // case PSDBlendMode.PinLight:
-                //     return TTTBlendTypeKeyEnum;
-                // case PSDBlendMode.HardMix:
-                //     return TTTBlendTypeKeyEnum;
+                case PSDBlendMode.PinLight:
+                    return TTTBlendTypeKeyEnum.PinLight;
+                case PSDBlendMode.HardMix:
+                    return TTTBlendTypeKeyEnum.HardMix;
                 case PSDBlendMode.Difference:
                     return TTTBlendTypeKeyEnum.Difference;
-                // case PSDBlendMode.Exclusion:
-                //     return TTTBlendTypeKeyEnum;
+                case PSDBlendMode.Exclusion:
+                    return TTTBlendTypeKeyEnum.Exclusion;
                 case PSDBlendMode.Divide:
                     return TTTBlendTypeKeyEnum.Divide;
                 case PSDBlendMode.Hue:
