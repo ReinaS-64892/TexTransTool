@@ -13,7 +13,6 @@ namespace net.rs64.TexTransTool
         internal static void LocalizeInitializer()
         {
             Language = (LanguageEnum)EditorPrefs.GetInt(TTTConfig.LANGUAGE_PREFKEY);
-            LoadLocalize();
         }
         public static void LoadLocalize()
         {
