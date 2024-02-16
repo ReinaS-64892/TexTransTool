@@ -47,6 +47,11 @@ msgstr "対象    (スケールオフセット)    マテリアル"
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "アトラス化対象か否か  (テクスチャのスケールオフセット)  マテリアル"
 
+msgid "AtlasTexture:prop:SelectedMaterialView"
+msgstr "選択済みマテリアル"
+
+msgid "AtlasTexture:prop:SelectedMaterialView:tooltip"
+msgstr "プレハブオーバーライド設定などの特殊な操作をするための物"
 
 msgid "AtlasTexture:label:AtlasSettings"
 msgstr "アトラス化設定"
@@ -213,6 +218,7 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
+
 
 #  CommonDecal
 
