@@ -47,6 +47,11 @@ msgstr "Target    (ScaleOffset)    Material"
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "atlas target  (texture scale offset)  material"
 
+msgid "AtlasTexture:prop:SelectedMaterialView"
+msgstr "SelectedMaterial"
+
+msgid "AtlasTexture:prop:SelectedMaterialView:tooltip"
+msgstr "view for special operations such as prefab override settings"
 
 msgid "AtlasTexture:label:AtlasSettings"
 msgstr "AtlasSettings"

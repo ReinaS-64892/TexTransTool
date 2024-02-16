@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     public sealed class AtlasTexture : TexTransRuntimeBehavior
     {
         public GameObject TargetRoot;
-        public List<Renderer> Renderers => FilteredRenderers(TargetRoot);
+        public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
         public List<MatSelector> SelectMatList = new List<MatSelector>();
 
         public AtlasSetting AtlasSetting = new AtlasSetting();
@@ -93,6 +93,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             public Material Material;
             public float AdditionalTextureSizeOffSet;
+
             #region V1SaveData
             [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
             #endregion
@@ -124,7 +125,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 matS.Material = domain.TryReplaceQuery(matS.Material, out var rMat) ? (Material)rMat : matS.Material;
                 return matS;
-            }).Where(I => NowContainsMatSet.Contains(I.Material)).ToList();
+            }).Where(I => I.Material != null && NowContainsMatSet.Contains(I.Material)).GroupBy(i => i.Material).Select(i => i.First()).ToList();
             atlasData.AtlasInMaterials = targetMaterialSelectors;
             var atlasSetting = AtlasSetting;
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
@@ -493,10 +494,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
-        internal List<Renderer> FilteredRenderers(GameObject targetRoot)
+        internal static List<Renderer> FilteredRenderers(GameObject targetRoot, bool includeDisabledRenderer)
         {
             var result = new List<Renderer>();
-            foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(AtlasSetting.IncludeDisabledRenderer))
+            foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(includeDisabledRenderer))
             {
                 if (item.tag == "EditorOnly") continue;
                 if (item.GetMesh() == null) continue;

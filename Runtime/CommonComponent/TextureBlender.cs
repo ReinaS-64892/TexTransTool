@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool
     {
         public TextureSelector TargetTexture;
 
-        public Texture2D BlendTexture;
+        [ExpandTexture2D]public Texture2D BlendTexture;
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;

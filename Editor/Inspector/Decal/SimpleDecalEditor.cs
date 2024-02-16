@@ -17,8 +17,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             if (isMultiEdit && PreviewContext.IsPreviewContains) { EditorGUILayout.LabelField("Multiple edits during preview are not supported.".GetLocalize()); return; }
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
-
             AbstractDecalEditor.DrawerDecalEditor(thisSObject);
 
             if (!isMultiEdit)
@@ -72,18 +70,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
                 EditorGUI.indentLevel += 1;
-                if (!isMultiEdit)
-                {
-                    AbstractDecalEditor.DrawerDecalGrabEditor(thisObject);
-                }
+                if (!isMultiEdit) { AbstractDecalEditor.DrawerDecalGrabEditor(thisObject); }
                 EditorGUI.indentLevel -= 1;
                 EditorGUILayout.LabelField("---");
             }
 
-            EditorGUI.EndDisabledGroup();
+            AbstractDecalEditor.DrawerRealTimePreviewEditor(targets);
+
             if (!isMultiEdit)
             {
-                AbstractDecalEditor.DrawerRealTimePreviewEditor(thisObject);
                 EditorGUI.BeginDisabledGroup(RealTimePreviewManager.Contains(thisObject));
                 PreviewContext.instance.DrawApplyAndRevert(thisObject);
                 EditorGUI.EndDisabledGroup();
@@ -151,12 +146,19 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         private void OnEnable()
         {
-            RealTimePreviewManager.instance.ForcesDecal = target as AbstractDecal;
+            foreach (var decal in targets)
+            {
+                RealTimePreviewManager.instance.ForcesDecal.Add(decal as AbstractDecal);
+            }
+
         }
 
         private void OnDisable()
         {
-            if (RealTimePreviewManager.instance.ForcesDecal == target) { RealTimePreviewManager.instance.ForcesDecal = null; }
+            foreach (var decal in targets)
+            {
+                RealTimePreviewManager.instance.ForcesDecal.Remove(decal as AbstractDecal);
+            }
         }
 
 

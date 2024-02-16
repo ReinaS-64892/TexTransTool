@@ -43,45 +43,30 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
 #pragma warning restore CS0612
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisTarget));
-
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
-
             var sTargetRoot = thisSObject.FindProperty("TargetRoot");
-
-            var sSelectReferenceMatList = thisSObject.FindProperty("SelectReferenceMat");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
 
-            TextureTransformerEditor.DrawerObjectReference<GameObject>(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc(), newRoot =>
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+
+            if (sTargetRoot.objectReferenceValue != null && !PreviewContext.IsPreviewContains)
             {
-                Undo.RecordObject(thisTarget, "AtlasTexture - TargetRoot");
-                RefreshMaterials(thisTarget, sTargetRoot, newRoot);
-                thisSObject.ApplyModifiedProperties();
-                return newRoot;
-            });
-            if (sTargetRoot.objectReferenceValue != null)
-            {
-                if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()))
-                {
-                    Undo.RecordObject(thisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(thisTarget, sTargetRoot, thisTarget.TargetRoot);
-                    thisSObject.ApplyModifiedProperties();
-                }
-                if (_tempMaterial == null)
-                {
-                    Undo.RecordObject(thisTarget, "AtlasTexture - SetTargetRoot");
-                    RefreshMaterials(thisTarget, sTargetRoot, thisTarget.TargetRoot);
-                }
-                MaterialSelectEditor(sMatSelectors, _tempMaterial);
+                if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
+                { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+                MaterialSelectEditor(sMatSelectors, _displayMaterial);
             }
+
+            EditorGUI.indentLevel += 1;
+            EditorGUILayout.PropertyField(sMatSelectors, "AtlasTexture:prop:SelectedMaterialView".Glc());
+            EditorGUI.indentLevel -= 1;
 
 
             DrawAtlasSettings(sAtlasSetting);
 
-
-            EditorGUI.EndDisabledGroup();
-
             PreviewContext.instance.DrawApplyAndRevert(thisTarget);
+
             serializedObject.ApplyModifiedProperties();
 
         }
@@ -262,14 +247,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        List<Material> _tempMaterial;
-        void RefreshMaterials(AtlasTexture thisTarget, SerializedProperty sTargetRoot, GameObject NewRoot)
+        List<Material> _displayMaterial;
+        void RefreshMaterials(GameObject targetRoot, bool includeDisabledRenderer)
         {
-            sTargetRoot.objectReferenceValue = NewRoot;
-            if (NewRoot == null) { return; }
-
-            var renderers = thisTarget.FilteredRenderers(NewRoot);
-            _tempMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
+            var renderers = AtlasTexture.FilteredRenderers(targetRoot, includeDisabledRenderer);
+            _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
         }
 
         public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)

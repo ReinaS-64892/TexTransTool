@@ -92,16 +92,7 @@ namespace net.rs64.TexTransTool.Editor
             var postValue = prop.floatValue;
             if (editAndFilterCollBack != null && !Mathf.Approximately(preValue, postValue)) { prop.floatValue = editAndFilterCollBack.Invoke(postValue); }
         }
-        public static void DrawerTexture2D(SerializedProperty prop, GUIContent gUIContent = null, Filter<Texture2D> editAndFilterCollBack = null, float PreviewTextureSize = 64f)
-        {
-            var Value = prop.objectReferenceValue as Texture2D;
-            if (Value != null) { EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(PreviewTextureSize)), Value, ScaleMode.ScaleToFit); }
-            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : prop.displayName.Glc());
-            if (editAndFilterCollBack != null && prop.objectReferenceValue != Value)
-            {
-                prop.objectReferenceValue = editAndFilterCollBack.Invoke(prop.objectReferenceValue as Texture2D);
-            }
-        }
+
         public static void DrawerObjectReference<T>(SerializedProperty prop, GUIContent gUIContent = null, Filter<T> editAndFilterCollBack = null) where T : UnityEngine.Object
         {
             var Value = prop.objectReferenceValue as T;
