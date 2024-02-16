@@ -22,17 +22,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - HardMix-ハードミックス
   - AdditionGlow-加算(発光)
   - ColorDodgeGlow-覆い焼(発光)
+- AtlasTexture のマテリアル選択のプレハブオーバーライドを操作するための UI を追加しました (#368)
+- SimpleDecal の RealTimePreview が複数同時にプレビューを更新したり、複数同時にプレビュー状態にする機能が追加されました。(#368)
 
 ### Changed
 
 - BlendTypeKey の並び順を変更しました (#365)
+- AtlasTexture や SimpleDecal が プレビュー中に操作できるように変更 (#368)
+- 上記に伴い AtlasTexture がプレビュー中にマテリアル選択を表示しないように変更 (#368)
+- SimpleDecal の DecalTexture の表示が変更されました
 
 ### Removed
 
 ### Fixed
 
-- BlendTypeKey の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました。(#358)
-- PropertyName の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました。(#362)
+- BlendTypeKey の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました (#358)
+- PropertyName の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました (#362)
+- 特定のケースで SimpleDecal の RealTimePreview が正しく行われない問題を修正 (#368)
 
 ### Deprecated
 
