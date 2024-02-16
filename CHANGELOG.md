@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BlendTypeKey の並び順を変更しました (#365)
 - AtlasTexture や SimpleDecal が プレビュー中に操作できるように変更 (#368)
 - 上記に伴い AtlasTexture がプレビュー中にマテリアル選択を表示しないように変更 (#368)
-- SimpleDecal の DecalTexture の表示が変更されました
+- SimpleDecal の DecalTexture の表示が変更されました (#368)
+- SimpleDecal の複数同時編集が、何かがプレビューされているときでも可能になりました (#369)
 
 ### Removed
 
