@@ -15,8 +15,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;
 
-            if (isMultiEdit && PreviewContext.IsPreviewContains) { EditorGUILayout.LabelField("Multiple edits during preview are not supported.".GetLocalize()); return; }
-
             AbstractDecalEditor.DrawerDecalEditor(thisSObject);
 
             if (!isMultiEdit)
