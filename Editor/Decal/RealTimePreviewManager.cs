@@ -24,7 +24,8 @@ namespace net.rs64.TexTransTool
         private HashSet<Renderer> PreviewTargetRenderer = new();
         private IIslandCache _islandCacheManager;
         private Stopwatch stopwatch = new();
-        long lastUpdateTime = 0;
+        [NonSerialized] long intervalTime = 0;
+        [NonSerialized] long lastUpdateTime = 0;
         public long LastDecalUpdateTime => lastUpdateTime;
         protected RealTimePreviewManager()
         {
@@ -39,7 +40,7 @@ namespace net.rs64.TexTransTool
         public static bool IsContainsRealTimePreviewDecal => instance.RealTimePreviews.Count > 0;
         public static bool IsContainsRealTimePreviewRenderer => instance.PreviewTargetRenderer.Count > 0;
         public static bool Contains(AbstractDecal abstractDecal) => instance.RealTimePreviews.ContainsKey(abstractDecal);
-        public AbstractDecal ForcesDecal;
+        public HashSet<AbstractDecal> ForcesDecal = new();
 
         private void RegtRenderer(Renderer renderer)
         {
@@ -134,6 +135,7 @@ namespace net.rs64.TexTransTool
         private void PreviewStart()
         {
             lastUpdateTime = 0;
+            intervalTime = 0;
             stopwatch.Stop();
             stopwatch.Reset();
             EditorApplication.update -= PreviewForcesDecalUpdate;
@@ -154,6 +156,7 @@ namespace net.rs64.TexTransTool
                 stopwatch.Stop();
                 stopwatch.Reset();
                 lastUpdateTime = 0;
+                intervalTime = 0;
             }
         }
         private void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
@@ -269,14 +272,21 @@ namespace net.rs64.TexTransTool
         {
             if (ForcesDecal == null) { return; }
 
-            if (!Contains(ForcesDecal)) { return; }
-            if ((lastUpdateTime * lastUpdateTime) > stopwatch.ElapsedMilliseconds) { return; }
-            stopwatch.Stop();
+            if (!ForcesDecal.Any(Contains)) { return; }
+
+            if (stopwatch.IsRunning)//intervalTimeがあるのにストップウォッチが進んでないケースは強制的にアップデートする
+            {
+                if (intervalTime > stopwatch.ElapsedMilliseconds) { return; }
+                stopwatch.Stop();
+            }
 
             stopwatch.Restart();
-            UpdateAbstractDecal(ForcesDecal);
+            foreach (var decal in ForcesDecal) { UpdateAbstractDecal(decal); }
             stopwatch.Stop();
+
             lastUpdateTime = stopwatch.ElapsedMilliseconds;
+            intervalTime = lastUpdateTime * lastUpdateTime;
+            if (intervalTime > 4096) { intervalTime = 4096; }
 
             stopwatch.Restart();
         }

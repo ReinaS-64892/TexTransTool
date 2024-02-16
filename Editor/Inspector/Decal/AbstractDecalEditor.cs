@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine.Pool;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -31,7 +34,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
 
             var sDecalTexture = thisSObject.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerTexture2D(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
+            EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
 
             var sColor = thisSObject.FindProperty("Color");
             EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
@@ -43,27 +46,30 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
             EditorGUI.indentLevel -= 1;
         }
-        public static void DrawerRealTimePreviewEditor(AbstractDecal target)
+        public static void DrawerRealTimePreviewEditor(object[] target)
         {
-            if (target == null) { return; }
+            var list = ListPool<AbstractDecal>.Get(); list.Capacity = target.Length;
+            foreach (var decal in target)
+            { if (decal is AbstractDecal abstractDecal) { list.Add(abstractDecal); } }
+
+            DrawerRealTimePreviewEditor(list);
+
+            ListPool<AbstractDecal>.Release(list);
+        }
+        public static void DrawerRealTimePreviewEditor(IEnumerable<AbstractDecal> target)
+        {
+            if (!target.Any()) { return; }
 
 
-            if (!RealTimePreviewManager.Contains(target))
+            if (!target.Any(RealTimePreviewManager.Contains))
             {
-                bool IsPossibleRealTimePreview;
-                if (RealTimePreviewManager.IsContainsRealTimePreviewDecal)
-                {
-                    IsPossibleRealTimePreview = target.IsPossibleApply;
-                }
-                else
-                {
-                    IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
-                    IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
-                }
+                bool IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
+                IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
+
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
-                    RealTimePreviewManager.instance.RegtAbstractDecal(target);
+                    foreach (var decal in target) { RealTimePreviewManager.instance.RegtAbstractDecal(decal); }
                 }
                 EditorGUI.EndDisabledGroup();
             }
@@ -74,7 +80,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
                 if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
                 {
-                    RealTimePreviewManager.instance.UnRegtAbstractDecal(target);
+                    foreach (var decal in target) { RealTimePreviewManager.instance.UnRegtAbstractDecal(decal); }
                 }
                 if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("SimpleDecal:button:AllExit".Glc(), GUILayout.Width(60)))
                 {
