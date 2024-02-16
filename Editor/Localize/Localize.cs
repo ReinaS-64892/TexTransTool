@@ -24,6 +24,7 @@ namespace net.rs64.TexTransTool
 
         public static string GetLocalize(this string str)
         {
+            if (!LocalizationAssets.ContainsKey(Language)) { LoadLocalize(); }
             return LocalizationAssets[Language].GetLocalizedString(str);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -10,7 +11,7 @@ namespace net.rs64.TexTransTool.Decal
     where SpaceConverter : DecalUtility.IConvertSpace<UVDimension>
     where UVDimension : struct
     {
-        public Texture2D DecalTexture;
+        [ExpandTexture2D] public Texture2D DecalTexture;
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         internal abstract SpaceConverter GetSpaceConverter(IIslandCache islandCacheManager);
         internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter(IIslandCache islandCacheManager);
