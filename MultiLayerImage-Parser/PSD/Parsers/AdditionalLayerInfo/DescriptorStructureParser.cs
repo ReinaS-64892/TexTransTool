@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
     internal static class DescriptorStructureParser
     {

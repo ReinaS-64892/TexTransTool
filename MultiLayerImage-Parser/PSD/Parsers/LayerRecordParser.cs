@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInformationParser;
+using net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 
 
@@ -35,7 +35,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public LayerMaskAdjustmentLayerData LayerMaskAdjustmentLayerData;
             public LayerBlendingRangesData LayerBlendingRangesData;
             public string LayerName;
-            public AdditionalLayerInfo[] AdditionalLayerInformation;
+            [UnityEngine.SerializeReference] public AdditionalLayerInfo.AdditionalLayerInfoBase[] AdditionalLayerInformation;
         }
         [Serializable]
         internal class RectTangle
@@ -194,9 +194,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             var AdditionalLayerInformationSpan = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
 
-            layerRecord.AdditionalLayerInformation = PaseAdditionalLayerInfos(AdditionalLayerInformationSpan);
+            layerRecord.AdditionalLayerInformation = AdditionalLayerInformationParser.PaseAdditionalLayerInfos(AdditionalLayerInformationSpan);
 
-            var unicodeLayerName = layerRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.luni) as AdditionalLayerInformationParser.luni;
+            var unicodeLayerName = layerRecord.AdditionalLayerInformation.FirstOrDefault(I => I is luni) as luni;
             if (unicodeLayerName != null) { layerRecord.LayerName = unicodeLayerName.LayerName; }
 
             return layerRecord;

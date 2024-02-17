@@ -16,6 +16,7 @@ using LayerMask = net.rs64.MultiLayerImage.LayerData.LayerMaskData;
 using System.Buffers;
 using Unity.Collections;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo.lsct;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
@@ -45,8 +46,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 var record = imageRecordQueue.Dequeue();
 
-                var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
-                if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
+                var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
+                if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInfo.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
                     rootLayers.Add(ParseLayerFolder(record, imageRecordQueue, imageDataQueue));
                 }
@@ -69,34 +70,36 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 var PeekRecord = imageRecordQueue.Peek();
 
+                var debugName = PeekRecord.LayerName;
 
-                var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
+                var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
 
                 if (PeekSectionDividerSetting == null)
-                {
-                    layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), imageDataQueue));
-                }
-                else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
+                { layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), imageDataQueue)); }
+                else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
                     layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), imageRecordQueue, imageDataQueue));
                 }
-                else if (PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.OpenFolder
-                || PeekSectionDividerSetting.SelectionDividerType == AdditionalLayerInformationParser.lsct.SelectionDividerTypeEnum.ClosedFolder)
+                else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.OpenFolder
+                || PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.ClosedFolder)
                 {
                     break;
+                }
+                else
+                {
+                    Debug.Log("AnyOther???" + PeekRecord.LayerName);
                 }
 
             }
             var EndFolderRecord = imageRecordQueue.Dequeue();
-            layerFolder.CopyFromRecord(EndFolderRecord);
+            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
+            layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
 
-            var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInformationParser.lsct) as AdditionalLayerInformationParser.lsct;
+            var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
             var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey);
             layerFolder.BlendTypeKey = PSDLayer.ConvertBlendType(BlendModeKeyEnum).ToString();
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
 
-            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
-            layerFolder.LayerMask = ParseLayerMask(EndFolderRecord, endChannelInfoAndImage);
 
             return layerFolder;
         }
@@ -104,56 +107,55 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
 
-            if (TryParseSpecialLayer(record, out var abstractLayerData)) { return abstractLayerData; }
+            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData)) { return abstractLayerData; }
 
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRawCompressLength() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record); return emptyData; }
+            || record.RectTangle.CalculateRawCompressLength() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record, channelInfoAndImage); return emptyData; }
 
             var rasterLayer = new RasterLayerData();
-            rasterLayer.CopyFromRecord(record);
+            rasterLayer.CopyFromRecord(record, channelInfoAndImage);
 
             rasterLayer.RasterTexture = ParseRasterImage(record, channelInfoAndImage);
-            rasterLayer.LayerMask = ParseLayerMask(record, channelInfoAndImage);
 
             return rasterLayer;
         }
-        internal static bool TryParseSpecialLayer(LayerRecord record, out AbstractLayerData abstractLayerData)
+        internal static bool TryParseSpecialLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage, out AbstractLayerData abstractLayerData)
         {
             var addLayerInfoTypes = record.AdditionalLayerInformation.Select(i => i.GetType()).ToHashSet();
             var spPair = SpecialParserDict.FirstOrDefault(i => addLayerInfoTypes.Contains(i.Key));
 
             if (spPair.Key == null || spPair.Value == null) { abstractLayerData = null; return false; }
 
-            abstractLayerData = spPair.Value.Invoke(record);
+            abstractLayerData = spPair.Value.Invoke(record, channelInfoAndImage);
             return true;
         }
-        internal delegate AbstractLayerData SpecialLayerParser(LayerRecord record);
+        internal delegate AbstractLayerData SpecialLayerParser(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage);
         internal static Dictionary<Type, SpecialLayerParser> SpecialParserDict = new()
         {
-            {typeof(AdditionalLayerInformationParser.hue2),SpecialHueLayer},
-            {typeof(AdditionalLayerInformationParser.hueOld),SpecialHueLayer},
-            {typeof(AdditionalLayerInformationParser.SoCo), SpecialSolidColorLayer}
+            {typeof(AdditionalLayerInfo.hue2),SpecialHueLayer},
+            {typeof(AdditionalLayerInfo.hueOld),SpecialHueLayer},
+            {typeof(AdditionalLayerInfo.SoCo), SpecialSolidColorLayer}
         };
 
-        private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record)
+        private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             var solidColorData = new SolidColorLayerData();
-            var soCo = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInformationParser.SoCo) as AdditionalLayerInformationParser.SoCo;
+            var soCo = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.SoCo) as AdditionalLayerInfo.SoCo;
 
-            solidColorData.CopyFromRecord(record);
+            solidColorData.CopyFromRecord(record, channelInfoAndImage);
             solidColorData.Color = soCo.Color;
 
             return solidColorData;
         }
 
-        internal static AbstractLayerData SpecialHueLayer(LayerRecord record)
+        internal static AbstractLayerData SpecialHueLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             var hueData = new HSVAdjustmentLayerData();
-            var hue = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInformationParser.hue) as AdditionalLayerInformationParser.hue;
+            var hue = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.hue) as AdditionalLayerInfo.hue;
 
             if (hue.Colorization) { Debug.Log($"Colorization of {record.LayerName} is no supported"); }
 
-            hueData.CopyFromRecord(record);
+            hueData.CopyFromRecord(record, channelInfoAndImage);
 
             hueData.Hue = hue.Hue / (float)(hue.IsOld ? 100 : 180);
             hueData.Saturation = hue.Saturation / 100f;
@@ -164,10 +166,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         private static ImportRasterImageData ParseRasterImage(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
-            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)
-                || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue)
-                || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-                || record.RectTangle.CalculateRawCompressLength() == 0) { return null; }
+            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)) { return null; }
+            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue)) { return null; }
+            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)) { return null; }
+            if (record.RectTangle.CalculateRawCompressLength() == 0) { return null; }
 
             var importedRaster = new PSDImportedRasterImageData();
             importedRaster.RectTangle = record.RectTangle;
@@ -178,7 +180,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             return importedRaster;
         }
-        private static LayerMask ParseLayerMask(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
+        internal static LayerMask ParseLayerMask(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.UserLayerMask)) { return null; }
             if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return null; }

@@ -14,7 +14,7 @@ namespace net.rs64.MultiLayerImage.Parser
     {
         public Span<byte> Span;
         private int _position;
-        private int _firstToPosition;
+        private long _firstToPosition;
         public int Position
         {
             get => _position;
@@ -32,9 +32,9 @@ namespace net.rs64.MultiLayerImage.Parser
         }
         public int Length => Span.Length;
 
-        public int FirstToPosition => _firstToPosition;
+        public long FirstToPosition => _firstToPosition;
 
-        public SubSpanStream(Span<byte> bytes, int firstToPosition = 0)
+        public SubSpanStream(Span<byte> bytes, long firstToPosition = 0)
         {
             Span = bytes;
             _position = 0;
