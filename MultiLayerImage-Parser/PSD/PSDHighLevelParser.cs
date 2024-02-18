@@ -17,6 +17,7 @@ using System.Buffers;
 using Unity.Collections;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo.lsct;
+using net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
@@ -134,7 +135,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             {typeof(AdditionalLayerInfo.hue2),SpecialHueLayer},
             {typeof(AdditionalLayerInfo.hueOld),SpecialHueLayer},
-            {typeof(AdditionalLayerInfo.SoCo), SpecialSolidColorLayer}
+            {typeof(AdditionalLayerInfo.SoCo), SpecialSolidColorLayer},
+            {typeof(AdditionalLayerInfo.levl), SpecialLevelLayer},
         };
 
         private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
@@ -162,6 +164,34 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             hueData.Lightness = hue.Lightness / 100f;
 
             return hueData;
+        }
+
+        internal static AbstractLayerData SpecialLevelLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
+        {
+            var levelData = new LevelAdjustmentLayerData();
+            var levl = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.levl) as AdditionalLayerInfo.levl;
+
+            levelData.CopyFromRecord(record, channelInfoAndImage);
+
+            levelData.RGB = Convert(levl.RGB);
+            levelData.Red = Convert(levl.Red);
+            levelData.Green = Convert(levl.Green);
+            levelData.Blue = Convert(levl.Blue);
+
+            return levelData;
+
+            static LevelAdjustmentLayerData.LevelData Convert(levl.LevelData levelData)
+            {
+                var data = new LevelAdjustmentLayerData.LevelData();
+
+                data.InputFloor = levelData.InputFloor / 255f;
+                data.InputCeiling = levelData.InputCeiling / 255f;
+                data.OutputFloor = levelData.OutputFloor / 255f;
+                data.OutputCeiling = levelData.OutputCeiling / 255f;
+                data.Gamma = levelData.Gamma * 0.01f;
+
+                return data;
+            }
         }
 
         private static ImportRasterImageData ParseRasterImage(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)

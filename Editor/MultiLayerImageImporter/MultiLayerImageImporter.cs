@@ -67,6 +67,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateSolidColorLayer(newLayer, solidColorLayerData);
                             break;
                         }
+                    case LevelAdjustmentLayerData levelAdjustmentLayerData:
+                        {
+                            CreateLevelLayer(newLayer, levelAdjustmentLayerData);
+                            break;
+
+                        }
+
                 }
             }
 
@@ -88,6 +95,30 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
             HSVAdjustmentLayerComponent.Saturation = hSVAdjustmentLayerData.Saturation;
             HSVAdjustmentLayerComponent.Lightness = hSVAdjustmentLayerData.Lightness;
+        }
+
+        private void CreateLevelLayer(GameObject newLayer, LevelAdjustmentLayerData levelAdjustmentLayerData)
+        {
+            var HSVAdjustmentLayerComponent = newLayer.AddComponent<LevelAdjustmentLayer>();
+            CopyFromData(HSVAdjustmentLayerComponent, levelAdjustmentLayerData);
+
+            HSVAdjustmentLayerComponent.RGB = Convert(levelAdjustmentLayerData.RGB);
+            HSVAdjustmentLayerComponent.Red = Convert(levelAdjustmentLayerData.Red);
+            HSVAdjustmentLayerComponent.Green = Convert(levelAdjustmentLayerData.Green);
+            HSVAdjustmentLayerComponent.Blue = Convert(levelAdjustmentLayerData.Blue);
+
+            static LevelAdjustmentLayer.Level Convert(LevelAdjustmentLayerData.LevelData levelData)
+            {
+                var level = new LevelAdjustmentLayer.Level();
+
+                level.InputFloor = levelData.InputFloor;
+                level.InputCeiling = levelData.InputCeiling;
+                level.Gamma = levelData.Gamma;
+                level.OutputFloor = levelData.OutputFloor;
+                level.OutputCeiling = levelData.OutputCeiling;
+
+                return level;
+            }
         }
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)
