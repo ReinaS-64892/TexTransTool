@@ -33,7 +33,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Where(I => I != null)
             .Reverse();
 
-            var canvasSize = domain.IsPreview() ? 1024 : tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
+            var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
+            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024,canvasSize); }
 
             var canvasContext = new CanvasContext(canvasSize, domain.GetTextureManager());
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
@@ -159,7 +160,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             void Composite(BlendRenderTexture newLayer)
             {
                 CompositeClippingTarget();
+
                 _nowClippingTarget = new ClippingLayer(newLayer.ToEval());
+
                 // if (!disallowClipping) { _nowClippingTarget = new ClippingLayer(newLayer.ToEval()); }
                 // else { _nowClippingTarget = new DisallowClippingLayer(newLayer.ToEval()); }
             }
