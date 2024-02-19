@@ -17,6 +17,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
             texR.filterMode = FilterMode.Point;
 
+            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
+
             if (!isZeroSize)
             {
                 using (var data = MaskImageData.MaskImage.GetImageData(importSouse, MaskImageData.RectTangle))
@@ -32,11 +34,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 mat.SetTexture("_ATex", texR);
 
                 mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, MaskImageData.RectTangle.GetWidth() / (float)CanvasDescription.Width, MaskImageData.RectTangle.GetHeight() / (float)CanvasDescription.Height));
+                Graphics.Blit(null, WriteTarget, mat);
             }
 
-
-            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
-            if (!isZeroSize) { Graphics.Blit(null, WriteTarget, mat); }
             UnityEngine.Object.DestroyImmediate(mat);
             UnityEngine.Object.DestroyImmediate(texR);
         }
