@@ -213,7 +213,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         internal static LayerMask ParseLayerMask(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.UserLayerMask)) { return null; }
-            if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return null; }
+            //サイズゼロで一色のマスクが存在することがあるっぽくて、画像のあるなしでは判別してはいけないらしい。
+            // if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return null; }
 
 
             var importedMask = new PSDImportedRasterMaskImageData();
