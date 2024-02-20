@@ -137,7 +137,30 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {typeof(AdditionalLayerInfo.hueOld),SpecialHueLayer},
             {typeof(AdditionalLayerInfo.SoCo), SpecialSolidColorLayer},
             {typeof(AdditionalLayerInfo.levl), SpecialLevelLayer},
+            {typeof(AdditionalLayerInfo.selc), SpecialSelectiveColorLayer},
         };
+
+        private static AbstractLayerData SpecialSelectiveColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
+        {
+            var selectiveColorData = new SelectiveColorLayerData();
+            var selc = record.AdditionalLayerInformation.First(i => i is selc) as selc;
+
+            selectiveColorData.CopyFromRecord(record, channelInfoAndImage);
+
+            selectiveColorData.RedsCMYK = selc.RedsCMYK;
+            selectiveColorData.YellowsCMYK = selc.YellowsCMYK;
+            selectiveColorData.GreensCMYK = selc.GreensCMYK;
+            selectiveColorData.CyansCMYK = selc.CyansCMYK;
+            selectiveColorData.BluesCMYK = selc.BluesCMYK;
+            selectiveColorData.MagentasCMYK = selc.MagentasCMYK;
+            selectiveColorData.WhitesCMYK = selc.WhitesCMYK;
+            selectiveColorData.NeutralsCMYK = selc.NeutralsCMYK;
+            selectiveColorData.BlacksCMYK = selc.BlacksCMYK;
+
+            selectiveColorData.IsAbsolute = selc.IsAbsolute;
+
+            return selectiveColorData;
+        }
 
         private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {

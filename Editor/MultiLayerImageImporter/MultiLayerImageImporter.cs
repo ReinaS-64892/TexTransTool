@@ -71,12 +71,33 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                         {
                             CreateLevelLayer(newLayer, levelAdjustmentLayerData);
                             break;
-
+                        }
+                    case SelectiveColorLayerData selectiveColorLayerData:
+                        {
+                            CreateSelectiveColorLayer(newLayer, selectiveColorLayerData);
+                            break;
                         }
 
                 }
             }
 
+        }
+
+        private void CreateSelectiveColorLayer(GameObject newLayer, SelectiveColorLayerData selectiveColorLayerData)
+        {
+            var selectiveColoringAdjustmentLayer = newLayer.AddComponent<SelectiveColoringAdjustmentLayer>();
+            CopyFromData(selectiveColoringAdjustmentLayer, selectiveColorLayerData);
+
+            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK;
+            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK;
+            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK;
+            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK;
+            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK;
+            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK;
+            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK;
+            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK;
+            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK;
+            selectiveColoringAdjustmentLayer.IsAbsolute = selectiveColorLayerData.IsAbsolute;
         }
 
         private void CreateSolidColorLayer(GameObject newLayer, SolidColorLayerData solidColorLayerData)
