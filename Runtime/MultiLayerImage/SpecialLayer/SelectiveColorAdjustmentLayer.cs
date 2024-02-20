@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture)
         {
-            var mat = new Material(SpecialLayerShaders.SelectiveColoringAdjustment);
+            var mat = new Material(SpecialLayerShaders.SelectiveColorAdjustment);
 
             mat.SetVector("_RedsCMYK", RedsCMYK);
             mat.SetVector("_YellowsCMYK", YellowsCMYK);

@@ -1,4 +1,4 @@
-Shader "Hidden/SelectiveColoringAdjustment"
+Shader "Hidden/SelectiveColorAdjustment"
 {
     Properties
     {
