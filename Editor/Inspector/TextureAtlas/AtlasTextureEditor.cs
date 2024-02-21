@@ -5,6 +5,8 @@ using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System;
+using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -321,14 +323,28 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             return -1;
         }
-        public static void DrawerSummary(AtlasTexture target)
+        [InitializeOnLoadMethod]
+        internal static void RegisterSummary()
         {
-            var sObj = new SerializedObject(target);
-            var sTargetRenderers = sObj.FindProperty("TargetRoot");
-            EditorGUILayout.PropertyField(sTargetRenderers, "AtlasTexture:prop:TargetRoot".Glc());
-            var sAtlasTextureSize = sObj.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
-            EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
-            sObj.ApplyModifiedProperties();
+            TexTransGroupEditor.s_summary[typeof(AtlasTexture)] = at =>
+            {
+                var ve = new VisualElement();
+                var serializedObject = new SerializedObject(at);
+                var sTargetRenderers = serializedObject.FindProperty("TargetRoot");
+                var sAtlasTextureSize = serializedObject.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
+
+                var targetRoot = new PropertyField();
+                targetRoot.label = "AtlasTexture:prop:TargetRoot".GetLocalize();
+                targetRoot.BindProperty(sTargetRenderers);
+                ve.hierarchy.Add(targetRoot);
+
+                var atlasTextureSize = new PropertyField();
+                atlasTextureSize.label = "AtlasTexture:prop:AtlasTextureSize".GetLocalize();
+                atlasTextureSize.BindProperty(sAtlasTextureSize);
+                ve.hierarchy.Add(atlasTextureSize);
+
+                return ve;
+            };
         }
     }
 }

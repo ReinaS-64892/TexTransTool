@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -129,19 +131,30 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel -= 1;
         }
 
-        public static void DrawerSummary(SimpleDecal target)
+
+        [InitializeOnLoadMethod]
+        internal static void RegisterSummary()
         {
-            var sObj = new SerializedObject(target);
+            TexTransGroupEditor.s_summary[typeof(SimpleDecal)] = at =>
+            {
+                var ve = new VisualElement();
+                var serializedObject = new SerializedObject(at);
+                var sTargetRenderers = serializedObject.FindProperty("TargetRenderers");
+                var sAtlasTextureSize = serializedObject.FindProperty("DecalTexture");
 
-            var sTargetRenderers = sObj.FindProperty("TargetRenderers");
-            TextureTransformerEditor.DrawerTargetRenderersSummary(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc());
+                var targetRoot = new PropertyField();
+                targetRoot.label = "CommonDecal:prop:TargetRenderer".GetLocalize();
+                targetRoot.BindProperty(sTargetRenderers.GetArrayElementAtIndex(0));
+                ve.hierarchy.Add(targetRoot);
 
-            var sDecalTexture = sObj.FindProperty("DecalTexture");
-            TextureTransformerEditor.DrawerObjectReference<Texture2D>(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
+                var atlasTextureSize = new ObjectField();
+                atlasTextureSize.label = "CommonDecal:prop:DecalTexture".GetLocalize();
+                atlasTextureSize.BindProperty(sAtlasTextureSize);
+                ve.hierarchy.Add(atlasTextureSize);
 
-            sObj.ApplyModifiedProperties();
+                return ve;
+            };
         }
-
         private void OnEnable()
         {
             foreach (var decal in targets)

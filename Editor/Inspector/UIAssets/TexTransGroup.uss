@@ -1,0 +1,34 @@
+.SummaryElementRoot {
+
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-left: 1px;
+    margin-right: 1px;
+
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+
+    border-top-color: rgb(125, 125, 125);
+    border-bottom-color: rgb(125, 125, 125);
+    border-left-color: rgb(125, 125, 125);
+    border-right-color: rgb(125, 125, 125);
+}
+
+.ActiveToggle {
+    width: 10%;
+}
+
+.TexTransBehaviorRef {
+    width: 90%;
+    padding-right: 5px;
+}
+
+.SummaryContainer {
+
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-left: 16px;
+    margin-right: 4px;
+}
