@@ -9,12 +9,20 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 - PSD のすべてのブレンドモードのインポートに対応 (#366)
 - PSD から 加算(発光),覆い焼き(発光) のインポートに対応 (#366)
+- 通過レイヤーフォルダーに対してクリッピングが行るようになりました (#370)
+- "lsdk" が使われている PSD をインポートできるようになりました (#370)
+- LevelAdjustmentLayer が追加されました (#370)
+- PSD から LevelAdjustmentLayer がインポートできるようになりました (#370)
+- SelectiveColorAdjustment が追加されました (#370)
+- PSD から SelectiveColorAdjustment がインポートできるようになりました (#370)
 
 ### Changed
 
 ### Removed
 
 ### Fixed
+
+- 一色しかないのマスクのインポートができていなかった問題を修正 (#370)
 
 ### Deprecated
 

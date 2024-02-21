@@ -2,6 +2,9 @@ using System;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.MultiLayerImage.LayerData;
 using System.Linq;
+using System.Collections.Generic;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
@@ -42,7 +45,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
     internal static class PSDLayer
     {
 
-        public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord)
+        public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord, Dictionary<ChannelIDEnum, ChannelImageData> channelImageData)
         {
             abstractLayer.LayerName = layerRecord.LayerName;
             abstractLayer.TransparencyProtected = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.TransparencyProtected);
@@ -50,11 +53,11 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
             abstractLayer.BlendTypeKey = ResolveGlow(ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)), layerRecord.AdditionalLayerInformation).ToString();
-
+            abstractLayer.LayerMask = PSDHighLevelParser.ParseLayerMask(layerRecord, channelImageData);
 
         }
 
-        private static TTTBlendTypeKeyEnum ResolveGlow(TTTBlendTypeKeyEnum tttBlendTypeKeyEnum, AdditionalLayerInformationParser.AdditionalLayerInfo[] additionalLayerInformation)
+        private static TTTBlendTypeKeyEnum ResolveGlow(TTTBlendTypeKeyEnum tttBlendTypeKeyEnum, AdditionalLayerInfo.AdditionalLayerInfoBase[] additionalLayerInformation)
         {
             switch (tttBlendTypeKeyEnum)
             {
@@ -74,10 +77,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     }
             }
 
-            AdditionalLayerInformationParser.tsly GetTransparencyShapesLayerData(AdditionalLayerInformationParser.AdditionalLayerInfo[] additionalLayerInformation)
+            AdditionalLayerInfo.tsly GetTransparencyShapesLayerData(AdditionalLayerInfo.AdditionalLayerInfoBase[] additionalLayerInformation)
             {
-                return additionalLayerInformation.FirstOrDefault(IsTSLY) as AdditionalLayerInformationParser.tsly;
-                static bool IsTSLY(AdditionalLayerInformationParser.AdditionalLayerInfo additionalLayerInfo) => additionalLayerInfo is AdditionalLayerInformationParser.tsly;
+                return additionalLayerInformation.FirstOrDefault(IsTSLY) as AdditionalLayerInfo.tsly;
+                static bool IsTSLY(AdditionalLayerInfo.AdditionalLayerInfoBase additionalLayerInfo) => additionalLayerInfo is AdditionalLayerInfo.tsly;
             }
         }
 

@@ -219,5 +219,7 @@ namespace net.rs64.TexTransTool
         {
             return _islandCache;
         }
+
+        public bool IsPreview() => Previewing;
     }
 }

@@ -1,16 +1,23 @@
 using System;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
-    internal static partial class AdditionalLayerInformationParser
-    {
-        [Serializable]
-        internal class AdditionalLayerInfo
-        {
-            public uint Length;
-            public virtual void ParseAddLY(SubSpanStream stream) { }
-        }
 
+    [Serializable]
+    internal class AdditionalLayerInfoBase
+    {
+        public uint Length;
+        public virtual void ParseAddLY(SubSpanStream stream) { }
+    }
+    [Serializable]
+    internal class FallBackAdditionalLayerInfoParser : AdditionalLayerInfoBase
+    {
+        public string KeyCode;
+        public long ByteIndex;
+        public override void ParseAddLY(SubSpanStream stream)
+        {
+            ByteIndex = stream.FirstToPosition;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Class)]

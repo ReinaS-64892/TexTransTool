@@ -20,48 +20,39 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Select(I => I.GetComponent<AbstractLayer>())
             .Reverse();
 
-            using (canvasContext.LayerCanvas.AlphaModScope(GetLayerAlphaMod(canvasContext)))
+            if (PassThrough && !Clipping)
             {
-                if (PassThrough && !Clipping)
-                {
-                    if (!Visible) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(true, Clipping)); return; }
+                if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(false, false); return; }
 
-                    //下のレイヤーとクリッピングをできなくする
-                    canvasContext.LayerCanvas.AddLayer(new(false, true, false, null, null));
+                using (canvasContext.LayerCanvas.UsingLayerScope(GetLayerAlphaMod(canvasContext)))
+                {
                     foreach (var layer in Layers)
                     {
                         layer.EvaluateTexture(canvasContext);
                     }
-                    //上のレイヤーがクリッピングをできなくする
-                    canvasContext.LayerCanvas.AddLayer(new(false, true, false, null, null));
-                }
-                else
-                {
-                    if (!Visible) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(false, Clipping)); return; }
-
-                    var subContext = canvasContext.CreateSubCanvas;
-                    foreach (var layer in Layers)
-                    {
-                        layer.EvaluateTexture(subContext);
-                    }
-
-                    var resTex = subContext.LayerCanvas.FinalizeCanvas();
-
-                    if (Clipping)
-                    {
-                        canvasContext.LayerCanvas.AddLayer(new(false, false, Clipping, resTex, BlendTypeKey));
-                    }
-                    else
-                    {
-                        canvasContext.LayerCanvas.AddLayer(new(false, false, Clipping, resTex, PassThrough ? BL_KEY_DEFAULT : BlendTypeKey));
-                    }
                 }
             }
+            else
+            {
+                if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(Clipping, false); return; }
 
+                var subContext = canvasContext.CreateSubCanvas;
+                foreach (var layer in Layers)
+                {
+                    layer.EvaluateTexture(subContext);
+                }
 
+                var resTex = subContext.LayerCanvas.FinalizeCanvas();
+                var mask = GetLayerAlphaMod(canvasContext);
+
+                if (Clipping) { canvasContext.LayerCanvas.AddLayer(new(resTex, BlendTypeKey), mask, Clipping); }
+                else { canvasContext.LayerCanvas.AddLayer(new(resTex, PassThrough ? BL_KEY_DEFAULT : BlendTypeKey), mask, false); }
+
+            }
         }
 
 
     }
+
 
 }

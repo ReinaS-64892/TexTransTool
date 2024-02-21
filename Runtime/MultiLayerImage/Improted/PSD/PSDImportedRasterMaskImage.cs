@@ -12,26 +12,31 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)
         {
-
+            var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
             var mat = new Material(PSDImportedRasterImage.MargeColorAndOffsetShader);
             var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
             texR.filterMode = FilterMode.Point;
 
-            using (var data = MaskImageData.MaskImage.GetImageData(importSouse, MaskImageData.RectTangle))
+            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
+
+            if (!isZeroSize)
             {
-                texR.LoadRawTextureData(data); texR.Apply();
+                using (var data = MaskImageData.MaskImage.GetImageData(importSouse, MaskImageData.RectTangle))
+                {
+                    texR.LoadRawTextureData(data); texR.Apply();
+                }
+
+
+
+                mat.SetTexture("_RTex", texR);
+                mat.SetTexture("_GTex", texR);
+                mat.SetTexture("_BTex", texR);
+                mat.SetTexture("_ATex", texR);
+
+                mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, MaskImageData.RectTangle.GetWidth() / (float)CanvasDescription.Width, MaskImageData.RectTangle.GetHeight() / (float)CanvasDescription.Height));
+                Graphics.Blit(null, WriteTarget, mat);
             }
 
-
-            mat.SetTexture("_RTex", texR);
-            mat.SetTexture("_GTex", texR);
-            mat.SetTexture("_BTex", texR);
-            mat.SetTexture("_ATex", texR);
-
-            mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, MaskImageData.RectTangle.GetWidth() / (float)CanvasDescription.Width, MaskImageData.RectTangle.GetHeight() / (float)CanvasDescription.Height));
-
-            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
-            Graphics.Blit(null, WriteTarget, mat);
             UnityEngine.Object.DestroyImmediate(mat);
             UnityEngine.Object.DestroyImmediate(texR);
         }

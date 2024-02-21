@@ -11,21 +11,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
-            if (!Visible) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(true, Clipping)); return; }
+            if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(Clipping, true); return; }
 
-            var rTex = RenderTexture.GetTemporary(canvasContext.CanvasSize, canvasContext.CanvasSize, 0); rTex.Clear();
-            var grabTex = canvasContext.LayerCanvas.GrabCanvas(Clipping);
-
-            if (grabTex == null) { canvasContext.LayerCanvas.AddLayer(BlendLayer.Null(true, true)); return; }
-
-            GetImage(grabTex, rTex, canvasContext.TextureManager);
-
-            RenderTexture.ReleaseTemporary(grabTex);
-
-            using (canvasContext.LayerCanvas.AlphaModScope(GetLayerAlphaMod(canvasContext)))
-            {
-                canvasContext.LayerCanvas.AddLayer(new(false, true, Clipping, rTex, BlendTypeKey, true));
-            }
+            var mask = GetLayerAlphaMod(canvasContext);
+            canvasContext.LayerCanvas.GrabCanvas((grab, write) => GetImage(grab, write, canvasContext.TextureManager), mask, BlendTypeKey, Clipping);
         }
 
     }

@@ -67,9 +67,37 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateSolidColorLayer(newLayer, solidColorLayerData);
                             break;
                         }
+                    case LevelAdjustmentLayerData levelAdjustmentLayerData:
+                        {
+                            CreateLevelLayer(newLayer, levelAdjustmentLayerData);
+                            break;
+                        }
+                    case SelectiveColorLayerData selectiveColorLayerData:
+                        {
+                            CreateSelectiveColorLayer(newLayer, selectiveColorLayerData);
+                            break;
+                        }
+
                 }
             }
 
+        }
+
+        private void CreateSelectiveColorLayer(GameObject newLayer, SelectiveColorLayerData selectiveColorLayerData)
+        {
+            var selectiveColoringAdjustmentLayer = newLayer.AddComponent<SelectiveColoringAdjustmentLayer>();
+            CopyFromData(selectiveColoringAdjustmentLayer, selectiveColorLayerData);
+
+            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK;
+            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK;
+            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK;
+            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK;
+            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK;
+            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK;
+            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK;
+            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK;
+            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK;
+            selectiveColoringAdjustmentLayer.IsAbsolute = selectiveColorLayerData.IsAbsolute;
         }
 
         private void CreateSolidColorLayer(GameObject newLayer, SolidColorLayerData solidColorLayerData)
@@ -88,6 +116,30 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
             HSVAdjustmentLayerComponent.Saturation = hSVAdjustmentLayerData.Saturation;
             HSVAdjustmentLayerComponent.Lightness = hSVAdjustmentLayerData.Lightness;
+        }
+
+        private void CreateLevelLayer(GameObject newLayer, LevelAdjustmentLayerData levelAdjustmentLayerData)
+        {
+            var HSVAdjustmentLayerComponent = newLayer.AddComponent<LevelAdjustmentLayer>();
+            CopyFromData(HSVAdjustmentLayerComponent, levelAdjustmentLayerData);
+
+            HSVAdjustmentLayerComponent.RGB = Convert(levelAdjustmentLayerData.RGB);
+            HSVAdjustmentLayerComponent.Red = Convert(levelAdjustmentLayerData.Red);
+            HSVAdjustmentLayerComponent.Green = Convert(levelAdjustmentLayerData.Green);
+            HSVAdjustmentLayerComponent.Blue = Convert(levelAdjustmentLayerData.Blue);
+
+            static LevelAdjustmentLayer.Level Convert(LevelAdjustmentLayerData.LevelData levelData)
+            {
+                var level = new LevelAdjustmentLayer.Level();
+
+                level.InputFloor = levelData.InputFloor;
+                level.InputCeiling = levelData.InputCeiling;
+                level.Gamma = levelData.Gamma;
+                level.OutputFloor = levelData.OutputFloor;
+                level.OutputCeiling = levelData.OutputCeiling;
+
+                return level;
+            }
         }
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)

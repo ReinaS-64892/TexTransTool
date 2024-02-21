@@ -33,12 +33,26 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Where(I => I != null)
             .Reverse();
 
-            var canvasContext = new CanvasContext(tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width), domain.GetTextureManager());
+            var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
+            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024,canvasSize); }
+
+            var canvasContext = new CanvasContext(canvasSize, domain.GetTextureManager());
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
             var result = canvasContext.LayerCanvas.FinalizeCanvas();
             domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
 
         }
+        internal static int NormalizePowOfTow(int v)
+        {
+            if (Mathf.IsPowerOfTwo(v)) { return v; }
+
+            var nextV = Mathf.NextPowerOfTwo(v);
+            var closetV = Mathf.ClosestPowerOfTwo(v);
+
+            if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
+            else { return nextV; }
+        }
+
         internal class CanvasContext
         {
             public ITextureManager TextureManager;
@@ -57,232 +71,255 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal class LayerCanvas
         {
-            RenderTexture Canvas;
-            (BlendLayer layer, LayerAlphaMod alphaMod) _BeforeLayer;
-            (BlendLayer layer, LayerAlphaMod alphaMod) BeforeLayer => _BeforeLayer;
+            RenderTexture _canvas;
+            Stack<LayerScope> _layerScopes;
 
-            RenderTexture AwaitingReleaseTempRt;
+            LayerScope? NowScope => _layerScopes.Count == 0 ? null : _layerScopes.Peek();
 
-            Stack<LayerAlphaMod> AlphaModStack;
+
+
+            //これが Null な場合は下のレイヤーが非表示にされていて、クリッピングでの追加は無効化される。
+            //非表示レイヤーでもクリッピングを無効化する場合は NotClipping を入れること
+            IClippingTarget _nowClippingTarget;
+
 
             public LayerCanvas(RenderTexture renderTexture)
             {
-                Canvas = renderTexture;
-                Canvas.Clear();
-                AlphaModStack = new();
+                _canvas = renderTexture; _canvas.Clear();
+                _layerScopes = new();
             }
-
-
-            public void AddLayer(BlendLayer blendLayer)
+            public void AddLayer(BlendRenderTexture blendLayer, LayerAlphaMod layerAlphaMod, bool thisClipping)
             {
-                if (blendLayer.ThisClipping)
-                {
-                    if (blendLayer.NotVisible)//無効化されてる場合クリッピングレイヤーは消失する
-                    {
-                        RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
-                        return;
-                    }
-                    if (BeforeLayer.layer.DisallowClipping)//クリッピング不可能な対象なので通常の合成にフォールバック
-                    {
-                        blendLayer.ThisClipping = false;
-                        Composite(blendLayer);
-                        return;
-                    }
-                    if (BeforeLayer.layer.NotVisible)//クリッピング対象が無効化されてる場合クリッピングレイヤーは消失する
-                    {
-                        RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
-                        return;
-                    }
-
-                    //正常なクリッピング
-                    var rTex = blendLayer.BlendTexture.Texture;
-                    if (NowAlphaMod.Mask != null)
-                    {
-                        MaskDrawRenderTexture(rTex, NowAlphaMod.Mask);
-                    }
-                    if (!Mathf.Approximately(NowAlphaMod.Opacity, 1))
-                    {
-                        MultipleRenderTexture(rTex, new Color(1, 1, 1, NowAlphaMod.Opacity));
-                    }
-                    var swap = RenderTexture.GetTemporary(BeforeLayer.layer.BlendTexture.Texture.descriptor);
-                    Graphics.CopyTexture(BeforeLayer.layer.BlendTexture.Texture, swap);
-
-                    TextureBlend.AlphaOne(BeforeLayer.layer.BlendTexture.Texture);
-                    BeforeLayer.layer.BlendTexture.Texture.BlendBlit(blendLayer.BlendTexture);
-                    TextureBlend.AlphaCopy(swap, BeforeLayer.layer.BlendTexture.Texture);
-
-                    RenderTexture.ReleaseTemporary(swap);
-                    RenderTexture.ReleaseTemporary(blendLayer.BlendTexture.Texture);
-
-                }
+                if (NowScope.HasValue) { NowScope.Value.AddLayer(blendLayer, layerAlphaMod, thisClipping); }
                 else
                 {
-                    Composite(blendLayer);
-                    return;
-                }
-            }
-
-            public RenderTexture GrabCanvas(bool GrabForClipping)//Tempが返ってくるのでちゃんと開放するように
-            {
-                if (GrabForClipping)
-                {
-                    if (BeforeLayer.layer.NotVisible)
+                    if (thisClipping)
                     {
-                        if (BeforeLayer.layer.DisallowClipping)
-                        {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作へのフォールバック
-                            return GrabCanvasImpl();
-                        }
-                        else
-                        {//無効化、消失
-                            return null;
-                        }
+                        AlphaModApply(blendLayer, layerAlphaMod);
+                        layerAlphaMod.Dispose();
+
+                        _nowClippingTarget.DrawOnClipping(blendLayer.ToEval());
                     }
                     else
                     {
-                        if (BeforeLayer.layer.DisallowClipping)
-                        {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作へのフォールバック
-                            return GrabCanvasImpl();
-                        }
-                        else
-                        {//クリッピングを正常にできる通常動作
-                            var grabRt = RenderTexture.GetTemporary(BeforeLayer.layer.BlendTexture.Texture.descriptor);
-                            Graphics.CopyTexture(BeforeLayer.layer.BlendTexture.Texture, grabRt);
-                            TextureBlend.AlphaOne(grabRt);
-                            return grabRt;
-                        }
+                        AlphaModApply(blendLayer, layerAlphaMod);
+                        layerAlphaMod.Dispose();
+
+                        Composite(blendLayer);
                     }
+                }
+            }
+
+            //GrabCanvasModifiedAction の実行タイミングは即時ではない可能性がある。
+            public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSouse 右がWriteTarget
+            {
+                if (NowScope.HasValue) { NowScope.Value.GrabCanvas(GrabCanvasModifiedAction, layerAlphaMod, blendTypeKey, GrabForClipping); }
+                else
+                {
+                    var evalGrab = new EvalGrabLayer(GrabCanvasModifiedAction, layerAlphaMod, blendTypeKey);
+                    if (GrabForClipping)
+                    {
+                        if (_nowClippingTarget == null) { return; }
+                        _nowClippingTarget.DrawOnClipping(evalGrab);
+                    }
+                    else
+                    {
+                        CompositeClippingTarget();
+                        _nowClippingTarget = new DisallowClippingLayer(evalGrab);
+                    }
+                }
+            }
+            public void AddHiddenLayer(bool thisClipping, bool disallowClipping)
+            {
+                if (NowScope.HasValue)
+                {
+                    NowScope.Value.AddHiddenLayer(thisClipping, disallowClipping);
                 }
                 else
-                {//次のレイヤーのクリッピングを無効化し、キャンバスを渡す通常動作
-                    return GrabCanvasImpl();
-                }
-            }
-
-            private RenderTexture GrabCanvasImpl()
-            {
-                Composite(new(false, true, false, null, null));
-                var grabRt = RenderTexture.GetTemporary(Canvas.descriptor);
-                Graphics.CopyTexture(Canvas, grabRt);
-                TextureBlend.AlphaOne(grabRt);
-                return grabRt;
-            }
-
-            private void Composite(BlendLayer newLayer)
-            {
-                if (BeforeLayer.layer.BlendTexture.Texture != null && BeforeLayer.layer.BlendTexture.BlendTypeKey != null)
                 {
-                    var rTex = BeforeLayer.layer.BlendTexture.Texture;
-
-                    if (BeforeLayer.alphaMod.Mask != null)
-                    {
-                        MaskDrawRenderTexture(rTex, BeforeLayer.alphaMod.Mask);
-
-                        if (AwaitingReleaseTempRt != null)
-                        {
-                            RenderTexture.ReleaseTemporary(AwaitingReleaseTempRt); AwaitingReleaseTempRt = null;
-                        }
-                    }
-                    if (!Mathf.Approximately(BeforeLayer.alphaMod.Opacity, 1))
-                    {
-                        MultipleRenderTexture(rTex, new Color(1, 1, 1, BeforeLayer.alphaMod.Opacity));
-                    }
-
-                    Canvas.BlendBlit(BeforeLayer.layer.BlendTexture, BeforeLayer.layer.AlphaKeep);
-                    RenderTexture.ReleaseTemporary(rTex);
+                    CompositeClippingTarget();
+                    if (!disallowClipping) { _nowClippingTarget = null; }
+                    else { _nowClippingTarget = new DisallowClippingLayer(false); }
                 }
-                _BeforeLayer = (newLayer, NowAlphaMod);
             }
-            public RenderTexture FinalizeCanvas()
+            internal static void AlphaModApply(BlendRenderTexture newLayer, LayerAlphaMod alphaMod)
             {
-                Composite(new(true, false, false, null, null));
-                return Canvas;
-            }
-
-            public LayerAlphaMod NowAlphaMod => AlphaModStack.Count == 0 ? LayerAlphaMod.NonMasked : AlphaModStack.Peek();
-
-            public AlphaModScopeStruct AlphaModScope(LayerAlphaMod layerAlphaMod)
-            {
-                EnterAlphaModScope(layerAlphaMod);
-                return new(this);
-            }
-            private void EnterAlphaModScope(LayerAlphaMod layerAlphaMod)
-            {
-                if (layerAlphaMod.Mask != null)
+                if (newLayer.Texture != null)
                 {
-                    TextureBlend.MaskDrawRenderTexture(layerAlphaMod.Mask, NowAlphaMod.Mask ?? (Texture)Texture2D.whiteTexture);
+                    if (alphaMod.Mask != null)
+                    {
+                        MaskDrawRenderTexture(newLayer.Texture, alphaMod.Mask);
+                    }
+                    if (!Mathf.Approximately(alphaMod.Opacity, 1))
+                    {
+                        MultipleRenderTexture(newLayer.Texture, new Color(1, 1, 1, alphaMod.Opacity));
+                    }
                 }
-                layerAlphaMod.Opacity *= NowAlphaMod.Opacity;
-                AlphaModStack.Push(layerAlphaMod);
-
             }
 
-            private void EndAlphaModScope()
+            void Composite(BlendRenderTexture newLayer)
             {
-                var discardMod = AlphaModStack.Pop();
-                if (AwaitingReleaseTempRt == null) { AwaitingReleaseTempRt = discardMod.Mask; }
-                else { RenderTexture.ReleaseTemporary(discardMod.Mask); }
+                CompositeClippingTarget();
+
+                _nowClippingTarget = new ClippingLayer(newLayer.ToEval());
+
+                // if (!disallowClipping) { _nowClippingTarget = new ClippingLayer(newLayer.ToEval()); }
+                // else { _nowClippingTarget = new DisallowClippingLayer(newLayer.ToEval()); }
             }
 
-            public struct AlphaModScopeStruct : IDisposable
+            void CompositeClippingTarget()//使った後はちゃんと _nowClippingTarget に次のやつを入れるようにね
+            {
+                if (_nowClippingTarget == null) { return; }
+                foreach (var evalBlending in _nowClippingTarget.ExtractLayers())
+                {
+                    evalBlending.EvalDrawCanvas(_canvas);
+                    evalBlending.Dispose();
+                }
+                _nowClippingTarget = null;
+            }
+
+
+
+            public RenderTexture FinalizeCanvas() { CompositeClippingTarget(); return _canvas; }
+
+            internal static void DrawOnClipping(BlendRenderTexture drawTargetLayer, IEvaluateBlending clippingLayer)
+            {
+                var targetRt = drawTargetLayer.Texture;
+                var swap = RenderTexture.GetTemporary(targetRt.descriptor);
+                Graphics.CopyTexture(targetRt, swap);
+
+                TextureBlend.AlphaOne(targetRt);
+                clippingLayer.EvalDrawCanvas(targetRt);
+                TextureBlend.AlphaCopy(swap, targetRt);
+
+                RenderTexture.ReleaseTemporary(swap);
+            }
+
+            public LayerScopeUsingStruct UsingLayerScope(LayerAlphaMod layerAlphaMod) { EnterLayerScope(layerAlphaMod); return new(this); }
+            private void EnterLayerScope(LayerAlphaMod layerAlphaMod)
+            {
+                layerAlphaMod.Mask ??= GetTempRtMask();
+                if (NowScope.HasValue) { LayerAlphaAnd(ref layerAlphaMod, NowScope.Value.AlphaMod); }
+                _layerScopes.Push(new LayerScope(layerAlphaMod));
+            }
+
+            private RenderTexture GetTempRtMask()
+            {
+                var rt = RenderTexture.GetTemporary(_canvas.descriptor);
+                TextureBlend.ColorBlit(rt, Color.white);
+                return rt;
+            }
+
+            private void ExitLayerScope()
+            {
+                var clippingTarget = _layerScopes.Pop().ExitScope();
+
+                if (NowScope.HasValue) { NowScope.Value.AddStack(clippingTarget); }
+                else
+                {
+                    CompositeClippingTarget();
+                    _nowClippingTarget = clippingTarget;
+                }
+            }
+            internal static void LayerAlphaAnd(ref LayerAlphaMod target, LayerAlphaMod and)
+            {
+                if (target.Mask == null) { target.Mask = RenderTexture.GetTemporary(and.Mask.descriptor); TextureBlend.ColorBlit(target.Mask, Color.white); }
+                if (and.Mask != null) { TextureBlend.MaskDrawRenderTexture(target.Mask, and.Mask); }
+
+                target.Opacity *= and.Opacity;
+            }
+            public struct LayerScopeUsingStruct : IDisposable
             {
                 private LayerCanvas layerCanvas;
-
-                public AlphaModScopeStruct(LayerCanvas layerCanvas)
-                {
-                    this.layerCanvas = layerCanvas;
-                }
-
-                public void Dispose()
-                {
-                    layerCanvas.EndAlphaModScope();
-                }
+                public LayerScopeUsingStruct(LayerCanvas layerCanvas) { this.layerCanvas = layerCanvas; }
+                public void Dispose() { layerCanvas.ExitLayerScope(); }
             }
 
+            private struct LayerScope
+            {
+                LayerAlphaMod _alphaMod;
+                public LayerAlphaMod AlphaMod => _alphaMod;
+                Stack<IClippingTarget> _layerStack;
+                IClippingTarget _nowClippingTarget { get { if (_layerStack.TryPeek(out var result)) { return result; } else { return null; } } }
 
+
+                public LayerScope(LayerAlphaMod alphaMod)
+                {
+                    _alphaMod = alphaMod;
+                    _layerStack = new();
+                }
+
+                internal void AddStack(IClippingTarget clippingTarget) => _layerStack.Push(clippingTarget);
+
+
+                public void AddLayer(BlendRenderTexture blendLayer, LayerAlphaMod layerAlphaMod, bool thisClipping)
+                {
+                    if (thisClipping)
+                    {
+                        if (_nowClippingTarget != null)
+                        {
+                            //正常なクリッピング
+                            LayerAlphaAnd(ref layerAlphaMod, _alphaMod);
+                            AlphaModApply(blendLayer, layerAlphaMod);
+                            layerAlphaMod.Dispose();
+
+                            _nowClippingTarget.DrawOnClipping(blendLayer.ToEval());
+
+                            return;
+                        }
+                        else { RenderTexture.ReleaseTemporary(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
+                    }
+                    else
+                    {
+                        LayerAlphaAnd(ref layerAlphaMod, _alphaMod);
+                        AlphaModApply(blendLayer, layerAlphaMod);
+                        layerAlphaMod.Dispose();
+
+                        _layerStack.Push(new ClippingLayer(blendLayer.ToEval()));
+                        // if (!disallowClipping) { _layerStack.Push(new ClippingLayer(blendLayer.ToEval())); }
+                        // else { _layerStack.Push(new DisallowClippingLayer(blendLayer.ToEval())); }
+
+                        return;
+                    }
+                }
+
+                public void AddHiddenLayer(bool thisClipping, bool disallowClipping)
+                {
+                    if (thisClipping) { return; }
+                    if (!disallowClipping) { _layerStack.Push(null); }
+                    else { _layerStack.Push(new DisallowClippingLayer(false)); }
+                }
+
+                public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSouse 右がWriteTarget
+                {
+                    LayerAlphaAnd(ref layerAlphaMod, _alphaMod);
+
+                    var evalGrab = new EvalGrabLayer(GrabCanvasModifiedAction, layerAlphaMod, blendTypeKey);
+
+                    if (GrabForClipping)
+                    {
+                        if (_nowClippingTarget == null) { return; }
+                        _nowClippingTarget.DrawOnClipping(evalGrab);
+                    }
+                    else { _layerStack.Push(new DisallowClippingLayer(evalGrab)); }
+                }
+
+                public ClippingGroup ExitScope()
+                {
+                    _alphaMod.Dispose();
+                    return new ClippingGroup(_layerStack.Reverse().Where(NullFilter).SelectMany(Extractor));
+
+                    static IEnumerable<IEvaluateBlending> Extractor(IClippingTarget i) => i.ExtractLayers();
+                    static bool NullFilter(IClippingTarget i) => i != null;
+                }
+            }
         }
 
-        internal struct BlendLayer
-        {
-
-            public bool NotVisible;
-            public bool DisallowClipping;
-            public bool ThisClipping;
-            public BlendRenderTexture BlendTexture;
-            public bool AlphaKeep;
-
-            public BlendLayer(bool notVisible, bool disallowClipping, bool thisClipping, RenderTexture layer, string blendTypeKey, bool alphaKeep = false)
-            {
-                NotVisible = notVisible;
-                DisallowClipping = disallowClipping;
-                ThisClipping = thisClipping;
-                BlendTexture = new BlendRenderTexture(layer, blendTypeKey);
-                AlphaKeep = alphaKeep;
-            }
-
-            public struct BlendRenderTexture : IBlendTexturePair
-            {
-                public RenderTexture Texture;
-                public string BlendTypeKey;
-
-                public BlendRenderTexture(RenderTexture texture, string blendTypeKey)
-                {
-                    Texture = texture;
-                    BlendTypeKey = blendTypeKey;
-                }
-
-                Texture IBlendTexturePair.Texture => Texture;
-
-                string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
-            }
-
-            public static BlendLayer Null(bool disallowClipping, bool clipping) => new(true, disallowClipping, clipping, null, null);
-
-        }
-        internal struct LayerAlphaMod
+        internal struct LayerAlphaMod : IDisposable
         {
             public RenderTexture Mask;
             public float Opacity;
-            public LayerAlphaMod(RenderTexture mask, float opacity)
+            public LayerAlphaMod(RenderTexture mask, float opacity)//Temp以外入れないで
             {
                 Mask = mask;
                 Opacity = opacity;
@@ -290,47 +327,165 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             public static LayerAlphaMod NonMasked => new(null, 1);
 
-            public override bool Equals(object obj)
+            public void Dispose()
             {
-                return obj is LayerAlphaMod other &&
-                       EqualityComparer<RenderTexture>.Default.Equals(Mask, other.Mask) &&
-                       Opacity == other.Opacity;
-            }
-
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(Mask, Opacity);
-            }
-
-            public void Deconstruct(out RenderTexture mask, out float opacity)
-            {
-                mask = Mask;
-                opacity = Opacity;
-            }
-
-            public static implicit operator (RenderTexture Mask, float Opacity)(LayerAlphaMod value)
-            {
-                return (value.Mask, value.Opacity);
-            }
-
-            public static implicit operator LayerAlphaMod((RenderTexture Mask, float Opacity) value)
-            {
-                return new LayerAlphaMod(value.Mask, value.Opacity);
+                RenderTexture.ReleaseTemporary(Mask);
+                Mask = null;
             }
         }
-
-        internal static int NormalizePowOfTow(int v)
+        interface IClippingTarget//クリッピングの対象を単体と複数で抽象化するための物
         {
-            if (Mathf.IsPowerOfTwo(v)) { return v; }
+            void DrawOnClipping(IEvaluateBlending blendLayer);//RenderTextureの解放責任は奪うよ
+            IEnumerable<IEvaluateBlending> ExtractLayers();
+        }
+        internal struct ClippingGroup : IClippingTarget
+        {
+            IEnumerable<IEvaluateBlending> _layers;
 
-            var nextV = Mathf.NextPowerOfTwo(v);
-            var closetV = Mathf.ClosestPowerOfTwo(v);
+            internal ClippingGroup(IEnumerable<IEvaluateBlending> layers) { _layers = layers; }
+            public void DrawOnClipping(IEvaluateBlending blendLayer)
+            {
+                using (blendLayer)
+                {
+                    foreach (var layer in _layers)
+                    {
+                        if (layer is EvalBlendLayer evalBlendLayer)
+                        {
+                            LayerCanvas.DrawOnClipping(evalBlendLayer.BlendRenderTexture, blendLayer);
+                        }
+                    }
+                }
+            }
+            public IEnumerable<IEvaluateBlending> ExtractLayers() => _layers;
 
-            if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
-            else { return nextV; }
+        }
+        internal struct ClippingLayer : IClippingTarget
+        {
+            IEvaluateBlending _layer;
+
+            internal ClippingLayer(IEvaluateBlending layer) { _layer = layer; }
+            public void DrawOnClipping(IEvaluateBlending blendLayer)
+            {
+                using (blendLayer)
+                {
+                    if (_layer is EvalBlendLayer evalBlendLayer)
+                    {
+                        LayerCanvas.DrawOnClipping(evalBlendLayer.BlendRenderTexture, blendLayer);
+                    }
+                }
+            }
+            public IEnumerable<IEvaluateBlending> ExtractLayers() { yield return _layer; }
         }
 
+
+        internal struct DisallowClippingLayer : IClippingTarget
+        {
+            List<IEvaluateBlending> _layers;
+            public DisallowClippingLayer(IEvaluateBlending layer) { _layers = new() { layer }; }
+            public DisallowClippingLayer(bool dummy = false) { _layers = new(); }
+            public void DrawOnClipping(IEvaluateBlending blendLayer) { _layers.Add(blendLayer); }
+            public IEnumerable<IEvaluateBlending> ExtractLayers() => _layers;
+
+        }
+
+        internal interface IEvaluateBlending : IDisposable
+        {
+            void EvalDrawCanvas(RenderTexture canvas);
+        }
+        internal struct EvalBlendLayer : IEvaluateBlending //RenderTextureの解放責任は奪う
+        {
+            BlendRenderTexture _blendRenderTexture;
+            internal BlendRenderTexture BlendRenderTexture => _blendRenderTexture;
+
+            public EvalBlendLayer(BlendRenderTexture blendRenderTexture)
+            {
+                _blendRenderTexture = blendRenderTexture;
+            }
+
+
+            public void EvalDrawCanvas(RenderTexture canvas)
+            {
+                if (_blendRenderTexture.Texture == null) { return; }
+                canvas.BlendBlit(_blendRenderTexture);
+            }
+            public void Dispose()
+            {
+                RenderTexture.ReleaseTemporary(_blendRenderTexture.Texture);
+                _blendRenderTexture.Texture = null;
+            }
+        }
+
+        internal struct EvalGrabLayer : IEvaluateBlending
+        {
+            Action<RenderTexture, RenderTexture> _grabCanvasModifiedAction;
+            LayerAlphaMod _layerAlphaMod;
+            string _blendTypeKey;
+            public EvalGrabLayer(Action<RenderTexture, RenderTexture> grabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey)
+            {
+                _grabCanvasModifiedAction = grabCanvasModifiedAction;
+                _layerAlphaMod = layerAlphaMod;
+                _blendTypeKey = blendTypeKey;
+            }
+
+            public void EvalDrawCanvas(RenderTexture canvas)
+            {
+                if (_grabCanvasModifiedAction == null) { return; }
+                GrabImpl(canvas, _grabCanvasModifiedAction, _layerAlphaMod, _blendTypeKey);
+            }
+            public void Dispose()
+            {
+                _grabCanvasModifiedAction = null;
+                _layerAlphaMod.Dispose();
+                _blendTypeKey = null;
+            }
+
+
+            internal static void GrabImpl(RenderTexture target, Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey)
+            {
+                var grabRt = RenderTexture.GetTemporary(target.descriptor);
+                var writeRt = RenderTexture.GetTemporary(target.descriptor); writeRt.Clear();
+
+                Graphics.CopyTexture(target, grabRt);
+                TextureBlend.AlphaOne(grabRt);
+
+                GrabCanvasModifiedAction.Invoke(grabRt, writeRt);
+
+                var blendGrabbedLayer = new BlendRenderTexture(writeRt, blendTypeKey);
+                LayerCanvas.AlphaModApply(blendGrabbedLayer, layerAlphaMod);
+
+                var alphaBackup = RenderTexture.GetTemporary(target.descriptor);
+                Graphics.CopyTexture(target, alphaBackup);
+
+                AlphaOne(target);
+                target.BlendBlit(blendGrabbedLayer);
+                AlphaCopy(alphaBackup, target);
+
+                RenderTexture.ReleaseTemporary(alphaBackup);
+                RenderTexture.ReleaseTemporary(grabRt);
+                RenderTexture.ReleaseTemporary(writeRt);
+            }
+
+        }
+
+
+        internal struct BlendRenderTexture : IBlendTexturePair
+        {
+            public RenderTexture Texture;
+            public string BlendTypeKey;
+
+            public BlendRenderTexture(RenderTexture texture, string blendTypeKey)
+            {
+                Texture = texture;
+                BlendTypeKey = blendTypeKey;
+            }
+
+            Texture IBlendTexturePair.Texture => Texture;
+
+            string IBlendTexturePair.BlendTypeKey => BlendTypeKey;
+
+
+            internal EvalBlendLayer ToEval() => new EvalBlendLayer(this);
+        }
 
     }
-
 }

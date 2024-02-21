@@ -100,7 +100,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             var imageLength = (uint)Mathf.Abs(refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2);
 
             var imageData = stream.ReadSubStream((int)imageLength);
-            channelImageData.StartIndex = imageData.FirstToPosition;
+            channelImageData.StartIndex = (int)imageData.FirstToPosition;
             channelImageData.Length = imageData.Length;
 
             return channelImageData;

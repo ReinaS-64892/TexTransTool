@@ -1,22 +1,19 @@
 using System;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
-    internal static partial class AdditionalLayerInformationParser
+    [Serializable, AdditionalLayerInfoParser("lnsr")]
+    internal class lnsr : AdditionalLayerInfoBase
     {
-        [Serializable, AdditionalLayerInfoParser("lnsr")]
-        internal class lnsr : AdditionalLayerInfo
+        public int IDForLayerName;
+
+        public override void ParseAddLY(SubSpanStream stream)
         {
-            public int IDForLayerName;
-
-            public override void ParseAddLY(SubSpanStream stream)
-            {
-                IDForLayerName = stream.ReadInt32();
-            }
+            IDForLayerName = stream.ReadInt32();
         }
-        /*
-        レイヤー名のソースセッティングらしいが、謎
-        */
-
     }
+    /*
+    レイヤー名のソースセッティングらしいが、謎
+    */
+
 }
