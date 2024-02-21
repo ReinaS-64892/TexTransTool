@@ -377,7 +377,7 @@ msgid "TexTransGroup:prop:GOEnable"
 msgstr "有効"
 
 msgid "TexTransGroup:label:SummaryNone"
-msgstr "概要がありません"
+msgstr "概要はありません"
 
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "グループの子"

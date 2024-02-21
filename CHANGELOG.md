@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 上記に伴い AtlasTexture がプレビュー中にマテリアル選択を表示しないように変更 (#368)
 - SimpleDecal の DecalTexture の表示が変更されました (#368)
 - SimpleDecal の複数同時編集が、何かがプレビューされているときでも可能になりました (#369)
+- TexTransGroup と PhaseDefinition の表示される範囲の調整とUIElementに変更 (#372)
 
 ### Removed
 
