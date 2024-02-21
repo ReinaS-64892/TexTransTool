@@ -30,17 +30,17 @@ namespace net.rs64.TexTransTool.Editor
             rootVE.hierarchy.Add(previewButton);
             rootVE.styleSheets.Add(s_style);
 
-            CreateGroupElements(rootVE, target as TexTransGroup, false);
+            CreateGroupElements(rootVE, (target as TexTransGroup).Targets, false);
 
             return rootVE;
         }
 
         internal static void LoadStyle() { s_style ??= AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("9d80dcf21bff21f4cb110fff304f5622")); }
 
-        internal static void CreateGroupElements(VisualElement rootVE, TexTransGroup group, bool addPhaseDefinition = false)
+        internal static void CreateGroupElements(VisualElement rootVE, IEnumerable<TexTransBehavior> group, bool addPhaseDefinition = false)
         {
             if (group == null) { return; }
-            foreach (var ttb in group.Targets)
+            foreach (var ttb in group)
             {
                 var ttbSummaryElement = CreateSummaryBase(ttb);
 
@@ -55,23 +55,23 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
-        private static VisualElement CreateSummaryBase(TexTransBehavior ttb)
+        internal static VisualElement CreateSummaryBase(TexTransBehavior ttb)
         {
             var ttbSummaryElement = new VisualElement();
             ttbSummaryElement.AddToClassList("SummaryElementRoot");
-            ttbSummaryElement.hierarchy.Add(SummaryBase(ttb));
+            ttbSummaryElement.hierarchy.Add(SummaryBase(ttb, v => ttbSummaryElement.style.opacity = v ? 1 : 0.5f));
             return ttbSummaryElement;
         }
 
-        private static void CreateNestedTexTransGroupSummary(VisualElement ttbSummaryElement, TexTransGroup texTransGroup, bool addPhaseDefinition = false)
+        internal static void CreateNestedTexTransGroupSummary(VisualElement ttbSummaryElement, TexTransGroup texTransGroup, bool addPhaseDefinition = false)
         {
             var nextGroup = new VisualElement();
             nextGroup.style.paddingLeft = 8f;
-            CreateGroupElements(nextGroup, texTransGroup, addPhaseDefinition);
+            CreateGroupElements(nextGroup, texTransGroup.Targets, addPhaseDefinition);
             ttbSummaryElement.hierarchy.Add(nextGroup);
         }
 
-        private static void CreateSummary(VisualElement ttbSummaryElement, TexTransBehavior ttb)
+        internal static void CreateSummary(VisualElement ttbSummaryElement, TexTransBehavior ttb)
         {
             if (s_summary.TryGetValue(ttb.GetType(), out var generator))
             {
@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
-        private static VisualElement SummaryBase(TexTransBehavior ttb)
+        internal static VisualElement SummaryBase(TexTransBehavior ttb, Action<bool> isActive = null)
         {
             var sObj = new SerializedObject(ttb.gameObject);
             var sActive = sObj.FindProperty("m_IsActive");
@@ -97,6 +97,7 @@ namespace net.rs64.TexTransTool.Editor
             ttbSummaryBase.style.flexDirection = FlexDirection.Row;
 
             var goButton = new Toggle();
+            goButton.RegisterValueChangedCallback(v => isActive?.Invoke(ttb.ThisEnable && v.newValue));
             goButton.BindProperty(sActive);
             goButton.AddToClassList("ActiveToggle");
             goButton.label = "";

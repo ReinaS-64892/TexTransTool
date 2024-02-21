@@ -130,45 +130,74 @@ namespace net.rs64.TexTransTool.Build
 
             foreach (var pd in phaseDefinitions)
             {
-                if (!definedChildren.Contains(pd))
-                {
-                    phaseDict[pd.TexTransPhase].Add(pd);
-                    ContainsBy.Add(pd);
-                }
+                if (!definedChildren.Contains(pd)) { phaseDict[pd.TexTransPhase].Add(pd); ContainsBy.Add(pd); }
             }
 
-            void PhaseRegister(TexTransGroup absTTG)
-            {
-                if (ContainsBy.Contains(absTTG)) { return; }
-                ContainsBy.Add(absTTG);
-                foreach (var tf in TexTransGroup.TextureTransformerFilter(absTTG.Targets))
-                {
-
-                    if (tf is TexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup); }
-                    else
-                    {
-                        if (ContainsBy.Contains(tf)) { continue; }
-                        phaseDict[tf.PhaseDefine].Add(tf);
-                        ContainsBy.Add(tf);
-                    }
-                }
-            }
             foreach (var absTTG in avatarGameObject.GetComponentsInChildren<TexTransGroup>().Where(I => !ContainsBy.Contains(I)))
-            {
-                PhaseRegister(absTTG);
-            }
-
+            { PhaseRegister(absTTG, phaseDict, ContainsBy); }
 
             foreach (var tf in TexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()))
+            { if (!ContainsBy.Contains(tf)) { phaseDict[tf.PhaseDefine].Add(tf); } }
+
+            return phaseDict;
+        }
+        static void PhaseRegister(TexTransGroup absTTG, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict, HashSet<TexTransBehavior> containsBy)
+        {
+            if (containsBy.Contains(absTTG)) { return; }
+            containsBy.Add(absTTG);
+            foreach (var tf in TexTransGroup.TextureTransformerFilter(absTTG.Targets))
             {
-                if (!ContainsBy.Contains(tf))
+
+                if (tf is TexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup, phaseDict, containsBy); }
+                else
                 {
+                    if (containsBy.Contains(tf)) { continue; }
                     phaseDict[tf.PhaseDefine].Add(tf);
+                    containsBy.Add(tf);
+                }
+            }
+        }
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhaseAll(GameObject avatarGameObject)
+        {
+            var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
+                };
+
+            var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>(true);
+            var definedChildren = FindChildren(phaseDefinitions);
+            var ContainsBy = new HashSet<TexTransBehavior>(definedChildren);
+
+            var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>(true);
+            foreach (var ce in chileExcluders)
+            {
+                var cec = ce as Component;
+                foreach (var tf in cec.GetComponentsInChildren<TexTransBehavior>(true))
+                {
+                    if (cec == tf) { continue; }
+                    ContainsBy.Add(tf);
                 }
             }
 
+            foreach (var pd in phaseDefinitions)
+            {
+                if (!definedChildren.Contains(pd)) { phaseDict[pd.TexTransPhase].Add(pd); ContainsBy.Add(pd); }
+            }
+
+            foreach (var absTTG in avatarGameObject.GetComponentsInChildren<TexTransGroup>(true).Where(I => !ContainsBy.Contains(I)))
+            { PhaseRegister(absTTG, phaseDict, ContainsBy); }
+
+            foreach (var tf in avatarGameObject.GetComponentsInChildren<TexTransBehavior>(true))
+            { if (!ContainsBy.Contains(tf)) { phaseDict[tf.PhaseDefine].Add(tf); } }
 
             return phaseDict;
+        }
+
+        public static void WhiteList(Dictionary<TexTransPhase, List<TexTransBehavior>> phase, HashSet<TexTransBehavior> whitelist)
+        {
+            foreach (var kv in phase) { kv.Value.RemoveAll(i => !whitelist.Contains(i)); }
         }
 
         private static HashSet<TexTransBehavior> FindChildren(TexTransGroup[] abstractTexTransGroups)

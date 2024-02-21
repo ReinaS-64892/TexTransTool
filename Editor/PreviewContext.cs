@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -97,18 +99,34 @@ namespace net.rs64.TexTransTool
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
                 else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
 
-                if (targetTTBehavior is TexTransGroup abstractTexTransGroup)
+                switch (targetTTBehavior)
                 {
-                    var phaseOnTf = AvatarBuildUtils.FindAtPhase(abstractTexTransGroup.gameObject);
-                    foreach (var tf in phaseOnTf[TexTransPhase.BeforeUVModification]) { tf.Apply(previewDomain); }
-                    previewDomain.MergeStack();
-                    foreach (var tf in phaseOnTf[TexTransPhase.UVModification]) { tf.Apply(previewDomain); }
-                    foreach (var tf in phaseOnTf[TexTransPhase.AfterUVModification]) { tf.Apply(previewDomain); }
-                    foreach (var tf in phaseOnTf[TexTransPhase.UnDefined]) { tf.Apply(previewDomain); }
-                }
-                else
-                {
-                    targetTTBehavior.Apply(previewDomain);
+                    case PhaseDefinition phaseDefinition:
+                        {
+                            phaseDefinition.Apply(previewDomain);
+                            break;
+                        }
+
+                    case TexTransGroup texTransGroup:
+                        {
+                            static IEnumerable<TexTransBehavior> FinedTTGroupBehaviors(TexTransGroup texTransGroup) { return texTransGroup.Targets.Where(i => i is not PhaseDefinition).SelectMany(i => i is TexTransGroup ttg ? FinedTTGroupBehaviors(ttg) : new[] { i }); }
+
+                            var phaseOnTf = AvatarBuildUtils.FindAtPhase(texTransGroup.gameObject);
+                            AvatarBuildUtils.WhiteList(phaseOnTf, new(FinedTTGroupBehaviors(texTransGroup)));
+                            ExecutePhases(previewDomain, phaseOnTf);
+                            break;
+                        }
+                    case PreviewGroup previewGroup:
+                        {
+                            var phaseOnTf = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
+                            ExecutePhases(previewDomain, phaseOnTf);
+                            break;
+                        }
+                    default:
+                        {
+                            targetTTBehavior.Apply(previewDomain);
+                            break;
+                        }
                 }
 
                 previewDomain.EditFinish();
@@ -116,6 +134,15 @@ namespace net.rs64.TexTransTool
             finally
             {
                 AnimationMode.EndSampling();
+            }
+
+            static void ExecutePhases(RenderersDomain previewDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseOnTf)
+            {
+                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.BeforeUVModification])) { tf.Apply(previewDomain); }
+                previewDomain.MergeStack();
+                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UVModification])) { tf.Apply(previewDomain); }
+                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.AfterUVModification])) { tf.Apply(previewDomain); }
+                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UnDefined])) { tf.Apply(previewDomain); }
             }
         }
 
