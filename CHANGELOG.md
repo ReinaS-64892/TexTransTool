@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [0.5.5]
+## [0.5.6]
+
+リリース処理の誤りにより、パッチが一つ上がっており内容は 0.5.5 の物です。
+
+## 0.5.5
 
 ### Fixed
 
@@ -364,7 +368,7 @@ Cherry-Pick
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
 [unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.5...master
-[0.5.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.5
+[0.5.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.6
 [0.5.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2
