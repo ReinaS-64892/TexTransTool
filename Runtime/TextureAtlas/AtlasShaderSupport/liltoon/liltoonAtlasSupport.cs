@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 propEnvsDict.Add("_MatCapBlendMask", material.GetTexture("_MatCapBlendMask") as Texture2D);
             }
-            if (material.GetFloat("_UseMatCap") > 0.5f)
+            if (material.GetFloat("_UseMatCap2nd") > 0.5f)
             {
                 propEnvsDict.Add("_MatCap2ndBlendMask", material.GetTexture("_MatCap2ndBlendMask") as Texture2D);
             }
@@ -181,7 +181,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 baker.FloatMul("_MatCapBlendMask", "_MatCapBlend");
             }
-            if (material.GetFloat("_UseMatCap") > 0.5f)
+            if (material.GetFloat("_UseMatCap2nd") > 0.5f)
             {
                 baker.FloatMul("_MatCap2ndBlendMask", "_MatCap2ndBlend");
             }
