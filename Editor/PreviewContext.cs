@@ -106,7 +106,6 @@ namespace net.rs64.TexTransTool
                             phaseDefinition.Apply(previewDomain);
                             break;
                         }
-
                     case TexTransGroup texTransGroup:
                         {
                             static IEnumerable<TexTransBehavior> FinedTTGroupBehaviors(TexTransGroup texTransGroup) { return texTransGroup.Targets.Where(i => i is not PhaseDefinition).SelectMany(i => i is TexTransGroup ttg ? FinedTTGroupBehaviors(ttg) : new[] { i }); }

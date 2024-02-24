@@ -20,19 +20,31 @@ namespace net.rs64.TexTransTool.Editor
         internal static Dictionary<Type, Func<TexTransBehavior, VisualElement>> s_summary = new();
         internal static StyleSheet s_style;
 
+        protected HashSet<Action> _disableActions = new();
+
         public override VisualElement CreateInspectorGUI()
         {
             LoadStyle();
 
             var rootVE = new VisualElement();
-            var previewButton = new IMGUIContainer(() => PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup));
 
-            rootVE.hierarchy.Add(previewButton);
-            rootVE.styleSheets.Add(s_style);
-
-            CreateGroupElements(rootVE, (target as TexTransGroup).Targets, false);
+            CrateGroupElements();
+            EditorApplication.hierarchyChanged += CrateGroupElements;
+            _disableActions.Add(() => EditorApplication.hierarchyChanged -= CrateGroupElements);
 
             return rootVE;
+
+            void CrateGroupElements()
+            {
+                rootVE.hierarchy.Clear();
+
+                var previewButton = new IMGUIContainer(() => PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup));
+
+                rootVE.hierarchy.Add(previewButton);
+                rootVE.styleSheets.Add(s_style);
+
+                CreateGroupElements(rootVE, (target as TexTransGroup).Targets, false);
+            }
         }
 
         internal static void LoadStyle() { s_style ??= AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("9d80dcf21bff21f4cb110fff304f5622")); }
@@ -112,11 +124,11 @@ namespace net.rs64.TexTransTool.Editor
             componentField.AddToClassList("TexTransBehaviorRef");
             ttbSummaryBase.hierarchy.Add(componentField);
 
+
             return ttbSummaryBase;
         }
 
-        private void OnHierarchyChange() { Repaint(); }
-
+        private void OnDisable() { foreach (var i in _disableActions) { i.Invoke(); } _disableActions.Clear(); }
 
     }
 }
