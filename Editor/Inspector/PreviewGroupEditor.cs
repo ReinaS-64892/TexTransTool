@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 rootVE.hierarchy.Clear();
 
-                var previewButton = new IMGUIContainer(() => { PreviewContext.instance.DrawApplyAndRevert(target as PreviewGroup); });
+                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup)); PreviewContext.instance.DrawApplyAndRevert(target as PreviewGroup); });
 
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(s_style);

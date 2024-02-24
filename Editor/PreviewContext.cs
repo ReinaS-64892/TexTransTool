@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransTool.CustomPreview;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -99,34 +100,7 @@ namespace net.rs64.TexTransTool
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
                 else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
 
-                switch (targetTTBehavior)
-                {
-                    case PhaseDefinition phaseDefinition:
-                        {
-                            phaseDefinition.Apply(previewDomain);
-                            break;
-                        }
-                    case TexTransGroup texTransGroup:
-                        {
-                            static IEnumerable<TexTransBehavior> FinedTTGroupBehaviors(TexTransGroup texTransGroup) { return texTransGroup.Targets.Where(i => i is not PhaseDefinition).SelectMany(i => i is TexTransGroup ttg ? FinedTTGroupBehaviors(ttg) : new[] { i }); }
-
-                            var phaseOnTf = AvatarBuildUtils.FindAtPhase(texTransGroup.gameObject);
-                            AvatarBuildUtils.WhiteList(phaseOnTf, new(FinedTTGroupBehaviors(texTransGroup)));
-                            ExecutePhases(previewDomain, phaseOnTf);
-                            break;
-                        }
-                    case PreviewGroup previewGroup:
-                        {
-                            var phaseOnTf = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
-                            ExecutePhases(previewDomain, phaseOnTf);
-                            break;
-                        }
-                    default:
-                        {
-                            targetTTBehavior.Apply(previewDomain);
-                            break;
-                        }
-                }
+                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { targetTTBehavior.Apply(previewDomain); }
 
                 previewDomain.EditFinish();
             }
@@ -135,14 +109,6 @@ namespace net.rs64.TexTransTool
                 AnimationMode.EndSampling();
             }
 
-            static void ExecutePhases(RenderersDomain previewDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseOnTf)
-            {
-                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.BeforeUVModification])) { tf.Apply(previewDomain); }
-                previewDomain.MergeStack();
-                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UVModification])) { tf.Apply(previewDomain); }
-                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.AfterUVModification])) { tf.Apply(previewDomain); }
-                foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UnDefined])) { tf.Apply(previewDomain); }
-            }
         }
 
         public void ExitPreview()
