@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal の DecalTexture の表示が変更されました (#368)
 - SimpleDecal の複数同時編集が、何かがプレビューされているときでも可能になりました (#369)
 - TexTransGroup と PhaseDefinition の表示される範囲の調整とUIElementに変更 (#372)
+- TexTransGroup と PhaseDefinition のプレレビューの実行範囲が表示される範囲と同じになるように変更 (#375)
 
 ### Removed
 
