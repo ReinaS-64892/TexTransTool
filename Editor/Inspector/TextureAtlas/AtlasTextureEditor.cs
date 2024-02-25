@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sTargetRoot.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
 
             if (sTargetRoot.objectReferenceValue != null && !PreviewContext.IsPreviewContains)
             {
