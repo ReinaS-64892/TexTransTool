@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -16,24 +17,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
     /// そして並び替え <see cref="Sorting"/>
     /// これは 引数 atlasIslands の Pivot や Size を書き換え返すことでそれら並び替えができ、
     /// AtlasIslandID が同じであれば、戻り値の物はクローンの物でも問題はない。
+    /// atlasIslandReference は ReadOnly 想定で中身を書き換えると正常に動作しなくなるよ。
     ///
-    /// ちなみに現時点で使用するのは <see cref="AtlasTexture"/> しか存在せず、その AtlasTexture では並び替えアルゴリズムを選択するUIは存在しないため
-    /// DebugMode を使って書き換える日つよがあるためご注意ください。
+    /// ちなみに現時点で使用するのは <see cref="NFDHPlasFC"/> しか存在せず、今の AtlasTexture では並び替えアルゴリズムを選択するUIは存在しないため
+    /// DebugMode を使って書き換える必要があるためご注意ください。
     /// </summary>
     public interface IAtlasIslandSorter
     {
         string SorterName { get; }
         bool RectTangleMove { get; }
-        Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, bool useUpScaling, float padding);
+        Dictionary<AtlasIslandID, IslandRect> Sorting(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference, bool useUpScaling, float padding);
     }
 
     internal static class AtlasIslandSorterUtility
     {
         static Dictionary<string, IAtlasIslandSorter> s_sorters;
         static string[] s_sortersNames;
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
-        #endif
+#endif
         static void Init()
         {
             var interfaces = InterfaceUtility.GetInterfaceInstance<IAtlasIslandSorter>();

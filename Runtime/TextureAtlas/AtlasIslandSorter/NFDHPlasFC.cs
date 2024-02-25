@@ -13,31 +13,30 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public string SorterName => NDFHPlasFCName;
         public bool RectTangleMove => true;
 
-        public Dictionary<AtlasIslandID, AtlasIsland> Sorting(Dictionary<AtlasIslandID, AtlasIsland> atlasIslands, bool useUpScaling, float padding)
+        public Dictionary<AtlasIslandID, IslandRect> Sorting(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference, bool useUpScaling, float padding)
         {
-            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands.Values.ToList(), useUpScaling, padding);
+            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, useUpScaling, padding);
             return atlasIslands;
         }
-        public static List<TIsland> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<TIsland>(
-            List<TIsland> targetPool,
+        public static Dictionary<ID, IslandRect> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<ID>(
+            Dictionary<ID, IslandRect> islands,
             bool useUpScaling = true,
             float islandPadding = 0.01f,
             float crawlingStep = 0.01f,
             int safetyCount = 256)
-            where TIsland : Island
         {
-            var islands = targetPool;
-            if (!islands.Any()) return targetPool;
-            foreach (var Island in islands) { if (Island.Size.y > Island.Size.x) { Island.Rotate90(); } }
+            var idList = islands.Keys.ToList();
+            if (!islands.Any()) return islands;
+            foreach (var id in idList) { if (islands[id].Size.y > islands[id].Size.x) { islands[id].Rotate90(); } }
 
-            islands.Sort((l, r) => Mathf.RoundToInt((r.Size.y - l.Size.y) * 1073741824));
+            idList.Sort((lId, rId) => Mathf.RoundToInt((islands[rId].Size.y - islands[lId].Size.y) * 1073741824));
 
-            var posValue = 1f;
-            foreach (var island in islands)
+            var validateHeight = islands[idList[0]].Size.y;
+            foreach (var id in idList)
             {
-                if (posValue >= island.Size.y)
+                if (validateHeight >= islands[id].Size.y)
                 {
-                    posValue = island.Size.y;
+                    validateHeight = islands[id].Size.y;
                 }
                 else
                 {
@@ -58,24 +57,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 loopCount += 1;
                 success = true;
 
-                var boxList = new List<UVWithBox>();
+                var boxList = new List<UVWithBox<IslandRect>>();
 
 
-                foreach (var islandAndTag in islands)
+                foreach (var islandId in idList)
                 {
                     var Result = false;
                     foreach (var withBox in boxList)
                     {
-                        Result = withBox.TrySetBox(islandAndTag);
-                        if (Result) { break; }
+                        var island = islands[islandId];
+                        Result = withBox.TrySetBox(island, out var pivot);
+                        island.Pivot = pivot;
+                        islands[islandId] = island;
 
+                        if (Result) { break; }
                     }
                     if (!Result)
                     {
                         var Floor = boxList.Any() ? boxList.Last().Ceil + islandPadding : islandPadding;
-                        var Ceil = islandAndTag.Size.y + Floor;
-                        var newWithBox = new UVWithBox(Ceil, Floor, islandPadding);
-                        var res = newWithBox.TrySetBox(islandAndTag);
+                        var Ceil = islands[islandId].Size.y + Floor;
+                        var newWithBox = new UVWithBox<IslandRect>(Ceil, Floor, islandPadding);
+
+                        var island = islands[islandId];
+                        var res = newWithBox.TrySetBox(island, out var pivot);
+                        island.Pivot = pivot;
+                        islands[islandId] = island;
+
                         boxList.Add(newWithBox);
                     }
                 }
@@ -103,29 +110,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             if (safetyCount == loopCount) { TTTRuntimeLog.Warning("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
 
-            return targetPool;
+            return islands;
 
             void ScaleApply(float Scale)
             {
-                foreach (var islandAndTag in islands)
+                foreach (var islandId in idList)
                 {
-                    if ((islandAndTag.Size.x * Scale) > (0.999f - islandPadding)) { continue; }
-                    islandAndTag.Size *= Scale;
+                    if ((islands[islandId].Size.x * Scale) > (0.999f - islandPadding)) { continue; }
+
+                    var island = islands[islandId];
+                    island.Size *= Scale;
+                    islands[islandId] = island;
                 }
                 nawScale *= Scale;
             }
         }
 
 
-        private class UVWithBox
+        private class UVWithBox<TIslandRect> where TIslandRect : IIslandRect
         {
             public float with = 1;
             public float Padding;
             public float Ceil;
             public float Floor;
             public float Height => Ceil - Floor;
-            public List<Island> Upper = new List<Island>();
-            public List<Island> Lower = new List<Island>();
+            public List<TIslandRect> Upper = new();
+            public List<TIslandRect> Lower = new();
 
             public UVWithBox(float height, float floor, float padding)
             {
@@ -134,30 +144,30 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Padding = padding;
             }
 
-            public bool TrySetBox(Island box)
+            public bool TrySetBox(TIslandRect islandRect, out Vector2 outPivot)
             {
-                var Island = box;
-                if (Height + 0.01f < Island.Size.y) return false;
+                outPivot = Vector2.zero;
+                if (Height + 0.01f < islandRect.Size.y) return false;
 
 
-                var withMin = Lower.Any() ? Lower.Last().GetMaxPos.x : 0;
-                var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + Island.Size.y + Padding, Floor, Ceil));
+                var withMin = Lower.Any() ? Lower.Last().GetMaxPos().x : 0;
+                var withMax = GetCeilWithEmpty(Mathf.Clamp(Floor + islandRect.Size.y + Padding, Floor, Ceil));
                 var withSize = withMax - withMin;
-                if (withSize > Padding + Island.Size.x + Padding)
+                if (withSize > Padding + islandRect.Size.x + Padding)
                 {
-                    Island.Pivot = new Vector2(withMin + Padding, Floor);
-                    Lower.Add(box);
+                    islandRect.Pivot = outPivot = new Vector2(withMin + Padding, Floor);
+                    Lower.Add(islandRect);
                     return true;
                 }
 
 
-                withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - Island.Size.y - Padding, Floor, Ceil));
+                withMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - islandRect.Size.y - Padding, Floor, Ceil));
                 withMax = Upper.Any() ? Upper.Last().Pivot.x : with;
                 withSize = withMax - withMin;
-                if (withSize > Padding + Island.Size.x + Padding)
+                if (withSize > Padding + islandRect.Size.x + Padding)
                 {
-                    Island.Pivot = new Vector2(withMax - Island.Size.x - Padding, Ceil - Island.Size.y);
-                    Upper.Add(box);
+                    islandRect.Pivot = outPivot = new Vector2(withMax - islandRect.Size.x - Padding, Ceil - islandRect.Size.y);
+                    Upper.Add(islandRect);
                     return true;
                 }
 
@@ -174,9 +184,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 foreach (var box in Lower)
                 {
                     var island = box;
-                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos.y, targetHeight))
+                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos().y, targetHeight))
                     {
-                        if (minWith < island.GetMaxPos.x) { minWith = island.GetMaxPos.x; }
+                        if (minWith < island.GetMaxPos().x) { minWith = island.GetMaxPos().x; }
                     }
                 }
 
@@ -193,9 +203,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 foreach (var Box in Upper)
                 {
                     var island = Box;
-                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos.y, targetHeight))
+                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos().y, targetHeight))
                     {
-                        if (island.GetMaxPos.x < maxWith) { maxWith = island.GetMaxPos.x; }
+                        if (island.GetMaxPos().x < maxWith) { maxWith = island.GetMaxPos().x; }
                     }
                 }
 
