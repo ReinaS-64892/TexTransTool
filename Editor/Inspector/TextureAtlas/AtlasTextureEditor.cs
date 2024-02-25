@@ -252,6 +252,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         List<Material> _displayMaterial;
         void RefreshMaterials(GameObject targetRoot, bool includeDisabledRenderer)
         {
+            if (targetRoot == null) { _displayMaterial = null; return; }
             var renderers = AtlasTexture.FilteredRenderers(targetRoot, includeDisabledRenderer);
             _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
         }
