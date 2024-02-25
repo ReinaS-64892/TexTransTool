@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransTool.CustomPreview;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -97,19 +100,7 @@ namespace net.rs64.TexTransTool
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
                 else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
 
-                if (targetTTBehavior is TexTransGroup abstractTexTransGroup)
-                {
-                    var phaseOnTf = AvatarBuildUtils.FindAtPhase(abstractTexTransGroup.gameObject);
-                    foreach (var tf in phaseOnTf[TexTransPhase.BeforeUVModification]) { tf.Apply(previewDomain); }
-                    previewDomain.MergeStack();
-                    foreach (var tf in phaseOnTf[TexTransPhase.UVModification]) { tf.Apply(previewDomain); }
-                    foreach (var tf in phaseOnTf[TexTransPhase.AfterUVModification]) { tf.Apply(previewDomain); }
-                    foreach (var tf in phaseOnTf[TexTransPhase.UnDefined]) { tf.Apply(previewDomain); }
-                }
-                else
-                {
-                    targetTTBehavior.Apply(previewDomain);
-                }
+                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { targetTTBehavior.Apply(previewDomain); }
 
                 previewDomain.EditFinish();
             }
@@ -117,6 +108,7 @@ namespace net.rs64.TexTransTool
             {
                 AnimationMode.EndSampling();
             }
+
         }
 
         public void ExitPreview()

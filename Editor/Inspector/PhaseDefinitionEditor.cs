@@ -3,29 +3,32 @@ using net.rs64.TexTransTool.Editor;
 using net.rs64.TexTransTool;
 using UnityEngine.UIElements;
 
-[CustomEditor(typeof(PhaseDefinition))]
-internal class PhaseDefinitionEditor : TexTransGroupEditor
+namespace net.rs64.TexTransTool.Editor
 {
-    public override VisualElement CreateInspectorGUI()
+    [CustomEditor(typeof(PhaseDefinition))]
+    internal class PhaseDefinitionEditor : TexTransGroupEditor
     {
-        LoadStyle();
-
-        var rootVE = new VisualElement();
-        var previewButton = new IMGUIContainer(() =>
+        public override VisualElement CreateInspectorGUI()
         {
-            serializedObject.Update();
-            PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup);
-            var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
-            EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.Glc());
-            serializedObject.ApplyModifiedProperties();
-        });
+            LoadStyle();
 
-        rootVE.hierarchy.Add(previewButton);
-        rootVE.styleSheets.Add(s_style);
+            var rootVE = new VisualElement();
+            var previewButton = new IMGUIContainer(() =>
+            {
+                serializedObject.Update();
+                PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup);
+                var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
+                EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.Glc());
+                serializedObject.ApplyModifiedProperties();
+            });
 
-        CreateGroupElements(rootVE, target as PhaseDefinition, true);
+            rootVE.hierarchy.Add(previewButton);
+            rootVE.styleSheets.Add(s_style);
 
-        return rootVE;
+            CreateGroupElements(rootVE, (target as PhaseDefinition).Targets, true);
+
+            return rootVE;
+        }
+
     }
-
 }

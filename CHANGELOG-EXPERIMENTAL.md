@@ -15,6 +15,8 @@ v0.5.2 以降の実験的機能の変更記録です。
 - PSD から LevelAdjustmentLayer がインポートできるようになりました (#370)
 - SelectiveColorAdjustment が追加されました (#370)
 - PSD から SelectiveColorAdjustment がインポートできるようになりました (#370)
+- 配下の TexTransBehavior をすべてプレビューでき、フェーズごとに順番を確認できる UI を表示する、ビルド時には効果のない PreviewGroup が追加されました (#375)
+- 同じ GameObject のレンダラーを対象とするアバター内の TexTransBehavior をプレビューできる PreviewRenderer が追加されました (#375)
 
 ### Changed
 
