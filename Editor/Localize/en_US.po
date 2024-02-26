@@ -102,7 +102,7 @@ msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "WriteOriginalUV"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
-msgid "AtlasIslandRelocator"
+msgstr "AtlasIslandRelocator"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "Write to UV1 the UV when before atlas."

@@ -102,7 +102,7 @@ msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "元のUVを書き込む"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
-msgid "アトラスアイランドリロケーター"
+msgstr "アトラスアイランドリロケーター"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "UV1にアトラス化する前のUVを書き込む機能"
