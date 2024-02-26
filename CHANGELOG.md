@@ -45,6 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.5.7]
+
+### Fixed
+
+- マイグレーションが必要かどうかの検証が正しく行われない問題を修正 (#378)
+
 ## [0.5.6]
 
 リリース処理の誤りにより、パッチが一つ上がっており内容は 0.5.5 の物です。
