@@ -213,33 +213,35 @@ namespace net.rs64.TexTransCore.Island
     internal static class IslandRectUtility
     {
         public static Vector2 GetMaxPos<TIslandRect>(this TIslandRect islandRect) where TIslandRect : IIslandRect { return islandRect.Pivot + islandRect.Size; }
-        public static float TexToRectScale<TIslandRect>(this TIslandRect islandRect, float texScaleValue) where TIslandRect : IIslandRect
+        public static float UVScaleToRectScale<TIslandRect>(this TIslandRect islandRect, float uvScaleValue) where TIslandRect : IIslandRect
         {
-            var center = islandRect.Pivot + (islandRect.Size * 0.5f);
-            return Vector2.Distance(center, islandRect.Pivot - new Vector2(texScaleValue, texScaleValue)) / Vector2.Distance(center, islandRect.Pivot);
+            return new Vector2(uvScaleValue, uvScaleValue).magnitude / (islandRect.Size * 0.5f).magnitude;
         }
 
-        public static List<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 1.1f, List<Vector2> outPutQuad = null)
+        public static List<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
         where TIslandRect : IIslandRect
         {
-            rectScalePadding = Mathf.Abs(rectScalePadding);
             outPutQuad?.Clear(); outPutQuad ??= new();
 
-            var center = islandRect.Pivot + (islandRect.Size * 0.5f);
+            var rectScale = Mathf.Abs(rectScalePadding) * (islandRect.Size * 0.5f).magnitude;
+            var paddingVector = Vector2.ClampMagnitude(Vector2.one, rectScale);
+
+            var leftDown = islandRect.Pivot;
+            var rightUp = islandRect.Pivot + islandRect.Size;
 
             if (!islandRect.Is90Rotation)
             {
-                outPutQuad.Add(Vector2.LerpUnclamped(center, islandRect.Pivot, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(islandRect.Pivot.x, islandRect.Pivot.y + islandRect.Size.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, islandRect.Pivot + islandRect.Size, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(islandRect.Pivot.x + islandRect.Size.x, islandRect.Pivot.y), rectScalePadding));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
             }
             else
             {
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(islandRect.Pivot.x, islandRect.Pivot.y + islandRect.Size.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, islandRect.Pivot + islandRect.Size, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(islandRect.Pivot.x + islandRect.Size.x, islandRect.Pivot.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, islandRect.Pivot, rectScalePadding));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
             }
 
             return outPutQuad;

@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sMergeReferenceMaterial = sAtlasSettings.FindPropertyRelative("MergeReferenceMaterial");
             var sForceSetTexture = sAtlasSettings.FindPropertyRelative("ForceSetTexture");
             var sPropertyBakeSetting = sAtlasSettings.FindPropertyRelative("PropertyBakeSetting");
-            var sPadding = sAtlasSettings.FindPropertyRelative("Padding");
+            var sPadding = sAtlasSettings.FindPropertyRelative("IslandPadding");
             var sSorterName = sAtlasSettings.FindPropertyRelative("SorterName");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
