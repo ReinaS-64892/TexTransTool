@@ -41,6 +41,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 {
                     net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
                 }
+                if (TTTag.SaveDataVersion == 2 && GUILayout.Button("Migrate DSV2 To DSV3"))
+                {
+                    net.rs64.TexTransTool.Migration.V2.AtlasTextureV2.MigrationAtlasTextureV2ToV3(thisTarget);
+                }
                 return;
             }
 #pragma warning restore CS0612
