@@ -5,17 +5,21 @@ using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.TextureAtlas
+namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 {
-    internal class NFDHPlasFC : IAtlasIslandSorter
+    internal class NFDHPlasFC : IAtlasIslandRelocator
     {
-        public const string NDFHPlasFCName = "NextFitDecreasingHeightPlusFloorCeiling";
-        public string SorterName => NDFHPlasFCName;
         public bool RectTangleMove => true;
 
-        public Dictionary<AtlasIslandID, IslandRect> Sorting(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference, bool useUpScaling, float padding)
+        public bool UseUpScaling { set => _useUpScaling = value; }
+        public float Padding { set => _padding = value; }
+
+        public bool _useUpScaling;
+        public float _padding;
+
+        public Dictionary<AtlasIslandID, IslandRect> Relocation(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference)
         {
-            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, useUpScaling, padding);
+            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, _useUpScaling, _padding);
             return atlasIslands;
         }
         public static Dictionary<ID, IslandRect> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<ID>(Dictionary<ID, IslandRect> islands, bool useUpScaling = true, float islandPadding = 0.01f, float scaleStep = 0.99f, int safetyCount = 512)
@@ -105,6 +109,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
         }
+
 
         private readonly struct UVWidthBox<TIslandRect> where TIslandRect : IIslandRect
         {

@@ -3,6 +3,7 @@ using System;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
+using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -15,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool ForceSetTexture;
         public int AtlasTextureSize = 2048;
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
-        public string SorterName = NFDHPlasFC.NDFHPlasFCName;
+        public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool UseUpScaling = false;

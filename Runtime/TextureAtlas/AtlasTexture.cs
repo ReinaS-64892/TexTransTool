@@ -9,6 +9,7 @@ using Island = net.rs64.TexTransCore.Island.Island;
 using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
+using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -177,11 +178,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 islandRectPool[atlasIslandId] = islandRect;
             }
 
-            var sorter = AtlasIslandSorterUtility.GetSorter(atlasSetting.SorterName);
-            if (sorter == null) { return false; }
-            islandRectPool = sorter.Sorting(islandRectPool, originIslandPool, atlasSetting.UseUpScaling, atlasSetting.IslandPadding);
-            var rectTangleMove = sorter.RectTangleMove;
+            IAtlasIslandRelocator relocator = atlasSetting.AtlasIslandRelocator != null ? UnityEngine.Object.Instantiate(atlasSetting.AtlasIslandRelocator) : new NFDHPlasFC();
 
+            relocator.UseUpScaling = atlasSetting.UseUpScaling;
+            relocator.Padding = atlasSetting.IslandPadding;
+
+            islandRectPool = relocator.Relocation(islandRectPool, originIslandPool);
+            var rectTangleMove = relocator.RectTangleMove;
 
             //新しいUVを持つMeshを生成するフェーズ
             var compiledMeshes = new List<AtlasData.AtlasMeshAndDist>();

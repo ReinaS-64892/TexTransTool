@@ -4,7 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransCore.Island;
 
-namespace net.rs64.TexTransTool.TextureAtlas
+namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 {
     /// <summary>
     /// これらinterfaceは非常に実験的なAPIで予告なく変更や削除される可能性があります。
@@ -22,34 +22,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
     /// ちなみに現時点で使用するのは <see cref="NFDHPlasFC"/> しか存在せず、今の AtlasTexture では並び替えアルゴリズムを選択するUIは存在しないため
     /// DebugMode を使って書き換える必要があるためご注意ください。
     /// </summary>
-    public interface IAtlasIslandSorter
+
+
+    public abstract class AtlasIslandRelocatorObject : ScriptableObject, IAtlasIslandRelocator
     {
-        string SorterName { get; }
-        bool RectTangleMove { get; }
-        Dictionary<AtlasIslandID, IslandRect> Sorting(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference, bool useUpScaling, float padding);
+        public abstract bool RectTangleMove { get; }
+        protected bool UseUpScaling { get; private set; }
+        protected float Padding { get; private set; }
+        bool IAtlasIslandRelocator.UseUpScaling { set => UseUpScaling = value; }
+        float IAtlasIslandRelocator.Padding { set => Padding = value; }
+        public abstract Dictionary<AtlasIslandID, IslandRect> Relocation(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference);
     }
 
-    internal static class AtlasIslandSorterUtility
-    {
-        static Dictionary<string, IAtlasIslandSorter> s_sorters;
-        static string[] s_sortersNames;
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-#endif
-        static void Init()
-        {
-            var interfaces = InterfaceUtility.GetInterfaceInstance<IAtlasIslandSorter>();
-            s_sorters = new Dictionary<string, IAtlasIslandSorter>();
-            foreach (var sorter in interfaces) { s_sorters.Add(sorter.SorterName, sorter); }
-            s_sortersNames = s_sorters.Keys.ToArray();
-        }
-        public static IAtlasIslandSorter GetSorter(string sorterName)
-        {
-            if (s_sorters == null) { Debug.LogError("Not Init"); return null; }
-            if (!s_sorters.ContainsKey(sorterName)) { Debug.LogError("Sorter Is not Exist"); return null; }
-            return s_sorters[sorterName];
-        }
 
-        public static string[] GetSorterName() => s_sortersNames;
-    }
 }
