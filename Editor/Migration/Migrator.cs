@@ -150,7 +150,7 @@ namespace net.rs64.TexTransTool.Migration
             {
                 var SaveDataVersionJsonI = GetSaveDataVersion;
 
-                if (SaveDataVersionJsonI.SaveDataVersion == 0)
+                if (SaveDataVersionJsonI.SaveDataVersion < TexTransBehavior.TTTDataVersion)
                 {
                     DoMigrate();
                 }
@@ -159,10 +159,6 @@ namespace net.rs64.TexTransTool.Migration
                     EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
                      "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
                      "理解しました", "Yes");
-                }
-                else
-                {
-                    //もっと前のバージョン用の対応をするかは考えて決めるべきだが、今は考えるべきでもない。
                 }
             }
             finally
@@ -196,8 +192,7 @@ namespace net.rs64.TexTransTool.Migration
         private static void MigrateEverything()
         {
             PreMigration();
-            var nowVersion = GetSaveDataVersion;
-            foreach (var version in Enumerable.Range(nowVersion.SaveDataVersion, TexTransBehavior.TTTDataVersion))
+            for (var version = GetSaveDataVersion.SaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
                 switch (version)
                 {
@@ -213,6 +208,7 @@ namespace net.rs64.TexTransTool.Migration
                         }
                     case 2:
                         {
+                            MigrateEverythingV2ToV3(true);
                             break;
                         }
                 }
