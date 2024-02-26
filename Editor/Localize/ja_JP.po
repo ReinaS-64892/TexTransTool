@@ -99,7 +99,10 @@ msgid "AtlasTexture:prop:IslandSorterName:tooltip"
 msgstr "アイランドを再配置し、並び替えるアルゴリズムの名前、編集不可"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
-msgstr "(実験的機能) 元のUVを書き込む"
+msgstr "元のUVを書き込む"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
+msgstr "アトラスアイランドリロケーター"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "UV1にアトラス化する前のUVを書き込む機能"

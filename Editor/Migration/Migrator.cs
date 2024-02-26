@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.Migration.V1;
+using net.rs64.TexTransTool.Migration.V2;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -33,6 +34,23 @@ namespace net.rs64.TexTransTool.Migration
 
 
 #pragma warning disable CS0612
+        public static bool MigrationITexTransToolTagV2ToV3(ITexTransToolTag texTransToolTag)
+        {
+            switch (texTransToolTag)
+            {
+                case AtlasTexture atlasTexture:
+                    {
+                        AtlasTextureV2.MigrationAtlasTextureV2ToV3(atlasTexture);
+                        return true;
+                    }
+
+                default:
+                    {
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 3);
+                        return true;
+                    }
+            }
+        }
         public static bool MigrationITexTransToolTagV1ToV2(ITexTransToolTag texTransToolTag)
         {
             switch (texTransToolTag)
@@ -54,7 +72,7 @@ namespace net.rs64.TexTransTool.Migration
                     }
                 default:
                     {
-                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 1);
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 2);
                         return true;
                     }
             }
@@ -174,8 +192,7 @@ namespace net.rs64.TexTransTool.Migration
         private static void MigrateEverything()
         {
             PreMigration();
-            var nowVersion = GetSaveDataVersion;
-            foreach (var version in Enumerable.Range(nowVersion.SaveDataVersion, TexTransBehavior.TTTDataVersion))
+            for (var version = GetSaveDataVersion.SaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
                 switch (version)
                 {
@@ -187,6 +204,11 @@ namespace net.rs64.TexTransTool.Migration
                     case 1:
                         {
                             MigrateEverythingV1ToV2(true);
+                            break;
+                        }
+                    case 2:
+                        {
+                            MigrateEverythingV2ToV3(true);
                             break;
                         }
                 }
@@ -261,6 +283,41 @@ namespace net.rs64.TexTransTool.Migration
                     (prefabs.Count + i) / totalCount));
 
                 MigrationUtility.WriteVersion(2);
+
+            }
+            catch
+            {
+                EditorUtility.DisplayDialog("Error!", "Error in migration process!", "OK");
+                throw;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                if (!continuesMigrate) PostMigration();
+            }
+        }
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.5.x to v0.6.x")]
+        private static void MigrateEverythingV2ToV3() { MigrateEverythingV2ToV3(false); }
+        private static void MigrateEverythingV2ToV3(bool continuesMigrate = false)
+        {
+            try
+            {
+                if (!continuesMigrate) PreMigration();
+                var prefabs = GetPrefabs();
+                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                float totalCount = prefabs.Count + scenePaths.Count;
+
+                MigratePrefabsV2ToV3(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Prefabs) ({i} / {totalCount})",
+                    i / totalCount));
+
+                MigrateAllScenesV2ToV3(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
+                    (prefabs.Count + i) / totalCount));
+
+                MigrationUtility.WriteVersion(3);
 
             }
             catch
@@ -416,6 +473,14 @@ namespace net.rs64.TexTransTool.Migration
             {
                 Prefab = prefab;
             }
+        }
+        private static void MigratePrefabsV2ToV3(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        {
+            MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV2ToV3);
+        }
+        private static void MigrateAllScenesV2ToV3(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV2ToV3);
         }
 
         private static void MigratePrefabsV1ToV2(List<GameObject> prefabAssets, Action<string, int> progressCallback)

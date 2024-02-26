@@ -85,69 +85,45 @@ namespace net.rs64.TexTransCore.Island
 
             return islands;
         }
-
-        public static void IslandMoveUV(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, Island movedIsland)
+        public static void IslandMoveUV<TIsland>(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, TIsland movedIsland) where TIsland : IIslandRect
         {
+            if (originIsland.Is90Rotation) { throw new ArgumentException("originIsland.Is90Rotation is true"); }
+
             var tempList = ListPool<int>.Get();
-            if (originIsland.Is90Rotation == movedIsland.Is90Rotation)
+            var rotate = Quaternion.Euler(0, 0, -90);
+
+            var mSize = movedIsland.Is90Rotation ? new(movedIsland.Size.y, movedIsland.Size.x) : movedIsland.Size;
+            var nmSize = originIsland.Size;
+
+            var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).NaNtoZero();
+
+            foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
             {
-                var mSize = movedIsland.Size;
-                var nmSize = originIsland.Size;
+                var relativeVertPos = uv[vertIndex] - originIsland.Pivot;
 
-                var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
-                foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
-                {
-                    var vertPos = uv[vertIndex];
-                    var relativeVertPos = vertPos - originIsland.Pivot;
+                relativeVertPos.x *= relativeScale.x;
+                relativeVertPos.y *= relativeScale.y;
 
-                    relativeVertPos.x *= relativeScale.x;
-                    relativeVertPos.y *= relativeScale.y;
+                if (movedIsland.Is90Rotation) { relativeVertPos = rotate * relativeVertPos; relativeVertPos.y += movedIsland.Size.y; }
 
-                    var movedVertPos = movedIsland.Pivot + relativeVertPos;
-                    moveUV[vertIndex] = movedVertPos;
-                }
+                moveUV[vertIndex] = movedIsland.Pivot + relativeVertPos;
             }
-            else
-            {
-                var mSize = movedIsland.Is90Rotation ? new(movedIsland.Size.y, movedIsland.Size.x) : movedIsland.Size;
-                var nmSize = originIsland.Is90Rotation ? new(originIsland.Size.y, originIsland.Size.x) : originIsland.Size;
 
-                var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).ValidateNaN();
-                var isRotRight = movedIsland.Is90Rotation;
-                var rotate = Quaternion.Euler(0, 0, isRotRight ? -90 : 90);
-
-                foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
-                {
-                    var vertPos = uv[vertIndex];
-                    var relativeVertPos = vertPos - originIsland.Pivot;
-
-                    relativeVertPos.x *= relativeScale.x;
-                    relativeVertPos.y *= relativeScale.y;
-
-                    relativeVertPos = rotate * relativeVertPos;
-
-                    var movedVertPos = movedIsland.Pivot + relativeVertPos;
-
-                    if (isRotRight) { movedVertPos.y += movedIsland.Size.y; }
-                    else { movedVertPos.x += movedIsland.Size.x; }
-
-                    moveUV[vertIndex] = movedVertPos;
-                }
-            }
             ListPool<int>.Release(tempList);
         }
 
-        private static Vector2 ValidateNaN(this Vector2 relativeScale)
+        private static Vector2 NaNtoZero(this Vector2 relativeScale)
         {
             relativeScale.x = float.IsNaN(relativeScale.x) ? 0 : relativeScale.x;
             relativeScale.y = float.IsNaN(relativeScale.y) ? 0 : relativeScale.y;
             return relativeScale;
         }
 
-        public static void IslandPoolMoveUV<ID, TIsland>(List<Vector2> uv, List<Vector2> moveUV, Dictionary<ID, TIsland> originPool, Dictionary<ID, TIsland> movedPool)
+        public static void IslandPoolMoveUV<ID, TIsland, TIslandRect>(List<Vector2> uv, List<Vector2> moveUV, Dictionary<ID, TIsland> originPool, Dictionary<ID, TIslandRect> movedPool)
         where TIsland : Island
+        where TIslandRect : IIslandRect
         {
-            if (uv.Count != moveUV.Count) throw new Exception("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
+            if (uv.Count != moveUV.Count) throw new ArgumentException("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
             foreach (var islandKVP in movedPool)
             {
                 var originIsland = originPool[islandKVP.Key];
@@ -157,7 +133,7 @@ namespace net.rs64.TexTransCore.Island
 
     }
     [Serializable]
-    public class Island
+    public class Island : IIslandRect
     {
         public List<TriangleIndex> triangles;
         public Vector2 Pivot;
@@ -165,6 +141,10 @@ namespace net.rs64.TexTransCore.Island
         public bool Is90Rotation;
 
         public Vector2 GetMaxPos => Pivot + Size;
+
+        Vector2 IIslandRect.Pivot { get => Pivot; set => Pivot = value; }
+        Vector2 IIslandRect.Size { get => Size; set => Size = value; }
+        bool IIslandRect.Is90Rotation { get => Is90Rotation; set => Is90Rotation = value; }
 
         public Island(Island souse)
         {
@@ -214,36 +194,7 @@ namespace net.rs64.TexTransCore.Island
             var relativeTargetPos = targetPos - Pivot;
             return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
         }
-        public List<Vector2> GenerateRectVertexes(float rectScalePadding = 1.1f, List<Vector2> outPutQuad = null)
-        {
-            rectScalePadding = Mathf.Abs(rectScalePadding);
-            outPutQuad?.Clear(); outPutQuad ??= new();
 
-            var center = Pivot + (Size * 0.5f);
-
-            if (!Is90Rotation)
-            {
-                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x, Pivot.y + Size.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot + Size, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x + Size.x, Pivot.y), rectScalePadding));
-            }
-            else
-            {
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x, Pivot.y + Size.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot + Size, rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, new Vector2(Pivot.x + Size.x, Pivot.y), rectScalePadding));
-                outPutQuad.Add(Vector2.LerpUnclamped(center, Pivot, rectScalePadding));
-            }
-
-            return outPutQuad;
-        }
-
-        public float TexToRectScale(float texScaleValue)
-        {
-            var center = Pivot + (Size * 0.5f);
-            return Vector2.Distance(center, Pivot - new Vector2(texScaleValue, texScaleValue)) / Vector2.Distance(center, Pivot);
-        }
         public void Rotate90()
         {
             Is90Rotation = !Is90Rotation;
@@ -252,6 +203,50 @@ namespace net.rs64.TexTransCore.Island
 
     }
 
+    internal interface IIslandRect
+    {
+        public Vector2 Pivot { set; get; }
+        public Vector2 Size { set; get; }
+        public bool Is90Rotation { set; get; }
+    }
+
+    internal static class IslandRectUtility
+    {
+        public static Vector2 GetMaxPos<TIslandRect>(this TIslandRect islandRect) where TIslandRect : IIslandRect { return islandRect.Pivot + islandRect.Size; }
+        public static float UVScaleToRectScale<TIslandRect>(this TIslandRect islandRect, float uvScaleValue) where TIslandRect : IIslandRect
+        {
+            return new Vector2(uvScaleValue, uvScaleValue).magnitude / (islandRect.Size * 0.5f).magnitude;
+        }
+
+        public static List<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
+        where TIslandRect : IIslandRect
+        {
+            outPutQuad?.Clear(); outPutQuad ??= new();
+
+            var rectScale = Mathf.Abs(rectScalePadding) * (islandRect.Size * 0.5f).magnitude;
+            var paddingVector = Vector2.ClampMagnitude(Vector2.one, rectScale);
+
+            var leftDown = islandRect.Pivot;
+            var rightUp = islandRect.Pivot + islandRect.Size;
+
+            if (!islandRect.Is90Rotation)
+            {
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
+            }
+            else
+            {
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+            }
+
+            return outPutQuad;
+        }
+    }
 
     internal static class IslandUtilsDebug
     {

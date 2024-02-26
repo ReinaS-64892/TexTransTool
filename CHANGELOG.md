@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ColorDodgeGlow-覆い焼(発光)
 - AtlasTexture のマテリアル選択のプレハブオーバーライドを操作するための UI を追加しました (#368)
 - SimpleDecal の RealTimePreview が複数同時にプレビューを更新したり、複数同時にプレビュー状態にする機能が追加されました。(#368)
+- AtlasTexture の AtlasTextureSize に比べて大きいテクスチャーが多数対象にされた場合でも高速に再配置を行えるようになりました (#)
 
 ### Changed
 
@@ -34,8 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal の複数同時編集が、何かがプレビューされているときでも可能になりました (#369)
 - TexTransGroup と PhaseDefinition の表示される範囲の調整とUIElementに変更 (#372)
 - TexTransGroup と PhaseDefinition のプレレビューの実行範囲が表示される範囲と同じになるように変更 (#375)
+- AtlasTexture 破壊的な変更として、 (#379)
+  - AtlasTexture のターゲットのテクスチャーと AtlasTextureSize から正しくスケーリングし、再配置を行うように変更
+  - AtlasTexture の Padding 値が、テクスチャスケールから、UVスケールに変更
 
 ### Removed
+
+- AtlasTexture の SorterName の表示は削除されました (#379)
 
 ### Fixed
 

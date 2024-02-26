@@ -99,7 +99,10 @@ msgid "AtlasTexture:prop:IslandSorterName:tooltip"
 msgstr "Name of Island sorter, can not editable."
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
-msgstr "(ExperimentalFuture) WriteOriginalUV"
+msgstr "WriteOriginalUV"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
+msgstr "AtlasIslandRelocator"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "Write to UV1 the UV when before atlas."
