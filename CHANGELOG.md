@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ColorDodgeGlow-覆い焼(発光)
 - AtlasTexture のマテリアル選択のプレハブオーバーライドを操作するための UI を追加しました (#368)
 - SimpleDecal の RealTimePreview が複数同時にプレビューを更新したり、複数同時にプレビュー状態にする機能が追加されました。(#368)
-- AtlasTexture の AtlasTextureSize に比べて大きいテクスチャーが多数対象にされた場合でも高速に再配置を行えるようになりました (#)
+- AtlasTexture の AtlasTextureSize に比べて大きいテクスチャーが多数対象にされた場合でも高速に再配置を行えるようになりました (#379)
+- AtlasTexture の AtlasTextureSize に比べて小さいテクスチャーが多数対象にされた場合、高さを二のべき乗の高さのステップで小さくする機能が追加されました (#381)
 
 ### Changed
 
@@ -48,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BlendTypeKey の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました (#358)
 - PropertyName の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました (#362)
 - 特定のケースで SimpleDecal の RealTimePreview が正しく行われない問題を修正 (#368)
+- AtlasTextureSize と 元のテクスチャーとの比率の計算が正しく行われていなかった問題を修正 (#381)
 
 ### Deprecated
 
