@@ -34,10 +34,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             ValidateDeceasing(sortedIslandArray);
 
-            var timer = System.Diagnostics.Stopwatch.StartNew(); var testCount = 4096;
-            for (var i = 0; testCount > i; i += 1) { TryNFDHPlasFC(sortedIslandArray, islandPadding); }
-            timer.Stop(); Debug.Log(testCount + "回:" + timer.ElapsedMilliseconds + "ms-平均" + timer.ElapsedMilliseconds / (float)testCount + "ms");
-
             if (TryNFDHPlasFC(sortedIslandArray, islandPadding) && !useUpScaling) { ApplyDictionary(); return islands; }
 
             ScaleApply(Mathf.Sqrt(1 / IslandRectUtility.CalculateAllAreaSum(islands.Values)));
