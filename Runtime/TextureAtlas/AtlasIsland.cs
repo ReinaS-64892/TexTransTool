@@ -45,6 +45,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Is90Rotation = island.Is90Rotation;
         }
 
+        internal IslandRect(IIslandRect island)
+        {
+            Pivot = island.Pivot;
+            Size = island.Size;
+            Is90Rotation = island.Is90Rotation;
+        }
         internal void Rotate90()
         {
             Is90Rotation = !Is90Rotation;

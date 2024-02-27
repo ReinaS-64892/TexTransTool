@@ -32,9 +32,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             ValidateDeceasing(islands, idList);
 
+            // var timer = System.Diagnostics.Stopwatch.StartNew(); var testCount = 4096;
+            // for (var i = 0; testCount > i; i += 1) { TryNFDHPlasFC(idList, islands, islandPadding); }
+            // timer.Stop(); Debug.Log(testCount + "回:" + timer.ElapsedMilliseconds + "ms-平均" + timer.ElapsedMilliseconds / (float)testCount + "ms");
+
             if (TryNFDHPlasFC(idList, islands, islandPadding) && !useUpScaling) { return islands; }
 
-            var scale = Mathf.Sqrt(1 / CalculateAllAreaSum(islands.Values));
+            var scale = Mathf.Sqrt(1 / IslandRectUtility.CalculateAllAreaSum(islands.Values));
             ScaleApply(scale);
 
             var stepCount = 0;
@@ -46,14 +50,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             void ScaleApply(float scale) { foreach (var id in idList) { var island = islands[id]; island.Size *= scale; islands[id] = island; } }
         }
 
-        private static float CalculateAllAreaSum(IEnumerable<IslandRect> islandRects)
-        {
-            var sum = 0f;
-            foreach (var rect in islandRects) { sum += rect.Size.x * rect.Size.y; }
-            return sum;
-        }
 
-        private static bool ValidateDeceasing<ID>(Dictionary<ID, IslandRect> islands, List<ID> idList)
+        internal static bool ValidateDeceasing<ID>(Dictionary<ID, IslandRect> islands, List<ID> idList)
         {
             var validateHeight = islands[idList[0]].Size.y;
             foreach (var id in idList)

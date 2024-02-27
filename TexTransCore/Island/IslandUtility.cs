@@ -129,7 +129,7 @@ namespace net.rs64.TexTransCore.Island
             foreach (var islandKVP in movedPool)
             {
                 var originIsland = originPool[islandKVP.Key];
-                IslandMoveUV(uv, moveUV, originIsland, islandKVP.Value);
+                IslandMoveUV(uv, moveUV, originIsland, islandKVP.Value, true);
             }
         }
 
@@ -214,10 +214,22 @@ namespace net.rs64.TexTransCore.Island
 
     internal static class IslandRectUtility
     {
+        internal static float CalculateAllAreaSum<TIslandRect>(IEnumerable<TIslandRect> islandRect) where TIslandRect : IIslandRect
+        {
+            var sum = 0f;
+            foreach (var rect in islandRect) { sum += rect.Size.x * rect.Size.y; }
+            return sum;
+        }
+        internal static float CalculateIslandsMaxHeight<TIslandRect>(IEnumerable<TIslandRect> islandRectPool) where TIslandRect : IIslandRect
+        {
+            var height = 0f;
+            foreach (var islandRect in islandRectPool) { height = Mathf.Max(height, islandRect.Pivot.y + islandRect.Size.y); }
+            return height;
+        }
         public static Vector2 GetMaxPos<TIslandRect>(this TIslandRect islandRect) where TIslandRect : IIslandRect { return islandRect.Pivot + islandRect.Size; }
         public static float UVScaleToRectScale<TIslandRect>(this TIslandRect islandRect, float uvScaleValue) where TIslandRect : IIslandRect
         {
-            return new Vector2(uvScaleValue, uvScaleValue).magnitude / (islandRect.Size * 0.5f).magnitude;
+            return new Vector2(uvScaleValue, uvScaleValue).magnitude / islandRect.Size.magnitude;
         }
 
         public static List<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
@@ -225,7 +237,7 @@ namespace net.rs64.TexTransCore.Island
         {
             outPutQuad?.Clear(); outPutQuad ??= new();
 
-            var rectScale = Mathf.Abs(rectScalePadding) * (islandRect.Size * 0.5f).magnitude;
+            var rectScale = Mathf.Abs(rectScalePadding) * islandRect.Size.magnitude;
             var paddingVector = Vector2.ClampMagnitude(Vector2.one, rectScale);
 
             var leftDown = islandRect.Pivot;
@@ -234,15 +246,15 @@ namespace net.rs64.TexTransCore.Island
             if (!islandRect.Is90Rotation)
             {
                 outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
             }
             else
             {
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y  + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x  + paddingVector.x, rightUp.y  + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x  + paddingVector.x, leftDown.y - paddingVector.y));
+                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
+                outPutQuad.Add(new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
                 outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
             }
 
