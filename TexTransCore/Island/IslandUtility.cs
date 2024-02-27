@@ -85,7 +85,7 @@ namespace net.rs64.TexTransCore.Island
 
             return islands;
         }
-        public static void IslandMoveUV<TIsland>(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, TIsland movedIsland) where TIsland : IIslandRect
+        public static void IslandMoveUV<TIsland>(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, TIsland movedIsland, bool keepIslandUVTile = false) where TIsland : IIslandRect
         {
             if (originIsland.Is90Rotation) { throw new ArgumentException("originIsland.Is90Rotation is true"); }
 
@@ -106,7 +106,9 @@ namespace net.rs64.TexTransCore.Island
 
                 if (movedIsland.Is90Rotation) { relativeVertPos = rotate * relativeVertPos; relativeVertPos.y += movedIsland.Size.y; }
 
-                moveUV[vertIndex] = movedIsland.Pivot + relativeVertPos;
+                var movedPos = movedIsland.Pivot + relativeVertPos;
+                if (keepIslandUVTile) { movedPos.x += Mathf.Floor(originIsland.Pivot.x); movedPos.y += Mathf.Floor(originIsland.Pivot.y); }
+                moveUV[vertIndex] = movedPos;
             }
 
             ListPool<int>.Release(tempList);
