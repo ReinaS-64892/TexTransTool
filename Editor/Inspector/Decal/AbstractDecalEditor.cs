@@ -65,6 +65,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 bool IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
                 IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
+                IsPossibleRealTimePreview |= RealTimePreviewManager.IsContainsRealTimePreviewDecal;
 
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
