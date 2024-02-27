@@ -30,16 +30,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             foreach (var id in idList) { if (islands[id].Size.y > islands[id].Size.x) { var island = islands[id]; island.Rotate90(); islands[id] = island; } }
             idList.Sort((lId, rId) => Mathf.RoundToInt((islands[rId].Size.y - islands[lId].Size.y) * 1073741824));
 
-            var sortedIslandList = idList.Select(i => islands[i]).ToList();
+            var sortedIslandArray = idList.Select(i => islands[i]).ToArray();
 
-            ValidateDeceasing(sortedIslandList);
+            ValidateDeceasing(sortedIslandArray);
 
-            if (TryNFDHPlasFC(sortedIslandList, islandPadding) && !useUpScaling) { ApplyDictionary(); return islands; }
+            var timer = System.Diagnostics.Stopwatch.StartNew(); var testCount = 4096;
+            for (var i = 0; testCount > i; i += 1) { TryNFDHPlasFC(sortedIslandArray, islandPadding); }
+            timer.Stop(); Debug.Log(testCount + "回:" + timer.ElapsedMilliseconds + "ms-平均" + timer.ElapsedMilliseconds / (float)testCount + "ms");
+
+            if (TryNFDHPlasFC(sortedIslandArray, islandPadding) && !useUpScaling) { ApplyDictionary(); return islands; }
 
             ScaleApply(Mathf.Sqrt(1 / IslandRectUtility.CalculateAllAreaSum(islands.Values)));
 
             var stepCount = 0;
-            while (!TryNFDHPlasFC(sortedIslandList, islandPadding) && safetyCount > stepCount) { ScaleApply(scaleStep); stepCount += 1; }
+            while (!TryNFDHPlasFC(sortedIslandArray, islandPadding) && safetyCount > stepCount) { ScaleApply(scaleStep); stepCount += 1; }
             if (stepCount == safetyCount) { TTTRuntimeLog.Warning("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
 
             ApplyDictionary();
@@ -47,29 +51,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             void ScaleApply(float scale)
             {
-                var count = sortedIslandList.Count;
-                for (var i = 0; count > i; i += 1)
-                {
-
-                    var island = sortedIslandList[i];
-                    island.Size *= scale;
-                    sortedIslandList[i] = island;
-                }
+                for (var i = 0; sortedIslandArray.Length > i; i += 1) { sortedIslandArray[i].Size *= scale; }
             }
             void ApplyDictionary()
             {
-                var count = sortedIslandList.Count;
-                for (var i = 0; count > i; i += 1) { islands[idList[i]] = sortedIslandList[i]; }
+                for (var i = 0; sortedIslandArray.Length > i; i += 1) { islands[idList[i]] = sortedIslandArray[i]; }
             }
         }
 
 
-        internal static bool ValidateDeceasing(List<IslandRect> idList)
+        internal static bool ValidateDeceasing(IslandRect[] rectArray)
         {
-            var validateHeight = idList[0].Size.y;
-            foreach (var id in idList)
+            var validateHeight = rectArray[0].Size.y;
+            foreach (var rect in rectArray)
             {
-                if (validateHeight >= id.Size.y) { validateHeight = id.Size.y; }
+                if (validateHeight >= rect.Size.y) { validateHeight = rect.Size.y; }
                 else
                 {
                     TTTRuntimeLog.Warning("NFDHPlusFC : The islands are not sorted correctly according to height. It is possible that undesirable reordering is being done.");
@@ -79,26 +75,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             return false;
         }
 
-        static bool TryNFDHPlasFC(List<IslandRect> descendingIslandList, float islandPadding = 0.01f)
+        static bool TryNFDHPlasFC(IslandRect[] sortedIslands, float islandPadding = 0.01f)
         {
             var uvWidthBox = new List<UVWidthBox<IslandRect>>();
-            var count = descendingIslandList.Count;
 
-            for (var i = 0; count > i; i += 1)
+            for (var i = 0; sortedIslands.Length > i; i += 1)
             {
                 if (TrySetUVBoxList(i)) { continue; }
 
-                var island = descendingIslandList[i];
-
                 var Floor = uvWidthBox.Any() ? uvWidthBox.Last().Ceil + islandPadding : islandPadding;
-                var Ceil = island.Size.y + Floor;
+                var Ceil = sortedIslands[i].Size.y + Floor;
                 var newWithBox = new UVWidthBox<IslandRect>(Ceil, Floor, islandPadding);
 
-                var pivot = newWithBox.TrySetBox(island);
+                var pivot = newWithBox.TrySetBox(sortedIslands[i]);
                 if (pivot is null) { return false; }
 
-                island.Pivot = pivot.Value;
-                descendingIslandList[i] = island;
+                sortedIslands[i].Pivot = pivot.Value;
 
                 uvWidthBox.Add(newWithBox);
             }
@@ -108,14 +100,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             bool TrySetUVBoxList(int index)
             {
-                var island = descendingIslandList[index];
                 foreach (var withBox in uvWidthBox)
                 {
-                    var pivot = withBox.TrySetBox(island);
+                    var pivot = withBox.TrySetBox(sortedIslands[index]);
                     if (pivot is not null)
                     {
-                        island.Pivot = pivot.Value;
-                        descendingIslandList[index] = island;
+                        sortedIslands[index].Pivot = pivot.Value;
                         return true;
                     }
                 }
