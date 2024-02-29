@@ -107,6 +107,12 @@ msgstr "AtlasIslandRelocator"
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "Write to UV1 the UV when before atlas."
 
+msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
+msgstr "PixelNormalize"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
+msgstr "Feature of pixel normalize on island move."
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "IncludeDisabledRenderer"
 

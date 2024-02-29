@@ -92,6 +92,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sAtlasIslandRelocator = sAtlasSettings.FindPropertyRelative("AtlasIslandRelocator");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
+            var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
             var sUseUpScaling = sAtlasSettings.FindPropertyRelative("UseUpScaling");
             var sTextureFineTuningDataList = sAtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
 
@@ -118,6 +119,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUI.indentLevel += 1;
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
+                EditorGUILayout.PropertyField(sPixelNormalize,"AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 EditorGUI.indentLevel -= 1;
             }
 

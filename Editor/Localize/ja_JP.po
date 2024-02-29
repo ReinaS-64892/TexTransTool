@@ -107,6 +107,12 @@ msgstr "アトラスアイランドリロケーター"
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
 msgstr "UV1にアトラス化する前のUVを書き込む機能"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
+msgstr "ピクセルノーマライズ"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
+msgstr "アイランドの移動をピクセル単位にノーマライズする機能"
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "適用時に非アクティブなレンダラーを含める"
 
