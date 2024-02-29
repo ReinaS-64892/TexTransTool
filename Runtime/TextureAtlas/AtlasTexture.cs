@@ -148,6 +148,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //アイランドまわり
             var originIslandPool = atlasReferenceData.GeneratedIslandPool(domain.GetIslandCacheManager());
 
+            if (atlasSetting.PixelNormalize)
+            {
+                foreach (var islandKV in originIslandPool)
+                {
+                    var island = islandKV.Value;
+                    island.Pivot.y = Mathf.Round(island.Pivot.y * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
+                    island.Pivot.x = Mathf.Round(island.Pivot.x * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
+                }
+            }
+
             var islandSizeOffset = new Dictionary<Material, float>();
             foreach (var material in materialAdditionalTextureOffset.Keys)
             {
@@ -187,6 +197,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             islandRectPool = relocator.Relocation(islandRectPool, originIslandPool);
             var rectTangleMove = relocator.RectTangleMove;
+
+            if (atlasSetting.PixelNormalize)
+            {
+                foreach (var key in originIslandPool.Keys)
+                {
+                    var island = islandRectPool[key];
+                    island.Pivot.y = Mathf.Round(island.Pivot.y * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
+                    island.Pivot.x = Mathf.Round(island.Pivot.x * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
+                    islandRectPool[key] = island;
+                }
+            }
 
             //上側を削れるかを見る
             var height = IslandRectUtility.CalculateIslandsMaxHeight(islandRectPool.Values);
