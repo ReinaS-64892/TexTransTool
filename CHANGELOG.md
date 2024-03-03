@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - AtlasTexture の SorterName の表示は削除されました (#379)
+- SimpleDecal の Preview ボタンは削除されました (#385)
 
 ### Fixed
 
