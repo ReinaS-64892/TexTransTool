@@ -152,9 +152,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 foreach (var islandKV in originIslandPool)
                 {
+                    var material = materialTextures[atlasReferenceData.GetMaterialReference(islandKV.Key)];
+                    var refTex = material.FirstOrDefault(i => i.PropertyName == "_MainTex")?.Texture;
+                    if (refTex == null) { continue; }
                     var island = islandKV.Value;
-                    island.Pivot.y = Mathf.Round(island.Pivot.y * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
-                    island.Pivot.x = Mathf.Round(island.Pivot.x * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
+                    island.Pivot.y = Mathf.Round(island.Pivot.y * refTex.height) / refTex.height;
+                    island.Pivot.x = Mathf.Round(island.Pivot.x * refTex.width) / refTex.width;
                 }
             }
 
