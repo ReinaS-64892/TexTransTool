@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool
     {
         [SerializeField]
         private Object previweing = null;
+        private Object lastPreviweing = null;
 
         protected PreviewContext()
         {
@@ -35,6 +36,7 @@ namespace net.rs64.TexTransTool
 
         public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
+        public static bool LastPreviewClear() => instance.lastPreviweing = null;
 
         private void DrawApplyAndRevert<T>(T target, Action<T> apply)
             where T : Object
@@ -114,6 +116,7 @@ namespace net.rs64.TexTransTool
         public void ExitPreview()
         {
             if (previweing == null) { return; }
+            lastPreviweing = previweing;
             previweing = null;
             AnimationMode.StopAnimationMode();
         }
@@ -128,11 +131,17 @@ namespace net.rs64.TexTransTool
 
         internal void RePreview()
         {
-            if (!IsPreviewContains) { return; }
-            if (previweing is not TexTransBehavior texTransBehavior) { return; }
-            var target = texTransBehavior;
-            ExitPreview();
-            StartPreview(target, TexTransBehaviorApply);
+            if (!IsPreviewContains)
+            {
+                if (lastPreviweing is TexTransBehavior texTransBehavior) { StartPreview(texTransBehavior, TexTransBehaviorApply); lastPreviweing = null; }
+            }
+            else
+            {
+                if (previweing is not TexTransBehavior texTransBehavior) { return; }
+                var target = texTransBehavior;
+                ExitPreview();
+                StartPreview(target, TexTransBehaviorApply);
+            }
         }
     }
 }
