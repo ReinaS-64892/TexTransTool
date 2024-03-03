@@ -77,12 +77,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerRealTimePreviewEditor(targets);
 
-            if (!isMultiEdit)
-            {
-                EditorGUI.BeginDisabledGroup(RealTimePreviewManager.Contains(thisObject));
-                PreviewContext.instance.DrawApplyAndRevert(thisObject);
-                EditorGUI.EndDisabledGroup();
-            }
+            // if (!isMultiEdit)
+            // {
+            //     EditorGUI.BeginDisabledGroup(RealTimePreviewManager.Contains(thisObject));
+            //     PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            //     EditorGUI.EndDisabledGroup();
+            // }
 
             thisSObject.ApplyModifiedProperties();
         }
