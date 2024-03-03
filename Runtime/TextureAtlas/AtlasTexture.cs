@@ -575,19 +575,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
     internal class AtlasReferenceData
     {
         public OrderedHashSet<Mesh> Meshes;
+        public HashSet<Material> TargetMaterials;
         public OrderedHashSet<Material> Materials;
         public List<AtlasMeshData> AtlasMeshDataList;
         public List<Renderer> Renderers;
         public AtlasReferenceData(List<Material> targetMaterials, List<Renderer> inputRenderers)
         {
-            var targetMatHash = new HashSet<Material>(targetMaterials);
+            TargetMaterials = new HashSet<Material>(targetMaterials);
             Meshes = new(); Materials = new(); Renderers = new();
 
             foreach (var renderer in inputRenderers)
             {
                 foreach (var mat in renderer.sharedMaterials)
                 {
-                    if (targetMatHash.Contains(mat))
+                    if (TargetMaterials.Contains(mat))
                     {
                         Meshes.Add(renderer.GetMesh());
                         Materials.AddRange(renderer.sharedMaterials);
@@ -662,6 +663,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 for (var SlotIndex = 0; atlasMeshData.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
+                    if (!TargetMaterials.Contains(Materials[atlasMeshData.MaterialIndex[SlotIndex]])) { continue; }
                     var islands = IslandUtility.UVtoIsland(atlasMeshData.Triangles[SlotIndex], atlasMeshData.UV, islandCache);
                     foreach (var island in islands) { islandPool.Add(new AtlasIslandID(amdIndex, SlotIndex, islandIndex), new AtlasIsland(island, atlasMeshData.UV)); islandIndex += 1; }
                 }
