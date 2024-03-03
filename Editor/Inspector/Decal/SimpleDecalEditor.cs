@@ -68,11 +68,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.PropertyField(sUseDepth, "SimpleDecal:prop:ExperimentalFuture:UseDepth".Glc());
                 if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, "SimpleDecal:prop:ExperimentalFuture:DepthInvert".Glc()); }
 
-
-                EditorGUI.indentLevel += 1;
-                if (!isMultiEdit) { AbstractDecalEditor.DrawerDecalGrabEditor(thisObject); }
-                EditorGUI.indentLevel -= 1;
-                EditorGUILayout.LabelField("---");
             }
 
             AbstractDecalEditor.DrawerRealTimePreviewEditor(targets);

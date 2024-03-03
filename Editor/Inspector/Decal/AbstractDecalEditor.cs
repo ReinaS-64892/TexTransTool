@@ -113,26 +113,5 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
         }
 
-        public static void DrawerDecalGrabEditor(AbstractDecal thisObject)
-        {
-            if (thisObject == null) return;
-            {
-                if (DecalGrabManager.instance.NowGrabDecal == null)
-                {
-                    if (GUILayout.Button("GrabDecal".GetLocalize()))
-                    {
-                        DecalGrabManager.instance.Grab(thisObject);
-                    }
-
-                }
-                else if (DecalGrabManager.instance.NowGrabDecal == thisObject)
-                {
-                    if (GUILayout.Button("DropDecal".GetLocalize()))
-                    {
-                        DecalGrabManager.instance.Drop(thisObject);
-                    }
-                }
-            }
-        }
     }
 }
