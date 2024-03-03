@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/Group/TTT PreviewGroup")]
+    [AddComponentMenu("TexTransTool/PreviewUtility/TTT PreviewGroup")]
     public sealed class PreviewGroup : TexTransCallEditorBehavior
     {
         internal override List<Renderer> GetRenderers => null;
