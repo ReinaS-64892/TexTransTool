@@ -70,6 +70,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
+                    PreviewContext.LastPreviewClear();
                     foreach (var decal in target) { RealTimePreviewManager.instance.RegtAbstractDecal(decal); }
                 }
                 EditorGUI.EndDisabledGroup();

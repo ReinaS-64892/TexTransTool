@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
             if (RealTimePreviewManager.IsContainsRealTimePreviewDecal) { RealTimePreviewManager.instance.ExitPreview(); return; }
             if (PreviewContext.IsPreviewContains) { PreviewContext.instance.ExitPreview(); }
         }
-        [MenuItem("Tools/TexTransTool/RePreview #r")]
+        [MenuItem("Tools/TexTransTool/RePreview")]
         public static void RePreview()
         {
             PreviewContext.instance.RePreview();
