@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PropertyName の UI でプレハブオーバーライドの操作が正しく右クリックから呼び出せるようになりました (#362)
 - 特定のケースで SimpleDecal の RealTimePreview が正しく行われない問題を修正 (#368)
 - AtlasTextureSize と 元のテクスチャーとの比率の計算が正しく行われていなかった問題を修正 (#381)
+- AtlasTexture の AtlasTextureSize などで 二のべき乗ではない値が入力可能だった問題を修正 (#390)
 
 ### Deprecated
 

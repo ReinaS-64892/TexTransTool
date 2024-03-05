@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
@@ -8,7 +9,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public struct Resize : ITextureFineTuning
     {
-        public int Size;
+        [PowerOfTwo] public int Size;
         public PropertyName PropertyNames;
         public PropertySelect Select;
 

@@ -4,6 +4,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -14,7 +15,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Material MergeReferenceMaterial;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
-        public int AtlasTextureSize = 2048;
+        [PowerOfTwo]public int AtlasTextureSize = 2048;
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
