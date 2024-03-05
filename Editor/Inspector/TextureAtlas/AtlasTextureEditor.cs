@@ -13,15 +13,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     [CustomEditor(typeof(AtlasTexture), true)]
     internal class AtlasTextureEditor : UnityEditor.Editor
     {
-        public static readonly Dictionary<BuildTarget, (string[] displayName, TextureFormat[] formats)> SimpleFormatChoices = new()
-        {
-            {BuildTarget.StandaloneWindows64,
-                (new string[]{"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
-                 new TextureFormat[]{TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
-            {BuildTarget.Android,
-                (new string[]{"RGBA-ASTC_4x4","RGBA-ASTC_5x5","RGBA-ASTC_6x6","RGBA-ASTC_8x8","RGBA-ASTC_10x10","RGBA-ASTC_12x12"},
-                 new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})}
-        };
         public override void OnInspectorGUI()
         {
 
@@ -94,7 +85,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
             var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
             var sUseUpScaling = sAtlasSettings.FindPropertyRelative("UseUpScaling");
-            var sTextureFineTuningDataList = sAtlasSettings.FindPropertyRelative("TextureFineTuningDataList");
+            var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
 
 
 
@@ -123,7 +114,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUI.indentLevel -= 1;
             }
 
-            EditorGUILayout.PropertyField(sTextureFineTuningDataList, "AtlasTexture:prop:TextureFineTuning".Glc());
+            EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".Glc());
 
 
             EditorGUI.indentLevel -= 1;
@@ -132,140 +123,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         static bool s_ExperimentalFutureOption = false;
 
-        [CustomPropertyDrawer(typeof(TextureFineTuningData))]
-        public class TextureFineTuningDataDrawer : PropertyDrawer
-        {
-            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-            {
-                var sFineTuningData = property;
-                var sSelect = sFineTuningData.FindPropertyRelative("Select");
-                position.height = 18f;
-                EditorGUI.PropertyField(position, sSelect, ("TextureFineTuning:prop:" + sSelect.enumNames[sSelect.enumValueIndex]).Glc());
-                position.y += 18;
-                switch (sSelect.enumValueIndex)
-                {
-                    default:
-                        {
-                            EditorGUI.LabelField(position, $"{sSelect.enumValueIndex} enumValue Not Found");
-                            position.y += 18;
-                            break;
-                        }
-                    case 0:
-                        {
-                            var sResize_Size = sFineTuningData.FindPropertyRelative("Resize_Size");
-                            var sResize_PropertyNames = sFineTuningData.FindPropertyRelative("Resize_PropertyNames");
-                            var sResize_select = sFineTuningData.FindPropertyRelative("Resize_Select");
-                            EditorGUI.PropertyField(position, sResize_Size, "TextureFineTuning:prop:Resize:Size".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sResize_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sResize_select, "TextureFineTuning:prop:Select".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                    case 1:
-                        {
-                            var sCompressFormatQuality = sFineTuningData.FindPropertyRelative("Compress_FormatQuality");
-                            var sUseOverride = sFineTuningData.FindPropertyRelative("Compress_UseOverride");
-                            var sOverrideTextureFormat = sFineTuningData.FindPropertyRelative("Compress_OverrideTextureFormat");
-                            var sCompressCompressionQuality = sFineTuningData.FindPropertyRelative("Compress_CompressionQuality");
-                            var sCompressPropertyNames = sFineTuningData.FindPropertyRelative("Compress_PropertyNames");
-                            var sCompressSelect = sFineTuningData.FindPropertyRelative("Compress_Select");
-                            if (!sUseOverride.boolValue)
-                            {
-                                EditorGUI.PropertyField(position, sCompressFormatQuality, "TextureFineTuning:prop:FormatQuality".Glc());
-                                position.y += 18;
-                            }
-                            else
-                            {
-                                var nowChoicer = SimpleFormatChoices[EditorUserBuildSettings.activeBuildTarget];
-                                var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);//なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
-                                var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GetLocalize(), preIndex, nowChoicer.displayName);
-                                if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
-                                position.y += 18;
 
-                                EditorGUI.PropertyField(position, sOverrideTextureFormat, "TextureFineTuning:prop:OverrideTextureFormat".Glc());
-                                position.y += 18;
-                                EditorGUI.PropertyField(position, sCompressCompressionQuality, "TextureFineTuning:prop:CompressionQuality".Glc());
-                                position.y += 18;
-                            }
-                            EditorGUI.PropertyField(position, sUseOverride, "TextureFineTuning:prop:UseOverrideTextureFormat".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sCompressPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sCompressSelect, "TextureFineTuning:prop:Select".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                    case 2:
-                        {
-                            var sReferenceCopy_SousePropertyName = sFineTuningData.FindPropertyRelative("ReferenceCopy_SourcePropertyName");
-                            var sReferenceCopy_TargetPropertyName = sFineTuningData.FindPropertyRelative("ReferenceCopy_TargetPropertyName");
-                            EditorGUI.PropertyField(position, sReferenceCopy_SousePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sReferenceCopy_TargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                    case 3:
-                        {
-                            var sRemove_PropertyNames = sFineTuningData.FindPropertyRelative("Remove_PropertyNames");
-                            var sRemove_Select = sFineTuningData.FindPropertyRelative("Remove_Select");
-                            EditorGUI.PropertyField(position, sRemove_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sRemove_Select, "TextureFineTuning:prop:Select".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                    case 4:
-                        {
-                            var sMipMapRemove_PropertyNames = sFineTuningData.FindPropertyRelative("MipMapRemove_PropertyNames");
-                            var sMipMapRemove_Select = sFineTuningData.FindPropertyRelative("MipMapRemove_Select");
-                            EditorGUI.PropertyField(position, sMipMapRemove_PropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sMipMapRemove_Select, "TextureFineTuning:prop:Select".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                    case 5:
-                        {
-                            var sColorSpaceSelect = sFineTuningData.FindPropertyRelative("ColorSpace_Select");
-                            var sColorSpacePropertyNames = sFineTuningData.FindPropertyRelative("ColorSpace_PropertyNames");
-                            var sColorSpaceLinear = sFineTuningData.FindPropertyRelative("ColorSpace_Linear");
-                            EditorGUI.PropertyField(position, sColorSpaceLinear, "TextureFineTuning:prop:Linear".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sColorSpacePropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-                            position.y += 18;
-                            EditorGUI.PropertyField(position, sColorSpaceSelect, "TextureFineTuning:prop:Select".Glc());
-                            position.y += 18;
-                            break;
-                        }
-                }
-
-            }
-
-            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            {
-                var sSelect = property.FindPropertyRelative("Select");
-                var baseHeight = 18f;
-                switch (sSelect.enumValueIndex)
-                {
-                    default: return baseHeight * 2;
-                    case 0: return baseHeight * 4;
-                    case 1:
-                        {
-                            var sUseOverride = property.FindPropertyRelative("Compress_UseOverride");
-                            return baseHeight * (sUseOverride.boolValue ? 7 : 5);
-                        }
-                    case 2: return baseHeight * 3;
-                    case 3: return baseHeight * 3;
-                    case 4: return baseHeight * 3;
-                    case 5: return baseHeight * 4;
-                }
-            }
-
-
-        }
 
         List<Material> _displayMaterial;
         void RefreshMaterials(GameObject targetRoot, bool includeDisabledRenderer)

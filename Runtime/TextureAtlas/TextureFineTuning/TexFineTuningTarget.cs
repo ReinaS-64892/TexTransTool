@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal class TexFineTuningTarget
+    public class TexFineTuningTarget
     {
         public string PropertyName;
         public Texture2D Texture2D;
         public List<ITuningData> TuningDataList;
 
 
-        public TexFineTuningTarget(PropAndTexture2D propAndTexture2D)
+        internal TexFineTuningTarget(PropAndTexture2D propAndTexture2D)
         {
             PropertyName = propAndTexture2D.PropertyName;
             Texture2D = propAndTexture2D.Texture2D;

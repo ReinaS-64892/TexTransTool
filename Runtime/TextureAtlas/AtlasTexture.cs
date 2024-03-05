@@ -424,8 +424,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
-            var fineTunings = AtlasSetting.GetTextureFineTuning();
-            foreach (var fineTuning in fineTunings)
+            foreach (var fineTuning in AtlasSetting.TextureFineTuning)
             {
                 fineTuning.AddSetting(atlasTexFineTuningTargets);
             }

@@ -1,18 +1,22 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal class Remove : IAddFineTuning
+    [Serializable]
+    public class Remove : ITextureFineTuning
     {
-        public string PropertyNames;
+        public PropertyName PropertyNames;
         public PropertySelect Select;
 
-        public Remove(string propertyNames, PropertySelect select)
+        public Remove(PropertyName propertyNames, PropertySelect select)
         {
             PropertyNames = propertyNames;
             Select = select;
         }
+
+        public static Remove Default => new(PropertyName.DefaultValue, PropertySelect.NotEqual);
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {

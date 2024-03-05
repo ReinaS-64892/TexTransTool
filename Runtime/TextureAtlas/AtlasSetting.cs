@@ -21,19 +21,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool UseUpScaling = false;
         public bool PixelNormalize = false;
-        public List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
+        [SerializeReference] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
-        internal List<IAddFineTuning> GetTextureFineTuning()
-        {
-            var iFineTunings = new List<IAddFineTuning>();
-            foreach (var FineTuning in TextureFineTuningDataList)
-            {
-                iFineTunings.Add(FineTuning.GetFineTuning());
-            }
-            return iFineTunings;
-        }
         #region V2SaveData
+        [Obsolete("V2SaveData", true)][SerializeField] internal List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         [Obsolete("V2SaveData", true)][SerializeField] internal float Padding;
         #endregion
         #region V1SaveData
@@ -47,7 +39,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         Bake,
         BakeAllProperty,
     }
+
+    #region V2SaveData
     [Serializable]
+    [Obsolete("V2SaveData", true)]
     public class TextureFineTuningData
     {
         [FormerlySerializedAs("select")] public select Select;
@@ -87,7 +82,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertySelect ColorSpace_Select = PropertySelect.Equal;
         public bool ColorSpace_Linear = false;
 
-        internal IAddFineTuning GetFineTuning()
+        internal ITextureFineTuning GetFineTuning()
         {
             switch (Select)
             {
@@ -102,7 +97,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case select.MipMapRemove:
                     return new MipMapRemove(MipMapRemove_PropertyNames, MipMapRemove_Select);
                 case select.ColorSpace:
-                    return new ColorSpaceMod(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linear);
+                    return new FineTuning.ColorSpace(ColorSpace_PropertyNames, ColorSpace_Select, ColorSpace_Linear);
 
                 default:
                     return null;
@@ -110,5 +105,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
     }
+    #endregion
 
 }

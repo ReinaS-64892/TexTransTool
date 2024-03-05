@@ -4,17 +4,16 @@ using System;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal interface IAddFineTuning
+    public interface ITextureFineTuning
     {
         void AddSetting(List<TexFineTuningTarget> propAndTextures);
-
     }
-    internal interface ITuningApplicant
+    public interface ITuningApplicant
     {
         int Order { get; }
         void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets);
     }
-    internal interface ITuningData
+    public interface ITuningData
     {
     }
     public enum PropertySelect

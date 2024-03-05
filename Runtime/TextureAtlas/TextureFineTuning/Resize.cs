@@ -1,16 +1,18 @@
+using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal struct Resize : IAddFineTuning
+    [Serializable]
+    public struct Resize : ITextureFineTuning
     {
         public int Size;
-        public string PropertyNames;
+        public PropertyName PropertyNames;
         public PropertySelect Select;
 
-        public Resize(int size, string propertyNames, PropertySelect select)
+        public Resize(int size, PropertyName propertyNames, PropertySelect select)
         {
             Size = size;
             PropertyNames = propertyNames;
@@ -33,6 +35,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 }
             }
         }
+
+
+        public static Resize Default => new(512, PropertyName.DefaultValue, PropertySelect.NotEqual);
+        public ITextureFineTuning GetDefault => Default;
     }
 
     internal class SizeData : ITuningData
