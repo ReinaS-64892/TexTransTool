@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public FormatQuality FormatQualityValue;
         public bool UseOverride;
         public TextureFormat OverrideTextureFormat;
-        public int CompressionQuality;
+        [Range(0, 100)]public int CompressionQuality;
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
