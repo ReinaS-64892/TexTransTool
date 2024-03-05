@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture 破壊的な変更として、 (#379)
   - AtlasTexture のターゲットのテクスチャーと AtlasTextureSize から正しくスケーリングし、再配置を行うように変更
   - AtlasTexture の Padding 値が、テクスチャスケールから、UVスケールに変更
+- AtlasTexture の TextureFineTuning の保存形式が SerializedReference に破壊的変更 (#389)
 
 ### Removed
 

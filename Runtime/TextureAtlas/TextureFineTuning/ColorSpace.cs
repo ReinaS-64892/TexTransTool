@@ -1,21 +1,25 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal struct ColorSpaceMod : IAddFineTuning
+    [Serializable]
+    public struct ColorSpace : ITextureFineTuning
     {
-        public string PropertyNames;
+        public PropertyName PropertyNames;
         public PropertySelect Select;
         public bool Linear;
 
-        public ColorSpaceMod(string propertyNames, PropertySelect select, bool linear)
+        public ColorSpace(PropertyName propertyNames, PropertySelect select, bool linear)
         {
             PropertyNames = propertyNames;
             Select = select;
             Linear = linear;
         }
+
+        public static ColorSpace Default => new(PropertyName.DefaultValue, PropertySelect.Equal, true);
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {

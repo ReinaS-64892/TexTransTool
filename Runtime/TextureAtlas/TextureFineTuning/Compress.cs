@@ -1,19 +1,21 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal struct Compress : IAddFineTuning
+    [Serializable]
+    public struct Compress : ITextureFineTuning
     {
         public FormatQuality FormatQualityValue;
         public bool UseOverride;
         public TextureFormat OverrideTextureFormat;
-        public int CompressionQuality;
-        public string PropertyNames;
+        [Range(0, 100)]public int CompressionQuality;
+        public PropertyName PropertyNames;
         public PropertySelect Select;
 
 
-        public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, int compressionQuality, string propertyNames, PropertySelect select)
+        public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, int compressionQuality, PropertyName propertyNames, PropertySelect select)
         {
             FormatQualityValue = formatQuality;
             UseOverride = overrideFormat;
@@ -23,6 +25,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             Select = select;
 
         }
+
+        public static Compress Default => new(FormatQuality.High, false, TextureFormat.DXT5, 50, PropertyName.DefaultValue, PropertySelect.Equal);
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {

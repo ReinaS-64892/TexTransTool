@@ -1,19 +1,23 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal struct MipMapRemove : IAddFineTuning
+    [Serializable]
+    public struct MipMapRemove : ITextureFineTuning
     {
-        public string PropertyNames;
+        public PropertyName PropertyNames;
         public PropertySelect Select;
 
-        public MipMapRemove(string propertyNames, PropertySelect select)
+        public MipMapRemove(PropertyName propertyNames, PropertySelect select)
         {
             PropertyNames = propertyNames;
             Select = select;
 
         }
+
+        public static MipMapRemove Default => new(PropertyName.DefaultValue, PropertySelect.Equal);
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {

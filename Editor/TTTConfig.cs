@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool
@@ -30,6 +31,7 @@ namespace net.rs64.TexTransTool
                 s_language = value;
                 EditorPrefs.SetInt(LANGUAGE_PREFKEY, (int)s_language);
                 Menu.SetChecked(LANGUAGE_MENU_PATH + "/" + s_language.ToString(), true);
+                OnSwitchLanguage?.Invoke(s_language);
             }
         }
         public enum LanguageEnum
@@ -37,6 +39,7 @@ namespace net.rs64.TexTransTool
             EN,
             JP,
         }
+        public static Action<LanguageEnum> OnSwitchLanguage;
 
         [MenuItem(LANGUAGE_MENU_PATH + "/EN")]
         public static void SwitchEN() => Language = LanguageEnum.EN;

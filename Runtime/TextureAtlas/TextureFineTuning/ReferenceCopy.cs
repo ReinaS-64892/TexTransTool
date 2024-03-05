@@ -1,18 +1,22 @@
+using System;
 using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
-    internal class ReferenceCopy : IAddFineTuning
+    [Serializable]
+    public class ReferenceCopy : ITextureFineTuning
     {
 
-        public string SourcePropertyName;
-        public string TargetPropertyName;
+        public PropertyName SourcePropertyName;
+        public PropertyName TargetPropertyName;
 
-        public ReferenceCopy(string sourcePropertyName, string targetPropertyName)
+        public ReferenceCopy(PropertyName sourcePropertyName, PropertyName targetPropertyName)
         {
             SourcePropertyName = sourcePropertyName;
             TargetPropertyName = targetPropertyName;
         }
+
+        public static ReferenceCopy Default => new(PropertyName.DefaultValue, PropertyName.DefaultValue);
 
         public void AddSetting(List<TexFineTuningTarget> propAndTextures)
         {
