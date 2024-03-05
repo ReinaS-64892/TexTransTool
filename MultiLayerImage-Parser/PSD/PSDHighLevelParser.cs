@@ -175,7 +175,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         internal static AbstractLayerData SpecialHueLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
-            var hueData = new HSVAdjustmentLayerData();
+            var hueData = new HSLAdjustmentLayerData();
             var hue = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.hue) as AdditionalLayerInfo.hue;
 
             if (hue.Colorization) { Debug.Log($"Colorization of {record.LayerName} is no supported"); }

@@ -22,6 +22,8 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Changed
 
+- 名前修正 HSVAdjustmentLayer -> HSLAdjustmentLayer (#391)
+
 ### Removed
 
 - SimpleDecal の GrabDecal は削除されました (#385)
