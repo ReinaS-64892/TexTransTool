@@ -1,4 +1,4 @@
-Shader "Hidden/HSVAdjustment"
+Shader "Hidden/HSLAdjustment"
 {
     Properties
     {

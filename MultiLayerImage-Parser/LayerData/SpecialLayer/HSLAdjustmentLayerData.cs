@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.MultiLayerImage.LayerData
 {
-    internal class HSVAdjustmentLayerData : AbstractLayerData
+    internal class HSLAdjustmentLayerData : AbstractLayerData
     {
         //All -1 ~ 1
         public float Hue;

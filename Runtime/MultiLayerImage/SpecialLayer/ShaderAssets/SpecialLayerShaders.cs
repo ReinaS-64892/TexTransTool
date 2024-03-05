@@ -5,13 +5,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public static void Init()
         {
-            HSVAdjustmentShader = Shader.Find(HSV_ADJUSTMENT_SHADER);
+            HSLAdjustmentShader = Shader.Find(HSL_ADJUSTMENT_SHADER);
             LevelAdjustmentShader = Shader.Find(LEVEL_ADJUSTMENT_SHADER);
             SelectiveColorAdjustment = Shader.Find(SELECTIVE_COLOR_ADJUSTMENT_SHADER);
         }
 
-        public const string HSV_ADJUSTMENT_SHADER = "Hidden/HSVAdjustment";
-        public static Shader HSVAdjustmentShader;
+        public const string HSL_ADJUSTMENT_SHADER = "Hidden/HSLAdjustment";
+        public static Shader HSLAdjustmentShader;
 
         public const string LEVEL_ADJUSTMENT_SHADER = "Hidden/LevelAdjustment";
         public static Shader LevelAdjustmentShader;

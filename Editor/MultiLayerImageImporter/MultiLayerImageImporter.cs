@@ -57,9 +57,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateLayerFolder(newLayer, layerFolder);
                             break;
                         }
-                    case HSVAdjustmentLayerData hSVAdjustmentLayerData:
+                    case HSLAdjustmentLayerData hSVAdjustmentLayerData:
                         {
-                            CreateHSVAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
+                            CreateHSLAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
                             break;
                         }
                     case SolidColorLayerData solidColorLayerData:
@@ -108,9 +108,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             SolidColorLayerComponent.Color = solidColorLayerData.Color;
         }
 
-        private void CreateHSVAdjustmentLayer(GameObject newLayer, HSVAdjustmentLayerData hSVAdjustmentLayerData)
+        private void CreateHSLAdjustmentLayer(GameObject newLayer, HSLAdjustmentLayerData hSVAdjustmentLayerData)
         {
-            var HSVAdjustmentLayerComponent = newLayer.AddComponent<HSVAdjustmentLayer>();
+            var HSVAdjustmentLayerComponent = newLayer.AddComponent<HSLAdjustmentLayer>();
             CopyFromData(HSVAdjustmentLayerComponent, hSVAdjustmentLayerData);
 
             HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
