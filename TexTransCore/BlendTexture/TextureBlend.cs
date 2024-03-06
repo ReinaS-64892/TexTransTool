@@ -125,7 +125,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {"Subtract",stdBlendShader},//減算
                 {"Divide",stdBlendShader},//除算
 
-                //HSV系
+                //視覚的な色調置き換え系
                 {"Hue",stdBlendShader},//色相
                 {"Saturation",stdBlendShader},//彩度
                 {"Color",stdBlendShader},//カラー

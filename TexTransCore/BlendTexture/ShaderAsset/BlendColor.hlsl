@@ -6,7 +6,7 @@
 // https://odashi.hatenablog.com/entry/20110921/1316610121
 // https://qiita.com/kerupani129/items/4bf75d9f44a5b926df58#31-%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6%E3%81%AF%E7%90%86%E8%AB%96%E5%BC%8F%E3%81%A8%E4%B8%80%E8%87%B4%E3%81%97%E3%81%AA%E3%81%84
 
-#include "./HSV.hlsl"
+#include "./SetSL.hlsl"
 
 float4 AlphaBlending(float4 BaseColor,float4 AddColor,float3 BlendColor)
 {
@@ -40,9 +40,6 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
   float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
   float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
-
-  float3 Bhsv = RGBtoHSV(Bcol);
-  float3 Ahsv = RGBtoHSV(Acol);
 
   float3 BlendColor = float3(0, 0, 0);
 #if Normal
@@ -81,13 +78,13 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif LightenOnly
   BlendColor = max(Bcol, Acol);
 #elif Hue
-  BlendColor = HSVtoRGB(float3(Ahsv.r, Bhsv.g, Bhsv.b));
+  BlendColor = SetLum(SetSat(Acol,GetSat(Bcol)),GetLum(Bcol));
 #elif Saturation
-  BlendColor = HSVtoRGB(float3(Bhsv.r, Ahsv.g, Bhsv.b));
+  BlendColor = SetLum(SetSat(Bcol,GetSat(Acol)),GetLum(Bcol));
 #elif Color
-  BlendColor = HSVtoRGB(float3(Ahsv.r, Ahsv.g, Bhsv.b));
+  BlendColor = SetLum(Acol,GetLum(Bcol));
 #elif Luminosity
-  BlendColor = HSVtoRGB(float3(Bhsv.r, Bhsv.g, Ahsv.b));
+  BlendColor = SetLum(Bcol,GetLum(Acol));
 #elif Exclusion
   BlendColor = 0.5 - 2 * (Bcol - 0.5) * (Acol - 0.5);
 #elif DarkenColorOnly
