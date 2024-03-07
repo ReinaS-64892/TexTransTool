@@ -96,6 +96,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             if (depthInvert.HasValue)
             {
                 depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
+                depthRt.Clear();
                 material.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 
                 using (new RTActiveSaver())
