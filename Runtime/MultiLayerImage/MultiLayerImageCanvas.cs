@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Reverse();
 
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
-            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024,canvasSize); }
+            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
 
             var canvasContext = new CanvasContext(canvasSize, domain.GetTextureManager());
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             //これが Null な場合は下のレイヤーが非表示にされていて、クリッピングでの追加は無効化される。
             //非表示レイヤーでもクリッピングを無効化する場合は NotClipping を入れること
-            IClippingTarget _nowClippingTarget;
+            IClippingTarget _nowClippingTarget = DisallowClippingLayer.Default;
 
 
             public LayerCanvas(RenderTexture renderTexture)
@@ -95,10 +95,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     if (thisClipping)
                     {
-                        AlphaModApply(blendLayer, layerAlphaMod);
-                        layerAlphaMod.Dispose();
+                        if (_nowClippingTarget != null)
+                        {
+                            AlphaModApply(blendLayer, layerAlphaMod);
+                            layerAlphaMod.Dispose();
 
-                        _nowClippingTarget.DrawOnClipping(blendLayer.ToEval());
+                            _nowClippingTarget.DrawOnClipping(blendLayer.ToEval());
+                        }
+                        else { RenderTexture.ReleaseTemporary(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
                     }
                     else
                     {
@@ -137,9 +141,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 }
                 else
                 {
+                    if (thisClipping) { return; }
                     CompositeClippingTarget();
                     if (!disallowClipping) { _nowClippingTarget = null; }
-                    else { _nowClippingTarget = new DisallowClippingLayer(false); }
+                    else { _nowClippingTarget = DisallowClippingLayer.Default; }
                 }
             }
             internal static void AlphaModApply(BlendRenderTexture newLayer, LayerAlphaMod alphaMod)
@@ -287,7 +292,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     if (thisClipping) { return; }
                     if (!disallowClipping) { _layerStack.Push(null); }
-                    else { _layerStack.Push(new DisallowClippingLayer(false)); }
+                    else { _layerStack.Push(DisallowClippingLayer.Default); }
                 }
 
                 public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSouse 右がWriteTarget
@@ -382,10 +387,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             List<IEvaluateBlending> _layers;
             public DisallowClippingLayer(IEvaluateBlending layer) { _layers = new() { layer }; }
-            public DisallowClippingLayer(bool dummy = false) { _layers = new(); }
             public void DrawOnClipping(IEvaluateBlending blendLayer) { _layers.Add(blendLayer); }
             public IEnumerable<IEvaluateBlending> ExtractLayers() => _layers;
 
+            public static DisallowClippingLayer Default => new() { _layers = new() };
         }
 
         internal interface IEvaluateBlending : IDisposable
