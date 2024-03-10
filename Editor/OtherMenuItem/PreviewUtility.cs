@@ -16,5 +16,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
             PreviewContext.instance.RePreview();
 
         }
+
+        public static bool IsPreviewContains => RealTimePreviewManager.IsContainsRealTimePreviewDecal || PreviewContext.IsPreviewContains;
     }
 }

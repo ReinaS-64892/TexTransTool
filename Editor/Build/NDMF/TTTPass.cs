@@ -16,7 +16,10 @@ namespace net.rs64.TexTransTool.Build.NDMF
     {
         protected override void Execute(BuildContext context)
         {
+            if (!PreviewUtility.IsPreviewContains) { return; }
             PreviewUtility.ExitPreviews();
+            TTTLog.Error("Common:error:BuildWasRunDuringPreviewing");
+            throw new TTTNotExecutable();
         }
     }
     internal class ResolvingPass : Pass<ResolvingPass>
