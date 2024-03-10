@@ -37,6 +37,8 @@ msgstr "AtlasTexture is not executable."
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
 
+msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
+msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look is potential."
 
 msgid "AtlasTexture:prop:TargetRoot"
 msgstr "TargetRoot"

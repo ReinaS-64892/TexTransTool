@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の AtlasTextureSize に比べて大きいテクスチャーが多数対象にされた場合でも高速に再配置を行えるようになりました (#379)
 - AtlasTexture の AtlasTextureSize に比べて小さいテクスチャーが多数対象にされた場合、高さを二のべき乗の高さのステップで小さくする機能が追加されました (#381)
 - プレビュー中にビルドが実行された場合にエラーレポートを行うようになりました (#396)
+- マテリアルスロットの数がサブメッシュよりも多いレンダラーが存在している状態で AtlasTexture が実行した場合警告をレポートするようになりました (#398)
 
 ### Changed
 
@@ -58,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の AtlasTextureSize などで 二のべき乗ではない値が入力可能だった問題を修正 (#390)
 - Hue,Saturation,Color,Luminosity の合成モードが一般的な画像編集ソフトと違う問題を修正 (#392)
 - NDMFのエラーレポートウィンドウでローカライズのロードのバグで正しく表示されない問題を修正 (#396)
+- マテリアルスロットの数がサブメッシュよりも多いレンダラーが存在している状態で AtlasTexture が実行できない問題を修正 (#398)
 
 ### Deprecated
 
