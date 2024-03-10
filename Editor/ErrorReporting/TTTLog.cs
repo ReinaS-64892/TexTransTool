@@ -77,8 +77,15 @@ namespace net.rs64.TexTransTool
         }
 
 #if NDMF_1_3_x
-        private static nadena.dev.ndmf.localization.Localizer NDMFLocalizer =
-         new nadena.dev.ndmf.localization.Localizer("en-US", () => Localize.LocalizationAssets.Values.ToList());
+        private static nadena.dev.ndmf.localization.Localizer _ndmfLocalizer;
+        public static nadena.dev.ndmf.localization.Localizer NDMFLocalizer
+        {
+            get
+            {
+                _ndmfLocalizer ??= new nadena.dev.ndmf.localization.Localizer("en-US", () => Localize.LocalizationAssets.Values.ToList());
+                return _ndmfLocalizer;
+            }
+        }
 #endif
     }
 

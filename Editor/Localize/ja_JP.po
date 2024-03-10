@@ -23,6 +23,12 @@ msgstr "実験的機能"
 msgid "Common:ExperimentalWarning"
 msgstr "は実験的な機能です。予告なく機能変更や削除がされる可能性があります。"
 
+msgid "Common:error:BuildWasRunDuringPreviewing"
+msgstr "プレビュー中にビルドが実行されました。"
+
+msgid "Common:error:BuildWasRunDuringPreviewing:hint"
+msgstr "このエラーが出ている場合プレビューは自動で終了しているため、もう一度実行してください。"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"

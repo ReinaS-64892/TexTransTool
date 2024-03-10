@@ -1,3 +1,4 @@
+using System;
 using nadena.dev.ndmf;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
         {
             if (TTTBuildContext != null)
             {
-                TTTBuildContext.TTTSessionEnd();
+                try { TTTBuildContext.TTTSessionEnd(); } catch (Exception e) { TTTLog.Exception(e); }
                 TTTBuildContext = null;
             }
         }

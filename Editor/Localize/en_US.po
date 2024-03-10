@@ -23,6 +23,12 @@ msgstr "Experimental Future"
 msgid "Common:ExperimentalWarning"
 msgstr "is an experimental feature. Features may be changed or removed without notice."
 
+msgid "Common:error:BuildWasRunDuringPreviewing"
+msgstr "Build was run during previewing."
+
+msgid "Common:error:BuildWasRunDuringPreviewing:hint"
+msgstr "If this error, preview has exit. please try again."
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
