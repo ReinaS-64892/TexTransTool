@@ -37,6 +37,8 @@ msgstr "AtlasTexture は実行不可能な状態です。"
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "ターゲットルートやマテリアルの選択を見直してください。"
 
+msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
+msgstr "マテリアルスロットの数が、サブメッシュよりも多いレンダラーが存在します。 \n 大きく違う見た目になる可能性があるためご注意ください。"
 
 msgid "AtlasTexture:prop:TargetRoot"
 msgstr "ターゲットルート"

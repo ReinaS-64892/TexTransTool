@@ -132,6 +132,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
             var shaderSupports = new AtlasShaderSupportUtils();
 
+            //サブメッシュより多いスロットの存在可否
+            if (atlasReferenceData.AtlasMeshDataList.Any(i => i.Triangles.Count < i.MaterialIndex.Length)) { TTTRuntimeLog.Warning("AtlasTexture:error:MoreMaterialSlotThanSubMesh"); }
+
 
             //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
             shaderSupports.BakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
@@ -663,6 +666,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 for (var SlotIndex = 0; atlasMeshData.MaterialIndex.Length > SlotIndex; SlotIndex += 1)
                 {
                     if (!TargetMaterials.Contains(Materials[atlasMeshData.MaterialIndex[SlotIndex]])) { continue; }
+                    if (atlasMeshData.Triangles.Count <= SlotIndex) { continue; }
+
                     var islands = IslandUtility.UVtoIsland(atlasMeshData.Triangles[SlotIndex], atlasMeshData.UV, islandCache);
                     foreach (var island in islands) { islandPool.Add(new AtlasIslandID(amdIndex, SlotIndex, islandIndex), new AtlasIsland(island, atlasMeshData.UV)); islandIndex += 1; }
                 }
