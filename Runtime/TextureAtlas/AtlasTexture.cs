@@ -151,6 +151,27 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //アイランドまわり
             var originIslandPool = atlasReferenceData.GeneratedIslandPool(domain.GetIslandCacheManager());
 
+            //サブメッシュ間で頂点を共有するアイランドの存在可否
+            var containsIdenticalIslandForMultipleSubMesh = false;
+            foreach (var amd in atlasReferenceData.AtlasMeshDataList)
+            {
+                var hashSets = amd.Triangles.Where(i => atlasReferenceData.TargetMaterials.Contains(atlasReferenceData.Materials[amd.MaterialIndex[amd.Triangles.IndexOf(i)]])).Select(i => new HashSet<int>(i.SelectMany(i2 => i2))).ToArray();
+                for (var i = 0; hashSets.Length > i; i += 1)
+                {
+                    var hash = hashSets[i];
+
+                    foreach (var hash2 in hashSets)
+                    {
+                        if (hash == hash2) { continue; }
+
+                        if (hash.Intersect(hash2).Any()) { containsIdenticalIslandForMultipleSubMesh = true; }
+                    }
+                }
+            }
+            if (containsIdenticalIslandForMultipleSubMesh) { TTTRuntimeLog.Warning("AtlasTexture:error:IdenticalIslandForMultipleSubMesh"); }
+
+
+
             if (atlasSetting.PixelNormalize)
             {
                 foreach (var islandKV in originIslandPool)

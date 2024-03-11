@@ -40,6 +40,9 @@ msgstr "Please review TargetRoot and MaterialSelect."
 msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
 msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look is potential."
 
+msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
+msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is VERY HIGH potential to become."
+
 msgid "AtlasTexture:prop:TargetRoot"
 msgstr "TargetRoot"
 
