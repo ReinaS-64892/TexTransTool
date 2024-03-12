@@ -96,13 +96,11 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
 #elif AdditionGlow
-  float alpha = AddColor.a;
-  AddColor.a = 1;
-  BlendColor =  Bcol + (Acol * alpha);
+  BlendColor =  Bcol + (Acol * AddColor.a);
+  return float4(BlendColor,AlphaBlending(BaseColor,AddColor,BlendColor).a);
 #elif ColorDodgeGlow
-  float alpha = AddColor.a;
-  AddColor.a = 1;
-  BlendColor = Bcol / (1.0 - (Acol * alpha));
+  BlendColor = Bcol / (1.0 - (Acol * AddColor.a));
+  return float4(BlendColor,AlphaBlending(BaseColor,AddColor,BlendColor).a);
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
