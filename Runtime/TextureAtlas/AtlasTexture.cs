@@ -13,9 +13,11 @@ using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    [AddComponentMenu("TexTransTool/TTT AtlasTexture")]
+    [AddComponentMenu(TTTName + "/" + MenuPath)]
     public sealed class AtlasTexture : TexTransRuntimeBehavior
     {
+        internal const string ComponentName = "TTT AtlasTexture";
+        internal const string MenuPath = ComponentName;
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
         public List<MatSelector> SelectMatList = new List<MatSelector>();

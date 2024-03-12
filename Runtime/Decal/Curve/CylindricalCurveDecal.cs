@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
-    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/Unfinished/TTT CylindricalCurveDecal")]
+    [AddComponentMenu("TexTransTool/" + TextureBlender.FoldoutName + "/Cylindrical/Unfinished/TTT CylindricalCurveDecal")]
     internal class CylindricalCurveDecal : CurveDecal
     {
         public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;

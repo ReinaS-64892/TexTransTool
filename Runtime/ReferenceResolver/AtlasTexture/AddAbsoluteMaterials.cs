@@ -6,9 +6,11 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [RequireComponent(typeof(AtlasTexture))]
     [DisallowMultipleComponent]
-    [AddComponentMenu("TexTransTool/Resolver/TTT AtlasTexture AbsoluteMaterialResolver")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     internal class AddAbsoluteMaterials : AbstractResolver
     {
+        internal const string ComponentName = "TTT AtlasTexture AbsoluteMaterialResolver";
+        private const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<AtlasTexture.MatSelector> AddSelectors = new List<AtlasTexture.MatSelector>();
 
         public override void Resolving(ResolverContext avatar)

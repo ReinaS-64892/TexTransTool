@@ -2,9 +2,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT SelectiveColoringAdjustmentLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class SelectiveColoringAdjustmentLayer : AbstractGrabLayer
     {
+        internal const string ComponentName = "TTT SelectiveColoringAdjustmentLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Vector4 RedsCMYK;
         public Vector4 YellowsCMYK;
         public Vector4 GreensCMYK;

@@ -5,9 +5,11 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [RequireComponent(typeof(AtlasTexture))]
     [DisallowMultipleComponent]
-    [AddComponentMenu("TexTransTool/Resolver/TTT AtlasTexture RootObjectResolver")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     internal class RootObject : AbstractResolver
     {
+        internal const string ComponentName = "TTT AtlasTexture RootObjectResolver";
+        private const string MenuPath = FoldoutName + "/" + ComponentName;
         [SerializeField] SelectEnum SelectType;
 
         enum SelectEnum

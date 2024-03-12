@@ -5,12 +5,15 @@ using System;
 using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/Other/TTT TextureBlender")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class TextureBlender : TexTransRuntimeBehavior
     {
+        internal const string FoldoutName = "Other";
+        internal const string ComponentName = "TTT TextureBlender";
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         public TextureSelector TargetTexture;
 
-        [ExpandTexture2D]public Texture2D BlendTexture;
+        [ExpandTexture2D] public Texture2D BlendTexture;
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
