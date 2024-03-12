@@ -5,8 +5,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class RasterImportedLayer : AbstractImageLayer
     {
+        internal const string ComponentName = "TTT RasterImportedLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage ImportedImage;
 
 

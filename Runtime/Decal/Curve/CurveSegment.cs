@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Curve
 {
-    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/Unfinished/TTT CurveSegment")]
+    [AddComponentMenu("TexTransTool/" + TextureBlender.FoldoutName + "/Cylindrical/Unfinished/TTT CurveSegment")]
     internal class CurveSegment : MonoBehaviour, ITexTransToolTag
     {
         [HideInInspector,SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;

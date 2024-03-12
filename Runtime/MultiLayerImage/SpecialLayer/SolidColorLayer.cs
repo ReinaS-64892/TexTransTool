@@ -3,9 +3,11 @@ using UnityEngine;
 using static net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT SolidColorLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class SolidColorLayer : AbstractImageLayer
     {
+        internal const string ComponentName = "TTT SolidColorLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Color Color;
         public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {

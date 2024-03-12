@@ -5,9 +5,12 @@ using UnityEditor;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexAbsoluteSeparator")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class MatAndTexAbsoluteSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
     {
+        internal const string FoldoutName = "MatAndTexUtils";
+        internal const string ComponentName = "TTT MatAndTexAbsoluteSeparator";
+        internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         internal override List<Renderer> GetRenderers => TargetRenderers;

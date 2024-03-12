@@ -2,9 +2,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT HSLAdjustmentLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class HSLAdjustmentLayer : AbstractGrabLayer
     {
+        internal const string ComponentName = "TTT HSLAdjustmentLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Lightness;
