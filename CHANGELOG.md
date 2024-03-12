@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Deprecated
+
+## [0.6.1]
+
+### Fixed
+
 - Glow系の合成のアルファの計算が正しくないのを修正 (#405)
 - Exclusion の計算式が調整されました (#405)
-
-### Deprecated
 
 ## [0.6.0]
 
@@ -433,7 +437,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...master
+[0.6.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.7...v0.6.0
 [0.5.7]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.6
