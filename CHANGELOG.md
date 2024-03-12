@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+### Deprecated
+
+## [0.6.0]
+
+### Added
+
 - プレビューを再度実行できるメニューアイテム ~~& ショートカット(Shift + R)~~ が追加 (#357)
   - ショートカット(Shift + R) の追加はキャンセルされました (#384)
   - 前回プレビューした物を再度実行できるようになりました (#384)
@@ -61,8 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hue,Saturation,Color,Luminosity の合成モードが一般的な画像編集ソフトと違う問題を修正 (#392)
 - NDMFのエラーレポートウィンドウでローカライズのロードのバグで正しく表示されない問題を修正 (#396)
 - マテリアルスロットの数がサブメッシュよりも多いレンダラーが存在している状態で AtlasTexture が実行できない問題を修正 (#398)
-
-### Deprecated
 
 ## [0.5.7]
 
@@ -420,7 +430,9 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.5...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...master
+[0.6.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.7...v0.6.0
+[0.5.7]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.6
 [0.5.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3
