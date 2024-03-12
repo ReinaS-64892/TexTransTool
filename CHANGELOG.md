@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Glow系の合成のアルファの計算が正しくないのを修正 (#405)
+- Exclusion の計算式が調整されました (#405)
+
 ### Deprecated
 
 ## [0.6.0]
