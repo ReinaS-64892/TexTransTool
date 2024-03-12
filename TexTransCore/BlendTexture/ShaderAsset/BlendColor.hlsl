@@ -86,7 +86,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif Luminosity
   BlendColor = SetLum(Bcol,GetLum(Acol));
 #elif Exclusion
-  BlendColor = 0.5 - 2 * (Bcol - 0.5) * (Acol - 0.5);
+  BlendColor = Bcol + Acol - 2 * Bcol * Acol;
 #elif DarkenColorOnly
   BlendColor =  Bsum > Asum ?  Acol : Bcol;
 #elif LightenColorOnly
