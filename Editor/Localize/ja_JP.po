@@ -41,7 +41,7 @@ msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
 msgstr "マテリアルスロットの数が、サブメッシュよりも多いレンダラーが存在します。 \n 大きく違う見た目になる可能性があるためご注意ください。"
 
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
-msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性がかなり高いためご注意ください。"
+msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性があるためご注意ください。"
 
 msgid "AtlasTexture:prop:TargetRoot"
 msgstr "ターゲットルート"
