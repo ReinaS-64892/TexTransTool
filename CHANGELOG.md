@@ -15,9 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- AtlasTexture サブメッシュを超えて同一頂点を使用されているメッシュを正しく処理できない問題を、そのサブメッシュ間で同一テクスチャーが使用されている場合でかつ、それらサブメッシュのマテリアルがどちらもアトラス化対象の場合に限り正しく動くように修正 (#407)
-
 ### Deprecated
+
+## [0.6.2]
+
+### Fixed
+
+- AtlasTexture サブメッシュを超えて同一頂点を使用されているメッシュを正しく処理できない問題を、そのサブメッシュ間で同一テクスチャーが使用されている場合でかつ、それらサブメッシュのマテリアルがどちらもアトラス化対象の場合に限り正しく動くように修正 (#407)
 
 ## [0.6.1]
 
@@ -439,7 +443,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.2...master
+[0.6.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.7...v0.6.0
 [0.5.7]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.6...v0.5.7
