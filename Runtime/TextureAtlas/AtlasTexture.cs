@@ -151,22 +151,52 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //アイランドまわり
             var originIslandPool = atlasReferenceData.GeneratedIslandPool(domain.GetIslandCacheManager());
 
-            //サブメッシュ間で頂点を共有するアイランドの存在可否
+            //サブメッシュ間で頂点を共有するアイランドのマージ
             var containsIdenticalIslandForMultipleSubMesh = false;
-            foreach (var amd in atlasReferenceData.AtlasMeshDataList)
+            for (var amdIndex = 0; atlasReferenceData.AtlasMeshDataList.Count > amdIndex; amdIndex += 1)
             {
-                var hashSets = amd.Triangles.Where(i => atlasReferenceData.TargetMaterials.Contains(atlasReferenceData.Materials[amd.MaterialIndex[amd.Triangles.IndexOf(i)]])).Select(i => new HashSet<int>(i.SelectMany(i2 => i2))).ToArray();
-                for (var i = 0; hashSets.Length > i; i += 1)
+                var amd = atlasReferenceData.AtlasMeshDataList[amdIndex];
+
+                var beyondVert = amd.Triangles.Where(i => atlasReferenceData.TargetMaterials.Contains(atlasReferenceData.Materials[amd.MaterialIndex[amd.Triangles.IndexOf(i)]]))
+                .Select(i => new HashSet<int>(i.SelectMany(i2 => i2))).SelectMany(i => i)
+                .GroupBy(i => i).Select(i => (i.Key, i.Count())).Where(i => i.Item2 > 1).Select(i => i.Key).ToHashSet();
+
+                if (beyondVert.Any()) { containsIdenticalIslandForMultipleSubMesh = true; }
+                else { continue; }
+
+                var needMerge = originIslandPool.Where(i => i.Key.AtlasMeshDataIndex == amdIndex).Where(i => i.Value.triangles.SelectMany(i => i).Any(i => beyondVert.Contains(i))).GroupBy(i => i.Key.MaterialSlot).ToList();
+                needMerge.Sort((l, r) => l.Key - r.Key);
+
+                var needMergeIslands = needMerge.Select(i => i.ToHashSet()).ToArray();
+                var MargeKV = new Dictionary<AtlasIslandID, HashSet<AtlasIslandID>>();
+
+                for (var toIndex = 0; needMergeIslands.Length > toIndex; toIndex += 1)
                 {
-                    var hash = hashSets[i];
-
-                    foreach (var hash2 in hashSets)
+                    foreach (var island in needMergeIslands[toIndex])
                     {
-                        if (hash == hash2) { continue; }
+                        var vertSet = island.Value.triangles.SelectMany(i => i).ToHashSet();
 
-                        if (hash.Intersect(hash2).Any()) { containsIdenticalIslandForMultipleSubMesh = true; }
+                        for (var fromIndex = toIndex; needMergeIslands.Length > fromIndex; fromIndex += 1)
+                        {
+                            if (toIndex == fromIndex) { continue; }
+
+                            var margeFrom = needMergeIslands[fromIndex].Where(il => il.Value.triangles.SelectMany(v => v).Any(v => vertSet.Contains(v)));
+                            if (margeFrom.Any()) { MargeKV.Add(island.Key, margeFrom.Select(i => i.Key).ToHashSet()); }
+                        }
                     }
                 }
+
+                foreach (var margeIdKV in MargeKV)
+                {
+                    var to = originIslandPool[margeIdKV.Key];
+
+                    foreach (var formKey in margeIdKV.Value)
+                    {
+                        to.triangles.AddRange(originIslandPool[formKey].triangles);
+                        originIslandPool.Remove(formKey);
+                    }
+                }
+
             }
             if (containsIdenticalIslandForMultipleSubMesh) { TTTRuntimeLog.Warning("AtlasTexture:error:IdenticalIslandForMultipleSubMesh"); }
 
