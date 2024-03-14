@@ -9,5 +9,6 @@ namespace net.rs64.TexTransTool.ReferenceResolver
 
         public abstract void Resolving(ResolverContext avatar);
 
+        internal const string FoldoutName = "Resolver";
     }
 }

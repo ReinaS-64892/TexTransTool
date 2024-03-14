@@ -7,9 +7,11 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MaterialModifier")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class MaterialModifier : TexTransRuntimeBehavior
     {
+        internal const string ComponentName = "TTT MaterialModifier";
+        internal const string MenuPath = MatAndTexAbsoluteSeparator.FoldoutName + "/" + ComponentName;
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         internal override List<Renderer> GetRenderers => TargetRenderers;

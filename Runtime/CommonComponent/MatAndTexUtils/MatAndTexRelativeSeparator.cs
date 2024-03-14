@@ -5,9 +5,11 @@ using System;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
-    [AddComponentMenu("TexTransTool/MatAndTexUtils/TTT MatAndTexRelativeSeparator")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class MatAndTexRelativeSeparator : TexTransCallEditorBehavior, IMatAndTexSeparator
     {
+        internal const string ComponentName = "TTT MatAndTexRelativeSeparator";
+        internal const string MenuPath = MatAndTexAbsoluteSeparator.FoldoutName + "/" + ComponentName;
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
         public bool MultiRendererMode = false;
         internal override List<Renderer> GetRenderers => TargetRenderers;

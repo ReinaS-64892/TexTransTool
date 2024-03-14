@@ -10,7 +10,7 @@ using net.rs64.TexTransCore.Island;
 namespace net.rs64.TexTransTool.Decal
 {
 
-    [AddComponentMenu("TexTransTool/OtherDecal/TTT NailEditor")]
+    [AddComponentMenu("TexTransTool/" + TextureBlender.FoldoutName + "/TTT NailEditor")]
     public sealed class NailEditor : AbstractDecal
     {
         public Animator TargetAvatar;

@@ -9,9 +9,11 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT LayerFolder")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class LayerFolder : AbstractLayer
     {
+        internal const string ComponentName = "TTT LayerFolder";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public bool PassThrough;
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {

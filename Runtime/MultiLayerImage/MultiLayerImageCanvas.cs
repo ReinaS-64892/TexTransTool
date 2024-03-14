@@ -10,10 +10,12 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT MultiLayerImageCanvas")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
     {
+        internal const string FoldoutName = "MultiLayerImage";
+        internal const string ComponentName = "TTT MultiLayerImageCanvas";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.RendererAsPath };
         internal override bool IsPossibleApply => TextureSelector.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;

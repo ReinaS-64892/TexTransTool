@@ -40,6 +40,8 @@ namespace net.rs64.TexTransTool
         {
             DestroyCall.DestroyThis(this);
         }
+
+        internal const string TTTName = "TexTransTool";
     }
 
     internal static class DestroyCall

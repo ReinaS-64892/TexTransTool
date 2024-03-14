@@ -7,9 +7,11 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/TTT SimpleDecal")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class SimpleDecal : AbstractSingleDecal<ParallelProjectionSpace, Vector3>
     {
+        internal const string ComponentName = "TTT SimpleDecal";
+        internal const string MenuPath = ComponentName;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;

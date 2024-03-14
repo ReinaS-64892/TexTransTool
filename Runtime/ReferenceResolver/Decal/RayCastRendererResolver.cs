@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
-    [AddComponentMenu("TexTransTool/Resolver/TTT Decal RendererResolver")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     internal class RayCastRendererResolver : AbstractRayCastRendererResolver
     {
+        internal const string ComponentName = "TTT Decal RendererResolver";
+        private const string MenuPath = FoldoutName + "/" + ComponentName;
         public AbstractDecal ResolveTarget;
 
         public override void Resolving(ResolverContext avatar)

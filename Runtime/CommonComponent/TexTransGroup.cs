@@ -5,9 +5,13 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/Group/TTT TexTransGroup")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class TexTransGroup : TexTransCallEditorBehavior
     {
+        internal const string FoldoutName = "Group";
+        internal const string ComponentName = "TTT TexTransGroup";
+        internal const string MenuPath = TexTransGroup.FoldoutName + "/" + ComponentName;
+
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
         internal IEnumerable<TexTransBehavior> Targets => transform.GetChildren().Select(x => x.GetComponent<TexTransBehavior>()).Where(x => x != null);
 

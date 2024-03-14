@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Cylindrical
 {
-    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/TTT CylindricalCoordinatesSystem")]
+    [AddComponentMenu("TexTransTool/" + TextureBlender.FoldoutName + "/Cylindrical/TTT CylindricalCoordinatesSystem")]
     internal class CylindricalCoordinatesSystem : MonoBehaviour, ITexTransToolTag
     {
         public float GizmoRadius = 0.25f;

@@ -3,9 +3,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT LevelAdjustmentLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class LevelAdjustmentLayer : AbstractGrabLayer
     {
+        internal const string ComponentName = "TTT LevelAdjustmentLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Level RGB;
         public Level Red;
         public Level Green;

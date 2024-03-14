@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optimizing Phase が追加されました (#410)
+- GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
 
 ### Changed
 

@@ -8,7 +8,7 @@ using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    [AddComponentMenu("TexTransTool/OtherDecal/Cylindrical/TTT CylindricalDecal")]
+    [AddComponentMenu("TexTransTool/" + TextureBlender.FoldoutName + "/Cylindrical/TTT CylindricalDecal")]
     internal sealed class CylindricalDecal : AbstractSingleDecal<CCSSpace, Vector2>
     {
         [FormerlySerializedAs("cylindricalCoordinatesSystem")] public CylindricalCoordinatesSystem CylindricalCoordinatesSystem;
