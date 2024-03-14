@@ -72,4 +72,18 @@ namespace net.rs64.TexTransTool.Build.NDMF
             TTTContext(context).ApplyFor(TexTransPhase.UnDefined);
         }
     }
+    internal class BeforeOptimizingMergeStackPass : TTTPass<BeforeOptimizingMergeStackPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).MidwayMergeStack();
+        }
+    }
+    internal class OptimizingPass : TTTPass<OptimizingPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).ApplyFor(TexTransPhase.Optimizing);
+        }
+    }
 }

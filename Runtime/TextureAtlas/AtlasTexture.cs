@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override List<Renderer> GetRenderers => Renderers;
 
-        internal override TexTransPhase PhaseDefine => TexTransPhase.UVModification;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
         #region V0SaveData
         [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;

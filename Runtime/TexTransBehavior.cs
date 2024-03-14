@@ -51,9 +51,10 @@ namespace net.rs64.TexTransTool
 
     public enum TexTransPhase
     {
-        UnDefined,
-        BeforeUVModification,
-        UVModification,
-        AfterUVModification,
+        BeforeUVModification = 1,
+        UVModification = 2,
+        AfterUVModification = 3,
+        UnDefined = 0,
+        Optimizing = 4,
     }
 }
