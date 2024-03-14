@@ -56,6 +56,11 @@ namespace net.rs64.TexTransTool.Editor
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
                 CreateGroupElements(rootVE, phase[TexTransPhase.UnDefined], true);
+
+                label = new Label(TexTransPhase.Optimizing.ToString());
+                label.style.fontSize = 16f;
+                rootVE.hierarchy.Add(label);
+                CreateGroupElements(rootVE, phase[TexTransPhase.Optimizing], true);
             }
         }
 

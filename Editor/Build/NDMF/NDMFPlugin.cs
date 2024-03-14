@@ -28,12 +28,18 @@ namespace net.rs64.TexTransTool.Build.NDMF
             seq.BeforePlugin("io.github.azukimochi.light-limit-changer");
             seq.WithRequiredExtension(typeof(TexTransToolContext), s =>
             {
-                seq.Run(FindAtPhasePass.Instance);
-                seq.Run(BeforeUVModificationPass.Instance);
-                seq.Run(MidwayMergeStackPass.Instance);
-                seq.Run(UVModificationPass.Instance);
-                seq.Run(AfterUVModificationPass.Instance);
-                seq.Run(UnDefinedPass.Instance);
+                seq.Run(FindAtPhasePass.Instance).Then
+                .Run(BeforeUVModificationPass.Instance).Then
+
+                .Run(MidwayMergeStackPass.Instance).Then
+
+                .Run(UVModificationPass.Instance).Then
+                .Run(AfterUVModificationPass.Instance).Then
+                .Run(UnDefinedPass.Instance).Then
+
+                .Run(BeforeOptimizingMergeStackPass.Instance).Then
+
+                .Run(OptimizingPass.Instance);
             });
 
         }

@@ -33,6 +33,10 @@ namespace net.rs64.TexTransTool.Build
                 session.ApplyFor(TexTransPhase.AfterUVModification);
                 session.ApplyFor(TexTransPhase.UnDefined);
 
+                session.MidwayMergeStack();
+
+                session.ApplyFor(TexTransPhase.Optimizing);
+
                 session.TTTSessionEnd();
                 timer.Stop(); Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
                 return true;
@@ -107,10 +111,11 @@ namespace net.rs64.TexTransTool.Build
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject)
         {
             var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
                     {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
                     {TexTransPhase.UVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
                 };
 
             var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>();
@@ -160,10 +165,11 @@ namespace net.rs64.TexTransTool.Build
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhaseAll(GameObject avatarGameObject)
         {
             var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
                     {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
                     {TexTransPhase.UVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
                 };
 
             var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>(true);
