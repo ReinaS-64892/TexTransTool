@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Optimizing Phase が追加されました (#410)
+
 ### Changed
+
+- AtlasTexture が UVModification から Optimizing にフェーズの定義が変更されました。 (#410)
 
 ### Removed
 
