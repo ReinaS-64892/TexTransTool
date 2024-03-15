@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Utils;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -19,11 +20,15 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
         {
+            Profiler.BeginSample("GetMultipleDecalTexture");
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
+            Profiler.EndSample();
+            
             decalCompiledRenderTextures ??= new();
             foreach (var renderer in TargetRenderers)
             {
                 if (renderer == null) { continue; }
+                Profiler.BeginSample("CreateDecalTexture");
                 DecalUtility.CreateDecalTexture<SpaceConverter, UVDimension>(
                    renderer,
                    decalCompiledRenderTextures,
@@ -36,6 +41,7 @@ namespace net.rs64.TexTransTool.Decal
                    HighQualityPadding,
                    GetUseDepthOrInvert
                );
+               Profiler.EndSample();
             }
             RenderTexture.ReleaseTemporary(mulDecalTexture);
             return decalCompiledRenderTextures;
