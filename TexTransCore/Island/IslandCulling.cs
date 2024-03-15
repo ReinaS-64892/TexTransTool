@@ -33,11 +33,10 @@ namespace net.rs64.TexTransCore.Island
             List<Vector3> positions,
             List<Vector2> uv,
             List<TriangleIndex> triangles,
-            IIslandCache caches = null,
             List<TriangleIndex> output = null
         )
         {
-            var iIslands = IslandUtility.UVtoIsland(triangles, uv, caches);
+            var iIslands = IslandUtility.UVtoIsland(triangles, uv);
             var rayCastHitTriangle = ListPool<TriangleIndex>.Get();
             foreach (var i in islandSelectors)
             {

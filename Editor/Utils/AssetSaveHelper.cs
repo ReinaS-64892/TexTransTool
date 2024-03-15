@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.EditorIsland;
 namespace net.rs64.TexTransTool
 {
     internal static class AssetSaveHelper
@@ -83,11 +82,7 @@ namespace net.rs64.TexTransTool
         private static SaveType GetSaveTypeAtAsset<T>(T asset = null) where T : class
         {
             var type = typeof(T);
-            if (type == typeof(IslandCache))
-            {
-                return SaveType.IslandCaches;
-            }
-            else if (type == typeof(AvatarDomainAsset))
+            if (type == typeof(AvatarDomainAsset))
             {
                 return SaveType.AvatarDomainAssets;
             }
@@ -95,7 +90,6 @@ namespace net.rs64.TexTransTool
             {
                 return SaveType.Other;
             }
-
         }
         public static void SaveAssets<T>(IEnumerable<T> targets) where T : UnityEngine.Object
         {

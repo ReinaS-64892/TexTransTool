@@ -13,7 +13,6 @@ namespace net.rs64.TexTransTool
         internal static void SettingInitializer()
         {
             IsObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
-            UseIslandCache = EditorPrefs.GetBool(USE_ISLAND_CACHE_PREFKEY, true);
             Localize.LocalizeInitializer();
         }
         #region Language
@@ -49,25 +48,6 @@ namespace net.rs64.TexTransTool
         [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
         public static void ReloadLocalize() => Localize.LoadLocalize();
 
-        #endregion
-
-
-        #region UseIslandCache
-        public const string USE_ISLAND_CACHE_MENU_PATH = TTT_MENU_PATH + "/UseIslandCache";
-        public const string USE_ISLAND_CACHE_PREFKEY = "net.rs64.tex-trans-tool.UseIslandCache";
-        private static bool s_useIslandCache;
-        public static bool UseIslandCache { get => s_useIslandCache; private set { s_useIslandCache = value; UseIslandCacheConfigUpdate(); } }
-
-        [MenuItem(USE_ISLAND_CACHE_MENU_PATH)]
-        static void ToggleUseIslandCache()
-        {
-            UseIslandCache = !UseIslandCache;
-        }
-        private static void UseIslandCacheConfigUpdate()
-        {
-            EditorPrefs.SetBool(USE_ISLAND_CACHE_PREFKEY, UseIslandCache);
-            Menu.SetChecked(USE_ISLAND_CACHE_MENU_PATH, UseIslandCache);
-        }
         #endregion
 
         #region ObjectReplaceInvoke

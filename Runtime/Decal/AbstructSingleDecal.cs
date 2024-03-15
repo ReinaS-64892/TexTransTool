@@ -13,11 +13,11 @@ namespace net.rs64.TexTransTool.Decal
     {
         [ExpandTexture2D] public Texture2D DecalTexture;
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
-        internal abstract SpaceConverter GetSpaceConverter(IIslandCache islandCacheManager);
-        internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter(IIslandCache islandCacheManager);
+        internal abstract SpaceConverter GetSpaceConverter();
+        internal abstract DecalUtility.ITrianglesFilter<SpaceConverter> GetTriangleFilter();
         internal virtual bool? GetUseDepthOrInvert => null;
 
-        internal override Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
+        internal override Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
         {
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             decalCompiledRenderTextures ??= new();
@@ -28,8 +28,8 @@ namespace net.rs64.TexTransTool.Decal
                    renderer,
                    decalCompiledRenderTextures,
                    mulDecalTexture,
-                   GetSpaceConverter(islandCacheManager),
-                   GetTriangleFilter(islandCacheManager),
+                   GetSpaceConverter(),
+                   GetTriangleFilter(),
                    TargetPropertyName,
                    GetTextureWarp,
                    Padding,
