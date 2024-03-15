@@ -34,9 +34,8 @@ namespace net.rs64.TexTransTool
                             IProgressHandling progressHandler,
                             ITextureManager textureManager,
                             IStackManager stackManager,
-                            IIslandCache islandCache,
                             bool? isObjectReplaceInvoke = null
-                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager, islandCache)
+                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager)
         {
             _avatarRoot = avatarRoot;
             _previewing = previewing;

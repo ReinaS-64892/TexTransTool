@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.Decal
 
             domain.ProgressUpdate("DecalCompile", 0.25f);
 
-            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), domain.GetIslandCacheManager(), DictionaryPool<Material, RenderTexture>.Get());
+            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), DictionaryPool<Material, RenderTexture>.Get());
 
             domain.ProgressUpdate("AddStack", 0.75f);
 
@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
         }
 
 
-        internal abstract Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, IIslandCache islandCacheManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null);
+        internal abstract Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null);
 
         internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D souseDecalTexture, Color color)
         {

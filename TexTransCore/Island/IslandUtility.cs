@@ -99,8 +99,7 @@ namespace net.rs64.TexTransCore.Island
             }
         }
         
-        
-        public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> uv, IIslandCache caches = null)
+        public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> uv)
         {
             Profiler.BeginSample("UVtoIsland");
             var islands = UVToIslandImpl(triangles, uv);
