@@ -149,7 +149,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //アイランドまわり
-            var originIslandPool = atlasReferenceData.GeneratedIslandPool(domain.GetIslandCacheManager());
+            var originIslandPool = atlasReferenceData.GeneratedIslandPool();
 
             //サブメッシュ間で頂点を共有するアイランドのマージ
             var containsIdenticalIslandForMultipleSubMesh = false;
@@ -705,7 +705,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         /// </summary>
         /// <param name="islandCache"></param>
         /// <returns></returns>
-        public Dictionary<AtlasIslandID, AtlasIsland> GeneratedIslandPool(IIslandCache islandCache)
+        public Dictionary<AtlasIslandID, AtlasIsland> GeneratedIslandPool()
         {
             var islandPool = new Dictionary<AtlasIslandID, AtlasIsland>();
             var amdCount = AtlasMeshDataList.Count;
@@ -719,7 +719,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (!TargetMaterials.Contains(Materials[atlasMeshData.MaterialIndex[SlotIndex]])) { continue; }
                     if (atlasMeshData.Triangles.Count <= SlotIndex) { continue; }
 
-                    var islands = IslandUtility.UVtoIsland(atlasMeshData.Triangles[SlotIndex], atlasMeshData.UV, islandCache);
+                    var islands = IslandUtility.UVtoIsland(atlasMeshData.Triangles[SlotIndex], atlasMeshData.UV);
                     foreach (var island in islands) { islandPool.Add(new AtlasIslandID(amdIndex, SlotIndex, islandIndex), new AtlasIsland(island, atlasMeshData.UV)); islandIndex += 1; }
                 }
             }
