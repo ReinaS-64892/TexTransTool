@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine.Pool;
@@ -50,7 +51,7 @@ namespace net.rs64.TexTransCore.Decal
             var targetMesh = targetRenderer.GetMesh();
             
             Profiler.BeginSample("GetUVs");
-            var tUV = ListPool<Vector2>.Get(); targetMesh.GetUVs(0, tUV);
+            var tUV = meshData.VertexUV;
             Profiler.EndSample();
             
             Profiler.BeginSample("GetPooledSubTriangle");
@@ -62,7 +63,6 @@ namespace net.rs64.TexTransCore.Decal
             Profiler.EndSample();
             
             var sUVPooled = ListPool<UVDimension>.Get();
-
             var materials = targetRenderer.sharedMaterials;
 
             for (int i = 0; i < trianglesSubMesh.Count; i++)
@@ -94,22 +94,29 @@ namespace net.rs64.TexTransCore.Decal
                 }
 
                 var sUV = convertSpace.OutPutUV();
-
+                
+                var nativeFilteredTriangle = new NativeArray<TriangleIndex>(filteredTriangle.Count, Allocator.TempJob);
+                for (int t = 0; t < filteredTriangle.Count; t++)
+                {
+                    nativeFilteredTriangle[t] = filteredTriangle[t];
+                }
+                
                 Profiler.BeginSample("TransTexture.ForTrans");
                 TransTexture.ForTrans(
                     renderTextures[targetMat],
                     sousTextures,
-                    new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
+                    new TransTexture.TransData<UVDimension>(nativeFilteredTriangle, tUV, sUV),
                     defaultPadding,
                     textureWarp,
                     highQualityPadding,
                     useDepthOrInvert
                 );
                 Profiler.EndSample();
+                nativeFilteredTriangle.Dispose();
                 
                 ListPool<TriangleIndex>.Release(filteredTrianglePooled);
             }
-            ListPool<Vector2>.Release(tUV);
+            
             ListPool<UVDimension>.Release(sUVPooled);
             ReleasePooledSubTriangle(trianglesSubMesh);
 
@@ -192,6 +199,7 @@ namespace net.rs64.TexTransCore.Decal
             return array;
         }
 
+        [BurstCompile]
         private struct ConvertVerticesJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<Vector3> InputVertices;

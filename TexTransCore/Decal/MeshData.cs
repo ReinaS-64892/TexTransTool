@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -168,6 +169,7 @@ namespace net.rs64.TexTransCore.Decal
             meshDataArray.Dispose();
         }
 
+        [BurstCompile]
         struct PackVerticesJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<TriangleIndex> srcIndex;
@@ -195,6 +197,7 @@ namespace net.rs64.TexTransCore.Decal
             }
         }
         
+        [BurstCompile]
         struct InitTriangleJob : IJobParallelFor
         {
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> SubmeshIndexBuffer;
@@ -217,6 +220,7 @@ namespace net.rs64.TexTransCore.Decal
             }
         }
         
+        [BurstCompile]
         struct WorldSpaceTransformJob : IJobParallelFor
         {
             public NativeArray<Vector3> PositionBuffer;
