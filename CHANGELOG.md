@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- UVtoIsland の高速化 に伴い UseIslandCash は削除されました (#412)
+
 ### Fixed
 
 ### Deprecated
