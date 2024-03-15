@@ -31,7 +31,6 @@ namespace net.rs64.TexTransTool
         private readonly IProgressHandling _progressHandler;
         private readonly ITextureManager _textureManager;
         private readonly IStackManager _textureStacks;
-        private readonly IIslandCache _islandCache;
 
         [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
 
@@ -45,7 +44,6 @@ namespace net.rs64.TexTransTool
             _progressHandler = progressDisplay ? new ProgressHandler() : null;
             _textureManager = new TextureManager(Previewing);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
-            _islandCache = TTTConfig.UseIslandCache ? new EditorIsland.EditorIslandCache() : null;
 
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
@@ -55,8 +53,7 @@ namespace net.rs64.TexTransTool
                         IAssetSaver saver,
                         IProgressHandling progressHandler,
                         ITextureManager textureManager,
-                        IStackManager stackManager,
-                        IIslandCache islandCache
+                        IStackManager stackManager
                        )
         {
             _renderers = previewRenderers;
@@ -65,8 +62,6 @@ namespace net.rs64.TexTransTool
             _progressHandler = progressHandler;
             _textureManager = textureManager;
             _textureStacks = stackManager;
-            _islandCache = islandCache;
-
 
             _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
@@ -214,11 +209,6 @@ namespace net.rs64.TexTransTool
 
 
         public ITextureManager GetTextureManager() => _textureManager;
-
-        public IIslandCache GetIslandCacheManager()
-        {
-            return _islandCache;
-        }
 
         public bool IsPreview() => Previewing;
     }

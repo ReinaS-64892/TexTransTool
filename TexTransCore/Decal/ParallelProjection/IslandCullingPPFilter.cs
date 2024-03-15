@@ -10,18 +10,16 @@ namespace net.rs64.TexTransCore.Decal
     where UVDimension : struct
     {
         public List<IslandSelector> IslandSelectors;
-        public IIslandCache IslandCache;
 
-        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> filters, List<IslandSelector> islandSelectors, IIslandCache islandCache = null) : base(filters)
+        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> filters, List<IslandSelector> islandSelectors) : base(filters)
         {
             IslandSelectors = islandSelectors;
-            IslandCache = islandCache;
         }
 
         public override List<TriangleIndex> Filtering(ParallelProjectionSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
         {
             var cullied = ListPool<TriangleIndex>.Get();
-            triangles = Island.IslandCulling.Culling(IslandSelectors, space.MeshData.Vertex, space.MeshData.UV, triangles, IslandCache);
+            triangles = Island.IslandCulling.Culling(IslandSelectors, space.MeshData.Vertex, space.MeshData.UV, triangles);
             var result = base.Filtering(space, triangles, output);
             ListPool<TriangleIndex>.Release(cullied);
             return result;

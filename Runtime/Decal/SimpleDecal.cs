@@ -23,10 +23,10 @@ namespace net.rs64.TexTransTool.Decal
         public bool UseDepth;
         public bool DepthInvert;
         internal override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
-        internal override ParallelProjectionSpace GetSpaceConverter(IIslandCache islandCacheManager) { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
-        internal override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter(IIslandCache islandCacheManager)
+        internal override ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
+        internal override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter()
         {
-            if (IslandCulling) { return new IslandCullingPPFilter<Vector2>(GetFilter(), GetIslandSelector(), islandCacheManager); }
+            if (IslandCulling) { return new IslandCullingPPFilter<Vector2>(GetFilter(), GetIslandSelector()); }
             else { return new ParallelProjectionFilter<Vector2>(GetFilter()); }
         }
 

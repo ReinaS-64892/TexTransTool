@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.EditorIsland;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Pool;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
-using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool
 {
@@ -22,7 +19,6 @@ namespace net.rs64.TexTransTool
         private Dictionary<Material, Dictionary<string, CompositePreviewInstance>> PreviewMaterials = new();
         private Dictionary<Material, Material> PreviewMatSwapDict = new();
         private HashSet<Renderer> PreviewTargetRenderer = new();
-        private IIslandCache _islandCacheManager;
         private Stopwatch stopwatch = new();
         [NonSerialized] long intervalTime = 0;
         [NonSerialized] long lastUpdateTime = 0;
@@ -250,7 +246,6 @@ namespace net.rs64.TexTransTool
         public void UpdateAbstractDecal(AbstractDecal abstractDecal)
         {
             if (!RealTimePreviews.ContainsKey(abstractDecal)) { return; }
-            _islandCacheManager ??= new EditorIslandCache();
             var absDecalData = RealTimePreviews[abstractDecal];
 
             if (absDecalData.PropertyName != abstractDecal.TargetPropertyName
@@ -262,7 +257,7 @@ namespace net.rs64.TexTransTool
 
 
             absDecalData.ClearDecalTarget();
-            abstractDecal.CompileDecal(new TextureManager(true), _islandCacheManager, absDecalData.decalTargets);
+            abstractDecal.CompileDecal(new TextureManager(true), absDecalData.decalTargets);
 
             foreach (var mat in absDecalData.decalTargets.Keys)
             { UpdatePreviewTexture(mat, absDecalData.PropertyName); }

@@ -20,7 +20,6 @@ namespace net.rs64.TexTransTool
         bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
 
         ITextureManager GetTextureManager();
-        IIslandCache GetIslandCacheManager();
     }
     internal interface IAssetSaver
     {
