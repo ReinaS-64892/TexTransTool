@@ -223,17 +223,10 @@ namespace net.rs64.TexTransTool.Build
 
         private static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
-            foreach (var tf in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
+            foreach (var itttTag in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
-                if (!(tf != null && tf is MonoBehaviour mb && mb != null && mb.gameObject != null)) { continue; }
-                if (mb.gameObject.GetComponents<Component>().Where(I => !(I is ITexTransToolTag) && !(I is Transform)).Count() == 0)
-                {
-                    MonoBehaviour.DestroyImmediate(mb.gameObject);
-                }
-                else
-                {
-                    MonoBehaviour.DestroyImmediate(mb);
-                }
+                if (itttTag is not MonoBehaviour mb) { continue; }
+                MonoBehaviour.DestroyImmediate(mb);
             }
         }
     }

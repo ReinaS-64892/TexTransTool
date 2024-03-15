@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- TexTransToolのコンポーネントを削除する処理で、GameObjectも削除されていた問題を修正 (#414)
+
 ### Deprecated
 
 ## [0.6.2]
