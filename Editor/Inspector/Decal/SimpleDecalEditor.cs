@@ -45,23 +45,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
-                var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                EditorGUILayout.PropertyField(sIslandCulling, "SimpleDecal:prop:ExperimentalFuture:IslandCulling".Glc());
-                if (sIslandCulling.boolValue)
-                {
-                    var sIslandSelectorPos = thisSObject.FindProperty("IslandSelectorPos");
-                    EditorGUI.indentLevel += 1;
-                    EditorGUILayout.LabelField("SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos".Glc());
-                    EditorGUI.indentLevel += 1;
-                    var sIslandSelectorPosX = sIslandSelectorPos.FindPropertyRelative("x");
-                    var sIslandSelectorPosY = sIslandSelectorPos.FindPropertyRelative("y");
-                    EditorGUILayout.Slider(sIslandSelectorPosX, 0, 1, new GUIContent("x"));
-                    EditorGUILayout.Slider(sIslandSelectorPosY, 0, 1, new GUIContent("y"));
-                    EditorGUI.indentLevel -= 1;
-                    var sIslandSelectorRange = thisSObject.FindProperty("IslandSelectorRange");
-                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange".Glc());
-                    EditorGUI.indentLevel -= 1;
-                }
+                var sIslandSelector = thisSObject.FindProperty("IslandSelector");
+                EditorGUILayout.PropertyField(sIslandSelector);
 
                 var sUseDepth = thisSObject.FindProperty("UseDepth");
                 var sDepthInvert = thisSObject.FindProperty("DepthInvert");

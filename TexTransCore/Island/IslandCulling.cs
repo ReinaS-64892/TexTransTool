@@ -14,11 +14,11 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 namespace net.rs64.TexTransCore.Island
 {
     [Serializable]
-    internal struct IslandSelector
+    internal struct IslandSelectorRay
     {
         public Ray Ray;
         public float RayRange;
-        public IslandSelector(Ray ray, float rayRange)
+        public IslandSelectorRay(Ray ray, float rayRange)
         {
             this.Ray = ray;
             this.RayRange = rayRange;
@@ -29,7 +29,7 @@ namespace net.rs64.TexTransCore.Island
     {
 
         public static List<TriangleIndex> Culling(
-            List<IslandSelector> islandSelectors,
+            List<IslandSelectorRay> islandSelectors,
             List<Vector3> positions,
             List<Vector2> uv,
             List<TriangleIndex> triangles,

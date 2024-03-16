@@ -20,19 +20,22 @@ namespace net.rs64.TexTransCore.Decal
         }
         public interface ITrianglesFilter<SpaceConverter>
         {
-            List<TriangleIndex> Filtering(SpaceConverter space, List<TriangleIndex> triangles, List<TriangleIndex> output = null);
+            void SetSpace(SpaceConverter space);
+            List<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex);
         }
         public class MeshData
         {
             internal readonly List<Vector3> Vertex;
             internal readonly List<Vector2> UV;
             internal readonly List<List<TriangleIndex>> TrianglesSubMesh;
+            internal readonly Renderer RendererRef;
 
-            internal MeshData(List<Vector3> vertex, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh)
+            internal MeshData(List<Vector3> vertex, List<Vector2> uV, List<List<TriangleIndex>> trianglesSubMesh, Renderer renderer)
             {
                 Vertex = vertex;
                 UV = uV;
                 TrianglesSubMesh = trianglesSubMesh;
+                RendererRef = renderer;
             }
         }
         internal static Dictionary<Material, RenderTexture> CreateDecalTexture<SpaceConverter, UVDimension>(
@@ -57,33 +60,29 @@ namespace net.rs64.TexTransCore.Decal
             var tUV = ListPool<Vector2>.Get(); targetMesh.GetUVs(0, tUV);
             var trianglesSubMesh = targetMesh.GetPooledSubTriangle();
 
-            convertSpace.Input(new MeshData(vertices, tUV, trianglesSubMesh));
+            convertSpace.Input(new MeshData(vertices, tUV, trianglesSubMesh, targetRenderer));
             var sUVPooled = ListPool<UVDimension>.Get();
             var sUV = convertSpace.OutPutUV(sUVPooled);
+
+            filter.SetSpace(convertSpace);
 
             var materials = targetRenderer.sharedMaterials;
 
             for (int i = 0; i < trianglesSubMesh.Count; i++)
             {
-                var triangle = trianglesSubMesh[i];
                 var targetMat = materials[i];
 
                 if (!targetMat.HasProperty(targetPropertyName)) { continue; };
                 var targetTexture = targetMat.GetTexture(targetPropertyName);
                 if (targetTexture == null) { continue; }
-                var targetTexSize = new Vector2Int(targetTexture.width, targetTexture.height);
 
-                List<TriangleIndex> filteredTriangle;
-                var filteredTrianglePooled = ListPool<TriangleIndex>.Get();
-                if (filter != null) { filteredTriangle = filter.Filtering(convertSpace, triangle, filteredTrianglePooled); }
-                else { filteredTriangle = triangle; }
-
+                var filteredTriangle = filter.GetFilteredSubTriangle(i);
                 if (filteredTriangle.Any() == false) { continue; }
 
                 if (!renderTextures.ContainsKey(targetMat))
                 {
-                    var tempRt = RenderTexture.GetTemporary(targetTexSize.x, targetTexSize.y, 32); tempRt.Clear();
-                    renderTextures.Add(targetMat, tempRt);
+                    renderTextures[targetMat] = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 32);
+                    renderTextures[targetMat].Clear();
                 }
 
                 TransTexture.ForTrans(
@@ -95,9 +94,6 @@ namespace net.rs64.TexTransCore.Decal
                     highQualityPadding,
                     useDepthOrInvert
                 );
-
-
-                ListPool<TriangleIndex>.Release(filteredTrianglePooled);
             }
             ListPool<Vector3>.Release(vertices);
             ListPool<Vector2>.Release(tUV);

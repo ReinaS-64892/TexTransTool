@@ -4,6 +4,8 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.IslandSelector;
+using System;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -16,18 +18,25 @@ namespace net.rs64.TexTransTool.Decal
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
         [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;
 
-        public bool IslandCulling = false;
-        public Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
-        public float IslandSelectorRange = 1;
+        public AbstractIslandSelector IslandSelector;
 
         public bool UseDepth;
         public bool DepthInvert;
         internal override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
+
+        #region V3SaveData
+        [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
+        [Obsolete("V3SaveData", true)][SerializeField] internal Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
+        [Obsolete("V3SaveData", true)][SerializeField] internal float IslandSelectorRange = 1;
+        #endregion
+
+
         internal override ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
         internal override DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter()
         {
-            if (IslandCulling) { return new IslandCullingPPFilter<Vector2>(GetFilter(), GetIslandSelector()); }
-            else { return new ParallelProjectionFilter<Vector2>(GetFilter()); }
+            if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter()); }
+            return new ParallelProjectionFilter(GetFilter());
+
         }
 
         internal List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
@@ -43,14 +52,6 @@ namespace net.rs64.TexTransTool.Decal
             return filters;
         }
 
-        internal List<IslandSelector> GetIslandSelector()
-        {
-            if (!IslandCulling) return null;
-            return new List<IslandSelector>() {
-                new IslandSelector(new Ray(transform.localToWorldMatrix.MultiplyPoint3x4(IslandSelectorPos - new Vector2(0.5f, 0.5f)), transform.forward), transform.localScale.z * IslandSelectorRange)
-                };
-        }
-
         internal void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
@@ -63,13 +64,6 @@ namespace net.rs64.TexTransTool.Decal
 
 
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
-
-            if (IslandCulling)
-            {
-                Vector3 selectorOrigin = new Vector2(IslandSelectorPos.x - 0.5f, IslandSelectorPos.y - 0.5f);
-                var selectorTail = (Vector3.forward * IslandSelectorRange) + selectorOrigin;
-                Gizmos.DrawLine(selectorOrigin, selectorTail);
-            }
         }
     }
 }
