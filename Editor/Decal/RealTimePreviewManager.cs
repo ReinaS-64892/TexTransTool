@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.Profiling;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
@@ -250,17 +251,27 @@ namespace net.rs64.TexTransTool
 
             if (absDecalData.PropertyName != abstractDecal.TargetPropertyName
              || !absDecalData.RendererEqual(abstractDecal.GetRenderers))
-            { UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal); }
+            {
+                Profiler.BeginSample("Reregister decal");
+                UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal); 
+                Profiler.EndSample();
+            }
 
             if (absDecalData.BlendTypeKey != abstractDecal.BlendTypeKey)
             { absDecalData.SetBlendTypeKey(abstractDecal.BlendTypeKey); }
 
 
+            Profiler.BeginSample("Clear and compile decal");
             absDecalData.ClearDecalTarget();
             abstractDecal.CompileDecal(new TextureManager(true), absDecalData.decalTargets);
+            Profiler.EndSample();
 
             foreach (var mat in absDecalData.decalTargets.Keys)
-            { UpdatePreviewTexture(mat, absDecalData.PropertyName); }
+            {
+                Profiler.BeginSample("Update preview texture");
+                UpdatePreviewTexture(mat, absDecalData.PropertyName);
+                Profiler.EndSample();
+            }
         }
 
         public void PreviewForcesDecalUpdate()
@@ -377,8 +388,10 @@ namespace net.rs64.TexTransTool
 
                 public void ReviewReInit()
                 {
+                    Profiler.BeginSample("ReviewReInit");
                     TargetTexture.Clear();
                     Graphics.Blit(SouseTexture, TargetTexture);
+                    Profiler.EndSample();
                 }
 
                 public PreviewTexturePair(Texture2D souseTexture, RenderTexture targetTexture)

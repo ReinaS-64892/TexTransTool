@@ -3,6 +3,7 @@ using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Decal;
 using UnityEngine;
 using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
@@ -20,12 +21,12 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
             {
                 var souseMesh = renderer.GetMesh();
                 if (souseMesh == null) { continue; }
-                var vertex = DecalUtility.GetWorldSpaceVertices(renderer);
-                var triangle = souseMesh.GetTriangleIndex();
+
+                var meshdata = renderer.Memo(DecalUtility.GetMeshData);
 
                 var ray = new Ray(transform.position, transform.forward);
 
-                var hitTriangles = IslandCulling.RayCast(ray, vertex, triangle);
+                var hitTriangles = IslandCulling.RayCast(ray, meshdata);
 
                 var count = 0;
                 foreach (var hitTriangle in hitTriangles)
