@@ -80,9 +80,9 @@ namespace net.rs64.TexTransTool.Decal
             return spaceList;
         }
 
-        internal List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> GetFilter()
+        internal List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>> GetFilter()
         {
-            return new List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>>
+            return new List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>>
             {
                 new TriangleFilterUtility.FarStruct(1, false),
                 new TriangleFilterUtility.NearStruct(0, true),

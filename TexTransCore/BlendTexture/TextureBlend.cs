@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransCore.BlendTexture
 {
@@ -201,14 +202,21 @@ namespace net.rs64.TexTransCore.BlendTexture
         public static void BlendBlit<BlendTex>(this RenderTexture baseRenderTexture, IEnumerable<BlendTex> adds)
         where BlendTex : IBlendTexturePair
         {
+            Profiler.BeginSample("BlendBlit");
             using (new RTActiveSaver())
             {
+                Profiler.BeginSample("Create material");
                 var material = new Material(BlendTexShader);
+                Profiler.EndSample();
+                
+                Profiler.BeginSample("Create RT");
                 var temRt = RenderTexture.GetTemporary(baseRenderTexture.descriptor);
+                Profiler.EndSample();
+                
                 var swap = baseRenderTexture;
                 var target = temRt;
                 Graphics.Blit(swap, target);
-
+                
                 foreach (var Add in adds)
                 {
                     if (Add == null || Add.Texture == null || Add.BlendTypeKey == null) { continue; }
@@ -226,6 +234,7 @@ namespace net.rs64.TexTransCore.BlendTexture
                 RenderTexture.ReleaseTemporary(temRt);
                 UnityEngine.Object.DestroyImmediate(material);
             }
+            Profiler.EndSample();
         }
         public static RenderTexture BlendBlit(Texture2D baseRenderTexture, Texture add, string blendTypeKey, RenderTexture targetRt = null)
         {

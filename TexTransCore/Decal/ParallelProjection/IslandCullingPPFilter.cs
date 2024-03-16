@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.Island;
 using UnityEngine.Pool;
@@ -11,7 +12,7 @@ namespace net.rs64.TexTransCore.Decal
     {
         public List<IslandSelector> IslandSelectors;
 
-        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<List<Vector3>>> filters, List<IslandSelector> islandSelectors) : base(filters)
+        public IslandCullingPPFilter(List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>> filters, List<IslandSelector> islandSelectors) : base(filters)
         {
             IslandSelectors = islandSelectors;
         }
@@ -19,7 +20,7 @@ namespace net.rs64.TexTransCore.Decal
         public override List<TriangleIndex> Filtering(ParallelProjectionSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
         {
             var cullied = ListPool<TriangleIndex>.Get();
-            triangles = Island.IslandCulling.Culling(IslandSelectors, space.MeshData.Vertex, space.MeshData.UV, triangles);
+            triangles = Island.IslandCulling.Culling(IslandSelectors, space.MeshData).Intersect(triangles).ToList();
             var result = base.Filtering(space, triangles, output);
             ListPool<TriangleIndex>.Release(cullied);
             return result;
