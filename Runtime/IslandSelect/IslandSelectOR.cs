@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
+using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class IslandSelectOR : AbstractIslandSelector
     {
+        internal const string ComponentName = "TTT IslandSelectOR";
+        internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<AbstractIslandSelector> IslandSelectors;
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {

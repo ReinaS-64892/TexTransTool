@@ -11,9 +11,12 @@ using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class RayCastIslandSelector : AbstractIslandSelector
     {
-        public float IslandSelectorRange;
+        internal const string ComponentName = "TTT RayCastIslandSelector";
+        internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public float IslandSelectorRange = 0.1f;
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return RayCastIslandSelect(GetIslandSelectorRay(), islands, islandDescription);
@@ -71,6 +74,14 @@ namespace net.rs64.TexTransTool.IslandSelector
         }
 
         internal IslandSelectorRay GetIslandSelectorRay() { return new IslandSelectorRay(new Ray(transform.position, transform.forward), IslandSelectorRange); }
+
+
+
+        void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawLine(Vector3.zero, new Vector3(0,0,IslandSelectorRange));
+        }
     }
 
     internal class RayCastIslandSelectorClass : IIslandSelector

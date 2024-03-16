@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Island;
+using UnityEngine;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class SphereIslandSelector : AbstractIslandSelector
     {
+        internal const string ComponentName = "TTT SphereIslandSelector";
+        internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public float SphereSize = 0.1f;
 
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
@@ -30,6 +34,12 @@ namespace net.rs64.TexTransTool.IslandSelector
             }
 
             return bitArray;
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireSphere(Vector3.zero, SphereSize);
         }
     }
 }

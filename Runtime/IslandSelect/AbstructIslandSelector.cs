@@ -9,6 +9,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 {
     public abstract class AbstractIslandSelector : MonoBehaviour, ITexTransToolTag, IIslandSelector
     {
+        internal const string FoldoutName = "IslandSelector";
+
         [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
 

@@ -6,8 +6,11 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class BoxIslandSelector : AbstractIslandSelector
     {
+        internal const string ComponentName = "TTT BoxIslandSelector";
+        internal const string MenuPath = FoldoutName + "/" + ComponentName;
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);
@@ -35,6 +38,12 @@ namespace net.rs64.TexTransTool.IslandSelector
 
 
             return bitArray;
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
         }
     }
 }

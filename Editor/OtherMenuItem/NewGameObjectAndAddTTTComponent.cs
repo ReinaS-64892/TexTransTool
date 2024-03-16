@@ -1,4 +1,5 @@
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.IslandSelector;
 using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.TextureAtlas;
@@ -40,6 +41,13 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + MatAndTexAbsoluteSeparator.MenuPath)] static void MATAS() => C<MatAndTexAbsoluteSeparator>();
         [M(BP + MatAndTexRelativeSeparator.MenuPath)] static void MATRS() => C<MatAndTexRelativeSeparator>();
         [M(BP + MaterialModifier.MenuPath)] static void MM() => C<MaterialModifier>();
+
+        [M(BP + BoxIslandSelector.MenuPath)] static void BIS() => C<BoxIslandSelector>();
+        [M(BP + SphereIslandSelector.MenuPath)] static void SIS() => C<SphereIslandSelector>();
+        [M(BP + RayCastIslandSelector.MenuPath)] static void RCIS() => C<RayCastIslandSelector>();
+        [M(BP + IslandSelectOR.MenuPath)] static void ISOR() => C<IslandSelectOR>();
+        [M(BP + IslandSelectorAND.MenuPath)] static void ISAND() => C<IslandSelectorAND>();
+        
 
     }
 }
