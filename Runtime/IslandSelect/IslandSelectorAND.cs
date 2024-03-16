@@ -1,19 +1,25 @@
+using System.Collections;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
     public class IslandSelectorAND : AbstractIslandSelector
     {
         public List<AbstractIslandSelector> IslandSelectors;
-        internal override HashSet<Key> IslandSelect<Key>(Dictionary<Key, Island> islands, Dictionary<Key, IslandDescription> islandDescription)
+        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
-            var islandHash = new HashSet<Key>(islands.Keys);
-            foreach (var selector in IslandSelectors)
+            BitArray bitArray = null;
+            foreach (var islandSelector in IslandSelectors)
             {
-                islandHash.IntersectWith(selector.IslandSelect(islands, islandDescription));
+                Profiler.BeginSample(islandSelector.GetType().Name);
+                var selectBit = islandSelector.IslandSelect(islands, islandDescription);
+                Profiler.EndSample();
+                if (bitArray is null) { bitArray = selectBit; continue; }
+                bitArray.And(selectBit);
             }
-            return islandHash;
+            return bitArray;
         }
     }
 }

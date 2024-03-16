@@ -15,7 +15,7 @@ namespace net.rs64.TexTransCore.Decal
 {
     public static class DecalUtility
     {
-        public interface IConvertSpace<UVDimension>: IDisposable
+        public interface IConvertSpace<UVDimension> : IDisposable
         where UVDimension : struct
         {
             void Input(MeshData meshData);
@@ -45,31 +45,22 @@ namespace net.rs64.TexTransCore.Decal
             if (renderTextures == null) renderTextures = new();
 
             Profiler.BeginSample("GetMeshData");
-            var meshData = targetRenderer.Memo(GetMeshData);
+            var meshData = targetRenderer.Memo(GetMeshData, i => i.Dispose());
             Profiler.EndSample();
 
-            var targetMesh = targetRenderer.GetMesh();
-            
             Profiler.BeginSample("GetUVs");
-            var tUV = ListPool<Vector2>.Get(); targetMesh.GetUVs(0, tUV);
-            Profiler.EndSample();
-            
-            Profiler.BeginSample("GetPooledSubTriangle");
-            var trianglesSubMesh = targetMesh.GetPooledSubTriangle();
+            var tUV = meshData.VertexUV;
             Profiler.EndSample();
 
             Profiler.BeginSample("convertSpace.Input");
             convertSpace.Input(meshData);
             Profiler.EndSample();
 
-            var sUVPooled = ListPool<UVDimension>.Get();
-            var sUV = convertSpace.OutPutUV();
-
             filter.SetSpace(convertSpace);
 
             var materials = targetRenderer.sharedMaterials;
 
-            for (int i = 0; i < trianglesSubMesh.Count; i++)
+            for (int i = 0; i < meshData.Triangles.Length; i++)
             {
                 var targetMat = materials[i];
 
@@ -77,7 +68,9 @@ namespace net.rs64.TexTransCore.Decal
                 var targetTexture = targetMat.GetTexture(targetPropertyName);
                 if (targetTexture == null) { continue; }
 
+                Profiler.BeginSample("GetFilteredSubTriangle");
                 var filteredTriangle = filter.GetFilteredSubTriangle(i);
+                Profiler.EndSample();
                 if (filteredTriangle.Any() == false) { continue; }
 
                 if (!renderTextures.ContainsKey(targetMat))
@@ -85,6 +78,7 @@ namespace net.rs64.TexTransCore.Decal
                     renderTextures[targetMat] = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 32);
                     renderTextures[targetMat].Clear();
                 }
+                var sUV = convertSpace.OutPutUV();
 
                 Profiler.BeginSample("TransTexture.ForTrans");
                 TransTexture.ForTrans(
@@ -98,53 +92,11 @@ namespace net.rs64.TexTransCore.Decal
                 );
                 Profiler.EndSample();
             }
-            ListPool<Vector2>.Release(tUV);
-            ListPool<UVDimension>.Release(sUVPooled);
-            ReleasePooledSubTriangle(trianglesSubMesh);
+            convertSpace.Dispose();//convertSpaceの解放責任はこっちにある
 
             return renderTextures;
         }
-        internal static MeshData GetMeshData(Renderer target)
-        {
-            MeshData result;
-            switch (target)
-            {
-                case SkinnedMeshRenderer smr:
-                    {
-                        Mesh mesh = new Mesh();
-                        smr.BakeMesh(mesh);
-                        
-                        Matrix4x4 matrix;
-                        if (smr.bones.Any())
-                        {
-                            matrix = Matrix4x4.TRS(smr.transform.position, smr.transform.rotation, Vector3.one);
-                        }
-                        else if (smr.rootBone == null)
-                        {
-                            matrix = smr.localToWorldMatrix;
-                        }
-                        else
-                        {
-                            matrix = smr.rootBone.localToWorldMatrix;
-                        }
-
-                        result = new MeshData(mesh, matrix);
-
-                        UnityEngine.Object.DestroyImmediate(mesh);
-                        break;
-                    }
-                case MeshRenderer mr:
-                    {
-                        return new MeshData(mr.GetComponent<MeshFilter>().sharedMesh, mr.localToWorldMatrix);
-                        break;
-                    }
-                default:
-                    {
-                        throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
-                    }
-            }
-            return result;
-        }
+        public static MeshData GetMeshData(Renderer renderer) => new MeshData(renderer);
         public static List<List<TriangleIndex>> GetPooledSubTriangle(this Mesh mesh)
         {
             var result = ListPool<List<TriangleIndex>>.Get();
@@ -187,7 +139,7 @@ namespace net.rs64.TexTransCore.Decal
             [WriteOnly] public NativeArray<Vector3> OutputVertices;
             public Matrix4x4 Matrix;
             public Vector3 Offset;
-            
+
             public void Execute(int index)
             {
                 OutputVertices[index] = Matrix.MultiplyPoint3x4(InputVertices[index]) + Offset;

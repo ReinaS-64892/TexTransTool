@@ -15,7 +15,7 @@ namespace net.rs64.TexTransCore.Decal
         public List<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex)
         {
             if (_parallelProjectionSpace is null) { return null; }
-            return TriangleFilterUtility.FilteringTriangle(_parallelProjectionSpace.MeshData.TrianglesSubMesh[subMeshIndex], _parallelProjectionSpace.PPSVert, Filters);
+            return TriangleFilterUtility.FilteringTriangle(_parallelProjectionSpace.MeshData.TrianglesSubMeshList[subMeshIndex], _parallelProjectionSpace.OutPutUV().AsList(), Filters);
         }
 
     }

@@ -37,7 +37,7 @@ namespace net.rs64.TexTransCore.Island
         )
         {
             var iIslands = meshData.Memo(IslandUtility.UVtoIsland);
-            
+
             Profiler.BeginSample("IslandCulling raycast");
             var rayCastHitTriangle = ListPool<TriangleIndex>.Get();
             foreach (var i in islandSelectors)
@@ -53,7 +53,7 @@ namespace net.rs64.TexTransCore.Island
                 }
             }
             Profiler.EndSample();
-            
+
             Profiler.BeginSample("IslandCulling map to island");
             var hitSelectIsland = HashSetPool<Island>.Get();
             foreach (var hitTriangle in rayCastHitTriangle)
@@ -67,7 +67,7 @@ namespace net.rs64.TexTransCore.Island
                     }
                 }
             }
-            output?.Clear(); output ??= new ();
+            output?.Clear(); output ??= new();
             output.AddRange(hitSelectIsland.SelectMany(I => I.triangles));
             Profiler.EndSample();
 
@@ -79,8 +79,7 @@ namespace net.rs64.TexTransCore.Island
 
         public static List<RayCastHitTriangle> RayCast(Ray ray, MeshData mesh)
         {
-            var rot = Quaternion.LookRotation(ray.direction);
-            var rayMatrix = Matrix4x4.TRS(ray.origin, rot, Vector3.one).inverse;
+            var rayMatrix = ray.GetRayMatrix();
 
             var nativeTriangleArray = mesh.CombinedTriangles;
 
@@ -111,6 +110,14 @@ namespace net.rs64.TexTransCore.Island
             distance.Dispose();
             return output;
         }
+
+        public static Matrix4x4 GetRayMatrix(this Ray ray)
+        {
+            var rot = Quaternion.LookRotation(ray.direction);
+            var rayMatrix = Matrix4x4.TRS(ray.origin, rot, Vector3.one).inverse;
+            return rayMatrix;
+        }
+
         public static void FilteredBackTriangle(List<RayCastHitTriangle> rayCastHitTriangles)
         {
             rayCastHitTriangles.RemoveAll(I => I.Distance < 0);

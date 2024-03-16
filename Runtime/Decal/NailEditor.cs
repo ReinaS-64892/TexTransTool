@@ -6,6 +6,7 @@ using System.Collections;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.IslandSelector;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -49,9 +50,9 @@ namespace net.rs64.TexTransTool.Decal
             return decalCompiledRenderTextures;
         }
 
-        List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)> GetNailTexSpaceFilters()
+        List<(Texture2D, ParallelProjectionSpace, IslandSelectToPPFilter)> GetNailTexSpaceFilters()
         {
-            var spaceList = new List<(Texture2D, ParallelProjectionSpace, ParallelProjectionFilter<Vector2>)>();
+            var spaceList = new List<(Texture2D, ParallelProjectionSpace, IslandSelectToPPFilter)>();
 
 
             CompileNail(LeftHand, false);
@@ -68,10 +69,11 @@ namespace net.rs64.TexTransTool.Decal
                     var souseFingerTF = GetFinger(finger, IsRight);
                     var matrix = GetNailMatrix(souseFingerTF, nailDecalDescription, nailSet.FingerUpVector, IsRight);
 
-                    var islandSelector = new IslandSelector(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
+                    var islandSelector = new IslandSelectorRay(new Ray(matrix.MultiplyPoint(Vector3.zero), matrix.MultiplyVector(Vector3.forward)), matrix.lossyScale.z * 1);
+
 
                     var SpaceConverter = new ParallelProjectionSpace(matrix.inverse);
-                    var Filter = new IslandCullingPPFilter<Vector2>(GetFilter(), new List<IslandSelector>(1) { islandSelector });
+                    var Filter = new IslandSelectToPPFilter(new RayCastIslandSelectorClass(islandSelector), GetFilter());
 
                     spaceList.Add((nailDecalDescription.DecalTexture, SpaceConverter, Filter));
                 }

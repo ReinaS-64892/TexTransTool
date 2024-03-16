@@ -117,6 +117,7 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         public float Offset;
         public NativeArray<Vector2> Normalized;
         public List<Vector3> QuadNormalizedVertex;
+        public MeshData MeshData;
 
         public CCSSpace(CylindricalCoordinatesSystem ccs, IReadOnlyList<Vector3> quad)
         {
@@ -124,10 +125,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             Quad = quad;
         }
 
-        public void Input(MeshData MeshData)
+        public void Input(MeshData meshData)
         {
+            MeshData = meshData;
             var ccsQuad = CCS.VertexConvertCCS(Quad);
-            var ccsVertex = CCS.VertexConvertCCS(MeshData.VertexList);
+            var ccsVertex = CCS.VertexConvertCCS(meshData.VertexList);
             var offset = ccsQuad.Min(I => I.y) * -1;
 
             CylindricalCoordinatesSystem.OffSetApply(ccsQuad, offset);
@@ -166,14 +168,17 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
     internal class CCSFilter : DecalUtility.ITrianglesFilter<CCSSpace>
     {
         public IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> Filters;
+        CCSSpace _ccsSpace;
 
         public CCSFilter(IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> filters)
         {
             Filters = filters;
         }
-        public List<TriangleIndex> Filtering(CCSSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
+        public void SetSpace(CCSSpace space) { _ccsSpace = space; }
+
+        public List<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex)
         {
-            return TriangleFilterUtility.FilteringTriangle(triangles, space, Filters, output);
+            return TriangleFilterUtility.FilteringTriangle(_ccsSpace.MeshData.TrianglesSubMeshList[subMeshIndex], _ccsSpace, Filters);
         }
 
 
