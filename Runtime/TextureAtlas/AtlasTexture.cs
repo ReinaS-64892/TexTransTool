@@ -353,7 +353,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //アトラス化したテクスチャーを生成するフェーズ
-            var compiledAtlasTextures = new List<PropAndTexture2D>();
+            var pendingAtlasTextures = new List<(string, AsyncTexture2D)>();
 
             var propertyNames = materialTextures.Values.SelectMany(i => i).Select(i => i.PropertyName).ToHashSet();
             
@@ -408,12 +408,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 
                 Profiler.BeginSample("Readback");
                 
-                compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));
+                pendingAtlasTextures.Add((propName, new AsyncTexture2D(targetRT)));
                 
                 Profiler.EndSample();
                 
                 RenderTexture.ReleaseTemporary(targetRT);
             }
+            Profiler.EndSample();
+            
+            Profiler.BeginSample("Async Readback");
+            var compiledAtlasTextures = pendingAtlasTextures
+                .Select(kv => new PropAndTexture2D(kv.Item1, kv.Item2.GetTexture2D()))
+                .ToList();
+
             Profiler.EndSample();
             
             foreach (var matData in materialTextures)
