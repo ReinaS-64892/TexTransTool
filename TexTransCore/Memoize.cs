@@ -7,8 +7,11 @@ namespace net.rs64.TexTransCore.TransTextureCore
 {
     internal static class FrameMemoEvents
     {
+#pragma warning disable CS0067 // Event is never used
         internal static event Action OnClearMemo;
+#pragma warning restore CS0067 // Event is never used
 
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
         static void Init()
         {
@@ -18,6 +21,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 OnClearMemo = default;
             };
         }
+#endif
     }
 
     public static class Memoize
