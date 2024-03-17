@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             if (s_ExperimentalFutureOption)
             {
                 var sIslandSelector = thisSObject.FindProperty("IslandSelector");
-                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandCulling".Glc());
+                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
 
                 if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is RayCastIslandSelector)
                 {
