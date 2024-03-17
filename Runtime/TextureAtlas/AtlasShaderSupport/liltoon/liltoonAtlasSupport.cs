@@ -1,9 +1,73 @@
+using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
+    internal class MaterialCache
+    {
+        public Shader shader { get; }
+        private Dictionary<string, Texture> _textures;
+        private Dictionary<string, float> _floats;
+        private Dictionary<string, Color> _colors;
+
+        public MaterialCache(Material m)
+        {
+            #if UNITY_EDITOR
+            Profiler.BeginSample("MaterialCache init");
+            shader = m.shader;
+            
+            SerializedObject so = new SerializedObject(m);
+            
+            var savedProps = so.FindProperty("m_SavedProperties");
+            var texEnvs = savedProps.FindPropertyRelative("m_TexEnvs");
+            _textures = new Dictionary<string, Texture>(texEnvs.arraySize);
+            FillDict(_textures, texEnvs, (sp) => sp.FindPropertyRelative("m_Texture").objectReferenceValue as Texture);
+            
+            var floats = savedProps.FindPropertyRelative("m_Floats");
+            _floats = new Dictionary<string, float>(floats.arraySize);
+            FillDict(_floats, floats, (sp) => sp.floatValue);
+            
+            var colors = savedProps.FindPropertyRelative("m_Colors");
+            _colors = new Dictionary<string, Color>(colors.arraySize);
+            FillDict(_colors, colors, (sp) => sp.colorValue);
+            
+            Profiler.EndSample();
+            #endif
+        }
+
+        public Texture GetTexture(string tex)
+        {
+            return _textures.GetValueOrDefault(tex);
+        }
+        
+        public float GetFloat(string tex)
+        {
+            return _floats.GetValueOrDefault(tex);
+        }
+        
+        public Color GetColor(string tex)
+        {
+            return _colors.GetValueOrDefault(tex);
+        }
+
+        private static void FillDict<T>(Dictionary<string, T> dict, SerializedProperty texEnvs, Func<SerializedProperty, T> extract)
+        {
+            var count = texEnvs.arraySize;
+            for (int i = 0; i < count; i++)
+            {
+                var element = texEnvs.GetArrayElementAtIndex(i);
+                var first = element.FindPropertyRelative("first");
+                var second = element.FindPropertyRelative("second");
+                 
+                dict.Add(first.stringValue, extract(second));
+            }
+        }
+    }
+    
     internal class liltoonAtlasSupport : IAtlasShaderSupport
     {
         public bool IsThisShader(Material material)
@@ -17,8 +81,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             material.SetTexture("_BaseColorMap", mainTex);
         }
 
-        public List<PropAndTexture> GetPropertyAndTextures(IOriginTexture textureManager, Material material, PropertyBakeSetting bakeSetting)
+        public List<PropAndTexture> GetPropertyAndTextures(IOriginTexture textureManager, Material material_, PropertyBakeSetting bakeSetting)
         {
+            MaterialCache material = new MaterialCache(material_);
             var propEnvsDict = new Dictionary<string, Texture>();
 
             propEnvsDict.Add("_MainTex", material.GetTexture("_MainTex") as Texture2D);
@@ -135,7 +200,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return propAndTexture2;
             }
 
-            var baker = new TextureBaker(textureManager, propEnvsDict, material, _lilDifferenceRecorder, bakeSetting);
+            var baker = new TextureBaker(textureManager, propEnvsDict, material_, _lilDifferenceRecorder, bakeSetting);
 
             baker.ColorMulAndHSVG("_MainTex", "_Color", "_MainTexHSVG");
             if (material.GetFloat("_UseMain2ndTex") > 0.5f)
@@ -318,77 +383,83 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         AtlasShaderRecorder _lilDifferenceRecorder = new ();
 
-        public void AddRecord(Material material)
+        public void AddRecord(Material material_)
         {
-            if (material == null) return;
+            if (material_ == null) return;
+            
+            Profiler.BeginSample("AddRecord");
 
-            _lilDifferenceRecorder.AddRecord(material, "_MainTex", material.GetColor("_Color"), material.GetColor("_MainTexHSVG"), ColorEqualityComparer);
+            MaterialCache material = new MaterialCache(material_);
+
+            _lilDifferenceRecorder.AddRecord(material_, "_MainTex", material.GetColor("_Color"), material.GetColor("_MainTexHSVG"), ColorEqualityComparer);
             if (material.GetFloat("_UseMain2ndTex") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_Main2ndTex", material.GetColor("_Color2nd"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Main2ndTex", material.GetColor("_Color2nd"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseMain3rdTex") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_Main3rdTex", material.GetColor("_Color3rd"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Main3rdTex", material.GetColor("_Color3rd"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseShadow") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_ShadowStrengthMask", material.GetFloat("_ShadowStrength"), FloatEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_ShadowColorTex", material.GetColor("_ShadowColor"), ColorEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_Shadow2ndColorTex", material.GetColor("_Shadow2ndColor"), ColorEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_Shadow3rdColorTex", material.GetColor("_Shadow3rdColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_ShadowStrengthMask", material.GetFloat("_ShadowStrength"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_ShadowColorTex", material.GetColor("_ShadowColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Shadow2ndColorTex", material.GetColor("_Shadow2ndColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Shadow3rdColorTex", material.GetColor("_Shadow3rdColor"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseEmission") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_EmissionMap", material.GetColor("_EmissionColor"), ColorEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_EmissionBlendMask", material.GetFloat("_EmissionBlend"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_EmissionMap", material.GetColor("_EmissionColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_EmissionBlendMask", material.GetFloat("_EmissionBlend"), FloatEqualityComparer);
             }
             if (material.GetFloat("_UseEmission2nd") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_Emission2ndMap", material.GetColor("_Emission2ndColor"), ColorEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_Emission2ndBlendMask", material.GetFloat("_Emission2ndBlend"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Emission2ndMap", material.GetColor("_Emission2ndColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_Emission2ndBlendMask", material.GetFloat("_Emission2ndBlend"), FloatEqualityComparer);
             }
             if (material.GetFloat("_UseAnisotropy") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_AnisotropyScaleMask", material.GetFloat("_AnisotropyScale"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_AnisotropyScaleMask", material.GetFloat("_AnisotropyScale"), FloatEqualityComparer);
             }
             if (material.GetFloat("_UseBacklight") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_BacklightColorTex", material.GetColor("_BacklightColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_BacklightColorTex", material.GetColor("_BacklightColor"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseReflection") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_MetallicGlossMap", material.GetFloat("_Metallic"), FloatEqualityComparer);
-                _lilDifferenceRecorder.AddRecord(material, "_ReflectionColorTex", material.GetColor("_ReflectionColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_MetallicGlossMap", material.GetFloat("_Metallic"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_ReflectionColorTex", material.GetColor("_ReflectionColor"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseMatCap") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_MatCapBlendMask", material.GetFloat("_MatCapBlend"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_MatCapBlendMask", material.GetFloat("_MatCapBlend"), FloatEqualityComparer);
             }
             if (material.GetFloat("_UseMatCap2nd") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_MatCap2ndBlendMask", material.GetFloat("_MatCap2ndBlend"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_MatCap2ndBlendMask", material.GetFloat("_MatCap2ndBlend"), FloatEqualityComparer);
             }
             if (material.GetFloat("_UseRim") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_RimColorTex", material.GetColor("_RimColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_RimColorTex", material.GetColor("_RimColor"), ColorEqualityComparer);
             }
             if (material.GetFloat("_UseGlitter") > 0.5f)
             {
-                _lilDifferenceRecorder.AddRecord(material, "_GlitterColorTex", material.GetColor("_GlitterColor"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_GlitterColorTex", material.GetColor("_GlitterColor"), ColorEqualityComparer);
             }
             if (material.shader.name.Contains("Outline"))
             {
-                _lilDifferenceRecorder.AddRecord(material, "_OutlineTex", material.GetColor("_OutlineColor"), material.GetColor("_OutlineTexHSVG"), ColorEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_OutlineTex", material.GetColor("_OutlineColor"), material.GetColor("_OutlineTexHSVG"), ColorEqualityComparer);
 
-                var record = _lilDifferenceRecorder.AddRecord(material, "_OutlineWidthMask", material.GetFloat("_OutlineWidth"), FloatEqualityComparer);
+                var record = _lilDifferenceRecorder.AddRecord(material_, "_OutlineWidthMask", material.GetFloat("_OutlineWidth"), FloatEqualityComparer);
                 record.RecordValue = Mathf.Max(record.RecordValue, material.GetFloat("_OutlineWidth"));
             }
             if (material.shader.name.Contains("Gem"))
             {
-                _lilDifferenceRecorder.AddRecord(material, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
+                _lilDifferenceRecorder.AddRecord(material_, "_SmoothnessTex", material.GetFloat("_Smoothness"), FloatEqualityComparer);
             }
+            
+            Profiler.EndSample();
         }
         static bool ColorEqualityComparer(Color l, Color r)
         {
