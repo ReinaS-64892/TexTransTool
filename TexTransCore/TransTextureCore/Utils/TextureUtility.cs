@@ -125,5 +125,6 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
             return TestTex;
         }
 
+        public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
     }
 }

@@ -36,5 +36,21 @@ namespace net.rs64.TexTransCore.MipMap
 
             return true;
         }
+
+        public static int MipMapCountFrom(int width, int targetWith)
+        {
+            if (width < targetWith) { return -1; }
+            var count = 0;
+            if (width == targetWith) { return count; }
+            while (width >= 0 && count < 1024)//1024 回で止まるのはただのセーフティ
+            {
+                width /= 2;
+                count += 1;
+                if (width == targetWith) { return count; }
+            }
+            return -1;
+        }
+
+
     }
 }

@@ -7,6 +7,9 @@ using UnityEditor;
 using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
 using Unity.Collections;
+using net.rs64.TexTransCore.MipMap;
+using UnityEngine.Rendering;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -16,7 +19,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         AssetImportContext _ctx;
         List<TTTImportedImage> _tttImportedImages = new();
         CreateImportedImage _imageImporter;
-        GetPreviewImage _previewImageTaskGenerator;
         byte[] _souseBytes;
 
         internal delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
@@ -25,14 +27,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         internal MultiLayerImageImporter(TTTImportedCanvasDescription tttImportedCanvasDescription,
                                          AssetImportContext assetImportContext,
                                          byte[] souseBytes,
-                                         CreateImportedImage imageImporter,
-                                         GetPreviewImage previewImageTaskGenerator)
+                                         CreateImportedImage imageImporter)
         {
             _ctx = assetImportContext;
             _imageImporter = imageImporter;
             _tttImportedCanvasDescription = tttImportedCanvasDescription;
             _souseBytes = souseBytes;
-            _previewImageTaskGenerator = previewImageTaskGenerator;
         }
 
         internal void AddLayers(Transform thisTransForm, List<AbstractLayerData> abstractLayers)
@@ -190,37 +190,33 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         internal void CreatePreview()
         {
-            var setting = new TextureGenerationSettings(TextureImporterType.Default);
-            setting.textureImporterSettings.alphaIsTransparency = true;
-            setting.textureImporterSettings.mipmapEnabled = false;
-            setting.textureImporterSettings.filterMode = FilterMode.Bilinear;
-            setting.textureImporterSettings.readable = false;
-
-            setting.platformSettings.maxTextureSize = 1024;
-            setting.platformSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
-            setting.platformSettings.textureCompression = TextureImporterCompression.Compressed;
-            setting.platformSettings.compressionQuality = 100;
-
-            setting.sourceTextureInformation.width = _tttImportedCanvasDescription.Width;
-            setting.sourceTextureInformation.height = _tttImportedCanvasDescription.Height;
-            setting.sourceTextureInformation.containsAlpha = true;
-            setting.sourceTextureInformation.hdr = false;
-
-            foreach (var taskResult in ParallelExecuter<(byte[] souseBytes, TTTImportedImage importRasterImage), NativeArray<Color32>>(
-                i => _previewImageTaskGenerator.Invoke(i.souseBytes, i.importRasterImage),
-                 _tttImportedImages.Select(i => (_souseBytes, i))))
+            var rt = new RenderTexture(TextureUtility.NormalizePowerOfTwo(_tttImportedCanvasDescription.Width), TextureUtility.NormalizePowerOfTwo(_tttImportedCanvasDescription.Height), 0, RenderTextureFormat.ARGB32);
+            rt.enableRandomWrite = true;
+            rt.useMipMap = true;
+            rt.autoGenerateMips = false;
+            foreach (var importedImage in _tttImportedImages)
             {
-                using (var data = taskResult.TaskResult)
-                {
-                    var image = taskResult.TaskData.importRasterImage;
+                rt.Clear();
+                importedImage.LoadImage(_souseBytes, rt);
+                MipMapUtility.Average(rt);
 
-                    var output = TextureGenerator.GenerateTexture(setting, data);
+                var mipMapCount = MipMapUtility.MipMapCountFrom(rt.width, 1024);
 
-                    image.PreviewTexture = output.texture;
-                    image.PreviewTexture.name = image.name + "_Preview";
-                    _ctx.AddObjectToAsset(output.texture.name, output.texture);
-                }
+                var request = AsyncGPUReadback.Request(rt, mipMapCount);
+
+                var tex2d = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
+
+                request.WaitForCompletion();
+                using (var data = request.GetData<byte>()) { tex2d.LoadRawTextureData(data); }
+
+                EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+                tex2d.Apply(true, true);
+
+                importedImage.PreviewTexture = tex2d;
+                importedImage.PreviewTexture.name = importedImage.name + "_Preview";
+                _ctx.AddObjectToAsset(tex2d.name, tex2d);
             }
+            UnityEngine.Object.DestroyImmediate(rt);
         }
         private static IEnumerable<(T TaskData, T2 TaskResult)> ParallelExecuter<T, T2>(Func<T, Task<T2>> taskExecute, IEnumerable<T> taskData, int? forceParallelSize = null, Action<float> progressCallBack = null)
         {

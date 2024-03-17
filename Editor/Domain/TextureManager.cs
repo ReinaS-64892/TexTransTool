@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
-            return NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+            return TexTransCore.TransTextureCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
         }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
@@ -137,8 +137,5 @@ namespace net.rs64.TexTransTool
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
         }
-
-        public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
-
     }
 }
