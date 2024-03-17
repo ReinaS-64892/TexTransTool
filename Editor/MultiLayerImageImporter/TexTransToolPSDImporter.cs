@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
 
-                var mliImporter = new MultiLayerImageImporter(canvasDescription, ctx, psdBytes, CreatePSDImportedImage, GetPreviewImage);
+                var mliImporter = new MultiLayerImageImporter(canvasDescription, ctx, psdBytes, CreatePSDImportedImage);
                 mliImporter.AddLayers(multiLayerImageCanvas.transform, pSDData.RootLayers);
 
                 EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0.1f);
