@@ -47,7 +47,7 @@ namespace net.rs64.TexTransCore.Decal
             return outPut;
         }
 
-        public struct SideStruct : ITriangleFiltering<List<Vector3>>
+        public struct SideStruct : ITriangleFiltering<IList<Vector3>>
         {
             public bool IsReverse;
 
@@ -56,12 +56,12 @@ namespace net.rs64.TexTransCore.Decal
                 IsReverse = isReverse;
             }
 
-            public bool Filtering(TriangleIndex targetTri, List<Vector3> vertex)
+            public bool Filtering(TriangleIndex targetTri, IList<Vector3> vertex)
             {
                 return SideCheck(targetTri, vertex, IsReverse);
             }
 
-            public static bool SideCheck(TriangleIndex targetTri, List<Vector3> vertex, bool isReverse = false)
+            public static bool SideCheck(TriangleIndex targetTri, IList<Vector3> vertex, bool isReverse = false)
             {
                 var ba = vertex[targetTri[1]] - vertex[targetTri[0]];
                 var ac = vertex[targetTri[0]] - vertex[targetTri[2]];
@@ -73,7 +73,7 @@ namespace net.rs64.TexTransCore.Decal
 
         }
 
-        public struct FarStruct : ITriangleFiltering<List<Vector3>>
+        public struct FarStruct : ITriangleFiltering<IList<Vector3>>
         {
             public float Far;
             public bool IsAllVertex;
@@ -84,11 +84,11 @@ namespace net.rs64.TexTransCore.Decal
                 IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex targetTri, List<Vector3> vertex)
+            public bool Filtering(TriangleIndex targetTri, IList<Vector3> vertex)
             {
                 return FarClip(targetTri, vertex, Far, IsAllVertex);
             }
-            public static bool FarClip(TriangleIndex targetTri, List<Vector3> vertex, float far, bool isAllVertex)//IsAllVertexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
+            public static bool FarClip(TriangleIndex targetTri, IList<Vector3> vertex, float far, bool isAllVertex)//IsAllVertexは排除されるのにすべてが条件に外れてる場合と一つでも条件に外れてる場合の選択
             {
                 if (isAllVertex)
                 {
@@ -101,7 +101,7 @@ namespace net.rs64.TexTransCore.Decal
             }
         }
 
-        public struct NearStruct : TriangleFilterUtility.ITriangleFiltering<List<Vector3>>
+        public struct NearStruct : TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>
         {
             public float Near;
             public bool IsAllVertex;
@@ -112,11 +112,11 @@ namespace net.rs64.TexTransCore.Decal
                 IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex targetTri, List<Vector3> vertex)
+            public bool Filtering(TriangleIndex targetTri, IList<Vector3> vertex)
             {
                 return NearClip(targetTri, vertex, Near, IsAllVertex);
             }
-            public static bool NearClip(TriangleIndex targetTri, List<Vector3> vertex, float near, bool isAllVertex)
+            public static bool NearClip(TriangleIndex targetTri, IList<Vector3> vertex, float near, bool isAllVertex)
             {
                 if (isAllVertex)
                 {
@@ -129,7 +129,7 @@ namespace net.rs64.TexTransCore.Decal
             }
         }
 
-        public struct OutOfPolygonStruct : ITriangleFiltering<List<Vector3>>
+        public struct OutOfPolygonStruct : ITriangleFiltering<IList<Vector3>>
         {
             public PolygonCulling PolygonCulling;
             public float MinRange;
@@ -144,7 +144,7 @@ namespace net.rs64.TexTransCore.Decal
                 IsAllVertex = isAllVertex;
             }
 
-            public bool Filtering(TriangleIndex targetTri, List<Vector3> vertex)
+            public bool Filtering(TriangleIndex targetTri, IList<Vector3> vertex)
             {
                 switch (PolygonCulling)
                 {
@@ -159,7 +159,7 @@ namespace net.rs64.TexTransCore.Decal
 
             }
 
-            public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, List<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
+            public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, IList<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
             {
                 Span<bool> outOfPolygon = stackalloc bool[3] { false, false, false };
                 for (var index = 0; 3 > index; index += 1)
@@ -170,7 +170,7 @@ namespace net.rs64.TexTransCore.Decal
                 if (isAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
                 else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
             }
-            public static bool OutOfPolygonEdgeBase(TriangleIndex targetTri, List<Vector3> Vertex, float maxRange, float minRange, bool isAllVertex)
+            public static bool OutOfPolygonEdgeBase(TriangleIndex targetTri, IList<Vector3> Vertex, float maxRange, float minRange, bool isAllVertex)
             {
                 float centerPos = Mathf.Lerp(maxRange, minRange, 0.5f);
                 var centerPosVec2 = new Vector2(centerPos, centerPos);
@@ -187,7 +187,7 @@ namespace net.rs64.TexTransCore.Decal
                 if (isAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
                 else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
             }
-            public static bool OutOfPolygonEdgeEdgeAndCenterRayCast(TriangleIndex targetTri, List<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
+            public static bool OutOfPolygonEdgeEdgeAndCenterRayCast(TriangleIndex targetTri, IList<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
             {
                 float centerPos = Mathf.Lerp(maxRange, minRange, 0.5f);
                 var centerPosVec2 = new Vector2(centerPos, centerPos);

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using System.Collections;
+using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
 
@@ -98,28 +98,32 @@ namespace net.rs64.TexTransCore.Island
                 island.triangles.Add(idx);
             }
         }
+
+        public static List<Island> UVtoIsland(MeshData meshData)
+        {
+            return UVtoIsland(meshData.CombinedTriangleIndex.AsList(), meshData.VertexUV.AsList());
+        }
         
-        public static List<Island> UVtoIsland(List<TriangleIndex> triangles, List<Vector2> uv)
+        public static List<Island> UVtoIsland(IList<TriangleIndex> triIndexes, IList<Vector2> vertexUV)
         {
             Profiler.BeginSample("UVtoIsland");
-            var islands = UVToIslandImpl(triangles, uv);
+            var islands = UVToIslandImpl(triIndexes, vertexUV);
             Profiler.EndSample();
          
             return islands;
         }
 
-        private static List<Island> UVToIslandImpl(IEnumerable<TriangleIndex> trianglesIn, List<Vector2> uvs)
+        private static List<Island> UVToIslandImpl(IList<TriangleIndex> triIndexes, IList<Vector2> vertexUV)
         {
             int uniqueUv = 0;
-            List<Vector2> indexToUv = new List<Vector2>(uvs.Count);
-            Dictionary<Vector2, int> uvToIndex = new Dictionary<Vector2, int>(uvs.Count);
-            List<int> inputVertToUniqueIndex = new List<int>(uvs.Count);
-            
-            var trianglesList = (trianglesIn as List<TriangleIndex>) ?? new List<TriangleIndex>(trianglesIn);
+            var vertCount = vertexUV.Count;
+            List<Vector2> indexToUv = new List<Vector2>(vertCount);
+            Dictionary<Vector2, int> uvToIndex = new Dictionary<Vector2, int>(vertCount);
+            List<int> inputVertToUniqueIndex = new List<int>(vertCount);
 
             // 同一の位置にある頂点をまず調べて、共通のインデックスを割り当てます
             Profiler.BeginSample("Preprocess vertices");
-            foreach (var uv in uvs)
+            foreach (var uv in vertexUV)
             {
                 if (!uvToIndex.TryGetValue(uv, out var uvVert))
                 {
@@ -142,7 +146,7 @@ namespace net.rs64.TexTransCore.Island
             Profiler.EndSample();
 
             Profiler.BeginSample("Merge vertices");
-            foreach (var tri in trianglesList)
+            foreach (var tri in triIndexes)
             {
                 int idx_a = inputVertToUniqueIndex[tri.zero];
                 int idx_b = inputVertToUniqueIndex[tri.one];
@@ -161,11 +165,11 @@ namespace net.rs64.TexTransCore.Island
             
             // この時点で代表が決まっているので、三角を追加していきます。
             Profiler.BeginSample("Add triangles to islands");
-            for (int i = 0; i < trianglesList.Count; i++)
+            foreach (var tri in triIndexes)
             {
-                int idx = inputVertToUniqueIndex[trianglesList[i].zero];
+                int idx = inputVertToUniqueIndex[tri.zero];
 
-                nodes[VertNode.Find(nodes, idx)].AddTriangle(trianglesList[i], islands);
+                nodes[VertNode.Find(nodes, idx)].AddTriangle(tri, islands);
             }
             Profiler.EndSample();
 
@@ -318,7 +322,7 @@ namespace net.rs64.TexTransCore.Island
             return new Vector2(uvScaleValue, uvScaleValue).magnitude / islandRect.Size.magnitude;
         }
 
-        public static List<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
+        public static IEnumerable<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
         where TIslandRect : IIslandRect
         {
             outPutQuad?.Clear(); outPutQuad ??= new();
@@ -331,20 +335,18 @@ namespace net.rs64.TexTransCore.Island
 
             if (!islandRect.Is90Rotation)
             {
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
+                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
+                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
+                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
             }
             else
             {
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                outPutQuad.Add(new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
-                outPutQuad.Add(new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
+                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
+                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
+                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
             }
-
-            return outPutQuad;
         }
     }
 

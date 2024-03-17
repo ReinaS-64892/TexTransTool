@@ -343,23 +343,11 @@ msgstr "サイドカリング"
 msgid "SimpleDecal:prop:SideCulling:tooltip"
 msgstr "ポリゴンがデカールから見て裏面のポリゴンにデカールを貼らない設定"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling"
-msgstr "アイランドカリング"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgstr "アイランド選択"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling:tooltip"
-msgstr "UVのまとまりの範囲でデカールをカリングする機能"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos"
-msgstr "アイランドセレクターの位置"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos:tooltip"
-msgstr "Xが横、Yが縦でアイランドセレクターの位置を調整する設定"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange"
-msgstr "アイランドセレクターの最大距離"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange:tooltip"
-msgstr "アイランドセレクターの最大距離の設定"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
+msgstr "アイランドで選択を指定しその範囲にデカールを張る機能"
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "深度デカール"

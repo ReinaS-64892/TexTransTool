@@ -3,6 +3,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using net.rs64.TexTransTool.IslandSelector;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -45,22 +46,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
-                var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                EditorGUILayout.PropertyField(sIslandCulling, "SimpleDecal:prop:ExperimentalFuture:IslandCulling".Glc());
-                if (sIslandCulling.boolValue)
+                var sIslandSelector = thisSObject.FindProperty("IslandSelector");
+                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
+
+                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is RayCastIslandSelector)
                 {
-                    var sIslandSelectorPos = thisSObject.FindProperty("IslandSelectorPos");
-                    EditorGUI.indentLevel += 1;
-                    EditorGUILayout.LabelField("SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos".Glc());
-                    EditorGUI.indentLevel += 1;
-                    var sIslandSelectorPosX = sIslandSelectorPos.FindPropertyRelative("x");
-                    var sIslandSelectorPosY = sIslandSelectorPos.FindPropertyRelative("y");
-                    EditorGUILayout.Slider(sIslandSelectorPosX, 0, 1, new GUIContent("x"));
-                    EditorGUILayout.Slider(sIslandSelectorPosY, 0, 1, new GUIContent("y"));
-                    EditorGUI.indentLevel -= 1;
-                    var sIslandSelectorRange = thisSObject.FindProperty("IslandSelectorRange");
-                    EditorGUILayout.Slider(sIslandSelectorRange, 0, 1, "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange".Glc());
-                    EditorGUI.indentLevel -= 1;
+                    var sIslandCulling = thisSObject.FindProperty("IslandCulling");
+                    if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
+                    {
+                        MigrateIslandCullingToIslandSelector(thisObject);
+                    }
                 }
 
                 var sUseDepth = thisSObject.FindProperty("UseDepth");
@@ -165,6 +160,44 @@ namespace net.rs64.TexTransTool.Editor.Decal
             {
                 RealTimePreviewManager.instance.ForcesDecal.Remove(decal as AbstractDecal);
             }
+        }
+
+
+
+
+
+
+
+
+
+        public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
+        {
+            if (simpleDecal.IslandSelector != null)
+            {
+                if (simpleDecal.IslandSelector is not RayCastIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
+                else { if (!EditorUtility.DisplayDialog("Migrate IslandCulling To IslandSelector", "IslandSelector に RayCastIslandSelector が既に割り当てられています。 \n 割り当てられている RayCastIslandSelector を編集する形でマイグレーションしますか？", "実行")) { return; } }
+            }
+            Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
+
+            simpleDecal.IslandCulling = false;
+            var islandSelector = simpleDecal.IslandSelector as RayCastIslandSelector;
+
+            if (islandSelector == null)
+            {
+                var go = new GameObject("RayCastIslandSelector");
+                go.transform.SetParent(simpleDecal.transform, false);
+                simpleDecal.IslandSelector = islandSelector = go.AddComponent<RayCastIslandSelector>();
+            }
+            Undo.RecordObject(islandSelector, "MigrateIslandCullingToIslandSelector - islandSelectorEdit");
+
+
+            Vector3 selectorOrigin = new Vector2(simpleDecal.IslandSelectorPos.x - 0.5f, simpleDecal.IslandSelectorPos.y - 0.5f);
+
+
+            var ltwMatrix = simpleDecal.transform.localToWorldMatrix;
+            islandSelector.transform.position = ltwMatrix.MultiplyPoint3x4(selectorOrigin);
+            islandSelector.IslandSelectorRange = simpleDecal.IslandSelectorRange;
+
         }
 
 

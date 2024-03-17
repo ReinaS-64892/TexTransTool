@@ -4,6 +4,7 @@ using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
+using Unity.Collections;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Decal.Cylindrical
@@ -114,7 +115,9 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
         public List<Vector3> CCSVertex;
         public List<Vector3> CCSQuad;
         public float Offset;
+        public NativeArray<Vector2> Normalized;
         public List<Vector3> QuadNormalizedVertex;
+        public MeshData MeshData;
 
         public CCSSpace(CylindricalCoordinatesSystem ccs, IReadOnlyList<Vector3> quad)
         {
@@ -122,10 +125,11 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             Quad = quad;
         }
 
-        public void Input(DecalUtility.MeshData MeshData)
+        public void Input(MeshData meshData)
         {
+            MeshData = meshData;
             var ccsQuad = CCS.VertexConvertCCS(Quad);
-            var ccsVertex = CCS.VertexConvertCCS(MeshData.Vertex);
+            var ccsVertex = CCS.VertexConvertCCS(meshData.VertexList);
             var offset = ccsQuad.Min(I => I.y) * -1;
 
             CylindricalCoordinatesSystem.OffSetApply(ccsQuad, offset);
@@ -136,35 +140,45 @@ namespace net.rs64.TexTransTool.Decal.Cylindrical
             CylindricalCoordinatesSystem.HeightScaleFactor(ccsQuad);
 
             Offset = offset;
-            var Normalized = DecalUtility.QuadNormalize(ccsQuad.ConvertAll(i => (Vector2)i), ccsVertex.ConvertAll(i => (Vector2)i));
-            QuadNormalizedVertex = CollectionsUtility.ZipListVector3(Normalized, ccsVertex.ConvertAll(i => i.z));
+
+            var list = DecalUtility.QuadNormalize(ccsQuad.ConvertAll(i => (Vector2)i),
+                ccsVertex.ConvertAll(i => (Vector2)i));
+            Normalized = new NativeArray<Vector2>(list.Count, Allocator.TempJob);
+            for (int i = 0; i < list.Count; i++)
+            {
+                Normalized[i] = list[i];
+            }
+            QuadNormalizedVertex = CollectionsUtility.ZipListVector3(list, ccsVertex.ConvertAll(i => i.z));
 
             CCSVertex = ccsVertex;
             CCSQuad = ccsQuad;
         }
 
-        public List<Vector2> OutPutUV(List<Vector2> output = null)
+        public NativeArray<Vector2> OutPutUV()
         {
-            output?.Clear(); output ??= new List<Vector2>(QuadNormalizedVertex.Capacity);
-            foreach (var i in QuadNormalizedVertex)
-            {
-                output.Add(i);
-            }
-            return output;
+            return Normalized;
+        }
+
+        public void Dispose()
+        {
+            Normalized.Dispose();
         }
     }
 
     internal class CCSFilter : DecalUtility.ITrianglesFilter<CCSSpace>
     {
         public IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> Filters;
+        CCSSpace _ccsSpace;
 
         public CCSFilter(IReadOnlyList<TriangleFilterUtility.ITriangleFiltering<CCSSpace>> filters)
         {
             Filters = filters;
         }
-        public List<TriangleIndex> Filtering(CCSSpace space, List<TriangleIndex> triangles, List<TriangleIndex> output = null)
+        public void SetSpace(CCSSpace space) { _ccsSpace = space; }
+
+        public List<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex)
         {
-            return TriangleFilterUtility.FilteringTriangle(triangles, space, Filters, output);
+            return TriangleFilterUtility.FilteringTriangle(_ccsSpace.MeshData.TrianglesSubMeshList[subMeshIndex], _ccsSpace, Filters);
         }
 
 
