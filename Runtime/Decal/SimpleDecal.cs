@@ -24,11 +24,11 @@ namespace net.rs64.TexTransTool.Decal
         public bool DepthInvert;
         internal override bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
 
-        #region V3SaveData
-        [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
-        [Obsolete("V3SaveData", true)][SerializeField] internal Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
-        [Obsolete("V3SaveData", true)][SerializeField] internal float IslandSelectorRange = 1;
-        #endregion
+        //次のマイナーで obsolete にする
+        [SerializeField] internal bool IslandCulling = false;
+        [SerializeField] internal Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
+        [SerializeField] internal float IslandSelectorRange = 1;
+
 
 
         internal override ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
