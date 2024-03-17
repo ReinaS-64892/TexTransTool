@@ -11,11 +11,10 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT IslandSelectorAND";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-        public List<AbstractIslandSelector> IslandSelectors;
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             BitArray bitArray = null;
-            foreach (var islandSelector in IslandSelectors)
+            foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform))
             {
                 Profiler.BeginSample(islandSelector.GetType().Name);
                 var selectBit = islandSelector.IslandSelect(islands, islandDescription);

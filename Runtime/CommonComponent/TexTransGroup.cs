@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TexTransGroup.FoldoutName + "/" + ComponentName;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
-        internal IEnumerable<TexTransBehavior> Targets => transform.GetChildren().Select(x => x.GetComponent<TexTransBehavior>()).Where(x => x != null);
+        internal IEnumerable<TexTransBehavior> Targets => GetChildeComponent<TexTransBehavior>(transform);
 
         internal override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
 
@@ -34,6 +34,11 @@ namespace net.rs64.TexTransTool
                 }
             }
             return possibleFlag;
+        }
+
+        internal static IEnumerable<Behavior> GetChildeComponent<Behavior>(Transform transform)
+        {
+            return transform.GetChildren().Select(x => x.GetComponent<Behavior>()).Where(x => x != null);
         }
 
     }
