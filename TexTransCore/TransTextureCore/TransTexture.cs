@@ -4,9 +4,15 @@ using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using net.rs64.TexTransCore.BlendTexture;
-using UnityEngine.Pool;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
+using UnityEditor;
+using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -14,11 +20,31 @@ namespace net.rs64.TexTransCore.TransTextureCore
     {
         public struct TransData<UVDimension> where UVDimension : struct
         {
-            public readonly IEnumerable<TriangleIndex> TrianglesToIndex;
-            public readonly IEnumerable<Vector2> TargetUV;
-            public readonly IEnumerable<UVDimension> SourceUV;
+            public NativeArray<TriangleIndex> TrianglesToIndex;
+            public NativeArray<Vector2> TargetUV;
+            public NativeArray<UVDimension> SourceUV;
+            
+            public TransData(
+                IEnumerable<TriangleIndex> trianglesToIndex,
+                IEnumerable<Vector2> targetUV,
+                IEnumerable<UVDimension> sourceUV
+            )
+            {
+                // TODO - このコンストラクタを呼び出してるところをNativeArrayに切り替える
+                TrianglesToIndex = new NativeArray<TriangleIndex>(trianglesToIndex.ToArray(), Allocator.TempJob);
+                TargetUV = new NativeArray<Vector2>(targetUV.ToArray(), Allocator.TempJob);
+                SourceUV = new NativeArray<UVDimension>(sourceUV.ToArray(), Allocator.TempJob);
 
-            public TransData(IEnumerable<TriangleIndex> trianglesToIndex, IEnumerable<Vector2> targetUV, IEnumerable<UVDimension> sourceUV)
+                var self = this;
+                EditorApplication.delayCall += () =>
+                {
+                    self.TrianglesToIndex.Dispose();
+                    self.TargetUV.Dispose();
+                    self.SourceUV.Dispose();
+                };
+            }
+            
+            public TransData(NativeArray<TriangleIndex> trianglesToIndex, NativeArray<Vector2> targetUV, NativeArray<UVDimension> sourceUV)
             {
                 TrianglesToIndex = trianglesToIndex;
                 TargetUV = targetUV;
@@ -27,28 +53,83 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
             public Mesh GenerateTransMesh()
             {
+                var mda = Mesh.AllocateWritableMeshData(1);
+                var mda_mesh = mda[0];
+                
+                mda_mesh.SetVertexBufferParams(
+                    TargetUV.Length,
+                    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, UnsafeUtility.SizeOf<UVDimension>() / 4, stream: 1)
+                );
+                mda_mesh.SetIndexBufferParams(TrianglesToIndex.Length * 3, IndexFormat.UInt32);
+
+                var pos_array = mda_mesh.GetVertexData<Vector3>(0);
+                var uv_array = mda_mesh.GetVertexData<UVDimension>(1);
+                var dst_triangles = mda_mesh.GetIndexData<int>();
+                
+                var job1 = new CopyPos { Source = TargetUV, Destination = pos_array }.Schedule(TargetUV.Length, 64);
+                var job2 = new CopyJob<UVDimension> { Source = SourceUV, Destination = uv_array }.Schedule(SourceUV.Length, 64, job1);
+                var job3 = new UnpackTriangleJob { Source = TrianglesToIndex, Destination = dst_triangles }.Schedule(dst_triangles.Length, 64, job2);
+
                 var mesh = new Mesh();
+                
+                job3.Complete();
 
-                var vertices = ListPool<Vector3>.Get();
-                vertices.AddRange(TargetUV.Select(I => new Vector3(I.x, I.y, 0)));
-                mesh.SetVertices(vertices);
-                ListPool<Vector3>.Release(vertices);
-
-                var uv = ListPool<UVDimension>.Get(); uv.AddRange(SourceUV);
-                NativeArray<UVDimension> NativeArray = CollectionsUtility.ListToNativeArray(uv, Allocator.Temp);
-                mesh.SetUVs(0, NativeArray);
-                NativeArray.Dispose();
-
-                var triangles = ListPool<int>.Get();
-                triangles.AddRange(TrianglesToIndex.SelectMany(I => I));
-                mesh.SetTriangles(triangles, 0);
-                ListPool<int>.Release(triangles);
+                mda_mesh.subMeshCount = 1;
+                mda_mesh.SetSubMesh(0, new SubMeshDescriptor(0, dst_triangles.Length, MeshTopology.Triangles));
+                
+                Mesh.ApplyAndDisposeWritableMeshData(mda, mesh);
 
                 return mesh;
             }
-
         }
 
+        [UsedImplicitly]
+        private static void BurstInstantiate()
+        {
+            new CopyJob<Vector2>().Schedule(1, 1);
+            new CopyJob<Vector3>().Schedule(1, 1);
+            new CopyJob<Vector4>().Schedule(1, 1);
+        }
+        
+        [BurstCompile]
+        struct UnpackTriangleJob : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<TriangleIndex> Source;
+            [WriteOnly] public NativeArray<int> Destination;
+                
+            public void Execute(int index)
+            {
+                var tri_index = index / 3;
+                var coord = index % 3;
+                    
+                Destination[index] = Source[tri_index][coord];
+            }
+        }
+
+        [BurstCompile]
+        struct CopyPos : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<Vector2> Source;
+            [WriteOnly] public NativeArray<Vector3> Destination;
+                
+            public void Execute(int index)
+            {
+                Destination[index] = Source[index];
+            }
+        }
+            
+        [BurstCompile]
+        struct CopyJob<T> : IJobParallelFor where T : struct
+        {
+            [ReadOnly] public NativeArray<T> Source;
+            [WriteOnly] public NativeArray<T> Destination;
+                
+            public void Execute(int index)
+            {
+                Destination[index] = Source[index];
+            }
+        }
 
         public const string TRANS_SHADER = "Hidden/TransTexture";
         public const string DEPTH_WRITER_SHADER = "Hidden/DepthWriter";
@@ -62,7 +143,9 @@ namespace net.rs64.TexTransCore.TransTextureCore
             bool? depthInvert = null
             ) where UVDimension : struct
         {
+            Profiler.BeginSample("GenerateTransMesh");
             var mesh = transUVData.GenerateTransMesh();
+            Profiler.EndSample();
 
             var preBias = souseTexture.mipMapBias;
             souseTexture.mipMapBias = souseTexture.mipmapCount * -1;
@@ -75,6 +158,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
 
+            Profiler.BeginSample("Material Setup");
             var material = new Material(Shader.Find(TRANS_SHADER));
             material.SetTexture("_MainTex", souseTexture);
             if (padding.HasValue) material.SetFloat("_Padding", padding.Value);
@@ -90,6 +174,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 material.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
                 material.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
             }
+            Profiler.EndSample();
 
 
             RenderTexture depthRt = null;
@@ -105,7 +190,9 @@ namespace net.rs64.TexTransCore.TransTextureCore
                     RenderTexture.active = depthRt;
 
                     depthMat.SetPass(0);
+                    Profiler.BeginSample("depthInvert DrawMeshNow");
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+                    Profiler.EndSample();
 
                     UnityEngine.Object.DestroyImmediate(depthMat);
                 }
@@ -123,12 +210,16 @@ namespace net.rs64.TexTransCore.TransTextureCore
             using (new RTActiveSaver())
             {
                 RenderTexture.active = targetTexture;
+                Profiler.BeginSample("DrawMeshNow");
                 material.SetPass(0);
                 Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+                Profiler.EndSample();
                 if (padding != null)
                 {
+                    Profiler.BeginSample("DrawMeshNow - padding");
                     material.SetPass(1);
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+                    Profiler.EndSample();
                 }
 
             }

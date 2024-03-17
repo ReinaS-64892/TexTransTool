@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine.Pool;
@@ -79,18 +80,25 @@ namespace net.rs64.TexTransCore.Decal
                     renderTextures[targetMat].Clear();
                 }
                 var sUV = convertSpace.OutPutUV();
-
+                
+                var nativeFilteredTriangle = new NativeArray<TriangleIndex>(filteredTriangle.Count, Allocator.TempJob);
+                for (int t = 0; t < filteredTriangle.Count; t++)
+                {
+                    nativeFilteredTriangle[t] = filteredTriangle[t];
+                }
+                
                 Profiler.BeginSample("TransTexture.ForTrans");
                 TransTexture.ForTrans(
                     renderTextures[targetMat],
                     sousTextures,
-                    new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
+                    new TransTexture.TransData<UVDimension>(nativeFilteredTriangle, tUV, sUV),
                     defaultPadding,
                     textureWarp,
                     highQualityPadding,
                     useDepthOrInvert
                 );
                 Profiler.EndSample();
+                nativeFilteredTriangle.Dispose();
             }
             convertSpace.Dispose();//convertSpaceの解放責任はこっちにある
 
@@ -133,6 +141,7 @@ namespace net.rs64.TexTransCore.Decal
             return array;
         }
 
+        [BurstCompile]
         private struct ConvertVerticesJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<Vector3> InputVertices;
