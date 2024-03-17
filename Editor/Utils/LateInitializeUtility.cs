@@ -1,5 +1,7 @@
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.MipMap;
 using net.rs64.TexTransTool.MultiLayerImage;
+using UnityEditor;
 using UnityEngine;
 namespace net.rs64.TexTransTool.Utils
 {
@@ -24,6 +26,7 @@ namespace net.rs64.TexTransTool.Utils
             PSDImportedRasterImage.MargeColorAndOffsetShader = Shader.Find(PSDImportedRasterImage.MARGE_COLOR_AND_OFFSET_SHADER);
             SpecialLayerShaders.Init();
             TTTImageAssets.Init();
+            MipMapUtility.MipMapShader = AssetDatabase.LoadAssetAtPath<ComputeShader>(AssetDatabase.GUIDToAssetPath("5f6d88c53276bb14eace10771023ae01"));
         }
     }
 }
