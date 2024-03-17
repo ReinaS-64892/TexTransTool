@@ -7,9 +7,15 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Added
 
+- IslandSelector が追加されました (#422)
+- SimpleDecal の実験的なカリング機能のとして IslandSelector が使用できるようになりました (#422)
+  - IslandCulling からのマイグレーションが追加されました (#422)
+
 ### Changed
 
 ### Removed
+
+- IslandSelector が使用できるようになったことに伴い SimpleDecal の IslandCulling は削除されました (#422)
 
 ### Fixed
 
