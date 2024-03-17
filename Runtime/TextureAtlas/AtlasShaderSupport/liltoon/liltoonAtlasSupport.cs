@@ -10,15 +10,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
     internal class MaterialCache
     {
         public Shader shader { get; }
+        public Material Material { get; }
         private Dictionary<string, Texture> _textures;
         private Dictionary<string, float> _floats;
         private Dictionary<string, Color> _colors;
 
         public MaterialCache(Material m)
         {
+            shader = m.shader;
+            Material = m;
             #if UNITY_EDITOR
             Profiler.BeginSample("MaterialCache init");
-            shader = m.shader;
             
             SerializedObject so = new SerializedObject(m);
             
@@ -41,17 +43,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public Texture GetTexture(string tex)
         {
-            return _textures.GetValueOrDefault(tex);
+            return _textures != null ? _textures.GetValueOrDefault(tex) : Material.GetTexture(tex);
         }
         
         public float GetFloat(string tex)
         {
-            return _floats.GetValueOrDefault(tex);
+            return _floats?.GetValueOrDefault(tex) ?? Material.GetFloat(tex);
         }
         
         public Color GetColor(string tex)
         {
-            return _colors.GetValueOrDefault(tex);
+            return _colors?.GetValueOrDefault(tex) ?? Material.GetColor(tex);
         }
 
         private static void FillDict<T>(Dictionary<string, T> dict, SerializedProperty texEnvs, Func<SerializedProperty, T> extract)
