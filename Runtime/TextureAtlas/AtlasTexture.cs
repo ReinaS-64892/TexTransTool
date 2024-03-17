@@ -134,7 +134,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("AtlasReferenceData:ctor");
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
             Profiler.EndSample();
-            
+
             var shaderSupports = new AtlasShaderSupportUtils();
 
             //サブメッシュより多いスロットの存在可否
@@ -166,13 +166,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var amd = atlasReferenceData.AtlasMeshDataList[amdIndex];
 
                 var beyondVert = amd.Triangles.Where(i => atlasReferenceData.TargetMaterials.Contains(atlasReferenceData.Materials[amd.MaterialIndex[amd.Triangles.IndexOf(i)]]))
-                .Select(i => new HashSet<int>(i.SelectMany(i2 => i2))).SelectMany(i => i)
+                .Select(i => new HashSet<int>(TriangleIndex.SelectMany(i))).SelectMany(i => i)
                 .GroupBy(i => i).Select(i => (i.Key, i.Count())).Where(i => i.Item2 > 1).Select(i => i.Key).ToHashSet();
 
                 if (beyondVert.Any()) { containsIdenticalIslandForMultipleSubMesh = true; }
                 else { continue; }
 
-                var needMerge = originIslandPool.Where(i => i.Key.AtlasMeshDataIndex == amdIndex).Where(i => i.Value.triangles.SelectMany(i => i).Any(i => beyondVert.Contains(i))).GroupBy(i => i.Key.MaterialSlot).ToList();
+                var needMerge = originIslandPool.Where(i => i.Key.AtlasMeshDataIndex == amdIndex).Where(i => TriangleIndex.SelectMany(i.Value.triangles).Any(i => beyondVert.Contains(i))).GroupBy(i => i.Key.MaterialSlot).ToList();
                 needMerge.Sort((l, r) => l.Key - r.Key);
 
                 var needMergeIslands = needMerge.Select(i => i.ToHashSet()).ToArray();
@@ -182,13 +182,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     foreach (var island in needMergeIslands[toIndex])
                     {
-                        var vertSet = island.Value.triangles.SelectMany(i => i).ToHashSet();
+                        var vertSet = TriangleIndex.SelectMany(island.Value.triangles).ToHashSet();
 
                         for (var fromIndex = toIndex; needMergeIslands.Length > fromIndex; fromIndex += 1)
                         {
                             if (toIndex == fromIndex) { continue; }
 
-                            var margeFrom = needMergeIslands[fromIndex].Where(il => il.Value.triangles.SelectMany(v => v).Any(v => vertSet.Contains(v)));
+                            var margeFrom = needMergeIslands[fromIndex].Where(il => TriangleIndex.SelectMany(il.Value.triangles).Any(v => vertSet.Contains(v)));
                             if (margeFrom.Any()) { MargeKV.Add(island.Key, margeFrom.Select(i => i.Key).ToHashSet()); }
                         }
                     }
@@ -299,7 +299,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 var distMesh = atlasReferenceData.Meshes[atlasMeshData.ReferenceMesh];
                 var meshName = "AtlasMesh_" + I + "_" + distMesh.name;
-                
+
                 Profiler.BeginSample(meshName);
                 var newMesh = UnityEngine.Object.Instantiate<Mesh>(distMesh);
                 newMesh.name = meshName;
@@ -345,7 +345,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, atlasMeshData.UV); }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, atlasMeshData.MaterialIndex.Select(Index => atlasReferenceData.Materials[Index]).ToArray()));
-                
+
                 Profiler.EndSample();
             }
             atlasData.Meshes = compiledMeshes;
@@ -356,7 +356,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var pendingAtlasTextures = new List<(string, AsyncTexture2D)>();
 
             var propertyNames = materialTextures.Values.SelectMany(i => i).Select(i => i.PropertyName).ToHashSet();
-            
+
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in propertyNames)
             {
@@ -364,7 +364,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 targetRT.Clear();
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
-                
+
                 foreach (var MatPropKV in materialTextures)
                 {
                     var souseProp2Tex = MatPropKV.Value.Find(I => I.PropertyName == propName);
@@ -405,24 +405,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
                 Profiler.EndSample();
-                
+
                 Profiler.BeginSample("Readback");
-                
+
                 pendingAtlasTextures.Add((propName, new AsyncTexture2D(targetRT)));
-                
+
                 Profiler.EndSample();
-                
+
                 RenderTexture.ReleaseTemporary(targetRT);
             }
             Profiler.EndSample();
-            
+
             Profiler.BeginSample("Async Readback");
             var compiledAtlasTextures = pendingAtlasTextures
                 .Select(kv => new PropAndTexture2D(kv.Item1, kv.Item2.GetTexture2D()))
                 .ToList();
 
             Profiler.EndSample();
-            
+
             foreach (var matData in materialTextures)
             {
                 foreach (var pTex in matData.Value)
@@ -486,7 +486,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TTTRuntimeLog.Error("AtlasTexture:error:TTTNotExecutable");
                 return;
             }
-            
+
             domain.ProgressStateEnter("AtlasTexture");
             domain.ProgressUpdate("CompileAtlasTexture", 0f);
 
