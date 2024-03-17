@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         {
             var bitArray = new BitArray(islands.Length);
             var ray = islandSelectorRay;
-            var rayMatrix = ray.Ray.GetRayMatrix();
+            var rayMatrix = ray.GetRayMatrix();
             var jobs = new JobHandle[islands.Length];
             var hitResults = new NativeArray<bool>[islands.Length];
             var distances = new NativeArray<float>[islands.Length];
@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.IslandSelector
                     {
                         if (!hRes[ti]) { continue; }
                         if (distance[ti] < 0) { continue; }
-                        if (distance[ti] > ray.RayRange) { continue; }
+                        if (distance[ti] > 1) { continue; }
 
                         bitArray[i] = true;
                         break;
@@ -73,14 +73,14 @@ namespace net.rs64.TexTransTool.IslandSelector
             return bitArray;
         }
 
-        internal IslandSelectorRay GetIslandSelectorRay() { return new IslandSelectorRay(new Ray(transform.position, transform.forward), IslandSelectorRange); }
+        internal IslandSelectorRay GetIslandSelectorRay() { return new IslandSelectorRay(new Ray(transform.position, transform.forward), transform.lossyScale.z * IslandSelectorRange); }
 
 
 
         void OnDrawGizmosSelected()
         {
             Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawLine(Vector3.zero, new Vector3(0,0,IslandSelectorRange));
+            Gizmos.DrawLine(Vector3.zero, new Vector3(0, 0, IslandSelectorRange));
         }
     }
 

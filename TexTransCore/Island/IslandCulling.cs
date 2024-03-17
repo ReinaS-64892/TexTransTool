@@ -26,6 +26,13 @@ namespace net.rs64.TexTransCore.Island
             this.RayRange = rayRange;
         }
 
+        public Matrix4x4 GetRayMatrix()
+        {
+            var rot = Quaternion.LookRotation(Ray.direction);
+            var rayMatrix = Matrix4x4.TRS(Ray.origin, rot, new Vector3(1, 1, RayRange)).inverse;
+            return rayMatrix;
+        }
+
     }
     internal static class IslandCulling
     {
