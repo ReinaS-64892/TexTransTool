@@ -36,12 +36,14 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 SourceUV = new NativeArray<UVDimension>(sourceUV.ToArray(), Allocator.TempJob);
 
                 var self = this;
+                #if UNITY_EDITOR
                 EditorApplication.delayCall += () =>
                 {
                     self.TrianglesToIndex.Dispose();
                     self.TargetUV.Dispose();
                     self.SourceUV.Dispose();
                 };
+                #endif
             }
             
             public TransData(NativeArray<TriangleIndex> trianglesToIndex, NativeArray<Vector2> targetUV, NativeArray<UVDimension> sourceUV)

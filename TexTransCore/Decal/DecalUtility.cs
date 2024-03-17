@@ -154,7 +154,6 @@ namespace net.rs64.TexTransCore.Decal
                 case MeshRenderer mr:
                     {
                         return new MeshData(mr.GetComponent<MeshFilter>().sharedMesh, mr.localToWorldMatrix);
-                        break;
                     }
                 default:
                     {
