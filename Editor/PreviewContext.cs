@@ -6,6 +6,7 @@ using net.rs64.TexTransTool.CustomPreview;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool
@@ -97,8 +98,11 @@ namespace net.rs64.TexTransTool
             AnimationMode.BeginSampling();
             try
             {
+                Profiler.BeginSample("TexTransBehaviorApply: " + targetTTBehavior.GetType() + " " + targetTTBehavior.gameObject.name);
                 RenderersDomain previewDomain = null;
+                Profiler.BeginSample("FindMarker");
                 var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
+                Profiler.EndSample();
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
                 else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
 
@@ -108,6 +112,7 @@ namespace net.rs64.TexTransTool
             }
             finally
             {
+                Profiler.EndSample();
                 AnimationMode.EndSampling();
             }
 

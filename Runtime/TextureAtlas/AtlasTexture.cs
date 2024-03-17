@@ -10,6 +10,8 @@ using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
+using Unity.Profiling;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -129,7 +131,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }).Where(I => I.Material != null && NowContainsMatSet.Contains(I.Material)).GroupBy(i => i.Material).Select(i => i.First()).ToList();
             atlasData.AtlasInMaterials = targetMaterialSelectors;
             var atlasSetting = AtlasSetting;
+            Profiler.BeginSample("AtlasReferenceData:ctor");
             var atlasReferenceData = new AtlasReferenceData(targetMaterialSelectors.Select(I => I.Material).ToList(), Renderers);
+            Profiler.EndSample();
+            
             var shaderSupports = new AtlasShaderSupportUtils();
 
             //サブメッシュより多いスロットの存在可否
@@ -149,9 +154,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //アイランドまわり
+            Profiler.BeginSample("AtlasReferenceData:GeneratedIslandPool");
             var originIslandPool = atlasReferenceData.GeneratedIslandPool();
+            Profiler.EndSample();
 
             //サブメッシュ間で頂点を共有するアイランドのマージ
+            Profiler.BeginSample("Cross-submesh island merging");
             var containsIdenticalIslandForMultipleSubMesh = false;
             for (var amdIndex = 0; atlasReferenceData.AtlasMeshDataList.Count > amdIndex; amdIndex += 1)
             {
@@ -199,11 +207,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             }
             if (containsIdenticalIslandForMultipleSubMesh) { TTTRuntimeLog.Warning("AtlasTexture:error:IdenticalIslandForMultipleSubMesh"); }
+            Profiler.EndSample();
 
 
 
             if (atlasSetting.PixelNormalize)
             {
+                Profiler.BeginSample("AtlasReferenceData:PixelNormalize");
                 foreach (var islandKV in originIslandPool)
                 {
                     var material = materialTextures[atlasReferenceData.GetMaterialReference(islandKV.Key)];
@@ -213,6 +223,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     island.Pivot.y = Mathf.Round(island.Pivot.y * refTex.height) / refTex.height;
                     island.Pivot.x = Mathf.Round(island.Pivot.x * refTex.width) / refTex.width;
                 }
+                Profiler.EndSample();
             }
 
             var islandSizeOffset = new Dictionary<Material, float>();
@@ -252,7 +263,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             relocator.UseUpScaling = atlasSetting.UseUpScaling;
             relocator.Padding = atlasSetting.IslandPadding;
 
+            Profiler.BeginSample("Relocation");
             islandRectPool = relocator.Relocation(islandRectPool, originIslandPool);
+            Profiler.EndSample();
             var rectTangleMove = relocator.RectTangleMove;
 
             if (atlasSetting.PixelNormalize)
@@ -277,6 +290,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //新しいUVを持つMeshを生成するフェーズ
+            Profiler.BeginSample("MeshCompile");
             var compiledMeshes = new List<AtlasData.AtlasMeshAndDist>();
             var poolContainsTags = ToIndexTags(islandRectPool.Keys);
             for (int I = 0; I < atlasReferenceData.AtlasMeshDataList.Count; I += 1)
@@ -284,8 +298,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var atlasMeshData = atlasReferenceData.AtlasMeshDataList[I];
 
                 var distMesh = atlasReferenceData.Meshes[atlasMeshData.ReferenceMesh];
+                var meshName = "AtlasMesh_" + I + "_" + distMesh.name;
+                
+                Profiler.BeginSample(meshName);
                 var newMesh = UnityEngine.Object.Instantiate<Mesh>(distMesh);
-                newMesh.name = "AtlasMesh_" + I + "_" + distMesh.name;
+                newMesh.name = meshName;
 
                 var meshTags = new List<AtlasIdenticalTag>();
 
@@ -328,21 +345,26 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, atlasMeshData.UV); }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, atlasMeshData.MaterialIndex.Select(Index => atlasReferenceData.Materials[Index]).ToArray()));
+                
+                Profiler.EndSample();
             }
             atlasData.Meshes = compiledMeshes;
+            Profiler.EndSample();
 
 
             //アトラス化したテクスチャーを生成するフェーズ
-            var compiledAtlasTextures = new List<PropAndTexture2D>();
+            var pendingAtlasTextures = new List<(string, AsyncTexture2D)>();
 
             var propertyNames = materialTextures.Values.SelectMany(i => i).Select(i => i.PropertyName).ToHashSet();
-
-
+            
+            Profiler.BeginSample("Texture synthesis");
             foreach (var propName in propertyNames)
             {
                 var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize, 32);
                 targetRT.Clear();
                 targetRT.name = "AtlasTex" + propName;
+                Profiler.BeginSample("Draw:" + targetRT.name);
+                
                 foreach (var MatPropKV in materialTextures)
                 {
                     var souseProp2Tex = MatPropKV.Value.Find(I => I.PropertyName == propName);
@@ -382,9 +404,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (souseProp2Tex.Texture is Texture2D && souseTex is RenderTexture tempRt) { RenderTexture.ReleaseTemporary(tempRt); }
                 }
 
-                compiledAtlasTextures.Add(new PropAndTexture2D(propName, targetRT.CopyTexture2D()));
+                Profiler.EndSample();
+                
+                Profiler.BeginSample("Readback");
+                
+                pendingAtlasTextures.Add((propName, new AsyncTexture2D(targetRT)));
+                
+                Profiler.EndSample();
+                
                 RenderTexture.ReleaseTemporary(targetRT);
             }
+            Profiler.EndSample();
+            
+            Profiler.BeginSample("Async Readback");
+            var compiledAtlasTextures = pendingAtlasTextures
+                .Select(kv => new PropAndTexture2D(kv.Item1, kv.Item2.GetTexture2D()))
+                .ToList();
+
+            Profiler.EndSample();
+            
             foreach (var matData in materialTextures)
             {
                 foreach (var pTex in matData.Value)
@@ -448,17 +486,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TTTRuntimeLog.Error("AtlasTexture:error:TTTNotExecutable");
                 return;
             }
-
+            
             domain.ProgressStateEnter("AtlasTexture");
             domain.ProgressUpdate("CompileAtlasTexture", 0f);
 
-            if (!TryCompileAtlasTextures(domain, out var atlasData)) { return; }
+            Profiler.BeginSample("TryCompileAtlasTextures");
+            if (!TryCompileAtlasTextures(domain, out var atlasData)) { Profiler.EndSample(); return; }
+            Profiler.EndSample();
 
             domain.ProgressUpdate("MeshChange", 0.5f);
 
             var nowRenderers = Renderers;
 
+            Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
             var shaderSupport = new AtlasShaderSupportUtils();
+            Profiler.EndSample();
 
             //Mesh Change
             foreach (var renderer in nowRenderers)

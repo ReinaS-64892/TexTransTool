@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
+using UnityEngine.Profiling;
 using TexLU = net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using TexUT = net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 
@@ -16,8 +17,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
         public AtlasShaderSupportUtils()
         {
+            Profiler.BeginSample("AtlasShaderSupportUtils");
             _defaultShaderSupport = new AtlasDefaultShaderSupport();
             _shaderSupports = InterfaceUtility.GetInterfaceInstance<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) }).ToList();
+            Profiler.EndSample();
         }
 
         public void AddRecord(Material material)
@@ -38,6 +41,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public List<PropAndTexture> GetTextures(Material material, ITextureManager textureManager)
         {
+            Profiler.BeginSample("GetTextures");
+            
             List<PropAndTexture> allTex;
             var supportShaderI = FindSupportI(material);
 
@@ -52,6 +57,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     textures.Add(tex);
                 }
             }
+            
+            Profiler.EndSample();
 
             return textures;
         }
