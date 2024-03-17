@@ -44,10 +44,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("GetTextures");
             
             List<PropAndTexture> allTex;
+            Profiler.BeginSample("FindSupportI");
             var supportShaderI = FindSupportI(material);
+            Profiler.EndSample();
 
+            Profiler.BeginSample("GetPropertyAndTextures");
             if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(textureManager, material, BakeSetting); }
             else { allTex = _defaultShaderSupport.GetPropertyAndTextures(textureManager, material, BakeSetting); }
+            Profiler.EndSample();
 
             var textures = new List<PropAndTexture>();
             foreach (var tex in allTex)
