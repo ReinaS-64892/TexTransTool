@@ -1,21 +1,27 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.LayerData;
 using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.TexTransCore.MipMap;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     [ScriptedImporter(1, new string[] { }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
+        public DownScalingAlgorism PreviewImageDownScalingAlgorism;
         public override void OnImportAsset(AssetImportContext ctx)
         {
             NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
+
             EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.2f);
 
             var psdBytes = File.ReadAllBytes(ctx.assetPath);
@@ -49,17 +55,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
 
-                var mliImporter = new MultiLayerImageImporter(canvasDescription, ctx, psdBytes, CreatePSDImportedImage);
-                mliImporter.AddLayers(multiLayerImageCanvas.transform, pSDData.RootLayers);
+                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, psdBytes, CreatePSDImportedImage, PreviewImageDownScalingAlgorism);
+                mliImporter.AddLayers(pSDData.RootLayers);
 
-                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0.1f);
+                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0f);
                 mliImporter.CreatePreview();
-                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 1f);
+                EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);
+                mliImporter.SaveSubAsset();
+                EditorUtility.DisplayProgressBar("Import Canvas", "END", 1f);
             }
             finally
             {
                 EditorUtility.ClearProgressBar();
             }
+            NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
         }
 
         internal TTTImportedImage CreatePSDImportedImage(ImportRasterImageData importRasterImage)
@@ -82,52 +91,34 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             }
         }
 
-        internal Task<NativeArray<Color32>> GetPreviewImage(byte[] souseBytes, TTTImportedImage importRasterImage)
+    }
+
+    [CustomEditor(typeof(TexTransToolPSDImporter))]
+    class TexTransToolPSDImporterEditor : ScriptedImporterEditor
+    {
+        public override void OnInspectorGUI()
         {
-            var canvasSize = new Vector2Int(importRasterImage.CanvasDescription.Width, importRasterImage.CanvasDescription.Height);
-            switch (importRasterImage)
-            {
-                case PSDImportedRasterImage pSDImportedRasterImage:
-                    {
-                        var data = pSDImportedRasterImage.RasterImageData;
-                        return Task.Run(() => LoadOffsetEvalRasterLayer(souseBytes, data, canvasSize));
-                    }
-                case PSDImportedRasterMaskImage pSDImportedRasterMaskImage:
-                    {
-                        var data = pSDImportedRasterMaskImage.MaskImageData;
-                        return Task.Run(() => LoadOffsetEvalRasterMask(souseBytes, data, canvasSize));
-                    }
-                default:
-                    throw new ArgumentException();
-            }
+            EditorGUILayout.HelpBox("TexTransToolPSDImporter" + " " + "Common:ExperimentalWarning".GetLocalize(), MessageType.Warning);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("PreviewImageDownScalingAlgorism"));
 
-            static NativeArray<Color32> LoadOffsetEvalRasterLayer(byte[] souseBytes, PSDImportedRasterImageData psdRasterData, Vector2Int canvasSize)
-            {
-                var image = PSDImportedRasterImage.LoadPSDRasterLayerData(psdRasterData, souseBytes);
-                var rawMap = new LowMap<Color32>(image, psdRasterData.RectTangle.GetWidth(), psdRasterData.RectTangle.GetHeight());
-                var pivot = new Vector2Int(psdRasterData.RectTangle.Left, canvasSize.y - psdRasterData.RectTangle.Bottom);
-                return PSDHighLevelParser.DrawOffsetEvaluateTexture(rawMap, pivot, canvasSize, null).Array;
-            }
+            base.ApplyRevertGUI();
+        }
+        public override bool HasPreviewGUI() { return true; }
+        public override void DrawPreview(Rect previewArea)
+        {
+            var importer = target as TexTransToolPSDImporter;
+            var previewTex = AssetDatabase.LoadAllAssetsAtPath(importer.assetPath).FirstOrDefault(i => i.name == "TTT-CanvasPreviewResult") as Texture2D;
+            if (previewTex == null) { return; }
 
-            static NativeArray<Color32> LoadOffsetEvalRasterMask(byte[] souseBytes, PSDImportedRasterMaskImageData psdMaskData, Vector2Int canvasSize)
-            {
-                using (var rBytes = PSDImportedRasterMaskImage.LoadPSDMaskImageData(psdMaskData, souseBytes))
-                {
-                    var bytes = new NativeArray<Color32>(rBytes.Length, Allocator.TempJob);
-                    for (var i = 0; bytes.Length > i; i += 1)
-                    {
-                        var col = rBytes[i];
-                        bytes[i] = new Color32(col, col, col, col);
-                    }
-                    var rawMap = new LowMap<Color32>(bytes, psdMaskData.RectTangle.GetWidth(), psdMaskData.RectTangle.GetHeight());
-                    var pivot = new Vector2Int(psdMaskData.RectTangle.Left, canvasSize.y - psdMaskData.RectTangle.Bottom);
-                    var defaultValue = new Color32(psdMaskData.DefaultValue, psdMaskData.DefaultValue, psdMaskData.DefaultValue, psdMaskData.DefaultValue);
-                    return PSDHighLevelParser.DrawOffsetEvaluateTexture(rawMap, pivot, canvasSize, defaultValue).Array;
-
-                }
-            }
+            EditorGUI.DrawTextureTransparent(previewArea, previewTex, ScaleMode.ScaleToFit);
         }
 
-
     }
+
+
+
+
+
+
+
 }

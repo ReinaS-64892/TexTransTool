@@ -8,9 +8,38 @@ namespace net.rs64.TexTransCore.MipMap
         const string WTex = "WTex";
         const string RTex = "RTex";
         const string PixelRatio = "PixelRatio";
-        public static bool Average(RenderTexture renderTexture)
+
+        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
+            bool result;
+
+            switch (algorism)
+            {
+                case DownScalingAlgorism.Average: { result = Average(renderTexture); break; }
+                default: { result = false; break; }
+            }
+
+            return result;
+        }
+
+        public static int MipMapCountFrom(int width, int targetWith)
+        {
+            if (width < targetWith) { return -1; }
+            var count = 0;
+            if (width == targetWith) { return count; }
+            while (width >= 0 && count < 1024)//1024 回で止まるのはただのセーフティ
+            {
+                width /= 2;
+                count += 1;
+                if (width == targetWith) { return count; }
+            }
+            return -1;
+        }
+
+
+        static bool Average(RenderTexture renderTexture)
+        {
             var kernel32ID = MipMapShader.FindKernel("Average32");
             var kernel1ID = MipMapShader.FindKernel("Average1");
 
@@ -37,20 +66,10 @@ namespace net.rs64.TexTransCore.MipMap
             return true;
         }
 
-        public static int MipMapCountFrom(int width, int targetWith)
-        {
-            if (width < targetWith) { return -1; }
-            var count = 0;
-            if (width == targetWith) { return count; }
-            while (width >= 0 && count < 1024)//1024 回で止まるのはただのセーフティ
-            {
-                width /= 2;
-                count += 1;
-                if (width == targetWith) { return count; }
-            }
-            return -1;
-        }
 
-
+    }
+    public enum DownScalingAlgorism
+    {
+        Average = 0,
     }
 }
