@@ -1,6 +1,8 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore.BlendTexture;
 using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -10,6 +12,50 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override Vector2Int Pivot => new Vector2Int(MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
 
+        internal override NativeArray<Color32> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
+        {
+            var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
+
+            var initJob = new PSDImportedRasterImage.InitializeJob()
+            {
+                Target = native2DArray,
+                Value = new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue)
+            };
+
+            var initHandle = initJob.Schedule(native2DArray.Length, 64);
+
+            var souseTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
+
+            JobHandle offsetJobHandle;
+
+            if ((MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0)
+            {
+                offsetJobHandle = initHandle;
+                offsetJobHandle.Complete();
+            }
+            else
+            {
+                var data = MaskImageData.MaskImage.GetImageData(importSouse, MaskImageData.RectTangle);
+                var offset = new PSDImportedRasterImage.OffsetMoveAlphaJob()
+                {
+                    Target = native2DArray,
+                    R = data,
+                    G = data,
+                    B = data,
+                    A = data,
+                    Offset = new int2(Pivot.x, Pivot.y),
+                    SouseSize = souseTexSize,
+                    TargetSize = canvasSize,
+                };
+                offsetJobHandle = offset.Schedule(data.Length, 64, initHandle);
+
+                offsetJobHandle.Complete();
+                data.Dispose();
+            }
+
+            return native2DArray;
+        }
         internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)
         {
             var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
@@ -25,8 +71,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 {
                     texR.LoadRawTextureData(data); texR.Apply();
                 }
-
-
 
                 mat.SetTexture("_RTex", texR);
                 mat.SetTexture("_GTex", texR);

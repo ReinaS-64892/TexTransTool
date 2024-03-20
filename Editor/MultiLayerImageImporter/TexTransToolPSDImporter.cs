@@ -11,35 +11,42 @@ using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     [ScriptedImporter(1, new string[] { }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
-        public DownScalingAlgorism PreviewImageDownScalingAlgorism;
         public override void OnImportAsset(AssetImportContext ctx)
         {
             NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
 
-            EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.2f);
+            EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.0f);
+
+            Profiler.BeginSample("ParsePSD");
+            Profiler.BeginSample("ReadBytes");
 
             var psdBytes = File.ReadAllBytes(ctx.assetPath);
 
-            EditorUtility.DisplayProgressBar("Parse PSD", "LowLevelParser", 0.2f);
+            Profiler.EndSample();
+            Profiler.BeginSample("LowLevel");
 
             var lowPSDData = PSDLowLevelParser.Parse(assetPath);
 
-            EditorUtility.DisplayProgressBar("Parse PSD", "HighLevelParser", 0.6f);
+            Profiler.EndSample();
+            Profiler.BeginSample("LowLevel");
 
             var pSDData = PSDHighLevelParser.Parse(lowPSDData);
 
-            EditorUtility.DisplayProgressBar("Parse PSD", "End", 1);
+            Profiler.EndSample();
+            Profiler.EndSample();
 
             try
             {
                 EditorUtility.DisplayProgressBar("Import Canvas", "Build Layer", 0);
-
+                Profiler.BeginSample("CreateCanvas");
+                Profiler.BeginSample("CreateRootObjects");
 
                 var prefabName = Path.GetFileName(ctx.assetPath) + "-Canvas";
                 var rootCanvas = new GameObject(prefabName);
@@ -55,13 +62,26 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
 
-                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, psdBytes, CreatePSDImportedImage, PreviewImageDownScalingAlgorism);
+                Profiler.EndSample();
+                Profiler.BeginSample("CreateLayers");
+
+                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, psdBytes, CreatePSDImportedImage);
                 mliImporter.AddLayers(pSDData.RootLayers);
 
+                Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0f);
+                Profiler.BeginSample("CreatePreviews");
+
                 mliImporter.CreatePreview();
+
+                Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);
+                Profiler.BeginSample("SaveSubAssets");
+
                 mliImporter.SaveSubAsset();
+
+                Profiler.EndSample();
+                Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "END", 1f);
             }
             finally
@@ -99,7 +119,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox("TexTransToolPSDImporter" + " " + "Common:ExperimentalWarning".GetLocalize(), MessageType.Warning);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("PreviewImageDownScalingAlgorism"));
 
             base.ApplyRevertGUI();
         }
