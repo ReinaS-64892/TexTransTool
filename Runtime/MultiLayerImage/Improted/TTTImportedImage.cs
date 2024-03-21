@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using Unity.Collections;
+using net.rs64.TexTransCore.TransTextureCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -11,7 +12,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D PreviewTexture;
 
         // R8 or RGBA32 Non MipMap
-        internal abstract NativeArray<Color32> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null);
+        internal abstract JobResult<NativeArray<Color32>> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null);
         internal abstract void LoadImage(byte[] importSouse, RenderTexture writeTarget);
         internal abstract Vector2Int Pivot { get; }
     }

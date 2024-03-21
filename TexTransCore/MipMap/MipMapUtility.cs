@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore.TransTextureCore;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -29,7 +30,7 @@ namespace net.rs64.TexTransCore.MipMap
 
             return result;
         }
-        public static NativeArray<float4>[] GenerateAverageMips(NativeArray<float4> tex, int2 texSize, int GenerateCount, Action beforeCompleteCall = null)
+        public static JobResult<NativeArray<float4>[]> GenerateAverageMips(NativeArray<float4> tex, int2 texSize, int GenerateCount)
         {
             var mipMaps = new NativeArray<float4>[GenerateCount + 1];
             mipMaps[0] = tex;
@@ -60,10 +61,7 @@ namespace net.rs64.TexTransCore.MipMap
 
             }
 
-            beforeCompleteCall?.Invoke();
-
-            handle.Complete();
-            return mipMaps;
+            return new(mipMaps, handle);
         }
 
         public static int MipMapCountFrom(int width, int targetWith)

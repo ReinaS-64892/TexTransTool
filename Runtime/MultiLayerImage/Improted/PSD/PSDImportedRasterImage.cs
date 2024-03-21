@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.TexTransCore.TransTextureCore;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -15,7 +16,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
 
-        internal override NativeArray<Color32> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
+        internal override JobResult<NativeArray<Color32>> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
         {
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
@@ -64,14 +65,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 offsetJobHandle = offset.Schedule(image[0].Length, 64, handle);
             }
 
-            offsetJobHandle.Complete();
 
-            image[0].Dispose();
-            image[1].Dispose();
-            image[2].Dispose();
-            if (RasterImageData.A != null) { image[3].Dispose(); }
 
-            return nativeArray;
+            return new(nativeArray, offsetJobHandle, () =>
+            {
+                image[0].Dispose();
+                image[1].Dispose();
+                image[2].Dispose();
+                if (RasterImageData.A != null) { image[3].Dispose(); }
+            });
         }
 
         internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)

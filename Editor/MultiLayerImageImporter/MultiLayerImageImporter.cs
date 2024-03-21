@@ -209,14 +209,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Profiler.BeginSample("CreatePreview -" + importedImage.name);
                 Profiler.BeginSample("LoadImage");
 
-                fullNATex = importedImage.LoadImage(_souseBytes, fullNATex);
+                var jobResult = importedImage.LoadImage(_souseBytes, fullNATex);
 
                 Profiler.EndSample();
                 Profiler.BeginSample("ConvertColor32ToFloat4Job");
 
                 var covF4 = new ConvertColor32ToFloat4Job() { Souse = fullNATex, Target = fullNAF4Tex, };
 
-                var covF4Handle = covF4.Schedule(fullNAF4Tex.Length, 64);
+
+                var covF4Handle = covF4.Schedule(fullNAF4Tex.Length, 64, jobResult.GetHandle);
                 nextTaming();
                 covF4Handle.Complete();
 
@@ -224,7 +225,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Profiler.BeginSample("CreateMip");
 
                 var mipMapCount = MipMapUtility.MipMapCountFrom(Mathf.Max(canvasSize.x, canvasSize.y), 1024);
-                var mips = MipMapUtility.GenerateAverageMips(fullNAF4Tex, canvasSize, mipMapCount, nextTaming2);
+                var mipJobResult = MipMapUtility.GenerateAverageMips(fullNAF4Tex, canvasSize, mipMapCount);
+                nextTaming2();
+                _ = mipJobResult.GetResult;
 
                 Profiler.EndSample();
 
@@ -236,7 +239,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                     tex2d = new Texture2D(1024, 1024, TextureFormat.RGBAFloat, false);
                     tex2d.alphaIsTransparency = true;
-                    tex2d.LoadRawTextureData(mips[mipMapCount]);
+
+                    tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
+                    EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
 
                     Profiler.EndSample();
                     Profiler.EndSample();
@@ -246,11 +251,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     Profiler.BeginSample("nextTamingCall2");
                     Profiler.BeginSample("SetTexDataAndCompress");
 
-                    EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
                     tex2d.Apply(true, true);
                     importedImage.PreviewTexture = tex2d;
 
-                    foreach (var n2da in mips.Skip(1)) { n2da.Dispose(); }
+                    foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
 
                     Profiler.EndSample();
                     Profiler.EndSample();
