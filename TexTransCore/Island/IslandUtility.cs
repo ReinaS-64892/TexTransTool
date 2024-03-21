@@ -103,7 +103,7 @@ namespace net.rs64.TexTransCore.Island
         {
             return UVtoIsland(meshData.CombinedTriangleIndex.AsList(), meshData.VertexUV.AsList());
         }
-        
+
         public static List<Island> UVtoIsland(IList<TriangleIndex> triIndexes, IList<Vector2> vertexUV)
         {
             Profiler.BeginSample("UVtoIsland");

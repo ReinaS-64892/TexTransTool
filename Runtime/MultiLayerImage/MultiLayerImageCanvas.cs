@@ -28,23 +28,28 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
             var replaceTarget = TextureSelector.GetTexture(domain);
+            var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
+            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
+            RenderTexture result = EvaluateCanvas(domain.GetTextureManager(), canvasSize);
 
+            domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
+        }
 
+        internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasSize)
+        {
             var Layers = transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
             .Where(I => I != null)
             .Reverse();
 
-            var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
-            if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
-
-            var canvasContext = new CanvasContext(canvasSize, domain.GetTextureManager());
+            var canvasContext = new CanvasContext(canvasSize, textureManager);
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
             var result = canvasContext.LayerCanvas.FinalizeCanvas();
-            domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
 
+            return result;
         }
-        internal static int NormalizePowOfTow(int v)
+
+       internal static int NormalizePowOfTow(int v)
         {
             if (Mathf.IsPowerOfTwo(v)) { return v; }
 

@@ -2,7 +2,8 @@
     "name": "net.rs64.tex-trans-core",
     "rootNamespace": "",
     "references": [
-        "Unity.Burst"
+        "Unity.Burst",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

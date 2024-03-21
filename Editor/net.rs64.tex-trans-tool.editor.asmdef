@@ -7,7 +7,9 @@
         "net.rs64.tex-trans-tool.editor.unsafe",
         "net.rs64.multi-layer-image-parser",
         "nadena.dev.ndmf",
-        "Unity.Collections"
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Burst"
     ],
     "includePlatforms": [
         "Editor"

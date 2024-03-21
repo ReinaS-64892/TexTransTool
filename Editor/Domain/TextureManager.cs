@@ -89,9 +89,7 @@ namespace net.rs64.TexTransTool
             else
             {
                 if (!CanvasSouse.ContainsKey(texture.CanvasDescription)) { CanvasSouse[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
-                // var timer = System.Diagnostics.Stopwatch.StartNew();
                 texture.LoadImage(CanvasSouse[texture.CanvasDescription], writeTarget);
-                // timer.Stop(); Debug.Log(texture.name + ":" + timer.ElapsedMilliseconds + "ms");
             }
         }
         public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)

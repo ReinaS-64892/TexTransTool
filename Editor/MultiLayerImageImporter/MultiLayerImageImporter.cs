@@ -8,36 +8,41 @@ using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
 using Unity.Collections;
 using net.rs64.TexTransCore.MipMap;
-using UnityEngine.Rendering;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Burst;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
     internal class MultiLayerImageImporter
     {
+        MultiLayerImageCanvas _multiLayerImageCanvas;
         TTTImportedCanvasDescription _tttImportedCanvasDescription;
         AssetImportContext _ctx;
         List<TTTImportedImage> _tttImportedImages = new();
         CreateImportedImage _imageImporter;
         byte[] _souseBytes;
+        Dictionary<TTTImportedImage, string> _layerAtPath = new();
+        string _path = "";
 
         internal delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
         internal delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] souseBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
 
-        internal MultiLayerImageImporter(TTTImportedCanvasDescription tttImportedCanvasDescription,
-                                         AssetImportContext assetImportContext,
-                                         byte[] souseBytes,
-                                         CreateImportedImage imageImporter)
+        internal MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] souseBytes, CreateImportedImage imageImporter)
         {
+            _multiLayerImageCanvas = multiLayerImageCanvas;
             _ctx = assetImportContext;
             _imageImporter = imageImporter;
             _tttImportedCanvasDescription = tttImportedCanvasDescription;
             _souseBytes = souseBytes;
+
         }
 
-        internal void AddLayers(Transform thisTransForm, List<AbstractLayerData> abstractLayers)
+        internal void AddLayers(List<AbstractLayerData> abstractLayers) { AddLayers(abstractLayers, null); }
+        private void AddLayers(List<AbstractLayerData> abstractLayers, Transform parent = null)
         {
-            var parent = thisTransForm;
+            parent ??= _multiLayerImageCanvas.transform;
             var count = 0;
             foreach (var layer in abstractLayers.Reverse<AbstractLayerData>())
             {
@@ -151,8 +156,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var importedImage = _imageImporter.Invoke(rasterLayer.RasterTexture);
             importedImage.name = rasterLayer.LayerName + "_Tex";
             importedImage.CanvasDescription = _tttImportedCanvasDescription;
-            _ctx.AddObjectToAsset(importedImage.name, importedImage);
             _tttImportedImages.Add(importedImage);
+            _layerAtPath[importedImage] = _path;
             rasterLayerComponent.ImportedImage = importedImage;
         }
 
@@ -163,20 +168,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var importMask = _imageImporter.Invoke(maskData.MaskTexture);
             importMask.name = layerName + "_MaskTex";
             importMask.CanvasDescription = _tttImportedCanvasDescription;
-            _ctx.AddObjectToAsset(importMask.name, importMask);
             _tttImportedImages.Add(importMask);
+            _layerAtPath[importMask] = _path;
             return new TTTImportedLayerMask(maskData.LayerMaskDisabled, importMask);
 
         }
 
-        private void CreateLayerFolder(GameObject newLayer, LayerFolderData layerFolder)
+        private void CreateLayerFolder(GameObject newLayer, LayerFolderData layerFolder, string path = "")
         {
             var layerFolderComponent = newLayer.AddComponent<LayerFolder>();
 
             CopyFromData(layerFolderComponent, layerFolder);
             layerFolderComponent.PassThrough = layerFolder.PassThrough;
-
-            AddLayers(newLayer.transform, layerFolder.Layers);
+            var beforePath = _path;
+            _path = beforePath + "/" + newLayer.name;
+            AddLayers(layerFolder.Layers, newLayer.transform);
+            _path = beforePath;
         }
 
         internal void CopyFromData(AbstractLayer abstractLayer, AbstractLayerData abstractLayerData)
@@ -190,67 +197,160 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         internal void CreatePreview()
         {
-            var rt = new RenderTexture(TextureUtility.NormalizePowerOfTwo(_tttImportedCanvasDescription.Width), TextureUtility.NormalizePowerOfTwo(_tttImportedCanvasDescription.Height), 0, RenderTextureFormat.ARGB32);
-            rt.enableRandomWrite = true;
-            rt.useMipMap = true;
-            rt.autoGenerateMips = false;
+            var canvasSize = new int2(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height);
+
+            Action nextTaming = () => { };
+            Action nextTaming2 = () => { };
+
+            var fullNATex = new NativeArray<Color32>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var fullNAF4Tex = new NativeArray<float4>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             foreach (var importedImage in _tttImportedImages)
             {
-                rt.Clear();
-                importedImage.LoadImage(_souseBytes, rt);
-                MipMapUtility.Average(rt);
+                Profiler.BeginSample("CreatePreview -" + importedImage.name);
+                Profiler.BeginSample("LoadImage");
 
-                var mipMapCount = MipMapUtility.MipMapCountFrom(rt.width, 1024);
+                var jobResult = importedImage.LoadImage(_souseBytes, fullNATex);
 
-                var request = AsyncGPUReadback.Request(rt, mipMapCount);
+                Profiler.EndSample();
+                Profiler.BeginSample("ConvertColor32ToFloat4Job");
 
-                var tex2d = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
+                var covF4 = new ConvertColor32ToFloat4Job() { Souse = fullNATex, Target = fullNAF4Tex, };
 
-                request.WaitForCompletion();
-                using (var data = request.GetData<byte>()) { tex2d.LoadRawTextureData(data); }
 
-                EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
-                tex2d.Apply(true, true);
+                var covF4Handle = covF4.Schedule(fullNAF4Tex.Length, 64, jobResult.GetHandle);
+                nextTaming();
+                covF4Handle.Complete();
 
-                importedImage.PreviewTexture = tex2d;
-                importedImage.PreviewTexture.name = importedImage.name + "_Preview";
-                _ctx.AddObjectToAsset(tex2d.name, tex2d);
+                Profiler.EndSample();
+                Profiler.BeginSample("CreateMip");
+
+                var mipMapCount = MipMapUtility.MipMapCountFrom(Mathf.Max(canvasSize.x, canvasSize.y), 1024);
+                var mipJobResult = MipMapUtility.GenerateAverageMips(fullNAF4Tex, canvasSize, mipMapCount);
+                nextTaming2();
+                _ = mipJobResult.GetResult;
+
+                Profiler.EndSample();
+
+                Texture2D tex2d = null;
+                nextTaming = () =>
+                {
+                    Profiler.BeginSample("nextTamingCall");
+                    Profiler.BeginSample("CratePrevTex");
+
+                    tex2d = new Texture2D(1024, 1024, TextureFormat.RGBAFloat, false);
+                    tex2d.alphaIsTransparency = true;
+
+                    tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
+                    EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+
+                    Profiler.EndSample();
+                    Profiler.EndSample();
+                };
+                nextTaming2 = () =>
+                {
+                    Profiler.BeginSample("nextTamingCall2");
+                    Profiler.BeginSample("SetTexDataAndCompress");
+
+                    tex2d.Apply(true, true);
+                    importedImage.PreviewTexture = tex2d;
+
+                    foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
+
+                    Profiler.EndSample();
+                    Profiler.EndSample();
+                };
+
+                Profiler.EndSample();
             }
-            UnityEngine.Object.DestroyImmediate(rt);
+
+            nextTaming();
+            nextTaming2();
+
+            fullNAF4Tex.Dispose();
+            fullNATex.Dispose();
+
+
+            // var texManager = new TextureManager(true);
+            // var canvasResult = _multiLayerImageCanvas.EvaluateCanvas(texManager, 1024);
+            // texManager.DestroyTextures();
+
+            // var resultTex = canvasResult.CopyTexture2D(overrideUseMip: true);
+            // EditorUtility.CompressTexture(resultTex, TextureFormat.DXT5, 100);
+            // resultTex.name = "TTT-CanvasPreviewResult";
+            // _ctx.AddObjectToAsset(resultTex.name, resultTex);
+            // RenderTexture.ReleaseTemporary(canvasResult);
+
+            // var quadMesh = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            // var mesh = quadMesh.GetComponent<MeshFilter>().sharedMesh;
+            // GameObject.DestroyImmediate(quadMesh);
+
+            // var prevGo = new GameObject("TTT-CanvasPreview");
+            // var hideFlagPatch = prevGo.AddComponent<HideFlagPatch>();
+            // prevGo.tag ="EditorOnly";
+            // var quad = prevGo.AddComponent<SkinnedMeshRenderer>();
+
+            // quad.transform.SetParent(_multiLayerImageCanvas.transform, false);
+            // quad.sharedMesh = mesh;
+            // quad.sharedMaterial = new Material(Shader.Find("Unlit/Texture")) { mainTexture = resultTex, name = "TTT-CanvasPreviewResult-Material" };
+            // quad.transform.localRotation = Quaternion.Euler(new Vector3(-20f, 60f, 0f));
+            // quad.transform.localScale = new Vector3(-0.002f, 0.002f, -0.002f);
+            // quad.localBounds = new Bounds(Vector3.zero, new Vector3(0.31f, 0.31f, 0.001f) * 2f);
+
+            // _ctx.AddObjectToAsset("TTT-CanvasPreviewResult-Material", quad.sharedMaterial);
+
         }
-        private static IEnumerable<(T TaskData, T2 TaskResult)> ParallelExecuter<T, T2>(Func<T, Task<T2>> taskExecute, IEnumerable<T> taskData, int? forceParallelSize = null, Action<float> progressCallBack = null)
-        {
-            var parallelSize = forceParallelSize.HasValue ? forceParallelSize.Value : Environment.ProcessorCount;
-            var taskQueue = new Queue<T>(taskData);
-            var taskParallel = new (T TaskData, Task<T2> Task)[parallelSize];
-            var encDataCount = taskQueue.Count; var nowIndex = 0;
-            while (taskQueue.Count > 0)
-            {
-                for (int i = 0; taskParallel.Length > i; i += 1)
-                {
-                    if (taskQueue.Count > 0)
-                    {
-                        var task = taskQueue.Dequeue();
-                        taskParallel[i] = (task, Task.Run(() => taskExecute.Invoke(task)));
-                    }
-                    else
-                    {
-                        taskParallel[i] = (default, null);
-                        break;
-                    }
-                }
 
-                foreach (var taskPair in taskParallel)
-                {
-                    if (taskPair.Task == null) { break; }
-                    yield return (taskPair.TaskData, TaskAwaiter(taskPair.Task).Result);
-                    nowIndex += 1;
-                    progressCallBack?.Invoke(nowIndex / (float)encDataCount);
-                }
-            }
-            static async Task<T3> TaskAwaiter<T3>(Task<T3> task)
+        public void SaveSubAsset()
+        {
+            // var NameHash = new HashSet<string>() { "TTT-CanvasPreviewResult", "TTT-CanvasPreviewResult-Material" };
+            foreach (var image in _tttImportedImages.Reverse<TTTImportedImage>())
             {
-                return await task.ConfigureAwait(false);
+                // var name = image.name;
+                // if (NameHash.Contains(name))
+                // {
+                //     var addCount = 1;
+                //     while (NameHash.Contains(name + "-" + addCount)) { addCount += 1; }
+                //     name = name + "-" + addCount;
+                // }
+                // NameHash.Add(name);
+
+                // image.name = name;
+
+                image.PreviewTexture.name = image.name + "_Preview";
+                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
+                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+            }
+        }
+
+        [BurstCompile]
+        internal struct ConvertColor32ToFloat4Job : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<Color32> Souse;
+            [WriteOnly] public NativeArray<float4> Target;
+            public void Execute(int index)
+            {
+                Target[index] = new float4(
+                    Souse[index].r / (float)byte.MaxValue,
+                    Souse[index].g / (float)byte.MaxValue,
+                    Souse[index].b / (float)byte.MaxValue,
+                    Souse[index].a / (float)byte.MaxValue
+                );
+            }
+        }
+
+        [BurstCompile]
+        internal struct ConvertFloat4ToColor32Job : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<float4> Souse;
+            [WriteOnly] public NativeArray<Color32> Target;
+            public void Execute(int index)
+            {
+                Target[index] = new Color32(
+                    (byte)Mathf.Round(Souse[index].x * (float)byte.MaxValue),
+                    (byte)Mathf.Round(Souse[index].y * (float)byte.MaxValue),
+                    (byte)Mathf.Round(Souse[index].z * (float)byte.MaxValue),
+                    (byte)Mathf.Round(Souse[index].w * (float)byte.MaxValue)
+                );
             }
         }
     }
