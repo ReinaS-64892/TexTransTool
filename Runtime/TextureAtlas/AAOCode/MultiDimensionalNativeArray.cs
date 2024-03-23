@@ -5,6 +5,7 @@ using Unity.Collections;
 
 namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
 {
+    //https://github.com/anatawa12/AvatarOptimizer/blob/afcc0cecdf91d3de24fc5e7358d3b497c2b64098/Internal/Utils/MultiDimensionalNativeArray.cs
     [BurstCompile]
     struct NativeArray2<T> : IDisposable where T : unmanaged
     {

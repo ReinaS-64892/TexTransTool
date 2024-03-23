@@ -11,6 +11,7 @@ using UnityEngine.Rendering;
 namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
 {
     //これは MeshInfo2 を改造して簡易的に使えるようにしたもの
+    //https://github.com/anatawa12/AvatarOptimizer/blob/afcc0cecdf91d3de24fc5e7358d3b497c2b64098/Internal/MeshInfo2/MeshInfo2.cs
     internal static class MeshInfoUtility
     {
         public static List<Vertex> ReadVertex(Mesh mesh, out MeshDesc meshDesc)
@@ -324,6 +325,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
             if (meshAttribute.BlendShapes.Count != 0)
             {
                 Profiler.BeginSample("BlendShapes");
+                destMesh.ClearBlendShapes();
                 for (var i = 0; i < meshAttribute.BlendShapes.Count; i++)
                 {
                     Debug.Assert(destMesh.blendShapeCount == i, "Unexpected state: BlendShape count");

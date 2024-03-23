@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
 {
+    //https://github.com/anatawa12/AvatarOptimizer/blob/afcc0cecdf91d3de24fc5e7358d3b497c2b64098/Internal/MeshInfo2/MeshInfo2.cs#L791-L1032
     internal class Vertex
     {
         public Vector3 Position { get; set; }
