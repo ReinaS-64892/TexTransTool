@@ -52,8 +52,11 @@ msgstr "アトラス化されるレンダラーの最大範囲"
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "リフレッシュマテリアル"
 
-msgid "AtlasTexture:label:TSM-Header"
-msgstr "対象    (スケールオフセット)    マテリアル"
+msgid "AtlasTexture:label:Target"
+msgstr "対象"
+
+msgid "AtlasTexture:label:Material"
+msgstr "マテリアル"
 
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "アトラス化対象か否か  (テクスチャのスケールオフセット)  マテリアル"
@@ -239,6 +242,11 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
 
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "サイズオフセット"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "大きさの優先度"
 
 #  CommonDecal
 

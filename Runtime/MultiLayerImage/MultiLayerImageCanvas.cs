@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
-            var replaceTarget = TextureSelector.GetTexture(domain);
+            var replaceTarget = TextureSelector.GetTexture();
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
             RenderTexture result = EvaluateCanvas(domain.GetTextureManager(), canvasSize);

@@ -43,6 +43,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
             var sTargetRoot = thisSObject.FindProperty("TargetRoot");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
+            var sMaterialToIslandFineTuningModeSelect = thisSObject.FindProperty("MaterialToIslandFineTuningModeSelect");
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
@@ -52,12 +53,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
                 { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
-                MaterialSelectEditor(sMatSelectors, _displayMaterial);
+                MaterialSelectEditor(sMatSelectors, sMaterialToIslandFineTuningModeSelect, _displayMaterial);
             }
 
             EditorGUI.indentLevel += 1;
             EditorGUILayout.PropertyField(sMatSelectors, "AtlasTexture:prop:SelectedMaterialView".Glc());
             EditorGUI.indentLevel -= 1;
+
+            var sIslandFineTuners = sAtlasSetting.FindPropertyRelative("IslandFineTuners");
+            EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
 
 
             DrawAtlasSettings(sAtlasSetting);
@@ -68,7 +72,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawAtlasSettings(SerializedProperty sAtlasSettings)
+        private void DrawAtlasSettings(SerializedProperty sAtlasSettings)
         {
             EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
@@ -101,7 +105,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
             EditorGUILayout.PropertyField(sUseUpScaling, "AtlasTexture:prop:UseUpScaling".Glc());
 
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
 
 
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
@@ -110,7 +116,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUI.indentLevel += 1;
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
-                EditorGUILayout.PropertyField(sPixelNormalize,"AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
+                EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 EditorGUI.indentLevel -= 1;
             }
 
@@ -133,18 +139,35 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
         }
 
-        public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)
+        public static void MaterialSelectEditor(SerializedProperty targetMaterial, SerializedProperty fineTunerMode, List<Material> tempMaterial)
         {
             EditorGUI.indentLevel += 1;
-            GUILayout.Label("AtlasTexture:label:TSM-Header".Glc());
+            var hadeRect = EditorGUILayout.GetControlRect();
+            var hadeWidth = hadeRect.width;
+            hadeRect.width = 64f;
+            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:Target".Glc());
+
+            hadeRect.width = (hadeWidth * 0.5f) - 64f;
+            hadeRect.x = 64f;
+            EditorGUI.PropertyField(hadeRect, fineTunerMode, GUIContent.none);
+
+            hadeRect.width = hadeWidth * 0.5f;
+            hadeRect.x = hadeRect.width;
+            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:Material".Glc());
+
             foreach (var mat in tempMaterial)
             {
                 var sMatSelector = FindMatSelector(targetMaterial, mat);
-                EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.GetControlRect();
+
+                var drawWidth = rect.width * 0.5f;
 
                 var isTarget = sMatSelector != null;
 
-                var editIsTarget = EditorGUILayout.Toggle(isTarget);
+                rect.width = 32f;
+                var editIsTarget = EditorGUI.Toggle(rect, isTarget);
+                rect.x += rect.width;
+
                 if (isTarget != editIsTarget)
                 {
                     if (editIsTarget)
@@ -153,7 +176,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                         targetMaterial.arraySize += 1;
                         var sNewMatSelector = targetMaterial.GetArrayElementAtIndex(index);
                         sNewMatSelector.FindPropertyRelative("Material").objectReferenceValue = mat;
-                        sNewMatSelector.FindPropertyRelative("AdditionalTextureSizeOffSet").floatValue = 1;
+                        sNewMatSelector.FindPropertyRelative("MaterialFineTuningValue").floatValue = 1;
                     }
                     else
                     {
@@ -162,14 +185,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 }
                 else if (isTarget)
                 {
-                    var SOffset = sMatSelector.FindPropertyRelative("AdditionalTextureSizeOffSet");
-                    SOffset.floatValue = EditorGUILayout.FloatField(SOffset.floatValue);
+                    rect.width = drawWidth - 18f - 24f;
+                    var SOffset = sMatSelector.FindPropertyRelative("MaterialFineTuningValue");
+                    SOffset.floatValue = EditorGUI.Slider(rect, SOffset.floatValue, 0, 1);
+                    rect.x += rect.width;
                 }
+                rect.x = drawWidth - 2.5f;
+                rect.width = 18f;
+                var matPrevTex = AssetPreview.GetAssetPreview(mat);
+                if (matPrevTex != null) { EditorGUI.DrawTextureTransparent(rect, matPrevTex, ScaleMode.ScaleToFit); }
 
-                EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.ObjectField(mat, typeof(Material), false, GUILayout.MaxWidth(1000));
-                EditorGUI.EndDisabledGroup();
-                EditorGUILayout.EndHorizontal();
+                rect.width = drawWidth;
+                rect.x = rect.width;
+                EditorGUI.ObjectField(rect, mat, typeof(Material), false);
             }
             EditorGUI.indentLevel -= 1;
 

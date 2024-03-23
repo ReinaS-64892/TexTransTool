@@ -10,45 +10,28 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
     internal class NFDHPlasFC : IAtlasIslandRelocator
     {
         public bool RectTangleMove => true;
-
-        public bool UseUpScaling { set => _useUpScaling = value; }
         public float Padding { set => _padding = value; }
 
-        public bool _useUpScaling;
         public float _padding;
 
-        public Dictionary<AtlasIslandID, IslandRect> Relocation(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference)
+        public bool Relocation(IslandRect[] atlasIslands)
         {
-            IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, _useUpScaling, _padding);
-            return atlasIslands;
+            return IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, _padding);
         }
-        public static Dictionary<ID, IslandRect> IslandPoolNextFitDecreasingHeightPlusFloorCeiling<ID>(Dictionary<ID, IslandRect> islands, bool useUpScaling = true, float islandPadding = 0.01f, float scaleStep = 0.99f, int safetyCount = 512)
+        public static bool IslandPoolNextFitDecreasingHeightPlusFloorCeiling(IslandRect[] islands, float islandPadding = 0.01f)
         {
-            if (!islands.Any()) return islands;
+            if (islands.Length == 0) { return false; }
 
-            var idList = islands.Keys.ToList();
+            var idList = Enumerable.Range(0, islands.Length).ToList();
             foreach (var id in idList) { if (islands[id].Size.y > islands[id].Size.x) { var island = islands[id]; island.Rotate90(); islands[id] = island; } }
             idList.Sort((lId, rId) => Mathf.RoundToInt((islands[rId].Size.y - islands[lId].Size.y) * 1073741824));
 
             var sortedIslandArray = idList.Select(i => islands[i]).ToArray();
-
             ValidateDeceasing(sortedIslandArray);
 
-            if (TryNFDHPlasFC(sortedIslandArray, islandPadding) && !useUpScaling) { ApplyDictionary(); return islands; }
-
-            ScaleApply(Mathf.Sqrt(1 / IslandRectUtility.CalculateAllAreaSum(islands.Values)));
-
-            var stepCount = 0;
-            while (!TryNFDHPlasFC(sortedIslandArray, islandPadding) && safetyCount > stepCount) { ScaleApply(scaleStep); stepCount += 1; }
-            if (stepCount == safetyCount) { TTTRuntimeLog.Warning("NextFitDecreasingHeightPlusFloorCeiling : Safetyによりループが中断された可能性があり、アイランドの再配置が正常に行われていない可能性があります"); }
-
-            ApplyDictionary();
-            return islands;
-
-            void ScaleApply(float scale)
-            {
-                for (var i = 0; sortedIslandArray.Length > i; i += 1) { sortedIslandArray[i].Size *= scale; }
-            }
+            var res = TryNFDHPlasFC(sortedIslandArray, islandPadding);
+            if (res) { ApplyDictionary(); }
+            return res;
             void ApplyDictionary()
             {
                 for (var i = 0; sortedIslandArray.Length > i; i += 1) { islands[idList[i]] = sortedIslandArray[i]; }
@@ -73,7 +56,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
         static bool TryNFDHPlasFC(IslandRect[] sortedIslands, float islandPadding = 0.01f)
         {
-            var uvWidthBox = new List<UVWidthBox<IslandRect>>();
+            var uvWidthBox = new List<UVWidthBox<IslandRect>>(32);
 
             for (var i = 0; sortedIslands.Length > i; i += 1)
             {

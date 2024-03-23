@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransTool.MatAndTexUtils
 {
@@ -30,7 +31,8 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
         {
             var renderer = TargetRenderers[RendererIndex];
 
-            var targetMats = SeparateTarget.Select(mat => domain.TryReplaceQuery(mat, out var rMat) ? (Material)rMat : mat).ToHashSet();
+            var hashSet = new HashSet<Material>(renderer.sharedMaterials);
+            var targetMats = hashSet.Where(i => SeparateTarget.Any(m => domain.OriginEqual(m, i))).ToList();
 
             return renderer.sharedMaterials.Select(m => targetMats.Contains(m)).ToList();
         }

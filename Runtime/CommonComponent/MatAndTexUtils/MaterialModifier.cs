@@ -76,11 +76,7 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             var modMatList = new Dictionary<Material, Material>();
 
             var hashSet = new HashSet<Material>(RendererUtility.GetMaterials(GetRenderers));
-            var containedModTarget = ModifiedTarget
-                .Select(mat => domain.TryReplaceQuery(mat, out var rMat) ? (Material)rMat : mat)
-                .Where(I => hashSet.Contains(I))
-                .ToList();
-
+            var containedModTarget = hashSet.Where(i => ModifiedTarget.Any(m => domain.OriginEqual(m, i))).ToList();
 
             foreach (var modTarget in containedModTarget)
             {

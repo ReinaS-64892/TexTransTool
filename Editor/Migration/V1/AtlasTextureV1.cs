@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.Migration.V1
                 // Debug.Log($"texSize{texSize}/{maxTexturePixelCount}:Offset{offset}:Default{defaultOffset}:result{additionalTextureSizeOffSet}");
 
 
-                selector.AdditionalTextureSizeOffSet = additionalTextureSizeOffSet;
+                selector.TextureSizeOffSet = additionalTextureSizeOffSet;
                 matList[i] = selector;
             }
 

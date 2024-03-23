@@ -52,8 +52,11 @@ msgstr "Maximum Range of renderers atlas"
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"
 
-msgid "AtlasTexture:label:TSM-Header"
-msgstr "Target    (ScaleOffset)    Material"
+msgid "AtlasTexture:label:Target"
+msgstr "Target"
+
+msgid "AtlasTexture:label:Material"
+msgstr "Material"
 
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "atlas target  (texture scale offset)  material"
@@ -238,6 +241,12 @@ msgstr "Settings that specify the color space of specific texture."
 
 msgid "TextureFineTuning:prop:Linear"
 msgstr "Linear"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "SizePriority"
 
 #  CommonDecal
 
