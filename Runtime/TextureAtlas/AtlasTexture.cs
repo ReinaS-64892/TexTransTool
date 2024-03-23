@@ -142,7 +142,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var mat in targetMaterials) { materialTextures[mat] = shaderSupports.GetTextures(mat, texManage); }
             shaderSupports.ClearRecord();
 
-            var islandSizeOffset = GetTextureSizeOffset(targetMaterials, atlasSetting);
+            var islandSizeOffset = GetTextureSizeOffset(SelectMatList.Select(i => i.Material), atlasSetting);
 
             //アイランドまわり
             if (atlasSetting.PixelNormalize)
@@ -300,7 +300,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //上側を削れるかを見る
             var height = IslandRectUtility.CalculateIslandsMaxHeight(relocatedRect);
-            var atlasTextureHeightSize = Mathf.Max(GetHeightSize(atlasSetting.AtlasTextureSize, height), 4);//4以下はちょっと怪しい挙動思想だからクランプ
+            var atlasTextureHeightSize = Mathf.Max(GetHeightSize(atlasSetting.AtlasTextureSize, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
 
             // var areaSum = IslandRectUtility.CalculateAllAreaSum(islandRectPool.Values);
             // Debug.Log(areaSum + ":AreaSum" + "-" + height + ":height");
@@ -382,11 +382,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     {
                         var findSubDataHash = atlasContext.AtlasSubAll.Where(i => i.MaterialID == findMaterialID).ToHashSet();
                         var islandPairs = new Dictionary<Island, IslandRect>();
-                        for (var islandIndex = 0; aspectIslandsRectPool.Length > islandIndex; islandIndex += 1)
+                        for (var islandIndex = 0; relocatedRect.Length > islandIndex; islandIndex += 1)
                         {
                             if (findSubDataHash.Contains(atlasContext.IslandSubData[islandIndex]))
                             {
-                                islandPairs[atlasContext.Islands[islandIndex]] = aspectIslandsRectPool[islandIndex];
+                                islandPairs[atlasContext.Islands[islandIndex]] = relocatedRect[islandIndex];
                             }
                         }
 
@@ -442,7 +442,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
         }
 
-        private static Dictionary<Material, float> GetTextureSizeOffset(List<Material> targetMaterialSelectors, AtlasSetting atlasSetting)
+        private static Dictionary<Material, float> GetTextureSizeOffset(IEnumerable<Material> targetMaterialSelectors, AtlasSetting atlasSetting)
         {
             float atlasTexPixelCount = atlasSetting.AtlasTextureSize * atlasSetting.AtlasTextureSize;
             var islandSizeOffset = new Dictionary<Material, float>();
