@@ -292,7 +292,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     relocatedRect[i] = island;
                 }
             }
-
+            for (var i = 0; relocatedRect.Length > i; i += 1)
+            {
+                if (relocatedRect[i].Size.x <= 0.0001f) { relocatedRect[i].Size.x = 0.0001f; }
+                if (relocatedRect[i].Size.y <= 0.0001f) { relocatedRect[i].Size.y = 0.0001f; }
+            }//Islandが小さすぎると RectTangleMoveのコピーがうまくいかない
 
             //上側を削れるかを見る
             var height = IslandRectUtility.CalculateIslandsMaxHeight(relocatedRect);
