@@ -19,7 +19,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         bool IsThisShader(Material material);
         void AddRecord(Material material);
         void ClearRecord();
-
         List<PropAndTexture> GetPropertyAndTextures(IOriginTexture textureManager, Material material, PropertyBakeSetting bakeSetting);
         void MaterialCustomSetting(Material material);
     }
