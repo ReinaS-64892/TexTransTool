@@ -1,0 +1,680 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2369c186c1ab3c44b9ef86b3a8cbccf, type: 3}
+  m_Name: liltoonAtlasSupport
+  m_EditorClassIdentifier: 
+  SupportedShaderComparer:
+    rid: 7150698656081904266
+  AtlasTargetDefines:
+  - TexturePropertyName: _MainTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904301
+    BakePropertyNames:
+    - _Color
+    - _MainColorAdjustMask
+    - _MainTexHSVG
+  - TexturePropertyName: _MainColorAdjustMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904310
+    BakePropertyNames: []
+  - TexturePropertyName: _Main2ndTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904335
+    BakePropertyNames:
+    - _Color2nd
+  - TexturePropertyName: _Main2ndBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904338
+    BakePropertyNames: []
+  - TexturePropertyName: _Main2ndDissolveMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904341
+    BakePropertyNames: []
+  - TexturePropertyName: _Main3rdTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904345
+    BakePropertyNames:
+    - _Color3rd
+  - TexturePropertyName: _Main3rdBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904348
+    BakePropertyNames: []
+  - TexturePropertyName: _AlphaMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904333
+    BakePropertyNames:
+    - _AlphaMaskScale
+    - _AlphaMaskValue
+  - TexturePropertyName: _BumpMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904351
+    BakePropertyNames:
+    - _BumpScale
+  - TexturePropertyName: _Bump2ndMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904357
+    BakePropertyNames:
+    - _Bump2ndScale
+    - _Bump2ndScaleMask
+  - TexturePropertyName: _Bump2ndScaleMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904353
+    BakePropertyNames: []
+  - TexturePropertyName: _AnisotropyTangentMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904360
+    BakePropertyNames: []
+  - TexturePropertyName: _AnisotropyScaleMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904324
+    BakePropertyNames:
+    - _AnisotropyScale
+  - TexturePropertyName: _BacklightColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904325
+    BakePropertyNames:
+    - _BacklightColor
+  - TexturePropertyName: _ShadowStrengthMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904316
+    BakePropertyNames:
+    - _ShadowStrength
+  - TexturePropertyName: _ShadowBorderMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904361
+    BakePropertyNames: []
+  - TexturePropertyName: _ShadowBlurMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904362
+    BakePropertyNames: []
+  - TexturePropertyName: _ShadowColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904317
+    BakePropertyNames:
+    - _ShadowColor
+  - TexturePropertyName: _Shadow2ndColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904318
+    BakePropertyNames:
+    - _Shadow2ndColor
+  - TexturePropertyName: _Shadow3rdColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904319
+    BakePropertyNames:
+    - _Shadow3rdColor
+  - TexturePropertyName: _RimShadeMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904363
+    BakePropertyNames:
+    - _RimShadeColor
+  - TexturePropertyName: _SmoothnessTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904326
+    BakePropertyNames:
+    - _Smoothness
+  - TexturePropertyName: _MetallicGlossMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904327
+    BakePropertyNames:
+    - _Metallic
+  - TexturePropertyName: _ReflectionColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904328
+    BakePropertyNames:
+    - _ReflectionColor
+  - TexturePropertyName: _MatCapBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904329
+    BakePropertyNames:
+    - _MatCapBlend
+  - TexturePropertyName: _MatCapBumpMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904369
+    BakePropertyNames:
+    - _MatCapBumpScale
+  - TexturePropertyName: _MatCap2ndBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904330
+    BakePropertyNames:
+    - _MatCap2ndBlend
+  - TexturePropertyName: _MatCap2ndBumpMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904366
+    BakePropertyNames:
+    - _MatCap2ndBumpScale
+  - TexturePropertyName: _RimColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904331
+    BakePropertyNames:
+    - _RimColor
+  - TexturePropertyName: _GlitterColorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904372
+    BakePropertyNames:
+    - _GlitterColor
+  - TexturePropertyName: _EmissionMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904375
+    BakePropertyNames:
+    - _EmissionColor
+  - TexturePropertyName: _EmissionBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904378
+    BakePropertyNames:
+    - _EmissionBlend
+  - TexturePropertyName: _Emission2ndMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904381
+    BakePropertyNames:
+    - _Emission2ndColor
+  - TexturePropertyName: _Emission2ndBlendMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904384
+    BakePropertyNames:
+    - _Emission2ndBlend
+  - TexturePropertyName: _ParallaxMap
+    AtlasDefineConstraints:
+      rid: 7150698656081904387
+    BakePropertyNames:
+    - _Parallax
+  - TexturePropertyName: _OutlineTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904303
+    BakePropertyNames:
+    - _OutlineColor
+    - _OutlineTexHSVG
+  - TexturePropertyName: _OutlineWidthMask
+    AtlasDefineConstraints:
+      rid: 7150698656081904302
+    BakePropertyNames:
+    - _OutlineWidth
+  - TexturePropertyName: _OutlineVectorTex
+    AtlasDefineConstraints:
+      rid: 7150698656081904388
+    BakePropertyNames:
+    - _OutlineVectorScale
+  BakeShader: {fileID: 0}
+  AtlasMaterialPostProses:
+  - rid: 7150698656081904264
+  - rid: 7150698656081904304
+  references:
+    version: 2
+    RefIds:
+    - rid: 7150698656081904264
+      type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        SousePropertyName: _MainTex
+        TargetPropertyName: _BaseMap
+    - rid: 7150698656081904266
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: lilToon
+    - rid: 7150698656081904301
+      type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data: 
+    - rid: 7150698656081904302
+      type: {class: ShaderNameContains, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Outline
+    - rid: 7150698656081904303
+      type: {class: ShaderNameContains, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Outline
+    - rid: 7150698656081904304
+      type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        SousePropertyName: _MainTex
+        TargetPropertyName: _BaseColorMap
+    - rid: 7150698656081904310
+      type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data: 
+    - rid: 7150698656081904316
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904317
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904318
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904319
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904324
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseAnisotropy
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904325
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseBacklight
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904326
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseReflection
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904327
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseReflection
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904328
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseReflection
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904329
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMatCap
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904330
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMatCap
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904331
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseRim
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904333
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _AlphaMaskMode
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904335
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904337
+        - rid: 7150698656081904336
+    - rid: 7150698656081904336
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Main2ndTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904337
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMain2ndTex
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904338
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904339
+        - rid: 7150698656081904340
+    - rid: 7150698656081904339
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMain2ndTex
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904340
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Main2ndTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904341
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904343
+        - rid: 7150698656081904344
+    - rid: 7150698656081904343
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMain2ndTex
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904344
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Main2ndTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904345
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904346
+        - rid: 7150698656081904347
+    - rid: 7150698656081904346
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMain3rdTex
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904347
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Main3rdTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904348
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904349
+        - rid: 7150698656081904350
+    - rid: 7150698656081904349
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMain3rdTex
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904350
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Main3rdTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904351
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseBumpMap
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904353
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904354
+        - rid: 7150698656081904355
+    - rid: 7150698656081904354
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseBump2ndMap
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904355
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Bump2ndMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904357
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904358
+        - rid: 7150698656081904359
+    - rid: 7150698656081904358
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseBump2ndMap
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904359
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Bump2ndMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904360
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseAnisotropy
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904361
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904362
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseShadow
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904363
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseRimShade
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904366
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904367
+        - rid: 7150698656081904368
+    - rid: 7150698656081904367
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMatCap2nd
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904368
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _MatCap2ndCustomNormal
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904369
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904371
+        - rid: 7150698656081904370
+    - rid: 7150698656081904370
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _MatCapCustomNormal
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904371
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseMatCap2nd
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904372
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904373
+        - rid: 7150698656081904374
+    - rid: 7150698656081904373
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseGlitter
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904374
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _GlitterColorTex_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904375
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904376
+        - rid: 7150698656081904377
+    - rid: 7150698656081904376
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseEmission
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904377
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _EmissionMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904378
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904379
+        - rid: 7150698656081904380
+    - rid: 7150698656081904379
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseEmission
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904380
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _EmissionMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904381
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904382
+        - rid: 7150698656081904383
+    - rid: 7150698656081904382
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseEmission2nd
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904383
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Emission2ndMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904384
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 7150698656081904385
+        - rid: 7150698656081904386
+    - rid: 7150698656081904385
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseEmission2nd
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904386
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _Emission2ndMap_UVMode
+        ComparerValue: 0.5
+        Less: 1
+    - rid: 7150698656081904387
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _UseParallax
+        ComparerValue: 0.5
+        Less: 0
+    - rid: 7150698656081904388
+      type: {class: FloatPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _OutlineVectorUVMode
+        ComparerValue: 0.5
+        Less: 1

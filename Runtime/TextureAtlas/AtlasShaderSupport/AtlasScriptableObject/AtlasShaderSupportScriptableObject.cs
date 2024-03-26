@@ -10,15 +10,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     {
         [SerializeReference] public ISupportedShaderComparer SupportedShaderComparer = new ContainsName();
         public List<AtlasTargetDefine> AtlasTargetDefines;
+        public Shader BakeShader;
         [SerializeReference] public List<IAtlasMaterialPostProses> AtlasMaterialPostProses = new();
     }
     [Serializable]
     public class AtlasTargetDefine
     {
         public string TexturePropertyName;
-        public Shader BakeShader;
+        [SerializeReference] public IAtlasDefineConstraints AtlasDefineConstraints = new FloatPropertyValueGreater();
+
         public List<string> BakePropertyNames;
     }
-
-
 }
