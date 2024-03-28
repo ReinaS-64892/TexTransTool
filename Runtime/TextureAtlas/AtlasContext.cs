@@ -70,6 +70,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             AtlasShaderSupportUtils = shaderSupports;
             if (usePropertyBake)
             {
+                MaterialGroup = materialHash.Select(i => new OrderedHashSet<Material>() { i }).ToArray();
+            }
+            else
+            {
                 var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
 
                 foreach (var matKv in material2AtlasTargets)
@@ -94,10 +98,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     return true;
                 }
                 MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
-            }
-            else
-            {
-                MaterialGroup = materialHash.Select(i => new OrderedHashSet<Material>() { i }).ToArray();
             }
             var TargetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
             var normalizedMesh = SubVertNormalize(TargetRenderers);
