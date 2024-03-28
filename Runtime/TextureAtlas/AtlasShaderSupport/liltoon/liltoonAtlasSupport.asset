@@ -479,7 +479,7 @@ MonoBehaviour:
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseBacklight
+        PropertyName: _UseShadow
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881819
