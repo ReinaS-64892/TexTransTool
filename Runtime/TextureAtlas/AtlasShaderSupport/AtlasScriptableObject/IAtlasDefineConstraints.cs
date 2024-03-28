@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public bool Less;
         public bool Constraints(Material material)
         {
-            return !Less ? material.GetFloat(PropertyName) > ComparerValue : material.GetFloat(PropertyName) < ComparerValue;
+                return !Less ? material.GetFloat(PropertyName) > ComparerValue : material.GetFloat(PropertyName) < ComparerValue;
         }
     }
     [Serializable]
@@ -49,6 +49,28 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public bool Constraints(Material material)
         {
             return Mathf.Approximately(material.GetFloat(PropertyName), Value) == !NotEqual;
+        }
+    }
+    [Serializable]
+    public class IntPropertyValueGreater : IAtlasDefineConstraints
+    {
+        public string PropertyName;
+        public int ComparerValue = 0;
+        public bool Less;
+        public bool Constraints(Material material)
+        {
+            return !Less ? material.GetInt(PropertyName) > ComparerValue : material.GetInt(PropertyName) < ComparerValue;
+        }
+    }
+    [Serializable]
+    public class IntPropertyValueEqual : IAtlasDefineConstraints
+    {
+        public string PropertyName;
+        public int Value;
+        public bool NotEqual;
+        public bool Constraints(Material material)
+        {
+            return (material.GetInt(PropertyName) == Value) == !NotEqual;
         }
     }
     [Serializable]

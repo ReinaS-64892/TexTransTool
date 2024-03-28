@@ -47,6 +47,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
                     return false;
             }
         }
+
+        public static BakeProperty GetBakeProperty(Material material, string propertyName)
+        {
+            var propIndex = material.shader.FindPropertyIndex(propertyName);
+            switch (material.shader.GetPropertyType(propIndex))
+            {
+                case UnityEngine.Rendering.ShaderPropertyType.Float: { return new BakeFloat() { PropertyName = propertyName, Float = material.GetFloat(propertyName) }; }
+                case UnityEngine.Rendering.ShaderPropertyType.Range: { return new BakeRange() { PropertyName = propertyName, Float = material.GetFloat(propertyName), MinMax = material.shader.GetPropertyRangeLimits(propIndex) }; }
+                case UnityEngine.Rendering.ShaderPropertyType.Color: { return new BakeColor() { PropertyName = propertyName, Color = material.GetColor(propertyName)}; }
+                case UnityEngine.Rendering.ShaderPropertyType.Vector: { return new BakeVector() { PropertyName = propertyName, Vector = material.GetVector(propertyName)}; }
+                default: { return null; }
+            }
+        }
     }
     [Serializable]
     public class BakeFloat : BakeProperty { public float Float; }
@@ -54,4 +67,5 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     public class BakeRange : BakeProperty { public float Float; public Vector2 MinMax; }
     [Serializable]
     public class BakeColor : BakeProperty { public Color Color; }
+    public class BakeVector : BakeProperty { public Vector4 Vector; }
 }

@@ -49,7 +49,7 @@ Shader "Hidden/lilToonAtlasBaker"
         // NormalMap
         _UseBumpMap                 ("sNormalMap", Int) = 0
 
-        _BumpMap                    ("Normal Map", 2D) = "bump" {}
+       [Normal] _BumpMap                    ("Normal Map", 2D) = "bump" {}
         _BumpScale                  ("Scale", Range(-10,10)) = 1
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ Shader "Hidden/lilToonAtlasBaker"
         _UseBump2ndMap              ("sNormalMap2nd", Int) = 0
         _Bump2ndMap_UVMode          ("UV Mode|UV0|UV1|UV2|UV3", Int) = 0
 
-        _Bump2ndMap                 ("Normal Map", 2D) = "bump" {}
+        [Normal] _Bump2ndMap                 ("Normal Map", 2D) = "bump" {}
         _Bump2ndScale               ("Scale", Range(-10,10)) = 1
         _Bump2ndScaleMask           ("Mask", 2D) = "white" {}
 
@@ -130,7 +130,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _MatCapCustomNormal         ("sMatCapCustomNormal", Int) = 0
 
-        _MatCapBumpMap              ("Normal Map", 2D) = "bump" {}
+        [Normal] _MatCapBumpMap              ("Normal Map", 2D) = "bump" {}
         _MatCapBumpScale            ("Scale", Range(-10,10)) = 1
 
 
@@ -145,7 +145,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _MatCap2ndCustomNormal      ("sMatCapCustomNormal", Int) = 0
 
-        _MatCap2ndBumpMap           ("Normal Map", 2D) = "bump" {}
+        [Normal] _MatCap2ndBumpMap           ("Normal Map", 2D) = "bump" {}
         _MatCap2ndBumpScale         ("Scale", Range(-10,10)) = 1
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ Shader "Hidden/lilToonAtlasBaker"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile_fragment // TODO
+            #pragma multi_compile_fragment_local Bake_MainTex Bake_Main2ndTex Bake_Main3rdTex Bake_AlphaMask Bake_BumpMap Bake_Bump2ndMap Bake_AnisotropyScaleMask Bake_BacklightColorTex Bake_ShadowStrengthMask Bake_ShadowColorTex Bake_Shadow2ndColorTex Bake_Shadow3rdColorTex Bake_RimShadeMask Bake_SmoothnessTex Bake_MetallicGlossMap Bake_ReflectionColorTex Bake_MatCapBlendMask Bake_MatCapBumpMap Bake_MatCap2ndBlendMask Bake_MatCap2ndBumpMap Bake_RimColorTex Bake_GlitterColorTex Bake_EmissionMap Bake_EmissionBlendMask Bake_Emission2ndMap Bake_Emission2ndBlendMask Bake_ParallaxMap Bake_OutlineTex Bake_OutlineWidthMask Bake_OutlineVectorTex
 
             #include "UnityCG.cginc"
 
@@ -241,7 +241,138 @@ Shader "Hidden/lilToonAtlasBaker"
             };
 
             sampler2D _MainTex;
-            float4 _MainTex_ST;
+            float4 _Color;
+            float4 _MainTexHSVG;
+
+            sampler2D _MainColorAdjustMask;
+
+            sampler2D _Main2ndTex;
+            float4 _Color2nd;
+
+            sampler2D _Main2ndBlendMask;
+
+            sampler2D _Main2ndDissolveMask;
+
+            sampler2D _Main3rdTex;
+            float4 _Color3rd;
+
+            sampler2D _Main3rdBlendMask;
+
+            sampler2D _Main3rdDissolveNoiseMask;
+
+            sampler2D _AlphaMask;
+            float _AlphaMaskScale;
+            float _AlphaMaskValue;
+
+            sampler2D _BumpMap;
+            float _BumpScale;
+
+            sampler2D _Bump2ndMap;
+            float _Bump2ndScale;
+            sampler2D _Bump2ndScaleMask;
+
+            sampler2D _AnisotropyTangentMap;
+
+            sampler2D _AnisotropyScaleMask;
+            float _AnisotropyScale;
+
+            sampler2D _BacklightColorTex;
+            float4 _BacklightColor;
+
+            sampler2D _ShadowStrengthMask;
+            float _ShadowStrength;
+
+            sampler2D _ShadowBorderMask;
+
+            sampler2D _ShadowBlurMask;
+
+            sampler2D _ShadowColorTex;
+            float4 _ShadowColor;
+
+            sampler2D _Shadow2ndColorTex;
+            float4 _Shadow2ndColor;
+
+            sampler2D _Shadow3rdColorTex;
+            float4 _Shadow3rdColor;
+
+            sampler2D _RimShadeMask;
+            float4 _RimShadeColor;
+
+            sampler2D _SmoothnessTex;
+            float _Smoothness;
+
+            sampler2D _MetallicGlossMap;
+            float _Metallic;
+
+            sampler2D _ReflectionColorTex;
+            float4 _ReflectionColor;
+
+            sampler2D _MatCapBumpMap;
+            float _MatCapBlend;
+
+            sampler2D _MatCap2ndBlendMask;
+            float _MatCapBlend;
+
+            sampler2D _MatCap2ndBumpMap;
+            float _MatCapBumpScale;
+
+            sampler2D _RimColorTex;
+            float4 _RimColor;
+
+            sampler2D _GlitterColorTex;
+            float4 _GlitterColor;
+
+            sampler2D _EmissionMap;
+            float4 _EmissionColor;
+
+            sampler2D _EmissionBlendMask;
+            float _EmissionBlend;
+
+            sampler2D _Emission2ndMap;
+            float4 _Emission2ndColor;
+
+            sampler2D _Emission2ndBlendMask;
+            float _Emission2ndBlend;
+
+            sampler2D _ParallaxMap;
+            float _Parallax;
+
+            sampler2D _OutlineTex;
+            float4 _OutlineColor;
+            float4 _OutlineTexHSVG;
+
+            sampler2D _OutlineWidthMask;
+            float _OutlineWidth;
+            float _OutlineWidth_MaxValue;
+
+            sampler2D _OutlineVectorTex;
+            float _OutlineVectorScale;
+
+            float3 lilToneCorrection(float3 c, float4 hsvg)
+            {
+                // gamma
+                c = pow(abs(c), hsvg.w);
+                // rgb -> hsv
+                float4 p = (c.b > c.g) ? float4(c.bg,-1.0,2.0/3.0) : float4(c.gb,0.0,-1.0/3.0);
+                float4 q = (p.x > c.r) ? float4(p.xyw, c.r) : float4(c.r, p.yzx);
+                float d = q.x - min(q.w, q.y);
+                float e = 1.0e-10;
+                float3 hsv = float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+                // shift
+                hsv = float3(hsv.x+hsvg.x,saturate(hsv.y*hsvg.y),saturate(hsv.z*hsvg.z));
+                // hsv -> rgb
+                return hsv.z - hsv.z * hsv.y + hsv.z * hsv.y * saturate(abs(frac(hsv.x + float3(1.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0) - 1.0);
+            }
+
+
+
+
+
+
+
+
+
+
 
             v2f vert (appdata v)
             {
@@ -253,11 +384,75 @@ Shader "Hidden/lilToonAtlasBaker"
 
             float4 frag (v2f i) : SV_Target
             {
-                float4 col = tex2D(_MainTex, i.uv);
-
-                // TODO
-
+#if Bake_MainTex
+                float4 col = tex2D(_MainTex ,i.uv);
+                float3 tcCol = lilToneCorrection(col.rgb,_MainTexHSVG);
+                col.rgb = lerp(tcCol , col.rgb tex2D(_MainColorAdjustMask,i.uv));
+                col *= _Color;
                 return col;
+#elif Bake_Main2ndTex
+                return tex2D(_Main2ndTex ,i.uv) * _Color2nd;
+#elif Bake_Main3rdTex
+                return tex2D(_Main3rdTex ,i.uv) * _Color3rd;
+#elif Bake_AlphaMask
+                return saturate(tex2D(_AlphaMask ,i.uv) * _AlphaMaskScale + _AlphaMaskValue);
+#elif Bake_BumpMap
+                return tex2D(_BumpMap,i.uv);//いつかやるかもしれないかも
+#elif Bake_Bump2ndMap
+                return tex2D(_Bump2ndMap,i.uv);
+#elif Bake_AnisotropyScaleMask
+                return tex2D(_AnisotropyTangentMap,i.uv);
+#elif Bake_BacklightColorTex
+                return tex2D(_BacklightColorTex,i.uv) * _BacklightColor;
+#elif Bake_ShadowStrengthMask
+                return tex2D(_ShadowStrengthMask,i.uv) * _ShadowStrength;
+#elif Bake_ShadowColorTex
+                return tex2D(_ShadowColorTex,i.uv) * _ShadowColor;
+#elif Bake_Shadow2ndColorTex
+                return tex2D(_Shadow2ndColorTex,i.uv) * _Shadow2ndColor;
+#elif Bake_Shadow3rdColorTex
+                return tex2D(_Shadow3rdColorTex,i.uv) * _Shadow3rdColor;
+#elif Bake_RimShadeMask
+                return tex2D(_RimShadeMask,i.uv) * _RimShadeColor;
+#elif Bake_SmoothnessTex
+                return tex2D(_SmoothnessTex,i.uv) * _Smoothness;
+#elif Bake_MetallicGlossMap
+                return tex2D(_MetallicGlossMap,i.uv) * _Metallic;
+#elif Bake_ReflectionColorTex
+                return tex2D(_ReflectionColorTex,i.uv) * _ReflectionColor;
+#elif Bake_MatCapBlendMask
+                return tex2D(_MatCapBlendMask,i.uv) * _MatCapBlend;
+#elif Bake_MatCapBumpMap
+                return tex2D(_MatCapBumpMap,i.uv);
+#elif Bake_MatCap2ndBlendMask
+                return tex2D(_MatCap2ndBlendMask,i.uv) * _MatCap2ndBlend;
+#elif Bake_MatCap2ndBumpMap
+                return tex2D(_MatCap2ndBumpMap,i.uv);
+#elif Bake_RimColorTex
+                return tex2D(_RimColorTex,i.uv) * _RimColor;
+#elif Bake_GlitterColorTex
+                return tex2D(_GlitterColorTex,i.uv) * _GlitterColor;
+#elif Bake_EmissionMap
+                return tex2D(_EmissionMap,i.uv) * _EmissionColor;
+#elif Bake_EmissionBlendMask
+                return tex2D(_EmissionBlendMask,i.uv) * _EmissionBlend;
+#elif Bake_Emission2ndMap
+                return tex2D(_Emission2ndMap,i.uv) * _Emission2ndColor;
+#elif Bake_Emission2ndBlendMask
+                return tex2D(_Emission2ndBlendMask,i.uv) * _Emission2ndBlend;
+#elif Bake_ParallaxMap
+                return tex2D(_ParallaxMap,i.uv);
+#elif Bake_OutlineTex
+                float4 col = tex2D(_OutlineTex ,i.uv);
+                float3 tcCol = lilToneCorrection(col.rgb,_OutlineTexHSVG);
+                col.rgb = tcCol;
+                col *= _OutlineColor;
+                return col;
+#elif Bake_OutlineWidthMask
+                return tex2D(_OutlineWidthMask ,i.uv) * (_OutlineWidth / _OutlineWidth_MaxValue);
+#elif Bake_OutlineVectorTex
+                return tex2D(_OutlineVectorTex ,i.uv);
+#endif
             }
             ENDHLSL
         }

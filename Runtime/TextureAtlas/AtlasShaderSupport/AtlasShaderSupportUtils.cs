@@ -2,72 +2,98 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine;
 using TexLU = net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using TexUT = net.rs64.TexTransCore.TransTextureCore.Utils.TextureUtility;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
-    internal class AtlasShaderSupportUtils
+    internal class AtlasShaderSupportUtils : IDisposable
     {
-        AtlasDefaultShaderSupport _defaultShaderSupport;
-        List<IAtlasShaderSupport> _shaderSupports;
+        public List<AtlasShaderSupportScriptableObject> atlasShaderSupportList;
+        AtlasShaderSupportScriptableObject _defaultSupport;
 
-        public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
-        public AtlasShaderSupportUtils()
+        internal AtlasShaderSupportUtils()
         {
-            _defaultShaderSupport = new AtlasDefaultShaderSupport();
-            _shaderSupports = InterfaceUtility.GetInterfaceInstance<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) }).ToList();
+#if UNITY_EDITOR // TODO : これ何とかしないといけない
+            atlasShaderSupportList = UnityEditor.AssetDatabase.GetAllAssetPaths()
+                         .Where(i => UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(i) == typeof(AtlasShaderSupportScriptableObject))
+                         .Select(i => UnityEditor.AssetDatabase.LoadAssetAtPath<AtlasShaderSupportScriptableObject>(i))
+                         .ToList();
+#endif
+            _defaultSupport = ScriptableObject.CreateInstance<AtlasShaderSupportScriptableObject>();
+            _defaultSupport.SupportedShaderComparer = new AnythingShader();
+            _defaultSupport.AtlasTargetDefines = new() { new() { TexturePropertyName = "_MainTex", AtlasDefineConstraints = new Anything() } };
+            atlasShaderSupportList.Add(_defaultSupport);
         }
 
-        public void AddRecord(Material material)
+        public void Dispose() { UnityEngine.Object.DestroyImmediate(_defaultSupport); }
+
+        public AtlasShaderSupportScriptableObject GetAtlasShaderSupporter(Material mat)
         {
-            var supportShaderI = FindSupportI(material);
-            if (supportShaderI != null)
-            {
-                supportShaderI.AddRecord(material);
-            }
-        }
-        public void ClearRecord()
-        {
-            foreach (var i in _shaderSupports)
-            {
-                i.ClearRecord();
-            }
+            return atlasShaderSupportList.First(i => i.SupportedShaderComparer.ThisSupported(mat));
         }
 
-        public List<PropAndTexture> GetTextures(Material material, ITextureManager textureManager)
-        {
-            List<PropAndTexture> allTex;
-            var supportShaderI = FindSupportI(material);
+        //     AtlasDefaultShaderSupport _defaultShaderSupport;
+        //     List<IAtlasShaderSupport> _shaderSupports;
 
-            if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(textureManager, material, BakeSetting); }
-            else { allTex = _defaultShaderSupport.GetPropertyAndTextures(textureManager, material, BakeSetting); }
+        //     public PropertyBakeSetting BakeSetting = PropertyBakeSetting.NotBake;
+        //     public AtlasShaderSupportUtils()
+        //     {
+        //         _defaultShaderSupport = new AtlasDefaultShaderSupport();
+        //         _shaderSupports = InterfaceUtility.GetInterfaceInstance<IAtlasShaderSupport>(new Type[] { typeof(AtlasDefaultShaderSupport) }).ToList();
+        //     }
 
-            var textures = new List<PropAndTexture>();
-            foreach (var tex in allTex)
-            {
-                if (tex.Texture != null)
-                {
-                    textures.Add(tex);
-                }
-            }
+        //     public void AddRecord(Material material)
+        //     {
+        //         var supportShaderI = FindSupportI(material);
+        //         if (supportShaderI != null)
+        //         {
+        //             supportShaderI.AddRecord(material);
+        //         }
+        //     }
+        //     public void ClearRecord()
+        //     {
+        //         foreach (var i in _shaderSupports)
+        //         {
+        //             i.ClearRecord();
+        //         }
+        //     }
 
-            return textures;
-        }
-        public void MaterialCustomSetting(Material material)
-        {
-            var supportShaderI = FindSupportI(material);
-            if (supportShaderI != null)
-            {
-                supportShaderI.MaterialCustomSetting(material);
-            }
-        }
-        public IAtlasShaderSupport FindSupportI(Material material)
-        {
-            return _shaderSupports.Find(i => { return i.IsThisShader(material); });
-        }
+        //     public List<PropAndTexture> GetTextures(Material material, ITextureManager textureManager)
+        //     {
+        //         List<PropAndTexture> allTex;
+        //         var supportShaderI = FindSupportI(material);
+
+        //         if (supportShaderI != null) { allTex = supportShaderI.GetPropertyAndTextures(textureManager, material, BakeSetting); }
+        //         else { allTex = _defaultShaderSupport.GetPropertyAndTextures(textureManager, material, BakeSetting); }
+
+        //         var textures = new List<PropAndTexture>();
+        //         foreach (var tex in allTex)
+        //         {
+        //             if (tex.Texture != null)
+        //             {
+        //                 textures.Add(tex);
+        //             }
+        //         }
+
+        //         return textures;
+        //     }
+        //     public void MaterialCustomSetting(Material material)
+        //     {
+        //         var supportShaderI = FindSupportI(material);
+        //         if (supportShaderI != null)
+        //         {
+        //             supportShaderI.MaterialCustomSetting(material);
+        //         }
+        //     }
+        //     public IAtlasShaderSupport FindSupportI(Material material)
+        //     {
+        //         return _shaderSupports.Find(i => { return i.IsThisShader(material); });
+        //     }
     }
+
 
     internal class AtlasShaderRecorder
     {

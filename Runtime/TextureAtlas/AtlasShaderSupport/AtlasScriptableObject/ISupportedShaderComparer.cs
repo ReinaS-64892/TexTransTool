@@ -19,4 +19,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public Shader Shader;
         public bool ThisSupported(Material material) { return material.shader == Shader; }
     }
+
+    internal class AnythingShader : ISupportedShaderComparer
+    {
+        public bool ThisSupported(Material material) => true;
+    }
 }

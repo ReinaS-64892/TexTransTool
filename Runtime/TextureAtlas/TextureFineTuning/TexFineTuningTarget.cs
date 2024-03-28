@@ -42,12 +42,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         }
 
 
-        public static List<TexFineTuningTarget> ConvertForTargets(List<PropAndTexture2D> propAndTexture2Ds)
+        public static List<TexFineTuningTarget> ConvertForTargets(Dictionary<string, Texture2D> propAndTexture2Ds)
         {
-            var targets = new List<TexFineTuningTarget>(propAndTexture2Ds.Capacity);
+            var targets = new List<TexFineTuningTarget>(propAndTexture2Ds.Count);
             foreach (var pat in propAndTexture2Ds)
             {
-                targets.Add(new TexFineTuningTarget(pat));
+                targets.Add(new TexFineTuningTarget(new(pat.Key, pat.Value)));
             }
             return targets;
         }

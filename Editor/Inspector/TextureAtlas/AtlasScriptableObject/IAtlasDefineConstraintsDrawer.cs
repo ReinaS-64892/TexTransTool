@@ -13,6 +13,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             "OrConstraints",
             "FloatPropertyValueGreater",
             "FloatPropertyValueEqual",
+            "IntPropertyValueGreater",
+            "IntPropertyValueEqual",
             "ShaderNameContains",
             "Anything"
             };
@@ -21,6 +23,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             () => new OrConstraints(),
             () => new FloatPropertyValueGreater(),
             () => new FloatPropertyValueEqual(),
+            () => new IntPropertyValueGreater(),
+            () => new IntPropertyValueEqual(),
             () => new ShaderNameContains(),
             () => new Anything()
             };
@@ -106,6 +110,53 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     }
     [CustomPropertyDrawer(typeof(FloatPropertyValueEqual))]
     public class FloatPropertyValueEqualDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            position.height = 18f;
+            EditorGUI.BeginProperty(position, label, property);
+            if (IAtlasDefineConstraintsDrawer.DrawSelector(position, property)) { return; }
+            EditorGUI.EndProperty();
+            EditorGUI.indentLevel += 1;
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("PropertyName"));
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("Value"));
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("NotEqual"));
+            EditorGUI.indentLevel += -1;
+
+        }
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return base.GetPropertyHeight(property, label) * 4f;
+        }
+    }
+    [CustomPropertyDrawer(typeof(IntPropertyValueGreater))]
+    public class IntPropertyValueGreaterDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            position.height = 18f;
+            EditorGUI.BeginProperty(position, label, property);
+            if (IAtlasDefineConstraintsDrawer.DrawSelector(position, property)) { return; }
+            EditorGUI.EndProperty();
+            EditorGUI.indentLevel += 1;
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("PropertyName"));
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("ComparerValue"));
+            position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("Less"));
+            EditorGUI.indentLevel += -1;
+        }
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return base.GetPropertyHeight(property, label) * 4f;
+        }
+    }
+    [CustomPropertyDrawer(typeof(IntPropertyValueEqual))]
+    public class IntPropertyValueEqualDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
