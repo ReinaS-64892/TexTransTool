@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - UVtoIsland の高速化 (#412)
+- Materialの使い回しにより TransTexture と TextureBend が若干の高速化 (#430)
 
 ### Changed
 
@@ -18,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UVtoIsland の高速化 に伴い UseIslandCash は削除されました (#412)
 
 ### Fixed
+
+- 0~1 範囲外のUVを持つメッシュに SimpleDecal が正しく使用できない問題を修正 (#430)
+- 0~1 範囲外のUVを持つメッシュにデカールのリアルタイムプレビューを使用した時真っ黒になる問題を修正 (#430)
+- SimpleDecal のリアルタイムプレビューが不必要にレンダーテクスチャの更新を重複して行っていた問題を修正 (#430)
 
 ### Deprecated
 
