@@ -135,7 +135,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
         public const string TRANS_SHADER = "Hidden/TransTexture";
         public const string DEPTH_WRITER_SHADER = "Hidden/DepthWriter";
 
-        static Material s_TransMat;
+        static Material s_transMat;
+        static Material s_depthMat;
         public static void ForTrans<UVDimension>(
             RenderTexture targetTexture,
             Texture souseTexture,
@@ -143,7 +144,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
             float? padding = null,
             TextureWrap? argTexWrap = null,
             bool highQualityPadding = false,
-            bool? depthInvert = null
+            bool? depthInvert = null,
+            bool NotTileNormalize = false
             ) where UVDimension : struct
         {
             Profiler.BeginSample("GenerateTransMesh");
@@ -162,21 +164,26 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
             Profiler.BeginSample("Material Setup");
-            if (s_TransMat == null) { s_TransMat = new Material(Shader.Find(TRANS_SHADER)); }
-            s_TransMat.shaderKeywords = Array.Empty<string>();
-            s_TransMat.SetTexture("_MainTex", souseTexture);
-            if (padding.HasValue) s_TransMat.SetFloat("_Padding", padding.Value);
+            if (s_transMat == null) { s_transMat = new Material(Shader.Find(TRANS_SHADER)); }
+            s_transMat.shaderKeywords = Array.Empty<string>();
+            s_transMat.SetTexture("_MainTex", souseTexture);
+            if (padding.HasValue) s_transMat.SetFloat("_Padding", padding.Value);
             if (padding.HasValue && highQualityPadding)
             {
                 mesh.TTNormalCal();
-                s_TransMat.EnableKeyword("HighQualityPadding");
+                s_transMat.EnableKeyword("HighQualityPadding");
             }
 
             if (texWrap.WarpRange != null)
             {
-                s_TransMat.EnableKeyword("WarpRange");
-                s_TransMat.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
-                s_TransMat.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
+                s_transMat.EnableKeyword("WarpRange");
+                s_transMat.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
+                s_transMat.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
+            }
+
+            if(NotTileNormalize)
+            {
+                s_transMat.EnableKeyword("UnTileNormalize");
             }
             Profiler.EndSample();
 
@@ -186,26 +193,24 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
                 depthRt.Clear();
-                s_TransMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
+                s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 
                 using (new RTActiveSaver())
                 {
-                    var depthMat = new Material(Shader.Find(DEPTH_WRITER_SHADER));
+                    if (s_depthMat == null) { new Material(Shader.Find(DEPTH_WRITER_SHADER)); }
                     RenderTexture.active = depthRt;
 
-                    depthMat.SetPass(0);
+                    s_depthMat.SetPass(0);
                     Profiler.BeginSample("depthInvert DrawMeshNow");
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                     Profiler.EndSample();
-
-                    UnityEngine.Object.DestroyImmediate(depthMat);
                 }
 
-                s_TransMat.SetTexture("_DepthTex", depthRt);
+                s_transMat.SetTexture("_DepthTex", depthRt);
             }
             else
             {
-                s_TransMat.EnableKeyword("NotDepth");
+                s_transMat.EnableKeyword("NotDepth");
             }
 
 
@@ -215,13 +220,13 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 RenderTexture.active = targetTexture;
                 Profiler.BeginSample("DrawMeshNow");
-                s_TransMat.SetPass(0);
+                s_transMat.SetPass(0);
                 Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                 Profiler.EndSample();
                 if (padding != null)
                 {
                     Profiler.BeginSample("DrawMeshNow - padding");
-                    s_TransMat.SetPass(1);
+                    s_transMat.SetPass(1);
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                     Profiler.EndSample();
                 }
