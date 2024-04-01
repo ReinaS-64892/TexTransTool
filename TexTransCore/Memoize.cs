@@ -3,31 +3,26 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 
-namespace net.rs64.TexTransCore.TransTextureCore
+namespace net.rs64.TexTransCore
 {
     internal static class FrameMemoEvents
     {
-#pragma warning disable CS0067 // Event is never used
         internal static event Action OnClearMemo;
-#pragma warning restore CS0067 // Event is never used
 
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        static void Init()
+        internal static void Init()
         {
-            EditorApplication.update += () =>
+            TexTransCoreRuntime.Update += () =>
             {
                 OnClearMemo?.Invoke();
                 OnClearMemo = default;
             };
         }
-#endif
     }
 
     public static class Memoize
     {
         private static Dictionary<(object, object), (object, Action)> MemoData = new();
-        
+
         /// <summary>
         /// 変換関数の結果を一フレームだけ記憶するヘルパーです。同じoriginalとtransformを再度渡せば、計算結果を使いまわします。
         /// </summary>
@@ -58,7 +53,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                         MemoData.Clear();
                     };
                 }
-                
+
                 var output = transform(original);
                 MemoData[memoKey] = (output, () => destroy?.Invoke(output));
                 return output;
