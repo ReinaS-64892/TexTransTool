@@ -111,6 +111,8 @@ namespace net.rs64.TexTransTool
 
                 var souseTexture = material.GetTexture(propertyName) as Texture2D;
                 var newTarget = RenderTexture.GetTemporary(blendTexture.RenderTexture.descriptor);
+                CopyFilWrap(newTarget, blendTexture.RenderTexture);
+
                 editableMat.SetTexture(propertyName, newTarget);
 
                 var previewIPair = new CompositePreviewInstance.PreviewTexturePair(souseTexture, newTarget);
@@ -192,6 +194,8 @@ namespace net.rs64.TexTransTool
                             { continue; }
                     }
 
+                    CopyFilWrap(Rt, tex);
+
                     var blendTex = new BlendRenderTextureClass(Rt, abstractDecal.BlendTypeKey);
                     blends.Add(blendTex);
 
@@ -208,6 +212,16 @@ namespace net.rs64.TexTransTool
 
             ListPool<Material>.Release(TargetMats);
         }
+
+        internal static void CopyFilWrap(Texture t, Texture s)
+        {
+            t.filterMode = s.filterMode;
+            t.wrapMode = s.wrapMode;
+            t.wrapModeU = s.wrapModeU;
+            t.wrapModeV = s.wrapModeV;
+            t.wrapModeW = s.wrapModeW;
+        }
+
         public bool IsRealTimePreview(AbstractDecal abstractDecal) => RealTimePreviews.ContainsKey(abstractDecal);
         public void UnRegtAbstractDecal(AbstractDecal abstractDecal)
         {
@@ -253,7 +267,7 @@ namespace net.rs64.TexTransTool
              || !absDecalData.RendererEqual(abstractDecal.GetRenderers))
             {
                 Profiler.BeginSample("Reregister decal");
-                UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal); 
+                UnRegtAbstractDecal(abstractDecal); RegtAbstractDecal(abstractDecal);
                 Profiler.EndSample();
             }
 
@@ -265,13 +279,6 @@ namespace net.rs64.TexTransTool
             absDecalData.ClearDecalTarget();
             abstractDecal.CompileDecal(new TextureManager(true), absDecalData.decalTargets);
             Profiler.EndSample();
-
-            foreach (var mat in absDecalData.decalTargets.Keys)
-            {
-                Profiler.BeginSample("Update preview texture");
-                UpdatePreviewTexture(mat, absDecalData.PropertyName);
-                Profiler.EndSample();
-            }
         }
 
         public void PreviewForcesDecalUpdate()
@@ -288,6 +295,18 @@ namespace net.rs64.TexTransTool
 
             stopwatch.Restart();
             foreach (var decal in ForcesDecal) { UpdateAbstractDecal(decal); }
+
+            Profiler.BeginSample("Update preview texture");
+            foreach (var mk in ForcesDecal
+                                .Where(i => RealTimePreviews.ContainsKey(i))
+                                .SelectMany(i => RealTimePreviews[i].decalTargets.Keys.Select(m => (RealTimePreviews[i].PropertyName, m)))
+                                .Distinct()
+            )
+            {
+                UpdatePreviewTexture(mk.m, mk.PropertyName);
+            }
+            Profiler.EndSample();
+
             stopwatch.Stop();
 
             lastUpdateTime = stopwatch.ElapsedMilliseconds;
