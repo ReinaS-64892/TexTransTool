@@ -166,33 +166,36 @@ namespace net.rs64.TexTransCore.BlendTexture
         public static Shader UnlitColorAlphaShader;
         public const string ALPHA_COPY_SHADER = "Hidden/AlphaCopy";
         public static Shader AlphaCopyShader;
+        static Material s_tempMaterial;
+        static Material s_tempMaterial2;
         public static void BlendBlit(this RenderTexture baseRenderTexture, Texture Add, string blendTypeKey, bool keepAlpha = false)
         {
             using (new RTActiveSaver())
             {
-                var material = new Material(BlendShaders[blendTypeKey]);
+
                 var swap = RenderTexture.GetTemporary(baseRenderTexture.descriptor);
                 Graphics.CopyTexture(baseRenderTexture, swap);
-                material.SetTexture("_DistTex", swap);
-                material.EnableKeyword(EscapeForShaderKeyword(blendTypeKey));
 
-                Graphics.Blit(Add, baseRenderTexture, material);
+                SetTempMatShader(BlendShaders[blendTypeKey]);
+                s_tempMaterial.SetTexture("_DistTex", swap);
+                s_tempMaterial.shaderKeywords = new[] { EscapeForShaderKeyword(blendTypeKey) };
+
+                Graphics.Blit(Add, baseRenderTexture, s_tempMaterial);
 
                 if (keepAlpha)
                 {
-                    var alphaCopyMat = new Material(AlphaCopyShader);
+                    if (s_tempMaterial2 == null) { s_tempMaterial2 = new Material(AlphaCopyShader); }
+                    if (s_tempMaterial2.shader != AlphaCopyShader) { s_tempMaterial2.shader = AlphaCopyShader; }
                     var baseSwap = RenderTexture.GetTemporary(baseRenderTexture.descriptor);
 
-                    alphaCopyMat.SetTexture("_AlphaTex", swap);
+                    s_tempMaterial2.SetTexture("_AlphaTex", swap);
                     Graphics.CopyTexture(baseRenderTexture, baseSwap);
-                    Graphics.Blit(baseSwap, baseRenderTexture, alphaCopyMat);
+                    Graphics.Blit(baseSwap, baseRenderTexture, s_tempMaterial2);
 
                     RenderTexture.ReleaseTemporary(baseSwap);
-                    UnityEngine.Object.DestroyImmediate(alphaCopyMat);
                 }
 
                 RenderTexture.ReleaseTemporary(swap);
-                UnityEngine.Object.DestroyImmediate(material);
             }
         }
         private static string EscapeForShaderKeyword(string blendTypeKey) => blendTypeKey.Replace('/', '_');
@@ -205,25 +208,21 @@ namespace net.rs64.TexTransCore.BlendTexture
             Profiler.BeginSample("BlendBlit");
             using (new RTActiveSaver())
             {
-                Profiler.BeginSample("Create material");
-                var material = new Material(BlendTexShader);
-                Profiler.EndSample();
-                
                 Profiler.BeginSample("Create RT");
                 var temRt = RenderTexture.GetTemporary(baseRenderTexture.descriptor);
                 Profiler.EndSample();
-                
+
                 var swap = baseRenderTexture;
                 var target = temRt;
                 Graphics.Blit(swap, target);
-                
+
                 foreach (var Add in adds)
                 {
                     if (Add == null || Add.Texture == null || Add.BlendTypeKey == null) { continue; }
-                    if (material.shader != BlendShaders[Add.BlendTypeKey]) { material.shader = BlendShaders[Add.BlendTypeKey]; }
-                    material.SetTexture("_DistTex", swap);
-                    material.shaderKeywords = new[] { EscapeForShaderKeyword(Add.BlendTypeKey) };
-                    Graphics.Blit(Add.Texture, target, material);
+                    SetTempMatShader(BlendShaders[Add.BlendTypeKey]);
+                    s_tempMaterial.SetTexture("_DistTex", swap);
+                    s_tempMaterial.shaderKeywords = new[] { EscapeForShaderKeyword(Add.BlendTypeKey) };
+                    Graphics.Blit(Add.Texture, target, s_tempMaterial);
                     (swap, target) = (target, swap);
                 }
 
@@ -232,7 +231,6 @@ namespace net.rs64.TexTransCore.BlendTexture
                     Graphics.Blit(swap, baseRenderTexture);
                 }
                 RenderTexture.ReleaseTemporary(temRt);
-                UnityEngine.Object.DestroyImmediate(material);
             }
             Profiler.EndSample();
         }
@@ -245,6 +243,11 @@ namespace net.rs64.TexTransCore.BlendTexture
                 targetRt.BlendBlit(add, blendTypeKey);
                 return targetRt;
             }
+        }
+        private static void SetTempMatShader(Shader shader)
+        {
+            if (s_tempMaterial == null) { s_tempMaterial = new Material(shader); }
+            s_tempMaterial.shader = shader;
         }
         public interface IBlendTexturePair
         {
@@ -278,10 +281,9 @@ namespace net.rs64.TexTransCore.BlendTexture
         {
             using (new RTActiveSaver())
             {
-                var mat = new Material(ColorMulShader);
-                mat.SetColor("_Color", color);
-                Graphics.Blit(mainTex, mainTexRt, mat);
-                UnityEngine.Object.DestroyImmediate(mat);
+                SetTempMatShader(ColorMulShader);
+                s_tempMaterial.SetColor("_Color", color);
+                Graphics.Blit(mainTex, mainTexRt, s_tempMaterial);
             }
         }
         public static void MultipleRenderTexture(RenderTexture renderTexture, Color color)
@@ -289,12 +291,11 @@ namespace net.rs64.TexTransCore.BlendTexture
             using (new RTActiveSaver())
             {
                 var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
-                var mat = new Material(ColorMulShader);
-                mat.SetColor("_Color", color);
+                SetTempMatShader(ColorMulShader);
+                s_tempMaterial.SetColor("_Color", color);
                 Graphics.CopyTexture(renderTexture, tempRt);
-                Graphics.Blit(tempRt, renderTexture, mat);
+                Graphics.Blit(tempRt, renderTexture, s_tempMaterial);
                 RenderTexture.ReleaseTemporary(tempRt);
-                UnityEngine.Object.DestroyImmediate(mat);
             }
         }
         public static void MaskDrawRenderTexture(RenderTexture renderTexture, Texture maskTex)
@@ -302,48 +303,46 @@ namespace net.rs64.TexTransCore.BlendTexture
             using (new RTActiveSaver())
             {
                 var tempRt = RenderTexture.GetTemporary(renderTexture.descriptor);
-                var mat = new Material(MaskShader);
-                mat.SetTexture("_MaskTex", maskTex);
+                SetTempMatShader(MaskShader);
+                s_tempMaterial.SetTexture("_MaskTex", maskTex);
                 Graphics.CopyTexture(renderTexture, tempRt);
-                Graphics.Blit(tempRt, renderTexture, mat);
+                Graphics.Blit(tempRt, renderTexture, s_tempMaterial);
                 RenderTexture.ReleaseTemporary(tempRt);
-                UnityEngine.Object.DestroyImmediate(mat);
             }
         }
+
+
         public static void ColorBlit(RenderTexture mulDecalTexture, Color color)
         {
             using (new RTActiveSaver())
             {
-                var unlitMat = new Material(UnlitColorAlphaShader);
-                unlitMat.SetColor("_Color", color);
-                Graphics.Blit(null, mulDecalTexture, unlitMat);
-                UnityEngine.Object.DestroyImmediate(unlitMat);
+                SetTempMatShader(UnlitColorAlphaShader);
+                s_tempMaterial.SetColor("_Color", color);
+                Graphics.Blit(null, mulDecalTexture, s_tempMaterial);
             }
         }
         public static void AlphaOne(RenderTexture rt)
         {
             using (new RTActiveSaver())
             {
-                var mat = new Material(AlphaCopyShader);
-                mat.SetTexture("_AlphaTex", Texture2D.whiteTexture);
+                SetTempMatShader(AlphaCopyShader);
+                s_tempMaterial.SetTexture("_AlphaTex", Texture2D.whiteTexture);
                 var swap = RenderTexture.GetTemporary(rt.descriptor);
                 Graphics.CopyTexture(rt, swap);
-                Graphics.Blit(swap, rt, mat);
+                Graphics.Blit(swap, rt, s_tempMaterial);
                 RenderTexture.ReleaseTemporary(swap);
-                UnityEngine.Object.DestroyImmediate(mat);
             }
         }
         public static void AlphaCopy(RenderTexture alphaSouse, RenderTexture rt)
         {
             using (new RTActiveSaver())
             {
-                var mat = new Material(AlphaCopyShader);
-                mat.SetTexture("_AlphaTex", alphaSouse);
+                SetTempMatShader(AlphaCopyShader);
+                s_tempMaterial.SetTexture("_AlphaTex", alphaSouse);
                 var swap = RenderTexture.GetTemporary(rt.descriptor);
                 Graphics.CopyTexture(rt, swap);
-                Graphics.Blit(swap, rt, mat);
+                Graphics.Blit(swap, rt, s_tempMaterial);
                 RenderTexture.ReleaseTemporary(swap);
-                UnityEngine.Object.DestroyImmediate(mat);
             }
         }
     }
