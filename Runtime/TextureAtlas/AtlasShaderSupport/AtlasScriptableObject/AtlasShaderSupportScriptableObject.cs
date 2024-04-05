@@ -24,7 +24,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
                 if (!constraint.Constraints(material)) { continue; }
                 var asTex = new AtlasShaderTexture2D();
                 var tex = material.GetTexture(atlasTargetDefine.TexturePropertyName) as Texture2D;
+
                 asTex.Texture2D = tex;
+                asTex.TextureScale = material.GetTextureScale(atlasTargetDefine.TexturePropertyName);
+                asTex.TextureTranslation = material.GetTextureOffset(atlasTargetDefine.TexturePropertyName);
+
                 asTex.PropertyName = atlasTargetDefine.TexturePropertyName;
                 asTex.BakeProperties = atlasTargetDefine.BakePropertyNames.Select(s => BakeProperty.GetBakeProperty(material, s)).ToList();
                 atlasTex.Add(asTex);

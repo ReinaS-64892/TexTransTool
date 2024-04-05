@@ -153,7 +153,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 foreach (var islandKV in atlasContext.IslandDict)
                 {
-                    var material = atlasContext.MaterialToAtlasShaderDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
+                    var material = atlasContext.MaterialToAtlasShaderTexDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
                     var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture2D : null;
                     if (refTex == null) { continue; }
                     foreach (var island in islandKV.Value)
@@ -388,30 +388,117 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             atlasData.Meshes = compiledMeshes;
 
-
+            var textureManager = domain.GetTextureManager();
             //アトラス化したテクスチャーを生成するフェーズ
             var compiledAtlasTextures = new Dictionary<string, Texture2D>();
 
-            var propertyNames = atlasContext.MaterialToAtlasShaderDict.Values.SelectMany(i => i.Keys).ToHashSet();
-            var groupedTextures = atlasContext.MaterialGroup
-            .Select(mg => (Array.IndexOf(atlasContext.MaterialGroup, mg), mg.Select(m => atlasContext.MaterialToAtlasShaderDict[m])))
-            .Select(mg => (mg.Item1, ZipDict(mg.Item2)))
-            .ToDictionary(i => i.Item1, i => i.Item2);
+            var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty);
 
-            Dictionary<string, Texture2D> ZipDict(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
+            Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property)
             {
-                var dict = new Dictionary<string, Texture2D>();
-                foreach (var kv in keyValuePairs.SelectMany(i => i))
+                switch (propertyBakeSetting)
                 {
-                    if (kv.Value.Texture2D == null) { continue; }
-                    dict[kv.Key] = kv.Value.Texture2D;
+                    default: { property = null; return null; }
+                    case PropertyBakeSetting.NotBake:
+                        {
+                            var dict = atlasContext.MaterialGroup
+                                .Select(mg => (Array.IndexOf(atlasContext.MaterialGroup, mg), mg.Select(m => atlasContext.MaterialToAtlasShaderTexDict[m])))
+                                .Select(mg => (mg.Item1, ZipDictAndOffset(mg.Item2)))
+                                .ToDictionary(i => i.Item1, i => i.Item2);
+
+                            property = new HashSet<string>(dict.SelectMany(i => i.Value.Keys));
+                            return dict;
+
+                            Dictionary<string, RenderTexture> ZipDictAndOffset(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
+                            {
+                                var dict = new Dictionary<string, RenderTexture>();
+                                foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
+                                {
+                                    if (kv.Any(i => i.Value.Texture2D != null) == false) { continue; }
+                                    var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
+                                    if (atlasTex.TextureScale == Vector2.zero && atlasTex.TextureTranslation == Vector2.zero)
+                                    {
+                                        dict[kv.Key] = textureManager.GetOriginTempRt(atlasTex.Texture2D);
+                                    }
+                                    else
+                                    {
+                                        var tex = atlasTex.Texture2D;
+
+                                        var originTex = textureManager.GetOriginTempRt(tex);
+                                        originTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation);
+
+                                        dict[kv.Key] = originTex;
+                                    }
+                                }
+                                return dict;
+                            }
+                        }
+                    case PropertyBakeSetting.Bake:
+                    case PropertyBakeSetting.BakeAllProperty:
+                        {
+                            property = new HashSet<string>(atlasContext.MaterialToAtlasShaderTexDict
+                                    .SelectMany(i => i.Value)
+                                    .GroupBy(i => i.Key)
+                                    .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture2D != null))
+                                    .Select(i => i.Key)
+                                );
+
+                            var groupDict = new Dictionary<int, Dictionary<string, RenderTexture>>(atlasContext.MaterialGroup.Length);
+                            var tmpMat = new Material(Shader.Find("Unlit/Texture"));
+
+
+                            for (var gi = 0; atlasContext.MaterialGroup.Length > gi; gi += 1)
+                            {
+                                var matGroup = atlasContext.MaterialGroup[gi];
+                                var groupMat = matGroup.First();
+
+                                var atlasTexDict = atlasContext.MaterialToAtlasShaderTexDict[groupMat];//テクスチャに関する情報が完全に同じでないと同じグループにならない。だから適当なものでよい。
+                                var shaderSupport = atlasContext.AtlasShaderSupporters[groupMat];
+
+                                tmpMat.shader = shaderSupport.BakeShader;
+
+                                var texDict = groupDict[gi] = new();
+
+                                foreach (var propName in property)
+                                {
+                                    atlasTexDict.TryGetValue(propName, out var atlasTex);
+                                    var sTex = atlasTex?.Texture2D != null ? textureManager.GetOriginTempRt(atlasTex.Texture2D) : null;
+
+                                    if (sTex != null) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
+                                    var bakedTex = sTex != null ? sTex.CloneTemp() : RenderTexture.GetTemporary(2, 2);
+
+                                    if (atlasTex != null)
+                                    {
+                                        foreach (var bakeProp in atlasTex.BakeProperties)
+                                        {
+                                            bakeProp.WriteMaterial(tmpMat);
+                                        }
+                                    }
+                                    tmpMat.EnableKeyword("Bake" + propName);
+                                    tmpMat.SetTexture(propName, sTex);
+                                    Graphics.Blit(sTex, bakedTex, tmpMat);
+
+                                    texDict[propName] = bakedTex;
+
+                                    if (sTex != null) { RenderTexture.ReleaseTemporary(sTex); }
+                                    tmpMat.AllPropertyReset();
+                                    tmpMat.shaderKeywords = Array.Empty<string>();
+
+                                }
+
+
+                            }
+
+                            return groupDict;
+                        }
                 }
-                return dict;
             }
 
 
 
-            foreach (var propName in propertyNames)
+
+
+            foreach (var propName in containsProperty)
             {
                 var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize, 32);
                 targetRT.Clear();
@@ -421,7 +508,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     // var souseProp2Tex = gTex.MatPropKV.Value.Find(I => I.PropertyName == propName);
                     // if (souseProp2Tex == null) continue;
                     if (!gTex.Value.TryGetValue(propName, out var sTexture)) { continue; }
-                    Texture souseTex = sTexture is Texture2D ? texManage.GetOriginTempRt(sTexture as Texture2D, sTexture.width) : sTexture;
 
                     // var findMaterial = MatPropKV.Key;
                     var findMaterialID = gTex.Key;
@@ -437,7 +523,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             }
                         }
 
-                        TransMoveRectIsland(souseTex, targetRT, islandPairs, atlasSetting.IslandPadding);
+                        TransMoveRectIsland(sTexture, targetRT, islandPairs, atlasSetting.IslandPadding);
                     }
                     else
                     {
@@ -450,36 +536,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
                             var transData = new TransData<Vector2>(triangles, subSetMovedUV[subSetIndex], originUV);
-                            ForTrans(targetRT, souseTex, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
+                            ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
                         }
                     }
 
                     // UnityEditor.AssetDatabase.CreateAsset(targetRT.CopyTexture2D(), UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/temp.asset"));
-
-                    if (sTexture is Texture2D && souseTex is RenderTexture tempRt) { RenderTexture.ReleaseTemporary(tempRt); }
                 }
 
                 compiledAtlasTextures.Add(propName, targetRT.CopyTexture2D());
                 RenderTexture.ReleaseTemporary(targetRT);
             }
-            // foreach (var matData in materialTextures)
-            // {
-            //     foreach (var pTex in matData.Value)
-            //     {
-            //         if (pTex.Texture == null) { continue; }
-            //         switch (pTex.Texture)
-            //         {
-            //             case RenderTexture renderTexture:
-            //                 {
-            //                     RenderTexture.ReleaseTemporary(renderTexture);
-            //                     break;
-            //                 }
-            //             case Texture2D texture2D:
-            //             default:
-            //                 { break; }
-            //         }
-            //     }
-            // }
+
+            foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { RenderTexture.ReleaseTemporary(tex.Value); } }
+            groupedTextures = null;
+
 
             atlasData.Textures = compiledAtlasTextures;
             atlasData.MaterialID = atlasContext.MaterialGroup.Select(i => i.ToHashSet()).ToArray();
@@ -487,6 +557,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var movedUV in subSetMovedUV) { movedUV.Dispose(); }
 
             return true;
+
         }
 
         private static Dictionary<Material, float> GetTextureSizeOffset(IEnumerable<Material> targetMaterialSelectors, AtlasSetting atlasSetting)

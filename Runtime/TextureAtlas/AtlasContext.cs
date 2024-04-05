@@ -19,7 +19,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Dictionary<Mesh, MeshData> MeshDataDict;//適当なレンダラーのノーマライズされたメッシュと対応する
 
         public OrderedHashSet<Material>[] MaterialGroup;
-        public Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> MaterialToAtlasShaderDict;
+        public Dictionary<Material, AtlasShaderSupportScriptableObject> AtlasShaderSupporters;
+        public Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> MaterialToAtlasShaderTexDict;
         public AtlasShaderSupportUtils AtlasShaderSupportUtils;
         public HashSet<AtlasSubData> AtlasSubAll;
         public List<AtlasSubData?[]> AtlasSubSets;
@@ -66,39 +67,62 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var shaderSupports = new AtlasShaderSupportUtils();
             var supporters = targetMaterials.Select(m => (m, shaderSupports.GetAtlasShaderSupporter(m))).ToDictionary(i => i.m, i => i.Item2);
             var material2AtlasTargets = supporters.Select(kv => (kv.Key, kv.Value.GetAtlasShaderTexture2D(kv.Key))).ToDictionary(i => i.Key, i => i.Item2.ToDictionary(p => p.PropertyName, p => p));
-            MaterialToAtlasShaderDict = material2AtlasTargets;
+            MaterialToAtlasShaderTexDict = material2AtlasTargets;
             AtlasShaderSupportUtils = shaderSupports;
-            if (usePropertyBake)
+            AtlasShaderSupporters = supporters;
+
+            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
+
+            foreach (var matKv in material2AtlasTargets)
             {
-                MaterialGroup = materialHash.Select(i => new OrderedHashSet<Material>() { i }).ToArray();
+                var index = materialGroupList.FindIndex(
+                    matGroup => matGroup.All(m2 =>
+                            supporters[matKv.Key] == supporters[m2.Key]
+                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value) )
+                        )
+                    );
+
+                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
+                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
             }
-            else
+
+            bool PropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
             {
-                var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
-
-                foreach (var matKv in material2AtlasTargets)
+                foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
                 {
-                    var index = materialGroupList.FindIndex(matGroup => matGroup.All(m2 => PropEqual(m2.Value, matKv.Value)));
+                    if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
+                    var l = propL[propName];
+                    var r = propR[propName];
+                    if (l.Texture2D == null || r.Texture2D == null) { continue; }
+                    if (l.Texture2D != r.Texture2D) { return false; }
 
-                    if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
-                    else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
+                    if (l.TextureScale != r.TextureScale) { return false; }
+                    if (l.TextureTranslation != r.TextureTranslation) { return false; }
+
                 }
-
-                bool PropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
-                {
-
-                    foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
-                    {
-                        if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
-                        var l = propL[propName];
-                        var r = propR[propName];
-                        if (l.Texture2D == null || r.Texture2D == null) { continue; }
-                        if (l.Texture2D != r.Texture2D) { return false; }
-                    }
-                    return true;
-                }
-                MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+                return true;
             }
+            bool BakedPropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
+            {
+                foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
+                {
+                    if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { return false; }
+
+                    var l = propL[propName];
+                    var r = propR[propName];
+
+                    if (l.Texture2D == null || r.Texture2D == null) {  return false; }
+                    if (l.Texture2D != r.Texture2D) { return false; }
+
+                    if (l.TextureScale != r.TextureScale) { return false; }
+                    if (l.TextureTranslation != r.TextureTranslation) { return false; }
+
+                    if (BakeProperty.PropertyListEqual(l.BakeProperties, r.BakeProperties) == false) { return false; }
+                }
+                return true;
+            }
+            MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+
             var TargetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
             var normalizedMesh = SubVertNormalize(TargetRenderers);
 
@@ -281,6 +305,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Islands = IslandLinkList.ToArray();
             IslandSubData = atSubLinkList.ToArray();
 
+            /*
+            AtlasSubSetは、AtlasSubDataの一つの塊みたいな扱いで、 出力されるメッシュに相当する。
+
+            SubMeshが多い分には問題がないから、
+            同一メッシュを参照し、マテリアルがそれぞれ
+
+            ABC
+            ABCDE
+
+            のようなものの場合同一のものにすべきなため、同一サブセット扱いを行う。
+
+            */
             static void IdenticalSubSetRemove(List<AtlasSubData?[]> atlasSubSets)
             {
                 while (true)

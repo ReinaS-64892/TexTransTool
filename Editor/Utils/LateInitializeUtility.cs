@@ -27,6 +27,8 @@ namespace net.rs64.TexTransTool.Utils
             SpecialLayerShaders.Init();
             TTTImageAssets.Init();
             MipMapUtility.MipMapShader = AssetDatabase.LoadAssetAtPath<ComputeShader>(AssetDatabase.GUIDToAssetPath("5f6d88c53276bb14eace10771023ae01"));
+            TexTransCore.TransTextureCore.Utils.TextureUtility.Init();
+            TexTransCore.TransTextureCore.TransTexture.Init();
         }
     }
 }

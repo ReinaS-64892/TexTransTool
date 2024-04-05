@@ -126,5 +126,48 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
+
+        public static RenderTexture CloneTemp(this RenderTexture renderTexture)
+        {
+            var newTemp = RenderTexture.GetTemporary(renderTexture.descriptor);
+            newTemp.filterMode = renderTexture.filterMode;
+            newTemp.wrapMode = renderTexture.wrapMode;
+            newTemp.wrapModeU = renderTexture.wrapModeU;
+            newTemp.wrapModeV = renderTexture.wrapModeV;
+            newTemp.wrapModeW = renderTexture.wrapModeW;
+            Graphics.CopyTexture(renderTexture, newTemp);
+            return newTemp;
+        }
+
+
+
+        public const string ST_APPLY_SHADER = "Hidden/TransTexture";
+        static Shader s_stApplyShader;
+
+        public static void Init() { s_stApplyShader = Shader.Find(ST_APPLY_SHADER); }
+
+        static Material s_TempMat;
+
+        public static void ApplyTextureST(Texture Souse, Vector2 s, Vector2 t, RenderTexture write)
+        {
+            using (new RTActiveSaver())
+            {
+                if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
+                s_TempMat.shader = s_stApplyShader;
+
+                s_TempMat.SetTextureScale("_MainTex", s);
+                s_TempMat.SetTextureOffset("_MainTex", t);
+
+                Graphics.Blit(Souse, write, s_TempMat);
+            }
+        }
+        public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
+        {
+            var tmp = rt.CloneTemp();
+            ApplyTextureST(tmp, s, t, rt);
+            RenderTexture.ReleaseTemporary(tmp);
+        }
+
+
     }
 }

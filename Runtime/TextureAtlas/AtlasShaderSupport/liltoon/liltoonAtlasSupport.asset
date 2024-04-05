@@ -202,7 +202,7 @@ MonoBehaviour:
       rid: 7150698705470881846
     BakePropertyNames:
     - _OutlineVectorScale
-  BakeShader: {fileID: 0}
+  BakeShader: {fileID: 4800000, guid: 9d918a30dc195d94ea1916f48779948f, type: 3}
   AtlasMaterialPostProses:
   - rid: 7150698656081904264
   - rid: 7150698656081904304

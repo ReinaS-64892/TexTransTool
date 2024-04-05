@@ -224,7 +224,7 @@ Shader "Hidden/lilToonAtlasBaker"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile_fragment_local Bake_MainTex Bake_Main2ndTex Bake_Main3rdTex Bake_AlphaMask Bake_BumpMap Bake_Bump2ndMap Bake_AnisotropyScaleMask Bake_BacklightColorTex Bake_ShadowStrengthMask Bake_ShadowColorTex Bake_Shadow2ndColorTex Bake_Shadow3rdColorTex Bake_RimShadeMask Bake_SmoothnessTex Bake_MetallicGlossMap Bake_ReflectionColorTex Bake_MatCapBlendMask Bake_MatCapBumpMap Bake_MatCap2ndBlendMask Bake_MatCap2ndBumpMap Bake_RimColorTex Bake_GlitterColorTex Bake_EmissionMap Bake_EmissionBlendMask Bake_Emission2ndMap Bake_Emission2ndBlendMask Bake_ParallaxMap Bake_OutlineTex Bake_OutlineWidthMask Bake_OutlineVectorTex
+            #pragma multi_compile_local_fragment Bake_MainTex Bake_Main2ndTex Bake_Main3rdTex Bake_AlphaMask Bake_BumpMap Bake_Bump2ndMap Bake_AnisotropyScaleMask Bake_BacklightColorTex Bake_ShadowStrengthMask Bake_ShadowColorTex Bake_Shadow2ndColorTex Bake_Shadow3rdColorTex Bake_RimShadeMask Bake_SmoothnessTex Bake_MetallicGlossMap Bake_ReflectionColorTex Bake_MatCapBlendMask Bake_MatCapBumpMap Bake_MatCap2ndBlendMask Bake_MatCap2ndBumpMap Bake_RimColorTex Bake_GlitterColorTex Bake_EmissionMap Bake_EmissionBlendMask Bake_Emission2ndMap Bake_Emission2ndBlendMask Bake_ParallaxMap Bake_OutlineTex Bake_OutlineWidthMask Bake_OutlineVectorTex
 
             #include "UnityCG.cginc"
 
@@ -307,14 +307,17 @@ Shader "Hidden/lilToonAtlasBaker"
             sampler2D _ReflectionColorTex;
             float4 _ReflectionColor;
 
-            sampler2D _MatCapBumpMap;
+            sampler2D _MatCapBlendMask;
             float _MatCapBlend;
+
+            sampler2D _MatCapBumpMap;
+            float _MatCapBumpScale;
 
             sampler2D _MatCap2ndBlendMask;
-            float _MatCapBlend;
+            float _MatCap2ndBlend;
 
             sampler2D _MatCap2ndBumpMap;
-            float _MatCapBumpScale;
+            float _MatCap2ndBumpScale;
 
             sampler2D _RimColorTex;
             float4 _RimColor;
@@ -378,7 +381,7 @@ Shader "Hidden/lilToonAtlasBaker"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 return o;
             }
 
@@ -387,7 +390,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #if Bake_MainTex
                 float4 col = tex2D(_MainTex ,i.uv);
                 float3 tcCol = lilToneCorrection(col.rgb,_MainTexHSVG);
-                col.rgb = lerp(tcCol , col.rgb tex2D(_MainColorAdjustMask,i.uv));
+                col.rgb = lerp(tcCol , col.rgb , tex2D(_MainColorAdjustMask,i.uv));
                 col *= _Color;
                 return col;
 #elif Bake_Main2ndTex
