@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public string Name;
         public bool Constraints(Material material)
         {
-            return material.shader.name.Contains("Name");
+            return material.shader.name.Contains(Name);
         }
     }
     [Serializable]

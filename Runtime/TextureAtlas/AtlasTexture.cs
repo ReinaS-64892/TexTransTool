@@ -446,6 +446,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var groupDict = new Dictionary<int, Dictionary<string, RenderTexture>>(atlasContext.MaterialGroup.Length);
                             var tmpMat = new Material(Shader.Find("Unlit/Texture"));
 
+                            var bakePropMaxValue = atlasContext.MaterialToAtlasShaderTexDict.Values.SelectMany(kv => kv)
+                                .SelectMany(i => i.Value.BakeProperties)
+                                .GroupBy(i => i.PropertyName)
+                                .Where(i => i.First() is BakeFloat || i.First() is BakeRange)
+                                .ToDictionary(i => i.Key, i => i.Max(p =>
+                                    {
+                                        if(p is BakeFloat bakeFloat){return bakeFloat.Float;}
+                                        if(p is BakeRange bakeRange){return bakeRange.Float;}
+                                        return 0;
+                                    }
+                                )
+                            );//一旦 Float として扱えるものだけの実装にしておく。
+
 
                             for (var gi = 0; atlasContext.MaterialGroup.Length > gi; gi += 1)
                             {
@@ -472,9 +485,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                         foreach (var bakeProp in atlasTex.BakeProperties)
                                         {
                                             bakeProp.WriteMaterial(tmpMat);
+
+                                            var bakePropName = bakeProp.PropertyName;
+                                            var maxValPropName = bakePropName + "_MaxValue";
+                                            if (tmpMat.HasProperty(maxValPropName) && bakePropMaxValue.TryGetValue(bakePropName, out var bakeMaxValue))
+                                            {
+                                                tmpMat.SetFloat(maxValPropName, bakeMaxValue);
+                                            }
                                         }
                                     }
+
                                     tmpMat.EnableKeyword("Bake" + propName);
+                                    if (atlasTex == null) { tmpMat.EnableKeyword("Constraint_Invalid"); }
+
                                     tmpMat.SetTexture(propName, sTex);
                                     Graphics.Blit(sTex, bakedTex, tmpMat);
 

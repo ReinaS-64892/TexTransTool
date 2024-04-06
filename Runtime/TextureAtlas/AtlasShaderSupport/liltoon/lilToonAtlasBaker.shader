@@ -204,6 +204,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _OutlineWidthMask           ("Width", 2D) = "white" {}
         _OutlineWidth               ("Width", Range(0,1)) = 0.08
+        _OutlineWidth_MaxValue      ("Width", float) = 1
 
 
         _OutlineVectorUVMode        ("UV Mode|UV0|UV1|UV2|UV3", Int) = 0
@@ -225,6 +226,7 @@ Shader "Hidden/lilToonAtlasBaker"
             #pragma fragment frag
 
             #pragma multi_compile_local_fragment Bake_MainTex Bake_Main2ndTex Bake_Main3rdTex Bake_AlphaMask Bake_BumpMap Bake_Bump2ndMap Bake_AnisotropyScaleMask Bake_BacklightColorTex Bake_ShadowStrengthMask Bake_ShadowColorTex Bake_Shadow2ndColorTex Bake_Shadow3rdColorTex Bake_RimShadeMask Bake_SmoothnessTex Bake_MetallicGlossMap Bake_ReflectionColorTex Bake_MatCapBlendMask Bake_MatCapBumpMap Bake_MatCap2ndBlendMask Bake_MatCap2ndBumpMap Bake_RimColorTex Bake_GlitterColorTex Bake_EmissionMap Bake_EmissionBlendMask Bake_Emission2ndMap Bake_Emission2ndBlendMask Bake_ParallaxMap Bake_OutlineTex Bake_OutlineWidthMask Bake_OutlineVectorTex
+            #pragma shader_feature_local_fragment Constraint_Invalid
 
             #include "UnityCG.cginc"
 
@@ -398,10 +400,19 @@ Shader "Hidden/lilToonAtlasBaker"
 #elif Bake_Main3rdTex
                 return tex2D(_Main3rdTex ,i.uv) * _Color3rd;
 #elif Bake_AlphaMask
+#if Constraint_Invalid
+                return float4(1,1,1,1);
+#endif
                 return saturate(tex2D(_AlphaMask ,i.uv) * _AlphaMaskScale + _AlphaMaskValue);
 #elif Bake_BumpMap
+#if Constraint_Invalid
+                return float4(1,0.5,0.5,0.5);
+#endif
                 return tex2D(_BumpMap,i.uv);//いつかやるかもしれないかも
 #elif Bake_Bump2ndMap
+#if Constraint_Invalid
+                return float4(1,0.5,0.5,0.5);
+#endif
                 return tex2D(_Bump2ndMap,i.uv);
 #elif Bake_AnisotropyScaleMask
                 return tex2D(_AnisotropyTangentMap,i.uv);
@@ -416,6 +427,9 @@ Shader "Hidden/lilToonAtlasBaker"
 #elif Bake_Shadow3rdColorTex
                 return tex2D(_Shadow3rdColorTex,i.uv) * _Shadow3rdColor;
 #elif Bake_RimShadeMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_RimShadeMask,i.uv) * _RimShadeColor;
 #elif Bake_SmoothnessTex
                 return tex2D(_SmoothnessTex,i.uv) * _Smoothness;
@@ -426,32 +440,56 @@ Shader "Hidden/lilToonAtlasBaker"
 #elif Bake_MatCapBlendMask
                 return tex2D(_MatCapBlendMask,i.uv) * _MatCapBlend;
 #elif Bake_MatCapBumpMap
+#if Constraint_Invalid
+                return float4(1,0.5,0.5,0.5);
+#endif
                 return tex2D(_MatCapBumpMap,i.uv);
 #elif Bake_MatCap2ndBlendMask
                 return tex2D(_MatCap2ndBlendMask,i.uv) * _MatCap2ndBlend;
 #elif Bake_MatCap2ndBumpMap
+#if Constraint_Invalid
+                return float4(1,0.5,0.5,0.5);
+#endif
                 return tex2D(_MatCap2ndBumpMap,i.uv);
 #elif Bake_RimColorTex
                 return tex2D(_RimColorTex,i.uv) * _RimColor;
 #elif Bake_GlitterColorTex
                 return tex2D(_GlitterColorTex,i.uv) * _GlitterColor;
 #elif Bake_EmissionMap
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_EmissionMap,i.uv) * _EmissionColor;
 #elif Bake_EmissionBlendMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_EmissionBlendMask,i.uv) * _EmissionBlend;
 #elif Bake_Emission2ndMap
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_Emission2ndMap,i.uv) * _Emission2ndColor;
 #elif Bake_Emission2ndBlendMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_Emission2ndBlendMask,i.uv) * _Emission2ndBlend;
 #elif Bake_ParallaxMap
                 return tex2D(_ParallaxMap,i.uv);
 #elif Bake_OutlineTex
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 float4 col = tex2D(_OutlineTex ,i.uv);
                 float3 tcCol = lilToneCorrection(col.rgb,_OutlineTexHSVG);
                 col.rgb = tcCol;
                 col *= _OutlineColor;
                 return col;
 #elif Bake_OutlineWidthMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_OutlineWidthMask ,i.uv) * (_OutlineWidth / _OutlineWidth_MaxValue);
 #elif Bake_OutlineVectorTex
                 return tex2D(_OutlineVectorTex ,i.uv);

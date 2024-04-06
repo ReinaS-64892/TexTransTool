@@ -199,7 +199,7 @@ MonoBehaviour:
     - _OutlineWidth
   - TexturePropertyName: _OutlineVectorTex
     AtlasDefineConstraints:
-      rid: 7150698705470881846
+      rid: 1595567437379272704
     BakePropertyNames:
     - _OutlineVectorScale
   BakeShader: {fileID: 4800000, guid: 9d918a30dc195d94ea1916f48779948f, type: 3}
@@ -209,6 +209,25 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 1595567437379272704
+      type: {class: AndConstraints, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AtlasDefineConstraints:
+        - rid: 1595567437379272706
+        - rid: 1595567437379272705
+    - rid: 1595567437379272705
+      type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PropertyName: _OutlineVectorUVMode
+        ComparerValue: 1
+        Less: 1
+    - rid: 1595567437379272706
+      type: {class: ShaderNameContains, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Outline
     - rid: 7150698656081904264
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
@@ -671,10 +690,3 @@ MonoBehaviour:
         PropertyName: _UseParallax
         ComparerValue: 0
         Less: 0
-    - rid: 7150698705470881846
-      type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
-        asm: net.rs64.tex-trans-tool.runtime}
-      data:
-        PropertyName: _OutlineVectorUVMode
-        ComparerValue: 1
-        Less: 1
