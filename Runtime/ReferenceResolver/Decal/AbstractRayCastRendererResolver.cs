@@ -3,8 +3,8 @@ using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Decal;
 using UnityEngine;
 using net.rs64.TexTransCore.Decal;
-using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {

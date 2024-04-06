@@ -22,13 +22,13 @@ namespace net.rs64.TexTransTool.Utils
         {
             TTTConfig.SettingInitializer();
             Localize.LocalizeInitializer();
-            TextureBlend.BlendShadersInit();
             PSDImportedRasterImage.MargeColorAndOffsetShader = Shader.Find(PSDImportedRasterImage.MARGE_COLOR_AND_OFFSET_SHADER);
             SpecialLayerShaders.Init();
             TTTImageAssets.Init();
+            TexTransCore.TexTransCoreRuntime.Initialize();
+            UnityEditor.EditorApplication.update += TexTransCore.TexTransCoreRuntime.Update.Invoke;
             MipMapUtility.MipMapShader = AssetDatabase.LoadAssetAtPath<ComputeShader>(AssetDatabase.GUIDToAssetPath("5f6d88c53276bb14eace10771023ae01"));
-            TexTransCore.TransTextureCore.Utils.TextureUtility.Init();
-            TexTransCore.TransTextureCore.TransTexture.Init();
+
         }
     }
 }

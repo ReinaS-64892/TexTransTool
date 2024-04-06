@@ -14,6 +14,8 @@ using UnityEngine.Serialization;
 using Unity.Collections;
 using Unity.Mathematics;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
+using Unity.Profiling;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -131,7 +133,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasSetting = AtlasSetting;
             var propertyBakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
             // var atlasReferenceData = new AtlasReferenceData(targetMaterials, Renderers);
+            Profiler.BeginSample("AtlasContext:ctor");
             var atlasContext = new AtlasContext(targetMaterials, Renderers, propertyBakeSetting != PropertyBakeSetting.NotBake);
+            Profiler.EndSample();
 
 
             //サブメッシュより多いスロットの存在可否
@@ -151,6 +155,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //アイランドまわり
             if (atlasSetting.PixelNormalize)
             {
+                Profiler.BeginSample("AtlasReferenceData:PixelNormalize");
                 foreach (var islandKV in atlasContext.IslandDict)
                 {
                     var material = atlasContext.MaterialToAtlasShaderTexDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
@@ -162,6 +167,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         island.Pivot.x = Mathf.Round(island.Pivot.x * refTex.width) / refTex.width;
                     }
                 }
+                Profiler.EndSample();
             }
             var islandArray = atlasContext.Islands;
             var rectArray = new IslandRect[islandArray.Length];
@@ -240,7 +246,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var rectTangleMove = relocator.RectTangleMove;
             var relocatedRect = rectArray.ToArray();
 
+            Profiler.BeginSample("Relocation");
             if (!relocator.Relocation(relocatedRect)) { relocatedRect = RelocateLoop(rectArray, sizePriority, relocator, relocatedRect); }
+            Profiler.EndSample();
 
             IslandRect[] RelocateLoop(IslandRect[] rectArray, float[] sizePriority, IAtlasIslandRelocator relocator, IslandRect[] relocatedRect)
             {
@@ -339,6 +347,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //新しいUVを持つMeshを生成するフェーズ
+            Profiler.BeginSample("MeshCompile");
             var compiledMeshes = new List<AtlasData.AtlasMeshAndDist>();
             var normMeshes = atlasContext.Meshes.Select(m => atlasContext.NormalizeMeshes[m]).ToArray();
             var subSetMovedUV = new NativeArray<Vector2>[atlasContext.AtlasSubSets.Count];
@@ -387,10 +396,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }
             atlasData.Meshes = compiledMeshes;
+            Profiler.EndSample();
 
             var textureManager = domain.GetTextureManager();
             //アトラス化したテクスチャーを生成するフェーズ
-            var compiledAtlasTextures = new Dictionary<string, Texture2D>();
+            var compiledAtlasTextures = new Dictionary<string, AsyncTexture2D>();
 
             var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty);
 
@@ -452,8 +462,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 .Where(i => i.First() is BakeFloat || i.First() is BakeRange)
                                 .ToDictionary(i => i.Key, i => i.Max(p =>
                                     {
-                                        if(p is BakeFloat bakeFloat){return bakeFloat.Float;}
-                                        if(p is BakeRange bakeRange){return bakeRange.Float;}
+                                        if (p is BakeFloat bakeFloat) { return bakeFloat.Float; }
+                                        if (p is BakeRange bakeRange) { return bakeRange.Float; }
                                         return 0;
                                     }
                                 )
@@ -521,11 +531,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
+            Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
                 var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize, 32);
                 targetRT.Clear();
                 targetRT.name = "AtlasTex" + propName;
+                Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)
                 {
                     // var souseProp2Tex = gTex.MatPropKV.Value.Find(I => I.PropertyName == propName);
@@ -565,16 +577,22 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     // UnityEditor.AssetDatabase.CreateAsset(targetRT.CopyTexture2D(), UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/temp.asset"));
                 }
+                Profiler.EndSample();
 
-                compiledAtlasTextures.Add(propName, targetRT.CopyTexture2D());
+                Profiler.BeginSample("Readback");
+                compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
+                Profiler.EndSample();
+
                 RenderTexture.ReleaseTemporary(targetRT);
             }
-
+            Profiler.EndSample();
             foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { RenderTexture.ReleaseTemporary(tex.Value); } }
             groupedTextures = null;
 
+            Profiler.BeginSample("Async Readback");
+            atlasData.Textures = compiledAtlasTextures.ToDictionary(kv => kv.Key, kv => kv.Value.GetTexture2D());
+            Profiler.EndSample();
 
-            atlasData.Textures = compiledAtlasTextures;
             atlasData.MaterialID = atlasContext.MaterialGroup.Select(i => i.ToHashSet()).ToArray();
             atlasContext.Dispose();
             foreach (var movedUV in subSetMovedUV) { movedUV.Dispose(); }
@@ -641,13 +659,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
             domain.ProgressStateEnter("AtlasTexture");
             domain.ProgressUpdate("CompileAtlasTexture", 0f);
 
-            if (!TryCompileAtlasTextures(domain, out var atlasData)) { return; }
+            Profiler.BeginSample("TryCompileAtlasTextures");
+            if (!TryCompileAtlasTextures(domain, out var atlasData)) { Profiler.EndSample(); return; }
+            Profiler.EndSample();
 
             domain.ProgressUpdate("MeshChange", 0.5f);
 
             var nowRenderers = Renderers;
 
+            Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
             var shaderSupport = new AtlasShaderSupportUtils();
+            Profiler.EndSample();
 
             //Mesh Change
             foreach (var renderer in nowRenderers)

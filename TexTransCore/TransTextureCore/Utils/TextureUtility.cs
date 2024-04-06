@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
@@ -66,6 +67,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
 
         public static Texture2D ResizeTexture(Texture2D souse, Vector2Int size)
         {
+            Profiler.BeginSample("ResizeTexture");
             using (new RTActiveSaver())
             {
                 var useMip = souse.mipmapCount > 1;
@@ -96,6 +98,8 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                 resizedTexture.name = souse.name + "_Resized_" + size.x.ToString();
 
                 RenderTexture.ReleaseTemporary(rt);
+                Profiler.EndSample();
+                
                 return resizedTexture;
             }
         }
