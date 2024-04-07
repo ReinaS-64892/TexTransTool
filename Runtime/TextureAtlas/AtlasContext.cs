@@ -9,6 +9,7 @@ using System.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -62,67 +63,41 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         public AtlasContext(List<Material> targetMaterials, List<Renderer> inputRenderers, bool usePropertyBake)
         {
+            Profiler.BeginSample("FiledInitialize");
             var materialHash = targetMaterials.ToHashSet();
-
+            Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
             var shaderSupports = new AtlasShaderSupportUtils();
+            Profiler.EndSample();
+            Profiler.BeginSample("GetSupporter");
             var supporters = targetMaterials.Select(m => (m, shaderSupports.GetAtlasShaderSupporter(m))).ToDictionary(i => i.m, i => i.Item2);
+            Profiler.EndSample();
+            Profiler.BeginSample("mat2AtlasShaderTex");
             var material2AtlasTargets = supporters.Select(kv => (kv.Key, kv.Value.GetAtlasShaderTexture2D(kv.Key))).ToDictionary(i => i.Key, i => i.Item2.ToDictionary(p => p.PropertyName, p => p));
+            Profiler.EndSample();
             MaterialToAtlasShaderTexDict = material2AtlasTargets;
             AtlasShaderSupportUtils = shaderSupports;
             AtlasShaderSupporters = supporters;
+            Profiler.EndSample();
 
+
+            Profiler.BeginSample("LookUp MatGroup");
             var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
-
             foreach (var matKv in material2AtlasTargets)
             {
-                var index = materialGroupList.FindIndex(
-                    matGroup => matGroup.All(m2 =>
+                var index = materialGroupList.FindIndex(matGroup =>
+                        matGroup.All(m2 =>
                             supporters[matKv.Key] == supporters[m2.Key]
-                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value) )
-                        )
-                    );
+                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
+                );
 
                 if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
                 else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
             }
-
-            bool PropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
-            {
-                foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
-                {
-                    if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
-                    var l = propL[propName];
-                    var r = propR[propName];
-                    if (l.Texture2D == null || r.Texture2D == null) { continue; }
-                    if (l.Texture2D != r.Texture2D) { return false; }
-
-                    if (l.TextureScale != r.TextureScale) { return false; }
-                    if (l.TextureTranslation != r.TextureTranslation) { return false; }
-
-                }
-                return true;
-            }
-            bool BakedPropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
-            {
-                foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
-                {
-                    if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { return false; }
-
-                    var l = propL[propName];
-                    var r = propR[propName];
-
-                    if (l.Texture2D == null || r.Texture2D == null) {  return false; }
-                    if (l.Texture2D != r.Texture2D) { return false; }
-
-                    if (l.TextureScale != r.TextureScale) { return false; }
-                    if (l.TextureTranslation != r.TextureTranslation) { return false; }
-
-                    if (BakeProperty.PropertyListEqual(l.BakeProperties, r.BakeProperties) == false) { return false; }
-                }
-                return true;
-            }
             MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+            Profiler.EndSample();
 
+
+            Profiler.BeginSample("Normalize And Bake Mash");
             var TargetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
             var normalizedMesh = SubVertNormalize(TargetRenderers);
 
@@ -150,7 +125,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             NormalizeMeshes = normalizedMesh;
             MeshDataDict = m2md;
             Meshes = normalizedMesh.Select(i => i.Key).ToArray();
+            Profiler.EndSample();
 
+            Profiler.BeginSample("Get AtlasSubAll");
             AtlasSubAll = new();
             var atlasSubSets = new List<AtlasSubData?[]>();
             for (var ri = 0; TargetRenderers.Length > ri; ri += 1)
@@ -172,7 +149,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             IdenticalSubSetRemove(atlasSubSets);
             AtlasSubSets = atlasSubSets;
+            Profiler.EndSample();
 
+            Profiler.BeginSample("UVtoIsland");
             var islandDict = new Dictionary<AtlasSubData, List<Island>>();
             foreach (var atSub in AtlasSubAll)
             {
@@ -184,8 +163,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var island = IslandUtility.UVtoIsland(triangle, md.VertexUV.AsList());
                 islandDict[atSub] = island;
             }
+            Profiler.EndSample();
 
 
+            Profiler.BeginSample("Cross SubMesh Island Marge");
             //Cross SubMesh Island Marge
             foreach (var atSubGroup in AtlasSubAll.GroupBy(i => (i.MeshID, i.MaterialGroupID)))
             {
@@ -285,7 +266,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
             }
             IslandDict = islandDict;
+            Profiler.EndSample();
 
+            Profiler.BeginSample("GetIslandSubData");
             var atSubLinkList = new LinkedList<AtlasSubData>();
             var IslandLinkList = new LinkedList<Island>();
 
@@ -304,6 +287,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             Islands = IslandLinkList.ToArray();
             IslandSubData = atSubLinkList.ToArray();
+            Profiler.EndSample();
 
             /*
             AtlasSubSetは、AtlasSubDataの一つの塊みたいな扱いで、 出力されるメッシュに相当する。
@@ -383,7 +367,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (!isOverSubMesh && !isCrossSubMesh) { normalizedMesh[mesh] = UnityEngine.Object.Instantiate(mesh); continue; }
 
+                Profiler.BeginSample(MkR.Key.name + "-Normalize");
                 normalizedMesh[mesh] = NormalizedMesh(mesh, maxSlot);
+                Profiler.EndSample();
             }
             return normalizedMesh;
 
@@ -470,12 +456,46 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
+        static bool PropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
+        {
+            foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
+            {
+                if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
+                var l = propL[propName];
+                var r = propR[propName];
+                if (l.Texture2D == null || r.Texture2D == null) { continue; }
+                if (l.Texture2D != r.Texture2D) { return false; }
+
+                if (l.TextureScale != r.TextureScale) { return false; }
+                if (l.TextureTranslation != r.TextureTranslation) { return false; }
+
+            }
+            return true;
+        }
+        static bool BakedPropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
+        {
+            foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
+            {
+                if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { return false; }
+
+                var l = propL[propName];
+                var r = propR[propName];
+
+                if (l.Texture2D == null || r.Texture2D == null) { return false; }
+                if (l.Texture2D != r.Texture2D) { return false; }
+
+                if (l.TextureScale != r.TextureScale) { return false; }
+                if (l.TextureTranslation != r.TextureTranslation) { return false; }
+
+                if (BakeProperty.PropertyListEqual(l.BakeProperties, r.BakeProperties) == false) { return false; }
+            }
+            return true;
+        }
 
         public void Dispose()
         {
             foreach (var md in MeshDataDict) { md.Value.Dispose(); }
             foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }
-            AtlasShaderSupportUtils.Dispose();
         }
 
 

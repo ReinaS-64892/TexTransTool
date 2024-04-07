@@ -326,11 +326,9 @@ namespace net.rs64.TexTransCore.Island
             return new Vector2(uvScaleValue, uvScaleValue).magnitude / islandRect.Size.magnitude;
         }
 
-        public static IEnumerable<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
+        public static IEnumerable<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f)
         where TIslandRect : IIslandRect
         {
-            outPutQuad?.Clear(); outPutQuad ??= new();
-
             var rectScale = Mathf.Abs(rectScalePadding) * islandRect.Size.magnitude;
             var paddingVector = Vector2.ClampMagnitude(Vector2.one, rectScale);
 
@@ -339,17 +337,17 @@ namespace net.rs64.TexTransCore.Island
 
             if (!islandRect.Is90Rotation)
             {
-                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
-                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
+                yield return new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y);
+                yield return new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y);
             }
             else
             {
-                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
-                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                yield return new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y);
+                yield return new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y);
             }
         }
     }

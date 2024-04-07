@@ -120,6 +120,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         bool TryCompileAtlasTextures(IDomain domain, out AtlasData atlasData)
         {
+            Profiler.BeginSample("AtlasData and FindRenderers");
             var texManage = domain.GetTextureManager();
             atlasData = new AtlasData();
 
@@ -132,23 +133,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
             atlasData.AtlasInMaterials = targetMaterials;
             var atlasSetting = AtlasSetting;
             var propertyBakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
-            // var atlasReferenceData = new AtlasReferenceData(targetMaterials, Renderers);
+            Profiler.EndSample();
+
             Profiler.BeginSample("AtlasContext:ctor");
             var atlasContext = new AtlasContext(targetMaterials, Renderers, propertyBakeSetting != PropertyBakeSetting.NotBake);
             Profiler.EndSample();
-
-
-            //サブメッシュより多いスロットの存在可否
-            // if (atlasReferenceData.AtlasMeshDataList.Any(i => i.Triangles.Count < i.MaterialIndex.Length)) { TTTRuntimeLog.Warning("AtlasTexture:error:MoreMaterialSlotThanSubMesh"); }
-
-
-            //ターゲットとなるマテリアルやそのマテリアルが持つテクスチャを引き出すフェーズ
-            // shaderSupports.BakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
-            // var materialTextures = new Dictionary<Material, List<PropAndTexture>>();
-            // foreach (var mat in targetMaterials) { shaderSupports.AddRecord(mat); }
-            // foreach (var mat in targetMaterials) { materialTextures[mat] = shaderSupports.GetTextures(mat, texManage); }
-
-
 
             var islandSizeOffset = GetTextureSizeOffset(SelectMatList.Select(i => i.Material), atlasSetting);
 
@@ -169,6 +158,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 Profiler.EndSample();
             }
+            Profiler.BeginSample("IslandFineTuning");
             var islandArray = atlasContext.Islands;
             var rectArray = new IslandRect[islandArray.Length];
             var index = 0;
@@ -216,28 +206,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
 
             }
-            // foreach (var mat in SelectMatList)
-            // {
-            //     var textureSizeOffSet = islandSizeOffset[mat.Material];
-            //     for (var i = 0; rectArray.Length > i; i += 1)
-            //     {
-            //         var desc = islandDescription[i];
-            //         var matSlotRef = desc.MaterialSlot;
-            //         if (!domain.OriginEqual(desc.Renderer.sharedMaterials[matSlotRef], mat.Material)) { continue; }
-
-            //         rectArray[i].Size *= textureSizeOffSet;
-
-            //         switch (MaterialToIslandFineTuningModeSelect)
-            //         {
-            //             case MaterialToIslandFineTuningMode.SizeOffset: { rectArray[i].Size *= mat.MaterialFineTuningValue; break; }
-            //             case MaterialToIslandFineTuningMode.SizePriority: { sizePriority[i] = mat.MaterialFineTuningValue; break; }
-            //             default: break;
-            //         }
-            //     }
-            // }
 
             foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, rectArray, islandArray, islandDescription, domain); }
             for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = Mathf.Clamp01(sizePriority[i]); }
+            Profiler.EndSample();
 
 
             IAtlasIslandRelocator relocator = atlasSetting.AtlasIslandRelocator != null ? UnityEngine.Object.Instantiate(atlasSetting.AtlasIslandRelocator) : new NFDHPlasFC();
@@ -319,9 +291,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
 
-
             if (atlasSetting.PixelNormalize)
             {
+                Profiler.BeginSample("AtlasReferenceData:PixelNormalize");
                 for (var i = 0; relocatedRect.Length > i; i += 1)
                 {
                     var island = relocatedRect[i];
@@ -329,21 +301,25 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     island.Pivot.x = Mathf.Round(island.Pivot.x * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
                     relocatedRect[i] = island;
                 }
+                Profiler.EndSample();
             }
+            Profiler.BeginSample("IslandMinClamp");
             for (var i = 0; relocatedRect.Length > i; i += 1)
             {
                 if (relocatedRect[i].Size.x <= 0.0001f) { relocatedRect[i].Size.x = 0.0001f; }
                 if (relocatedRect[i].Size.y <= 0.0001f) { relocatedRect[i].Size.y = 0.0001f; }
             }//Islandが小さすぎると RectTangleMoveのコピーがうまくいかない
+            Profiler.EndSample();
 
             //上側を削れるかを見る
+            Profiler.BeginSample("IslandHight Calculate");
             var height = IslandRectUtility.CalculateIslandsMaxHeight(relocatedRect);
             var atlasTextureHeightSize = Mathf.Max(GetHeightSize(atlasSetting.AtlasTextureSize, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
+            Profiler.EndSample();
 
             // var areaSum = IslandRectUtility.CalculateAllAreaSum(islandRectPool.Values);
             // Debug.Log(areaSum + ":AreaSum" + "-" + height + ":height");
 
-            var aspectIslandsRectPool = GetAspectIslandRect(relocatedRect, atlasSetting, atlasTextureHeightSize);
 
 
             //新しいUVを持つMeshを生成するフェーズ
@@ -351,6 +327,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var compiledMeshes = new List<AtlasData.AtlasMeshAndDist>();
             var normMeshes = atlasContext.Meshes.Select(m => atlasContext.NormalizeMeshes[m]).ToArray();
             var subSetMovedUV = new NativeArray<Vector2>[atlasContext.AtlasSubSets.Count];
+            var scale = atlasSetting.AtlasTextureSize / atlasTextureHeightSize;
             for (int subSetIndex = 0; atlasContext.AtlasSubSets.Count > subSetIndex; subSetIndex += 1)
             {
                 var subSet = atlasContext.AtlasSubSets[subSetIndex];
@@ -365,44 +342,49 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var movedLink = new LinkedList<IslandRect>();
 
 
-                for (var islandIndex = 0; aspectIslandsRectPool.Length > islandIndex; islandIndex += 1)
+                for (var islandIndex = 0; relocatedRect.Length > islandIndex; islandIndex += 1)
                 {
                     if (subSet.Any(subData => atlasContext.IslandSubData[islandIndex] == subData))
                     {
                         originLink.AddLast(atlasContext.Islands[islandIndex]);
-                        movedLink.AddLast(aspectIslandsRectPool[islandIndex]);
+                        movedLink.AddLast(relocatedRect[islandIndex]);
                     }
                 }
-
-                // var thisTag = new AtlasSlotRef(amdIndex, slotIndex);
-                // if (containsSlotRefs.Contains(thisTag)) { foreach (var islandKV in AtlasReferenceData.IslandFind(thisTag, aspectIslandsRectPool)) { movedPool.Add(islandKV.Key, islandKV.Value); } }
-                // else
-                // {
-                //     var msmRef = new MSMRef(atlasMeshData.ReferenceMesh, slotIndex, atlasMeshData.MaterialIndex[slotIndex]);
-                //     var identicalTag = atlasReferenceData.FindIdenticalSlotRef(containsSlotRefs, msmRef);
-
-                //     if (!identicalTag.HasValue) { continue; }
-                //     foreach (var islandKV in AtlasReferenceData.IslandFind(identicalTag.Value, aspectIslandsRectPool)) { movedPool.Add(islandKV.Key, islandKV.Value); }
-                // }
-
 
                 var movedUV = new NativeArray<Vector2>(meshData.VertexUV, Allocator.Temp);
                 IslandUtility.IslandPoolMoveUV(meshData.VertexUV, movedUV, originLink.ToArray(), movedLink.ToArray());
 
-                newMesh.SetUVs(0, movedUV);
-                if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, meshData.VertexUV); }
                 subSetMovedUV[subSetIndex] = movedUV;
+                if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
+                {
+                    using (var aspectApplyUV = new NativeArray<Vector2>(movedUV, Allocator.Temp))
+                    {
+                        var writer = aspectApplyUV.AsSpan();
+                        foreach(var vi in originLink.SelectMany(i => i.GetVertexIndex()).Distinct())
+                        {
+                            writer[vi].x = movedUV[vi].x;
+                            writer[vi].y = movedUV[vi].y * scale;
+                        }
+                        newMesh.SetUVs(0, aspectApplyUV);
+                    }
+                }
+                else
+                {
+                    newMesh.SetUVs(0, movedUV);
+                }
+                if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, meshData.VertexUV); }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }
             atlasData.Meshes = compiledMeshes;
             Profiler.EndSample();
 
-            var textureManager = domain.GetTextureManager();
             //アトラス化したテクスチャーを生成するフェーズ
             var compiledAtlasTextures = new Dictionary<string, AsyncTexture2D>();
 
+            Profiler.BeginSample("GetGroupedTextures");
             var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty);
+            Profiler.EndSample();
 
             Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property)
             {
@@ -428,13 +410,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                     var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
                                     if (atlasTex.TextureScale == Vector2.zero && atlasTex.TextureTranslation == Vector2.zero)
                                     {
-                                        dict[kv.Key] = textureManager.GetOriginTempRt(atlasTex.Texture2D);
+                                        dict[kv.Key] = texManage.GetOriginTempRt(atlasTex.Texture2D);
                                     }
                                     else
                                     {
                                         var tex = atlasTex.Texture2D;
 
-                                        var originTex = textureManager.GetOriginTempRt(tex);
+                                        var originTex = texManage.GetOriginTempRt(tex);
                                         originTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation);
 
                                         dict[kv.Key] = originTex;
@@ -485,7 +467,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 foreach (var propName in property)
                                 {
                                     atlasTexDict.TryGetValue(propName, out var atlasTex);
-                                    var sTex = atlasTex?.Texture2D != null ? textureManager.GetOriginTempRt(atlasTex.Texture2D) : null;
+                                    var sTex = atlasTex?.Texture2D != null ? texManage.GetOriginTempRt(atlasTex.Texture2D) : null;
 
                                     if (sTex != null) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
                                     var bakedTex = sTex != null ? sTex.CloneTemp() : RenderTexture.GetTemporary(2, 2);
@@ -529,22 +511,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
-
-
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize, 32);
+                var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, 32);
                 targetRT.Clear();
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)
                 {
-                    // var souseProp2Tex = gTex.MatPropKV.Value.Find(I => I.PropertyName == propName);
-                    // if (souseProp2Tex == null) continue;
                     if (!gTex.Value.TryGetValue(propName, out var sTexture)) { continue; }
 
-                    // var findMaterial = MatPropKV.Key;
                     var findMaterialID = gTex.Key;
                     if (rectTangleMove)
                     {
@@ -567,17 +544,27 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var transTargets = atlasContext.AtlasSubSets[subSetIndex].Where(i => i.HasValue).Where(i => i.Value.MaterialGroupID == findMaterialID).Select(i => i.Value);
                             if (!transTargets.Any()) { continue; }
 
-                            var triangles = transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles));
+                            var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
                             var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
                             var transData = new TransData<Vector2>(triangles, subSetMovedUV[subSetIndex], originUV);
                             ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
+
+                            triangles.Dispose();
                         }
                     }
 
                     // UnityEditor.AssetDatabase.CreateAsset(targetRT.CopyTexture2D(), UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/temp.asset"));
                 }
                 Profiler.EndSample();
+
+                if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
+                {
+                    var heightClampRt = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
+                    Graphics.CopyTexture(targetRT, 0, 0, 0, 0, heightClampRt.width, heightClampRt.height, heightClampRt, 0, 0, 0, 0);
+                    RenderTexture.ReleaseTemporary(targetRT);
+                    targetRT = heightClampRt;
+                }
 
                 Profiler.BeginSample("Readback");
                 compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
@@ -619,22 +606,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             return islandSizeOffset;
-        }
-
-        private static IslandRect[] GetAspectIslandRect(IslandRect[] islandRectPool, AtlasSetting atlasSetting, int atlasTextureHeightSize)
-        {
-            if (atlasTextureHeightSize == atlasSetting.AtlasTextureSize) { return islandRectPool; }
-
-            var heightSizeScale = atlasSetting.AtlasTextureSize / (float)atlasTextureHeightSize;
-            var aspectIslands = new IslandRect[islandRectPool.Length];
-            for (var i = 0; islandRectPool.Length > i; i += 1)
-            {
-                var islandRect = islandRectPool[i];
-                islandRect.Pivot.y *= heightSizeScale;
-                islandRect.Size.y *= heightSizeScale;
-                aspectIslands[i] = islandRect;
-            }
-            return aspectIslands;
         }
 
         private static int GetHeightSize(int atlasTextureSize, float height)
@@ -737,31 +708,39 @@ namespace net.rs64.TexTransTool.TextureAtlas
         private void TransMoveRectIsland<TIslandRect>(Texture souseTex, RenderTexture targetRT, Dictionary<Island, TIslandRect> notAspectIslandPairs, float uvScalePadding) where TIslandRect : IIslandRect
         {
             uvScalePadding *= 0.5f;
-            var targetAspect = targetRT.width / (float)targetRT.height;
-            var sUV = new List<Vector2>();
-            var tUV = new List<Vector2>();
-            var triangles = new List<TriangleIndex>();
-
-            var nawIndex = 0;
-            foreach (var islandPair in notAspectIslandPairs)
+            using (var sUV = new NativeArray<Vector2>(notAspectIslandPairs.Count * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+            using (var tUV = new NativeArray<Vector2>(notAspectIslandPairs.Count * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+            using (var triangles = new NativeArray<TriangleIndex>(notAspectIslandPairs.Count * 2, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
             {
-                var (Origin, Moved) = (islandPair.Key, islandPair.Value);
-                var rectScalePadding = Moved.UVScaleToRectScale(uvScalePadding);
+                var triSpan = triangles.AsSpan();
+                var sUVSpan = sUV.AsSpan();
+                var tUVSpan = tUV.AsSpan();
 
-                var originVertexes = Origin.GenerateRectVertexes(rectScalePadding);
-                var movedVertexes = Moved.GenerateRectVertexes(rectScalePadding);
+                var triIndex = 0;
+                var vertIndex = 0;
+                foreach (var islandPair in notAspectIslandPairs)
+                {
+                    var (Origin, Moved) = (islandPair.Key, islandPair.Value);
+                    var rectScalePadding = Moved.UVScaleToRectScale(uvScalePadding);
 
-                triangles.Add(new(nawIndex + 0, nawIndex + 1, nawIndex + 2));
-                triangles.Add(new(nawIndex + 0, nawIndex + 2, nawIndex + 3));
-                nawIndex += 4;
-                sUV.AddRange(originVertexes);
-                tUV.AddRange(movedVertexes.Select(v => new Vector2(v.x, v.y * targetAspect)));
+                    var originVertexes = Origin.GenerateRectVertexes(rectScalePadding);
+                    var movedVertexes = Moved.GenerateRectVertexes(rectScalePadding);
+
+                    triSpan[triIndex] = new(vertIndex + 0, vertIndex + 1, vertIndex + 2);
+                    triSpan[triIndex + 1] = new(vertIndex + 0, vertIndex + 2, vertIndex + 3);
+                    triIndex += 2;
+
+                    foreach (var v in originVertexes.Zip(movedVertexes, (o, m) => (o, m)))
+                    {
+                        sUVSpan[vertIndex] = v.o;
+                        tUVSpan[vertIndex] = v.m;
+                        vertIndex += 1;
+                    }
+                }
+
+                TransTexture.ForTrans(targetRT, souseTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
             }
-
-            TransTexture.ForTrans(targetRT, souseTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
-
         }
-        internal static float Frac(float v) { return v > 0 ? v - Mathf.Floor(v) : v - Mathf.Ceil(v); }
 
         private static Material GenerateAtlasMat(Material targetMat, List<PropAndTexture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
         {
