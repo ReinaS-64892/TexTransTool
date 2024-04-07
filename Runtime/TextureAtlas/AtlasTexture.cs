@@ -169,6 +169,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             var sizePriority = new float[islandArray.Length]; for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = 1f; }
+            var scaleArray = new float[islandArray.Length]; for (var i = 0; scaleArray.Length > i; i += 1) { scaleArray[i] = 1f; }
             var islandDescription = new IslandSelector.IslandDescription[islandArray.Length];
             for (var i = 0; islandDescription.Length > i; i += 1)
             {
@@ -200,15 +201,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 switch (MaterialToIslandFineTuningModeSelect)
                 {
-                    case MaterialToIslandFineTuningMode.SizeOffset: { rectArray[i].Size *= materialFineTuningValue; break; }
+                    case MaterialToIslandFineTuningMode.SizeOffset: { scaleArray[i] = materialFineTuningValue; break; }
                     case MaterialToIslandFineTuningMode.SizePriority: { sizePriority[i] = materialFineTuningValue; break; }
                     default: break;
                 }
 
             }
 
-            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, rectArray, islandArray, islandDescription, domain); }
+            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, scaleArray, islandArray, islandDescription, domain); }
             for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = Mathf.Clamp01(sizePriority[i]); }
+            for (var i = 0; scaleArray.Length > i; i += 1) { rectArray[i].Size *= scaleArray[i]; }
             Profiler.EndSample();
 
 
@@ -360,7 +362,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     using (var aspectApplyUV = new NativeArray<Vector2>(movedUV, Allocator.Temp))
                     {
                         var writer = aspectApplyUV.AsSpan();
-                        foreach(var vi in originLink.SelectMany(i => i.GetVertexIndex()).Distinct())
+                        foreach (var vi in originLink.SelectMany(i => i.GetVertexIndex()).Distinct())
                         {
                             writer[vi].x = movedUV[vi].x;
                             writer[vi].y = movedUV[vi].y * scale;

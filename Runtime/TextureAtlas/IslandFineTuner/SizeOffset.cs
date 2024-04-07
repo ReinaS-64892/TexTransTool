@@ -13,16 +13,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         [Range(0, 1)] public float OffsetValue = 1f;
         public AbstractIslandSelector IslandSelector;
 
-        public void IslandFineTuning(float[] sizePriority, IslandRect[] islandRect, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+
+        public void IslandFineTuning(float[] sizePriority, float[] setSize, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
         {
             var targetBit = IslandSelector.IslandSelect(islands, islandDescriptions);
 
-            for (var i = 0; islandRect.Length > i; i += 1)
+            for (var i = 0; setSize.Length > i; i += 1)
             {
                 if (!targetBit[i]) { continue; }
-                islandRect[i].Size *= OffsetValue;
+                setSize[i] = OffsetValue;
             }
         }
-
     }
 }
