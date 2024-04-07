@@ -242,6 +242,12 @@ msgstr "Settings that specify the color space of specific texture."
 msgid "TextureFineTuning:prop:Linear"
 msgstr "Linear"
 
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "IslandFineTuners"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
 msgid "IIslandFineTuner:prop:SizeOffset"
 msgstr "SizeOffset"
 

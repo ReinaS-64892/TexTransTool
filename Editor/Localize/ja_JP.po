@@ -242,11 +242,24 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
 
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "アイランド詳細調整"
+
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
 msgid "IIslandFineTuner:prop:SizeOffset"
 msgstr "サイズオフセット"
 
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "オフセットの値"
+
 msgid "IIslandFineTuner:prop:SizePriority"
 msgstr "大きさの優先度"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "優先度の値"
+
 
 #  CommonDecal
 

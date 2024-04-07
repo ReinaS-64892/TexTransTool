@@ -60,9 +60,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sMatSelectors, "AtlasTexture:prop:SelectedMaterialView".Glc());
             EditorGUI.indentLevel -= 1;
 
-            var sIslandFineTuners = sAtlasSetting.FindPropertyRelative("IslandFineTuners");
-            EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
-
 
             DrawAtlasSettings(sAtlasSetting);
 
@@ -88,8 +85,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
             var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
-            var sUseUpScaling = sAtlasSettings.FindPropertyRelative("UseUpScaling");
             var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
+            var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
 
 
 
@@ -103,7 +100,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".Glc());
 
             EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
-            EditorGUILayout.PropertyField(sUseUpScaling, "AtlasTexture:prop:UseUpScaling".Glc());
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
@@ -114,6 +110,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (s_ExperimentalFutureOption)
             {
                 EditorGUI.indentLevel += 1;
+                EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
                 EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
