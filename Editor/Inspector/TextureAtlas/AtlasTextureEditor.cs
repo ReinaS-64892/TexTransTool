@@ -43,7 +43,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
             var sTargetRoot = thisSObject.FindProperty("TargetRoot");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
-            var sMaterialToIslandFineTuningModeSelect = thisSObject.FindProperty("MaterialToIslandFineTuningModeSelect");
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
@@ -53,7 +52,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
                 { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
-                MaterialSelectEditor(sMatSelectors, sMaterialToIslandFineTuningModeSelect, _displayMaterial);
+                MaterialSelectEditor(sMatSelectors, _displayMaterial);
             }
 
             EditorGUI.indentLevel += 1;
@@ -87,10 +86,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
             var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
+            var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
 
 
 
             EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
+            EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
+            EditorGUILayout.PropertyField(sForceSizePriority, "AtlasTexture:prop:ForceSizePriority".Glc());
+
+
+
             EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMarge".Glc());
             if (sMergeMaterials.boolValue)
             {
@@ -98,12 +107,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sMergeReferenceMaterial, "AtlasTexture:prop:MergeReferenceMaterial".Glc());
             }
             EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".Glc());
-
-            EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
-
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
 
 
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
@@ -136,7 +139,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
         }
 
-        public static void MaterialSelectEditor(SerializedProperty targetMaterial, SerializedProperty fineTunerMode, List<Material> tempMaterial)
+        public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)
         {
             EditorGUI.indentLevel += 1;
             var hadeRect = EditorGUILayout.GetControlRect();
@@ -146,7 +149,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             hadeRect.width = (hadeWidth * 0.5f) - 64f;
             hadeRect.x = 64f;
-            EditorGUI.PropertyField(hadeRect, fineTunerMode, GUIContent.none);
+            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:SizePriority".Glc());
 
             hadeRect.width = hadeWidth * 0.5f;
             hadeRect.x = hadeRect.width;
