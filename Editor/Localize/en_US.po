@@ -245,14 +245,23 @@ msgstr "Linear"
 msgid "AtlasTexture:prop:IslandFineTuners"
 msgstr "IslandFineTuners"
 
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "IslandSelector"
+
 msgid "IIslandFineTuner:prop:SizeOffset"
 msgstr "SizeOffset"
 
 msgid "IIslandFineTuner:prop:SizeOffset"
 msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "OffsetValue"
 
 msgid "IIslandFineTuner:prop:SizePriority"
 msgstr "SizePriority"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "PriorityValue"
 
 #  CommonDecal
 
