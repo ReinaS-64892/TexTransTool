@@ -11,6 +11,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
     {
         //islands と islandDescriptions は書き込みしないように、
         //sizePriority と islandRect を操作して調整していく感じ
-        void IslandFineTuning(float[] sizePriority, float[] setSize, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking);
+        void IslandFineTuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking);
     }
 }
