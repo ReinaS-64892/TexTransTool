@@ -18,7 +18,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public static void Init()
         {
             var dict = new Dictionary<Type, Func<IIslandFineTuner>>(){
-                {typeof(SizeOffset),()=>new SizeOffset()},
                 {typeof(SizePriority),()=>new SizePriority()},
             };
 
