@@ -12,18 +12,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
     [Serializable]
     public class AtlasSetting
     {
+        [PowerOfTwo] public int AtlasTextureSize = 2048;
+        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
+
+        [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
+        public bool ForceSizePriority;
         [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners;
+
         public bool MergeMaterials;
         public Material MergeReferenceMaterial;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
-        [PowerOfTwo] public int AtlasTextureSize = 2048;
-        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
+
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
-        [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool PixelNormalize = false;
+
         [SerializeReference] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
+
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData

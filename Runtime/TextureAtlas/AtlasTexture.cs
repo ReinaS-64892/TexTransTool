@@ -27,8 +27,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public GameObject TargetRoot;
         public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
         public List<MatSelector> SelectMatList = new List<MatSelector>();
-        public MaterialToIslandFineTuningMode MaterialToIslandFineTuningModeSelect;
-
         public AtlasSetting AtlasSetting = new AtlasSetting();
 
         internal override bool IsPossibleApply => TargetRoot != null;
@@ -36,13 +34,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal override List<Renderer> GetRenderers => Renderers;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
-
-
-        public enum MaterialToIslandFineTuningMode
-        {
-            SizeOffset = 0,
-            SizePriority = 1,
-        }
 
         #region V0SaveData
         [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
@@ -169,7 +160,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             var sizePriority = new float[islandArray.Length]; for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = 1f; }
-            var scaleArray = new float[islandArray.Length]; for (var i = 0; scaleArray.Length > i; i += 1) { scaleArray[i] = 1f; }
             var islandDescription = new IslandSelector.IslandDescription[islandArray.Length];
             for (var i = 0; islandDescription.Length > i; i += 1)
             {
@@ -198,19 +188,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     count += 1;
                 }
                 materialFineTuningValue /= count;
-
-                switch (MaterialToIslandFineTuningModeSelect)
-                {
-                    case MaterialToIslandFineTuningMode.SizeOffset: { scaleArray[i] = materialFineTuningValue; break; }
-                    case MaterialToIslandFineTuningMode.SizePriority: { sizePriority[i] = materialFineTuningValue; break; }
-                    default: break;
-                }
-
+                sizePriority[i] = materialFineTuningValue;
             }
 
-            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, scaleArray, islandArray, islandDescription, domain); }
+            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, islandArray, islandDescription, domain); }
             for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = Mathf.Clamp01(sizePriority[i]); }
-            for (var i = 0; scaleArray.Length > i; i += 1) { rectArray[i].Size *= scaleArray[i]; }
             Profiler.EndSample();
 
 
@@ -218,10 +200,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             relocator.Padding = atlasSetting.IslandPadding;
 
             Profiler.BeginSample("Relocation");
-            var relocatedRect = RelocateLoop(rectArray, sizePriority, relocator, atlasSetting.IslandPadding);
+            var relocatedRect = RelocateLoop(rectArray, sizePriority, relocator, atlasSetting.ForceSizePriority, atlasSetting.IslandPadding);
             Profiler.EndSample();
 
             var rectTangleMove = relocator.RectTangleMove;
+
+            if (relocator is UnityEngine.Object unityObject) { DestroyImmediate(unityObject); }
 
             if (atlasSetting.PixelNormalize)
             {
@@ -246,7 +230,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //上側を削れるかを見る
             Profiler.BeginSample("IslandHight Calculate");
             var height = IslandRectUtility.CalculateIslandsMaxHeight(relocatedRect);
-            var atlasTextureHeightSize = Mathf.Max(GetHeightSize(atlasSetting.AtlasTextureSize, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
+            var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasSetting.AtlasTextureSize, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
+            Debug.Assert(Mathf.IsPowerOfTwo(atlasTextureHeightSize));
             Profiler.EndSample();
 
             // var areaSum = IslandRectUtility.CalculateAllAreaSum(islandRectPool.Values);
@@ -520,26 +505,33 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        private static IslandRect[] RelocateLoop(IslandRect[] rectArray, float[] sizePriority, IAtlasIslandRelocator relocator, float padding)
+        private static IslandRect[] RelocateLoop(IslandRect[] rectArray, float[] sizePriority, IAtlasIslandRelocator relocator, bool forceSizePriority, float padding)
         {
             var relocatedRect = rectArray.ToArray();
-            if (relocator.Relocation(relocatedRect)) { return relocatedRect; }
-
             var refRect = rectArray;
 
-            if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
+            if (forceSizePriority)
             {
-                Profiler.BeginSample("Priority");
-                var priorityMinSize = rectArray.ToArray();
-                for (var i = 0; priorityMinSize.Length > i; i += 1) { priorityMinSize[i].Size *= sizePriority[i]; }
+                refRect = GetPriorityMinSizeRectArray(rectArray, sizePriority);
+                if (relocator.Relocation(refRect)) { return refRect; }
+            }
+            else
+            {
+                if (relocator.Relocation(relocatedRect)) { return relocatedRect; }
 
-                for (var lerpValue = 1f; 0 < lerpValue; lerpValue -= 0.05f)
+                if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
                 {
-                    LerpPriority(relocatedRect, priorityMinSize, rectArray, lerpValue);
-                    if (relocator.Relocation(relocatedRect)) { Profiler.EndSample(); return relocatedRect; }
+                    Profiler.BeginSample("Priority");
+                    var priorityMinSize = GetPriorityMinSizeRectArray(rectArray, sizePriority);
+
+                    for (var lerpValue = 1f; 0 < lerpValue; lerpValue -= 0.05f)
+                    {
+                        LerpPriority(relocatedRect, priorityMinSize, rectArray, lerpValue);
+                        if (relocator.Relocation(relocatedRect)) { Profiler.EndSample(); return relocatedRect; }
+                    }
+                    refRect = priorityMinSize;
+                    Profiler.EndSample();
                 }
-                refRect = priorityMinSize;
-                Profiler.EndSample();
             }
 
 
@@ -613,6 +605,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
+        private static IslandRect[] GetPriorityMinSizeRectArray(IslandRect[] rectArray, float[] sizePriority)
+        {
+            var priorityMinSize = rectArray.ToArray();
+            for (var i = 0; priorityMinSize.Length > i; i += 1) { priorityMinSize[i].Size *= sizePriority[i]; }
+
+            return priorityMinSize;
+        }
+
         private static Dictionary<Material, float> GetTextureSizeOffset(IEnumerable<Material> targetMaterialSelectors, AtlasSetting atlasSetting)
         {
             float atlasTexPixelCount = atlasSetting.AtlasTextureSize * atlasSetting.AtlasTextureSize;
@@ -633,7 +633,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return islandSizeOffset;
         }
 
-        private static int GetHeightSize(int atlasTextureSize, float height)
+        private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)
         {
             switch (height)
             {
