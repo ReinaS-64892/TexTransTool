@@ -539,7 +539,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (relocator.Relocation(relocatedRect)) { Profiler.EndSample(); return relocatedRect; }
                 }
                 refRect = priorityMinSize;
-                Debug.Log("Priority Failed");
                 Profiler.EndSample();
             }
 
@@ -556,7 +555,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 for (var i = 0; rectArray.Length > i; i += 1) { relocatedRect[i] = refRect[i]; }
                 ScaleApplyDown(relocatedRect, Mathf.Sqrt(size / refRectSize));
 
-                if (ExpandLoop(relocator, relocatedRect, lastRelocated)) { Debug.Log("Expand to " + size); break; }
+                if (ExpandLoop(relocator, relocatedRect, lastRelocated)) { break; }
             }
 
             Profiler.EndSample();
