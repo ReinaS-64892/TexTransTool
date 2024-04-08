@@ -55,6 +55,9 @@ msgstr "リフレッシュマテリアル"
 msgid "AtlasTexture:label:Target"
 msgstr "対象"
 
+msgid "AtlasTexture:label:SizePriority"
+msgstr "(大きさの優先度)"
+
 msgid "AtlasTexture:label:Material"
 msgstr "マテリアル"
 
@@ -133,11 +136,8 @@ msgstr "適用時に非アクティブなレンダラーを含める"
 msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
 msgstr "アトラス化を適用するときに、非アクティブなGameObjectに付いているレンダラーを含めるオプション"
 
-msgid "AtlasTexture:prop:UseUpScaling"
-msgstr "アップスケーリングを許可"
-
-msgid "AtlasTexture:prop:UseUpScaling:tooltip"
-msgstr "アイランドを再配置する時、アイランドのサイズを拡大するのを許可する設定"
+msgid "AtlasTexture:prop:ForceSizePriority"
+msgstr "大きさの優先度を強制"
 
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "テクスチャー詳細設定"
