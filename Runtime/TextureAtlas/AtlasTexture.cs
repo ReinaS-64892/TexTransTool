@@ -638,6 +638,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             switch (height)
             {
                 default: return atlasTextureSize;
+                case < (1 / 32f): return atlasTextureSize / 32;
+                case < (1 / 16f): return atlasTextureSize / 16;
                 case < (1 / 8f): return atlasTextureSize / 8;
                 case < (1 / 4f): return atlasTextureSize / 4;
                 case < (1 / 2f): return atlasTextureSize / 2;
