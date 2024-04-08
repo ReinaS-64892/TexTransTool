@@ -34,6 +34,23 @@ namespace net.rs64.TexTransTool.Migration
 
 
 #pragma warning disable CS0612
+        public static bool MigrationITexTransToolTagV3ToV4(ITexTransToolTag texTransToolTag)
+        {
+            switch (texTransToolTag)
+            {
+                case AtlasTexture atlasTexture:
+                    {
+                        AtlasTextureV3.MigrationAtlasTextureV3ToV4(atlasTexture);
+                        return true;
+                    }
+
+                default:
+                    {
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 4);
+                        return true;
+                    }
+            }
+        }
         public static bool MigrationITexTransToolTagV2ToV3(ITexTransToolTag texTransToolTag)
         {
             switch (texTransToolTag)
@@ -211,6 +228,11 @@ namespace net.rs64.TexTransTool.Migration
                             MigrateEverythingV2ToV3(true);
                             break;
                         }
+                    case 3:
+                        {
+                            MigrateEverythingV3ToV4(true);
+                            break;
+                        }
                 }
             }
             PostMigration();
@@ -313,6 +335,41 @@ namespace net.rs64.TexTransTool.Migration
                     i / totalCount));
 
                 MigrateAllScenesV2ToV3(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
+                    (prefabs.Count + i) / totalCount));
+
+                MigrationUtility.WriteVersion(3);
+
+            }
+            catch
+            {
+                EditorUtility.DisplayDialog("Error!", "Error in migration process!", "OK");
+                throw;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                if (!continuesMigrate) PostMigration();
+            }
+        }
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.6.x to v0.7.x")]
+        private static void MigrateEverythingV3ToV4() { MigrateEverythingV3ToV4(false); }
+        private static void MigrateEverythingV3ToV4(bool continuesMigrate = false)
+        {
+            try
+            {
+                if (!continuesMigrate) PreMigration();
+                var prefabs = GetPrefabs();
+                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                float totalCount = prefabs.Count + scenePaths.Count;
+
+                MigratePrefabsV3ToV4(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Prefabs) ({i} / {totalCount})",
+                    i / totalCount));
+
+                MigrateAllScenesV3ToV4(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
                     "Migrating Everything (pass 1)",
                     $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
                     (prefabs.Count + i) / totalCount));
@@ -474,6 +531,15 @@ namespace net.rs64.TexTransTool.Migration
                 Prefab = prefab;
             }
         }
+        private static void MigratePrefabsV3ToV4(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        {
+            MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV3ToV4);
+        }
+        private static void MigrateAllScenesV3ToV4(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV3ToV4);
+        }
+
         private static void MigratePrefabsV2ToV3(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV2ToV3);
