@@ -7,9 +7,9 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class IslandSelectNOT : AbstractIslandSelector
+    public class IslandSelectorNOT : AbstractIslandSelector
     {
-        internal const string ComponentName = "TTT IslandSelectNOT";
+        internal const string ComponentName = "TTT IslandSelectorNOT";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
         public AbstractIslandSelector IslandSelector;
