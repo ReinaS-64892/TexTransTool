@@ -714,7 +714,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First();
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
 
-                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, _ => generateMat), rendererOnly: true);
+                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, _ => generateMat), true);
             }
             else
             {
@@ -725,7 +725,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     var generateMat = GenerateAtlasMat(distMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
                     materialMap.Add(distMat, generateMat);
                 }
-                domain.ReplaceMaterials(materialMap);
+                domain.ReplaceMaterials(materialMap, true);
             }
 
             domain.ProgressUpdate("End", 1);
@@ -774,10 +774,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
             editableTMat.SetTextures(atlasTex, forceSetTexture);
-            //TODO : これどっかでいい感じに誰かがやらないといけない
-            //editableTMat.RemoveUnusedProperties();
             var supporter = shaderSupport.GetAtlasShaderSupporter(editableTMat);
-            //TODO : なんとかして
+
+            foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }
+
             return editableTMat;
         }
 
