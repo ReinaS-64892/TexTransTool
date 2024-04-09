@@ -11,12 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Optimizing Phase が追加されました (#410)
 - GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
+- AtlasTexture に強制的に優先度のサイズに変更する ForcePrioritySize が追加されました (#431)
+- AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
 
 ### Changed
 
+- SizeOffset は廃止され、SizePriority に変更されました (#431)
+- AtlasTexture のプロパティの並び順が変更されました (#431)
+
 ### Removed
 
+- AtlasTexture の UseUpScale は削除されました (#431)
+
 ### Fixed
+
+- AtlasTexture で SubMesh よりも多くのマテリアルスロットが存在するメッシュで正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture でサブメッシュを超えて同一の頂点を使用するメッシュを正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture の「適用時に非アクティブなレンダラーを含める」が有効な時、非アクティブなレンダラーのマテリアルが選択肢に表示されない問題を修正 (#431)
 
 ### Deprecated
 
