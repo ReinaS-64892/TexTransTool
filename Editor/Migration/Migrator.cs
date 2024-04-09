@@ -374,7 +374,7 @@ namespace net.rs64.TexTransTool.Migration
                     $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
                     (prefabs.Count + i) / totalCount));
 
-                MigrationUtility.WriteVersion(3);
+                MigrationUtility.WriteVersion(4);
 
             }
             catch
