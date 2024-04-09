@@ -14,6 +14,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - AtlasTexture に アイランド詳細調整 が追加されました (#431)
 - IslandSelectorNOT と IslandRendererSelector が追加されました (#431)
 - AtlasTexture のシェーダーサポートの追加が ScriptableObject で可能になりました (#431)
+- AtlasTexture に MaterialMargeGroup が追加されました (#432)
 
 ### Changed
 
