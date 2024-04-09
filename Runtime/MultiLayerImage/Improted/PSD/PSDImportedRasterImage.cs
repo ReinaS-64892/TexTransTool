@@ -98,13 +98,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var texA = RasterImageData.A != null ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
             if (RasterImageData.A != null) { texA.filterMode = FilterMode.Point; }
 
-            var mat = new Material(MargeColorAndOffsetShader);
-            mat.SetTexture("_RTex", texR);
-            mat.SetTexture("_GTex", texG);
-            mat.SetTexture("_BTex", texB);
-            mat.SetTexture("_ATex", texA);
-            mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, texWidth / (float)CanvasDescription.Width, texHeight / (float)CanvasDescription.Height));
-            mat.EnableKeyword(SHADER_KEYWORD_SRGB);
+            if (s_tempMat == null) { s_tempMat = new Material(MargeColorAndOffsetShader); }
+            s_tempMat.SetTexture("_RTex", texR);
+            s_tempMat.SetTexture("_GTex", texG);
+            s_tempMat.SetTexture("_BTex", texB);
+            s_tempMat.SetTexture("_ATex", texA);
+            s_tempMat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, texWidth / (float)CanvasDescription.Width, texHeight / (float)CanvasDescription.Height));
+            s_tempMat.EnableKeyword(SHADER_KEYWORD_SRGB);
 
             // timer.Stop(); Debug.Log(name + "+SetUp:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
             var image = WeightTask(getImageTask).Result;
@@ -117,11 +117,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             // timer.Stop(); Debug.Log("LoadRawDataAndApply:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
 
-            Graphics.Blit(null, WriteTarget, mat);
+            Graphics.Blit(null, WriteTarget, s_tempMat);
 
             // timer.Stop(); Debug.Log("Blit:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
 
-            UnityEngine.Object.DestroyImmediate(mat);
+            s_tempMat.DisableKeyword(SHADER_KEYWORD_SRGB);
             image[0].Dispose();
             image[1].Dispose();
             image[2].Dispose();
@@ -140,12 +140,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return await Task.WhenAll(tasks).ConfigureAwait(false);
         }
         [TexTransInitialize]
-        public void Init()
+        public static void Init()
         {
             MargeColorAndOffsetShader = Shader.Find(MARGE_COLOR_AND_OFFSET_SHADER);
         }
         internal const string MARGE_COLOR_AND_OFFSET_SHADER = "Hidden/MargeColorAndOffset";
         internal static Shader MargeColorAndOffsetShader;
+        internal static Material s_tempMat;
         internal const string SHADER_KEYWORD_SRGB = "COLOR_SPACE_SRGB";
 
         internal struct InitializeJob : IJobParallelFor
