@@ -8,14 +8,11 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IProgressHandling
+    internal interface IDomain : IAssetSaver, IProgressHandling, IReplaceTracking
     {
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;//RenderTextureを入れる場合 Temp にすること、そしてこちら側でそれが解放される。
-        bool TryReplaceQuery(UnityEngine.Object oldObject, out UnityEngine.Object nowObject);
-        //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
-        void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
 
         bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
 
@@ -41,6 +38,12 @@ namespace net.rs64.TexTransTool
         void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
         void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target);
         void TextureFinalize();
+    }
+    internal interface IReplaceTracking
+    {
+        bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+        //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
+        void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
     public interface IOriginTexture
     {

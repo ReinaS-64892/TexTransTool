@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
@@ -54,12 +55,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 if (mipMapData == null) { continue; }
                 if (mipMapData.UseMipMap == texf.Texture2D.mipmapCount > 1) { continue; }
 
+                Profiler.BeginSample("MipMapApplicant");
                 var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap, !texf.Texture2D.isDataSRGB);
                 var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();
                 newTex.name = texf.Texture2D.name;
                 texf.Texture2D = newTex;
+                Profiler.EndSample();
             }
         }
     }

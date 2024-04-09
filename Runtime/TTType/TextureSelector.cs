@@ -22,17 +22,13 @@ namespace net.rs64.TexTransTool
         [FormerlySerializedAs("MaterialSelect")]public int SlotAsPath = 0;
         [FormerlySerializedAs("TargetPropertyName")]public PropertyName PropertyNameAsPath = PropertyName.DefaultValue;
 
-        internal Texture2D GetTexture(IDomain domain = null)
+        internal Texture2D GetTexture()
         {
             switch (Mode)
             {
                 case SelectMode.Absolute:
                     {
-                        if (domain == null) { return SelectTexture; }
-
-                        if (domain.TryReplaceQuery(SelectTexture, out var texture2d))
-                        { return texture2d as Texture2D; }
-                        else { return SelectTexture; }
+                        return SelectTexture;
                     }
                 case SelectMode.Relative:
                     {

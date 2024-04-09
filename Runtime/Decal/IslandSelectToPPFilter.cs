@@ -9,6 +9,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.IslandSelector;
 using System.Linq;
 using UnityEngine.Profiling;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal
 {

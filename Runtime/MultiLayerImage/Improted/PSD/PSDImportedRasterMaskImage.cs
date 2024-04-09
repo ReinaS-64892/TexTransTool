@@ -49,7 +49,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)
         {
             var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
-            var mat = new Material(PSDImportedRasterImage.MargeColorAndOffsetShader);
+            if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MargeColorAndOffsetShader); }
+            var mat = PSDImportedRasterImage.s_tempMat;
             var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
             texR.filterMode = FilterMode.Point;
 
@@ -71,7 +72,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 Graphics.Blit(null, WriteTarget, mat);
             }
 
-            UnityEngine.Object.DestroyImmediate(mat);
             UnityEngine.Object.DestroyImmediate(texR);
         }
 

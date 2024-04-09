@@ -52,8 +52,14 @@ msgstr "Maximum Range of renderers atlas"
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"
 
-msgid "AtlasTexture:label:TSM-Header"
-msgstr "Target    (ScaleOffset)    Material"
+msgid "AtlasTexture:label:Target"
+msgstr "Target"
+
+msgid "AtlasTexture:label:SizePriority"
+msgstr "(SizePriority)"
+
+msgid "AtlasTexture:label:Material"
+msgstr "Material"
 
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "atlas target  (texture scale offset)  material"
@@ -130,11 +136,8 @@ msgstr "IncludeDisabledRenderer"
 msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
 msgstr "Option to Include disabled renderers in the atlas."
 
-msgid "AtlasTexture:prop:UseUpScaling"
-msgstr "UseUpScaling"
-
-msgid "AtlasTexture:prop:UseUpScaling:tooltip"
-msgstr "Allow upscaling in island sorting."
+msgid "AtlasTexture:prop:ForceSizePriority"
+msgstr "ForceSizePriority"
 
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "TextureFineTuning"
@@ -238,6 +241,27 @@ msgstr "Settings that specify the color space of specific texture."
 
 msgid "TextureFineTuning:prop:Linear"
 msgstr "Linear"
+
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "IslandFineTuners"
+
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "IslandSelector"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "OffsetValue"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "SizePriority"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "PriorityValue"
 
 #  CommonDecal
 

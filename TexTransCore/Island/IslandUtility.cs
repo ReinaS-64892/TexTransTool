@@ -7,6 +7,8 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
+using Unity.Collections;
+using System.Linq;
 
 namespace net.rs64.TexTransCore.Island
 {
@@ -21,14 +23,14 @@ namespace net.rs64.TexTransCore.Island
         internal struct VertNode
         {
             public int parentIndex;
-            
+
             public (Vector2, Vector2) boundingBox;
-            
+
             public int depth;
             public int triCount;
 
             public Island island;
-            
+
             public VertNode(int i, Vector2 uv)
             {
                 parentIndex = i;
@@ -47,7 +49,7 @@ namespace net.rs64.TexTransCore.Island
             public static int Find(VertNode[] arr, int index)
             {
                 if (arr[index].parentIndex == index) return index;
-                
+
                 return arr[index].parentIndex = Find(arr, arr[index].parentIndex);
             }
 
@@ -63,15 +65,15 @@ namespace net.rs64.TexTransCore.Island
                 b = Find(arr, b);
 
                 if (a == b) return;
-                
+
                 if (arr[a].depth < arr[b].depth)
                 {
                     (a, b) = (b, a);
                 }
-                
+
                 if (arr[a].depth == arr[b].depth) arr[a].depth++;
                 arr[b].parentIndex = a;
-                
+
                 arr[a].boundingBox = (Vector2.Min(arr[a].boundingBox.Item1, arr[b].boundingBox.Item1),
                     Vector2.Max(arr[a].boundingBox.Item2, arr[b].boundingBox.Item2));
                 arr[a].triCount += arr[b].triCount;
@@ -88,10 +90,10 @@ namespace net.rs64.TexTransCore.Island
                 {
                     islandList.Add(island = new Island());
                     island.triangles.Capacity = triCount;
-                    
+
                     var min = boundingBox.Item1;
                     var max = boundingBox.Item2;
-                    
+
                     island.Size = new Vector2(max.x - min.x, max.y - min.y);
                     island.Pivot = min;
                 }
@@ -109,7 +111,7 @@ namespace net.rs64.TexTransCore.Island
             Profiler.BeginSample("UVtoIsland");
             var islands = UVToIslandImpl(triIndexes, vertexUV);
             Profiler.EndSample();
-         
+
             return islands;
         }
 
@@ -130,11 +132,11 @@ namespace net.rs64.TexTransCore.Island
                     uvVert = uvToIndex[uv] = uniqueUv++;
                     indexToUv.Add(uv);
                 }
-                
+
                 inputVertToUniqueIndex.Add(uvVert);
             }
             Profiler.EndSample();
-            
+
             VertNode[] nodes = new VertNode[uniqueUv];
 
             // Union-Find用のデータストラクチャーを初期化
@@ -151,18 +153,18 @@ namespace net.rs64.TexTransCore.Island
                 int idx_a = inputVertToUniqueIndex[tri.zero];
                 int idx_b = inputVertToUniqueIndex[tri.one];
                 int idx_c = inputVertToUniqueIndex[tri.two];
-                
+
                 // 三角面に該当するノードを併合
                 VertNode.Merge(nodes, idx_a, idx_b);
                 VertNode.Merge(nodes, idx_b, idx_c);
-                
+
                 // 際アロケーションを避けるために三角面を数える
                 nodes[VertNode.Find(nodes, idx_a)].triCount++;
             }
             Profiler.EndSample();
-            
+
             var islands = new List<Island>();
-            
+
             // この時点で代表が決まっているので、三角を追加していきます。
             Profiler.BeginSample("Add triangles to islands");
             foreach (var tri in triIndexes)
@@ -175,19 +177,17 @@ namespace net.rs64.TexTransCore.Island
 
             return islands;
         }
-        public static void IslandMoveUV<TIsland>(List<Vector2> uv, List<Vector2> moveUV, Island originIsland, TIsland movedIsland, bool keepIslandUVTile = false) where TIsland : IIslandRect
+        public static void IslandMoveUV<TIsland>(NativeArray<Vector2> uv, NativeArray<Vector2> moveUV, Island originIsland, TIsland movedIsland, bool keepIslandUVTile = false) where TIsland : IIslandRect
         {
             if (originIsland.Is90Rotation) { throw new ArgumentException("originIsland.Is90Rotation is true"); }
 
-            var tempList = ListPool<int>.Get();
             var rotate = Quaternion.Euler(0, 0, -90);
-
             var mSize = movedIsland.Is90Rotation ? new(movedIsland.Size.y, movedIsland.Size.x) : movedIsland.Size;
             var nmSize = originIsland.Size;
 
             var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).NaNtoZero();
 
-            foreach (var vertIndex in originIsland.GetVertexIndex(tempList))
+            foreach (var vertIndex in originIsland.GetVertexIndex())
             {
                 var relativeVertPos = uv[vertIndex] - originIsland.Pivot;
 
@@ -200,8 +200,6 @@ namespace net.rs64.TexTransCore.Island
                 if (keepIslandUVTile) { movedPos.x += Mathf.Floor(originIsland.Pivot.x); movedPos.y += Mathf.Floor(originIsland.Pivot.y); }
                 moveUV[vertIndex] = movedPos;
             }
-
-            ListPool<int>.Release(tempList);
         }
 
         private static Vector2 NaNtoZero(this Vector2 relativeScale)
@@ -211,16 +209,13 @@ namespace net.rs64.TexTransCore.Island
             return relativeScale;
         }
 
-        public static void IslandPoolMoveUV<ID, TIsland, TIslandRect>(List<Vector2> uv, List<Vector2> moveUV, Dictionary<ID, TIsland> originPool, Dictionary<ID, TIslandRect> movedPool)
+        public static void IslandPoolMoveUV<TIsland, TIslandRect>(NativeArray<Vector2> uv, NativeArray<Vector2> moveUV, TIsland[] originPool, TIslandRect[] movedPool)
         where TIsland : Island
         where TIslandRect : IIslandRect
         {
-            if (uv.Count != moveUV.Count) throw new ArgumentException("UV.Count != MoveUV.Count 中身が同一頂点数のUVではありません。");
-            foreach (var islandKVP in movedPool)
-            {
-                var originIsland = originPool[islandKVP.Key];
-                IslandMoveUV(uv, moveUV, originIsland, islandKVP.Value, true);
-            }
+            if (uv.Length != moveUV.Length) throw new ArgumentException("中身が同一頂点数のUVではありません。");
+            if (originPool.Length != movedPool.Length) throw new ArgumentException("Islandが同じ数ではありません。");
+            for (var i = 0; originPool.Length > i; i += 1) { IslandMoveUV(uv, moveUV, originPool[i], movedPool[i], true); }
         }
 
     }
@@ -258,7 +253,16 @@ namespace net.rs64.TexTransCore.Island
         {
             triangles = trianglesOfIsland;
         }
-
+        public IEnumerable<int> GetVertexIndex()
+        {
+            foreach (var triangle in triangles)
+            {
+                for (var i = 0; 3 > i; i += 1)
+                {
+                    yield return triangle[i];
+                }
+            }
+        }
         public List<int> GetVertexIndex(List<int> output = null)
         {
             output?.Clear(); output ??= new();
@@ -271,7 +275,7 @@ namespace net.rs64.TexTransCore.Island
         public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> souseUV)
         {
             var vertIndexes = GetVertexIndex();
-            return vertIndexes.ConvertAll<Vector2>(i => souseUV[i]);
+            return vertIndexes.Select(i => souseUV[i]).ToList();
         }
         public void BoxCalculation(IReadOnlyList<Vector2> souseUV)
         {
@@ -322,11 +326,9 @@ namespace net.rs64.TexTransCore.Island
             return new Vector2(uvScaleValue, uvScaleValue).magnitude / islandRect.Size.magnitude;
         }
 
-        public static IEnumerable<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f, List<Vector2> outPutQuad = null)
+        public static IEnumerable<Vector2> GenerateRectVertexes<TIslandRect>(this TIslandRect islandRect, float rectScalePadding = 0.1f)
         where TIslandRect : IIslandRect
         {
-            outPutQuad?.Clear(); outPutQuad ??= new();
-
             var rectScale = Mathf.Abs(rectScalePadding) * islandRect.Size.magnitude;
             var paddingVector = Vector2.ClampMagnitude(Vector2.one, rectScale);
 
@@ -335,17 +337,17 @@ namespace net.rs64.TexTransCore.Island
 
             if (!islandRect.Is90Rotation)
             {
-                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
-                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
+                yield return new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y);
+                yield return new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y);
             }
             else
             {
-                yield return (new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y));
-                yield return (new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y));
-                yield return (new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y));
+                yield return new(leftDown.x - paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, rightUp.y + paddingVector.y);
+                yield return new(rightUp.x + paddingVector.x, leftDown.y - paddingVector.y);
+                yield return new(leftDown.x - paddingVector.x, leftDown.y - paddingVector.y);
             }
         }
     }

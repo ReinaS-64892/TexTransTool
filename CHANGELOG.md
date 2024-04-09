@@ -11,11 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Optimizing Phase が追加されました (#410)
 - GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
-- UVtoIsland の高速化 (#412)
+- AtlasTexture に強制的に優先度のサイズに変更する ForcePrioritySize が追加されました (#431)
+- AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
 
 ### Changed
 
-- AtlasTexture が UVModification から Optimizing にフェーズの定義が変更されました。 (#410)
+- SizeOffset は廃止され、SizePriority に変更されました (#431)
+- AtlasTexture のプロパティの並び順が変更されました (#431)
+
+### Removed
+
+- AtlasTexture の UseUpScale は削除されました (#431)
+
+### Fixed
+
+- AtlasTexture で SubMesh よりも多くのマテリアルスロットが存在するメッシュで正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture でサブメッシュを超えて同一の頂点を使用するメッシュを正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture の「適用時に非アクティブなレンダラーを含める」が有効な時、非アクティブなレンダラーのマテリアルが選択肢に表示されない問題を修正 (#431)
+
+### Deprecated
+
+## [0.6.4]
+
+### Added
+
+- UVtoIsland の高速化 (#412)
+- Materialの使い回しにより TransTexture と TextureBend が若干の高速化 (#430)
 
 ### Removed
 
@@ -23,7 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-### Deprecated
+- 0~1 範囲外のUVを持つメッシュに SimpleDecal が正しく使用できない問題を修正 (#430)
+- 0~1 範囲外のUVを持つメッシュにデカールのリアルタイムプレビューを使用した時真っ黒になる問題を修正 (#430)
+- SimpleDecal のリアルタイムプレビューが不必要にレンダーテクスチャの更新を重複して行っていた問題を修正 (#430)
 
 ## [0.6.3]
 
@@ -457,7 +480,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...master
+[0.6.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.6.1

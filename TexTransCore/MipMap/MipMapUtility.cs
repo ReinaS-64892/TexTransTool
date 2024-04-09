@@ -12,6 +12,11 @@ namespace net.rs64.TexTransCore.MipMap
 {
     internal static class MipMapUtility
     {
+        [TexTransInitialize]
+        public static void Init()
+        {
+            MipMapShader = TexTransCoreRuntime.LoadAsset("5f6d88c53276bb14eace10771023ae01", typeof(ComputeShader)) as ComputeShader;
+        }
         public static ComputeShader MipMapShader;
         const string WTex = "WTex";
         const string RTex = "RTex";

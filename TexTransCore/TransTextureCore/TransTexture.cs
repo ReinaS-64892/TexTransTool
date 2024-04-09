@@ -13,6 +13,7 @@ using Unity.Jobs;
 using UnityEditor;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+using System;
 
 namespace net.rs64.TexTransCore.TransTextureCore
 {
@@ -23,7 +24,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             public NativeArray<TriangleIndex> TrianglesToIndex;
             public NativeArray<Vector2> TargetUV;
             public NativeArray<UVDimension> SourceUV;
-            
+
             public TransData(
                 IEnumerable<TriangleIndex> trianglesToIndex,
                 IEnumerable<Vector2> targetUV,
@@ -36,14 +37,14 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 SourceUV = new NativeArray<UVDimension>(sourceUV.ToArray(), Allocator.TempJob);
 
                 var self = this;
-                EditorApplication.delayCall += () =>
+                TexTransCoreRuntime.NextUpdateCall += () =>
                 {
                     self.TrianglesToIndex.Dispose();
                     self.TargetUV.Dispose();
                     self.SourceUV.Dispose();
                 };
             }
-            
+
             public TransData(NativeArray<TriangleIndex> trianglesToIndex, NativeArray<Vector2> targetUV, NativeArray<UVDimension> sourceUV)
             {
                 TrianglesToIndex = trianglesToIndex;
@@ -55,7 +56,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 var mda = Mesh.AllocateWritableMeshData(1);
                 var mda_mesh = mda[0];
-                
+
                 mda_mesh.SetVertexBufferParams(
                     TargetUV.Length,
                     new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
@@ -66,18 +67,18 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 var pos_array = mda_mesh.GetVertexData<Vector3>(0);
                 var uv_array = mda_mesh.GetVertexData<UVDimension>(1);
                 var dst_triangles = mda_mesh.GetIndexData<int>();
-                
+
                 var job1 = new CopyPos { Source = TargetUV, Destination = pos_array }.Schedule(TargetUV.Length, 64);
                 var job2 = new CopyJob<UVDimension> { Source = SourceUV, Destination = uv_array }.Schedule(SourceUV.Length, 64, job1);
                 var job3 = new UnpackTriangleJob { Source = TrianglesToIndex, Destination = dst_triangles }.Schedule(dst_triangles.Length, 64, job2);
 
                 var mesh = new Mesh();
-                
+
                 job3.Complete();
 
                 mda_mesh.subMeshCount = 1;
                 mda_mesh.SetSubMesh(0, new SubMeshDescriptor(0, dst_triangles.Length, MeshTopology.Triangles));
-                
+
                 Mesh.ApplyAndDisposeWritableMeshData(mda, mesh);
 
                 return mesh;
@@ -91,18 +92,18 @@ namespace net.rs64.TexTransCore.TransTextureCore
             new CopyJob<Vector3>().Schedule(1, 1);
             new CopyJob<Vector4>().Schedule(1, 1);
         }
-        
+
         [BurstCompile]
         struct UnpackTriangleJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<TriangleIndex> Source;
             [WriteOnly] public NativeArray<int> Destination;
-                
+
             public void Execute(int index)
             {
                 var tri_index = index / 3;
                 var coord = index % 3;
-                    
+
                 Destination[index] = Source[tri_index][coord];
             }
         }
@@ -112,27 +113,39 @@ namespace net.rs64.TexTransCore.TransTextureCore
         {
             [ReadOnly] public NativeArray<Vector2> Source;
             [WriteOnly] public NativeArray<Vector3> Destination;
-                
-            public void Execute(int index)
-            {
-                Destination[index] = Source[index];
-            }
-        }
-            
-        [BurstCompile]
-        struct CopyJob<T> : IJobParallelFor where T : struct
-        {
-            [ReadOnly] public NativeArray<T> Source;
-            [WriteOnly] public NativeArray<T> Destination;
-                
+
             public void Execute(int index)
             {
                 Destination[index] = Source[index];
             }
         }
 
+        [BurstCompile]
+        struct CopyJob<T> : IJobParallelFor where T : struct
+        {
+            [ReadOnly] public NativeArray<T> Source;
+            [WriteOnly] public NativeArray<T> Destination;
+
+            public void Execute(int index)
+            {
+                Destination[index] = Source[index];
+            }
+        }
+        [TexTransInitialize]
+        public static void Init()
+        {
+            s_transShader = Shader.Find(TRANS_SHADER);
+            s_depthShader = Shader.Find(DEPTH_WRITER_SHADER);
+        }
+
         public const string TRANS_SHADER = "Hidden/TransTexture";
+        static Shader s_transShader;
         public const string DEPTH_WRITER_SHADER = "Hidden/DepthWriter";
+        static Shader s_depthShader;
+
+
+        static Material s_transMat;
+        static Material s_depthMat;
         public static void ForTrans<UVDimension>(
             RenderTexture targetTexture,
             Texture souseTexture,
@@ -140,7 +153,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
             float? padding = null,
             TextureWrap? argTexWrap = null,
             bool highQualityPadding = false,
-            bool? depthInvert = null
+            bool? depthInvert = null,
+            bool NotTileNormalize = false
             ) where UVDimension : struct
         {
             Profiler.BeginSample("GenerateTransMesh");
@@ -159,20 +173,26 @@ namespace net.rs64.TexTransCore.TransTextureCore
 
 
             Profiler.BeginSample("Material Setup");
-            var material = new Material(Shader.Find(TRANS_SHADER));
-            material.SetTexture("_MainTex", souseTexture);
-            if (padding.HasValue) material.SetFloat("_Padding", padding.Value);
+            if (s_transMat == null) { s_transMat = new Material(s_transShader); }
+            s_transMat.shaderKeywords = Array.Empty<string>();
+            s_transMat.SetTexture("_MainTex", souseTexture);
+            if (padding.HasValue) s_transMat.SetFloat("_Padding", padding.Value);
             if (padding.HasValue && highQualityPadding)
             {
                 mesh.TTNormalCal();
-                material.EnableKeyword("HighQualityPadding");
+                s_transMat.EnableKeyword("HighQualityPadding");
             }
 
             if (texWrap.WarpRange != null)
             {
-                material.EnableKeyword("WarpRange");
-                material.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
-                material.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
+                s_transMat.EnableKeyword("WarpRange");
+                s_transMat.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
+                s_transMat.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
+            }
+
+            if (NotTileNormalize)
+            {
+                s_transMat.EnableKeyword("UnTileNormalize");
             }
             Profiler.EndSample();
 
@@ -182,26 +202,24 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
                 depthRt.Clear();
-                material.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
+                s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 
                 using (new RTActiveSaver())
                 {
-                    var depthMat = new Material(Shader.Find(DEPTH_WRITER_SHADER));
+                    if (s_depthMat == null) { new Material(s_depthShader); }
                     RenderTexture.active = depthRt;
 
-                    depthMat.SetPass(0);
+                    s_depthMat.SetPass(0);
                     Profiler.BeginSample("depthInvert DrawMeshNow");
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                     Profiler.EndSample();
-
-                    UnityEngine.Object.DestroyImmediate(depthMat);
                 }
 
-                material.SetTexture("_DepthTex", depthRt);
+                s_transMat.SetTexture("_DepthTex", depthRt);
             }
             else
             {
-                material.EnableKeyword("NotDepth");
+                s_transMat.EnableKeyword("NotDepth");
             }
 
 
@@ -211,13 +229,13 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 RenderTexture.active = targetTexture;
                 Profiler.BeginSample("DrawMeshNow");
-                material.SetPass(0);
+                s_transMat.SetPass(0);
                 Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                 Profiler.EndSample();
                 if (padding != null)
                 {
                     Profiler.BeginSample("DrawMeshNow - padding");
-                    material.SetPass(1);
+                    s_transMat.SetPass(1);
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                     Profiler.EndSample();
                 }

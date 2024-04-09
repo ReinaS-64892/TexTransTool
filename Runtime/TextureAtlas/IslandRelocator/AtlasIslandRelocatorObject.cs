@@ -23,11 +23,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
     public abstract class AtlasIslandRelocatorObject : ScriptableObject, IAtlasIslandRelocator
     {
         public abstract bool RectTangleMove { get; }
-        protected bool UseUpScaling { get; private set; }
         protected float Padding { get; private set; }
-        bool IAtlasIslandRelocator.UseUpScaling { set => UseUpScaling = value; }
         float IAtlasIslandRelocator.Padding { set => Padding = value; }
-        public abstract Dictionary<AtlasIslandID, IslandRect> Relocation(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference);
+        public abstract bool Relocation(IslandRect[] atlasIslands);
     }
 
 

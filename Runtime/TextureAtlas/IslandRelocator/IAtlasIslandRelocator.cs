@@ -9,11 +9,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
     public interface IAtlasIslandRelocator
     {
         bool RectTangleMove { get; }
-
-        bool UseUpScaling { set; }
         float Padding { set; }
-
-        Dictionary<AtlasIslandID, IslandRect> Relocation(Dictionary<AtlasIslandID, IslandRect> atlasIslands, IReadOnlyDictionary<AtlasIslandID, AtlasIsland> atlasIslandReference);
+        bool Relocation(IslandRect[] atlasIslands);
     }
 
 

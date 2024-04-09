@@ -115,6 +115,8 @@ namespace net.rs64.TexTransCore.TransTextureCore
         {
             return zero == other.zero && one == other.one && two == other.two;
         }
+
+        public static IEnumerable<int> SelectMany(IEnumerable<TriangleIndex> ints) { foreach (var tri in ints) { for (var i = 0; 3 > i; i += 1) { yield return tri[i]; } } }
     }
     [StructLayout(LayoutKind.Explicit)]
     internal struct Triangle : IEnumerable<Vector3>

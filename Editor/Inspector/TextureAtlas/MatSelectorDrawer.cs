@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var sMat = property.FindPropertyRelative("Material");
-            var sOffset = property.FindPropertyRelative("AdditionalTextureSizeOffSet");
+            var sOffset = property.FindPropertyRelative("MaterialFineTuningValue");
             position.width /= 2;
             EditorGUI.PropertyField(position, sOffset, new GUIContent(sMat.objectReferenceValue?.name));
             position.x += position.width;

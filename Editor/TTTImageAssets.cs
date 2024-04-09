@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace net.rs64.TexTransTool
         internal static Texture2D Logo;
 
 
+        [TexTransInitialize]
         internal static void Init()
         {
             Icon = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath("846ba4dba0267cf4187be80bb6577627"));

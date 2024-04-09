@@ -33,6 +33,7 @@ namespace net.rs64.TexTransTool
         private readonly IStackManager _textureStacks;
 
         [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
+        protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
         public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool progressDisplay = false)
         : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
@@ -116,7 +117,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var keyValuePair in mapping)
                 {
-                    _objectMap.Add(keyValuePair.Key, keyValuePair.Value);
+                    RegisterReplace(keyValuePair.Key, keyValuePair.Value);
                 }
             }
         }
@@ -143,7 +144,7 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            _objectMap.Add(preMesh, mesh);
+            RegisterReplace(preMesh, mesh);
         }
         public virtual void SetTexture(Texture2D target, Texture2D setTex)
         {
@@ -151,19 +152,29 @@ namespace net.rs64.TexTransTool
             ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
             ListPool<Material>.Release(mats);
 
-            _objectMap.Add(target, setTex);
+            RegisterReplace(target, setTex);
         }
 
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
 
-        public bool TryReplaceQuery(Object oldObject, out Object nowObject)
+        public virtual bool OriginEqual(Object l, Object r)
         {
-            return _objectMap.GetMapping.TryGetValue(oldObject, out nowObject);
+            if (l == r) { return true; }
+
+            return GetOrigin(l) == GetOrigin(r);
+
+            Object GetOrigin(Object obj)
+            {
+                while (_replaceMap.ContainsKey(obj)) { obj = _replaceMap[obj]; }
+                return obj;
+            }
+
         }
-        public void RegisterReplace(Object oldObject, Object nowObject)
+        public virtual void RegisterReplace(Object oldObject, Object nowObject)
         {
             _objectMap.Add(oldObject, nowObject);
+            _replaceMap[oldObject] = nowObject;
         }
         public virtual void EditFinish()
         {
@@ -211,5 +222,6 @@ namespace net.rs64.TexTransTool
         public ITextureManager GetTextureManager() => _textureManager;
 
         public bool IsPreview() => Previewing;
+
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -92,12 +93,12 @@ namespace net.rs64.TexTransCore.Decal
             }
             _combinedTriangles.Dispose();
             _combinedTriangleIndex.Dispose();
+            _combinedTriangleToSubmeshIndexAndOffset.Dispose();
         }
 
-        internal MeshData(Renderer renderer)
+        internal MeshData(Renderer renderer, Mesh mesh, Matrix4x4 worldSpaceTransform)
         {
             ReferenceRenderer = renderer;
-            (Mesh mesh, Matrix4x4 worldSpaceTransform) = GetMeshAndMatrix(renderer);
 
             var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh);
 
@@ -172,8 +173,8 @@ namespace net.rs64.TexTransCore.Decal
 
             meshDataArray.Dispose();
         }
-
-        (Mesh, Matrix4x4) GetMeshAndMatrix(Renderer target)
+        internal MeshData(Renderer renderer) : this(renderer, GetMesh(renderer), GetMatrix(renderer)) { }
+        internal static Mesh GetMesh(Renderer target)
         {
             switch (target)
             {
@@ -181,7 +182,24 @@ namespace net.rs64.TexTransCore.Decal
                     {
                         Mesh mesh = new Mesh();
                         smr.BakeMesh(mesh);
-
+                        return mesh;
+                    }
+                case MeshRenderer mr:
+                    {
+                        return mr.GetComponent<MeshFilter>().sharedMesh;
+                    }
+                default:
+                    {
+                        throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
+                    }
+            }
+        }
+        internal static Matrix4x4 GetMatrix(Renderer target)
+        {
+            switch (target)
+            {
+                case SkinnedMeshRenderer smr:
+                    {
                         Matrix4x4 matrix;
                         if (smr.bones.Any())
                         {
@@ -196,11 +214,11 @@ namespace net.rs64.TexTransCore.Decal
                             matrix = smr.rootBone.localToWorldMatrix;
                         }
 
-                        return (mesh, matrix);
+                        return matrix;
                     }
                 case MeshRenderer mr:
                     {
-                        return (mr.GetComponent<MeshFilter>().sharedMesh, mr.localToWorldMatrix);
+                        return mr.localToWorldMatrix;
                     }
                 default:
                     {
@@ -235,7 +253,7 @@ namespace net.rs64.TexTransCore.Decal
                 dstSubmeshIndexAndOffset[index] = (submeshIndex, submeshOffset);
             }
         }
-        
+
         [BurstCompile]
         struct InitTriangleJob : IJobParallelFor
         {
@@ -258,7 +276,7 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglePosBuffer[index] = triangle;
             }
         }
-        
+
         [BurstCompile]
         struct WorldSpaceTransformJob : IJobParallelFor
         {

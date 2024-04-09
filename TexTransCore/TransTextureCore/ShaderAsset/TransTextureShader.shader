@@ -26,8 +26,10 @@ Shader "Hidden/TransTexture"
             HLSLPROGRAM
             #pragma exclude_renderers metal
             #pragma vertex vert
+            #pragma geometry geom
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
+            #pragma shader_feature_local_geometry UnTileNormalize
             #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
             #include "./TransTextureHelper.hlsl"
@@ -45,10 +47,11 @@ Shader "Hidden/TransTexture"
             HLSLPROGRAM
             #pragma exclude_renderers metal
             #pragma vertex vert
-            #pragma geometry geom
+            #pragma geometry puddingGeom
             #pragma fragment frag
             #pragma shader_feature_local_fragment WarpRange
             #pragma shader_feature_local HighQualityPadding
+            #pragma shader_feature_local_geometry UnTileNormalize
             #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
 
@@ -78,7 +81,9 @@ Shader "Hidden/TransTexture"
             #pragma shader_feature_local_fragment WarpRange
             #pragma multi_compile_local NotDepth DepthDecal InvertDepth
 
+            #define NotGeometry 1
             #include "./TransTextureHelper.hlsl"
+            #undef NotGeometry
 
             ENDHLSL
         }

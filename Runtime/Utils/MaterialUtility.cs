@@ -59,6 +59,61 @@ namespace net.rs64.TexTransTool.Utils
             }
             return output;
         }
+        public static IEnumerable<(string, Texture2D)> GetAllTexture2DProperty(this Material material)
+        {
+            if (material == null || material.shader == null) { yield break; }
+            var shader = material.shader;
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
+                var propName = shader.GetPropertyName(i);
+                var texture = material.GetTexture(propName);
+                var tex2D = texture as Texture2D;
+                yield return (propName, tex2D);
+            }
+        }
 
+        public static void AllPropertyReset(this Material material)
+        {
+            var shader = material.shader;
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                var pID = shader.GetPropertyNameId(i);
+                switch (shader.GetPropertyType(i))
+                {
+                    case UnityEngine.Rendering.ShaderPropertyType.Color:
+                        {
+                            material.SetColor(pID, shader.GetPropertyDefaultVectorValue(i));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Vector:
+                        {
+                            material.SetVector(pID, shader.GetPropertyDefaultVectorValue(i));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Float:
+                    case UnityEngine.Rendering.ShaderPropertyType.Range:
+                        {
+                            material.SetFloat(pID, shader.GetPropertyDefaultFloatValue(i));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Int:
+                        {
+                            material.SetInt(pID, shader.GetPropertyDefaultIntValue(i));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                        {
+                            material.SetTexture(pID, null);
+                            material.SetTextureScale(pID, Vector2.zero);
+                            material.SetTextureOffset(pID, Vector2.zero);
+                            break;
+
+                        }
+                }
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransCore.TransTextureCore.Utils
@@ -66,6 +67,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
 
         public static Texture2D ResizeTexture(Texture2D souse, Vector2Int size)
         {
+            Profiler.BeginSample("ResizeTexture");
             using (new RTActiveSaver())
             {
                 var useMip = souse.mipmapCount > 1;
@@ -96,6 +98,8 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                 resizedTexture.name = souse.name + "_Resized_" + size.x.ToString();
 
                 RenderTexture.ReleaseTemporary(rt);
+                Profiler.EndSample();
+                
                 return resizedTexture;
             }
         }
@@ -126,5 +130,49 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
+
+        public static RenderTexture CloneTemp(this RenderTexture renderTexture)
+        {
+            var newTemp = RenderTexture.GetTemporary(renderTexture.descriptor);
+            newTemp.filterMode = renderTexture.filterMode;
+            newTemp.wrapMode = renderTexture.wrapMode;
+            newTemp.wrapModeU = renderTexture.wrapModeU;
+            newTemp.wrapModeV = renderTexture.wrapModeV;
+            newTemp.wrapModeW = renderTexture.wrapModeW;
+            Graphics.CopyTexture(renderTexture, newTemp);
+            return newTemp;
+        }
+
+
+
+        public const string ST_APPLY_SHADER = "Hidden/TransTexture";
+        static Shader s_stApplyShader;
+
+        [TexTransInitialize]
+        public static void Init() { s_stApplyShader = Shader.Find(ST_APPLY_SHADER); }
+
+        static Material s_TempMat;
+
+        public static void ApplyTextureST(Texture Souse, Vector2 s, Vector2 t, RenderTexture write)
+        {
+            using (new RTActiveSaver())
+            {
+                if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
+                s_TempMat.shader = s_stApplyShader;
+
+                s_TempMat.SetTextureScale("_MainTex", s);
+                s_TempMat.SetTextureOffset("_MainTex", t);
+
+                Graphics.Blit(Souse, write, s_TempMat);
+            }
+        }
+        public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
+        {
+            var tmp = rt.CloneTemp();
+            ApplyTextureST(tmp, s, t, rt);
+            RenderTexture.ReleaseTemporary(tmp);
+        }
+
+
     }
 }
