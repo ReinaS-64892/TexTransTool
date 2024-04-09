@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.TransTextureCore;
 using Unity.Burst;
 using Unity.Collections;
@@ -137,6 +138,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)
         {
             return await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+        [TexTransInitialize]
+        public void Init()
+        {
+            MargeColorAndOffsetShader = Shader.Find(MARGE_COLOR_AND_OFFSET_SHADER);
         }
         internal const string MARGE_COLOR_AND_OFFSET_SHADER = "Hidden/MargeColorAndOffset";
         internal static Shader MargeColorAndOffsetShader;

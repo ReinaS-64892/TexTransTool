@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool
@@ -10,6 +11,7 @@ namespace net.rs64.TexTransTool
         public const string DEBUG_MENU_PATH = TTT_MENU_PATH + "/Debug";
 
 
+        [TexTransInitialize]
         internal static void SettingInitializer()
         {
             IsObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);

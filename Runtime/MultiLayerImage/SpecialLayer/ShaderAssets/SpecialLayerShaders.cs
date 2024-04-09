@@ -1,8 +1,10 @@
+using net.rs64.TexTransCore;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal static class SpecialLayerShaders
     {
+        [TexTransInitialize]
         public static void Init()
         {
             HSLAdjustmentShader = Shader.Find(HSL_ADJUSTMENT_SHADER);

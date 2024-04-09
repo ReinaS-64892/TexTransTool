@@ -78,7 +78,7 @@ namespace net.rs64.TexTransCore.BlendTexture
     internal static class TextureBlend
     {
         public static Dictionary<string, Shader> BlendShaders;
-
+        [TexTransInitialize]
         public static void BlendShadersInit()
         {
             BlendTexShader = Shader.Find(BLEND_TEX_SHADER);

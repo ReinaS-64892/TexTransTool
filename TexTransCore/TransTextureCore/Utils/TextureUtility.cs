@@ -148,6 +148,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         public const string ST_APPLY_SHADER = "Hidden/TransTexture";
         static Shader s_stApplyShader;
 
+        [TexTransInitialize]
         public static void Init() { s_stApplyShader = Shader.Find(ST_APPLY_SHADER); }
 
         static Material s_TempMat;

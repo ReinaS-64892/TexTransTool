@@ -131,6 +131,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 Destination[index] = Source[index];
             }
         }
+        [TexTransInitialize]
         public static void Init()
         {
             s_transShader = Shader.Find(TRANS_SHADER);

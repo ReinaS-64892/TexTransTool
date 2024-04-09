@@ -9,6 +9,7 @@ namespace net.rs64.TexTransCore
     {
         internal static event Action OnClearMemo;
 
+        [TexTransInitialize]
         internal static void Init()
         {
             TexTransCoreRuntime.Update += () =>
