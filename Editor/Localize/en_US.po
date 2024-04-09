@@ -130,6 +130,15 @@ msgstr "PixelNormalize"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
 
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
+msgstr "MaterialMargeGroups"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
+msgstr "MargeReferenceMaterial"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgstr "GroupMaterials"
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "IncludeDisabledRenderer"
 

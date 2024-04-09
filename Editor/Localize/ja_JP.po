@@ -130,6 +130,15 @@ msgstr "ピクセルノーマライズ"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "アイランドの移動をピクセル単位にノーマライズする機能"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
+msgstr "マテリアル統合グループ"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
+msgstr "結合時マテリアルの参照"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgstr "グループのマテリアル"
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "適用時に非アクティブなレンダラーを含める"
 

@@ -471,7 +471,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         }
                     }
 
-                    // UnityEditor.AssetDatabase.CreateAsset(targetRT.CopyTexture2D(), UnityEditor.AssetDatabase.GenerateUniqueAssetPath("Assets/temp.asset"));
                 }
                 Profiler.EndSample();
 
@@ -713,8 +712,19 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First();
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
+                var matGroupGenerate = AtlasSetting.MaterialMargeGroups.ToDictionary(m => m, m => GenerateAtlasMat(m.MargeReferenceMaterial, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture));
 
-                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, _ => generateMat), true);
+                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)), true);
+
+                Material FindGroup(Material material)
+                {
+                    foreach (var matGroup in AtlasSetting.MaterialMargeGroups)
+                    {
+                        var index = matGroup.GroupMaterials.FindIndex(m => domain.OriginEqual(m, material));
+                        if (index != -1) { return matGroupGenerate[matGroup]; }
+                    }
+                    return generateMat;
+                }
             }
             else
             {

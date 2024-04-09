@@ -24,12 +24,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
 
+        public List<MaterialMargeGroup> MaterialMargeGroups;
+
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
         public bool PixelNormalize = false;
 
         [SerializeReference] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
-
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData
@@ -44,6 +45,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         #endregion
 
     }
+
+    [Serializable]
+    public class MaterialMargeGroup
+    {
+        public Material MargeReferenceMaterial;
+        public List<Material> GroupMaterials;
+    }
+
     public enum PropertyBakeSetting
     {
         NotBake,
