@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
 - AtlasTexture に強制的に優先度のサイズに変更する ForcePrioritySize が追加されました (#431)
 - AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
+- AtlasTexture が Scale Transition(Tiling) を使用しているマテリアルのテクスチャを逆補正する機能が追加されました (#431 #435)
 
 ### Changed
 

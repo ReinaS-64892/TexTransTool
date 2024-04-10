@@ -355,7 +355,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 {
                                     if (kv.Any(i => i.Value.Texture2D != null) == false) { continue; }
                                     var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
-                                    if (atlasTex.TextureScale == Vector2.zero && atlasTex.TextureTranslation == Vector2.zero)
+                                    if (atlasTex.TextureScale == Vector2.one && atlasTex.TextureTranslation == Vector2.zero)
                                     {
                                         dict[kv.Key] = texManage.GetOriginTempRt(atlasTex.Texture2D);
                                     }
@@ -416,8 +416,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                     atlasTexDict.TryGetValue(propName, out var atlasTex);
                                     var sTex = atlasTex?.Texture2D != null ? texManage.GetOriginTempRt(atlasTex.Texture2D) : null;
 
-                                    if (sTex != null) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
+                                    if (sTex != null && (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
+
+                                    if (shaderSupport.BakeShader == null)
+                                    {
+                                        texDict[propName] = sTex != null ? sTex : RenderTexture.GetTemporary(2, 2); ;
+                                        continue;
+                                    }
+
                                     var bakedTex = sTex != null ? sTex.CloneTemp() : RenderTexture.GetTemporary(2, 2);
+
 
                                     if (atlasTex != null)
                                     {

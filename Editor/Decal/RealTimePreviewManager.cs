@@ -111,7 +111,7 @@ namespace net.rs64.TexTransTool
 
                 var souseTexture = material.GetTexture(propertyName) as Texture2D;
                 var newTarget = RenderTexture.GetTemporary(blendTexture.RenderTexture.descriptor);
-                CopyFilWrap(newTarget, blendTexture.RenderTexture);
+                newTarget.CopyFilWrap(blendTexture.RenderTexture);
 
                 editableMat.SetTexture(propertyName, newTarget);
 
@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool
                             { continue; }
                     }
 
-                    CopyFilWrap(Rt, tex);
+                    Rt.CopyFilWrap(tex);
 
                     var blendTex = new BlendRenderTextureClass(Rt, abstractDecal.BlendTypeKey);
                     blends.Add(blendTex);
@@ -213,14 +213,7 @@ namespace net.rs64.TexTransTool
             ListPool<Material>.Release(TargetMats);
         }
 
-        internal static void CopyFilWrap(Texture t, Texture s)
-        {
-            t.filterMode = s.filterMode;
-            t.wrapMode = s.wrapMode;
-            t.wrapModeU = s.wrapModeU;
-            t.wrapModeV = s.wrapModeV;
-            t.wrapModeW = s.wrapModeW;
-        }
+
 
         public bool IsRealTimePreview(AbstractDecal abstractDecal) => RealTimePreviews.ContainsKey(abstractDecal);
         public void UnRegtAbstractDecal(AbstractDecal abstractDecal)

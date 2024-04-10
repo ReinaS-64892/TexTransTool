@@ -66,12 +66,14 @@ namespace net.rs64.TexTransTool
         {
             var originSize = origin.GetOriginalTextureSize(texture2D);
             var tempRt = RenderTexture.GetTemporary(originSize, originSize, 0);
+            tempRt.CopyFilWrap(texture2D);
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }
         public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
         {
             var tempRt = RenderTexture.GetTemporary(size, size, 0);
+            tempRt.CopyFilWrap(texture2D);
             tempRt.Clear();
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
