@@ -149,6 +149,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 Profiler.EndSample();
             }
+
+
             Profiler.BeginSample("IslandFineTuning");
             var islandArray = atlasContext.Islands;
             var rectArray = new IslandRect[islandArray.Length];
@@ -158,6 +160,34 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 rectArray[index] = new IslandRect(islandKV);
                 index += 1;
             }
+
+            Profiler.BeginSample("TextureIslandScaling");
+            var textureIslandScale = new Dictionary<int, float>();
+            var textureIslandAspect = new Dictionary<int, float>();
+            for (var i = 0; atlasContext.MaterialGroup.Length > i; i += 1)
+            {
+                var tex = atlasContext.MaterialGroup[i].Select(m => m.mainTexture).Where(t => t != null).FirstOrDefault();
+                if (tex != null)
+                {
+                    var atlasTexPixelCount = atlasSetting.AtlasTextureSize * atlasSetting.AtlasTextureSize;
+                    var texPixelCount = tex.width * tex.height;
+                    textureIslandScale[i] = Mathf.Sqrt(texPixelCount / (float)atlasTexPixelCount);
+                    textureIslandAspect[i] = tex.width / tex.height;
+                }
+                else
+                {
+                    textureIslandScale[i] = (float)0.01f;
+                    textureIslandAspect[i] = 1f;
+                }
+
+            }
+            for (var i = 0; rectArray.Length > i; i += 1)
+            {
+                var subData = atlasContext.IslandSubData[i];
+                rectArray[i].Size *= textureIslandScale[subData.MaterialGroupID];
+                rectArray[i].Size.y *= textureIslandAspect[subData.MaterialGroupID];
+            }
+            Profiler.EndSample();
 
             var sizePriority = new float[islandArray.Length]; for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = 1f; }
             var islandDescription = new IslandSelector.IslandDescription[islandArray.Length];
