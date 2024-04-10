@@ -99,7 +99,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
 
                 RenderTexture.ReleaseTemporary(rt);
                 Profiler.EndSample();
-                
+
                 return resizedTexture;
             }
         }
@@ -134,18 +134,21 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         public static RenderTexture CloneTemp(this RenderTexture renderTexture)
         {
             var newTemp = RenderTexture.GetTemporary(renderTexture.descriptor);
-            newTemp.filterMode = renderTexture.filterMode;
-            newTemp.wrapMode = renderTexture.wrapMode;
-            newTemp.wrapModeU = renderTexture.wrapModeU;
-            newTemp.wrapModeV = renderTexture.wrapModeV;
-            newTemp.wrapModeW = renderTexture.wrapModeW;
+            newTemp.CopyFilWrap(renderTexture);
             Graphics.CopyTexture(renderTexture, newTemp);
             return newTemp;
         }
 
+        internal static void CopyFilWrap(this Texture t, Texture s)
+        {
+            t.filterMode = s.filterMode;
+            t.wrapMode = s.wrapMode;
+            t.wrapModeU = s.wrapModeU;
+            t.wrapModeV = s.wrapModeV;
+            t.wrapModeW = s.wrapModeW;
+        }
 
-
-        public const string ST_APPLY_SHADER = "Hidden/TransTexture";
+        public const string ST_APPLY_SHADER = "Hidden/TextureSTApply";
         static Shader s_stApplyShader;
 
         [TexTransInitialize]
@@ -160,10 +163,11 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                 if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
                 s_TempMat.shader = s_stApplyShader;
 
-                s_TempMat.SetTextureScale("_MainTex", s);
-                s_TempMat.SetTextureOffset("_MainTex", t);
+                s_TempMat.SetTexture("_OffSetTex", Souse);
+                s_TempMat.SetTextureScale("_OffSetTex", s);
+                s_TempMat.SetTextureOffset("_OffSetTex", t);
 
-                Graphics.Blit(Souse, write, s_TempMat);
+                Graphics.Blit(null, write, s_TempMat);
             }
         }
         public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)

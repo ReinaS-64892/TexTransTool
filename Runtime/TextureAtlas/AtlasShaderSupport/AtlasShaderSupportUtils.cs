@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 s_defaultSupporter = ScriptableObject.CreateInstance<AtlasShaderSupportScriptableObject>();
                 s_defaultSupporter.SupportedShaderComparer = new AnythingShader();
-                s_defaultSupporter.AtlasTargetDefines = new() { new() { TexturePropertyName = "_MainTex", AtlasDefineConstraints = new Anything() } };
+                s_defaultSupporter.AtlasTargetDefines = new() { new() { TexturePropertyName = "_MainTex", AtlasDefineConstraints = new Anything(), BakePropertyNames = new() } };
             }
 
             atlasShaderSupportList.Add(s_defaultSupporter);
