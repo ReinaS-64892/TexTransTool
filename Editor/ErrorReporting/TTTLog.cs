@@ -82,7 +82,11 @@ namespace net.rs64.TexTransTool
         {
             get
             {
-                _ndmfLocalizer ??= new nadena.dev.ndmf.localization.Localizer("en-US", () => Localize.LocalizationAssets.Values.ToList());
+                if (_ndmfLocalizer == null)
+                {
+                    Localize.LoadLocalize();
+                    _ndmfLocalizer = new nadena.dev.ndmf.localization.Localizer("en-US", () => Localize.LocalizationAssets.Values.ToList());
+                }
                 return _ndmfLocalizer;
             }
         }
