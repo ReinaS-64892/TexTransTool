@@ -472,7 +472,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...master
+[0.6.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...v0.6.2
