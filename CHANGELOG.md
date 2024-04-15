@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.6.5]
+
+### Fixed
+
+- エディター起動から一度も、TexTransToolのコンポーネントを表示してない状態で、 NDMFのエラーレポートでエラーが表示されたときに正しくローカライザーがロードされない問題を修正 (#439)
+
 ## [0.6.4]
 
 ### Added
