@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optimizing Phase が追加されました (#410)
+  - NDMF OptimizePhaseに実行されるようになりました。 (#438)
 - GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
 - AtlasTexture に強制的に優先度のサイズに変更する ForcePrioritySize が追加されました (#431)
 - AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
 - AtlasTexture が Scale Transition(Tiling) を使用しているマテリアルのテクスチャを逆補正する機能が追加されました (#431 #435)
+- NDMF環境でのビルドを行う場合、オブジェクトの置き換えの追跡を NDMF ObjectRegistry を使用するようになりました (#438)
 
 ### Changed
 
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - AtlasTexture の UseUpScale は削除されました (#431)
+- プログレスバーの詳細な表示が削除されました (#438)
 
 ### Fixed
 
