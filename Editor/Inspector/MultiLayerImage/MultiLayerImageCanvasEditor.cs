@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         {
             var texManager = new TextureManager(true);
             var canvasResult = mlic.EvaluateCanvas(texManager, 1024);
-            texManager.DestroyTextures();
+            texManager.DestroyDeferred();
 
             EditorGUI.DrawTextureTransparent(previewArea, canvasResult, ScaleMode.ScaleToFit);
             RenderTexture.ReleaseTemporary(canvasResult);

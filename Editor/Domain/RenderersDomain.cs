@@ -28,31 +28,25 @@ namespace net.rs64.TexTransTool
         public readonly bool Previewing;
 
         [CanBeNull] private readonly IAssetSaver _saver;
-        private readonly IProgressHandling _progressHandler;
         private readonly ITextureManager _textureManager;
         private readonly IStackManager _textureStacks;
 
-        [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool progressDisplay = false)
-        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false)
+        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = assetSaver;
-            _progressHandler = progressDisplay ? new ProgressHandler() : null;
             _textureManager = new TextureManager(Previewing);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
-
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
         public RenderersDomain(List<Renderer> previewRenderers,
                         bool previewing,
                         IAssetSaver saver,
-                        IProgressHandling progressHandler,
                         ITextureManager textureManager,
                         IStackManager stackManager
                        )
@@ -60,11 +54,8 @@ namespace net.rs64.TexTransTool
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = saver;
-            _progressHandler = progressHandler;
             _textureManager = textureManager;
             _textureStacks = stackManager;
-
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
         public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair
@@ -173,55 +164,31 @@ namespace net.rs64.TexTransTool
         }
         public virtual void RegisterReplace(Object oldObject, Object nowObject)
         {
-            _objectMap.Add(oldObject, nowObject);
-            _replaceMap[oldObject] = nowObject;
+            _replaceMap[nowObject] = oldObject;
         }
         public virtual void EditFinish()
         {
-            ProgressStateEnter("Finalize");
-            ProgressUpdate("MergeStack", 0.0f);
-
             MergeStack();
-
-            ProgressUpdate("DeferTexDestroy", 0.3f);
-
-            _textureManager.DestroyTextures();
-
-            ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
-
-            _textureManager.TextureFinalize();
-
-            ProgressUpdate("End", 1f);
-            ProgressStateExit();
-            ProgressStateExit();
-            _progressHandler?.ProgressFinalize();
+            _textureManager.DestroyDeferred();
+            _textureManager.CompressDeferred();
         }
 
         public virtual void MergeStack()
         {
-            ProgressUpdate("MergeStack", 0f);
             var MergedStacks = _textureStacks.MergeStacks();
-            ProgressUpdate("MergeStack", 0.9f);
+
             foreach (var mergeResult in MergedStacks)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
                 SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
                 TransferAsset(mergeResult.MergeTexture);
             }
-            ProgressUpdate("MergeStack", 1);
         }
 
 
-        public void ProgressStateEnter(string enterName) => _progressHandler?.ProgressStateEnter(enterName);
-        public void ProgressUpdate(string state, float value) => _progressHandler?.ProgressUpdate(state, value);
-        public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
-        public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
-
-
-
-        public ITextureManager GetTextureManager() => _textureManager;
-
+        public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
         public bool IsPreview() => Previewing;
+        public ITextureManager GetTextureManager() => _textureManager;
 
     }
 }

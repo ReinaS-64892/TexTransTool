@@ -17,30 +17,33 @@ namespace net.rs64.TexTransTool.Build.NDMF
 #endif
         protected override void Configure()
         {
-            var seq = InPhase(BuildPhase.Resolving);
+            InPhase(BuildPhase.Resolving)
 
-            seq.Run(PreviewCancelerPass.Instance);
-            seq.Run(ResolvingPass.Instance);
+            .Run(PreviewCancelerPass.Instance).Then
+            .Run(ResolvingPass.Instance);
 
 
-            seq = InPhase(BuildPhase.Transforming);
+            InPhase(BuildPhase.Transforming)
+            .BeforePlugin("io.github.azukimochi.light-limit-changer")
 
-            seq.BeforePlugin("io.github.azukimochi.light-limit-changer");
-            seq.WithRequiredExtension(typeof(TexTransToolContext), s =>
-            {
-                seq.Run(FindAtPhasePass.Instance).Then
-                .Run(BeforeUVModificationPass.Instance).Then
+            .Run(FindAtPhasePass.Instance).Then
+            .Run(BeforeUVModificationPass.Instance).Then
 
-                .Run(MidwayMergeStackPass.Instance).Then
+            .Run(MidwayMergeStackPass.Instance).Then
 
-                .Run(UVModificationPass.Instance).Then
-                .Run(AfterUVModificationPass.Instance).Then
-                .Run(UnDefinedPass.Instance).Then
+            .Run(UVModificationPass.Instance).Then
+            .Run(AfterUVModificationPass.Instance).Then
+            .Run(UnDefinedPass.Instance).Then
 
-                .Run(BeforeOptimizingMergeStackPass.Instance).Then
+            .Run(BeforeOptimizingMergeStackPass.Instance);
 
-                .Run(OptimizingPass.Instance);
-            });
+
+            InPhase(BuildPhase.Optimizing)
+            .BeforePlugin("com.anatawa12.avatar-optimizer")
+
+            .Run(OptimizingPass.Instance).Then
+            .Run(TTTSessionEndPass.Instance);
+
 
         }
     }

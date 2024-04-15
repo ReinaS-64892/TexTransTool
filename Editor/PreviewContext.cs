@@ -98,22 +98,29 @@ namespace net.rs64.TexTransTool
             AnimationMode.BeginSampling();
             try
             {
+                EditorUtility.DisplayProgressBar("TexTransBehaviorApply", "", 0f);
                 Profiler.BeginSample("TexTransBehaviorApply: " + targetTTBehavior.GetType() + " " + targetTTBehavior.gameObject.name);
                 RenderersDomain previewDomain = null;
+                EditorUtility.DisplayProgressBar("FindMarker", "", 0.01f);
                 Profiler.BeginSample("FindMarker");
                 var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
                 Profiler.EndSample();
-                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
-                else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
+                EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
+                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false); }
+                else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false); }
 
+                EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
+                //カスタムプレビューとエディターコールビヘイビアは違うから注意
                 if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { targetTTBehavior.Apply(previewDomain); }
 
+                EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
                 previewDomain.EditFinish();
             }
             finally
             {
                 Profiler.EndSample();
                 AnimationMode.EndSampling();
+                EditorUtility.ClearProgressBar();
             }
 
         }

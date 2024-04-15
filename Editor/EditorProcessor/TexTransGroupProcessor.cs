@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
             var ttg = texTransCallEditorBehavior as TexTransGroup;
 
             if (!ttg.IsPossibleApply) { TTTLog.Error("Not executable"); return; }
-            editorCallDomain.ProgressStateEnter("TexTransGroup");
+            // editorCallDomain.ProgressStateEnter("TexTransGroup");
 
             var targetList = TexTransGroup.TextureTransformerFilter(ttg.Targets).ToArray();
             var count = 0;
@@ -19,9 +19,9 @@ namespace net.rs64.TexTransTool.EditorProcessor
             {
                 count += 1;
                 tf.Apply(editorCallDomain);
-                editorCallDomain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
+                // editorCallDomain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
             }
-            editorCallDomain.ProgressStateExit();
+            // editorCallDomain.ProgressStateExit();
         }
     }
 }

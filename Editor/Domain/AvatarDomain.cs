@@ -18,55 +18,22 @@ namespace net.rs64.TexTransTool
     /// </summary>
     internal class AvatarDomain : RenderersDomain
     {
-        static readonly HashSet<Type> s_ignoreTypes = new HashSet<Type> { typeof(Transform), typeof(SkinnedMeshRenderer), typeof(MeshRenderer) };
-
-        public AvatarDomain(GameObject avatarRoot, bool previewing, bool saveAsset = false, bool progressDisplay = false)
-        : this(avatarRoot, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
-        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
-        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, assetSaver, progressDisplay)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, bool saveAsset = false)
+        : this(avatarRoot, previewing, saveAsset ? new AssetSaver() : null) { }
+        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver assetSaver)
+        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, assetSaver)
         {
             _avatarRoot = avatarRoot;
-            _previewing = previewing;
-            _isObjectReplaceInvoke = TTTConfig.IsObjectReplaceInvoke;
         }
-        public AvatarDomain(GameObject avatarRoot, bool previewing,
-                            IAssetSaver saver,
-                            IProgressHandling progressHandler,
-                            ITextureManager textureManager,
-                            IStackManager stackManager,
-                            bool? isObjectReplaceInvoke = null
-                            ) : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, progressHandler, textureManager, stackManager)
+        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver saver, ITextureManager textureManager, IStackManager stackManager)
+        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, textureManager, stackManager)
         {
             _avatarRoot = avatarRoot;
-            _previewing = previewing;
-            _isObjectReplaceInvoke = isObjectReplaceInvoke ?? TTTConfig.IsObjectReplaceInvoke;
         }
-
-        bool _previewing;
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
-        bool _isObjectReplaceInvoke;
 
-        public override void EditFinish()
-        {
-            base.EditFinish();
-
-            if (_previewing) { return; }
-
-            var modMap = _objectMap.GetMapping;
-
-#if NDMF_1_3_x
-            foreach (var replaceKV in modMap)
-            {
-                nadena.dev.ndmf.ObjectRegistry.RegisterReplacedObject(replaceKV.Key, replaceKV.Value);
-            }
-#endif
-            if (_isObjectReplaceInvoke)
-            {
-                SerializedObjectCrawler.ReplaceSerializedObjects(_avatarRoot, modMap);
-            }
-        }
     }
 
     internal class FlatMapDict<TKeyValue>
