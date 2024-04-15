@@ -116,29 +116,20 @@ namespace net.rs64.MultiLayerImage.Parser
     {
         public static bool Signature(ref SubSpanStream stream, byte[] signature)
         {
-            bool hitSignature = false;
-            while (!hitSignature)
-            {
-                byte readValue = stream.ReadByte();
-                if (stream.Position == stream.Length - 3) { return false; }
-                if (readValue == signature[0]) { hitSignature = true; stream.Position -= 1; }
-            }
-
             return stream.ReadSubStream(signature.Length).Span.SequenceEqual(signature);
-
         }
 
-        public static string ReadPascalString(ref SubSpanStream stream)
+        public static string ReadPascalStringForPadding4Byte(ref SubSpanStream stream)
         {
             var stringLength = stream.ReadByte();
-            var count = 1;
             if (stringLength != 0)
             {
-                var str = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(stringLength).Span.ToArray());
-                count += stringLength;
-                if ((count % 4) != 0)
+                var str = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(stringLength).Span);
+                var readLength = stringLength + 1;
+                if ((readLength % 4) != 0)
                 {
-                    for (int i = 0; (4 - (count % 4)) > i; i += 1)
+                    var paddingLength = 4 - (readLength % 4);
+                    for (int i = 0; paddingLength > i; i += 1)
                     {
                         stream.ReadByte();
                     }
