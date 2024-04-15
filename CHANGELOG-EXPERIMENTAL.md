@@ -21,6 +21,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 ### Removed
 
 - IslandSelector が使用できるようになったことに伴い SimpleDecal の IslandCulling は削除されました (#422)
+- ObjectReplaceInvoke は削除されました (#438)
 
 ### Fixed
 

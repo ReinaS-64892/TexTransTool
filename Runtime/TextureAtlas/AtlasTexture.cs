@@ -691,14 +691,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 return;
             }
 
-            domain.ProgressStateEnter("AtlasTexture");
-            domain.ProgressUpdate("CompileAtlasTexture", 0f);
-
             Profiler.BeginSample("TryCompileAtlasTextures");
             if (!TryCompileAtlasTextures(domain, out var atlasData)) { Profiler.EndSample(); return; }
             Profiler.EndSample();
-
-            domain.ProgressUpdate("MeshChange", 0.5f);
 
             var nowRenderers = Renderers;
 
@@ -719,8 +714,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.TransferAsset(atlasMesh);
             }
 
-            domain.ProgressUpdate("Texture Fine Tuning", 0.75f);
-
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
@@ -739,11 +732,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
                 if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
-                domain.GetTextureManager().TextureCompressDelegation(compressSettingTuple, atlasTexFTData.Texture2D);
+                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Texture2D);
             }
 
-
-            domain.ProgressUpdate("MaterialGenerate And Change", 0.9f);
 
             //MaterialGenerate And Change
             if (AtlasSetting.MergeMaterials)
@@ -776,8 +767,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.ReplaceMaterials(materialMap, true);
             }
 
-            domain.ProgressUpdate("End", 1);
-            domain.ProgressStateExit();
         }
 
         private void TransMoveRectIsland<TIslandRect>(Texture souseTex, RenderTexture targetRT, Dictionary<Island, TIslandRect> notAspectIslandPairs, float uvScalePadding) where TIslandRect : IIslandRect

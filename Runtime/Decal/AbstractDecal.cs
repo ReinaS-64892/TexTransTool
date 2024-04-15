@@ -47,13 +47,7 @@ namespace net.rs64.TexTransTool.Decal
                 return;
             }
 
-            domain.ProgressStateEnter("AbstractDecal");
-
-            domain.ProgressUpdate("DecalCompile", 0.25f);
-
             var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), DictionaryPool<Material, RenderTexture>.Get());
-
-            domain.ProgressUpdate("AddStack", 0.75f);
 
             foreach (var matAndTex in decalCompiledTextures)
             {
@@ -62,8 +56,6 @@ namespace net.rs64.TexTransTool.Decal
 
             DictionaryPool<Material, RenderTexture>.Release(decalCompiledTextures);
 
-            domain.ProgressUpdate("End", 1);
-            domain.ProgressStateExit();
         }
 
 

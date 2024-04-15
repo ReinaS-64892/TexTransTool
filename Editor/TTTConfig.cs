@@ -14,7 +14,6 @@ namespace net.rs64.TexTransTool
         [TexTransInitialize]
         internal static void SettingInitializer()
         {
-            IsObjectReplaceInvoke = EditorPrefs.GetBool(OBJECT_REPLACE_INVOKE_PREFKEY);
             Localize.LocalizeInitializer();
         }
         #region Language
@@ -52,22 +51,5 @@ namespace net.rs64.TexTransTool
 
         #endregion
 
-        #region ObjectReplaceInvoke
-        public const string OBJECT_REPLACE_INVOKE_MENU_PATH = EXPERIMENTAL_MENU_PATH + "/ObjectReplaceInvoke";
-        public const string OBJECT_REPLACE_INVOKE_PREFKEY = "net.rs64.tex-trans-tool.ObjectReplaceInvoke";
-        private static bool s_isObjectReplaceInvoke;
-        public static bool IsObjectReplaceInvoke { get => s_isObjectReplaceInvoke; private set { s_isObjectReplaceInvoke = value; ObjectReplaceInvokeConfigUpdate(); } }
-
-        [MenuItem(OBJECT_REPLACE_INVOKE_MENU_PATH)]
-        static void ToggleObjectReplaceInvoke()
-        {
-            IsObjectReplaceInvoke = !IsObjectReplaceInvoke;
-        }
-        private static void ObjectReplaceInvokeConfigUpdate()
-        {
-            EditorPrefs.SetBool(OBJECT_REPLACE_INVOKE_PREFKEY, IsObjectReplaceInvoke);
-            Menu.SetChecked(OBJECT_REPLACE_INVOKE_MENU_PATH, IsObjectReplaceInvoke);
-        }
-        #endregion
     }
 }
