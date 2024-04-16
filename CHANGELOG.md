@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- SimpleDecal の 深度デカールを有効化した場合に例外が発生し正しく処理できない問題を修正 ()
+- SimpleDecal の 深度デカールを有効化した場合に例外が発生し正しく処理できない問題を修正 (#441)
 
 ## [0.6.5]
 
