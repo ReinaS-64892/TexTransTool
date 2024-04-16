@@ -14,7 +14,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public ushort UniqueIdentifier;
             public string PascalStringName;
             public uint ActualDataSizeFollows;
-            public byte[] ResourceData;
+            public uint ActualDataSizeFollowsPlusPadding;
+            public long ActualDataStartIndex;
         }
         public static List<ImageResourceBlock> PaseImageResourceBlocks(SubSpanStream stream)
         {
@@ -37,7 +38,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
                 nowIRB.ActualDataSizeFollows = stream.ReadUInt32();
                 var actualLength = nowIRB.ActualDataSizeFollows % 2 == 0 ? nowIRB.ActualDataSizeFollows : nowIRB.ActualDataSizeFollows + 1;
-                nowIRB.ResourceData = stream.ReadSubStream((int)actualLength).Span.ToArray();
+                nowIRB.ActualDataSizeFollowsPlusPadding = actualLength;
+                nowIRB.ActualDataStartIndex = stream.ReadSubStream((int)actualLength).FirstToPosition;
 
                 imageResourceBlockList.Add(nowIRB);
             }
