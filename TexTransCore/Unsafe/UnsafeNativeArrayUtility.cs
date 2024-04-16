@@ -1,12 +1,13 @@
 using System;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace net.rs64.TexTransCore.Unsafe
 {
-    internal static class UnsafeNativeArrayClear
+    internal static class UnsafeNativeArrayUtility
     {
         public static unsafe void ClearMemory<T>(NativeArray<T> array) where T : struct
         {

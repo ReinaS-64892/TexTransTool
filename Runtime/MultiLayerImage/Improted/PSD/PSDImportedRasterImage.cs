@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
 
-            TexTransCore.Unsafe.UnsafeNativeArrayClear.ClearMemory(nativeArray);
+            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
 
             Profiler.EndSample();
             Profiler.BeginSample("RLE");
@@ -56,7 +56,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     SouseSize = souseTexSize,
                     TargetSize = canvasSize,
                 };
-                offsetJobHandle = offset.Schedule(image[0].Length, 0);
+                offsetJobHandle = offset.Schedule(image[0].Length, 32);
             }
             else
             {
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     SouseSize = souseTexSize,
                     TargetSize = canvasSize,
                 };
-                offsetJobHandle = offset.Schedule(image[0].Length, 0);
+                offsetJobHandle = offset.Schedule(image[0].Length, 32);
             }
 
             Profiler.EndSample();

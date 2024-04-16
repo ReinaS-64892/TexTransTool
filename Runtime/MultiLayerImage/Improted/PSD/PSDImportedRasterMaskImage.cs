@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            TexTransCore.Unsafe.UnsafeNativeArrayClear.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
 
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
             var souseTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
