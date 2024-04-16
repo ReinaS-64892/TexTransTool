@@ -18,9 +18,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
         public static PSDLowLevelData Parse(string path)
         {
-            return Parse(File.ReadAllBytes(path));
+            using (var fileStream = File.OpenRead(path))
+            using (var nativePSDData = new NativeArray<byte>((int)fileStream.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+            {//NativeArrayのサイズ的に、32bit int の最大値を超えるファイルサイズのPSDが読めないけど... PS"D" ではあまり気にする価値がなさそう。
+                fileStream.Read(nativePSDData);
+                return Parse(nativePSDData);
+            }
         }
-        public static PSDLowLevelData Parse(byte[] psdByte)
+        public static PSDLowLevelData Parse(Span<byte> psdByte)
         {
             var psd = new PSDLowLevelData();
 
