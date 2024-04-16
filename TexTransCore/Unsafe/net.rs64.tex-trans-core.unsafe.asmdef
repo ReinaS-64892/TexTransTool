@@ -1,5 +1,5 @@
 {
-    "name": "net.rs64.tex-trans-tool.editor.unsafe",
+    "name": "net.rs64.tex-trans-core.unsafe",
     "rootNamespace": "",
     "references": [
     ],

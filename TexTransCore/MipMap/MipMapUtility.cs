@@ -62,7 +62,7 @@ namespace net.rs64.TexTransCore.MipMap
                     PixelRatio = upSize / downSize,
                 };
 
-                handle = ave.Schedule(down.Length, 64, handle);
+                handle = ave.Schedule(down.Length, 0, handle);
 
             }
 
