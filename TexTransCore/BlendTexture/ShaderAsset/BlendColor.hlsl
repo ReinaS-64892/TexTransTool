@@ -4,7 +4,7 @@
 // https://web.archive.org/web/20230211165421/http://www.deepskycolors.com/archivo/2010/04/21/formulas-for-Photoshop-blending-modes.html
 // http://www.simplefilter.de/en/basics/mixmods.html
 // https://odashi.hatenablog.com/entry/20110921/1316610121
-// https://qiita.com/kerupani129/items/4bf75d9f44a5b926df58#31-%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6%E3%81%AF%E7%90%86%E8%AB%96%E5%BC%8F%E3%81%A8%E4%B8%80%E8%87%B4%E3%81%97%E3%81%AA%E3%81%84
+// https://qiita.com/kerupani129/items/4bf75d9f44a5b926df58
 
 #include "./SetSL.hlsl"
 
@@ -15,9 +15,13 @@ float4 AlphaBlending(float4 BaseColor,float4 AddColor,float3 BlendColor)
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
+#if ClipExclusion || ClipAddition || ClipAdditionGlow || ClipColorDodgeGlow
+  float3 ResultColor = (AddColor.a * BlendColor + BaseRatio * BaseColor.rgb)  / Alpha;
+  ResultColor = (BaseColor.a * ResultColor + AddRatio * AddColor.rgb) / Alpha;
+#else
   float3 ResultColor = (BlendColor * BlendRatio) + (AddColor.rgb * AddRatio) + (BaseColor.rgb * BaseRatio);
   ResultColor /= Alpha;
-
+#endif
   return Alpha != 0 ? float4(ResultColor, Alpha) : float4(0, 0, 0, 0);
 }
 
@@ -28,6 +32,8 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
   float3 Bcol = BaseColor.rgb;
   float3 Acol = AddColor.rgb;
+  float3 Al = BaseColor.a;
+  float3 Bl = AddColor.a;
 
 
   float3 Addc = Bcol + Acol;
@@ -67,7 +73,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   // BlendColor = saturate(Acol > 0.5 ? Bcol + 2 * (Acol - 0.5) : Bcol + 2.0 * Acol - 1.0);
 #elif Divide
   BlendColor = Acol == 0 ? 1 : Bcol / Acol;
-#elif Addition
+#elif Addition || ClipAddition
   BlendColor = saturate(Addc);
 #elif Subtract
   BlendColor = Bcol - Acol;
@@ -85,7 +91,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = SetLum(Acol,GetLum(Bcol));
 #elif Luminosity
   BlendColor = SetLum(Bcol,GetLum(Acol));
-#elif Exclusion
+#elif Exclusion || ClipExclusion
   BlendColor = Bcol + Acol - 2 * Bcol * Acol;
 #elif DarkenColorOnly
   BlendColor =  Bsum > Asum ?  Acol : Bcol;
@@ -95,12 +101,10 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
-#elif AdditionGlow
-  BlendColor =  Bcol + (Acol * AddColor.a);
-  return float4(BlendColor,AlphaBlending(BaseColor,AddColor,BlendColor).a);
-#elif ColorDodgeGlow
-  BlendColor = Bcol / (1.0 - (Acol * AddColor.a));
-  return float4(BlendColor,AlphaBlending(BaseColor,AddColor,BlendColor).a);
+#elif AdditionGlow || ClipAdditionGlow
+  BlendColor = Bcol * Al + Acol * Al;
+#elif ColorDodgeGlow || ClipColorDodgeGlow
+  BlendColor = Bcol / (1.0 - Acol * Al);
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
