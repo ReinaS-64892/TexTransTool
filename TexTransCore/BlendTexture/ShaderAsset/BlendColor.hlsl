@@ -15,7 +15,7 @@ float4 AlphaBlending(float4 BaseColor,float4 AddColor,float3 BlendColor)
   float BaseRatio = (1 - AddColor.a) * BaseColor.a;
   float Alpha = BlendRatio + AddRatio + BaseRatio;
 
-#if ClipExclusion || ClipAddition || ClipAdditionGlow || ClipColorDodgeGlow
+#if Clip_Exclusion || Clip_Addition || Clip_AdditionGlow || Clip_ColorDodgeGlow
   float3 ResultColor = (AddColor.a * BlendColor + BaseRatio * BaseColor.rgb)  / Alpha;
   ResultColor = (BaseColor.a * ResultColor + AddRatio * AddColor.rgb) / Alpha;
 #else
@@ -73,7 +73,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   // BlendColor = saturate(Acol > 0.5 ? Bcol + 2 * (Acol - 0.5) : Bcol + 2.0 * Acol - 1.0);
 #elif Divide
   BlendColor = Acol == 0 ? 1 : Bcol / Acol;
-#elif Addition || ClipAddition
+#elif Addition || Clip_Addition
   BlendColor = saturate(Addc);
 #elif Subtract
   BlendColor = Bcol - Acol;
@@ -91,7 +91,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = SetLum(Acol,GetLum(Bcol));
 #elif Luminosity
   BlendColor = SetLum(Bcol,GetLum(Acol));
-#elif Exclusion || ClipExclusion
+#elif Exclusion || Clip_Exclusion
   BlendColor = Bcol + Acol - 2 * Bcol * Acol;
 #elif DarkenColorOnly
   BlendColor =  Bsum > Asum ?  Acol : Bcol;
@@ -101,9 +101,9 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
   BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
-#elif AdditionGlow || ClipAdditionGlow
+#elif AdditionGlow || Clip_AdditionGlow
   BlendColor = Bcol + Acol * Al;
-#elif ColorDodgeGlow || ClipColorDodgeGlow
+#elif ColorDodgeGlow || Clip_ColorDodgeGlow
   BlendColor = Bcol / (1.0 - Acol * Al);
 #endif
 

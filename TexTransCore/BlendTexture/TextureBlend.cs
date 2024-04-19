@@ -90,6 +90,14 @@ namespace net.rs64.TexTransCore.BlendTexture
             var stdBlendShader = BlendTexShader;
             var stdBlendShaders = new Dictionary<string, Shader>()
             {
+
+                {"Clip/ColorDodgeGlow",stdBlendShader},//クリスタ覆い焼き(発光)
+                {"Clip/Addition",stdBlendShader},//クリスタ加算
+                {"Clip/AdditionGlow",stdBlendShader},//クリスタ加算(発光)
+
+                {"Clip/Exclusion", stdBlendShader},//クリスタ除外
+
+
                 //特殊な色合成をしない系
                 {"Normal",stdBlendShader},//通常
                 {"Dissolve",stdBlendShader},//ディザ合成
@@ -106,11 +114,8 @@ namespace net.rs64.TexTransCore.BlendTexture
                 {"Screen",stdBlendShader},//スクリーン
                 {"ColorDodge",stdBlendShader},//覆い焼きカラー
                 {"ColorDodgeGlow",stdBlendShader},//覆い焼き(発光)
-                {"ClipColorDodgeGlow",stdBlendShader},//クリスタ覆い焼き(発光)
                 {"Addition",stdBlendShader},//加算-覆い焼き(リニア)
-                {"ClipAddition",stdBlendShader},//クリスタ加算
                 {"AdditionGlow",stdBlendShader},//加算(発光)
-                {"ClipAdditionGlow",stdBlendShader},//クリスタ加算(発光)
                 {"LightenOnly",stdBlendShader},//比較(明)
                 {"LightenColorOnly",stdBlendShader},//カラー比較(明)
 
@@ -126,7 +131,6 @@ namespace net.rs64.TexTransCore.BlendTexture
                 //算術系
                 {"Difference",stdBlendShader},//差の絶対値
                 {"Exclusion",stdBlendShader},//除外
-                {"ClipExclusion", stdBlendShader},//クリスタ除外
                 {"Subtract",stdBlendShader},//減算
                 {"Divide",stdBlendShader},//除算
 
