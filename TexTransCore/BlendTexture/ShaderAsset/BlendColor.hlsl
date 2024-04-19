@@ -102,7 +102,7 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
 #elif AdditionGlow || ClipAdditionGlow
-  BlendColor = Bcol * Al + Acol * Al;
+  BlendColor = Bcol + Acol * Al;
 #elif ColorDodgeGlow || ClipColorDodgeGlow
   BlendColor = Bcol / (1.0 - Acol * Al);
 #endif
