@@ -5,6 +5,7 @@ using System.Linq;
 using static net.rs64.MultiLayerImage.Parser.PSD.GlobalLayerMaskInformationParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerInformationParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.PSDParserImageResourceBlocksParser;
+using Unity.Collections;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
@@ -17,15 +18,20 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
         public static PSDLowLevelData Parse(string path)
         {
-            return Parse(File.ReadAllBytes(path));
+            using (var fileStream = File.OpenRead(path))
+            using (var nativePSDData = new NativeArray<byte>((int)fileStream.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+            {//NativeArrayのサイズ的に、32bit int の最大値を超えるファイルサイズのPSDが読めないけど... PS"D" ではあまり気にする価値がなさそう。
+                fileStream.Read(nativePSDData);
+                return Parse(nativePSDData);
+            }
         }
-        public static PSDLowLevelData Parse(byte[] psdByte)
+        public static PSDLowLevelData Parse(Span<byte> psdByte)
         {
             var psd = new PSDLowLevelData();
 
             // Signature ...
 
-            var spanStream = new SubSpanStream(psdByte.AsSpan());
+            var spanStream = new SubSpanStream(psdByte);
 
             if (!spanStream.ReadSubStream(4).Span.SequenceEqual(OctBPSSignature)) { throw new System.Exception(); }
             if (!spanStream.ReadSubStream(2).Span.SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
@@ -42,7 +48,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             // Color Mode Data Section
 
             psd.ColorModeDataSectionLength = spanStream.ReadUInt32();
-            psd.ColorData = spanStream.ReadSubStream((int)psd.ColorModeDataSectionLength).Span.ToArray();
+            psd.ColorDataStartIndex = spanStream.ReadSubStream((int)psd.ColorModeDataSectionLength).FirstToPosition;
 
             // Image Resources Section
 
@@ -53,6 +59,11 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             psd.LayerAndMaskInformationSectionLength = spanStream.ReadUInt32();
             psd.LayerInfo = LayerInformationParser.PaseLayerInfo(spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength));
+
+            // Image　Data　Section
+
+            psd.ImageDataCompression = spanStream.ReadUInt16();
+            psd.ImageDataStartIndex = spanStream.Position;
 
             return psd;
         }
@@ -82,7 +93,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             // Color Mode Data Section
 
             public uint ColorModeDataSectionLength;
-            public byte[] ColorData;
+            public long ColorDataStartIndex;
 
             // Image Resources Section
 
@@ -96,6 +107,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public LayerInfo LayerInfo;
             public GlobalLayerMaskInfo GlobalLayerMaskInfo;
 
+            //ImageDataSection
+            public ushort ImageDataCompression;
+            public long ImageDataStartIndex;
         }
     }
 }

@@ -1,18 +1,14 @@
 {
-    "name": "net.rs64.tex-trans-tool.editor.unsafe",
+    "name": "net.rs64.tex-trans-core.unsafe",
     "rootNamespace": "",
-    "references": [
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "references": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

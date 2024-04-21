@@ -8,6 +8,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -19,11 +20,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override JobResult<NativeArray<Color32>> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
         {
+            Profiler.BeginSample("Init");
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
 
-            var initJob = new InitializeJob() { Target = nativeArray, Value = new Color32(0, 0, 0, 0) };
-            var handle = initJob.Schedule(nativeArray.Length, 1024);
+            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
+
+            Profiler.EndSample();
+            Profiler.BeginSample("RLE");
 
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
             getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSouse, RasterImageData.RectTangle));
@@ -33,6 +37,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var souseTexSize = new int2(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight());
             var image = WeightTask(getImageTask).Result;
+
+            Profiler.EndSample();
+            Profiler.BeginSample("OffsetJobSetUp");
 
             JobHandle offsetJobHandle;
 
@@ -49,7 +56,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     SouseSize = souseTexSize,
                     TargetSize = canvasSize,
                 };
-                offsetJobHandle = offset.Schedule(image[0].Length, 64, handle);
+                offsetJobHandle = offset.Schedule(image[0].Length, 32);
             }
             else
             {
@@ -63,9 +70,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     SouseSize = souseTexSize,
                     TargetSize = canvasSize,
                 };
-                offsetJobHandle = offset.Schedule(image[0].Length, 64, handle);
+                offsetJobHandle = offset.Schedule(image[0].Length, 32);
             }
 
+            Profiler.EndSample();
 
 
             return new(nativeArray, offsetJobHandle, () =>
@@ -149,12 +157,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal static Material s_tempMat;
         internal const string SHADER_KEYWORD_SRGB = "COLOR_SPACE_SRGB";
 
-        internal struct InitializeJob : IJobParallelFor
-        {
-            public Color32 Value;
-            [WriteOnly] public NativeArray<Color32> Target;
-            public void Execute(int index) { Target[index] = Value; }
-        }
         [BurstCompile]
         internal struct OffsetMoveAlphaJob : IJobParallelFor
         {

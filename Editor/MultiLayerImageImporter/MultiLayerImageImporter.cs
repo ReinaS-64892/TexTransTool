@@ -12,6 +12,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine.Profiling;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -199,105 +200,60 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         {
             var canvasSize = new int2(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height);
 
-            Action nextTaming = () => { };
-            Action nextTaming2 = () => { };
-
-            var fullNATex = new NativeArray<Color32>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var fullNAF4Tex = new NativeArray<float4>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            foreach (var importedImage in _tttImportedImages)
+            using (var fullNATex = new NativeArray<Color32>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
             {
-                Profiler.BeginSample("CreatePreview -" + importedImage.name);
-                Profiler.BeginSample("LoadImage");
-
-                var jobResult = importedImage.LoadImage(_souseBytes, fullNATex);
-
-                Profiler.EndSample();
-                Profiler.BeginSample("ConvertColor32ToFloat4Job");
-
-                var covF4 = new ConvertColor32ToFloat4Job() { Souse = fullNATex, Target = fullNAF4Tex, };
-
-
-                var covF4Handle = covF4.Schedule(fullNAF4Tex.Length, 64, jobResult.GetHandle);
-                nextTaming();
-                covF4Handle.Complete();
-
-                Profiler.EndSample();
-                Profiler.BeginSample("CreateMip");
-
-                var mipMapCount = MipMapUtility.MipMapCountFrom(Mathf.Max(canvasSize.x, canvasSize.y), 1024);
-                var mipJobResult = MipMapUtility.GenerateAverageMips(fullNAF4Tex, canvasSize, mipMapCount);
-                nextTaming2();
-                _ = mipJobResult.GetResult;
-
-                Profiler.EndSample();
-
-                Texture2D tex2d = null;
-                nextTaming = () =>
+                foreach (var importedImage in _tttImportedImages)
                 {
-                    Profiler.BeginSample("nextTamingCall");
-                    Profiler.BeginSample("CratePrevTex");
+                    Profiler.BeginSample("CreatePreview -" + importedImage.name);
+                    Profiler.BeginSample("LoadImage");
 
-                    tex2d = new Texture2D(1024, 1024, TextureFormat.RGBAFloat, false);
-                    tex2d.alphaIsTransparency = true;
-
-                    tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
-                    EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+                    var jobResult = importedImage.LoadImage(_souseBytes, fullNATex);
 
                     Profiler.EndSample();
-                    Profiler.EndSample();
-                };
-                nextTaming2 = () =>
-                {
-                    Profiler.BeginSample("nextTamingCall2");
+                    Texture2D tex2d;
+                    if (math.max(canvasSize.x, canvasSize.y) <= 1024)
+                    {
+                        Profiler.BeginSample("CratePrevTex");
+
+                        tex2d = new Texture2D(canvasSize.x, canvasSize.y, TextureFormat.RGBA32, false);
+                        tex2d.alphaIsTransparency = true;
+
+                        tex2d.LoadRawTextureData(jobResult.GetResult);
+                        EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+
+                        Profiler.EndSample();
+                    }
+                    else
+                    {
+                        Profiler.BeginSample("CreateMipDispatch");
+
+                        var mipMapCount = MipMapUtility.MipMapCountFrom(Mathf.Max(canvasSize.x, canvasSize.y), 1024);
+                        _ = jobResult.GetResult;
+                        var mipJobResult = MipMapUtility.GenerateAverageMips(fullNATex, canvasSize, mipMapCount);
+
+                        Profiler.EndSample();
+                        Profiler.BeginSample("CratePrevTex");
+
+                        tex2d = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
+                        tex2d.alphaIsTransparency = true;
+
+                        tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
+                        EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+                        foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
+
+                        Profiler.EndSample();
+                    }
                     Profiler.BeginSample("SetTexDataAndCompress");
 
                     tex2d.Apply(true, true);
                     importedImage.PreviewTexture = tex2d;
 
-                    foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
-
                     Profiler.EndSample();
                     Profiler.EndSample();
-                };
+                }
 
-                Profiler.EndSample();
+
             }
-
-            nextTaming();
-            nextTaming2();
-
-            fullNAF4Tex.Dispose();
-            fullNATex.Dispose();
-
-
-            // var texManager = new TextureManager(true);
-            // var canvasResult = _multiLayerImageCanvas.EvaluateCanvas(texManager, 1024);
-            // texManager.DestroyTextures();
-
-            // var resultTex = canvasResult.CopyTexture2D(overrideUseMip: true);
-            // EditorUtility.CompressTexture(resultTex, TextureFormat.DXT5, 100);
-            // resultTex.name = "TTT-CanvasPreviewResult";
-            // _ctx.AddObjectToAsset(resultTex.name, resultTex);
-            // RenderTexture.ReleaseTemporary(canvasResult);
-
-            // var quadMesh = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            // var mesh = quadMesh.GetComponent<MeshFilter>().sharedMesh;
-            // GameObject.DestroyImmediate(quadMesh);
-
-            // var prevGo = new GameObject("TTT-CanvasPreview");
-            // var hideFlagPatch = prevGo.AddComponent<HideFlagPatch>();
-            // prevGo.tag ="EditorOnly";
-            // var quad = prevGo.AddComponent<SkinnedMeshRenderer>();
-
-            // quad.transform.SetParent(_multiLayerImageCanvas.transform, false);
-            // quad.sharedMesh = mesh;
-            // quad.sharedMaterial = new Material(Shader.Find("Unlit/Texture")) { mainTexture = resultTex, name = "TTT-CanvasPreviewResult-Material" };
-            // quad.transform.localRotation = Quaternion.Euler(new Vector3(-20f, 60f, 0f));
-            // quad.transform.localScale = new Vector3(-0.002f, 0.002f, -0.002f);
-            // quad.localBounds = new Bounds(Vector3.zero, new Vector3(0.31f, 0.31f, 0.001f) * 2f);
-
-            // _ctx.AddObjectToAsset("TTT-CanvasPreviewResult-Material", quad.sharedMaterial);
-
         }
 
         public void SaveSubAsset()
@@ -319,38 +275,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 image.PreviewTexture.name = image.name + "_Preview";
                 _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
                 _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
-            }
-        }
-
-        [BurstCompile]
-        internal struct ConvertColor32ToFloat4Job : IJobParallelFor
-        {
-            [ReadOnly] public NativeArray<Color32> Souse;
-            [WriteOnly] public NativeArray<float4> Target;
-            public void Execute(int index)
-            {
-                Target[index] = new float4(
-                    Souse[index].r / (float)byte.MaxValue,
-                    Souse[index].g / (float)byte.MaxValue,
-                    Souse[index].b / (float)byte.MaxValue,
-                    Souse[index].a / (float)byte.MaxValue
-                );
-            }
-        }
-
-        [BurstCompile]
-        internal struct ConvertFloat4ToColor32Job : IJobParallelFor
-        {
-            [ReadOnly] public NativeArray<float4> Souse;
-            [WriteOnly] public NativeArray<Color32> Target;
-            public void Execute(int index)
-            {
-                Target[index] = new Color32(
-                    (byte)Mathf.Round(Souse[index].x * (float)byte.MaxValue),
-                    (byte)Mathf.Round(Souse[index].y * (float)byte.MaxValue),
-                    (byte)Mathf.Round(Souse[index].z * (float)byte.MaxValue),
-                    (byte)Mathf.Round(Souse[index].w * (float)byte.MaxValue)
-                );
             }
         }
     }

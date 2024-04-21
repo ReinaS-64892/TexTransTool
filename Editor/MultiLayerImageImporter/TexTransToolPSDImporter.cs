@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             Profiler.EndSample();
             Profiler.BeginSample("LowLevel");
 
-            var lowPSDData = PSDLowLevelParser.Parse(assetPath);
+            var lowPSDData = PSDLowLevelParser.Parse(psdBytes);
 
             Profiler.EndSample();
             Profiler.BeginSample("LowLevel");

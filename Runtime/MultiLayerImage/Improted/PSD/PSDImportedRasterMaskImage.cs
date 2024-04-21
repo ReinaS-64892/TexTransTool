@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal class PSDImportedRasterMaskImage : TTTImportedImage
@@ -15,22 +16,25 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override JobResult<NativeArray<Color32>> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
         {
+            Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
-
-            var initJob = new PSDImportedRasterImage.InitializeJob()
-            {
-                Target = native2DArray,
-                Value = new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue)
-            };
-
-            var initHandle = initJob.Schedule(native2DArray.Length, 64);
             var souseTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
 
+            Profiler.EndSample();
+
             JobHandle offsetJobHandle;
-            if ((MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0) { return new(native2DArray, initHandle); }
+            if ((MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0) { return new(native2DArray); }
+
+            Profiler.BeginSample("RLE");
 
             var data = MaskImageData.MaskImage.GetImageData(importSouse, MaskImageData.RectTangle);
+
+            Profiler.EndSample();
+            Profiler.BeginSample("OffsetMoveAlphaJobSetUp");
+
             var offset = new PSDImportedRasterImage.OffsetMoveAlphaJob()
             {
                 Target = native2DArray,
@@ -42,8 +46,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 SouseSize = souseTexSize,
                 TargetSize = canvasSize,
             };
-            offsetJobHandle = offset.Schedule(data.Length, 64, initHandle);
+            offsetJobHandle = offset.Schedule(data.Length, 64);
 
+            Profiler.EndSample();
             return new(native2DArray, offsetJobHandle, () => { data.Dispose(); });
         }
         internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)

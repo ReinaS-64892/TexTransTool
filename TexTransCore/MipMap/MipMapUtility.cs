@@ -35,9 +35,9 @@ namespace net.rs64.TexTransCore.MipMap
 
             return result;
         }
-        public static JobResult<NativeArray<float4>[]> GenerateAverageMips(NativeArray<float4> tex, int2 texSize, int GenerateCount)
+        public static JobResult<NativeArray<Color32>[]> GenerateAverageMips(NativeArray<Color32> tex, int2 texSize, int GenerateCount)
         {
-            var mipMaps = new NativeArray<float4>[GenerateCount + 1];
+            var mipMaps = new NativeArray<Color32>[GenerateCount + 1];
             mipMaps[0] = tex;
 
             var handle = default(JobHandle);
@@ -51,9 +51,9 @@ namespace net.rs64.TexTransCore.MipMap
                 downSize = downSize / 2;
 
                 var up = mipMaps[i - 1];
-                var down = mipMaps[i] = new NativeArray<float4>(up.Length / 4, Unity.Collections.Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+                var down = mipMaps[i] = new NativeArray<Color32>(up.Length / 4, Unity.Collections.Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
-                var ave = new AverageJob()
+                var ave = new AverageJobByte()
                 {
                     RTex = up,
                     RTexSize = upSize,
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransCore.MipMap
                     PixelRatio = upSize / downSize,
                 };
 
-                handle = ave.Schedule(down.Length, 64, handle);
+                handle = ave.Schedule(down.Length, 16, handle);
 
             }
 
@@ -125,10 +125,10 @@ namespace net.rs64.TexTransCore.MipMap
 
 
         [BurstCompile]
-        struct AverageJob : IJobParallelFor
+        struct AverageJobByte : IJobParallelFor
         {
-            [ReadOnly] public NativeArray<float4> RTex;
-            [WriteOnly] public NativeArray<float4> WTex;
+            [ReadOnly] public NativeArray<Color32> RTex;
+            [WriteOnly] public NativeArray<Color32> WTex;
             public int2 PixelRatio;
             public int2 RTexSize;
             public int2 WTexSize;
@@ -137,20 +137,12 @@ namespace net.rs64.TexTransCore.MipMap
                 Average(CovInt2(index, WTexSize.x));
             }
 
-            float3 ChakeNaN(float3 val, float3 replase)
-            {
-                return float3(
-                    isnan(val.x) ? replase.x : val.x,
-                    isnan(val.y) ? replase.y : val.y,
-                    isnan(val.z) ? replase.z : val.z
-                    );
-            }
 
             void Average(int2 id)
             {
-                float3 wcol = float3(0, 0, 0);
-                float3 col = float3(0, 0, 0);
-                float alpha = 0;
+                int3 wcol = int3(0, 0, 0);
+                int3 col = int3(0, 0, 0);
+                int alpha = 0;
                 int count = 0;
 
                 int2 readPosOffset = id.xy * PixelRatio;
@@ -158,28 +150,40 @@ namespace net.rs64.TexTransCore.MipMap
                 {
                     for (int x = 0; PixelRatio.x > x; x += 1)
                     {
-                        float4 rCol = RTex[CovInt(readPosOffset + int2(x, y), RTexSize.x)];
-                        wcol += rCol.xyz * rCol.w;
-                        col += rCol.xyz;
-                        alpha += rCol.w;
+                        var rCol = RTex[CovInt(readPosOffset + int2(x, y), RTexSize.x)];
+                        wcol.x += rCol.r * rCol.a;
+                        wcol.y += rCol.g * rCol.a;
+                        wcol.z += rCol.b * rCol.a;
+
+                        col.x += rCol.r;
+                        col.y += rCol.g;
+                        col.z += rCol.b;
+
+                        alpha += rCol.a;
                         count += 1;
                     }
                 }
 
-                wcol /= alpha;
-                col /= count;
-                WTex[CovInt(id.xy, WTexSize.x)] = float4(ChakeNaN(wcol, col), alpha / count);
-            }
-            public static int2 CovInt2(int i, int width)
-            {
-                return new int2(i % width, i / width);
-            }
-            public static int CovInt(int2 i, int width)
-            {
-                return i.y * width + i.x;
+                wcol.x = (int)round(wcol.x / (float)alpha);
+                wcol.y = (int)round(wcol.y / (float)alpha);
+                wcol.z = (int)round(wcol.z / (float)alpha);
+                col.x = (int)round(col.x / (float)count);
+                col.y = (int)round(col.y / (float)count);
+                col.z = (int)round(col.z / (float)count);
+                var resAlpha = (byte)round(alpha / (float)count);
+                var writeCol = alpha != 0 ? wcol : col;
+                var writeIndex = CovInt(id.xy, WTexSize.x);
+                WTex[writeIndex] = new Color32((byte)writeCol.x, (byte)writeCol.y, (byte)writeCol.z, resAlpha);
             }
         }
-
+        public static int2 CovInt2(int i, int width)
+        {
+            return new int2(i % width, i / width);
+        }
+        public static int CovInt(int2 i, int width)
+        {
+            return i.y * width + i.x;
+        }
     }
     public enum DownScalingAlgorism
     {
