@@ -10,7 +10,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - IslandSelector が追加されました (#422)
 - SimpleDecal の実験的なカリング機能のとして IslandSelector が使用できるようになりました (#422)
   - IslandCulling からのマイグレーションが追加されました (#422)
-- TTT PSD Importer のプレビューの生成が大幅に高速化されました (#424)
+- TTT PSD Importer のプレビューの生成が大幅に高速化されました (#424 #443)
 - AtlasTexture に アイランド詳細調整 が追加されました (#431)
 - IslandSelectorNOT と IslandRendererSelector が追加されました (#431)
 - AtlasTexture のシェーダーサポートの追加が ScriptableObject で可能になりました (#431)
@@ -26,6 +26,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 ### Fixed
 
 - Library が存在しないときにも正しく TTT PSD Importer がインポートできるようになりました (#427)
+- TTT PSD Importer が PSD の ImageResourceBlock を正しく読み込めるようになりました (#443)
 
 ### Deprecated
 
