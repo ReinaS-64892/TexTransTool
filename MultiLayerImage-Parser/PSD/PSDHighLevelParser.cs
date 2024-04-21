@@ -23,7 +23,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class PSDHighLevelParser
     {
-        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData)
+        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData, PSDImportMode? importMode = null)
         {
             var psd = new PSDHighLevelData
             {
@@ -33,13 +33,50 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 RootLayers = new List<AbstractLayerData>()
             };
 
+            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
+
             var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
             var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
 
             ParseAsLayers(psd.RootLayers, imageRecordQueue, imageDataQueue);
 
+            ResolveBlendTypeKeyImportMode(psd.RootLayers, importMode.Value);
+
             return psd;
         }
+
+        public enum PSDImportMode
+        {
+            Photo = 0,
+            Clip = 1,
+        }
+
+        private static void ResolveBlendTypeKeyImportMode(List<AbstractLayerData> layers, PSDImportMode importMode)
+        {
+            switch (importMode)
+            {
+                case PSDImportMode.Clip:
+                    {
+                        foreach (var layer in layers)
+                        {
+                            if (s_clipBlendModeDict.TryGetValue(layer.BlendTypeKey, out var actualModeKey))
+                            {
+                                layer.BlendTypeKey = actualModeKey;
+                            }
+                            if (layer is LayerFolderData layerFolderData) { ResolveBlendTypeKeyImportMode(layerFolderData.Layers, importMode); }
+                        }
+                        break;
+                    }
+            }
+        }
+
+        static Dictionary<string, string> s_clipBlendModeDict = new()
+        {
+            {"ColorDodgeGlow", "Clip/ColorDodgeGlow"},
+            {"Addition","Clip/Addition"},
+            {"AdditionGlow","Clip/AdditionGlow"},
+            {"Exclusion","Clip/Exclusion"},
+        };
 
         private static void ParseAsLayers(List<AbstractLayerData> rootLayers, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
         {

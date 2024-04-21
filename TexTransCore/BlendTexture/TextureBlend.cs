@@ -90,6 +90,14 @@ namespace net.rs64.TexTransCore.BlendTexture
             var stdBlendShader = BlendTexShader;
             var stdBlendShaders = new Dictionary<string, Shader>()
             {
+
+                {"Clip/ColorDodgeGlow",stdBlendShader},//クリスタ覆い焼き(発光)
+                {"Clip/Addition",stdBlendShader},//クリスタ加算
+                {"Clip/AdditionGlow",stdBlendShader},//クリスタ加算(発光)
+
+                {"Clip/Exclusion", stdBlendShader},//クリスタ除外
+
+
                 //特殊な色合成をしない系
                 {"Normal",stdBlendShader},//通常
                 {"Dissolve",stdBlendShader},//ディザ合成
