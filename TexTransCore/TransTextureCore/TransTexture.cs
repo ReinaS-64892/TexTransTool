@@ -165,86 +165,94 @@ namespace net.rs64.TexTransCore.TransTextureCore
             souseTexture.mipMapBias = souseTexture.mipmapCount * -1;
             var preWarp = souseTexture.wrapMode;
 
-            if (argTexWrap == null) { argTexWrap = TextureWrap.NotWrap; }
-            var texWrap = argTexWrap.Value;
-            souseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
-
-
-
-
-            Profiler.BeginSample("Material Setup");
-            if (s_transMat == null) { s_transMat = new Material(s_transShader); }
-            s_transMat.shaderKeywords = Array.Empty<string>();
-            s_transMat.SetTexture("_MainTex", souseTexture);
-            if (padding.HasValue) s_transMat.SetFloat("_Padding", padding.Value);
-            if (padding.HasValue && highQualityPadding)
-            {
-                mesh.TTNormalCal();
-                s_transMat.EnableKeyword("HighQualityPadding");
-            }
-
-            if (texWrap.WarpRange != null)
-            {
-                s_transMat.EnableKeyword("WarpRange");
-                s_transMat.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
-                s_transMat.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
-            }
-
-            if (NotTileNormalize)
-            {
-                s_transMat.EnableKeyword("UnTileNormalize");
-            }
-            Profiler.EndSample();
-
-
             RenderTexture depthRt = null;
-            if (depthInvert.HasValue)
+
+            try
             {
-                depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
-                depthRt.Clear();
-                s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
+                if (argTexWrap == null) { argTexWrap = TextureWrap.NotWrap; }
+                var texWrap = argTexWrap.Value;
+                souseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
+
+
+
+
+                Profiler.BeginSample("Material Setup");
+                if (s_transMat == null) { s_transMat = new Material(s_transShader); }
+                s_transMat.shaderKeywords = Array.Empty<string>();
+                s_transMat.SetTexture("_MainTex", souseTexture);
+                if (padding.HasValue) s_transMat.SetFloat("_Padding", padding.Value);
+                if (padding.HasValue && highQualityPadding)
+                {
+                    mesh.TTNormalCal();
+                    s_transMat.EnableKeyword("HighQualityPadding");
+                }
+
+                if (texWrap.WarpRange != null)
+                {
+                    s_transMat.EnableKeyword("WarpRange");
+                    s_transMat.SetFloat("_WarpRangeX", texWrap.WarpRange.Value.x);
+                    s_transMat.SetFloat("_WarpRangeY", texWrap.WarpRange.Value.y);
+                }
+
+                if (NotTileNormalize)
+                {
+                    s_transMat.EnableKeyword("UnTileNormalize");
+                }
+                Profiler.EndSample();
+
+
+                if (depthInvert.HasValue)
+                {
+                    depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
+                    depthRt.Clear();
+                    s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
+
+                    using (new RTActiveSaver())
+                    {
+                        if (s_depthMat == null) { s_depthMat = new Material(s_depthShader); }
+                        RenderTexture.active = depthRt;
+
+                        s_depthMat.SetPass(0);
+                        Profiler.BeginSample("depthInvert DrawMeshNow");
+                        Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+                        Profiler.EndSample();
+                    }
+
+                    s_transMat.SetTexture("_DepthTex", depthRt);
+                }
+                else
+                {
+                    s_transMat.EnableKeyword("NotDepth");
+                }
+
+
+
 
                 using (new RTActiveSaver())
                 {
-                    if (s_depthMat == null) { new Material(s_depthShader); }
-                    RenderTexture.active = depthRt;
-
-                    s_depthMat.SetPass(0);
-                    Profiler.BeginSample("depthInvert DrawMeshNow");
+                    RenderTexture.active = targetTexture;
+                    Profiler.BeginSample("DrawMeshNow");
+                    s_transMat.SetPass(0);
                     Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
                     Profiler.EndSample();
-                }
+                    if (padding != null)
+                    {
+                        Profiler.BeginSample("DrawMeshNow - padding");
+                        s_transMat.SetPass(1);
+                        Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+                        Profiler.EndSample();
+                    }
 
-                s_transMat.SetTexture("_DepthTex", depthRt);
-            }
-            else
-            {
-                s_transMat.EnableKeyword("NotDepth");
-            }
-
-
-
-
-            using (new RTActiveSaver())
-            {
-                RenderTexture.active = targetTexture;
-                Profiler.BeginSample("DrawMeshNow");
-                s_transMat.SetPass(0);
-                Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
-                Profiler.EndSample();
-                if (padding != null)
-                {
-                    Profiler.BeginSample("DrawMeshNow - padding");
-                    s_transMat.SetPass(1);
-                    Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
-                    Profiler.EndSample();
                 }
 
             }
-            souseTexture.mipMapBias = preBias;
-            souseTexture.wrapMode = preWarp;
-            UnityEngine.Object.DestroyImmediate(mesh);
-            if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
+            finally
+            {
+                souseTexture.mipMapBias = preBias;
+                souseTexture.wrapMode = preWarp;
+                UnityEngine.Object.DestroyImmediate(mesh);
+                if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
+            }
         }
         public static void ForTrans<T>(
             RenderTexture targetTexture,
