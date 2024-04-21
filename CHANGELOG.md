@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
 - AtlasTexture が Scale Transition(Tiling) を使用しているマテリアルのテクスチャを逆補正する機能が追加されました (#431 #435)
 - NDMF環境でのビルドを行う場合、オブジェクトの置き換えの追跡を NDMF ObjectRegistry を使用するようになりました (#438)
+- Clip系の合成モードが追加されました (#444)
 
 ### Changed
 

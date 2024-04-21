@@ -15,6 +15,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - IslandSelectorNOT と IslandRendererSelector が追加されました (#431)
 - AtlasTexture のシェーダーサポートの追加が ScriptableObject で可能になりました (#431)
 - AtlasTexture に MaterialMargeGroup が追加されました (#432)
+- ClipStudioPaint から出力されたと思われる PSD を TTT PSD Importer で読み込んだ時、Clip系の色合成にインポートするようになりました (#444)
 
 ### Changed
 
