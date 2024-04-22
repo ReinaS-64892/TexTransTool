@@ -8,9 +8,9 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class IslandRendererSelector : AbstractIslandSelector
+    public class RendererIslandSelector : AbstractIslandSelector
     {
-        internal const string ComponentName = "TTT IslandRendererSelector";
+        internal const string ComponentName = "TTT RendererIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<Renderer> RendererList;
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
