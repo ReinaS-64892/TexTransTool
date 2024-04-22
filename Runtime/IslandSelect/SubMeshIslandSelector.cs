@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using net.rs64.TexTransCore.Island;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -8,17 +7,21 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class IslandRendererSelector : AbstractIslandSelector
+    public class SubMeshIslandSelector : AbstractIslandSelector
     {
-        internal const string ComponentName = "TTT IslandRendererSelector";
+        internal const string ComponentName = "TTT SubMeshIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-        public List<Renderer> RendererList;
+
+        public int SelectSubMeshIndex = 0;
+
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);
-            var hash = RendererList.ToHashSet();
 
-            for (int i = 0; i < islands.Length; i += 1) { bitArray[i] = hash.Contains(islandDescription[i].Renderer); }
+            for (var islandIndex = 0; islands.Length > islandIndex; islandIndex += 1)
+            {
+                bitArray[islandIndex] = islandDescription[islandIndex].MaterialSlot == SelectSubMeshIndex;
+            }
 
             return bitArray;
         }

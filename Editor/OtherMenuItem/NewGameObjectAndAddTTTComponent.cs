@@ -45,10 +45,13 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + BoxIslandSelector.MenuPath)] static void BIS() => C<BoxIslandSelector>();
         [M(BP + SphereIslandSelector.MenuPath)] static void SIS() => C<SphereIslandSelector>();
         [M(BP + RayCastIslandSelector.MenuPath)] static void RCIS() => C<RayCastIslandSelector>();
-        [M(BP + IslandSelectOR.MenuPath)] static void ISOR() => C<IslandSelectOR>();
+        [M(BP + RendererIslandSelector.MenuPath)] static void RIS() => C<RendererIslandSelector>();
+        [M(BP + SubMeshIslandSelector.MenuPath)] static void SMIS() => C<SubMeshIslandSelector>();
+        [M(BP + IslandSelectorOR.MenuPath)] static void ISOR() => C<IslandSelectorOR>();
         [M(BP + IslandSelectorAND.MenuPath)] static void ISAND() => C<IslandSelectorAND>();
         [M(BP + IslandSelectorNOT.MenuPath)] static void ISNOT() => C<IslandSelectorNOT>();
-        [M(BP + IslandRendererSelector.MenuPath)] static void IRS() => C<IslandRendererSelector>();
+        [M(BP + IslandSelectorXOR.MenuPath)] static void ISXOR() => C<IslandSelectorXOR>();
+        [M(BP + IslandSelectorRelay.MenuPath)] static void ISR() => C<IslandSelectorRelay>();
 
 
     }
