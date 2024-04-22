@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture で SubMesh よりも多くのマテリアルスロットが存在するメッシュで正しくアトラス化できない問題を修正 (#431)
 - AtlasTexture でサブメッシュを超えて同一の頂点を使用するメッシュを正しくアトラス化できない問題を修正 (#431)
 - AtlasTexture の「適用時に非アクティブなレンダラーを含める」が有効な時、非アクティブなレンダラーのマテリアルが選択肢に表示されない問題を修正 (#431)
+- AtlasTexture で大きさが完全に 0 のアイランドが存在するメッシュの UV を正しく操作できていない問題を修正 (#446)
 
 ### Deprecated
 

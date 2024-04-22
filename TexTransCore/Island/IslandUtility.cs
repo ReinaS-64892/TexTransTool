@@ -185,7 +185,7 @@ namespace net.rs64.TexTransCore.Island
             var mSize = movedIsland.Is90Rotation ? new(movedIsland.Size.y, movedIsland.Size.x) : movedIsland.Size;
             var nmSize = originIsland.Size;
 
-            var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).NaNtoZero();
+            var relativeScale = new Vector2(mSize.x / nmSize.x, mSize.y / nmSize.y).NotNormalToZero();
 
             foreach (var vertIndex in originIsland.GetVertexIndex())
             {
@@ -202,10 +202,10 @@ namespace net.rs64.TexTransCore.Island
             }
         }
 
-        private static Vector2 NaNtoZero(this Vector2 relativeScale)
+        private static Vector2 NotNormalToZero(this Vector2 relativeScale)
         {
-            relativeScale.x = float.IsNaN(relativeScale.x) ? 0 : relativeScale.x;
-            relativeScale.y = float.IsNaN(relativeScale.y) ? 0 : relativeScale.y;
+            relativeScale.x = float.IsNormal(relativeScale.x) ? relativeScale.x : 0;
+            relativeScale.y = float.IsNormal(relativeScale.y) ? relativeScale.y : 0;
             return relativeScale;
         }
 
