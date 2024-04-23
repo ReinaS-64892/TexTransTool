@@ -4,6 +4,7 @@ using net.rs64.TexTransTool.Decal;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.IslandSelector;
+using net.rs64.TexTransTool.Preview.RealTime;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {

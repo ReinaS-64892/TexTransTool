@@ -17,10 +17,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool PassThrough;
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
-
-            var Layers = transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse();
+            IEnumerable<AbstractLayer> Layers = GetChileLayers();
 
             if (PassThrough && !Clipping)
             {
@@ -53,7 +50,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
-
+        internal IEnumerable<AbstractLayer> GetChileLayers()
+        {
+            return transform.GetChildren()
+            .Select(I => I.GetComponent<AbstractLayer>())
+            .Reverse();
+        }
     }
 
 

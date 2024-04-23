@@ -4,6 +4,8 @@ using net.rs64.TexTransTool.Decal;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.Pool;
+using net.rs64.TexTransTool.Preview.RealTime;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -63,14 +65,14 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             if (!target.Any(RealTimePreviewManager.Contains))
             {
-                bool IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
+                bool IsPossibleRealTimePreview = !OneTimePreviewContext.IsPreviewContains;
                 IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
                 IsPossibleRealTimePreview |= RealTimePreviewManager.IsContainsRealTimePreviewDecal;
 
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
-                    PreviewContext.LastPreviewClear();
+                    OneTimePreviewContext.LastPreviewClear();
                     foreach (var decal in target) { RealTimePreviewManager.instance.RegtAbstractDecal(decal); }
                 }
                 EditorGUI.EndDisabledGroup();

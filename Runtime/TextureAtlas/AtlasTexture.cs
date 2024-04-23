@@ -837,5 +837,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return result;
         }
 
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            return AtlasSetting.IslandFineTuners.SelectMany(i => i.GetDependency())
+            .Concat(Renderers)
+            .Concat(AtlasSetting.MaterialMargeGroups.Select(m => m.MargeReferenceMaterial))
+            .Append(AtlasSetting.AtlasIslandRelocator)
+            .Append(AtlasSetting.MergeReferenceMaterial);
+        }
     }
 }

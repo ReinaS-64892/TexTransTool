@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.MatAndTexUtils;
 using System.Collections.Generic;
+using net.rs64.TexTransTool.Preview;
 namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 {
     [CustomEditor(typeof(MaterialModifier))]
@@ -15,7 +16,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             var thisSObject = serializedObject;
             var thisObject = target as MaterialModifier;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
+            EditorGUI.BeginDisabledGroup(OneTimePreviewContext.IsPreviewing(thisObject));
 
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
@@ -36,7 +37,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisObject);
             thisSObject.ApplyModifiedProperties();
         }
     }

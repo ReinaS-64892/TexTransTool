@@ -12,12 +12,17 @@ using UnityEngine.Pool;
 using UnityEngine.Profiling;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
-namespace net.rs64.TexTransTool
+namespace net.rs64.TexTransTool.Preview.RealTime
 {
     internal class RealTimePreviewManager : ScriptableSingleton<RealTimePreviewManager>
     {
-        private Dictionary<AbstractDecal, DecalTargetInstance> RealTimePreviews = new();
+        private GameObject _previewTargetAvatarRoot = null;
+        private Dictionary<TexTransRuntimeBehavior,int> _texTransRuntimeBehaviorPriority = new();
         private Dictionary<Material, Dictionary<string, CompositePreviewInstance>> PreviewMaterials = new();
+        private HashSet<TexTransRuntimeBehavior> _containsBehavior = new();
+
+
+        private Dictionary<AbstractDecal, DecalTargetInstance> RealTimePreviews = new();
         private Dictionary<Material, Material> PreviewMatSwapDict = new();
         private HashSet<Renderer> PreviewTargetRenderer = new();
         private Stopwatch stopwatch = new();

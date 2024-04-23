@@ -7,6 +7,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.Island;
 using UnityEngine.Pool;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -51,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var matAndTex in decalCompiledTextures)
             {
-                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName) as Texture2D, new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
+                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
             }
 
             DictionaryPool<Material, RenderTexture>.Release(decalCompiledTextures);
@@ -85,17 +86,14 @@ namespace net.rs64.TexTransTool.Decal
             return mulDecalTexture;
         }
 
-        // TODO : リアルタイムプレビューの改修と同時に何とかする
-
-        // [NonSerialized] public bool ThisIsForces = false;
-        // private void Update()
-        // {
-        //     if (ThisIsForces && RealTimePreviewManager.instance.RealTimePreviews.ContainsKey(this))
-        //     {
-        //         RealTimePreviewManager.instance.UpdateAbstractDecal(this);
-        //     }
-        //     ThisIsForces = false;
-        // }
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            return new UnityEngine.Object[]{transform}
+            .Concat(TargetRenderers)
+            .Concat(TargetRenderers.Select(r => r.transform))
+            .Concat(TargetRenderers.Select(r => r.GetMesh()))
+            .Concat(TargetRenderers.Where(r => r is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(r => r.bones));
+        }
 
     }
 }

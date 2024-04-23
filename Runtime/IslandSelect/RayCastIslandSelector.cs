@@ -17,6 +17,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT RayCastIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public float IslandSelectorRange = 0.1f;
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return RayCastIslandSelect(GetIslandSelectorRay(), islands, islandDescription);

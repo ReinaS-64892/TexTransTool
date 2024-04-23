@@ -25,11 +25,6 @@ namespace net.rs64.TexTransTool
         {
             _avatarRoot = avatarRoot;
         }
-        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver saver, ITextureManager textureManager, IStackManager stackManager)
-        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, saver, textureManager, stackManager)
-        {
-            _avatarRoot = avatarRoot;
-        }
 
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;

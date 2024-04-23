@@ -1,7 +1,6 @@
 using UnityEditor;
-using net.rs64.TexTransTool.Editor;
-using net.rs64.TexTransTool;
 using UnityEngine.UIElements;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -16,7 +15,7 @@ namespace net.rs64.TexTransTool.Editor
             var previewButton = new IMGUIContainer(() =>
             {
                 serializedObject.Update();
-                PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup);
+                OneTimePreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup);
                 var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
                 EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.Glc());
                 serializedObject.ApplyModifiedProperties();

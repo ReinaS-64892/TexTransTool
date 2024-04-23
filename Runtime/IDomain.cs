@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool
     {
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
-        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
 
         public IEnumerable<Renderer> EnumerateRenderer();
 

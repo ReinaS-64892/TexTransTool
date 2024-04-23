@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
         public AbstractIslandSelector IslandSelector;
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return IslandSelector.GetDependency(); }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return IslandSelector != null ? IslandSelector.IslandSelect(islands, islandDescription).Not() : new BitArray(islands.Length, true);

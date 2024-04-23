@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.BeginSample("GetMultipleDecalTexture");
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             Profiler.EndSample();
-            
+
             decalCompiledRenderTextures ??= new();
             foreach (var renderer in TargetRenderers)
             {
@@ -47,7 +47,10 @@ namespace net.rs64.TexTransTool.Decal
             return decalCompiledRenderTextures;
         }
 
-
+        internal override IEnumerable<Object> GetDependency()
+        {
+            return base.GetDependency().Append(DecalTexture);
+        }
 
 
     }

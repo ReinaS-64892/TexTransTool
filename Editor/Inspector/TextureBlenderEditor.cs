@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using net.rs64.TexTransTool.Preview;
 namespace net.rs64.TexTransTool.Editor
 {
 
@@ -13,7 +14,7 @@ namespace net.rs64.TexTransTool.Editor
             var thisTarget = target as TextureBlender;
             var thisSObject = serializedObject;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisTarget));
+            EditorGUI.BeginDisabledGroup(OneTimePreviewContext.IsPreviewing(thisTarget));
 
             EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"));
 
@@ -29,7 +30,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUI.EndDisabledGroup();
 
 
-            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
             thisSObject.ApplyModifiedProperties();
         }
 

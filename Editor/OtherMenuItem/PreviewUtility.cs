@@ -1,3 +1,5 @@
+using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Preview.RealTime;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool.Editor.OtherMenuItem
@@ -8,15 +10,15 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         public static void ExitPreviews()
         {
             if (RealTimePreviewManager.IsContainsRealTimePreviewDecal) { RealTimePreviewManager.instance.ExitPreview(); return; }
-            if (PreviewContext.IsPreviewContains) { PreviewContext.instance.ExitPreview(); }
+            if (OneTimePreviewContext.IsPreviewContains) { OneTimePreviewContext.instance.ExitPreview(); }
         }
         [MenuItem("Tools/TexTransTool/RePreview")]
         public static void RePreview()
         {
-            PreviewContext.instance.RePreview();
+            OneTimePreviewContext.instance.RePreview();
 
         }
 
-        public static bool IsPreviewContains => RealTimePreviewManager.IsContainsRealTimePreviewDecal || PreviewContext.IsPreviewContains;
+        public static bool IsPreviewContains => RealTimePreviewManager.IsContainsRealTimePreviewDecal || OneTimePreviewContext.IsPreviewContains;
     }
 }

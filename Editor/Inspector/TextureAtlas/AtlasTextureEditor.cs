@@ -7,6 +7,7 @@ using net.rs64.TexTransCore.TransTextureCore.Utils;
 using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -52,7 +53,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
             if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sTargetRoot.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
 
-            if (sTargetRoot.objectReferenceValue != null && !PreviewContext.IsPreviewContains)
+            if (sTargetRoot.objectReferenceValue != null && !OneTimePreviewContext.IsPreviewContains)
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
                 { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
@@ -66,7 +67,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             DrawAtlasSettings(sAtlasSetting, sMatSelectors);
 
-            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
 
             serializedObject.ApplyModifiedProperties();
 

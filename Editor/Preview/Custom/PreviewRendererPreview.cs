@@ -3,7 +3,7 @@ using System.Linq;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.CustomPreview
+namespace net.rs64.TexTransTool.Preview.Custom
 {
     [TTTCustomPreview(typeof(PreviewRenderer))]
     internal class PreviewRendererPreview : ITTTCustomPreview

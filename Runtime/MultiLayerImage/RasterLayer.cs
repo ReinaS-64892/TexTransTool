@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -12,5 +14,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             originTexture.WriteOriginalTexture(RasterTexture, renderTexture);
         }
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return base.GetDependency().Append(RasterTexture); }
     }
 }

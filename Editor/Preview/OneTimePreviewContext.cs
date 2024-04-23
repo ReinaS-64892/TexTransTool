@@ -1,23 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransTool.CustomPreview;
+using net.rs64.TexTransTool.Preview.Custom;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
-namespace net.rs64.TexTransTool
+namespace net.rs64.TexTransTool.Preview
 {
-    internal class PreviewContext : ScriptableSingleton<PreviewContext>
+    internal class OneTimePreviewContext : ScriptableSingleton<OneTimePreviewContext>
     {
         [SerializeField]
         private Object previweing = null;
         private Object lastPreviweing = null;
 
-        protected PreviewContext()
+        protected OneTimePreviewContext()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
             AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;

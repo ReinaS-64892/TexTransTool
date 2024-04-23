@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -12,7 +13,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             DrawerWarning(target.GetType().Name);
             base.OnInspectorGUI();
-            PreviewContext.instance.DrawApplyAndRevert(target as TexTransBehavior);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(target as TexTransBehavior);
         }
         public static void DrawerWarning(string typeName)
         {

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -45,7 +46,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             AbstractDecalEditor.DrawerAdvancedOption(thisSObject);
 
-            PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisObject);
 
             thisSObject.ApplyModifiedProperties();
         }
