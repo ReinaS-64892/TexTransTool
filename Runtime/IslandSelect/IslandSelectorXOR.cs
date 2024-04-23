@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransCore.Island;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -12,6 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT IslandSelectorXOR";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform).SelectMany(i => i.GetDependency()); }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             BitArray bitArray = null;

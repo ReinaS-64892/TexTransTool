@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         public int SelectSubMeshIndex = 0;
 
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);
