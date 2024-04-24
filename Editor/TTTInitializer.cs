@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Utils
         [UnityEditor.InitializeOnEnterPlayMode]
         public static void Initialize()
         {
-            UnityEditor.EditorApplication.update += TexTransCoreRuntime.Update.Invoke;
+            UnityEditor.EditorApplication.update += () => { TexTransCoreRuntime.Update.Invoke(); };
             TexTransCoreRuntime.LoadAsset = (guid, type) => AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), type);
             TexTransCoreRuntime.LoadAssetsAtType = (type) =>
             {
