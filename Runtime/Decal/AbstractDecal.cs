@@ -88,7 +88,8 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override IEnumerable<UnityEngine.Object> GetDependency()
         {
-            return new UnityEngine.Object[]{transform}
+            return new UnityEngine.Object[] { transform }
+            .Concat(GetComponentsInParent<Transform>(true))
             .Concat(TargetRenderers)
             .Concat(TargetRenderers.Select(r => r.transform))
             .Concat(TargetRenderers.Select(r => r.GetMesh()))
