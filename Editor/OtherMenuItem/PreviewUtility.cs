@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [MenuItem("Tools/TexTransTool/Exit Previews")]
         public static void ExitPreviews()
         {
-            if (RealTimePreviewManager.IsContainsRealTimePreviewDecal) { RealTimePreviewManager.instance.ExitPreview(); return; }
+            if (RealTimePreviewContext.instance.IsPreview()) { RealTimePreviewContext.instance.ExitRealTimePreview(); return; }
             if (OneTimePreviewContext.IsPreviewContains) { OneTimePreviewContext.instance.ExitPreview(); }
         }
         [MenuItem("Tools/TexTransTool/RePreview")]
@@ -19,6 +19,6 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         }
 
-        public static bool IsPreviewContains => RealTimePreviewManager.IsContainsRealTimePreviewDecal || OneTimePreviewContext.IsPreviewContains;
+        public static bool IsPreviewContains => RealTimePreviewContext.instance.IsPreview() || OneTimePreviewContext.IsPreviewContains;
     }
 }

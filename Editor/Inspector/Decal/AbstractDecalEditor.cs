@@ -62,37 +62,42 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             if (!target.Any()) { return; }
 
-
-            if (!target.Any(RealTimePreviewManager.Contains))
+            var rpm = RealTimePreviewContext.instance;
+            if (!rpm.IsPreview())
             {
                 bool IsPossibleRealTimePreview = !OneTimePreviewContext.IsPreviewContains;
                 IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
-                IsPossibleRealTimePreview |= RealTimePreviewManager.IsContainsRealTimePreviewDecal;
+                IsPossibleRealTimePreview |= rpm.IsPreview();
 
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
                     OneTimePreviewContext.LastPreviewClear();
-                    foreach (var decal in target) { RealTimePreviewManager.instance.RegtAbstractDecal(decal); }
+
+                    var domainRoot = DomainMarkerFinder.FindMarker(target.First().gameObject);
+                    if (domainRoot != null)
+                    {
+                        rpm.EnterRealtimePreview(domainRoot);
+                    }
+                    else
+                    {
+                        Debug.Log("Domain not found");
+                    }
                 }
                 EditorGUI.EndDisabledGroup();
             }
             else
             {
+
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
+                // EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
 
                 if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
                 {
-                    foreach (var decal in target) { RealTimePreviewManager.instance.UnRegtAbstractDecal(decal); }
-                }
-                if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("SimpleDecal:button:AllExit".Glc(), GUILayout.Width(60)))
-                {
-                    RealTimePreviewManager.instance.ExitPreview();
+                    rpm.ExitRealTimePreview();
                 }
                 EditorGUILayout.EndHorizontal();
             }
-
         }
 
 

@@ -146,22 +146,22 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 return ve;
             };
         }
-        private void OnEnable()
-        {
-            foreach (var decal in targets)
-            {
-                RealTimePreviewManager.instance.ForcesDecal.Add(decal as AbstractDecal);
-            }
+        // private void OnEnable()
+        // {
+        //     foreach (var decal in targets)
+        //     {
+        //         RealTimePreviewManager.instance.ForcesDecal.Add(decal as AbstractDecal);
+        //     }
 
-        }
+        // }
 
-        private void OnDisable()
-        {
-            foreach (var decal in targets)
-            {
-                RealTimePreviewManager.instance.ForcesDecal.Remove(decal as AbstractDecal);
-            }
-        }
+        // private void OnDisable()
+        // {
+        //     foreach (var decal in targets)
+        //     {
+        //         RealTimePreviewManager.instance.ForcesDecal.Remove(decal as AbstractDecal);
+        //     }
+        // }
 
 
 
