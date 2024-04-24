@@ -69,7 +69,9 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override IEnumerable<UnityEngine.Object> GetDependency()
         {
-            return base.GetDependency().Concat(IslandSelector.GetDependency());
+            var dependencies = base.GetDependency();
+            if (IslandSelector != null) { dependencies.Concat(IslandSelector.GetDependency()); }
+            return dependencies;
         }
 
 
