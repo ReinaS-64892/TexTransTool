@@ -48,57 +48,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
             EditorGUI.indentLevel -= 1;
         }
-        public static void DrawerRealTimePreviewEditor(object[] target)
-        {
-            var list = ListPool<AbstractDecal>.Get(); list.Capacity = target.Length;
-            foreach (var decal in target)
-            { if (decal is AbstractDecal abstractDecal) { list.Add(abstractDecal); } }
 
-            DrawerRealTimePreviewEditor(list);
-
-            ListPool<AbstractDecal>.Release(list);
-        }
-        public static void DrawerRealTimePreviewEditor(IEnumerable<AbstractDecal> target)
-        {
-            if (!target.Any()) { return; }
-
-            var rpm = RealTimePreviewContext.instance;
-            if (!rpm.IsPreview())
-            {
-                bool IsPossibleRealTimePreview = !OneTimePreviewContext.IsPreviewContains;
-                IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
-                IsPossibleRealTimePreview |= rpm.IsPreview();
-
-                EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
-                if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
-                {
-                    OneTimePreviewContext.LastPreviewClear();
-
-                    var domainRoot = DomainMarkerFinder.FindMarker(target.First().gameObject);
-                    if (domainRoot != null)
-                    {
-                        rpm.EnterRealtimePreview(domainRoot);
-                    }
-                    else
-                    {
-                        Debug.Log("Domain not found");
-                    }
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-            else
-            {
-
-                EditorGUILayout.BeginHorizontal();
-                // EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
-
-                if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
-                {
-                    rpm.ExitRealTimePreview();
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-        }
 
 
         static bool FoldoutAdvancedOption;

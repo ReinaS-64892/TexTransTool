@@ -66,14 +66,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             }
 
-            AbstractDecalEditor.DrawerRealTimePreviewEditor(targets);
-
-            // if (!isMultiEdit)
-            // {
-            //     EditorGUI.BeginDisabledGroup(RealTimePreviewManager.Contains(thisObject));
-            //     PreviewContext.instance.DrawApplyAndRevert(thisObject);
-            //     EditorGUI.EndDisabledGroup();
-            // }
+            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior);
 
             thisSObject.ApplyModifiedProperties();
         }
@@ -146,30 +139,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 return ve;
             };
         }
-        // private void OnEnable()
-        // {
-        //     foreach (var decal in targets)
-        //     {
-        //         RealTimePreviewManager.instance.ForcesDecal.Add(decal as AbstractDecal);
-        //     }
-
-        // }
-
-        // private void OnDisable()
-        // {
-        //     foreach (var decal in targets)
-        //     {
-        //         RealTimePreviewManager.instance.ForcesDecal.Remove(decal as AbstractDecal);
-        //     }
-        // }
-
-
-
-
-
-
-
-
 
         public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
         {

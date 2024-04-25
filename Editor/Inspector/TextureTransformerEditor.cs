@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Preview.RealTime;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -75,6 +76,48 @@ namespace net.rs64.TexTransTool.Editor
 
             }
         }
+
+
+        public static void DrawerRealTimePreviewEditorButton(TexTransRuntimeBehavior texTransRuntimeBehavior)
+        {
+            if(texTransRuntimeBehavior == null){return;}
+            var rpm = RealTimePreviewContext.instance;
+            if (!rpm.IsPreview())
+            {
+                bool IsPossibleRealTimePreview = !OneTimePreviewContext.IsPreviewContains;
+                IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
+                IsPossibleRealTimePreview |= rpm.IsPreview();
+
+                EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
+                if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
+                {
+                    OneTimePreviewContext.LastPreviewClear();
+
+                    var domainRoot = DomainMarkerFinder.FindMarker(texTransRuntimeBehavior.gameObject);
+                    if (domainRoot != null)
+                    {
+                        rpm.EnterRealtimePreview(domainRoot);
+                    }
+                    else
+                    {
+                        Debug.Log("Domain not found");
+                    }
+                }
+                EditorGUI.EndDisabledGroup();
+            }
+            else
+            {
+                EditorGUILayout.BeginHorizontal();
+                // EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
+
+                if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
+                {
+                    rpm.ExitRealTimePreview();
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
 
         #region DrawerProperty
 

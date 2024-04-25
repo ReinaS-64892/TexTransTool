@@ -16,12 +16,13 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
 
             var thisTarget = target as MultiLayerImageCanvas;
-            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(thisTarget);
+
 
             sTarget.ApplyModifiedProperties();
         }
 
-        public override bool HasPreviewGUI() { return true; }
+        public override bool HasPreviewGUI() { return false; }
 
         public override void DrawPreview(Rect previewArea)
         {
