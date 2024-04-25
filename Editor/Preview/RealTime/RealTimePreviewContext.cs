@@ -68,7 +68,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             }
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
 
-            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency().Append(texTransRuntimeBehavior).Select(g => g.GetInstanceID()))
+            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency().Append(texTransRuntimeBehavior).Where(g => g != null).Select(g => g.GetInstanceID()))
             {
                 if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
                 _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
