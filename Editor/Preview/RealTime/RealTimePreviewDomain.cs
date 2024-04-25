@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             DomainRenderersUpdate();
         }
 
+        public GameObject DomainRoot => _domainRoot;
         public PreviewStackManager PreviewStackManager => _stackManager;
         public int NowPriority { get; set; }
         HashSet<RenderTexture> needUpdate = new();

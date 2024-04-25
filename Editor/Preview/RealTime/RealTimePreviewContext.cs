@@ -22,10 +22,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
     {
         RealTimePreviewDomain _previewDomain = null;
         Dictionary<TexTransRuntimeBehavior, int> _texTransRuntimeBehaviorPriority = new();
-
-        HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
-
         Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyAndContainsMap = new();
+        HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
 
@@ -34,8 +32,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         {
             AssemblyReloadEvents.beforeAssemblyReload -= ExitRealTimePreview;
             AssemblyReloadEvents.beforeAssemblyReload += ExitRealTimePreview;
-            EditorSceneManager.sceneClosing -= ExitPreview;
-            EditorSceneManager.sceneClosing += ExitPreview;
+            EditorSceneManager.sceneClosing -= ExitRealTimePreview;
+            EditorSceneManager.sceneClosing += ExitRealTimePreview;
             DestroyCall.OnDestroy -= DestroyObserve;
             DestroyCall.OnDestroy += DestroyObserve;
         }
@@ -103,10 +101,18 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                             DependEnqueueOfInstanceID(data.instanceId);
                             break;
                         }
+                    case ObjectChangeKind.ChangeAssetObjectProperties:
+                        {
+                            stream.GetChangeAssetObjectPropertiesEvent(i, out var data);
+                            DependEnqueueOfInstanceID(data.instanceId);
+                            break;
+                        }
+
+                    case ObjectChangeKind.CreateGameObjectHierarchy:
+                    case ObjectChangeKind.ChangeGameObjectParent:
                     case ObjectChangeKind.ChangeGameObjectStructure:
                     case ObjectChangeKind.DestroyGameObjectHierarchy:
                     case ObjectChangeKind.ChangeChildrenOrder:
-                    case ObjectChangeKind.ChangeGameObjectParent:
                         { RealTimePreviewRestart(); break; }
                     case ObjectChangeKind.ChangeScene:
                         { ExitRealTimePreview(); break; }
@@ -123,7 +129,9 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             }
             void RealTimePreviewRestart()
             {
-
+                var domainRoot = _previewDomain.DomainRoot;
+                ExitRealTimePreview();
+                EnterRealtimePreview(domainRoot);
             }
         }
 
@@ -143,7 +151,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
 
 
-        private void ExitPreview(Scene scene, bool removingScene) => ExitRealTimePreview();
+        private void ExitRealTimePreview(Scene scene, bool removingScene) => ExitRealTimePreview();
         public void ExitRealTimePreview()
         {
             if (_previewDomain == null) { return; }
