@@ -1,23 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransTool.Build;
-using net.rs64.TexTransTool.CustomPreview;
+using net.rs64.TexTransTool.Preview.Custom;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
-namespace net.rs64.TexTransTool
+namespace net.rs64.TexTransTool.Preview
 {
-    internal class PreviewContext : ScriptableSingleton<PreviewContext>
+    internal class OneTimePreviewContext : ScriptableSingleton<OneTimePreviewContext>
     {
         [SerializeField]
         private Object previweing = null;
-        private Object lastPreviweing = null;
 
-        protected PreviewContext()
+        public event Action<Object> OnPreviewEnter;
+        public event Action OnPreviewExit;
+        protected OneTimePreviewContext()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
             AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
@@ -37,7 +35,6 @@ namespace net.rs64.TexTransTool
 
         public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
-        public static bool LastPreviewClear() => instance.lastPreviweing = null;
 
         private void DrawApplyAndRevert<T>(T target, Action<T> apply)
             where T : Object
@@ -76,10 +73,15 @@ namespace net.rs64.TexTransTool
         {
             DrawApplyAndRevert(target, TexTransBehaviorApply);
         }
+        public void ApplyTexTransBehavior(TexTransBehavior target)
+        {
+            StartPreview(target, TexTransBehaviorApply);
+        }
 
         void StartPreview<T>(T target, Action<T> applyAction) where T : Object
         {
             previweing = target;
+            OnPreviewEnter?.Invoke(previweing);
             AnimationMode.StartAnimationMode();
             try
             {
@@ -128,9 +130,9 @@ namespace net.rs64.TexTransTool
         public void ExitPreview()
         {
             if (previweing == null) { return; }
-            lastPreviweing = previweing;
             previweing = null;
             AnimationMode.StopAnimationMode();
+            OnPreviewExit?.Invoke();
         }
         public void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
         {
@@ -141,19 +143,5 @@ namespace net.rs64.TexTransTool
             if (IsPreviewing(texTransBehavior)) { instance.ExitPreview(); }
         }
 
-        internal void RePreview()
-        {
-            if (!IsPreviewContains)
-            {
-                if (lastPreviweing is TexTransBehavior texTransBehavior) { StartPreview(texTransBehavior, TexTransBehaviorApply); lastPreviweing = null; }
-            }
-            else
-            {
-                if (previweing is not TexTransBehavior texTransBehavior) { return; }
-                var target = texTransBehavior;
-                ExitPreview();
-                StartPreview(target, TexTransBehaviorApply);
-            }
-        }
     }
 }

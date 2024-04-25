@@ -268,6 +268,12 @@ namespace net.rs64.TexTransCore.BlendTexture
             public Texture Texture;
             public string BlendTypeKey;
 
+            public BlendTexturePair(IBlendTexturePair setTex)
+            {
+                Texture = setTex.Texture;
+                BlendTypeKey = setTex.BlendTypeKey;
+            }
+
             public BlendTexturePair(Texture texture, string blendTypeKey)
             {
                 Texture = texture;

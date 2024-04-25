@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool
 
         [CanBeNull] private readonly IAssetSaver _saver;
         private readonly ITextureManager _textureManager;
-        private readonly IStackManager _textureStacks;
+        private readonly StackManager<ImmediateTextureStack> _textureStacks;
 
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
@@ -44,23 +44,9 @@ namespace net.rs64.TexTransTool
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
         }
 
-        public RenderersDomain(List<Renderer> previewRenderers,
-                        bool previewing,
-                        IAssetSaver saver,
-                        ITextureManager textureManager,
-                        IStackManager stackManager
-                       )
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
         {
-            _renderers = previewRenderers;
-            Previewing = previewing;
-            _saver = saver;
-            _textureManager = textureManager;
-            _textureStacks = stackManager;
-        }
-
-        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair
-        {
-            _textureStacks.AddTextureStack(dist, setTex);
+            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
         }
 
         private void AddPropertyModification(Object component, string property, Object value)

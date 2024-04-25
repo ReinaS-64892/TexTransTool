@@ -5,8 +5,9 @@ using UnityEngine.UIElements;
 using net.rs64.TexTransTool.Build;
 using System.Collections.Generic;
 using System;
-using net.rs64.TexTransTool.CustomPreview;
 using UnityEngine;
+using net.rs64.TexTransTool.Preview.Custom;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -32,7 +33,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 rootVE.hierarchy.Clear();
 
-                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewRenderer)); PreviewContext.instance.DrawApplyAndRevert(target as PreviewRenderer); });
+                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewRenderer)); OneTimePreviewContext.instance.DrawApplyAndRevert(target as PreviewRenderer); });
 
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(TexTransGroupEditor.s_style);

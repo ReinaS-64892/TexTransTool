@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
 using Unity.Collections;
 using System.Collections;
+using System;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -13,6 +14,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
+
+        internal abstract IEnumerable<UnityEngine.Object> GetDependency();
 
         internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
         BitArray IIslandSelector.IslandSelect(Island[] islands, IslandDescription[] islandDescription) => IslandSelect(islands, islandDescription);

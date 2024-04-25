@@ -4,6 +4,7 @@ using net.rs64.TexTransTool;
 using UnityEngine.UIElements;
 using net.rs64.TexTransTool.Build;
 using System.Collections.Generic;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -28,7 +29,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 rootVE.hierarchy.Clear();
 
-                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup)); PreviewContext.instance.DrawApplyAndRevert(target as PreviewGroup); });
+                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup)); OneTimePreviewContext.instance.DrawApplyAndRevert(target as PreviewGroup); });
 
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(s_style);

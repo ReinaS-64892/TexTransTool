@@ -1,5 +1,6 @@
 using UnityEditor;
 using net.rs64.TexTransTool.Decal.Curve;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
 {
@@ -12,7 +13,7 @@ namespace net.rs64.TexTransTool.Editor.Decal.Curve.Cylindrical
         {
             TextureTransformerEditor.DrawerWarning("CylindricalCurveDecal");
             base.OnInspectorGUI();
-            PreviewContext.instance.DrawApplyAndRevert(target as CylindricalCurveDecal);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(target as CylindricalCurveDecal);
         }
 
     }

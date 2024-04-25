@@ -12,6 +12,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT SphereIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public float SphereSize = 0.1f;
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
 
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {

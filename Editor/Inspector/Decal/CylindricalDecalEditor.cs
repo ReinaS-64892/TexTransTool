@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -16,7 +17,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var thisObject = target as CylindricalDecal;
 
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
+            EditorGUI.BeginDisabledGroup(OneTimePreviewContext.IsPreviewing(thisObject));
 
             var sCylindricalCoordinatesSystem = thisSObject.FindProperty("CylindricalCoordinatesSystem");
             EditorGUILayout.PropertyField(sCylindricalCoordinatesSystem);
@@ -48,7 +49,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisObject);
 
             thisSObject.ApplyModifiedProperties();
         }

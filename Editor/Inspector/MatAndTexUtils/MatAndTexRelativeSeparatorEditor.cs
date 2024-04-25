@@ -1,4 +1,5 @@
 using net.rs64.TexTransTool.MatAndTexUtils;
+using net.rs64.TexTransTool.Preview;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
             var thisSObject = serializedObject;
             var thisObject = target as MatAndTexRelativeSeparator;
 
-            EditorGUI.BeginDisabledGroup(PreviewContext.IsPreviewing(thisObject));
+            EditorGUI.BeginDisabledGroup(OneTimePreviewContext.IsPreviewing(thisObject));
 
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
@@ -58,7 +59,7 @@ namespace net.rs64.TexTransTool.Editor.MatAndTexUtils
 
             EditorGUI.EndDisabledGroup();
 
-            PreviewContext.instance.DrawApplyAndRevert(thisObject);
+            OneTimePreviewContext.instance.DrawApplyAndRevert(thisObject);
 
             thisSObject.ApplyModifiedProperties();
         }

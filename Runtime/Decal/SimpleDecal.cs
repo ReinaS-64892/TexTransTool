@@ -6,6 +6,7 @@ using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -65,5 +66,14 @@ namespace net.rs64.TexTransTool.Decal
 
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
         }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            var dependencies = base.GetDependency();
+            if (IslandSelector != null) { dependencies.Concat(IslandSelector.GetDependency()); }
+            return dependencies;
+        }
+
+
     }
 }

@@ -1,6 +1,6 @@
 using net.rs64.TexTransTool.Build;
 
-namespace net.rs64.TexTransTool.CustomPreview
+namespace net.rs64.TexTransTool.Preview.Custom
 {
     [TTTCustomPreview(typeof(PreviewGroup))]
     internal class PreviewGroupPreview : ITTTCustomPreview

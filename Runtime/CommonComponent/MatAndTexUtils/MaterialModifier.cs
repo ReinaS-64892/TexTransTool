@@ -89,5 +89,11 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             }
             domain.ReplaceMaterials(modMatList);
         }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            foreach (var i in ModifiedTarget) { yield return i; }
+            foreach (var i in TargetRenderers) { yield return i; }
+        }
     }
 }

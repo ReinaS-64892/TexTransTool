@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
 
-namespace net.rs64.TexTransTool.CustomPreview
+namespace net.rs64.TexTransTool.Preview.Custom
 {
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
     internal sealed class TTTCustomPreviewAttribute : System.Attribute// TODO : このあたりの属性とインターフェイスで特定の型に対して特定のインターフェースを当てる部分を共通の仕組みにしてもいいかもな～

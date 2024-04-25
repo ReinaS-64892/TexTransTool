@@ -212,6 +212,14 @@ namespace net.rs64.TexTransTool.Build
         {
             foreach (var kv in phase) { kv.Value.RemoveAll(i => !whitelist.Contains(i)); }
         }
+        public static IEnumerable<TexTransBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict)
+        {
+            foreach (var ttb in phaseDict[TexTransPhase.BeforeUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.UVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.AfterUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.UnDefined]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.Optimizing]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+        }
 
         private static HashSet<TexTransBehavior> FindChildren(TexTransGroup[] abstractTexTransGroups)
         {

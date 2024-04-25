@@ -11,6 +11,7 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT IslandSelectorAND";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform); }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             BitArray bitArray = null;

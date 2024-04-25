@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.Build;
 
-namespace net.rs64.TexTransTool.CustomPreview
+namespace net.rs64.TexTransTool.Preview.Custom
+
 {
     [TTTCustomPreview(typeof(TexTransGroup))]
     internal class TexTransGroupPreview : ITTTCustomPreview

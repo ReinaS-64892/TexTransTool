@@ -14,6 +14,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         public AbstractIslandSelector IslandSelector = null;
 
+        internal override IEnumerable<Object> GetDependency() { return IslandSelector.GetDependency(); }
+
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return IslandSelector != null ? IslandSelector.IslandSelect(islands, islandDescription) : new BitArray(islands.Length);

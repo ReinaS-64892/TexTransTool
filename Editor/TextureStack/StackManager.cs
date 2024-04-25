@@ -4,13 +4,7 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
-    internal interface IStackManager
-    {
-        void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;
-        List<MergeResult> MergeStacks();
-    }
-    internal class StackManager<Stack> : IStackManager
-     where Stack : TextureStack, new()
+    internal class StackManager<Stack> where Stack : AbstractTextureStack, new()
     {
         [SerializeField] List<Stack> _textureStacks = new List<Stack>();
         ITextureManager _textureManager;
@@ -59,7 +53,7 @@ namespace net.rs64.TexTransTool.TextureStack
         }
     }
 
-    internal abstract class TextureStack
+    internal abstract class AbstractTextureStack
     {
         public virtual void init(Texture2D firstTexture, ITextureManager textureManager) { FirstTexture = firstTexture; TextureManager = textureManager; }
         public Texture2D FirstTexture;

@@ -8,7 +8,7 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
-    internal class DeferredTextureStack : TextureStack
+    internal class DeferredTextureStack : AbstractTextureStack
     {
         [SerializeField] List<IBlendTexturePair> StackTextures = new();
 

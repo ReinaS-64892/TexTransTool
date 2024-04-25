@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using net.rs64.TexTransCore.BlendTexture;
 using System;
 using net.rs64.TexTransTool.Utils;
+using System.Linq;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
@@ -36,5 +37,7 @@ namespace net.rs64.TexTransTool
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
             domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
         }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return TargetTexture.GetDependency().Append(BlendTexture); }
     }
 }

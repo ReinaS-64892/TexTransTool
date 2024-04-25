@@ -37,10 +37,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasSize)
         {
-            var Layers = transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Where(I => I != null)
-            .Reverse();
+            var Layers = GetChileLayers();
 
             var canvasContext = new CanvasContext(canvasSize, textureManager);
             foreach (var layer in Layers) { layer.EvaluateTexture(canvasContext); }
@@ -49,7 +46,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return result;
         }
 
-       internal static int NormalizePowOfTow(int v)
+        private IEnumerable<AbstractLayer> GetChileLayers()
+        {
+            return transform.GetChildren()
+            .Select(I => I.GetComponent<AbstractLayer>())
+            .Where(I => I != null)
+            .Reverse();
+        }
+
+        internal static int NormalizePowOfTow(int v)
         {
             if (Mathf.IsPowerOfTwo(v)) { return v; }
 
@@ -58,6 +63,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
             else { return nextV; }
+        }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            var chileLayers = GetChileLayers();
+            return TextureSelector.GetDependency().Append(tttImportedCanvasDescription).Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
         }
 
         internal class CanvasContext

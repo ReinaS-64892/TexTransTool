@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
@@ -33,6 +34,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 return new LayerAlphaMod(null, Opacity);
             }
         }
+
+        internal virtual IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            yield return gameObject;
+            foreach (var m in LayerMask.GetDependency()) { yield return m; }
+        }
+
     }
     [Serializable]
     public class LayerMask : ILayerMask
@@ -41,6 +49,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D MaskTexture;
 
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
+
+        public IEnumerable<UnityEngine.Object> GetDependency() { yield return MaskTexture; }
 
         void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)
         {
@@ -52,6 +62,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         bool ContainedMask { get; }
         void WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture);
+        abstract IEnumerable<UnityEngine.Object> GetDependency();
     }
 
 

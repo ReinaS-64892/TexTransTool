@@ -1,8 +1,7 @@
 using UnityEditor;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
-using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransTool.Preview;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]
@@ -17,12 +16,13 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
 
             var thisTarget = target as MultiLayerImageCanvas;
-            PreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(thisTarget);
+
 
             sTarget.ApplyModifiedProperties();
         }
 
-        public override bool HasPreviewGUI() { return true; }
+        public override bool HasPreviewGUI() { return false; }
 
         public override void DrawPreview(Rect previewArea)
         {
