@@ -25,35 +25,32 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         {
             _domainRoot = domainRoot;
             _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
-            DomainRenderersUpdate();
-        }
 
-        public GameObject DomainRoot => _domainRoot;
-        public PreviewStackManager PreviewStackManager => _stackManager;
-        public int NowPriority { get; set; }
-        HashSet<RenderTexture> needUpdate = new();
-
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
-        {
-            _stackManager.AddTextureStack(NowPriority, dist, setTex);
-
-            if (dist is Texture2D texture2D) { needUpdate.Add(_stackManager.GetPreviewTexture(texture2D)); }
-            if (dist is RenderTexture rt) { needUpdate.Add(rt); }
-        }
-
-        public void UpdateNeeded()
-        {
-            foreach (var rt in needUpdate) { _stackManager.UpdateStack(rt); }
-            needUpdate.Clear();
-        }
-
-
-        public void DomainRenderersUpdate()
-        {
             _domainRenderers.Clear();
             _domainRenderers.UnionWith(_domainRoot.GetComponentsInChildren<Renderer>(true));
             SwapPreviewMaterial();
         }
+
+        public GameObject DomainRoot => _domainRoot;
+        int _nowPriority;
+
+        public void SetNowPriority(int priority)
+        {
+            _nowPriority = priority;
+            _stackManager.ReleaseStackOfPriority(_nowPriority);
+        }
+
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
+        {
+            _stackManager.AddTextureStack(_nowPriority, dist, setTex);
+        }
+
+        public void UpdateNeeded()
+        {
+            _stackManager.UpdateNeededStack();
+        }
+
+
         public void SwapPreviewMaterial()
         {
             foreach (var renderer in _domainRenderers)

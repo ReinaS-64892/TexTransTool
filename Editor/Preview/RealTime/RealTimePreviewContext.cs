@@ -1,28 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {
     internal class RealTimePreviewContext : ScriptableSingleton<RealTimePreviewContext>
     {
         RealTimePreviewDomain _previewDomain = null;
-        Dictionary<TexTransRuntimeBehavior, int> _texTransRuntimeBehaviorPriority = new();
-        Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyAndContainsMap = new();
+        Dictionary<TexTransRuntimeBehavior, int> _PriorityMap = new();
+        Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyMap = new();
         HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
@@ -34,8 +28,6 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             AssemblyReloadEvents.beforeAssemblyReload += ExitRealTimePreview;
             EditorSceneManager.sceneClosing -= ExitRealTimePreview;
             EditorSceneManager.sceneClosing += ExitRealTimePreview;
-            DestroyCall.OnDestroy -= DestroyObserve;
-            DestroyCall.OnDestroy += DestroyObserve;
         }
 
 
@@ -52,7 +44,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             var texTransBehaviors = AvatarBuildUtils.PhaseDictFlatten(AvatarBuildUtils.FindAtPhaseAll(previewRoot));
             var priority = 0;
             foreach (var ttb in texTransBehaviors)
-            { if (ttb is TexTransRuntimeBehavior texTransRuntimeBehavior) { _texTransRuntimeBehaviorPriority[texTransRuntimeBehavior] = priority; priority += 1; } }
+            { if (ttb is TexTransRuntimeBehavior texTransRuntimeBehavior) { _PriorityMap[texTransRuntimeBehavior] = priority; priority += 1; } }
 
 
             ObjectChangeEvents.changesPublished += ListenChangeEvent;
@@ -74,15 +66,15 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
             foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency().Append(texTransRuntimeBehavior).Select(g => g.GetInstanceID()))
             {
-                if (!_dependencyAndContainsMap.ContainsKey(dependInstanceID)) { _dependencyAndContainsMap[dependInstanceID] = new(); }
-                _dependencyAndContainsMap[dependInstanceID].Add(texTransRuntimeBehavior);
+                if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
+                _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
             }
             _updateQueue.Enqueue(texTransRuntimeBehavior);
         }
-        void RemovePreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyAndContainsMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
+        void RemovePreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
         bool ContainsBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
-            foreach (var dependKey in _dependencyAndContainsMap)
+            foreach (var dependKey in _dependencyMap)
             {
                 if (dependKey.Value.Contains(texTransRuntimeBehavior)) { return true; }
             }
@@ -122,9 +114,9 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
             void DependEnqueueOfInstanceID(int instanceId)
             {
-                if (_dependencyAndContainsMap.ContainsKey(instanceId))
+                if (_dependencyMap.ContainsKey(instanceId))
                 {
-                    foreach (var t in _dependencyAndContainsMap[instanceId]) { _updateQueue.Enqueue(t); }
+                    foreach (var t in _dependencyMap[instanceId]) { _updateQueue.Enqueue(t); }
                 }
             }
             void RealTimePreviewRestart()
@@ -137,15 +129,14 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         void UpdatePreview()
         {
-            if (_updateQueue.TryDequeue(out var texTransRuntimeBehavior) && _texTransRuntimeBehaviorPriority.TryGetValue(texTransRuntimeBehavior, out var priority))
+            if (_updateQueue.TryDequeue(out var texTransRuntimeBehavior) && _PriorityMap.TryGetValue(texTransRuntimeBehavior, out var priority))
             {
-                _previewDomain.NowPriority = priority;
-                _previewDomain.PreviewStackManager.ReleaseStackOfPriority(priority);
+                _previewDomain.SetNowPriority(priority);
 
-                texTransRuntimeBehavior.Apply(_previewDomain);
+                try { if (texTransRuntimeBehavior.IsPossibleApply) { texTransRuntimeBehavior.Apply(_previewDomain); } }
+                catch (Exception ex) { Debug.LogException(ex); }
 
                 _previewDomain.UpdateNeeded();
-                _previewDomain.NowPriority = -1;
             }
         }
 
@@ -158,8 +149,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             ObjectChangeEvents.changesPublished -= ListenChangeEvent;
             EditorApplication.update -= UpdatePreview;
 
-            _texTransRuntimeBehaviorPriority.Clear();
-            _dependencyAndContainsMap.Clear();
+            _PriorityMap.Clear();
+            _dependencyMap.Clear();
             _updateQueue.Clear();
             _previewDomain.PreviewExit();
             _previewDomain = null;
@@ -167,18 +158,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             AnimationMode.StopAnimationMode();
         }
 
-        private void DestroyObserve(TexTransBehavior behavior)
-        {
-            if (_previewDomain == null) { return; }
-            var runtimeBehavior = behavior as TexTransRuntimeBehavior;
-            if (runtimeBehavior == null) { return; }
-            if (!ContainsBehavior(runtimeBehavior)) { return; }
 
-            var stackManager = _previewDomain.PreviewStackManager;
-            var updateTarget = stackManager.FindAtPriority(_texTransRuntimeBehaviorPriority[runtimeBehavior]);
-            stackManager.ReleaseStackOfPriority(_texTransRuntimeBehaviorPriority[runtimeBehavior]);
-            foreach (var tex in updateTarget) { stackManager.UpdateStack(tex); }
-        }
 
         public bool IsPreview() => _previewDomain != null;
     }

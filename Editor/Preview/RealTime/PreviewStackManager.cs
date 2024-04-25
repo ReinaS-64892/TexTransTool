@@ -81,10 +81,14 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             return _previewTextureMap[texture];
         }
 
-        public void UpdateStack(RenderTexture rt)
+
+        public void UpdateNeededStack()
         {
-            if (!_stackMap.ContainsKey(rt)) { return; }
-            _stackMap[rt].StackViewUpdate();
+            foreach (var stack in _stackMap.Values)
+            {
+                if (!stack.UpdateNeeded) { continue; }
+                stack.StackViewUpdate();
+            }
         }
 
         internal class PrioritizedDeferredStack
@@ -92,7 +96,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             Texture2D _initialTexture;
             RenderTexture _stackViewTexture;
 
-
+            public bool UpdateNeeded { get; private set; } = false;
             SortedList<int, List<BlendTexturePair>> _stack = new();
 
             public RenderTexture StackView => _stackViewTexture;
@@ -108,13 +112,14 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             {
                 if (!_stack.ContainsKey(priority)) { _stack.Add(priority, new()); }
                 _stack[priority].Add(blendTexturePair);
+                UpdateNeeded = true;
             }
             public void ReleaseStackOfPriority(int priority)
             {
                 if (!_stack.ContainsKey(priority)) { return; }
                 var cs = _stack[priority];
 
-                foreach (var l in cs) { if (l.Texture is RenderTexture rt) { RenderTexture.ReleaseTemporary(rt); } }
+                foreach (var l in cs) { if (l.Texture is RenderTexture rt) { RenderTexture.ReleaseTemporary(rt); UpdateNeeded = true; } }
                 cs.Clear();
             }
             public void ReleaseStack()
@@ -133,6 +138,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                     {
                         _stackViewTexture.BlendBlit(l);
                     }
+                UpdateNeeded = false;
             }
 
             public bool ContainedPriority(int priority) => _stack.ContainsKey(priority);
