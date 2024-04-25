@@ -20,6 +20,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
+        public event Action<GameObject> OnPreviewEnter;
+        public event Action OnPreviewExit;
 
 
         protected RealTimePreviewContext()
@@ -35,6 +37,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         {
             if (_previewDomain != null) { UnityEngine.Debug.Log("Already preview !!!"); return; }
             if (AnimationMode.InAnimationMode()) { UnityEngine.Debug.Log("Other preview now !!!"); return; }
+
+            OnPreviewEnter?.Invoke(previewRoot);
 
             AnimationMode.StartAnimationMode();
             AnimationMode.BeginSampling();
@@ -156,6 +160,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _previewDomain = null;
             AnimationMode.EndSampling();
             AnimationMode.StopAnimationMode();
+
+            OnPreviewExit?.Invoke();
         }
 
 

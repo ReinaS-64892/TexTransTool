@@ -91,8 +91,6 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
                 if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
                 {
-                    OneTimePreviewContext.LastPreviewClear();
-
                     var domainRoot = DomainMarkerFinder.FindMarker(texTransRuntimeBehavior.gameObject);
                     if (domainRoot != null)
                     {

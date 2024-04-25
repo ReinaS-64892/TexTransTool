@@ -12,8 +12,9 @@ namespace net.rs64.TexTransTool.Preview
     {
         [SerializeField]
         private Object previweing = null;
-        private Object lastPreviweing = null;
 
+        public event Action<Object> OnPreviewEnter;
+        public event Action OnPreviewExit;
         protected OneTimePreviewContext()
         {
             AssemblyReloadEvents.beforeAssemblyReload -= ExitPreview;
@@ -34,7 +35,6 @@ namespace net.rs64.TexTransTool.Preview
 
         public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
-        public static bool LastPreviewClear() => instance.lastPreviweing = null;
 
         private void DrawApplyAndRevert<T>(T target, Action<T> apply)
             where T : Object
@@ -73,10 +73,15 @@ namespace net.rs64.TexTransTool.Preview
         {
             DrawApplyAndRevert(target, TexTransBehaviorApply);
         }
+        public void ApplyTexTransBehavior(TexTransBehavior target)
+        {
+            StartPreview(target, TexTransBehaviorApply);
+        }
 
         void StartPreview<T>(T target, Action<T> applyAction) where T : Object
         {
             previweing = target;
+            OnPreviewEnter?.Invoke(previweing);
             AnimationMode.StartAnimationMode();
             try
             {
@@ -125,9 +130,9 @@ namespace net.rs64.TexTransTool.Preview
         public void ExitPreview()
         {
             if (previweing == null) { return; }
-            lastPreviweing = previweing;
             previweing = null;
             AnimationMode.StopAnimationMode();
+            OnPreviewExit?.Invoke();
         }
         public void ExitPreview(UnityEngine.SceneManagement.Scene scene, bool removingScene)
         {
@@ -138,19 +143,5 @@ namespace net.rs64.TexTransTool.Preview
             if (IsPreviewing(texTransBehavior)) { instance.ExitPreview(); }
         }
 
-        internal void RePreview()
-        {
-            if (!IsPreviewContains)
-            {
-                if (lastPreviweing is TexTransBehavior texTransBehavior) { StartPreview(texTransBehavior, TexTransBehaviorApply); lastPreviweing = null; }
-            }
-            else
-            {
-                if (previweing is not TexTransBehavior texTransBehavior) { return; }
-                var target = texTransBehavior;
-                ExitPreview();
-                StartPreview(target, TexTransBehaviorApply);
-            }
-        }
     }
 }
