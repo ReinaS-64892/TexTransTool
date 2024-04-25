@@ -35,7 +35,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
-        internal virtual IEnumerable<UnityEngine.Object> GetDependency() { foreach (var m in LayerMask.GetDependency()) { yield return m; } }
+        internal virtual IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            yield return gameObject;
+            foreach (var m in LayerMask.GetDependency()) { yield return m; }
+        }
 
     }
     [Serializable]

@@ -56,6 +56,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             .Select(I => I.GetComponent<AbstractLayer>())
             .Reverse();
         }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            var chileLayers = GetChileLayers();
+            return base.GetDependency().Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
+        }
     }
 
 
