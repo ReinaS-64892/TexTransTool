@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
-using UnityEngine.Serialization;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.IslandSelector;

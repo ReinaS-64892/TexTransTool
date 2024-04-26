@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
             return hits;
         }
 
-        public void AddToDecal(AbstractDecal abstractDecal, List<Renderer> renderers)
+        public void AddToDecal(SimpleDecal abstractDecal, List<Renderer> renderers)
         {
             var rendererHash = new HashSet<Renderer>(abstractDecal.TargetRenderers);
             foreach (var renderer in renderers)

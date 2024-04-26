@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Migration.V1
     internal static class AbstractDecalV1
     {
 
-        public static void MigrationAbstractDecalV1ToV2(AbstractDecal abstractDecal)
+        public static void MigrationAbstractDecalV1ToV2(SimpleDecal abstractDecal)
         {
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 2) { Debug.Log(abstractDecal.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }

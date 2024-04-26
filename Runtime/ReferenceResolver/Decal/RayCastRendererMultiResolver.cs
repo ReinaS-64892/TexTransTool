@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 
             var hits = FindRayCast(avatar.AvatarRoot);
 
-            foreach (var abstractDecal in ResolveTargetRoot.GetComponentsInChildren<AbstractDecal>())
+            foreach (var abstractDecal in ResolveTargetRoot.GetComponentsInChildren<SimpleDecal>())
             {
                 AddToDecal(abstractDecal, hits);
             }

@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Migration.V0
     [Obsolete]
     internal static class AbstractDecalV0
     {
-        public static void MigrationAbstractDecalV0ToV1(AbstractDecal abstractDecal)
+        public static void MigrationAbstractDecalV0ToV1(SimpleDecal abstractDecal)
         {
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 1) { Debug.Log(abstractDecal.name + " AbstractDecal : マイグレーション不可能なバージョンです。"); return; }
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.Migration.V0
 
                     var newGameObjectDecal = new GameObject("Decal");
                     newGameObjectDecal.transform.parent = GameObject.transform;
-                    var NewDecal = newGameObjectDecal.AddComponent(abstractDecal.GetType()) as AbstractDecal;
+                    var NewDecal = newGameObjectDecal.AddComponent(abstractDecal.GetType()) as SimpleDecal;
                     NewDecal.CopyFromDecal(abstractDecal);
                     abstractDecal.HighQualityPadding = abstractDecal.FastMode;
                     NewDecal.IsSeparateMatAndTexture = false;
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                 }
             }
         }
-        public static void FinalizeMigrationAbstractDecalV0ToV1(AbstractDecal abstractDecal)
+        public static void FinalizeMigrationAbstractDecalV0ToV1(SimpleDecal abstractDecal)
         {
             if (abstractDecal.MigrationV0ClearTarget)
             {
@@ -94,7 +94,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             }
         }
 
-        static void SetUpSeparator(MatAndTexUtils.MatAndTexRelativeSeparator matAndTexSeparator, AbstractDecal abstractDecal)
+        static void SetUpSeparator(MatAndTexUtils.MatAndTexRelativeSeparator matAndTexSeparator, SimpleDecal abstractDecal)
         {
             if (abstractDecal.TargetRenderers != null)
             {
@@ -120,7 +120,7 @@ namespace net.rs64.TexTransTool.Migration.V0
             EditorUtility.SetDirty(matAndTexSeparator);
         }
 
-        static void CopyFromDecal(this AbstractDecal target, AbstractDecal copySouse)
+        static void CopyFromDecal(this SimpleDecal target, SimpleDecal copySouse)
         {
             if (target.GetType() != copySouse.GetType()) { return; };
             var fieldInfos = target.GetType().GetFields();

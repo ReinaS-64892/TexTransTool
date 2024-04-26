@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV1.MigrationAtlasTextureV1ToV2(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV1.MigrationAbstractDecalV1ToV2(abstractDecal);
                         return true;
@@ -103,7 +103,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV0.MigrationAtlasTextureV0ToV1(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV0.MigrationAbstractDecalV0ToV1(abstractDecal);
                         return true;
@@ -129,7 +129,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV0.FinalizeMigrationAbstractDecalV0ToV1(abstractDecal);
                         return true;
