@@ -45,6 +45,7 @@ namespace net.rs64.TexTransTool.Decal
             for (var i = 0; smCount > i; i += 1)
             {
                 var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(i);
+                if (islandSelected.Length == 0) { continue; }
                 var ppsVert = _ppSpace.GetPPSVert;
                 _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(islandSelected, ppsVert, Filters);
             }
@@ -52,7 +53,8 @@ namespace net.rs64.TexTransTool.Decal
         NativeArray<TriangleIndex> ITrianglesFilter<ParallelProjectionSpace>.GetFilteredSubTriangle(int subMeshIndex)
         {
             if (_ppSpace is null) { return default; }
-            var filteredTriangle = _filteredTriangles[subMeshIndex] = ParallelProjectionFilter.FilteringExecute(_ppSpace.MeshData.TriangleIndex[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
+            if (_islandSelectedTriangles[subMeshIndex].Length == 0) { return default; }
+            var filteredTriangle = _filteredTriangles[subMeshIndex] = ParallelProjectionFilter.FilteringExecute(_islandSelectedTriangles[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
             return filteredTriangle;
         }
 
@@ -82,6 +84,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             var triCount = 0;
             for (var i = 0; islands.Length > i; i += 1) { if (bitArray[i]) { triCount += islands[i].triangles.Count; } }
+            if (triCount == 0) { return default; }
             var list = new NativeArray<TriangleIndex>(triCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var writePos = 0;
@@ -104,7 +107,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public void Dispose()
         {
-            foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
+            foreach (var na in _filteredBit) { na?.GetResult.Dispose(); }
             foreach (var na in _islandSelectedTriangles) { na.Dispose(); }
             foreach (var na in _filteredTriangles) { na.Dispose(); }
         }
