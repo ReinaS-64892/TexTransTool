@@ -837,7 +837,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return result;
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IEnumerable<Renderer> domainRenderers)
         {
             return AtlasSetting.IslandFineTuners.SelectMany(i => i.GetDependency())
             .Concat(Renderers)

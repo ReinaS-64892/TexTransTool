@@ -68,7 +68,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             }
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
 
-            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency().Append(texTransRuntimeBehavior).Where(g => g != null).Select(g => g.GetInstanceID()))
+            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency(_previewDomain.EnumerateRenderer()).Append(texTransRuntimeBehavior).Where(g => g != null).Select(g => g.GetInstanceID()))
             {
                 if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
                 _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
@@ -123,12 +123,13 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                     foreach (var t in _dependencyMap[instanceId]) { _updateQueue.Enqueue(t); }
                 }
             }
-            void RealTimePreviewRestart()
-            {
-                var domainRoot = _previewDomain.DomainRoot;
-                ExitRealTimePreview();
-                EnterRealtimePreview(domainRoot);
-            }
+        }
+
+        internal void RealTimePreviewRestart()
+        {
+            var domainRoot = _previewDomain.DomainRoot;
+            ExitRealTimePreview();
+            EnterRealtimePreview(domainRoot);
         }
 
         void UpdatePreview()

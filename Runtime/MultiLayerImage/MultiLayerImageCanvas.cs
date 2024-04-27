@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             else { return nextV; }
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IEnumerable<Renderer> domainRenderers)
         {
             var chileLayers = GetChileLayers();
             return TextureSelector.GetDependency().Append(tttImportedCanvasDescription).Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));

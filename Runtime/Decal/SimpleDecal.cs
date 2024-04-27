@@ -98,7 +98,7 @@ namespace net.rs64.TexTransTool.Decal
             return mulDecalTexture;
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IEnumerable<Renderer> renderers)
         {
             var dependencies = new UnityEngine.Object[] { transform }
             .Concat(GetComponentsInParent<Transform>(true))

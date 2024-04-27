@@ -38,6 +38,6 @@ namespace net.rs64.TexTransTool
             domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { return TargetTexture.GetDependency().Append(BlendTexture); }
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IEnumerable<Renderer> domainRenderers) { return TargetTexture.GetDependency().Append(BlendTexture); }
     }
 }
