@@ -99,13 +99,13 @@ namespace net.rs64.TexTransTool.Decal
 
         static Island[] GetIslands((int subMeshIndex, MeshData meshData) pair)
         {
-            return IslandUtility.UVtoIsland(pair.meshData.TriangleIndex[pair.subMeshIndex].AsList(), pair.meshData.UVList).ToArray();
+            return IslandUtility.UVtoIsland(pair.meshData.TriangleIndex[pair.subMeshIndex].AsList(), pair.meshData.VertexUV.AsList()).ToArray();
         }
 
         public void Dispose()
         {
-            foreach (var na in _islandSelectedTriangles) { na.Dispose(); }
             foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
+            foreach (var na in _islandSelectedTriangles) { na.Dispose(); }
             foreach (var na in _filteredTriangles) { na.Dispose(); }
         }
     }
