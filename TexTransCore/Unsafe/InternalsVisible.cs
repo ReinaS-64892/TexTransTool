@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-core")]
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.editor")]
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.runtime")]
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.inspector")]

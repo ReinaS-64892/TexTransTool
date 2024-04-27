@@ -11,6 +11,7 @@ using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore.TransTextureCore.Utils;
+using Unity.Collections;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -120,23 +121,19 @@ namespace net.rs64.TexTransTool.Decal
             RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
             Profiler.EndSample();
 
+            var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>, Vector3>(GetSpaceConverter(), GetTriangleFilter());
+            decalContext.TargetPropertyName = TargetPropertyName;
+            decalContext.TextureWarp = TextureWrap.NotWrap;
+            decalContext.DecalPadding = Padding;
+            decalContext.HighQualityPadding = HighQualityPadding;
+            decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+
             decalCompiledRenderTextures ??= new();
             foreach (var renderer in TargetRenderers)
             {
                 if (renderer == null) { continue; }
                 Profiler.BeginSample("CreateDecalTexture");
-                DecalUtility.CreateDecalTexture<ParallelProjectionSpace, Vector3>(
-                   renderer,
-                   decalCompiledRenderTextures,
-                   mulDecalTexture,
-                   GetSpaceConverter(),
-                   GetTriangleFilter(),
-                   TargetPropertyName,
-                   TextureWrap.NotWrap,
-                   Padding,
-                   HighQualityPadding,
-                   GetUseDepthOrInvert
-               );
+                decalContext.WriteDecalTexture(decalCompiledRenderTextures, renderer, mulDecalTexture);
                 Profiler.EndSample();
             }
             RenderTexture.ReleaseTemporary(mulDecalTexture);
@@ -144,24 +141,23 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         internal ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
-        internal DecalUtility.ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter()
+        internal ITrianglesFilter<ParallelProjectionSpace> GetTriangleFilter()
         {
             if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter()); }
             return new ParallelProjectionFilter(GetFilter());
-
         }
 
-        internal List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>> GetFilter()
+        internal JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] GetFilter()
         {
-            var filters = new List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>>
+            var filters = new List<JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>>
             {
-                new TriangleFilterUtility.FarStruct(1, true),
-                new TriangleFilterUtility.NearStruct(0, true)
+                TriangleFilterUtility.FarStruct.GetJobChain(1, true),
+                TriangleFilterUtility.NearStruct.GetJobChain(0, true)
             };
-            if (SideCulling) filters.Add(new TriangleFilterUtility.SideStruct());
-            filters.Add(new TriangleFilterUtility.OutOfPolygonStruct(PolygonCulling, 0, 1, true));
+            if (SideCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
+            filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(PolygonCulling, 0, 1, true));
 
-            return filters;
+            return filters.ToArray();
         }
         internal void OnDrawGizmosSelected()
         {

@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
                 var souseMesh = renderer.GetMesh();
                 if (souseMesh == null) { continue; }
 
-                var meshdata = renderer.Memo(DecalUtility.GetMeshData);
+                var meshdata = renderer.Memo(MeshData.GetMeshData);
 
                 var ray = new Ray(transform.position, transform.forward);
 
