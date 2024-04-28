@@ -62,6 +62,34 @@ namespace net.rs64.TexTransTool
                     }
             }
         }
+        internal int GetDependencyHash()
+        {
+            var hash = 0;
+            hash ^= (int)Mode;
+            switch (Mode)
+            {
+
+                case SelectMode.Absolute:
+                    {
+                        hash ^= SelectTexture?.GetInstanceID() ?? 0;
+                        break;
+                    }
+                case SelectMode.Relative:
+                    {
+                        if (RendererAsPath == null) { break; }
+                        hash ^= RendererAsPath?.GetInstanceID() ?? 0;
+                        var DistMaterials = RendererAsPath.sharedMaterials;
+                        if (DistMaterials.Length <= SlotAsPath) { break; }
+                        hash ^= SlotAsPath;
+                        hash ^= DistMaterials[SlotAsPath]?.GetInstanceID() ?? 0;
+
+                        hash ^= GetTexture()?.GetInstanceID() ?? 0;
+                        break;
+                    }
+            }
+
+            return hash;
+        }
 
     }
 }

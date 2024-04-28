@@ -41,6 +41,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             foreach (var m in LayerMask.GetDependency()) { yield return m; }
         }
 
+        internal virtual int GetDependencyHash()
+        {
+            return LayerMask.GetDependencyHash();
+        }
     }
     [Serializable]
     public class LayerMask : ILayerMask
@@ -51,6 +55,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
 
         public IEnumerable<UnityEngine.Object> GetDependency() { yield return MaskTexture; }
+
+        public int GetDependencyHash() { return MaskTexture?.GetInstanceID() ?? 0; }
 
         void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)
         {
@@ -63,6 +69,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         bool ContainedMask { get; }
         void WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture);
         abstract IEnumerable<UnityEngine.Object> GetDependency();
+        int GetDependencyHash();
     }
 
 

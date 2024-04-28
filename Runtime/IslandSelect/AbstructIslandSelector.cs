@@ -17,6 +17,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         internal abstract IEnumerable<UnityEngine.Object> GetDependency();
 
+        internal abstract int GetDependencyHash();
+
         internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
         BitArray IIslandSelector.IslandSelect(Island[] islands, IslandDescription[] islandDescription) => IslandSelect(islands, islandDescription);
         /*
@@ -26,7 +28,29 @@ namespace net.rs64.TexTransTool.IslandSelector
         マテリアルの参照を比較してはならない。
         */
 
+        internal abstract void OnDrawGizmosSelected();
 
+
+        internal static IEnumerable<UnityEngine.Object> ChildeDependency(AbstractIslandSelector abstractIslandSelector)
+        {
+            var chiles = TexTransGroup.GetChildeComponent<AbstractIslandSelector>(abstractIslandSelector.transform);
+            foreach (var chile in chiles)
+            {
+                yield return chile;
+                foreach (var cd in chile.GetDependency()) { yield return cd; }
+            }
+        }
+        internal static int ChildeDependencyHash(AbstractIslandSelector abstractIslandSelector)
+        {
+            var hash = 0;
+            var chiles = TexTransGroup.GetChildeComponent<AbstractIslandSelector>(abstractIslandSelector.transform);
+            foreach (var chile in chiles)
+            {
+                hash ^= chile?.GetInstanceID() ?? 0;
+                hash ^= chile?.GetDependencyHash() ?? 0;
+            }
+            return hash;
+        }
     }
     internal interface IIslandSelector
     {

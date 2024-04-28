@@ -143,6 +143,7 @@ namespace net.rs64.TexTransTool
 
             Object GetOrigin(Object obj)
             {
+                if(obj == null) { return null; }
                 while (_replaceMap.ContainsKey(obj)) { obj = _replaceMap[obj]; }
                 return obj;
             }

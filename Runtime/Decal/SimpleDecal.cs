@@ -100,10 +100,10 @@ namespace net.rs64.TexTransTool.Decal
             return mulDecalTexture;
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IEnumerable<Renderer> renderers)
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
         {
             var dependencies = new UnityEngine.Object[] { transform }
-            .Concat(GetComponentsInParent<Transform>(true))
+            .Concat(transform.GetParents())
             .Concat(TargetRenderers)
             .Concat(TargetRenderers.Select(r => r.transform))
             .Concat(TargetRenderers.Select(r => r.GetMesh()))
@@ -112,6 +112,13 @@ namespace net.rs64.TexTransTool.Decal
 
             if (IslandSelector != null) { dependencies.Concat(IslandSelector.GetDependency()); }
             return dependencies;
+        }
+        internal override int GetDependencyHash(IDomain domain)
+        {
+            var hash = 0;
+            foreach (var tr in TargetRenderers) { hash ^= tr?.GetInstanceID() ?? 0; }
+            hash ^= DecalTexture?.GetInstanceID() ?? 0;
+            return hash;
         }
 
         [ExpandTexture2D] public Texture2D DecalTexture;
@@ -172,8 +179,8 @@ namespace net.rs64.TexTransTool.Decal
 
 
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
+            IslandSelector?.OnDrawGizmosSelected();
         }
-
 
     }
 }

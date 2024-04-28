@@ -8,6 +8,8 @@ using System;
 using Unity.Jobs;
 using net.rs64.TexTransCore.TransTextureCore;
 using UnityEngine.Profiling;
+using net.rs64.TexTransTool.Utils;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -17,7 +19,8 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT RayCastIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public float IslandSelectorRange = 0.1f;
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return transform.GetParents().Append(transform); }
+        internal override int GetDependencyHash() { return 0; }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return RayCastIslandSelect(GetIslandSelectorRay(), islands, islandDescription);
@@ -78,7 +81,7 @@ namespace net.rs64.TexTransTool.IslandSelector
 
 
 
-        void OnDrawGizmosSelected()
+        internal override void OnDrawGizmosSelected()
         {
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawLine(Vector3.zero, new Vector3(0, 0, IslandSelectorRange));
