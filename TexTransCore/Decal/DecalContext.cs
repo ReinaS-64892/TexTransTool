@@ -40,6 +40,8 @@ namespace net.rs64.TexTransCore.Decal
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
 
+        public bool NotContainsKeyAutoGenerate { get; set; } = true;
+
         public DecalContext(ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
         {
             _convertSpace = convertSpace;
@@ -49,6 +51,8 @@ namespace net.rs64.TexTransCore.Decal
         internal void WriteDecalTexture(Dictionary<Material, RenderTexture> renderTextures, Renderer targetRenderer, Texture sourceTexture)
         {
             if (renderTextures == null) { throw new ArgumentNullException(nameof(renderTextures)); }
+            if (targetRenderer is not SkinnedMeshRenderer && targetRenderer is not MeshRenderer) { return; }
+            if (targetRenderer.GetMesh() == null) { return; }
 
             Profiler.BeginSample("GetMeshData");
             var meshData = targetRenderer.Memo(MeshData.GetMeshData, i => i.Dispose());
@@ -72,6 +76,8 @@ namespace net.rs64.TexTransCore.Decal
                 if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
                 var targetTexture = targetMat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
+
+                if (!NotContainsKeyAutoGenerate && !renderTextures.ContainsKey(targetMat)) { continue; }
 
                 Profiler.BeginSample("GetFilteredSubTriangle");
                 var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
@@ -98,8 +104,20 @@ namespace net.rs64.TexTransCore.Decal
             _convertSpace.Dispose();
         }
 
+        internal void GenerateKey(Dictionary<Material, RenderTexture> writeable, IEnumerable<Material> targetMat)
+        {
+            foreach (var mat in targetMat)
+            {
+                if (mat == null) { continue; }
+                if (writeable.ContainsKey(mat)) { continue; }
+                if (!mat.HasProperty(TargetPropertyName)) { continue; }
+                var targetTexture = mat.GetTexture(TargetPropertyName);
+                if (targetTexture == null) { continue; }
 
-
+                var rt = writeable[mat] = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 32);
+                rt.Clear();
+            }
+        }
     }
 
     public enum PolygonCulling
