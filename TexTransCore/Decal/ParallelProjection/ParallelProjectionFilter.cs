@@ -36,6 +36,7 @@ namespace net.rs64.TexTransCore.Decal
         NativeArray<TriangleIndex> ITrianglesFilter<ParallelProjectionSpace>.GetFilteredSubTriangle(int subMeshIndex)
         {
             if (_parallelProjectionSpace is null) { return default; }
+            if (_filteredTriangles[subMeshIndex].IsCreated) { return _filteredTriangles[subMeshIndex]; }
             var filteredTriangle = _filteredTriangles[subMeshIndex] = FilteringExecute(_parallelProjectionSpace.MeshData.TriangleIndex[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
             return filteredTriangle;
         }
@@ -64,7 +65,9 @@ namespace net.rs64.TexTransCore.Decal
         public void Dispose()
         {
             foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
+            _filteredBit = null;
             foreach (var na in _filteredTriangles) { na.Dispose(); }
+            _filteredTriangles = null;
         }
     }
 }
