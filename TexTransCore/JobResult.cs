@@ -21,6 +21,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 return _result;
             }
         }
+        public T GetResultUnCheck => _result;
         public JobHandle GetHandle => _jobHandle;
 
         public JobResult(T result) { _result = result; _jobHandle = default; _completeAction = null; }
