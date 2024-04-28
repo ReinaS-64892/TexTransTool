@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool HighQualityPadding = false;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
-        [FormerlySerializedAs("PolygonCaling")] public PolygonCulling PolygonCulling = PolygonCulling.Vertex;
+        public bool PolygonOutOfCulling = true;
 
         public AbstractIslandSelector IslandSelector;
 
@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool.Decal
         internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
 
         #region V3SaveData
+        [Obsolete("V3SaveData", true)][FormerlySerializedAs("PolygonCaling")][SerializeField] internal PolygonCulling PolygonCulling = PolygonCulling.Vertex;
         [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
         [Obsolete("V3SaveData", true)][SerializeField] internal Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
         [Obsolete("V3SaveData", true)][SerializeField] internal float IslandSelectorRange = 1;
@@ -155,7 +156,7 @@ namespace net.rs64.TexTransTool.Decal
                 TriangleFilterUtility.NearStruct.GetJobChain(0, true)
             };
             if (SideCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
-            filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(PolygonCulling, 0, 1, true));
+            if (PolygonOutOfCulling) filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(0, 1, true));
 
             return filters.ToArray();
         }

@@ -156,7 +156,6 @@ namespace net.rs64.TexTransCore.Decal
         [BurstCompile]
         public struct OutOfPolygonStruct : IJobParallelFor
         {
-            public PolygonCulling PolygonCulling;
             public float MinRange;
             public float MaxRange;
             public bool IsAllVertex;
@@ -170,32 +169,16 @@ namespace net.rs64.TexTransCore.Decal
                 if (FilteringBit[index]) { return; }
                 var targetTri = Triangle[index];
 
-                bool result;
-                switch (PolygonCulling)
-                {
-                    default:
-                    case PolygonCulling.Vertex:
-                        result = OutOfPolygonVertexBase(targetTri, WorldVerticals, MaxRange, MinRange, IsAllVertex);
-                        break;
-                    case PolygonCulling.Edge:
-                        result = OutOfPolygonEdgeBase(targetTri, WorldVerticals, MaxRange, MinRange, IsAllVertex);
-                        break;
-
-                    case PolygonCulling.EdgeAndCenterRay:
-                        result = OutOfPolygonEdgeEdgeAndCenterRayCast(targetTri, WorldVerticals, MaxRange, MinRange, IsAllVertex);
-                        break;
-                }
-
+                var result = OutOfPolygonVertexBase(targetTri, WorldVerticals, MaxRange, MinRange, IsAllVertex);
                 FilteringBit[index] = result;
             }
 
-            internal static JobChain<FilterTriangleJobInput<NativeArray<Vector3>>> GetJobChain(PolygonCulling polygonCulling, float minRange, float maxRange, bool isAllVertex)
+            internal static JobChain<FilterTriangleJobInput<NativeArray<Vector3>>> GetJobChain(float minRange, float maxRange, bool isAllVertex)
             {
                 return (input, jobHandle) =>
                 {
                     var job = new OutOfPolygonStruct()
                     {
-                        PolygonCulling = polygonCulling,
                         MinRange = minRange,
                         MaxRange = maxRange,
                         IsAllVertex = isAllVertex,
@@ -216,39 +199,6 @@ namespace net.rs64.TexTransCore.Decal
                 }
                 if (isAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
                 else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
-            }
-            public static bool OutOfPolygonEdgeBase(TriangleIndex targetTri, NativeArray<Vector3> Vertex, float maxRange, float minRange, bool isAllVertex)
-            {
-                float centerPos = Mathf.Lerp(maxRange, minRange, 0.5f);
-                var centerPosVec2 = new Vector2(centerPos, centerPos);
-                Span<bool> outOfPolygon = stackalloc bool[3] { false, false, false };
-                Span<Vector2Int> edgeIndexArray = stackalloc Vector2Int[3] { new Vector2Int(0, 1), new Vector2Int(1, 2), new Vector2Int(2, 1) };
-                foreach (var index in edgeIndexArray)
-                {
-
-                    var a = Vertex[targetTri[index.x]];
-                    var b = Vertex[targetTri[index.y]];
-                    var nerPoint = VectorUtility.NearPointOnLine(a, b, centerPosVec2);
-                    outOfPolygon[index.x] = !(minRange < nerPoint.x && nerPoint.x < maxRange && minRange < nerPoint.y && nerPoint.y < maxRange);
-                }
-                if (isAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
-                else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
-            }
-            public static bool OutOfPolygonEdgeEdgeAndCenterRayCast(TriangleIndex targetTri, NativeArray<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
-            {
-                float centerPos = Mathf.Lerp(maxRange, minRange, 0.5f);
-                var centerPosVec2 = new Vector2(centerPos, centerPos);
-                if (!OutOfPolygonEdgeBase(targetTri, vertex, maxRange, minRange, isAllVertex))
-                {
-                    return false;
-                }
-                else
-                {
-                    Span<Vector2> tri = stackalloc Vector2[3];
-                    tri[0] = vertex[targetTri[0]]; tri[1] = vertex[targetTri[1]]; tri[2] = vertex[targetTri[2]];
-                    var crossT = VectorUtility.CrossTriangle(tri, centerPosVec2);
-                    return VectorUtility.IsInCal(crossT.x, crossT.y, crossT.z);
-                }
             }
 
         }

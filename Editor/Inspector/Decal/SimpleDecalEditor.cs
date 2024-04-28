@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.LabelField("SimpleDecal:label:CullingSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var sPolygonCulling = thisSObject.FindProperty("PolygonCulling");
+            var sPolygonCulling = thisSObject.FindProperty("PolygonOutOfCulling");
             EditorGUILayout.PropertyField(sPolygonCulling, "SimpleDecal:prop:PolygonCulling".Glc());
 
             var sSideCulling = thisSObject.FindProperty("SideCulling");
