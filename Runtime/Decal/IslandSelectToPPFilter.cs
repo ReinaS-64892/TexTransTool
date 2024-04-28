@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool.Decal
             _filteredTriangles = new NativeArray<TriangleIndex>[smCount];
             for (var i = 0; smCount > i; i += 1)
             {
-                var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(i);
+                var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(IslandSelector, _ppSpace.MeshData, i);
                 if (islandSelected.Length == 0) { continue; }
                 var ppsVert = _ppSpace.GetPPSVert;
                 _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(islandSelected, ppsVert, Filters);
@@ -54,13 +54,14 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (_ppSpace is null) { return default; }
             if (_islandSelectedTriangles[subMeshIndex].Length == 0) { return default; }
+            if (_filteredTriangles[subMeshIndex].IsCreated) { return _filteredTriangles[subMeshIndex]; }
             var filteredTriangle = _filteredTriangles[subMeshIndex] = ParallelProjectionFilter.FilteringExecute(_islandSelectedTriangles[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
             return filteredTriangle;
         }
 
-        private NativeArray<TriangleIndex> IslandSelectExecute(int subMeshIndex)
+        internal static NativeArray<TriangleIndex> IslandSelectExecute(IIslandSelector islandSelector, MeshData meshData, int subMeshIndex)
         {
-            var meshData = _ppSpace.MeshData;
+            if (islandSelector == null) { return new NativeArray<TriangleIndex>(meshData.TriangleIndex[subMeshIndex], Allocator.TempJob); }
             Island[] islands = (subMeshIndex, meshData).Memo(GetIslands);
 
             Profiler.BeginSample("CreateIslandDescription");
@@ -70,7 +71,7 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             Profiler.BeginSample("IslandSelect");
-            var bitArray = IslandSelector.IslandSelect(islands, islandDescription);
+            var bitArray = islandSelector.IslandSelect(islands, islandDescription);
             Profiler.EndSample();
 
             Profiler.BeginSample("FilterTriangle");
@@ -108,8 +109,11 @@ namespace net.rs64.TexTransTool.Decal
         public void Dispose()
         {
             foreach (var na in _filteredBit) { na?.GetResult.Dispose(); }
+            _filteredBit = null;
             foreach (var na in _islandSelectedTriangles) { na.Dispose(); }
+            _islandSelectedTriangles = null;
             foreach (var na in _filteredTriangles) { na.Dispose(); }
+            _filteredTriangles = null;
         }
     }
 }
