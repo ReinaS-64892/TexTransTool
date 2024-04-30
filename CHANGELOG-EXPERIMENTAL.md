@@ -16,13 +16,15 @@ v0.5.2 以降の実験的機能の変更記録です。
 - AtlasTexture のシェーダーサポートの追加が ScriptableObject で可能になりました (#431)
 - AtlasTexture に MaterialMargeGroup が追加されました (#432)
 - ClipStudioPaint から出力されたと思われる PSD を TTT PSD Importer で読み込んだ時、Clip系の色合成にインポートするようになりました (#444)
-- SubMeshIslandSelector , IslandSelectorXOR , IslandSelectorRelay が追加されました (#447)
+- SubMeshIslandSelector , IslandSelectorXOR , ~~IslandSelectorRelay~~ が追加されました (#447)
+  - IslandSelectorRelayはキャンセルされました (#450)
 - RealTimePreview が大幅に改修され、MultiLayerImageCanvas もリアルタイムプレビュー可能になりました (#448)
 - SingleGradationDecal が追加されました (#449)
 
 ### Changed
 
 - IslandRendererSelector と IslandSelectOR の名前がそれぞれ RendererIslandSelector と IslandSelectorOR に変更されました (#447)
+- IslandSelectorNOT は子のオブジェクトの一番目を使用するように変更 (#450)
 
 ### Removed
 
