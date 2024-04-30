@@ -421,3 +421,26 @@ msgstr "SummaryNone"
 
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "GroupChildren"
+
+# SingleGradationDecal
+
+msgid "SingleGradationDecal:prop:SelectedMaterialView"
+msgstr "SelectedMaterialView"
+
+msgid "SingleGradationDecal:prop:GradationLength"
+msgstr "GradationLength"
+
+msgid "SingleGradationDecal:prop:Gradient"
+msgstr "Gradient"
+
+msgid "SingleGradationDecal:prop:Alpha"
+msgstr "Alpha"
+
+msgid "SingleGradationDecal:prop:IslandSelector"
+msgstr "IslandSelector"
+
+msgid "SingleGradationDecal:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+msgid "SingleGradationDecal:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
