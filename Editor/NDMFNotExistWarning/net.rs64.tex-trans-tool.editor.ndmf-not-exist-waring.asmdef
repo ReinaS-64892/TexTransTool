@@ -1,0 +1,27 @@
+{
+    "name": "net.rs64.tex-trans-tool.editor.ndmf-not-exist-waring",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.avatars",
+            "expression": "",
+            "define": "ぶいちゃあばたー"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "",
+            "define": "なでもふっっ"
+        }
+    ],
+    "noEngineReferences": false
+}
