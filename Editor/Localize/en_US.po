@@ -444,3 +444,6 @@ msgstr "BlendTypeKey"
 
 msgid "SingleGradationDecal:prop:TargetPropertyName"
 msgstr "TargetPropertyName"
+
+msgid "SingleGradationDecal:prop:GradientClamp"
+msgstr "GradientClamp"

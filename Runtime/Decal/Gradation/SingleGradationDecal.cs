@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool.Decal
         public List<Material> TargetMaterials;
         public Gradient Gradient;
         [Range(0, 1)] public float Alpha = 1;
+        public bool GradientClamp = true;
         public AbstractIslandSelector IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
@@ -41,8 +42,9 @@ namespace net.rs64.TexTransTool.Decal
 
             var decalContext = new DecalContext<SingleGradientSpace, IslandSelectFilter, Vector2>(space, filter);
             decalContext.TargetPropertyName = TargetPropertyName;
-            decalContext.TextureWarp = TextureWrap.NotWrap;
+            decalContext.TextureWarp = GradientClamp ? TextureWrap.NotWrap : TextureWrap.Stretch;
             decalContext.NotContainsKeyAutoGenerate = false;
+
 
             var writeable = new Dictionary<Material, RenderTexture>();
             decalContext.GenerateKey(writeable, targetMat);
