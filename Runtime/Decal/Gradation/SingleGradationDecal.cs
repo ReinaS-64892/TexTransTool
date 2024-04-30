@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public List<Material> TargetMaterials;
         public Gradient Gradient;
+        [Range(0, 1)] public float Alpha = 1;
         public AbstractIslandSelector IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
@@ -34,7 +35,7 @@ namespace net.rs64.TexTransTool.Decal
         internal override void Apply([NotNull] IDomain domain)
         {
             var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
-            var gradTex = GradientToTextureWithTemp(Gradient);
+            var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
             var filter = new IslandSelectFilter(IslandSelector);
 
@@ -61,19 +62,20 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         internal static Texture2D s_GradientTempTexture;
-        internal static Texture2D GradientToTextureWithTemp(Gradient gradient)
+        internal static Texture2D GradientToTextureWithTemp(Gradient gradient, float alpha)
         {
-            if (s_GradientTempTexture == null)
-            {
-                s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false);
-                s_GradientTempTexture.alphaIsTransparency = true;
-            }
+            if (s_GradientTempTexture == null) { s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false); }
 
 
             using (var colorArray = new NativeArray<Color32>(256, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
             {
                 var writeSpan = colorArray.AsSpan();
-                for (var i = 0; colorArray.Length > i; i += 1) { writeSpan[i] = gradient.Evaluate(i / 255f); }
+                for (var i = 0; colorArray.Length > i; i += 1)
+                {
+                    var col = gradient.Evaluate(i / 255f);
+                    col.a *= alpha;
+                    writeSpan[i] = col;
+                }
 
                 s_GradientTempTexture.LoadRawTextureData(colorArray);
             }
