@@ -419,3 +419,26 @@ msgstr "概要はありません"
 
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "グループの子"
+
+# SingleGradationDecal
+
+msgid "SingleGradationDecal:prop:SelectedMaterialView"
+msgstr "選択済みマテリアル"
+
+msgid "SingleGradationDecal:prop:GradationLength"
+msgstr "グラデーションの長さ"
+
+msgid "SingleGradationDecal:prop:Gradient"
+msgstr "グラデーション"
+
+msgid "SingleGradationDecal:prop:Alpha"
+msgstr "透明度"
+
+msgid "SingleGradationDecal:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
+msgid "SingleGradationDecal:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+msgid "SingleGradationDecal:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"

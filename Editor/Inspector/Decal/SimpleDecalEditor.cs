@@ -4,7 +4,7 @@ using net.rs64.TexTransTool.Decal;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.IslandSelector;
-using net.rs64.TexTransTool.Preview.RealTime;
+using System;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.LabelField("SimpleDecal:label:CullingSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var sPolygonCulling = thisSObject.FindProperty("PolygonCulling");
+            var sPolygonCulling = thisSObject.FindProperty("PolygonOutOfCulling");
             EditorGUILayout.PropertyField(sPolygonCulling, "SimpleDecal:prop:PolygonCulling".Glc());
 
             var sSideCulling = thisSObject.FindProperty("SideCulling");
@@ -55,7 +55,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     var sIslandCulling = thisSObject.FindProperty("IslandCulling");
                     if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
                     {
+#pragma warning disable CS0612
                         MigrateIslandCullingToIslandSelector(thisObject);
+#pragma warning restore CS0612
                     }
                 }
 
@@ -140,6 +142,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             };
         }
 
+        [Obsolete]
         public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
         {
             if (simpleDecal.IslandSelector != null)

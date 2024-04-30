@@ -5,6 +5,7 @@ using System.Linq;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         RealTimePreviewDomain _previewDomain = null;
         Dictionary<TexTransRuntimeBehavior, int> _PriorityMap = new();
         Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyMap = new();
+        Dictionary<TexTransRuntimeBehavior, int> _dependencyHashMap = new();
         HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
@@ -64,18 +66,31 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 default: { return; }
                 case SimpleDecal:
                 case MultiLayerImageCanvas:
+                case SingleGradationDecal:
                     { break; }
             }
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
 
-            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency().Append(texTransRuntimeBehavior).Where(g => g != null).Select(g => g.GetInstanceID()))
+            RegisterDependency(texTransRuntimeBehavior);
+            _updateQueue.Enqueue(texTransRuntimeBehavior);
+        }
+
+        private void RegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior)
+        {
+            _dependencyHashMap[texTransRuntimeBehavior] = texTransRuntimeBehavior.GetDependencyHash(_previewDomain);
+            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency(_previewDomain)
+                                                                    .Append(texTransRuntimeBehavior)
+                                                                    .Append(texTransRuntimeBehavior.gameObject)
+                                                                    .Concat(texTransRuntimeBehavior.gameObject.GetParents())
+                                                                    .Where(g => g != null).Select(g => g.GetInstanceID())
+                                                                    )
             {
                 if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
                 _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
             }
-            _updateQueue.Enqueue(texTransRuntimeBehavior);
         }
-        void RemovePreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
+
+        void UnRegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
         bool ContainsBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
             foreach (var dependKey in _dependencyMap)
@@ -123,21 +138,28 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                     foreach (var t in _dependencyMap[instanceId]) { _updateQueue.Enqueue(t); }
                 }
             }
-            void RealTimePreviewRestart()
-            {
-                var domainRoot = _previewDomain.DomainRoot;
-                ExitRealTimePreview();
-                EnterRealtimePreview(domainRoot);
-            }
+        }
+
+        internal void RealTimePreviewRestart()
+        {
+            var domainRoot = _previewDomain.DomainRoot;
+            ExitRealTimePreview();
+            EnterRealtimePreview(domainRoot);
         }
 
         void UpdatePreview()
         {
             if (_updateQueue.TryDequeue(out var texTransRuntimeBehavior) && _PriorityMap.TryGetValue(texTransRuntimeBehavior, out var priority))
             {
+                if (_dependencyHashMap[texTransRuntimeBehavior] != texTransRuntimeBehavior.GetDependencyHash(_previewDomain))
+                {
+                    UnRegisterDependency(texTransRuntimeBehavior);
+                    RegisterDependency(texTransRuntimeBehavior);
+                }
+
                 _previewDomain.SetNowPriority(priority);
 
-                try { if (texTransRuntimeBehavior.IsPossibleApply) { texTransRuntimeBehavior.Apply(_previewDomain); } }
+                try { if (texTransRuntimeBehavior.gameObject.activeInHierarchy && texTransRuntimeBehavior.IsPossibleApply) { texTransRuntimeBehavior.Apply(_previewDomain); } }
                 catch (Exception ex) { Debug.LogException(ex); }
 
                 _previewDomain.UpdateNeeded();

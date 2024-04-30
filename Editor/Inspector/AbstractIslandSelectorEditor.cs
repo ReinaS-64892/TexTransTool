@@ -1,5 +1,4 @@
 using UnityEditor;
-using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransTool.IslandSelector;
 namespace net.rs64.TexTransTool.Editor
 {

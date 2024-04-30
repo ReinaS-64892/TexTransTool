@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.IslandSelector
@@ -12,8 +13,9 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT BoxIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return transform.GetParents().Append(transform); }
 
+        internal override int GetDependencyHash() { return 0; }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);
@@ -31,8 +33,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 
                         var isIn = true;
                         isIn &= Mathf.Abs(vert.x) < 0.5f;
-                        isIn &= Mathf.Abs(vert.x) < 0.5f;
-                        isIn &= Mathf.Abs(vert.x) < 0.5f;
+                        isIn &= Mathf.Abs(vert.y) < 0.5f;
+                        isIn &= Mathf.Abs(vert.z) < 0.5f;
                         if (isIn) { bitArray[islandIndex] = true; break; }
                     }
                     if (bitArray[islandIndex]) { break; }
@@ -43,7 +45,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             return bitArray;
         }
 
-        void OnDrawGizmosSelected()
+        internal override void OnDrawGizmosSelected()
         {
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(Vector3.zero, Vector3.one);

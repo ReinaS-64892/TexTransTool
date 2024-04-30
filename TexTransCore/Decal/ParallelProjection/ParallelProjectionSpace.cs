@@ -3,10 +3,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
+using net.rs64.TexTransCore.TransTextureCore.Utils;
 
 namespace net.rs64.TexTransCore.Decal
 {
-    public class ParallelProjectionSpace : DecalUtility.IConvertSpace<Vector3>
+    public class ParallelProjectionSpace : IConvertSpace<Vector3>
     {
         internal Matrix4x4 ParallelProjectionMatrix;
 
@@ -23,7 +24,7 @@ namespace net.rs64.TexTransCore.Decal
         public void Input(MeshData meshData)
         {
             MeshData = meshData;
-            PPSVert = DecalUtility.ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData, new Vector3(0.5f, 0.5f, 0), out _jobHandle);
+            PPSVert = VectorUtility.ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData, new Vector3(0.5f, 0.5f, 0), out _jobHandle);
         }
 
         public NativeArray<Vector3> OutPutUV() => GetPPSVert;

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.IslandSelector
@@ -11,15 +12,13 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT SphereIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-        public float SphereSize = 0.1f;
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
-
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return transform.GetParents().Append(transform); }
+        internal override int GetDependencyHash() { return 0; }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);
             var matrix = transform.worldToLocalMatrix;
 
-            var sqrMagMax = SphereSize * SphereSize;
             for (var islandIndex = 0; islands.Length > islandIndex; islandIndex += 1)
             {
                 var description = islandDescription[islandIndex];
@@ -28,7 +27,7 @@ namespace net.rs64.TexTransTool.IslandSelector
                 {
                     for (var vi = 0; 3 > vi; vi += 1)
                     {
-                        if (matrix.MultiplyPoint3x4(description.Position[tri[vi]]).sqrMagnitude < sqrMagMax) { bitArray[islandIndex] = true; break; }
+                        if (matrix.MultiplyPoint3x4(description.Position[tri[vi]]).sqrMagnitude < 1) { bitArray[islandIndex] = true; break; }
                     }
                     if (bitArray[islandIndex]) { break; }
                 }
@@ -37,10 +36,10 @@ namespace net.rs64.TexTransTool.IslandSelector
             return bitArray;
         }
 
-        void OnDrawGizmosSelected()
+        internal override void OnDrawGizmosSelected()
         {
             Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawWireSphere(Vector3.zero, SphereSize);
+            Gizmos.DrawWireSphere(Vector3.zero, 1);
         }
     }
 }

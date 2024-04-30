@@ -18,6 +18,7 @@ namespace net.rs64.TexTransTool
         /// <summary>
         /// Enumerates references that depend on the component externally.
         /// </summary>
-        internal abstract IEnumerable<UnityEngine.Object> GetDependency();
+        internal abstract IEnumerable<UnityEngine.Object> GetDependency(IDomain domain);
+        internal abstract int GetDependencyHash(IDomain domain);
     }
 }

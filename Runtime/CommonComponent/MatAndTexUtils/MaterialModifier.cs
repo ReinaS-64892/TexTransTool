@@ -90,10 +90,20 @@ namespace net.rs64.TexTransTool.MatAndTexUtils
             domain.ReplaceMaterials(modMatList);
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
         {
             foreach (var i in ModifiedTarget) { yield return i; }
             foreach (var i in TargetRenderers) { yield return i; }
+        }
+
+        internal override int GetDependencyHash(IDomain domain)
+        {
+            var hash = 0;
+            foreach (var tr in TargetRenderers)
+            {
+                hash ^= tr?.GetInstanceID() ?? 0;
+            }
+            return hash;
         }
     }
 }

@@ -226,6 +226,7 @@ namespace net.rs64.TexTransCore.Decal
                     }
             }
         }
+        public static MeshData GetMeshData(Renderer renderer) => new MeshData(renderer);
         [BurstCompile]
         struct PackVerticesJob : IJobParallelFor
         {

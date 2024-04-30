@@ -8,7 +8,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
     {
         internal const string ComponentName = "TTT Decal RendererResolver";
         private const string MenuPath = FoldoutName + "/" + ComponentName;
-        public AbstractDecal ResolveTarget;
+        public SimpleDecal ResolveTarget;
 
         public override void Resolving(ResolverContext avatar)
         {

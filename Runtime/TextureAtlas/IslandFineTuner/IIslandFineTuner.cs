@@ -14,5 +14,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         void IslandFineTuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking);
 
         IEnumerable<UnityEngine.Object> GetDependency();
+        int GetDependencyHash();
     }
 }

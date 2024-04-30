@@ -65,10 +65,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             else { return nextV; }
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
         {
             var chileLayers = GetChileLayers();
             return TextureSelector.GetDependency().Append(tttImportedCanvasDescription).Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
+        }
+
+        internal override int GetDependencyHash(IDomain domain)
+        {
+            var hash = TextureSelector.GetDependencyHash();
+            foreach (var cl in GetChileLayers())
+            {
+                hash ^= cl.GetDependencyHash();
+            }
+            return hash;
         }
 
         internal class CanvasContext

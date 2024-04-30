@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture が Scale Transition(Tiling) を使用しているマテリアルのテクスチャを逆補正する機能が追加されました (#431 #435)
 - NDMF環境でのビルドを行う場合、オブジェクトの置き換えの追跡を NDMF ObjectRegistry を使用するようになりました (#438)
 - Clip系の合成モードが追加されました (#444)
+- SimpleDecal が高速化しました (#449)
 
 ### Changed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture の UseUpScale は削除されました (#431)
 - プログレスバーの詳細な表示が削除されました (#438)
+- SimpleDecal のポリゴンカリング、Edge と EdgeAndCenterRay　は削除されました (#449)
 
 ### Fixed
 

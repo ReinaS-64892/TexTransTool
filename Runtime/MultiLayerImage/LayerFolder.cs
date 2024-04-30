@@ -62,6 +62,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var chileLayers = GetChileLayers();
             return base.GetDependency().Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
         }
+        internal override int GetDependencyHash()
+        {
+            var hash = base.GetDependencyHash();
+            foreach (var cl in GetChileLayers())
+            {
+                hash ^= cl.GetDependencyHash();
+            }
+            return hash;
+        }
     }
 
 

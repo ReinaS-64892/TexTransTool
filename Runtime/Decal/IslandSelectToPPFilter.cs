@@ -1,25 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransTool.Decal.Cylindrical;
 using net.rs64.TexTransCore.Decal;
 using net.rs64.TexTransTool.Utils;
-using UnityEngine.Serialization;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.TransTextureCore;
 using net.rs64.TexTransTool.IslandSelector;
 using System.Linq;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.Collections;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal class IslandSelectToPPFilter : DecalUtility.ITrianglesFilter<ParallelProjectionSpace>
+    internal class IslandSelectToPPFilter : ITrianglesFilter<ParallelProjectionSpace>
     {
-        public List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>> Filters;
+        public JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] Filters;
         public IIslandSelector IslandSelector;
 
 
-        public IslandSelectToPPFilter(IIslandSelector islandSelector, List<TriangleFilterUtility.ITriangleFiltering<IList<Vector3>>> filters)
+        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters)
         {
             IslandSelector = islandSelector;
             Filters = filters;
@@ -27,15 +30,38 @@ namespace net.rs64.TexTransTool.Decal
 
         ParallelProjectionSpace _ppSpace;
 
-        public void SetSpace(ParallelProjectionSpace space) { _ppSpace = space; }
+        NativeArray<TriangleIndex>[] _islandSelectedTriangles;
+        JobResult<NativeArray<bool>>[] _filteredBit;
+        NativeArray<TriangleIndex>[] _filteredTriangles;
 
-        //これSetされた瞬間からマルチスレッドでにフィルタリングを走らせるのもありなのではないか？
-
-        public List<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex)
+        public void SetSpace(ParallelProjectionSpace space)
         {
-            if (_ppSpace is null) { return null; }
+            _ppSpace = space;
 
-            var meshData = _ppSpace.MeshData;
+            var smCount = _ppSpace.MeshData.TriangleIndex.Length;
+            _islandSelectedTriangles = new NativeArray<TriangleIndex>[smCount];
+            _filteredBit = new JobResult<NativeArray<bool>>[smCount];
+            _filteredTriangles = new NativeArray<TriangleIndex>[smCount];
+            for (var i = 0; smCount > i; i += 1)
+            {
+                var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(IslandSelector, _ppSpace.MeshData, i);
+                if (islandSelected.Length == 0) { continue; }
+                var ppsVert = _ppSpace.GetPPSVert;
+                _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(islandSelected, ppsVert, Filters);
+            }
+        }
+        NativeArray<TriangleIndex> ITrianglesFilter<ParallelProjectionSpace>.GetFilteredSubTriangle(int subMeshIndex)
+        {
+            if (_ppSpace is null) { return default; }
+            if (_islandSelectedTriangles[subMeshIndex].Length == 0) { return default; }
+            if (_filteredTriangles[subMeshIndex].IsCreated) { return _filteredTriangles[subMeshIndex]; }
+            var filteredTriangle = _filteredTriangles[subMeshIndex] = ParallelProjectionFilter.FilteringExecute(_islandSelectedTriangles[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
+            return filteredTriangle;
+        }
+
+        internal static NativeArray<TriangleIndex> IslandSelectExecute(IIslandSelector islandSelector, MeshData meshData, int subMeshIndex)
+        {
+            if (islandSelector == null) { return new NativeArray<TriangleIndex>(meshData.TriangleIndex[subMeshIndex], Allocator.TempJob); }
             Island[] islands = (subMeshIndex, meshData).Memo(GetIslands);
 
             Profiler.BeginSample("CreateIslandDescription");
@@ -45,29 +71,49 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             Profiler.BeginSample("IslandSelect");
-            var bitArray = IslandSelector.IslandSelect(islands, islandDescription);
+            var bitArray = islandSelector.IslandSelect(islands, islandDescription);
             Profiler.EndSample();
 
             Profiler.BeginSample("FilterTriangle");
-            var linkList = new LinkedList<TriangleIndex>();
+            var triList = IslandSelectToTriangleIndex(islands, bitArray);
+            Profiler.EndSample();
+
+            return triList;
+        }
+
+        private static NativeArray<TriangleIndex> IslandSelectToTriangleIndex(Island[] islands, BitArray bitArray)
+        {
+            var triCount = 0;
+            for (var i = 0; islands.Length > i; i += 1) { if (bitArray[i]) { triCount += islands[i].triangles.Count; } }
+            if (triCount == 0) { return default; }
+            var list = new NativeArray<TriangleIndex>(triCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+            var writePos = 0;
             for (var i = 0; islands.Length > i; i += 1)
             {
                 if (!bitArray[i]) { continue; }
-                var island = islands[i];
-                var triCount = island.triangles.Count;
-                for (var triIndex = 0; triCount > triIndex; triIndex += 1)
+                foreach (var tri in islands[i].triangles)
                 {
-                    linkList.AddLast(island.triangles[triIndex]);
+                    list[writePos] = tri;
+                    writePos += 1;
                 }
             }
-            Profiler.EndSample();
+            return list;
+        }
 
-            return TriangleFilterUtility.FilteringTriangle(linkList.ToList(), _ppSpace.GetPPSVert.AsList(), Filters);
+        static Island[] GetIslands((int subMeshIndex, MeshData meshData) pair)
+        {
+            return IslandUtility.UVtoIsland(pair.meshData.TriangleIndex[pair.subMeshIndex].AsList(), pair.meshData.VertexUV.AsList()).ToArray();
+        }
 
-            static Island[] GetIslands((int subMeshIndex, MeshData meshData) pair)
-            {
-                return IslandUtility.UVtoIsland(pair.meshData.TriangleIndex[pair.subMeshIndex].AsList(), pair.meshData.UVList).ToArray();
-            }
+        public void Dispose()
+        {
+            foreach (var na in _filteredBit) { na?.GetResult.Dispose(); }
+            _filteredBit = null;
+            foreach (var na in _islandSelectedTriangles) { na.Dispose(); }
+            _islandSelectedTriangles = null;
+            foreach (var na in _filteredTriangles) { na.Dispose(); }
+            _filteredTriangles = null;
         }
     }
 }

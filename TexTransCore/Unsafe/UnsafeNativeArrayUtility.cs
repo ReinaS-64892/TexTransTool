@@ -18,6 +18,13 @@ namespace net.rs64.TexTransCore.Unsafe
             UnsafeUtility.MemSet(array.GetUnsafePtr(), val, (long)array.Length * UnsafeUtility.SizeOf<Color32>());
         }
 
+        public static unsafe void MemCpy<T>(NativeArray<T> s, NativeArray<T> d, int count)
+        where T : struct
+        {
+            if (Mathf.Min(s.Length, d.Length) > count) { throw new System.ArgumentOutOfRangeException(); }
+            UnsafeUtility.MemCpy(d.GetUnsafePtr(), s.GetUnsafePtr(), (long)count * UnsafeUtility.SizeOf<T>());
+        }
+
     }
 
 

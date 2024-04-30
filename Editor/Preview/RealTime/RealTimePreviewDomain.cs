@@ -130,7 +130,17 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public ITextureManager GetTextureManager() => _textureManager;
         public bool IsPreview() => true;
 
-        public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) => l == r;
+        public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+        {
+            if (l == r) { return true; }
+            if (l is Material lm && r is Material rm)
+            {
+                if (_previewMaterialMap.ContainsKey(lm)) lm = _previewMaterialMap[lm];
+                if (_previewMaterialMap.ContainsKey(rm)) rm = _previewMaterialMap[rm];
+                return lm == rm;
+            }
+            return false;
+        }
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
 
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false) { throw new NotImplementedException(); }

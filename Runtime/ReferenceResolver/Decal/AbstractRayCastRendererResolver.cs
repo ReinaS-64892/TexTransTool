@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
                 var souseMesh = renderer.GetMesh();
                 if (souseMesh == null) { continue; }
 
-                var meshdata = renderer.Memo(DecalUtility.GetMeshData);
+                var meshdata = renderer.Memo(MeshData.GetMeshData);
 
                 var ray = new Ray(transform.position, transform.forward);
 
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
             return hits;
         }
 
-        public void AddToDecal(AbstractDecal abstractDecal, List<Renderer> renderers)
+        public void AddToDecal(SimpleDecal abstractDecal, List<Renderer> renderers)
         {
             var rendererHash = new HashSet<Renderer>(abstractDecal.TargetRenderers);
             foreach (var renderer in renderers)
