@@ -20,6 +20,7 @@ v0.5.2 以降の実験的機能の変更記録です。
   - IslandSelectorRelayはキャンセルされました (#450)
 - RealTimePreview が大幅に改修され、MultiLayerImageCanvas もリアルタイムプレビュー可能になりました (#448)
 - SingleGradationDecal が追加されました (#449)
+  - オプション GradationClamp が追加 (#451)
 
 ### Changed
 

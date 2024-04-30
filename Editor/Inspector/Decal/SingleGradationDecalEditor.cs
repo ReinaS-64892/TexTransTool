@@ -43,6 +43,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sAlpha = serializedObject.FindProperty("Alpha");
             EditorGUILayout.PropertyField(sAlpha, "SingleGradationDecal:prop:Alpha".Glc());
 
+            var sGradientClamp = serializedObject.FindProperty("GradientClamp");
+            EditorGUILayout.PropertyField(sGradientClamp, "SingleGradationDecal:prop:GradientClamp".Glc());
+
             var sIslandSelector = serializedObject.FindProperty("IslandSelector");
             EditorGUILayout.PropertyField(sIslandSelector, "SingleGradationDecal:prop:IslandSelector".Glc());
 

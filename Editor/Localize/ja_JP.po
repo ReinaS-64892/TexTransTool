@@ -442,3 +442,6 @@ msgstr "ブレンドタイプキー"
 
 msgid "SingleGradationDecal:prop:TargetPropertyName"
 msgstr "ターゲットプロパティネーム"
+
+msgid "SingleGradationDecal:prop:GradientClamp"
+msgstr "グラデーションのクランプ"
