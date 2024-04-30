@@ -18,6 +18,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - ClipStudioPaint から出力されたと思われる PSD を TTT PSD Importer で読み込んだ時、Clip系の色合成にインポートするようになりました (#444)
 - SubMeshIslandSelector , IslandSelectorXOR , IslandSelectorRelay が追加されました (#447)
 - RealTimePreview が大幅に改修され、MultiLayerImageCanvas もリアルタイムプレビュー可能になりました (#448)
+- SingleGradationDecal が追加されました (#449)
 
 ### Changed
 
@@ -27,6 +28,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 - IslandSelector が使用できるようになったことに伴い SimpleDecal の IslandCulling は削除されました (#422)
 - ObjectReplaceInvoke は削除されました (#438)
+- CylindricalDecal , CylindricalCurveDecal , CylindricalCoordinatesSystem , NailEditor , NailOffsetData は削除されました (#449)
 
 ### Fixed
 
