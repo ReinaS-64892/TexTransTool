@@ -16,7 +16,11 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override IEnumerable<UnityEngine.Object> GetDependency()
         {
             var islandSelector = GetIslandSelector();
-            if (islandSelector != null) { yield return islandSelector; }
+            if (islandSelector != null)
+            {
+                yield return islandSelector;
+                foreach (var depend in islandSelector.GetDependency()) { yield return depend; }
+            }
         }
 
         internal override int GetDependencyHash()
@@ -25,7 +29,12 @@ namespace net.rs64.TexTransTool.IslandSelector
             return (islandSelector?.GetInstanceID() ?? 0) ^ (islandSelector?.GetDependencyHash() ?? 0);
         }
 
-        internal AbstractIslandSelector GetIslandSelector() => transform.GetChild(0)?.GetComponent<AbstractIslandSelector>();
+        internal AbstractIslandSelector GetIslandSelector()
+        {
+            var childeCount = transform.childCount;
+            if (childeCount <= 0) { return null; }
+            return transform.GetChild(0).GetComponent<AbstractIslandSelector>();
+        }
 
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
@@ -33,6 +42,6 @@ namespace net.rs64.TexTransTool.IslandSelector
             return islandSelector != null ? islandSelector.IslandSelect(islands, islandDescription).Not() : new BitArray(islands.Length, true);
         }
 
-        internal override void OnDrawGizmosSelected() { IslandSelector?.OnDrawGizmosSelected(); }
+        internal override void OnDrawGizmosSelected() { GetIslandSelector()?.OnDrawGizmosSelected(); }
     }
 }
