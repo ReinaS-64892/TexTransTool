@@ -51,7 +51,6 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + IslandSelectorAND.MenuPath)] static void ISAND() => C<IslandSelectorAND>();
         [M(BP + IslandSelectorNOT.MenuPath)] static void ISNOT() => C<IslandSelectorNOT>();
         [M(BP + IslandSelectorXOR.MenuPath)] static void ISXOR() => C<IslandSelectorXOR>();
-        [M(BP + IslandSelectorRelay.MenuPath)] static void ISR() => C<IslandSelectorRelay>();
 
 
     }
