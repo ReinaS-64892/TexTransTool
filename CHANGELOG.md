@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NDMF環境でのビルドを行う場合、オブジェクトの置き換えの追跡を NDMF ObjectRegistry を使用するようになりました (#438)
 - Clip系の合成モードが追加されました (#444)
 - SimpleDecal が高速化しました (#449)
+- VRChat Avatar SDK が存在するときに NDMF が存在しない場合に警告を生成すようになりました (#452)
 
 ### Changed
 
