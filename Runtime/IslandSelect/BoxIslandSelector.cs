@@ -33,8 +33,8 @@ namespace net.rs64.TexTransTool.IslandSelector
 
                         var isIn = true;
                         isIn &= Mathf.Abs(vert.x) < 0.5f;
-                        isIn &= Mathf.Abs(vert.x) < 0.5f;
-                        isIn &= Mathf.Abs(vert.x) < 0.5f;
+                        isIn &= Mathf.Abs(vert.y) < 0.5f;
+                        isIn &= Mathf.Abs(vert.z) < 0.5f;
                         if (isIn) { bitArray[islandIndex] = true; break; }
                     }
                     if (bitArray[islandIndex]) { break; }
