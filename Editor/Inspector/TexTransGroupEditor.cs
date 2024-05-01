@@ -1,12 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.Editor.Decal;
-using net.rs64.TexTransTool.MatAndTexUtils;
-using net.rs64.TexTransTool.Editor.MatAndTexUtils;
-using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.TextureAtlas.Editor;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System;

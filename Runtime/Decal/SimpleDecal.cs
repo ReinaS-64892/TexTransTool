@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal
         #region V0SaveData
         [Obsolete("V0SaveData", true)][HideInInspector] public bool MigrationV0ClearTarget;
         [Obsolete("V0SaveData", true)][HideInInspector] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
-        [Obsolete("V0SaveData", true)][HideInInspector] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
+        // [Obsolete("V0SaveData", true)][HideInInspector] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
         [Obsolete("V0SaveData", true)][HideInInspector] public SimpleDecal MigrationV0DataAbstractDecal;
         [Obsolete("V0SaveData", true)][HideInInspector] public bool IsSeparateMatAndTexture;
         [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
