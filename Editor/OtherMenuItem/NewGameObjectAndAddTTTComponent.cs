@@ -1,6 +1,5 @@
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
-using net.rs64.TexTransTool.MatAndTexUtils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
@@ -37,10 +36,6 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + PhaseDefinition.PDMenuPath)] static void PD() => C<PhaseDefinition>();
 
         [M(BP + PreviewGroup.MenuPath)] static void PG() => C<PreviewGroup>();
-
-        [M(BP + MatAndTexAbsoluteSeparator.MenuPath)] static void MATAS() => C<MatAndTexAbsoluteSeparator>();
-        [M(BP + MatAndTexRelativeSeparator.MenuPath)] static void MATRS() => C<MatAndTexRelativeSeparator>();
-        [M(BP + MaterialModifier.MenuPath)] static void MM() => C<MaterialModifier>();
 
         [M(BP + BoxIslandSelector.MenuPath)] static void BIS() => C<BoxIslandSelector>();
         [M(BP + SphereIslandSelector.MenuPath)] static void SIS() => C<SphereIslandSelector>();
