@@ -4,7 +4,7 @@ using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.Migration.V2
+namespace net.rs64.TexTransTool.Migration.V3
 {
     [Obsolete]
     internal static class AtlasTextureV3
