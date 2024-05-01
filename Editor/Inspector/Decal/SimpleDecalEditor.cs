@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
+using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -56,7 +57,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
                     {
 #pragma warning disable CS0612
-                        MigrateIslandCullingToIslandSelector(thisObject);
+                        MigrateIslandCullingToIslandSelector(targets);
 #pragma warning restore CS0612
                     }
                 }
@@ -143,6 +144,17 @@ namespace net.rs64.TexTransTool.Editor.Decal
         }
 
         [Obsolete]
+        public void MigrateIslandCullingToIslandSelector(IEnumerable<UnityEngine.Object> simpleDecals)
+        {
+            foreach (var uo in simpleDecals)
+            {
+                if (uo is SimpleDecal simpleDecal)
+                {
+                    MigrateIslandCullingToIslandSelector(simpleDecal);
+                }
+            }
+        }
+        [Obsolete]
         public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
         {
             if (simpleDecal.IslandSelector != null)
@@ -153,23 +165,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
             Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
 
             simpleDecal.IslandCulling = false;
-            var islandSelector = simpleDecal.IslandSelector as RayCastIslandSelector;
+            var islandSelector = Migration.V3.SimpleDecalV3.GenerateIslandSelector(simpleDecal);
 
-            if (islandSelector == null)
-            {
-                var go = new GameObject("RayCastIslandSelector");
-                go.transform.SetParent(simpleDecal.transform, false);
-                simpleDecal.IslandSelector = islandSelector = go.AddComponent<RayCastIslandSelector>();
-            }
             Undo.RecordObject(islandSelector, "MigrateIslandCullingToIslandSelector - islandSelectorEdit");
 
-
-            Vector3 selectorOrigin = new Vector2(simpleDecal.IslandSelectorPos.x - 0.5f, simpleDecal.IslandSelectorPos.y - 0.5f);
-
-
-            var ltwMatrix = simpleDecal.transform.localToWorldMatrix;
-            islandSelector.transform.position = ltwMatrix.MultiplyPoint3x4(selectorOrigin);
-            islandSelector.IslandSelectorRange = simpleDecal.IslandSelectorRange;
+            Migration.V3.SimpleDecalV3.SetIslandSelectorTransform(simpleDecal, islandSelector);
 
         }
 
