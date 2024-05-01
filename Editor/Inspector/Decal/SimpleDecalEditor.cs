@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
+using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -56,7 +57,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
                     {
 #pragma warning disable CS0612
-                        MigrateIslandCullingToIslandSelector(thisObject);
+                        MigrateIslandCullingToIslandSelector(targets);
 #pragma warning restore CS0612
                     }
                 }
@@ -142,6 +143,17 @@ namespace net.rs64.TexTransTool.Editor.Decal
             };
         }
 
+        [Obsolete]
+        public void MigrateIslandCullingToIslandSelector(IEnumerable<UnityEngine.Object> simpleDecals)
+        {
+            foreach (var uo in simpleDecals)
+            {
+                if (uo is SimpleDecal simpleDecal)
+                {
+                    MigrateIslandCullingToIslandSelector(simpleDecal);
+                }
+            }
+        }
         [Obsolete]
         public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
         {
