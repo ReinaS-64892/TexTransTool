@@ -153,23 +153,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
             Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
 
             simpleDecal.IslandCulling = false;
-            var islandSelector = simpleDecal.IslandSelector as RayCastIslandSelector;
+            var islandSelector = Migration.V3.SimpleDecalV3.GenerateIslandSelector(simpleDecal);
 
-            if (islandSelector == null)
-            {
-                var go = new GameObject("RayCastIslandSelector");
-                go.transform.SetParent(simpleDecal.transform, false);
-                simpleDecal.IslandSelector = islandSelector = go.AddComponent<RayCastIslandSelector>();
-            }
             Undo.RecordObject(islandSelector, "MigrateIslandCullingToIslandSelector - islandSelectorEdit");
 
-
-            Vector3 selectorOrigin = new Vector2(simpleDecal.IslandSelectorPos.x - 0.5f, simpleDecal.IslandSelectorPos.y - 0.5f);
-
-
-            var ltwMatrix = simpleDecal.transform.localToWorldMatrix;
-            islandSelector.transform.position = ltwMatrix.MultiplyPoint3x4(selectorOrigin);
-            islandSelector.IslandSelectorRange = simpleDecal.IslandSelectorRange;
+            Migration.V3.SimpleDecalV3.SetIslandSelectorTransform(simpleDecal, islandSelector);
 
         }
 
