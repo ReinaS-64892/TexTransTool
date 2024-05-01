@@ -7,6 +7,7 @@ using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.Migration.V1;
 using net.rs64.TexTransTool.Migration.V2;
+using net.rs64.TexTransTool.Migration.V3;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -41,6 +42,11 @@ namespace net.rs64.TexTransTool.Migration
                 case AtlasTexture atlasTexture:
                     {
                         AtlasTextureV3.MigrationAtlasTextureV3ToV4(atlasTexture);
+                        return true;
+                    }
+                case SimpleDecal simpleDecal:
+                    {
+                        SimpleDecalV3.MigrationSimpleDecalV3ToV4(simpleDecal);
                         return true;
                     }
 
