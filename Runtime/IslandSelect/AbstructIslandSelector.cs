@@ -8,6 +8,7 @@ using System;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
+    [DisallowMultipleComponent]
     public abstract class AbstractIslandSelector : MonoBehaviour, ITexTransToolTag, IIslandSelector
     {
         internal const string FoldoutName = "IslandSelector";
