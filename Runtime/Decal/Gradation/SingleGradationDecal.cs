@@ -7,11 +7,11 @@ using Unity.Collections;
 using net.rs64.TexTransCore.Decal;
 using Unity.Jobs;
 using Unity.Burst;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {

@@ -1,6 +1,6 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;

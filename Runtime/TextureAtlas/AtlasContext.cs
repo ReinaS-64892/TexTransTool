@@ -4,7 +4,7 @@ using net.rs64.TexTransCore.Island;
 using System;
 using net.rs64.TexTransCore.Decal;
 using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using System.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;

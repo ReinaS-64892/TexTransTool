@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using System.Linq;
 using UnityEditor;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;

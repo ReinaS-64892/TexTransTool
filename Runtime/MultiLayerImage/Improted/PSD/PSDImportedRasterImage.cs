@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.TransTextureCore;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;

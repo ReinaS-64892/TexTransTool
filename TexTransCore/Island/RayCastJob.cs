@@ -1,8 +1,8 @@
 using UnityEngine;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using Unity.Jobs;
 using Unity.Collections;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using System.Collections.Generic;
 using Unity.Burst;
 using System.Runtime.InteropServices;

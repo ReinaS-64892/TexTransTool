@@ -1,4 +1,4 @@
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using UnityEditor;
 using UnityEngine;
 

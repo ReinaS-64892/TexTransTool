@@ -3,11 +3,11 @@ using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 
-namespace net.rs64.TexTransCore.TransTextureCore
+namespace net.rs64.TexTransCore
 {
     internal struct TwoDimensionalMap<T>
     {

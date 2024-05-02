@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;

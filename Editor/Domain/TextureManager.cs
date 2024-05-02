@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
-using Unity.Collections;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool
 {
@@ -47,7 +43,7 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
-            return TexTransCore.TransTextureCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+            return TexTransCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
         }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {

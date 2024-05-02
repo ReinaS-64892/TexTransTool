@@ -7,7 +7,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
-namespace net.rs64.TexTransCore.TransTextureCore.Utils
+namespace net.rs64.TexTransCore.Utils
 {
     internal static class TextureUtility
     {

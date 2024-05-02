@@ -7,10 +7,10 @@ using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using Unity.Collections;
 
 namespace net.rs64.TexTransTool.Decal

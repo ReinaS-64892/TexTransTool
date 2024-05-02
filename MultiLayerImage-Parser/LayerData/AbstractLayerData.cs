@@ -1,6 +1,6 @@
 using System;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using UnityEngine;
 
 namespace net.rs64.MultiLayerImage.LayerData
