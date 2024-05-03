@@ -713,24 +713,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             //Texture Fine Tuning
-            var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
+            var atlasTexFineTuningTargets = atlasData.Textures.ToDictionary(i => i.Key, i => new TexFineTuningHolder(i.Value));
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
             foreach (var fineTuning in AtlasSetting.TextureFineTuning)
             {
                 fineTuning.AddSetting(atlasTexFineTuningTargets);
             }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
-            var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
-            domain.transferAssets(atlasTexture.Select(PaT => PaT.Texture2D));
+            var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
+            domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
 
             //CompressDelegation
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
-                var tex = atlasTexFTData.Texture2D;
-                var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                var tex = atlasTexFTData.Value.Texture2D;
+                var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>() ;
                 if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
-                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Texture2D);
+                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
             }
 
 

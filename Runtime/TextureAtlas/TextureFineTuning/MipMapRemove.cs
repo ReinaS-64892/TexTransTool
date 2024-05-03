@@ -20,19 +20,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static MipMapRemove Default => new(PropertyName.DefaultValue, PropertySelect.Equal);
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
             {
-                var mipMapData = target.TuningDataList.Find(I => I is MipMapData) as MipMapData;
-                if (mipMapData != null)
-                {
-                    mipMapData.UseMipMap = false;
-                }
-                else
-                {
-                    target.TuningDataList.Add(new MipMapData() { UseMipMap = false });
-                }
+                target.Value.Get<MipMapData>().UseMipMap = false;
             }
 
         }
@@ -47,21 +39,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => -32;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var texf in texFineTuningTargets)
+            foreach (var texKv in texFineTuningTargets)
             {
-                var mipMapData = texf.TuningDataList.Find(I => I is MipMapData) as MipMapData;
+                var mipMapData = texKv.Value.Find<MipMapData>();
                 if (mipMapData == null) { continue; }
-                if (mipMapData.UseMipMap == texf.Texture2D.mipmapCount > 1) { continue; }
+                if (mipMapData.UseMipMap == texKv.Value.Texture2D.mipmapCount > 1) { continue; }
 
                 Profiler.BeginSample("MipMapApplicant");
-                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap, !texf.Texture2D.isDataSRGB);
-                var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
+                var newTex = new Texture2D(texKv.Value.Texture2D.width, texKv.Value.Texture2D.height, TextureFormat.RGBA32, mipMapData.UseMipMap, !texKv.Value.Texture2D.isDataSRGB);
+                var pixelData = texKv.Value.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();
-                newTex.name = texf.Texture2D.name;
-                texf.Texture2D = newTex;
+                newTex.name = texKv.Value.Texture2D.name;
+                texKv.Value.Texture2D = newTex;
                 Profiler.EndSample();
             }
         }
