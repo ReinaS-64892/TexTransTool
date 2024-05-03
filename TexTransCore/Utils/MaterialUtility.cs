@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace net.rs64.TexTransTool.Utils
+namespace net.rs64.TexTransCore.Utils
 {
     internal static class MaterialUtility
     {
@@ -29,14 +29,14 @@ namespace net.rs64.TexTransTool.Utils
             }
             return outPut;
         }
-        public static void SetTextures(this Material targetMat, List<PropAndTexture2D> propAndTextures, bool focusSetTexture = false)
+        public static void SetTexture2Ds(this Material targetMat, Dictionary<string,Texture2D> propAndTextures, bool focusSetTexture = false)
         {
             foreach (var propAndTexture in propAndTextures)
             {
-                if (!targetMat.HasProperty(propAndTexture.PropertyName)) { continue; }
-                if (focusSetTexture || targetMat.GetTexture(propAndTexture.PropertyName) is Texture2D)
+                if (!targetMat.HasProperty(propAndTexture.Key)) { continue; }
+                if (focusSetTexture || targetMat.GetTexture(propAndTexture.Key) is Texture2D)
                 {
-                    targetMat.SetTexture(propAndTexture.PropertyName, propAndTexture.Texture2D);
+                    targetMat.SetTexture(propAndTexture.Key, propAndTexture.Value);
                 }
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore.BlendTexture;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
