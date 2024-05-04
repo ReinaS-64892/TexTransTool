@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -86,10 +87,10 @@ namespace net.rs64.TexTransTool.Utils
             }
             else
             {
-                var newRt = RenderTexture.GetTemporary(texture2D.width, texture2D.height, 0);
+                var newRt = TTRt.G(texture2D.width, texture2D.height);
                 Graphics.Blit(texture2D, newRt);
                 var cloneTex = newRt.CopyTexture2D().CopySetting(texture2D);
-                RenderTexture.ReleaseTemporary(newRt);
+                TTRt.R(newRt);
                 return cloneTex;
             }
         }

@@ -84,7 +84,7 @@ namespace net.rs64.TexTransCore.Decal
                 Profiler.EndSample();
                 if (filteredTriangle.Length == 0) { continue; }
 
-                if (!renderTextures.ContainsKey(targetMat)) { renderTextures[targetMat] = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 32); renderTextures[targetMat].Clear(); }
+                if (!renderTextures.ContainsKey(targetMat)) { renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true); renderTextures[targetMat].Clear(); }
 
                 var sUV = _convertSpace.OutPutUV();
 
@@ -114,8 +114,7 @@ namespace net.rs64.TexTransCore.Decal
                 var targetTexture = mat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
 
-                var rt = writeable[mat] = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 32);
-                rt.Clear();
+                var rt = writeable[mat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
             }
         }
     }

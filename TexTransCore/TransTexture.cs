@@ -203,8 +203,8 @@ namespace net.rs64.TexTransCore
 
                 if (depthInvert.HasValue)
                 {
-                    depthRt = RenderTexture.GetTemporary(targetTexture.width, targetTexture.height, 8, RenderTextureFormat.RFloat);
-                    depthRt.Clear();
+                    depthRt = TTRt.G(targetTexture.width, targetTexture.height, true, true, rtFormat: RenderTextureFormat.RFloat);
+
                     s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 
                     using (new RTActiveSaver())
@@ -251,7 +251,7 @@ namespace net.rs64.TexTransCore
                 sourceTexture.mipMapBias = preBias;
                 sourceTexture.wrapMode = preWarp;
                 UnityEngine.Object.DestroyImmediate(mesh);
-                if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
+                if (depthRt != null) { TTRt.R(depthRt); }
             }
         }
         public static void ForTrans<T>(

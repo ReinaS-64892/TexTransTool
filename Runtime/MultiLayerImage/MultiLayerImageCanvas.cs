@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
@@ -91,7 +92,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public CanvasContext(int canvasSize, ITextureManager textureManager)
             {
                 CanvasSize = canvasSize;
-                LayerCanvas = new LayerCanvas(RenderTexture.GetTemporary(canvasSize, canvasSize));
+                LayerCanvas = new LayerCanvas(TTRt.G(canvasSize));
                 TextureManager = textureManager;
             }
             public CanvasContext CreateSubCanvas => new CanvasContext(CanvasSize, TextureManager);
@@ -130,7 +131,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                             _nowClippingTarget.DrawOnClipping(blendLayer.ToEval());
                         }
-                        else { RenderTexture.ReleaseTemporary(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
+                        else { TTRt.R(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
                     }
                     else
                     {
@@ -218,14 +219,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             internal static void DrawOnClipping(BlendRenderTexture drawTargetLayer, IEvaluateBlending clippingLayer)
             {
                 var targetRt = drawTargetLayer.Texture;
-                var swap = RenderTexture.GetTemporary(targetRt.descriptor);
+                var swap = TTRt.G(targetRt.descriptor);
                 Graphics.CopyTexture(targetRt, swap);
 
                 TextureBlend.AlphaOne(targetRt);
                 clippingLayer.EvalDrawCanvas(targetRt);
                 TextureBlend.AlphaCopy(swap, targetRt);
 
-                RenderTexture.ReleaseTemporary(swap);
+                TTRt.R(swap);
             }
 
             public LayerScopeUsingStruct UsingLayerScope(LayerAlphaMod layerAlphaMod) { EnterLayerScope(layerAlphaMod); return new(this); }
@@ -238,7 +239,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             private RenderTexture GetTempRtMask()
             {
-                var rt = RenderTexture.GetTemporary(_canvas.descriptor);
+                var rt = TTRt.G(_canvas.descriptor);
                 TextureBlend.ColorBlit(rt, Color.white);
                 return rt;
             }
@@ -256,7 +257,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             internal static void LayerAlphaAnd(ref LayerAlphaMod target, LayerAlphaMod and)
             {
-                if (target.Mask == null) { target.Mask = RenderTexture.GetTemporary(and.Mask.descriptor); TextureBlend.ColorBlit(target.Mask, Color.white); }
+                if (target.Mask == null) { target.Mask = TTRt.G(and.Mask.descriptor); TextureBlend.ColorBlit(target.Mask, Color.white); }
                 if (and.Mask != null) { TextureBlend.MaskDrawRenderTexture(target.Mask, and.Mask); }
 
                 target.Opacity *= and.Opacity;
@@ -300,7 +301,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
                             return;
                         }
-                        else { RenderTexture.ReleaseTemporary(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
+                        else { TTRt.R(blendLayer.Texture); layerAlphaMod.Dispose(); return; }
                     }
                     else
                     {
@@ -362,7 +363,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             public void Dispose()
             {
-                RenderTexture.ReleaseTemporary(Mask);
+                TTRt.R(Mask);
                 Mask = null;
             }
         }
@@ -443,7 +444,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             public void Dispose()
             {
-                RenderTexture.ReleaseTemporary(_blendRenderTexture.Texture);
+                TTRt.R(_blendRenderTexture.Texture);
                 _blendRenderTexture.Texture = null;
             }
         }
@@ -475,27 +476,24 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             internal static void GrabImpl(RenderTexture target, Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey)
             {
-                var grabRt = RenderTexture.GetTemporary(target.descriptor);
-                var writeRt = RenderTexture.GetTemporary(target.descriptor); writeRt.Clear();
+                using (TTRt.U(out var grabRt, target.descriptor))
+                using (TTRt.U(out var writeRt, target.descriptor, true))
+                using (TTRt.U(out var alphaBackup, target.descriptor))
+                {
+                    Graphics.CopyTexture(target, grabRt);
+                    TextureBlend.AlphaOne(grabRt);
 
-                Graphics.CopyTexture(target, grabRt);
-                TextureBlend.AlphaOne(grabRt);
+                    GrabCanvasModifiedAction.Invoke(grabRt, writeRt);
 
-                GrabCanvasModifiedAction.Invoke(grabRt, writeRt);
+                    var blendGrabbedLayer = new BlendRenderTexture(writeRt, blendTypeKey);
+                    LayerCanvas.AlphaModApply(blendGrabbedLayer, layerAlphaMod);
 
-                var blendGrabbedLayer = new BlendRenderTexture(writeRt, blendTypeKey);
-                LayerCanvas.AlphaModApply(blendGrabbedLayer, layerAlphaMod);
+                    Graphics.CopyTexture(target, alphaBackup);
 
-                var alphaBackup = RenderTexture.GetTemporary(target.descriptor);
-                Graphics.CopyTexture(target, alphaBackup);
-
-                AlphaOne(target);
-                target.BlendBlit(blendGrabbedLayer);
-                AlphaCopy(alphaBackup, target);
-
-                RenderTexture.ReleaseTemporary(alphaBackup);
-                RenderTexture.ReleaseTemporary(grabRt);
-                RenderTexture.ReleaseTemporary(writeRt);
+                    AlphaOne(target);
+                    target.BlendBlit(blendGrabbedLayer);
+                    AlphaCopy(alphaBackup, target);
+                }
             }
 
         }

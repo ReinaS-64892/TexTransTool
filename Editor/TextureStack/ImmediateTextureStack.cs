@@ -4,6 +4,7 @@ using net.rs64.TexTransCore.Utils;
 using UnityEditor;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.TextureStack
 {
@@ -17,7 +18,7 @@ namespace net.rs64.TexTransTool.TextureStack
 
             using (new RTActiveSaver())
             {
-                renderTexture = RenderTexture.GetTemporary(FirstTexture.width, FirstTexture.height, 0);
+                renderTexture = TTRt.G(FirstTexture.width, FirstTexture.height);
                 textureManager.WriteOriginalTexture(FirstTexture, renderTexture);//解像度は維持しないといけないが、VRAM上の圧縮は外さないといけない
             }
         }
@@ -27,7 +28,7 @@ namespace net.rs64.TexTransTool.TextureStack
             renderTexture.BlendBlit(blendTexturePair.Texture, blendTexturePair.BlendTypeKey);
 
             if (blendTexturePair.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
-            { RenderTexture.ReleaseTemporary(rt); }
+            { TTRt.R(rt); }
         }
 
         public override Texture2D MergeStack()
@@ -37,7 +38,7 @@ namespace net.rs64.TexTransTool.TextureStack
             TextureManager.DeferInheritTextureCompress(FirstTexture, resultTex);
 
 
-            RenderTexture.ReleaseTemporary(renderTexture);
+            TTRt.R(renderTexture);
             return resultTex;
         }
     }

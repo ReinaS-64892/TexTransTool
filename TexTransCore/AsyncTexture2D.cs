@@ -109,7 +109,7 @@ namespace net.rs64.TexTransCore
             _outTex.Apply(!_mipsFromRT);
             Profiler.EndSample();
             
-            RenderTexture.ReleaseTemporary(_rt);
+            TTRt.R(_rt);
             
             Profiler.EndSample();
             return _outTex;
