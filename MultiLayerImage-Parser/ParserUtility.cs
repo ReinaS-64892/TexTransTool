@@ -60,53 +60,53 @@ namespace net.rs64.MultiLayerImage.Parser
             Position += 1;
             return (sbyte)Span[beforePos];
         }
-        public ushort ReadUInt16(bool isBigEndianSouse = true)
+        public ushort ReadUInt16(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 2;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadUInt16BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt16BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadUInt16LittleEndian(Span.Slice(beforePos)); }
         }
-        public short ReadInt16(bool isBigEndianSouse = true)
+        public short ReadInt16(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 2;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadInt16BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadInt16BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadInt16LittleEndian(Span.Slice(beforePos)); }
         }
-        public uint ReadUInt32(bool isBigEndianSouse = true)
+        public uint ReadUInt32(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 4;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadUInt32BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt32BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadUInt32LittleEndian(Span.Slice(beforePos)); }
         }
-        public int ReadInt32(bool isBigEndianSouse = true)
+        public int ReadInt32(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 4;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadInt32BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadInt32BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadInt32LittleEndian(Span.Slice(beforePos)); }
         }
-        public ulong ReadUInt64(bool isBigEndianSouse = true)
+        public ulong ReadUInt64(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 8;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadUInt64BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt64BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadUInt64LittleEndian(Span.Slice(beforePos)); }
         }
-        public long ReadInt64(bool isBigEndianSouse = true)
+        public long ReadInt64(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 8;
-            if (isBigEndianSouse) { return BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos)); }
+            if (isBigEndianSource) { return BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos)); }
             else { return BinaryPrimitives.ReadInt64LittleEndian(Span.Slice(beforePos)); }
         }
-        public double ReadDouble(bool isBigEndianSouse = true)
+        public double ReadDouble(bool isBigEndianSource = true)
         {
             var beforePos = Position;
             Position += 8;
-            if (isBigEndianSouse) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos))); }
+            if (isBigEndianSource) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos))); }
             else { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(Span.Slice(beforePos))); }
         }
     }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {

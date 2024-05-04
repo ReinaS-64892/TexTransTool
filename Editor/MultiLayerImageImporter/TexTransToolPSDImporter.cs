@@ -1,12 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using net.rs64.MultiLayerImage.LayerData;
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransCore.MipMap;
-using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;

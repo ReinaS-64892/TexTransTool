@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using UnityEngine;
 using UnityEngine.Rendering;
 

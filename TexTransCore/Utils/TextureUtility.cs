@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.Unsafe;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
-namespace net.rs64.TexTransCore.TransTextureCore.Utils
+namespace net.rs64.TexTransCore.Utils
 {
     internal static class TextureUtility
     {
@@ -65,27 +68,27 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
 
 
-        public static Texture2D ResizeTexture(Texture2D souse, Vector2Int size)
+        public static Texture2D ResizeTexture(Texture2D source, Vector2Int size)
         {
             Profiler.BeginSample("ResizeTexture");
             using (new RTActiveSaver())
             {
-                var useMip = souse.mipmapCount > 1;
+                var useMip = source.mipmapCount > 1;
                 var rt = RenderTexture.GetTemporary(size.x, size.y); rt.Clear();
                 if (useMip)
                 {
-                    Graphics.Blit(souse, rt);
+                    Graphics.Blit(source, rt);
                 }
                 else
                 {
-                    var mipRt = RenderTexture.GetTemporary(souse.width, souse.height);
+                    var mipRt = RenderTexture.GetTemporary(source.width, source.height);
                     mipRt.Release();
                     var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
 
                     mipRt.useMipMap = true;
                     mipRt.autoGenerateMips = false;
 
-                    Graphics.Blit(souse, mipRt);
+                    Graphics.Blit(source, mipRt);
                     mipRt.GenerateMips();
                     Graphics.Blit(mipRt, rt);
 
@@ -95,7 +98,7 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
                 }
 
                 var resizedTexture = rt.CopyTexture2D(overrideUseMip: useMip);
-                resizedTexture.name = souse.name + "_Resized_" + size.x.ToString();
+                resizedTexture.name = source.name + "_Resized_" + size.x.ToString();
 
                 RenderTexture.ReleaseTemporary(rt);
                 Profiler.EndSample();
@@ -124,9 +127,11 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
         }
         public static Texture2D CreateFillTexture(Vector2Int size, Color fillColor)
         {
-            var TestTex = new Texture2D(size.x, size.y);
-            TestTex.SetPixels(CollectionsUtility.FilledArray(fillColor, size.x * size.y));
-            return TestTex;
+            var newTex = new Texture2D(size.x, size.y, TextureFormat.RGBA32, true);
+            var na = new NativeArray<Color32>(size.x * size.y, Allocator.Temp);
+            na.AsSpan().Fill(fillColor);
+            newTex.SetPixelData(na, 0);
+            return newTex;
         }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
@@ -156,14 +161,14 @@ namespace net.rs64.TexTransCore.TransTextureCore.Utils
 
         static Material s_TempMat;
 
-        public static void ApplyTextureST(Texture Souse, Vector2 s, Vector2 t, RenderTexture write)
+        public static void ApplyTextureST(Texture source, Vector2 s, Vector2 t, RenderTexture write)
         {
             using (new RTActiveSaver())
             {
                 if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
                 s_TempMat.shader = s_stApplyShader;
 
-                s_TempMat.SetTexture("_OffSetTex", Souse);
+                s_TempMat.SetTexture("_OffSetTex", source);
                 s_TempMat.SetTextureScale("_OffSetTex", s);
                 s_TempMat.SetTextureOffset("_OffSetTex", t);
 

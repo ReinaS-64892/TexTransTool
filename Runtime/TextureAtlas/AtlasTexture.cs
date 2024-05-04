@@ -3,18 +3,16 @@ using UnityEngine;
 using System.Linq;
 using System;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.Island;
 using Island = net.rs64.TexTransCore.Island.Island;
-using static net.rs64.TexTransCore.TransTextureCore.TransTexture;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using static net.rs64.TexTransCore.TransTexture;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
 using Unity.Collections;
-using Unity.Mathematics;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
-using Unity.Profiling;
 using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas
@@ -715,24 +713,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             //Texture Fine Tuning
-            var atlasTexFineTuningTargets = TexFineTuningUtility.ConvertForTargets(atlasData.Textures);
+            var atlasTexFineTuningTargets = atlasData.Textures.ToDictionary(i => i.Key, i => new TexFineTuningHolder(i.Value));
             TexFineTuningUtility.InitTexFineTuning(atlasTexFineTuningTargets);
             foreach (var fineTuning in AtlasSetting.TextureFineTuning)
             {
                 fineTuning.AddSetting(atlasTexFineTuningTargets);
             }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
-            var atlasTexture = TexFineTuningUtility.ConvertForPropAndTexture2D(atlasTexFineTuningTargets);
-            domain.transferAssets(atlasTexture.Select(PaT => PaT.Texture2D));
+            var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
+            domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
 
             //CompressDelegation
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
-                var tex = atlasTexFTData.Texture2D;
-                var compressSetting = atlasTexFTData.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
+                var tex = atlasTexFTData.Value.Texture2D;
+                var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>() ;
                 if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
-                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Texture2D);
+                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
             }
 
 
@@ -769,7 +767,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        private void TransMoveRectIsland<TIslandRect>(Texture souseTex, RenderTexture targetRT, Dictionary<Island, TIslandRect> notAspectIslandPairs, float uvScalePadding) where TIslandRect : IIslandRect
+        private void TransMoveRectIsland<TIslandRect>(Texture sourceTex, RenderTexture targetRT, Dictionary<Island, TIslandRect> notAspectIslandPairs, float uvScalePadding) where TIslandRect : IIslandRect
         {
             uvScalePadding *= 0.5f;
             using (var sUV = new NativeArray<Vector2>(notAspectIslandPairs.Count * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
@@ -802,15 +800,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                TransTexture.ForTrans(targetRT, souseTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
+                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
             }
         }
 
-        private static Material GenerateAtlasMat(Material targetMat, List<PropAndTexture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
+        private static Material GenerateAtlasMat(Material targetMat, Dictionary<string, Texture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
         {
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
-            editableTMat.SetTextures(atlasTex, forceSetTexture);
+            editableTMat.SetTexture2Ds(atlasTex, forceSetTexture);
             var supporter = shaderSupport.GetAtlasShaderSupporter(editableTMat);
 
             foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }

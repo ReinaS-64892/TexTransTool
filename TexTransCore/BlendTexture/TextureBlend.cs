@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransCore.BlendTexture
@@ -347,12 +347,12 @@ namespace net.rs64.TexTransCore.BlendTexture
                 RenderTexture.ReleaseTemporary(swap);
             }
         }
-        public static void AlphaCopy(RenderTexture alphaSouse, RenderTexture rt)
+        public static void AlphaCopy(RenderTexture alphaSource, RenderTexture rt)
         {
             using (new RTActiveSaver())
             {
                 SetTempMatShader(AlphaCopyShader);
-                s_tempMaterial.SetTexture("_AlphaTex", alphaSouse);
+                s_tempMaterial.SetTexture("_AlphaTex", alphaSource);
                 var swap = RenderTexture.GetTemporary(rt.descriptor);
                 Graphics.CopyTexture(rt, swap);
                 Graphics.Blit(swap, rt, s_tempMaterial);

@@ -13,31 +13,31 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Level Green;
         public Level Blue;
 
-        public override void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture)
+        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
             var mat = new Material(SpecialLayerShaders.LevelAdjustmentShader);
-            var tempRt = RenderTexture.GetTemporary(GrabSouse.descriptor);
+            var tempRt = RenderTexture.GetTemporary(grabSource.descriptor);
 
             mat.EnableKeyword("RGB");
             RGB.SetMaterialProperty(mat);
-            Graphics.Blit(GrabSouse, tempRt, mat);
+            Graphics.Blit(grabSource, tempRt, mat);
             mat.DisableKeyword("RGB");
 
             // Graphics.CopyTexture(tempRt, WriteTarget);
 
             mat.EnableKeyword("Red");
             Red.SetMaterialProperty(mat);
-            Graphics.Blit(tempRt, WriteTarget, mat);
+            Graphics.Blit(tempRt, writeTarget, mat);
             mat.DisableKeyword("Red");
 
             mat.EnableKeyword("Green");
             Green.SetMaterialProperty(mat);
-            Graphics.Blit(WriteTarget, tempRt, mat);
+            Graphics.Blit(writeTarget, tempRt, mat);
             mat.DisableKeyword("Green");
 
             mat.EnableKeyword("Blue");
             Blue.SetMaterialProperty(mat);
-            Graphics.Blit(tempRt, WriteTarget, mat);
+            Graphics.Blit(tempRt, writeTarget, mat);
             mat.DisableKeyword("Blue");
 
             UnityEngine.Object.DestroyImmediate(mat);

@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Linq;
 using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;

@@ -1,5 +1,5 @@
 using System;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;

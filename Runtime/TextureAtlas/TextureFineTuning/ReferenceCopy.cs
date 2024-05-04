@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
@@ -18,37 +19,23 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static ReferenceCopy Default => new(PropertyName.DefaultValue, PropertyName.DefaultValue);
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            var copyTargetTexture = propAndTextures.Find(x => x.PropertyName == TargetPropertyName);
-            if (copyTargetTexture == null)
+            if (!texFineTuningTargets.TryGetValue(TargetPropertyName, out var copyTargetTextureHolder)) { return; }
+            if (copyTargetTextureHolder == null)
             {
-                propAndTextures.Add(new(new(TargetPropertyName, null)) { TuningDataList = new() { new ReferenceCopyData(SourcePropertyName) } });
+                copyTargetTextureHolder = new TexFineTuningHolder(null);
+                texFineTuningTargets.Add(TargetPropertyName, copyTargetTextureHolder);
             }
-            else
-            {
-                var referenceCopyData = copyTargetTexture.TuningDataList.Find(I => I is ReferenceCopyData) as ReferenceCopyData;
-                if (referenceCopyData != null)
-                {
-                    referenceCopyData.CopySouse = SourcePropertyName;
-                }
-                else
-                {
-                    copyTargetTexture.TuningDataList.Add(new ReferenceCopyData(SourcePropertyName));
-                }
-            }
+
+            copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
 
         }
     }
 
     internal class ReferenceCopyData : ITuningData
     {
-        public string CopySouse;
-
-        public ReferenceCopyData(string copySouse)
-        {
-            CopySouse = copySouse;
-        }
+        public string CopySource;
     }
 
     internal class ReferenceCopyApplicant : ITuningApplicant
@@ -56,16 +43,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public int Order => 32;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var texf in texFineTuningTargets)
+            foreach (var texKv in texFineTuningTargets.ToArray())
             {
-                var referenceCopyData = texf.TuningDataList.Find(I => I is ReferenceCopyData) as ReferenceCopyData;
+                var referenceCopyData = texKv.Value.Find<ReferenceCopyData>();
                 if (referenceCopyData == null) { continue; }
 
-                var souse = texFineTuningTargets.Find(I => I.PropertyName == referenceCopyData.CopySouse);
-                if (souse == null) { continue; }
-                texf.Texture2D = souse.Texture2D;
+                if (texFineTuningTargets.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
+                {
+                    texKv.Value.Texture2D = sourceTextureHolder.Texture2D;
+                }
             }
         }
     }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Profiling;

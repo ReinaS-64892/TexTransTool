@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
 
 
         void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
-        void DeferInheritTextureCompress(Texture2D souse, Texture2D target);
+        void DeferInheritTextureCompress(Texture2D source, Texture2D target);
         void CompressDeferred();
     }
     internal interface IReplaceTracking

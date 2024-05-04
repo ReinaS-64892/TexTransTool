@@ -7,10 +7,10 @@ using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using Unity.Collections;
 
 namespace net.rs64.TexTransTool.Decal
@@ -76,20 +76,20 @@ namespace net.rs64.TexTransTool.Decal
 
         }
 
-        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D souseDecalTexture, Color color)
+        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D sourceDecalTexture, Color color)
         {
             RenderTexture mulDecalTexture;
 
-            if (souseDecalTexture != null)
+            if (sourceDecalTexture != null)
             {
-                var decalSouseSize = textureManager.GetOriginalTextureSize(souseDecalTexture);
-                mulDecalTexture = RenderTexture.GetTemporary(decalSouseSize, decalSouseSize, 0);
+                var decalSourceSize = textureManager.GetOriginalTextureSize(sourceDecalTexture);
+                mulDecalTexture = RenderTexture.GetTemporary(decalSourceSize, decalSourceSize, 0);
             }
             else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
             mulDecalTexture.Clear();
-            if (souseDecalTexture != null)
+            if (sourceDecalTexture != null)
             {
-                var tempRt = textureManager.GetOriginTempRt(souseDecalTexture);
+                var tempRt = textureManager.GetOriginTempRt(sourceDecalTexture);
                 TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
                 RenderTexture.ReleaseTemporary(tempRt);
             }

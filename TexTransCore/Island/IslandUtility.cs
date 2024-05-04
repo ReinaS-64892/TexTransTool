@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using net.rs64.TexTransCore.Decal;
-using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
@@ -233,12 +233,12 @@ namespace net.rs64.TexTransCore.Island
         Vector2 IIslandRect.Size { get => Size; set => Size = value; }
         bool IIslandRect.Is90Rotation { get => Is90Rotation; set => Is90Rotation = value; }
 
-        public Island(Island souse)
+        public Island(Island source)
         {
-            triangles = new List<TriangleIndex>(souse.triangles);
-            Pivot = souse.Pivot;
-            Size = souse.Size;
-            Is90Rotation = souse.Is90Rotation;
+            triangles = new List<TriangleIndex>(source.triangles);
+            Pivot = source.Pivot;
+            Size = source.Size;
+            Is90Rotation = source.Is90Rotation;
         }
         public Island(TriangleIndex triangleIndex)
         {
@@ -272,14 +272,14 @@ namespace net.rs64.TexTransCore.Island
             }
             return output;
         }
-        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> souseUV)
+        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> sourceUV)
         {
             var vertIndexes = GetVertexIndex();
-            return vertIndexes.Select(i => souseUV[i]).ToList();
+            return vertIndexes.Select(i => sourceUV[i]).ToList();
         }
-        public void BoxCalculation(IReadOnlyList<Vector2> souseUV)
+        public void BoxCalculation(IReadOnlyList<Vector2> sourceUV)
         {
-            var vertPoss = GetVertexPos(souseUV);
+            var vertPoss = GetVertexPos(sourceUV);
             var Box = VectorUtility.BoxCal(vertPoss);
             Pivot = Box.min;
             Size = Box.max - Box.min;

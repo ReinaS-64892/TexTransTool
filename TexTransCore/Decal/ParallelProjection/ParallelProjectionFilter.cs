@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
 using System.Runtime.CompilerServices;

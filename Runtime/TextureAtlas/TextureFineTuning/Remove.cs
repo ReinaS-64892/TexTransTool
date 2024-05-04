@@ -18,15 +18,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static Remove Default => new(PropertyName.DefaultValue, PropertySelect.NotEqual);
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
             {
-                var referenceCopyData = target.TuningDataList.Find(I => I is RemoveData) as RemoveData;
-                if (referenceCopyData == null)
-                {
-                    target.TuningDataList.Add(new RemoveData());
-                }
+                target.Value.Get<RemoveData>();
             }
         }
 
@@ -42,9 +38,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public int Order => 64;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            texFineTuningTargets.RemoveAll(I => I.TuningDataList.Any(T => T is RemoveData));
+            foreach (var removeTarget in texFineTuningTargets.Where(i => i.Value.Find<RemoveData>() is not null).ToArray())
+            {
+                texFineTuningTargets.Remove(removeTarget.Key);
+            }
+
         }
     }
 

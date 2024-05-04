@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -15,7 +15,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using System;
 
-namespace net.rs64.TexTransCore.TransTextureCore
+namespace net.rs64.TexTransCore
 {
     internal static class TransTexture
     {
@@ -148,7 +148,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
         static Material s_depthMat;
         public static void ForTrans<UVDimension>(
             RenderTexture targetTexture,
-            Texture souseTexture,
+            Texture sourceTexture,
             TransData<UVDimension> transUVData,
             float? padding = null,
             TextureWrap? argTexWrap = null,
@@ -161,9 +161,9 @@ namespace net.rs64.TexTransCore.TransTextureCore
             var mesh = transUVData.GenerateTransMesh();
             Profiler.EndSample();
 
-            var preBias = souseTexture.mipMapBias;
-            souseTexture.mipMapBias = souseTexture.mipmapCount * -1;
-            var preWarp = souseTexture.wrapMode;
+            var preBias = sourceTexture.mipMapBias;
+            sourceTexture.mipMapBias = sourceTexture.mipmapCount * -1;
+            var preWarp = sourceTexture.wrapMode;
 
             RenderTexture depthRt = null;
 
@@ -171,7 +171,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
             {
                 if (argTexWrap == null) { argTexWrap = TextureWrap.NotWrap; }
                 var texWrap = argTexWrap.Value;
-                souseTexture.wrapMode = texWrap.ConvertTextureWrapMode;
+                sourceTexture.wrapMode = texWrap.ConvertTextureWrapMode;
 
 
 
@@ -179,7 +179,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
                 Profiler.BeginSample("Material Setup");
                 if (s_transMat == null) { s_transMat = new Material(s_transShader); }
                 s_transMat.shaderKeywords = Array.Empty<string>();
-                s_transMat.SetTexture("_MainTex", souseTexture);
+                s_transMat.SetTexture("_MainTex", sourceTexture);
                 if (padding.HasValue) s_transMat.SetFloat("_Padding", padding.Value);
                 if (padding.HasValue && highQualityPadding)
                 {
@@ -248,15 +248,15 @@ namespace net.rs64.TexTransCore.TransTextureCore
             }
             finally
             {
-                souseTexture.mipMapBias = preBias;
-                souseTexture.wrapMode = preWarp;
+                sourceTexture.mipMapBias = preBias;
+                sourceTexture.wrapMode = preWarp;
                 UnityEngine.Object.DestroyImmediate(mesh);
                 if (depthRt != null) { RenderTexture.ReleaseTemporary(depthRt); }
             }
         }
         public static void ForTrans<T>(
             RenderTexture targetTexture,
-            Texture souseTexture,
+            Texture sourceTexture,
             IEnumerable<TransData<T>> transUVDataEnumerable,
             float? padding = null,
             TextureWrap? warpRange = null
@@ -264,7 +264,7 @@ namespace net.rs64.TexTransCore.TransTextureCore
         {
             foreach (var transUVData in transUVDataEnumerable)
             {
-                ForTrans(targetTexture, souseTexture, transUVData, padding, warpRange);
+                ForTrans(targetTexture, sourceTexture, transUVData, padding, warpRange);
             }
         }
 

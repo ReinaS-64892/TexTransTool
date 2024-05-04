@@ -7,7 +7,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace net.rs64.TexTransCore.TransTextureCore.Utils
+namespace net.rs64.TexTransCore.Utils
 {
     internal static class VectorUtility
     {

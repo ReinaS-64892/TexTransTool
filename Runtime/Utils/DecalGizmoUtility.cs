@@ -3,43 +3,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Utils
 {
-    internal static class GizmosUtility
-    {
-        public static void DrawGizmoQuad(IEnumerable<List<Vector3>> quads)
-        {
-            foreach (var quad in quads)
-            {
-                DrawQuad(quad);
-            }
-        }
-
-        public static void DrawQuad(IReadOnlyList<Vector3> quad)
-        {
-            Gizmos.DrawLine(quad[0], quad[1]);
-            Gizmos.DrawLine(quad[0], quad[2]);
-            Gizmos.DrawLine(quad[2], quad[3]);
-            Gizmos.DrawLine(quad[1], quad[3]);
-        }
-
-        public static void DrawGizmoLine(List<Vector3> Line)
-        {
-            var LineCount = Line.Count;
-            if (LineCount < 1) return;
-            int Count = 1;
-            while (LineCount > Count)
-            {
-
-                var FromPos = Line[Count - 1];
-                var ToPos = Line[Count];
-                Gizmos.DrawLine(FromPos, ToPos);
-
-                Count += 1;
-
-            }
-        }
-
-    }
-    public class DecalGizmoUtility
+    public static class DecalGizmoUtility
     {
         public static Mesh Quad;
         public static Material DisplayDecalMat;

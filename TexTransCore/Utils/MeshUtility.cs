@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace net.rs64.TexTransCore.TransTextureCore.Utils
+namespace net.rs64.TexTransCore.Utils
 {
     internal static class MeshUtility
     {

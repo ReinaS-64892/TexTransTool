@@ -1,6 +1,5 @@
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage

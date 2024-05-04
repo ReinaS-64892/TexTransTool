@@ -6,12 +6,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     public interface ITextureFineTuning
     {
-        void AddSetting(List<TexFineTuningTarget> propAndTextures);
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
     }
     public interface ITuningApplicant
     {
         int Order { get; }
-        void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets);
+        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
     }
     public interface ITuningData
     {
@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal static class FineTuningUtil
     {
-        public static IEnumerable<TexFineTuningTarget> FilteredTarget(string propertyNames, PropertySelect select, List<TexFineTuningTarget> propAndTextures)
+        public static IEnumerable<KeyValuePair<string,TexFineTuningHolder>> FilteredTarget(string propertyNames, PropertySelect select, Dictionary<string,TexFineTuningHolder> targets)
         {
             var propertyNameList = propertyNames.Split(' ');
             switch (select)
@@ -32,12 +32,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 default:
                 case PropertySelect.Equal:
                     {
-                        return propAndTextures.Where(x => propertyNameList.Contains(x.PropertyName));
+                        return targets.Where(x => propertyNameList.Contains(x.Key));
 
                     }
                 case PropertySelect.NotEqual:
                     {
-                        return propAndTextures.Where(x => !propertyNameList.Contains(x.PropertyName));
+                        return targets.Where(x => !propertyNameList.Contains(x.Key));
 
                     }
             }

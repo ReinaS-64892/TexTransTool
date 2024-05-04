@@ -69,15 +69,15 @@ namespace net.rs64.TexTransTool.Migration.V0
         }
 
 
-        static void CopyFromDecal(this SimpleDecal target, SimpleDecal copySouse)
+        static void CopyFromDecal(this SimpleDecal target, SimpleDecal copySource)
         {
-            if (target.GetType() != copySouse.GetType()) { return; };
+            if (target.GetType() != copySource.GetType()) { return; };
             var fieldInfos = target.GetType().GetFields();
 
             foreach (var fieldInfo in fieldInfos)
             {
                 if (fieldInfo.IsStatic) { continue; }
-                fieldInfo.SetValue(target, fieldInfo.GetValue(copySouse));
+                fieldInfo.SetValue(target, fieldInfo.GetValue(copySource));
             }
 
         }

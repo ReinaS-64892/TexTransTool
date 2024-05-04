@@ -1,15 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
-using net.rs64.TexTransTool.Decal;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.Profiling;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime

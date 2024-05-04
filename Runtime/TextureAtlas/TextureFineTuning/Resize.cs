@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
@@ -21,19 +21,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         }
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
             {
-                var sizeData = target.TuningDataList.Find(I => I is SizeData) as SizeData;
-                if (sizeData != null)
-                {
-                    sizeData.TextureSize = Size;
-                }
-                else
-                {
-                    target.TuningDataList.Add(new SizeData() { TextureSize = Size });
-                }
+                target.Value.Get<SizeData>().TextureSize = Size;
             }
         }
 
@@ -51,14 +43,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => -64;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var texf in texFineTuningTargets)
+            foreach (var texKv in texFineTuningTargets)
             {
-                var sizeData = texf.TuningDataList.Find(I => I is SizeData) as SizeData;
+                var sizeData = texKv.Value.Find<SizeData>();
                 if (sizeData == null) { continue; }
-                if (sizeData.TextureSize == texf.Texture2D.width) { continue; }
-                texf.Texture2D = TextureUtility.ResizeTexture(texf.Texture2D, new Vector2Int(sizeData.TextureSize, (int)((texf.Texture2D.height / (float)texf.Texture2D.width) * sizeData.TextureSize)));
+                if (sizeData.TextureSize == texKv.Value.Texture2D.width) { continue; }
+                texKv.Value.Texture2D = TextureUtility.ResizeTexture(texKv.Value.Texture2D, new Vector2Int(sizeData.TextureSize, (int)((texKv.Value.Texture2D.height / (float)texKv.Value.Texture2D.width) * sizeData.TextureSize)));
             }
         }
     }

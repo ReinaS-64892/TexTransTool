@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 
 namespace net.rs64.TexTransCore.Decal
 {
