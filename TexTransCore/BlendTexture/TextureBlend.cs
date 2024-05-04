@@ -347,12 +347,12 @@ namespace net.rs64.TexTransCore.BlendTexture
                 RenderTexture.ReleaseTemporary(swap);
             }
         }
-        public static void AlphaCopy(RenderTexture alphaSouse, RenderTexture rt)
+        public static void AlphaCopy(RenderTexture alphaSource, RenderTexture rt)
         {
             using (new RTActiveSaver())
             {
                 SetTempMatShader(AlphaCopyShader);
-                s_tempMaterial.SetTexture("_AlphaTex", alphaSouse);
+                s_tempMaterial.SetTexture("_AlphaTex", alphaSource);
                 var swap = RenderTexture.GetTemporary(rt.descriptor);
                 Graphics.CopyTexture(rt, swap);
                 Graphics.Blit(swap, rt, s_tempMaterial);

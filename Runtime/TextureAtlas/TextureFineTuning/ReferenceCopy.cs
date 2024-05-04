@@ -28,14 +28,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 texFineTuningTargets.Add(TargetPropertyName, copyTargetTextureHolder);
             }
 
-            copyTargetTextureHolder.Get<ReferenceCopyData>().CopySouse = SourcePropertyName;
+            copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
 
         }
     }
 
     internal class ReferenceCopyData : ITuningData
     {
-        public string CopySouse;
+        public string CopySource;
     }
 
     internal class ReferenceCopyApplicant : ITuningApplicant
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 var referenceCopyData = texKv.Value.Find<ReferenceCopyData>();
                 if (referenceCopyData == null) { continue; }
 
-                if (texFineTuningTargets.TryGetValue(referenceCopyData.CopySouse, out var sourceTextureHolder))
+                if (texFineTuningTargets.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
                 {
                     texKv.Value.Texture2D = sourceTextureHolder.Texture2D;
                 }

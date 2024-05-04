@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
 
-        internal override JobResult<NativeArray<Color32>> LoadImage(byte[] importSouse, NativeArray<Color32>? writeTarget = null)
+        internal override JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
         {
             Profiler.BeginSample("Init");
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -29,12 +29,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             Profiler.BeginSample("RLE");
 
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSouse, RasterImageData.RectTangle));
-            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSouse, RasterImageData.RectTangle));
-            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSouse, RasterImageData.RectTangle));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSouse, RasterImageData.RectTangle)); }
+            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle));
+            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSource, RasterImageData.RectTangle));
+            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSource, RasterImageData.RectTangle));
+            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
 
-            var souseTexSize = new int2(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight());
+            var sourceTexSize = new int2(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight());
             var image = WeightTask(getImageTask).Result;
 
             Profiler.EndSample();
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     B = image[2],
                     A = image[3],
                     Offset = new int2(Pivot.x, Pivot.y),
-                    SouseSize = souseTexSize,
+                    SourceSize = sourceTexSize,
                     TargetSize = canvasSize,
                 };
                 offsetJobHandle = offset.Schedule(image[0].Length, 32);
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     G = image[1],
                     B = image[2],
                     Offset = new int2(Pivot.x, Pivot.y),
-                    SouseSize = souseTexSize,
+                    SourceSize = sourceTexSize,
                     TargetSize = canvasSize,
                 };
                 offsetJobHandle = offset.Schedule(image[0].Length, 32);
@@ -84,14 +84,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             });
         }
 
-        internal override void LoadImage(byte[] importSouse, RenderTexture WriteTarget)
+        internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             // var timer = System.Diagnostics.Stopwatch.StartNew();
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSouse, RasterImageData.RectTangle));
-            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSouse, RasterImageData.RectTangle));
-            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSouse, RasterImageData.RectTangle));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSouse, RasterImageData.RectTangle)); }
+            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle));
+            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSource, RasterImageData.RectTangle));
+            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSource, RasterImageData.RectTangle));
+            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
 
             var texWidth = RasterImageData.RectTangle.GetWidth();
             var texHeight = RasterImageData.RectTangle.GetHeight();
@@ -168,13 +168,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             [ReadOnly] public NativeArray<byte> A;
             public int2 TargetSize;
 
-            public int2 SouseSize;
+            public int2 SourceSize;
             public int2 Offset;
             public void Execute(int index)
             {
-                var sousePos = CovInt2(index, SouseSize.x);
-                sousePos.y = SouseSize.y - sousePos.y;
-                var writePos = Offset + sousePos;
+                var sourcePos = CovInt2(index, SourceSize.x);
+                sourcePos.y = SourceSize.y - sourcePos.y;
+                var writePos = Offset + sourcePos;
 
                 if (writePos.x < 0) { return; }
                 if (writePos.y < 0) { return; }
@@ -203,13 +203,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             [ReadOnly] public NativeArray<byte> B;
             public int2 TargetSize;
 
-            public int2 SouseSize;
+            public int2 SourceSize;
             public int2 Offset;
             public void Execute(int index)
             {
-                var sousePos = OffsetMoveAlphaJob.CovInt2(index, SouseSize.x);
-                sousePos.y = SouseSize.y - sousePos.y;
-                var writePos = Offset + sousePos;
+                var sourcePos = OffsetMoveAlphaJob.CovInt2(index, SourceSize.x);
+                sourcePos.y = SourceSize.y - sourcePos.y;
+                var writePos = Offset + sourcePos;
 
                 if (writePos.x < 0) { return; }
                 if (writePos.y < 0) { return; }

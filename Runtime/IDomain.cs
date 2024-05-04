@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
 
 
         void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
-        void DeferInheritTextureCompress(Texture2D souse, Texture2D target);
+        void DeferInheritTextureCompress(Texture2D source, Texture2D target);
         void CompressDeferred();
     }
     internal interface IReplaceTracking

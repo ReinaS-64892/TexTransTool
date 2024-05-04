@@ -13,9 +13,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (ITextureFineTuningDrawer.DrawTuningSelector(position, property)) { return; }
             position.y += 18;
 
-            var sSousePropertyName = property.FindPropertyRelative("SourcePropertyName");
+            var sSourcePropertyName = property.FindPropertyRelative("SourcePropertyName");
             var sTargetPropertyName = property.FindPropertyRelative("TargetPropertyName");
-            EditorGUI.PropertyField(position, sSousePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
+            EditorGUI.PropertyField(position, sSourcePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
             position.y += 18;
             EditorGUI.PropertyField(position, sTargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".Glc());
             position.y += 18;

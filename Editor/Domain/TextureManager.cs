@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool
         private readonly List<Texture2D> DestroyList;
         private readonly Dictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> CompressDict;
         private readonly Dictionary<Texture2D, Texture2D> OriginDict;
-        private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSouse;
+        private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSource;
 
         public TextureManager(bool previewing)
         {
@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
             DestroyList = !Previewing ? new() : null;
             CompressDict = !Previewing ? new() : null;
             OriginDict = !Previewing ? new() : null;
-            CanvasSouse = !Previewing ? new() : null;
+            CanvasSource = !Previewing ? new() : null;
         }
 
         public void DeferDestroyOf(Texture2D texture2D)
@@ -78,8 +78,8 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                if (!CanvasSouse.ContainsKey(texture.CanvasDescription)) { CanvasSouse[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
-                texture.LoadImage(CanvasSouse[texture.CanvasDescription], writeTarget);
+                if (!CanvasSource.ContainsKey(texture.CanvasDescription)) { CanvasSource[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
+                texture.LoadImage(CanvasSource[texture.CanvasDescription], writeTarget);
             }
         }
         public void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
@@ -87,18 +87,18 @@ namespace net.rs64.TexTransTool
             if (CompressDict == null) { return; }
             CompressDict[target] = compressSetting;
         }
-        public void DeferInheritTextureCompress(Texture2D Souse, Texture2D Target)
+        public void DeferInheritTextureCompress(Texture2D source, Texture2D target)
         {
             if (CompressDict == null) { return; }
-            if (Target == Souse) { return; }
-            if (CompressDict.ContainsKey(Souse))
+            if (target == source) { return; }
+            if (CompressDict.ContainsKey(source))
             {
-                CompressDict[Target] = CompressDict[Souse];
-                CompressDict.Remove(Souse);
+                CompressDict[target] = CompressDict[source];
+                CompressDict.Remove(source);
             }
             else
             {
-                CompressDict[Target] = (Souse.format, 50);
+                CompressDict[target] = (source.format, 50);
             }
         }
 

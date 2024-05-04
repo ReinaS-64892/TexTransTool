@@ -23,20 +23,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         AssetImportContext _ctx;
         List<TTTImportedImage> _tttImportedImages = new();
         CreateImportedImage _imageImporter;
-        byte[] _souseBytes;
+        byte[] _sourceBytes;
         Dictionary<TTTImportedImage, string> _layerAtPath = new();
         string _path = "";
 
         internal delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
-        internal delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] souseBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
+        internal delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] sourceBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
 
-        internal MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] souseBytes, CreateImportedImage imageImporter)
+        internal MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] sourceBytes, CreateImportedImage imageImporter)
         {
             _multiLayerImageCanvas = multiLayerImageCanvas;
             _ctx = assetImportContext;
             _imageImporter = imageImporter;
             _tttImportedCanvasDescription = tttImportedCanvasDescription;
-            _souseBytes = souseBytes;
+            _sourceBytes = sourceBytes;
 
         }
 
@@ -207,7 +207,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     Profiler.BeginSample("CreatePreview -" + importedImage.name);
                     Profiler.BeginSample("LoadImage");
 
-                    var jobResult = importedImage.LoadImage(_souseBytes, fullNATex);
+                    var jobResult = importedImage.LoadImage(_sourceBytes, fullNATex);
 
                     Profiler.EndSample();
                     Texture2D tex2d;

@@ -143,7 +143,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
 
             //GrabCanvasModifiedAction の実行タイミングは即時ではない可能性がある。
-            public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSouse 右がWriteTarget
+            public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSource 右がWriteTarget
             {
                 if (NowScope.HasValue) { NowScope.Value.GrabCanvas(GrabCanvasModifiedAction, layerAlphaMod, blendTypeKey, GrabForClipping); }
                 else
@@ -323,7 +323,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     else { _layerStack.Push(DisallowClippingLayer.Default); }
                 }
 
-                public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSouse 右がWriteTarget
+                public void GrabCanvas(Action<RenderTexture, RenderTexture> GrabCanvasModifiedAction, LayerAlphaMod layerAlphaMod, string blendTypeKey, bool GrabForClipping)//左がGrabSource 右がWriteTarget
                 {
                     LayerAlphaAnd(ref layerAlphaMod, _alphaMod);
 
