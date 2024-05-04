@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.Unsafe;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
@@ -125,9 +127,11 @@ namespace net.rs64.TexTransCore.Utils
         }
         public static Texture2D CreateFillTexture(Vector2Int size, Color fillColor)
         {
-            var TestTex = new Texture2D(size.x, size.y);
-            TestTex.SetPixels(CollectionsUtility.FilledArray(fillColor, size.x * size.y));
-            return TestTex;
+            var newTex = new Texture2D(size.x, size.y, TextureFormat.RGBA32, true);
+            var na = new NativeArray<Color32>(size.x * size.y, Allocator.Temp);
+            na.AsSpan().Fill(fillColor);
+            newTex.SetPixelData(na, 0);
+            return newTex;
         }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
