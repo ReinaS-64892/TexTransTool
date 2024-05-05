@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SizeOffset は廃止され、SizePriority に変更されました (#431)
 - AtlasTexture のプロパティの並び順が変更されました (#431)
 - 内部的に使用される RenderTexture の形式が Win Linux Mac にかかわらず ARGB32 を使用するように変更されました (#461)
+- プレビューを行うときに、テクスチャの圧縮が行われるように変更されました (#465)
 
 ### Removed
 

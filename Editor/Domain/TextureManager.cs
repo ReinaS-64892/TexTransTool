@@ -15,11 +15,11 @@ namespace net.rs64.TexTransTool
         private readonly Dictionary<Texture2D, Texture2D> OriginDict;
         private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSource;
 
-        public TextureManager(bool previewing)
+        public TextureManager(bool previewing, bool? useCompress = null)
         {
             Previewing = previewing;
             DestroyList = !Previewing ? new() : null;
-            CompressDict = !Previewing ? new() : null;
+            CompressDict = useCompress ?? !Previewing ? new() : null;
             OriginDict = !Previewing ? new() : null;
             CanvasSource = !Previewing ? new() : null;
         }

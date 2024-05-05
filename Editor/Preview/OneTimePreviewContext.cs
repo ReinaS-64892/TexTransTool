@@ -108,8 +108,8 @@ namespace net.rs64.TexTransTool.Preview
                 var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
-                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false); }
-                else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false); }
+                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
+                else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
                 //カスタムプレビューとエディターコールビヘイビアは違うから注意
