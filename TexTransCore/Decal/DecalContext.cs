@@ -84,7 +84,7 @@ namespace net.rs64.TexTransCore.Decal
                 Profiler.EndSample();
                 if (filteredTriangle.Length == 0) { continue; }
 
-                if (!renderTextures.ContainsKey(targetMat)) { renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true); renderTextures[targetMat].Clear(); }
+                if (!renderTextures.ContainsKey(targetMat)) { renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true); }
 
                 var sUV = _convertSpace.OutPutUV();
 
