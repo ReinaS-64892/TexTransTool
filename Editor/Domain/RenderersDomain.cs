@@ -32,14 +32,14 @@ namespace net.rs64.TexTransTool
 
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false)
-        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null) { }
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool? useCompress = null)
+        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, useCompress) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool? useCompress = null)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = assetSaver;
-            _textureManager = new TextureManager(Previewing);
+            _textureManager = new TextureManager(Previewing, useCompress);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
         }
 
@@ -142,7 +142,7 @@ namespace net.rs64.TexTransTool
 
             Object GetOrigin(Object obj)
             {
-                if(obj == null) { return null; }
+                if (obj == null) { return null; }
                 while (_replaceMap.ContainsKey(obj)) { obj = _replaceMap[obj]; }
                 return obj;
             }
