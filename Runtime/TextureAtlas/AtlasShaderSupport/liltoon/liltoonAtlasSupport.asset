@@ -232,7 +232,7 @@ MonoBehaviour:
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        SousePropertyName: _MainTex
+        SourcePropertyName: _MainTex
         TargetPropertyName: _BaseMap
     - rid: 7150698656081904266
       type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
@@ -257,7 +257,7 @@ MonoBehaviour:
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        SousePropertyName: _MainTex
+        SourcePropertyName: _MainTex
         TargetPropertyName: _BaseColorMap
     - rid: 7150698656081904310
       type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
@@ -547,21 +547,21 @@ MonoBehaviour:
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881826
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881827
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881828
