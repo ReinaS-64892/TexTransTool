@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
@@ -25,7 +26,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             if (LayerMask.ContainedMask)
             {
-                var rt = RenderTexture.GetTemporary(canvasContext.CanvasSize, canvasContext.CanvasSize); rt.Clear();
+                var rt = TTRt.G(canvasContext.CanvasSize, canvasContext.CanvasSize, true);
                 LayerMask.WriteMaskTexture(rt, canvasContext.TextureManager);
                 return new LayerAlphaMod(rt, Opacity);
             }

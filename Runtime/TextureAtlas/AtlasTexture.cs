@@ -418,11 +418,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                                     if (shaderSupport.BakeShader == null)
                                     {
-                                        texDict[propName] = sTex != null ? sTex : RenderTexture.GetTemporary(2, 2); ;
+                                        texDict[propName] = sTex != null ? sTex : TTRt.G(2); ;
                                         continue;
                                     }
 
-                                    var bakedTex = sTex != null ? sTex.CloneTemp() : RenderTexture.GetTemporary(2, 2);
+                                    var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2);
 
 
                                     if (atlasTex != null)
@@ -448,7 +448,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                                     texDict[propName] = bakedTex;
 
-                                    if (sTex != null) { RenderTexture.ReleaseTemporary(sTex); }
+                                    if (sTex != null) { TTRt.R(sTex); }
                                     tmpMat.AllPropertyReset();
                                     tmpMat.shaderKeywords = Array.Empty<string>();
 
@@ -467,8 +467,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, 32);
-                targetRT.Clear();
+                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)
@@ -512,9 +511,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
                 {
-                    var heightClampRt = RenderTexture.GetTemporary(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
+                    var heightClampRt = TTRt.G(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
                     Graphics.CopyTexture(targetRT, 0, 0, 0, 0, heightClampRt.width, heightClampRt.height, heightClampRt, 0, 0, 0, 0);
-                    RenderTexture.ReleaseTemporary(targetRT);
+                    TTRt.R(targetRT);
                     targetRT = heightClampRt;
                 }
 
@@ -522,10 +521,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
                 Profiler.EndSample();
 
-                RenderTexture.ReleaseTemporary(targetRT);
+                TTRt.R(targetRT);
             }
             Profiler.EndSample();
-            foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { RenderTexture.ReleaseTemporary(tex.Value); } }
+            foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { TTRt.R(tex.Value); } }
             groupedTextures = null;
 
             Profiler.BeginSample("Async Readback");
@@ -727,7 +726,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
                 var tex = atlasTexFTData.Value.Texture2D;
-                var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>() ;
+                var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>();
                 if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
                 domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);

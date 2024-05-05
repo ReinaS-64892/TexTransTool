@@ -83,15 +83,15 @@ namespace net.rs64.TexTransTool.Decal
             if (sourceDecalTexture != null)
             {
                 var decalSourceSize = textureManager.GetOriginalTextureSize(sourceDecalTexture);
-                mulDecalTexture = RenderTexture.GetTemporary(decalSourceSize, decalSourceSize, 0);
+                mulDecalTexture = TTRt.G(decalSourceSize, decalSourceSize);
             }
-            else { mulDecalTexture = RenderTexture.GetTemporary(32, 32, 0); }
+            else { mulDecalTexture = TTRt.G(32, 32); }
             mulDecalTexture.Clear();
             if (sourceDecalTexture != null)
             {
                 var tempRt = textureManager.GetOriginTempRt(sourceDecalTexture);
                 TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
-                RenderTexture.ReleaseTemporary(tempRt);
+                TTRt.R(tempRt);
             }
             else
             {
@@ -144,7 +144,7 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.WriteDecalTexture(decalCompiledRenderTextures, renderer, mulDecalTexture);
                 Profiler.EndSample();
             }
-            RenderTexture.ReleaseTemporary(mulDecalTexture);
+            TTRt.R(mulDecalTexture);
             return decalCompiledRenderTextures;
         }
 

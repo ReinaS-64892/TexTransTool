@@ -74,14 +74,14 @@ namespace net.rs64.TexTransCore.Utils
             using (new RTActiveSaver())
             {
                 var useMip = source.mipmapCount > 1;
-                var rt = RenderTexture.GetTemporary(size.x, size.y); rt.Clear();
+                var rt = TTRt.G(size.x, size.y, true);
                 if (useMip)
                 {
                     Graphics.Blit(source, rt);
                 }
                 else
                 {
-                    var mipRt = RenderTexture.GetTemporary(source.width, source.height);
+                    var mipRt = TTRt.G(source.width, source.height);
                     mipRt.Release();
                     var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
 
@@ -94,13 +94,13 @@ namespace net.rs64.TexTransCore.Utils
 
                     mipRt.Release();
                     (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
-                    RenderTexture.ReleaseTemporary(mipRt);
+                    TTRt.R(mipRt);
                 }
 
                 var resizedTexture = rt.CopyTexture2D(overrideUseMip: useMip);
                 resizedTexture.name = source.name + "_Resized_" + size.x.ToString();
 
-                RenderTexture.ReleaseTemporary(rt);
+                TTRt.R(rt);
                 Profiler.EndSample();
 
                 return resizedTexture;
@@ -117,7 +117,7 @@ namespace net.rs64.TexTransCore.Utils
         }
         public static RenderTexture CreateColorTexForRT(Color color)
         {
-            var rt = RenderTexture.GetTemporary(1, 1, 0);
+            var rt = TTRt.G(1);
             TextureBlend.ColorBlit(rt, color);
             return rt;
         }
@@ -138,10 +138,7 @@ namespace net.rs64.TexTransCore.Utils
 
         public static RenderTexture CloneTemp(this RenderTexture renderTexture)
         {
-            var newTemp = RenderTexture.GetTemporary(renderTexture.descriptor);
-            newTemp.CopyFilWrap(renderTexture);
-            Graphics.CopyTexture(renderTexture, newTemp);
-            return newTemp;
+            return TTRt.G(renderTexture, true);
         }
 
         internal static void CopyFilWrap(this Texture t, Texture s)
@@ -179,7 +176,7 @@ namespace net.rs64.TexTransCore.Utils
         {
             var tmp = rt.CloneTemp();
             ApplyTextureST(tmp, s, t, rt);
-            RenderTexture.ReleaseTemporary(tmp);
+            TTRt.R(tmp);
         }
 
 

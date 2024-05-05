@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 
@@ -104,7 +105,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             public PrioritizedDeferredStack(Texture2D initialTexture)
             {
                 _initialTexture = initialTexture;
-                _stackViewTexture = RenderTexture.GetTemporary(initialTexture.width, initialTexture.height, 0);
+                _stackViewTexture = TTRt.G(initialTexture.width, initialTexture.height);
                 Graphics.Blit(initialTexture, _stackViewTexture);
             }
 
@@ -119,15 +120,15 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 if (!_stack.ContainsKey(priority)) { return; }
                 var cs = _stack[priority];
 
-                foreach (var l in cs) { if (l.Texture is RenderTexture rt) { RenderTexture.ReleaseTemporary(rt); UpdateNeeded = true; } }
+                foreach (var l in cs) { if (l.Texture is RenderTexture rt) { TTRt.R(rt); UpdateNeeded = true; } }
                 cs.Clear();
             }
             public void ReleaseStack()
             {
-                RenderTexture.ReleaseTemporary(_stackViewTexture);
+                TTRt.R(_stackViewTexture);
                 _stackViewTexture = null;
                 foreach (var ptl in _stack)
-                    foreach (var l in ptl.Value) { if (l.Texture is RenderTexture rt) { RenderTexture.ReleaseTemporary(rt); } }
+                    foreach (var l in ptl.Value) { if (l.Texture is RenderTexture rt) { TTRt.R(rt); } }
 
             }
             public void StackViewUpdate()

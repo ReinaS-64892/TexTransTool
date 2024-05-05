@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -62,16 +63,15 @@ namespace net.rs64.TexTransTool
         public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D)
         {
             var originSize = origin.GetOriginalTextureSize(texture2D);
-            var tempRt = RenderTexture.GetTemporary(originSize, originSize, 0);
+            var tempRt = TTRt.G(originSize, originSize, true);
             tempRt.CopyFilWrap(texture2D);
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }
         public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
         {
-            var tempRt = RenderTexture.GetTemporary(size, size, 0);
+            var tempRt = TTRt.G(size, size, true);
             tempRt.CopyFilWrap(texture2D);
-            tempRt.Clear();
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }

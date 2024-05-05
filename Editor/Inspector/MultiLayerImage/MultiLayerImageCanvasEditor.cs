@@ -2,6 +2,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]
@@ -37,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             texManager.DestroyDeferred();
 
             EditorGUI.DrawTextureTransparent(previewArea, canvasResult, ScaleMode.ScaleToFit);
-            RenderTexture.ReleaseTemporary(canvasResult);
+            TTRt.R(canvasResult);
         }
 
 
