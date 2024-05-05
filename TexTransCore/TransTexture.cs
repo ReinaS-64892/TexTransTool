@@ -161,8 +161,6 @@ namespace net.rs64.TexTransCore
             var mesh = transUVData.GenerateTransMesh();
             Profiler.EndSample();
 
-            var preBias = sourceTexture.mipMapBias;
-            sourceTexture.mipMapBias = sourceTexture.mipmapCount * -1;
             var preWarp = sourceTexture.wrapMode;
 
             RenderTexture depthRt = null;
@@ -248,7 +246,6 @@ namespace net.rs64.TexTransCore
             }
             finally
             {
-                sourceTexture.mipMapBias = preBias;
                 sourceTexture.wrapMode = preWarp;
                 UnityEngine.Object.DestroyImmediate(mesh);
                 if (depthRt != null) { TTRt.R(depthRt); }
