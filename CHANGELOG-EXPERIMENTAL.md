@@ -33,7 +33,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - IslandSelector が使用できるようになったことに伴い SimpleDecal の IslandCulling は削除されました (#422)
 - ObjectReplaceInvoke は削除されました (#438)
 - CylindricalDecal , CylindricalCurveDecal , CylindricalCoordinatesSystem , NailEditor , NailOffsetData は削除されました (#449)
-- MatAndTexAbsoluteSeparator , MatAndTexRelativeSeparator , MaterialModifierEditor は削除されました (#456)
+- MatAndTexAbsoluteSeparator , MatAndTexRelativeSeparator , MaterialModifier は削除されました (#456)
 
 ### Fixed
 
