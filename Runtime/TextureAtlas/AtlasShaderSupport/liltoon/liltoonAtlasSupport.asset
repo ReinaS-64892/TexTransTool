@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2369c186c1ab3c44b9ef86b3a8cbccf, type: 3}
-  m_Name: liltoonAtlasSupport
+  m_Name: lilToonAtlasSupport
   m_EditorClassIdentifier: 
   SupportedShaderComparer:
     rid: 7150698656081904266
@@ -232,7 +232,7 @@ MonoBehaviour:
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        SousePropertyName: _MainTex
+        SourcePropertyName: _MainTex
         TargetPropertyName: _BaseMap
     - rid: 7150698656081904266
       type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
@@ -257,7 +257,7 @@ MonoBehaviour:
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        SousePropertyName: _MainTex
+        SourcePropertyName: _MainTex
         TargetPropertyName: _BaseColorMap
     - rid: 7150698656081904310
       type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
@@ -547,21 +547,21 @@ MonoBehaviour:
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881826
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881827
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseRimShade
+        PropertyName: _UseReflection
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881828
