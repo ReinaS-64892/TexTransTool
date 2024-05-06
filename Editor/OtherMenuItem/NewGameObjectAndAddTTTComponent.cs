@@ -47,6 +47,11 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + IslandSelectorNOT.MenuPath)] static void ISNOT() => C<IslandSelectorNOT>();
         [M(BP + IslandSelectorXOR.MenuPath)] static void ISXOR() => C<IslandSelectorXOR>();
 
+        [M(BP + SingleGradationDecal.MenuPath)] static void SGD() => C<SingleGradationDecal>();
+        [M(BP + TextureConfigurator.MenuPath)] static void TC() => C<TextureConfigurator>();
+        [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
+        [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
+
 
     }
 }

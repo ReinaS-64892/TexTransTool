@@ -23,6 +23,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - SingleGradationDecal が追加されました (#449)
   - オプション GradationClamp が追加 (#451)
 - MaterialOverrideTransfer が追加されました (#456)
+- TextureConfigurator が追加されました (#469)
 
 ### Changed
 
