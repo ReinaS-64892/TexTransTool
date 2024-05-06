@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の テクスチャ詳細設定で、色空間 のUIが正しく表示されていない問題を修正 (#462)
 - AtlasTexture でテクスチャが縮小される場合に MipMap を使用していない問題を修正 (#463)
 - Mac環境でマイグレーションのダイアログが、512Byte以上のマルチバイト文字列であったために、クラッシュする問題の回避を追加 (#466)
+  - シンボルの誤りにより回避できていなかった問題を修正 (#470)
 
 ### Deprecated
 
