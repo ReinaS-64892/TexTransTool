@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.Migration
         {
             InProgress = true;
             var result = EditorUtility.DisplayDialog("Migrate!",
-#if !UNITY_STANDALONE_OSX
+#if !UNITY_EDITOR_OSX
 @"互換性の持たないTexTransToolのアップグレードが検出されました!
 正常な動作のためにはすべてのシーンとプレハブをマイグレーションする必要があります。
 プロジェクトが壊れる可能性もあり、長い時間がかかります。
