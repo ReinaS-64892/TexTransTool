@@ -447,3 +447,8 @@ msgstr "TargetPropertyName"
 
 msgid "SingleGradationDecal:prop:GradientClamp"
 msgstr "GradientClamp"
+
+# TextureConfigurator
+
+msgid "TextureConfigurator:error:TargetNotFound"
+msgstr "TargetNotFound"

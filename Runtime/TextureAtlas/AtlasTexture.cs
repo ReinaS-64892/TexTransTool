@@ -739,10 +739,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //CompressDelegation
             foreach (var atlasTexFTData in atlasTexFineTuningTargets)
             {
-                var tex = atlasTexFTData.Value.Texture2D;
                 var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>();
                 if (compressSetting == null) { continue; }
-                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(tex, compressSetting), (int)compressSetting.CompressionQuality);
+                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting), (int)compressSetting.CompressionQuality);
                 domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
             }
 

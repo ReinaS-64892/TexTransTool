@@ -53,8 +53,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         Normal,
         High,
     }
-
-    internal class CompressionQualityData : ITuningData
+    [Serializable]
+    public class CompressionQualityData : ITuningData
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
 
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public TextureFormat OverrideTextureFormat;
 
 
-        public int CompressionQuality = 50;
+        [Range(0, 100)] public int CompressionQuality = 50;
     }
     internal class CompressionQualityApplicant : ITuningApplicant
     {
@@ -72,7 +72,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             // Delegated to ITextureManager
         }
-        public static TextureFormat GetTextureFormat(Texture2D texture2D, CompressionQualityData compressionQualityData)
+        public static TextureFormat GetTextureFormat(CompressionQualityData compressionQualityData)
         {
             if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
 
