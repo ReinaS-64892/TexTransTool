@@ -25,6 +25,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
             foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UVModification])) { tf.Apply(editorCallDomain); }
             foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.AfterUVModification])) { tf.Apply(editorCallDomain); }
             foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.UnDefined])) { tf.Apply(editorCallDomain); }
+            foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.Optimizing])) { tf.Apply(editorCallDomain); }
         }
     }
 }
