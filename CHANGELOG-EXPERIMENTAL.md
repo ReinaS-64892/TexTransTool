@@ -8,6 +8,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 ### Added
 
 - IslandSelector が追加されました (#422)
+  - Box(Sphere)IslandSelector　に IsAll オプションが追加されました (#468)
 - SimpleDecal の実験的なカリング機能のとして IslandSelector が使用できるようになりました (#422)
   - IslandCulling からのマイグレーションが追加されました (#422)
 - TTT PSD Importer のプレビューの生成が大幅に高速化されました (#424 #443)
