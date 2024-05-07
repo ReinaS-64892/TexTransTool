@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using net.rs64.TexTransCore.BlendTexture;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransCore
 {
@@ -24,14 +25,22 @@ namespace net.rs64.TexTransCore
 
         public static void CallInitialize()//シェーダー等がロードさている状態を想定している。
         {
+            Profiler.BeginSample("FindInitializers");
             var initializers = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(i => i.GetTypes())
-            .SelectMany(i => i.GetRuntimeMethods())
-            .Where(i => i.IsStatic)
-            .Where(i => i.GetCustomAttribute<TexTransInitialize>() is not null)
-            .Select(i => (Action)i.CreateDelegate(typeof(Action)));
+            .Where(i => i.FullName.Contains("net.rs64"))
+            .SelectMany(i => i.GetTypes().SelectMany(t => t.GetRuntimeMethods()))
+            .Where(i => i.IsStatic && i.GetCustomAttribute<TexTransInitialize>() is not null)
+            .Select(i => (Action)i.CreateDelegate(typeof(Action))).ToArray();
+            Profiler.EndSample();
 
-            foreach (var method in initializers) { method(); }
+            Profiler.BeginSample("CallInitializers");
+            foreach (var method in initializers)
+            {
+                Profiler.BeginSample("Call:" + method.Method.Name);
+                method();
+                Profiler.EndSample();
+            }
+            Profiler.EndSample();
         }
 
 
