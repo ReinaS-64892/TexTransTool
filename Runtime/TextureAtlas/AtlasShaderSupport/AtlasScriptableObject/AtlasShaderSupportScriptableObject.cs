@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     public class AtlasShaderSupportScriptableObject : ScriptableObject
     {
         [SerializeReference] public ISupportedShaderComparer SupportedShaderComparer = new ContainsName();
+        public int Priority;
         public List<AtlasTargetDefine> AtlasTargetDefines;
         public Shader BakeShader;
         [SerializeReference] public List<IAtlasMaterialPostProses> AtlasMaterialPostProses = new();
