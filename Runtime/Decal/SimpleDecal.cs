@@ -102,12 +102,13 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
         {
+            var targetRenderers = TargetRenderers.Where(r => r != null);
             var dependencies = new UnityEngine.Object[] { transform }
             .Concat(transform.GetParents())
-            .Concat(TargetRenderers)
-            .Concat(TargetRenderers.Select(r => r.transform))
-            .Concat(TargetRenderers.Select(r => r.GetMesh()))
-            .Concat(TargetRenderers.Where(r => r is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(r => r.bones))
+            .Concat(targetRenderers)
+            .Concat(targetRenderers.Select(r => r.transform))
+            .Concat(targetRenderers.Select(r => r.GetMesh()))
+            .Concat(targetRenderers.Where(r => r is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(r => r.bones))
             .Append(DecalTexture);
 
             if (IslandSelector != null) { dependencies.Concat(IslandSelector.GetDependency()); }
