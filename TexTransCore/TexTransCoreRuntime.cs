@@ -13,6 +13,7 @@ namespace net.rs64.TexTransCore
         public static Action NextUpdateCall;
         public static Func<string, Type, UnityEngine.Object> LoadAsset;
         public static Func<Type, IEnumerable<UnityEngine.Object>> LoadAssetsAtType;
+        public static Dictionary<Type,Action> NewAssetListen = new();
 
     }
 

@@ -15,21 +15,31 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [TexTransInitialize]
         public static void Initialize()
         {
-            var atlasShaderSupportList = TexTransCoreRuntime.LoadAssetsAtType.Invoke(typeof(AtlasShaderSupportScriptableObject)).Cast<AtlasShaderSupportScriptableObject>().ToList();
+            SupporterInit();
+            TexTransCoreRuntime.NewAssetListen[typeof(AtlasShaderSupportScriptableObject)] = SupporterInit;
 
-            if (s_defaultSupporter == null)
+            static void SupporterInit()
             {
-                s_defaultSupporter = ScriptableObject.CreateInstance<AtlasShaderSupportScriptableObject>();
-                s_defaultSupporter.SupportedShaderComparer = new AnythingShader();
-                s_defaultSupporter.AtlasTargetDefines = new() { new() { TexturePropertyName = "_MainTex", AtlasDefineConstraints = new Anything(), BakePropertyNames = new() } };
-            }
+                var atlasShaderSupportList = TexTransCoreRuntime.LoadAssetsAtType.Invoke(typeof(AtlasShaderSupportScriptableObject)).Cast<AtlasShaderSupportScriptableObject>().ToList();
 
-            atlasShaderSupportList.Add(s_defaultSupporter);
-            s_atlasShaderSupportList = atlasShaderSupportList;
+                if (s_defaultSupporter == null)
+                {
+                    s_defaultSupporter = ScriptableObject.CreateInstance<AtlasShaderSupportScriptableObject>();
+                    s_defaultSupporter.SupportedShaderComparer = new AnythingShader();
+                    s_defaultSupporter.AtlasTargetDefines = new() { new() { TexturePropertyName = "_MainTex", AtlasDefineConstraints = new Anything(), BakePropertyNames = new() } };
+                    s_defaultSupporter.Priority = int.MaxValue;
+                }
+
+                atlasShaderSupportList.Add(s_defaultSupporter);
+                s_atlasShaderSupportList = atlasShaderSupportList;
+            }
         }
 
         public AtlasShaderSupportScriptableObject GetAtlasShaderSupporter(Material mat)
         {
+            s_atlasShaderSupportList.RemoveAll(i => i == null);
+            s_atlasShaderSupportList.Sort((l, r) => l.Priority - r.Priority);
+
             return s_atlasShaderSupportList.First(i => i.SupportedShaderComparer.ThisSupported(mat));
         }
 

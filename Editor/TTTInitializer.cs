@@ -1,6 +1,7 @@
 using System.Linq;
 using net.rs64.TexTransCore;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.Utils
@@ -32,6 +33,21 @@ namespace net.rs64.TexTransTool.Utils
             Profiler.BeginSample("TexTransInitialize");
             TexTransInitialize.CallInitialize();
             Profiler.EndSample();
+
+        }
+
+        internal class AssetImportListener : AssetPostprocessor
+        {
+            static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
+            {
+                foreach (var path in importedAssets)
+                {
+                    var type = AssetDatabase.GetMainAssetTypeAtPath(path);
+                    if (TexTransCoreRuntime.NewAssetListen.TryGetValue(type, out var action)) { action.Invoke(); }
+                }
+            }
+
+
         }
     }
 }
