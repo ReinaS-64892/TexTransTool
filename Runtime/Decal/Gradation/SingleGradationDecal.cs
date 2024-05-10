@@ -112,7 +112,7 @@ namespace net.rs64.TexTransTool.Decal
         internal override int GetDependencyHash(IDomain domain)
         {
             var hash = 0;
-            foreach (var mat in TargetMaterials) { hash ^= mat?.GetInstanceID() ?? 0; }
+            foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
             return hash;
         }
     }
