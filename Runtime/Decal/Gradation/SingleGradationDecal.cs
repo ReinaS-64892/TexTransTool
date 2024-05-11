@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.Decal
         internal const string MenuPath = ComponentName;
 
         internal override List<Renderer> GetRenderers => null;
-        internal override bool IsPossibleApply => true;
+        internal override bool IsPossibleApply => TargetMaterials != null && TargetMaterials.Any();
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
         public List<Material> TargetMaterials;
@@ -32,6 +32,7 @@ namespace net.rs64.TexTransTool.Decal
         public AbstractIslandSelector IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
+
 
         internal override void Apply([NotNull] IDomain domain)
         {
@@ -60,6 +61,7 @@ namespace net.rs64.TexTransTool.Decal
 
         private HashSet<Material> GetTargetMaterials(Func<UnityEngine.Object, UnityEngine.Object, bool> originEqual, IEnumerable<Renderer> domainRenderers)
         {
+            if (!IsPossibleApply) { return new(); }
             return RendererUtility.GetMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 
@@ -112,7 +114,7 @@ namespace net.rs64.TexTransTool.Decal
         internal override int GetDependencyHash(IDomain domain)
         {
             var hash = 0;
-            foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
+            if (TargetMaterials != null) foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
             return hash;
         }
     }
