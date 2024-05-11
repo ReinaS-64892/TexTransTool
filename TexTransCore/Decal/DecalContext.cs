@@ -36,7 +36,7 @@ namespace net.rs64.TexTransCore.Decal
 
         public string TargetPropertyName { get; set; } = "_MainTex";
         public TextureWrap? TextureWarp { get; set; } = null;
-        public float DecalPadding { get; set; } = 0.5f;
+        public float DecalPadding { get; set; } = 5f;
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
 
