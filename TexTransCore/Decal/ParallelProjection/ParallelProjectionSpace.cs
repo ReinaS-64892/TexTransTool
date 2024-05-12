@@ -32,7 +32,10 @@ namespace net.rs64.TexTransCore.Decal
         public void Dispose()
         {
             MeshData = null;
+            _jobHandle.Complete();
             PPSVert.Dispose();
+            _jobHandle = default;
+            PPSVert = default;
         }
     }
 }
