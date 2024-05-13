@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransCore;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using net.rs64.TexTransCore.Utils;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {
@@ -106,6 +107,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             {
                 _initialTexture = initialTexture;
                 _stackViewTexture = TTRt.G(initialTexture.width, initialTexture.height);
+                _stackViewTexture.CopyFilWrap(initialTexture);
                 Graphics.Blit(initialTexture, _stackViewTexture);
             }
 
