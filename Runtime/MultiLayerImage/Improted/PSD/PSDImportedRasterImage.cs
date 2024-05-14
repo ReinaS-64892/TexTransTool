@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCore;
@@ -144,7 +145,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)
         {
-            return await Task.WhenAll(tasks).ConfigureAwait(false);
+            return await Task.WhenAll(tasks.Where(i => i != null)).ConfigureAwait(false);
         }
         [TexTransInitialize]
         public static void Init()
