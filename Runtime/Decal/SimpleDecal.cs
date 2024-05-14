@@ -16,7 +16,7 @@ using Unity.Collections;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SimpleDecal : TexTransRuntimeBehavior//AbstractSingleDecal<ParallelProjectionSpace, Vector3>
+    public sealed class SimpleDecal : TexTransRuntimeBehavior
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
@@ -111,7 +111,7 @@ namespace net.rs64.TexTransTool.Decal
             .Concat(targetRenderers.Where(r => r is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(r => r.bones))
             .Append(DecalTexture);
 
-            if (IslandSelector != null) { dependencies.Concat(IslandSelector.GetDependency()); }
+            if (IslandSelector != null) { dependencies = dependencies.Concat(IslandSelector.GetDependency()); }
             return dependencies;
         }
         internal override int GetDependencyHash(IDomain domain)
@@ -180,7 +180,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
-            IslandSelector?.OnDrawGizmosSelected();
+            if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
         }
 
     }
