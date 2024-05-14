@@ -42,6 +42,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 - Library が存在しないときにも正しく TTT PSD Importer がインポートできるようになりました (#427)
 - TTT PSD Importer が PSD の ImageResourceBlock を正しく読み込めるようになりました (#443)
+- TTT PSD Importer から アルファのないラスターレイヤーが正しくインポートできない問題を修正 (#479)
 
 ### Deprecated
 
