@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Migration.V3
             if (simpleDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (simpleDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 4) { Debug.Log(simpleDecal.name + " SimpleDecal : マイグレーション不可能なバージョンです。"); return; }
 
-            MigrateIslandCullingToIslandSelector(simpleDecal);
+            if (simpleDecal.IslandCulling) { MigrateIslandCullingToIslandSelector(simpleDecal); }
 
             if (simpleDecal.PolygonCulling != TexTransCore.Decal.PolygonCulling.Vertex) { simpleDecal.PolygonOutOfCulling = false; }
 
