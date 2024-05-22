@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Removed
+
+### Fixed
+
+### Deprecated
+
+## [0.7.0]
+
+### Added
+
 - Optimizing Phase が追加されました (#410)
   - NDMF OptimizePhaseに実行されるようになりました。 (#438)
 - GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
@@ -507,7 +519,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...master
+[0.7.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0
 [0.6.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...v0.6.6
 [0.6.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4
