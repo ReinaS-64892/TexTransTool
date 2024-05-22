@@ -52,8 +52,14 @@ msgstr "Maximum Range of renderers atlas"
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"
 
-msgid "AtlasTexture:label:TSM-Header"
-msgstr "Target    (ScaleOffset)    Material"
+msgid "AtlasTexture:label:Target"
+msgstr "Target"
+
+msgid "AtlasTexture:label:SizePriority"
+msgstr "(SizePriority)"
+
+msgid "AtlasTexture:label:Material"
+msgstr "Material"
 
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "atlas target  (texture scale offset)  material"
@@ -124,17 +130,23 @@ msgstr "PixelNormalize"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
 
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
+msgstr "MaterialMargeGroups"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
+msgstr "MargeReferenceMaterial"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgstr "GroupMaterials"
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "IncludeDisabledRenderer"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
 msgstr "Option to Include disabled renderers in the atlas."
 
-msgid "AtlasTexture:prop:UseUpScaling"
-msgstr "UseUpScaling"
-
-msgid "AtlasTexture:prop:UseUpScaling:tooltip"
-msgstr "Allow upscaling in island sorting."
+msgid "AtlasTexture:prop:ForceSizePriority"
+msgstr "ForceSizePriority"
 
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "TextureFineTuning"
@@ -239,6 +251,27 @@ msgstr "Settings that specify the color space of specific texture."
 msgid "TextureFineTuning:prop:Linear"
 msgstr "Linear"
 
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "IslandFineTuners"
+
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "IslandSelector"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "SizeOffset"
+
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "OffsetValue"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "SizePriority"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "PriorityValue"
+
 #  CommonDecal
 
 msgid "CommonDecal:label:RenderersSettings"
@@ -342,23 +375,11 @@ msgstr "SideCulling"
 msgid "SimpleDecal:prop:SideCulling:tooltip"
 msgstr "Setting to cull back side polygon when view from the decal."
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling"
-msgstr "IslandCulling"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgstr "IslandSelect"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling:tooltip"
-msgstr "Feature to cull decal with uv island."
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos"
-msgstr "IslandSelectorPos"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos:tooltip"
-msgstr "Setting to adjust the position of island selector, X is width, Y is height."
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange"
-msgstr "IslandSelectorRange"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange:tooltip"
-msgstr "アイランドセレクターの最大距離の設定"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
+msgstr "A feature that decal apply area for select island."
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "UseDepth"
@@ -400,3 +421,34 @@ msgstr "SummaryNone"
 
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "GroupChildren"
+
+# SingleGradationDecal
+
+msgid "SingleGradationDecal:prop:SelectedMaterialView"
+msgstr "SelectedMaterialView"
+
+msgid "SingleGradationDecal:prop:GradationLength"
+msgstr "GradationLength"
+
+msgid "SingleGradationDecal:prop:Gradient"
+msgstr "Gradient"
+
+msgid "SingleGradationDecal:prop:Alpha"
+msgstr "Alpha"
+
+msgid "SingleGradationDecal:prop:IslandSelector"
+msgstr "IslandSelector"
+
+msgid "SingleGradationDecal:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+msgid "SingleGradationDecal:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "SingleGradationDecal:prop:GradientClamp"
+msgstr "GradientClamp"
+
+# TextureConfigurator
+
+msgid "TextureConfigurator:error:TargetNotFound"
+msgstr "TargetNotFound"

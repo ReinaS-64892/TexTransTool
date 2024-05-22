@@ -7,6 +7,7 @@ using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.Migration.V1;
 using net.rs64.TexTransTool.Migration.V2;
+using net.rs64.TexTransTool.Migration.V3;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -34,6 +35,28 @@ namespace net.rs64.TexTransTool.Migration
 
 
 #pragma warning disable CS0612
+        public static bool MigrationITexTransToolTagV3ToV4(ITexTransToolTag texTransToolTag)
+        {
+            switch (texTransToolTag)
+            {
+                case AtlasTexture atlasTexture:
+                    {
+                        AtlasTextureV3.MigrationAtlasTextureV3ToV4(atlasTexture);
+                        return true;
+                    }
+                case SimpleDecal simpleDecal:
+                    {
+                        SimpleDecalV3.MigrationSimpleDecalV3ToV4(simpleDecal);
+                        return true;
+                    }
+
+                default:
+                    {
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 4);
+                        return true;
+                    }
+            }
+        }
         public static bool MigrationITexTransToolTagV2ToV3(ITexTransToolTag texTransToolTag)
         {
             switch (texTransToolTag)
@@ -60,7 +83,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV1.MigrationAtlasTextureV1ToV2(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV1.MigrationAbstractDecalV1ToV2(abstractDecal);
                         return true;
@@ -86,7 +109,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV0.MigrationAtlasTextureV0ToV1(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV0.MigrationAbstractDecalV0ToV1(abstractDecal);
                         return true;
@@ -112,7 +135,7 @@ namespace net.rs64.TexTransTool.Migration
                         AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(atlasTexture);
                         return true;
                     }
-                case AbstractDecal abstractDecal:
+                case SimpleDecal abstractDecal:
                     {
                         AbstractDecalV0.FinalizeMigrationAbstractDecalV0ToV1(abstractDecal);
                         return true;
@@ -171,13 +194,16 @@ namespace net.rs64.TexTransTool.Migration
         {
             InProgress = true;
             var result = EditorUtility.DisplayDialog("Migrate!",
+#if !UNITY_EDITOR_OSX
 @"互換性の持たないTexTransToolのアップグレードが検出されました!
 正常な動作のためにはすべてのシーンとプレハブをマイグレーションする必要があります。
 プロジェクトが壊れる可能性もあり、長い時間がかかります。
 バックアップをしていない場合はバックアップをしてから移行してください。
 マイグレーションを完了させない場合、Unityを再起動するたびにこのウィンドウが出現します。
 
-                プロジェクトをマイグレーションしますか？",
+"+
+#endif
+                "プロジェクトをマイグレーションしますか？",
                 "マイグレーションする (Migrate)",
                 "キャンセル (Cancel)");
 
@@ -209,6 +235,11 @@ namespace net.rs64.TexTransTool.Migration
                     case 2:
                         {
                             MigrateEverythingV2ToV3(true);
+                            break;
+                        }
+                    case 3:
+                        {
+                            MigrateEverythingV3ToV4(true);
                             break;
                         }
                 }
@@ -318,6 +349,41 @@ namespace net.rs64.TexTransTool.Migration
                     (prefabs.Count + i) / totalCount));
 
                 MigrationUtility.WriteVersion(3);
+
+            }
+            catch
+            {
+                EditorUtility.DisplayDialog("Error!", "Error in migration process!", "OK");
+                throw;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                if (!continuesMigrate) PostMigration();
+            }
+        }
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.6.x to v0.7.x")]
+        private static void MigrateEverythingV3ToV4() { MigrateEverythingV3ToV4(false); }
+        private static void MigrateEverythingV3ToV4(bool continuesMigrate = false)
+        {
+            try
+            {
+                if (!continuesMigrate) PreMigration();
+                var prefabs = GetPrefabs();
+                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                float totalCount = prefabs.Count + scenePaths.Count;
+
+                MigratePrefabsV3ToV4(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Prefabs) ({i} / {totalCount})",
+                    i / totalCount));
+
+                MigrateAllScenesV3ToV4(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
+                    (prefabs.Count + i) / totalCount));
+
+                MigrationUtility.WriteVersion(4);
 
             }
             catch
@@ -474,6 +540,15 @@ namespace net.rs64.TexTransTool.Migration
                 Prefab = prefab;
             }
         }
+        private static void MigratePrefabsV3ToV4(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        {
+            MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV3ToV4);
+        }
+        private static void MigrateAllScenesV3ToV4(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV3ToV4);
+        }
+
         private static void MigratePrefabsV2ToV3(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {
             MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV2ToV3);

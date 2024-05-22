@@ -17,6 +17,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [0.7.0]
+
+### Added
+
+- Optimizing Phase が追加されました (#410)
+  - NDMF OptimizePhaseに実行されるようになりました。 (#438)
+- GameObject から TexTransTool のほとんどのコンポーネントが追加できるようになりました (#411)
+- AtlasTexture に強制的に優先度のサイズに変更する ForcePrioritySize が追加されました (#431)
+- AtlasTexture 複数のマテリアルが衝突しないテクスチャを持つ場合に、同一のアイランドが割り当てられるようになりました (#431)
+- AtlasTexture が Scale Transition(Tiling) を使用しているマテリアルのテクスチャを逆補正する機能が追加されました (#431 #435)
+- NDMF環境でのビルドを行う場合、オブジェクトの置き換えの追跡を NDMF ObjectRegistry を使用するようになりました (#438)
+- Clip系の合成モードが追加されました (#444)
+- SimpleDecal が高速化しました (#449)
+- VRChat Avatar SDK が存在するときに NDMF が存在しない場合に警告を生成すようになりました (#452)
+
+### Changed
+
+- SizeOffset は廃止され、SizePriority に変更されました (#431)
+- AtlasTexture のプロパティの並び順が変更されました (#431)
+- 内部的に使用される RenderTexture の形式が Win Linux Mac にかかわらず ARGB32 を使用するように変更されました (#461)
+- プレビューを行うときに、テクスチャの圧縮が行われるように変更されました (#465)
+
+### Removed
+
+- AtlasTexture の UseUpScale は削除されました (#431)
+- プログレスバーの詳細な表示が削除されました (#438)
+- SimpleDecal のポリゴンカリング、Edge と EdgeAndCenterRay　は削除されました (#449)
+
+### Fixed
+
+- AtlasTexture で SubMesh よりも多くのマテリアルスロットが存在するメッシュで正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture でサブメッシュを超えて同一の頂点を使用するメッシュを正しくアトラス化できない問題を修正 (#431)
+- AtlasTexture の「適用時に非アクティブなレンダラーを含める」が有効な時、非アクティブなレンダラーのマテリアルが選択肢に表示されない問題を修正 (#431)
+- AtlasTexture で大きさが完全に 0 のアイランドが存在するメッシュの UV を正しく操作できていない問題を修正 (#446)
+- AtlasTexture の テクスチャ詳細設定で、色空間 のUIが正しく表示されていない問題を修正 (#462)
+- AtlasTexture でテクスチャが縮小される場合に MipMap を使用していない問題を修正 (#463)
+- Mac環境でマイグレーションのダイアログが、512Byte以上のマルチバイト文字列であったために、クラッシュする問題の回避を追加 (#466)
+  - シンボルの誤りにより回避できていなかった問題を修正 (#470)
+
+### Deprecated
+
 ## [0.6.6]
 
 ### Fixed
@@ -478,7 +519,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...master
+[0.7.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0
 [0.6.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...v0.6.6
 [0.6.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4

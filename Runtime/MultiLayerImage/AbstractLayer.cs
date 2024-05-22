@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
@@ -24,7 +26,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             if (LayerMask.ContainedMask)
             {
-                var rt = RenderTexture.GetTemporary(canvasContext.CanvasSize, canvasContext.CanvasSize); rt.Clear();
+                var rt = TTRt.G(canvasContext.CanvasSize, canvasContext.CanvasSize, true);
                 LayerMask.WriteMaskTexture(rt, canvasContext.TextureManager);
                 return new LayerAlphaMod(rt, Opacity);
             }
@@ -32,6 +34,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 return new LayerAlphaMod(null, Opacity);
             }
+        }
+
+        internal virtual IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            yield return gameObject;
+            foreach (var m in LayerMask.GetDependency()) { yield return m; }
+        }
+
+        internal virtual int GetDependencyHash()
+        {
+            return LayerMask.GetDependencyHash();
         }
     }
     [Serializable]
@@ -41,6 +54,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D MaskTexture;
 
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
+
+        public IEnumerable<UnityEngine.Object> GetDependency() { yield return MaskTexture; }
+
+        public int GetDependencyHash() { return MaskTexture?.GetInstanceID() ?? 0; }
 
         void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)
         {
@@ -52,6 +69,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         bool ContainedMask { get; }
         void WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture);
+        abstract IEnumerable<UnityEngine.Object> GetDependency();
+        int GetDependencyHash();
     }
 
 

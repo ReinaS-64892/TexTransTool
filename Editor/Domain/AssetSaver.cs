@@ -1,3 +1,4 @@
+using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -8,13 +9,14 @@ namespace net.rs64.TexTransTool
     internal class AssetSaver : IAssetSaver
     {
         [NotNull] public AvatarDomainAsset Asset;
+        public const string SaveDirectory = "Assets/TexTransToolGenerates";
 
         public AssetSaver(Object container = null)
         {
             if (container == null)
             {
                 Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
-                AssetDatabase.CreateAsset(Asset, AssetSaveHelper.GenerateAssetPath("AvatarDomainAsset", ".asset", AssetSaveHelper.SaveType.AvatarDomainAssets));
+                AssetDatabase.CreateAsset(Asset, AssetDatabase.GenerateUniqueAssetPath(Path.Combine(SaveDirectory, "AvatarDomainAsset.asset")));
             }
             else
             {

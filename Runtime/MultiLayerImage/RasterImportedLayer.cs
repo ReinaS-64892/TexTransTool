@@ -1,12 +1,17 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using net.rs64.TexTransTool;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class RasterImportedLayer : AbstractImageLayer
     {
+        internal const string ComponentName = "TTT RasterImportedLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage ImportedImage;
 
 
@@ -14,6 +19,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             originTexture.WriteOriginalTexture(ImportedImage, renderTexture);
         }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency() { return base.GetDependency().Append(ImportedImage); }
+        internal override int GetDependencyHash() { return base.GetDependencyHash() ^ ImportedImage?.GetInstanceID() ?? 0; }
     }
     [Serializable]
     public class TTTImportedLayerMask : ILayerMask
@@ -33,5 +41,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             originTexture.WriteOriginalTexture(MaskTexture, renderTexture);
         }
+        public IEnumerable<UnityEngine.Object> GetDependency() { yield return MaskTexture; }
+
+        public int GetDependencyHash() { return MaskTexture?.GetInstanceID() ?? 0; }
     }
 }

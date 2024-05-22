@@ -3,7 +3,7 @@ using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.Decal;
 using UnityEngine;
 using net.rs64.TexTransCore.Decal;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
@@ -19,14 +19,14 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 
             foreach (var renderer in findRoot.GetComponentsInChildren<Renderer>())
             {
-                var souseMesh = renderer.GetMesh();
-                if (souseMesh == null) { continue; }
+                var sourceMesh = renderer.GetMesh();
+                if (sourceMesh == null) { continue; }
 
-                var meshdata = renderer.Memo(DecalUtility.GetMeshData);
+                var meshData = renderer.Memo(MeshData.GetMeshData);
 
                 var ray = new Ray(transform.position, transform.forward);
 
-                var hitTriangles = IslandCulling.RayCast(ray, meshdata);
+                var hitTriangles = IslandCulling.RayCast(ray, meshData);
 
                 var count = 0;
                 foreach (var hitTriangle in hitTriangles)
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
             return hits;
         }
 
-        public void AddToDecal(AbstractDecal abstractDecal, List<Renderer> renderers)
+        public void AddToDecal(SimpleDecal abstractDecal, List<Renderer> renderers)
         {
             var rendererHash = new HashSet<Renderer>(abstractDecal.TargetRenderers);
             foreach (var renderer in renderers)

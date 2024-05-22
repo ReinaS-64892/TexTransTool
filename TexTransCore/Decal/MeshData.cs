@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -12,6 +13,7 @@ namespace net.rs64.TexTransCore.Decal
 {
     public class MeshData : IDisposable
     {
+        internal readonly Renderer ReferenceRenderer;
         internal NativeArray<Vector3> _vertices;
         internal NativeArray<Vector3> Vertices
         {
@@ -21,7 +23,7 @@ namespace net.rs64.TexTransCore.Decal
                 return _vertices;
             }
         }
-        
+
         internal NativeArray<Vector2> VertexUV;
 
         internal JobHandle _jobHandle, _destroyJobHandle;
@@ -54,7 +56,7 @@ namespace net.rs64.TexTransCore.Decal
                 return _combinedTriangles;
             }
         }
-        
+
         internal readonly NativeArray<TriangleIndex> _combinedTriangleIndex;
         internal NativeArray<TriangleIndex> CombinedTriangleIndex
         {
@@ -91,10 +93,13 @@ namespace net.rs64.TexTransCore.Decal
             }
             _combinedTriangles.Dispose();
             _combinedTriangleIndex.Dispose();
+            _combinedTriangleToSubmeshIndexAndOffset.Dispose();
         }
 
-        internal MeshData(Mesh mesh, Matrix4x4 worldSpaceTransform)
+        internal MeshData(Renderer renderer, Mesh mesh, Matrix4x4 worldSpaceTransform)
         {
+            ReferenceRenderer = renderer;
+
             var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh);
 
             var mainMesh = meshDataArray[0];
@@ -102,14 +107,14 @@ namespace net.rs64.TexTransCore.Decal
             var vertexCount = mainMesh.vertexCount;
             _vertices = new NativeArray<Vector3>(vertexCount, Allocator.TempJob);
             VertexUV = new NativeArray<Vector2>(vertexCount, Allocator.TempJob);
-            
+
             mainMesh.GetVertices(_vertices);
             mainMesh.GetUVs(0, VertexUV);
 
             var subMeshCount = mainMesh.subMeshCount;
             _triangles = new NativeArray<TriangleIndex>[subMeshCount];
             _trianglePos = new NativeArray<Triangle>[subMeshCount];
-            
+
             JobHandle worldSpaceTransformJob = new WorldSpaceTransformJob()
             {
                 PositionBuffer = _vertices,
@@ -125,17 +130,17 @@ namespace net.rs64.TexTransCore.Decal
             _combinedTriangleIndex = new NativeArray<TriangleIndex>(totalTris, Allocator.TempJob);
             _combinedTriangles = new NativeArray<Triangle>(totalTris, Allocator.TempJob);
             _combinedTriangleToSubmeshIndexAndOffset = new NativeArray<(int, int)>(totalTris, Allocator.TempJob);
-            
+
             JobHandle jobHandle = default;
             int combinedOffset = 0;
             for (int submesh = 0; submesh < subMeshCount; submesh++)
             {
                 var desc = mainMesh.GetSubMesh(submesh);
                 var indexCount = desc.indexCount;
-                
+
                 _triangles[submesh] = new NativeArray<TriangleIndex>(indexCount, Allocator.TempJob);
                 _trianglePos[submesh] = new NativeArray<Triangle>(indexCount / 3, Allocator.TempJob);
-                
+
                 var indexes = new NativeArray<int>(indexCount, Allocator.TempJob);
                 mainMesh.GetIndices(indexes, submesh);
 
@@ -158,23 +163,76 @@ namespace net.rs64.TexTransCore.Decal
                     submeshIndex = submesh,
                     submeshOffset = combinedOffset
                 }.Schedule(indexCount / 3, 64, newHandle);
-                
+
                 jobHandle = JobHandle.CombineDependencies(jobHandle, copyHandle);
                 combinedOffset += indexCount / 3;
             }
-            
+
             _jobHandle = jobHandle;
             _destroyJobHandle = jobHandle;
-            
+
             meshDataArray.Dispose();
         }
+        internal MeshData(Renderer renderer) : this(renderer, GetMesh(renderer), GetMatrix(renderer)) { }
+        internal static Mesh GetMesh(Renderer target)
+        {
+            switch (target)
+            {
+                case SkinnedMeshRenderer smr:
+                    {
+                        Mesh mesh = new Mesh();
+                        smr.BakeMesh(mesh);
+                        return mesh;
+                    }
+                case MeshRenderer mr:
+                    {
+                        return mr.GetComponent<MeshFilter>().sharedMesh;
+                    }
+                default:
+                    {
+                        throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
+                    }
+            }
+        }
+        internal static Matrix4x4 GetMatrix(Renderer target)
+        {
+            switch (target)
+            {
+                case SkinnedMeshRenderer smr:
+                    {
+                        Matrix4x4 matrix;
+                        if (smr.bones.Any())
+                        {
+                            matrix = Matrix4x4.TRS(smr.transform.position, smr.transform.rotation, Vector3.one);
+                        }
+                        else if (smr.rootBone == null)
+                        {
+                            matrix = smr.localToWorldMatrix;
+                        }
+                        else
+                        {
+                            matrix = smr.rootBone.localToWorldMatrix;
+                        }
 
+                        return matrix;
+                    }
+                case MeshRenderer mr:
+                    {
+                        return mr.localToWorldMatrix;
+                    }
+                default:
+                    {
+                        throw new System.ArgumentException("Rendererが対応したタイプではないか、TargetRendererが存在しません。");
+                    }
+            }
+        }
+        public static MeshData GetMeshData(Renderer renderer) => new MeshData(renderer);
         [BurstCompile]
         struct PackVerticesJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<TriangleIndex> srcIndex;
             [ReadOnly] public NativeArray<Triangle> srcPos;
-            
+
             [NativeDisableParallelForRestriction]
             [NativeDisableContainerSafetyRestriction]
             [WriteOnly] public NativeSlice<TriangleIndex> dstIndex;
@@ -187,7 +245,7 @@ namespace net.rs64.TexTransCore.Decal
 
             public int submeshIndex;
             public int submeshOffset;
-            
+
             public void Execute(int index)
             {
                 dstIndex[index] = srcIndex[index];
@@ -196,22 +254,22 @@ namespace net.rs64.TexTransCore.Decal
                 dstSubmeshIndexAndOffset[index] = (submeshIndex, submeshOffset);
             }
         }
-        
+
         [BurstCompile]
         struct InitTriangleJob : IJobParallelFor
         {
-            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<int> SubmeshIndexBuffer;
+            [DeallocateOnJobCompletion][ReadOnly] public NativeArray<int> SubmeshIndexBuffer;
             [ReadOnly] public NativeArray<Vector3> PositionBuffer;
-            
+
             [WriteOnly] public NativeArray<TriangleIndex> TriangleIndexBuffer;
             [WriteOnly] public NativeArray<Triangle> TrianglePosBuffer;
-            
+
             public void Execute(int index)
             {
                 var i = index * 3;
                 var triIndex = new TriangleIndex(SubmeshIndexBuffer[i], SubmeshIndexBuffer[i + 1], SubmeshIndexBuffer[i + 2]);
                 TriangleIndexBuffer[index] = triIndex;
-                
+
                 var triangle = new Triangle();
                 triangle.zero = PositionBuffer[triIndex.zero];
                 triangle.one = PositionBuffer[triIndex.one];
@@ -219,7 +277,7 @@ namespace net.rs64.TexTransCore.Decal
                 TrianglePosBuffer[index] = triangle;
             }
         }
-        
+
         [BurstCompile]
         struct WorldSpaceTransformJob : IJobParallelFor
         {

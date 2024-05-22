@@ -1,19 +1,13 @@
-using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.MultiLayerImage.LayerData;
 using UnityEngine;
 using net.rs64.TexTransCore;
-using static net.rs64.MultiLayerImage.Parser.PSD.PSDLowLevelParser.PSDLowLevelData;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
-using net.rs64.TexTransCore.TransTextureCore;
-using net.rs64.TexTransCore.BlendTexture;
 using Debug = UnityEngine.Debug;
-using System.Threading.Tasks;
 using LayerMask = net.rs64.MultiLayerImage.LayerData.LayerMaskData;
-using System.Buffers;
 using Unity.Collections;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo.lsct;
@@ -23,7 +17,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class PSDHighLevelParser
     {
-        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData)
+        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData, PSDImportMode? importMode = null)
         {
             var psd = new PSDHighLevelData
             {
@@ -33,13 +27,50 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 RootLayers = new List<AbstractLayerData>()
             };
 
+            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
+
             var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
             var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
 
             ParseAsLayers(psd.RootLayers, imageRecordQueue, imageDataQueue);
 
+            ResolveBlendTypeKeyImportMode(psd.RootLayers, importMode.Value);
+
             return psd;
         }
+
+        public enum PSDImportMode
+        {
+            Photo = 0,
+            Clip = 1,
+        }
+
+        private static void ResolveBlendTypeKeyImportMode(List<AbstractLayerData> layers, PSDImportMode importMode)
+        {
+            switch (importMode)
+            {
+                case PSDImportMode.Clip:
+                    {
+                        foreach (var layer in layers)
+                        {
+                            if (s_clipBlendModeDict.TryGetValue(layer.BlendTypeKey, out var actualModeKey))
+                            {
+                                layer.BlendTypeKey = actualModeKey;
+                            }
+                            if (layer is LayerFolderData layerFolderData) { ResolveBlendTypeKeyImportMode(layerFolderData.Layers, importMode); }
+                        }
+                        break;
+                    }
+            }
+        }
+
+        static Dictionary<string, string> s_clipBlendModeDict = new()
+        {
+            {"ColorDodgeGlow", "Clip/ColorDodgeGlow"},
+            {"Addition","Clip/Addition"},
+            {"AdditionGlow","Clip/AdditionGlow"},
+            {"Exclusion","Clip/Exclusion"},
+        };
 
         private static void ParseAsLayers(List<AbstractLayerData> rootLayers, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
         {
@@ -262,8 +293,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             return channelInfoAndImage;
         }
 
-        public static LowMap<Color32> DrawOffsetEvaluateTexture(
-            LowMap<Color32> targetTexture,
+        public static NativeArrayMap<Color32> DrawOffsetEvaluateTexture(
+            NativeArrayMap<Color32> targetTexture,
             Vector2Int texturePivot,
             Vector2Int canvasSize,
             Color? DefaultColor
@@ -281,10 +312,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
         }
 
-        public static LowMap<Color32> TextureOffset(LowMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
+        public static NativeArrayMap<Color32> TextureOffset(NativeArrayMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
         {
             var sTex2D = texture;
-            var tTex2D = new LowMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
+            var tTex2D = new NativeArrayMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
             var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
             tTex2D.Array.Fill(initColor);
 
@@ -305,9 +336,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             for (var yi = yStart; yEnd > yi; yi += 1)
             {
-                var sPos = new Vector2Int(xStart, yi);
-                var sSpan = sTex2D.Array.Slice(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos, sTex2D.Width), xLength);
-                var tSpan = tTex2D.Array.Slice(TwoDimensionalMap<Color32>.TwoDToOneDIndex(sPos + Pivot, tTex2D.Width), xLength);
+                var sSpan = sTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart, yi, sTex2D.Width), xLength);
+                var tSpan = tTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart + Pivot.x, yi + Pivot.y, tTex2D.Width), xLength);
                 sSpan.CopyTo(tSpan);
             }
             texture.Dispose();

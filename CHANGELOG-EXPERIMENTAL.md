@@ -15,6 +15,49 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Deprecated
 
+## 0.7.0
+
+### Added
+
+- IslandSelector が追加されました (#422)
+  - Box(Sphere)IslandSelector　に IsAll オプションが追加されました (#468)
+- SimpleDecal の実験的なカリング機能のとして IslandSelector が使用できるようになりました (#422)
+  - IslandCulling からのマイグレーションが追加されました (#422)
+- TTT PSD Importer のプレビューの生成が大幅に高速化されました (#424 #443)
+- AtlasTexture に アイランド詳細調整 が追加されました (#431)
+- IslandSelectorNOT と IslandRendererSelector が追加されました (#431)
+- AtlasTexture のシェーダーサポートの追加が ScriptableObject で可能になりました (#431)
+  - 新規作成したオブジェクトが即座に、AtlasTexture に認識されるようになりました(#472)
+- AtlasTexture に MaterialMargeGroup が追加されました (#432)
+- ClipStudioPaint から出力されたと思われる PSD を TTT PSD Importer で読み込んだ時、Clip系の色合成にインポートするようになりました (#444)
+- SubMeshIslandSelector , IslandSelectorXOR , ~~IslandSelectorRelay~~ が追加されました (#447)
+  - IslandSelectorRelayはキャンセルされました (#450)
+- RealTimePreview が大幅に改修され、MultiLayerImageCanvas もリアルタイムプレビュー可能になりました (#448)
+- SingleGradationDecal が追加されました (#449)
+  - オプション GradationClamp が追加 (#451)
+- MaterialOverrideTransfer が追加されました (#456)
+- TextureConfigurator が追加されました (#469)
+
+### Changed
+
+- IslandRendererSelector と IslandSelectOR の名前がそれぞれ RendererIslandSelector と IslandSelectorOR に変更されました (#447)
+- IslandSelectorNOT は子のオブジェクトの一番目を使用するように変更 (#450)
+
+### Removed
+
+- IslandSelector が使用できるようになったことに伴い SimpleDecal の IslandCulling は削除されました (#422)
+- ObjectReplaceInvoke は削除されました (#438)
+- CylindricalDecal , CylindricalCurveDecal , CylindricalCoordinatesSystem , NailEditor , NailOffsetData は削除されました (#449)
+- MatAndTexAbsoluteSeparator , MatAndTexRelativeSeparator , MaterialModifier は削除されました (#456)
+
+### Fixed
+
+- Library が存在しないときにも正しく TTT PSD Importer がインポートできるようになりました (#427)
+- TTT PSD Importer が PSD の ImageResourceBlock を正しく読み込めるようになりました (#443)
+- TTT PSD Importer から アルファのないラスターレイヤーが正しくインポートできない問題を修正 (#479)
+
+### Deprecated
+
 ## 0.6.0
 
 ### Added

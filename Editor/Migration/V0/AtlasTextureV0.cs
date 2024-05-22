@@ -96,12 +96,12 @@ namespace net.rs64.TexTransTool.Migration.V0
                 go.AddComponent<TexTransGroup>();
             }
         }
-        private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSouse, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
+        private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSource, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
         {
-            NewAtlasTextureTarget.TargetRoot = atlasTextureSouse.TargetRoot;
-            NewAtlasTextureTarget.AtlasSetting = atlasTextureSouse.AtlasSettings[atlasSettingIndex];
-            NewAtlasTextureTarget.AtlasSetting.UseIslandCache = atlasTextureSouse.UseIslandCache;
-            NewAtlasTextureTarget.SelectMatList = atlasTextureSouse.MatSelectors
+            NewAtlasTextureTarget.TargetRoot = atlasTextureSource.TargetRoot;
+            NewAtlasTextureTarget.AtlasSetting = atlasTextureSource.AtlasSettings[atlasSettingIndex];
+            NewAtlasTextureTarget.AtlasSetting.UseIslandCache = atlasTextureSource.UseIslandCache;
+            NewAtlasTextureTarget.SelectMatList = atlasTextureSource.MatSelectors
             .Where(I => I.IsTarget && I.AtlasChannel == atlasSettingIndex)
             .Select(I => new TexTransTool.TextureAtlas.AtlasTexture.MatSelector()
             {
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.Migration.V0
                 TextureSizeOffSet = I.TextureSizeOffSet
             }).ToList();
             EditorUtility.SetDirty(NewAtlasTextureTarget);
-            if (atlasTextureSouse == NewAtlasTextureTarget)
+            if (atlasTextureSource == NewAtlasTextureTarget)
             {
                 MigrationUtility.SetSaveDataVersion(NewAtlasTextureTarget, 1);
             }

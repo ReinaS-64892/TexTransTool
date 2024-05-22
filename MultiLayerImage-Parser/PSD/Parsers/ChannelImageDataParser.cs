@@ -162,10 +162,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     writeWidthLine.Slice(writePos, count).Fill(value);
 
                     writePos += count;
-                    // for (; writeRange > writePos; writePos += 1)
-                    // {
-                    //     writeWidthLine[writePos] = value;
-                    // }
                 }
             }
 

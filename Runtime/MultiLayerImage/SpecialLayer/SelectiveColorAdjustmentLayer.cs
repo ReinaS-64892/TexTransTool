@@ -2,9 +2,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT SelectiveColoringAdjustmentLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class SelectiveColoringAdjustmentLayer : AbstractGrabLayer
     {
+        internal const string ComponentName = "TTT SelectiveColoringAdjustmentLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Vector4 RedsCMYK;
         public Vector4 YellowsCMYK;
         public Vector4 GreensCMYK;
@@ -16,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
 
-        public override void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture)
+        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
             var mat = new Material(SpecialLayerShaders.SelectiveColorAdjustment);
 
@@ -32,7 +34,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             mat.SetFloat("_IsAbsolute", IsAbsolute ? 1f : 0f);
 
-            Graphics.Blit(GrabSouse, WriteTarget, mat);
+            Graphics.Blit(grabSource, writeTarget, mat);
             UnityEngine.Object.DestroyImmediate(mat);
         }
     }

@@ -2,7 +2,8 @@
     "name": "net.rs64.multi-layer-image-parser",
     "rootNamespace": "",
     "references": [
-        "net.rs64.tex-trans-core"
+        "net.rs64.tex-trans-core",
+        "net.rs64.tex-trans-core.unsafe"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

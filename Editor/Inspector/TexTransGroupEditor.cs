@@ -1,16 +1,10 @@
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.Editor.Decal;
-using net.rs64.TexTransTool.MatAndTexUtils;
-using net.rs64.TexTransTool.Editor.MatAndTexUtils;
-using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.TextureAtlas.Editor;
-using net.rs64.TexTransTool.Utils;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System;
 using UnityEditor.UIElements;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -38,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 rootVE.hierarchy.Clear();
 
-                var previewButton = new IMGUIContainer(() => PreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup));
+                var previewButton = new IMGUIContainer(() => OneTimePreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup));
 
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(s_style);

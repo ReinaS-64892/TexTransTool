@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Security.Cryptography;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
@@ -10,5 +13,12 @@ namespace net.rs64.TexTransTool
         /// </summary>
         /// <param name="domain">The domain</param>
         internal abstract void Apply([NotNull] IDomain domain);
+
+
+        /// <summary>
+        /// Enumerates references that depend on the component externally.
+        /// </summary>
+        internal abstract IEnumerable<UnityEngine.Object> GetDependency(IDomain domain);
+        internal abstract int GetDependencyHash(IDomain domain);
     }
 }

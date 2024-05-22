@@ -52,8 +52,14 @@ msgstr "アトラス化されるレンダラーの最大範囲"
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "リフレッシュマテリアル"
 
-msgid "AtlasTexture:label:TSM-Header"
-msgstr "対象    (スケールオフセット)    マテリアル"
+msgid "AtlasTexture:label:Target"
+msgstr "対象"
+
+msgid "AtlasTexture:label:SizePriority"
+msgstr "(大きさの優先度)"
+
+msgid "AtlasTexture:label:Material"
+msgstr "マテリアル"
 
 msgid "AtlasTexture:label:TSM-Header:tooltip"
 msgstr "アトラス化対象か否か  (テクスチャのスケールオフセット)  マテリアル"
@@ -124,17 +130,23 @@ msgstr "ピクセルノーマライズ"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "アイランドの移動をピクセル単位にノーマライズする機能"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
+msgstr "マテリアル統合グループ"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
+msgstr "結合時マテリアルの参照"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgstr "グループのマテリアル"
+
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
 msgstr "適用時に非アクティブなレンダラーを含める"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
 msgstr "アトラス化を適用するときに、非アクティブなGameObjectに付いているレンダラーを含めるオプション"
 
-msgid "AtlasTexture:prop:UseUpScaling"
-msgstr "アップスケーリングを許可"
-
-msgid "AtlasTexture:prop:UseUpScaling:tooltip"
-msgstr "アイランドを再配置する時、アイランドのサイズを拡大するのを許可する設定"
+msgid "AtlasTexture:prop:ForceSizePriority"
+msgstr "大きさの優先度を強制"
 
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "テクスチャー詳細設定"
@@ -238,6 +250,24 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
+
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "アイランド詳細調整"
+
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "サイズオフセット"
+
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "オフセットの値"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "大きさの優先度"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "優先度の値"
 
 
 #  CommonDecal
@@ -343,23 +373,11 @@ msgstr "サイドカリング"
 msgid "SimpleDecal:prop:SideCulling:tooltip"
 msgstr "ポリゴンがデカールから見て裏面のポリゴンにデカールを貼らない設定"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling"
-msgstr "アイランドカリング"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgstr "アイランド選択"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandCulling:tooltip"
-msgstr "UVのまとまりの範囲でデカールをカリングする機能"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos"
-msgstr "アイランドセレクターの位置"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorPos:tooltip"
-msgstr "Xが横、Yが縦でアイランドセレクターの位置を調整する設定"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange"
-msgstr "アイランドセレクターの最大距離"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelectorRange:tooltip"
-msgstr "アイランドセレクターの最大距離の設定"
+msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
+msgstr "アイランドで選択を指定しその範囲にデカールを張る機能"
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "深度デカール"
@@ -401,3 +419,29 @@ msgstr "概要はありません"
 
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "グループの子"
+
+# SingleGradationDecal
+
+msgid "SingleGradationDecal:prop:SelectedMaterialView"
+msgstr "選択済みマテリアル"
+
+msgid "SingleGradationDecal:prop:GradationLength"
+msgstr "グラデーションの長さ"
+
+msgid "SingleGradationDecal:prop:Gradient"
+msgstr "グラデーション"
+
+msgid "SingleGradationDecal:prop:Alpha"
+msgstr "透明度"
+
+msgid "SingleGradationDecal:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
+msgid "SingleGradationDecal:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+msgid "SingleGradationDecal:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "SingleGradationDecal:prop:GradientClamp"
+msgstr "グラデーションのクランプ"

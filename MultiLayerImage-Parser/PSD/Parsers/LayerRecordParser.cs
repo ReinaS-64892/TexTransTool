@@ -190,7 +190,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             layerRecord.LayerBlendingRangesData = layerBlendingRangesData;
 
 
-            layerRecord.LayerName = ParserUtility.ReadPascalString(ref stream);
+            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(ref stream);
 
             var AdditionalLayerInformationSpan = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
 

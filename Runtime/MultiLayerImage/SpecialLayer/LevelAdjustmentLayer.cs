@@ -1,45 +1,48 @@
 using System;
+using net.rs64.TexTransCore;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT LevelAdjustmentLayer")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public class LevelAdjustmentLayer : AbstractGrabLayer
     {
+        internal const string ComponentName = "TTT LevelAdjustmentLayer";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Level RGB;
         public Level Red;
         public Level Green;
         public Level Blue;
 
-        public override void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture)
+        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
             var mat = new Material(SpecialLayerShaders.LevelAdjustmentShader);
-            var tempRt = RenderTexture.GetTemporary(GrabSouse.descriptor);
+            using (TTRt.U(out var tempRt, grabSource.descriptor))
+            {
 
-            mat.EnableKeyword("RGB");
-            RGB.SetMaterialProperty(mat);
-            Graphics.Blit(GrabSouse, tempRt, mat);
-            mat.DisableKeyword("RGB");
+                mat.EnableKeyword("RGB");
+                RGB.SetMaterialProperty(mat);
+                Graphics.Blit(grabSource, tempRt, mat);
+                mat.DisableKeyword("RGB");
 
-            // Graphics.CopyTexture(tempRt, WriteTarget);
+                // Graphics.CopyTexture(tempRt, WriteTarget);
 
-            mat.EnableKeyword("Red");
-            Red.SetMaterialProperty(mat);
-            Graphics.Blit(tempRt, WriteTarget, mat);
-            mat.DisableKeyword("Red");
+                mat.EnableKeyword("Red");
+                Red.SetMaterialProperty(mat);
+                Graphics.Blit(tempRt, writeTarget, mat);
+                mat.DisableKeyword("Red");
 
-            mat.EnableKeyword("Green");
-            Green.SetMaterialProperty(mat);
-            Graphics.Blit(WriteTarget, tempRt, mat);
-            mat.DisableKeyword("Green");
+                mat.EnableKeyword("Green");
+                Green.SetMaterialProperty(mat);
+                Graphics.Blit(writeTarget, tempRt, mat);
+                mat.DisableKeyword("Green");
 
-            mat.EnableKeyword("Blue");
-            Blue.SetMaterialProperty(mat);
-            Graphics.Blit(tempRt, WriteTarget, mat);
-            mat.DisableKeyword("Blue");
-
+                mat.EnableKeyword("Blue");
+                Blue.SetMaterialProperty(mat);
+                Graphics.Blit(tempRt, writeTarget, mat);
+                mat.DisableKeyword("Blue");
+            }
             UnityEngine.Object.DestroyImmediate(mat);
-            RenderTexture.ReleaseTemporary(tempRt);
         }
 
         [Serializable]

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
@@ -9,16 +8,15 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    [AddComponentMenu("TexTransTool/MultiLayer/TTT LayerFolder")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class LayerFolder : AbstractLayer
     {
+        internal const string ComponentName = "TTT LayerFolder";
+        internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public bool PassThrough;
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {
-
-            var Layers = transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse();
+            IEnumerable<AbstractLayer> Layers = GetChileLayers();
 
             if (PassThrough && !Clipping)
             {
@@ -51,7 +49,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
+        internal IEnumerable<AbstractLayer> GetChileLayers()
+        {
+            return transform.GetChildren()
+            .Select(I => I.GetComponent<AbstractLayer>())
+            .Reverse();
+        }
 
+        internal override IEnumerable<UnityEngine.Object> GetDependency()
+        {
+            var chileLayers = GetChileLayers();
+            return base.GetDependency().Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
+        }
+        internal override int GetDependencyHash()
+        {
+            var hash = base.GetDependencyHash();
+            foreach (var cl in GetChileLayers())
+            {
+                hash ^= cl.GetDependencyHash();
+            }
+            return hash;
+        }
     }
 
 

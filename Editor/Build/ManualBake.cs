@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Build
 
             var duplicate = UnityEngine.Object.Instantiate(targetAvatar);
             duplicate.transform.position = new Vector3(duplicate.transform.position.x, duplicate.transform.position.y, duplicate.transform.position.z + 2);
-            AvatarBuildUtils.ProcessAvatar(duplicate, null, false, true);
+            AvatarBuildUtils.ProcessAvatar(duplicate, null, true);
         }
     }
 }

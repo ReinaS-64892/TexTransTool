@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using net.rs64.TexTransCore.BlendTexture;
 using System;
 using net.rs64.TexTransTool.Utils;
+using System.Linq;
 namespace net.rs64.TexTransTool
 {
-    [AddComponentMenu("TexTransTool/Other/TTT TextureBlender")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class TextureBlender : TexTransRuntimeBehavior
     {
+        internal const string FoldoutName = "Other";
+        internal const string ComponentName = "TTT TextureBlender";
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         public TextureSelector TargetTexture;
 
-        [ExpandTexture2D]public Texture2D BlendTexture;
+        [ExpandTexture2D] public Texture2D BlendTexture;
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
@@ -32,6 +36,13 @@ namespace net.rs64.TexTransTool
 
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
             domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
+        }
+
+        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain) { return TargetTexture.GetDependency().Append(BlendTexture); }
+
+        internal override int GetDependencyHash(IDomain domain)
+        {
+            return TargetTexture.GetDependencyHash() ^ BlendTexture?.GetInstanceID() ?? 0;
         }
     }
 }

@@ -1,13 +1,11 @@
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     public abstract class AbstractGrabLayer : AbstractLayer
     {
-        public abstract void GetImage(RenderTexture GrabSouse, RenderTexture WriteTarget, IOriginTexture originTexture);
+        public abstract void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture);
 
         internal override void EvaluateTexture(CanvasContext canvasContext)
         {

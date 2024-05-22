@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using net.rs64.TexTransCore;
 using UnityEditor;
 using UnityEngine;
 using static net.rs64.TexTransTool.TTTConfig;
@@ -10,6 +11,7 @@ namespace net.rs64.TexTransTool
     {
         const string JP_GUID = "42db3dbd5755c844984648836a49629f";
         const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
+        [TexTransInitialize]
         internal static void LocalizeInitializer()
         {
             Language = (LanguageEnum)EditorPrefs.GetInt(TTTConfig.LANGUAGE_PREFKEY);

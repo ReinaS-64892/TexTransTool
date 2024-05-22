@@ -5,26 +5,37 @@ using System.Collections.Generic;
 using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.TextureAtlas.IslandFineTuner;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [Serializable]
     public class AtlasSetting
     {
+        [PowerOfTwo] public int AtlasTextureSize = 2048;
+        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
+
+        [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
+        public bool ForceSizePriority;
+        [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners;
+
         public bool MergeMaterials;
         public Material MergeReferenceMaterial;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
-        [PowerOfTwo]public int AtlasTextureSize = 2048;
-        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
+
+        public List<MaterialMargeGroup> MaterialMargeGroups;
+
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
-        [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
-        public bool UseUpScaling = false;
         public bool PixelNormalize = false;
+
         [SerializeReference] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
+        #region V3SaveData
+        public bool UseUpScaling = false;
+        #endregion
         #region V2SaveData
         [Obsolete("V2SaveData", true)][SerializeField] internal List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
         [Obsolete("V2SaveData", true)][SerializeField] internal float Padding;
@@ -34,6 +45,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         #endregion
 
     }
+
+    [Serializable]
+    public class MaterialMargeGroup
+    {
+        public Material MargeReferenceMaterial;
+        public List<Material> GroupMaterials;
+    }
+
     public enum PropertyBakeSetting
     {
         NotBake,

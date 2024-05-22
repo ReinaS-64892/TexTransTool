@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditor;
 
 namespace net.rs64.TexTransCore
 {
@@ -9,6 +7,7 @@ namespace net.rs64.TexTransCore
     {
         internal static event Action OnClearMemo;
 
+        [TexTransInitialize]
         internal static void Init()
         {
             TexTransCoreRuntime.Update += () =>

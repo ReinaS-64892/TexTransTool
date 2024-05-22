@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -28,47 +27,25 @@ namespace net.rs64.TexTransTool
         public readonly bool Previewing;
 
         [CanBeNull] private readonly IAssetSaver _saver;
-        private readonly IProgressHandling _progressHandler;
         private readonly ITextureManager _textureManager;
-        private readonly IStackManager _textureStacks;
+        private readonly StackManager<ImmediateTextureStack> _textureStacks;
 
-        [NotNull] protected FlatMapDict<UnityEngine.Object> _objectMap = new();
+        protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool progressDisplay = false)
-        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, progressDisplay) { }
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool progressDisplay = false)
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool? useCompress = null)
+        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, useCompress) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool? useCompress = null)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = assetSaver;
-            _progressHandler = progressDisplay ? new ProgressHandler() : null;
-            _textureManager = new TextureManager(Previewing);
+            _textureManager = new TextureManager(Previewing, useCompress);
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
-
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
         }
 
-        public RenderersDomain(List<Renderer> previewRenderers,
-                        bool previewing,
-                        IAssetSaver saver,
-                        IProgressHandling progressHandler,
-                        ITextureManager textureManager,
-                        IStackManager stackManager
-                       )
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
         {
-            _renderers = previewRenderers;
-            Previewing = previewing;
-            _saver = saver;
-            _progressHandler = progressHandler;
-            _textureManager = textureManager;
-            _textureStacks = stackManager;
-
-            _progressHandler?.ProgressStateEnter("ProsesAvatar");
-        }
-
-        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair
-        {
-            _textureStacks.AddTextureStack(dist, setTex);
+            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
         }
 
         private void AddPropertyModification(Object component, string property, Object value)
@@ -116,7 +93,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var keyValuePair in mapping)
                 {
-                    _objectMap.Add(keyValuePair.Key, keyValuePair.Value);
+                    RegisterReplace(keyValuePair.Key, keyValuePair.Value);
                 }
             }
         }
@@ -143,7 +120,7 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            _objectMap.Add(preMesh, mesh);
+            RegisterReplace(preMesh, mesh);
         }
         public virtual void SetTexture(Texture2D target, Texture2D setTex)
         {
@@ -151,65 +128,53 @@ namespace net.rs64.TexTransTool
             ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
             ListPool<Material>.Release(mats);
 
-            _objectMap.Add(target, setTex);
+            RegisterReplace(target, setTex);
         }
 
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
 
-        public bool TryReplaceQuery(Object oldObject, out Object nowObject)
+        public virtual bool OriginEqual(Object l, Object r)
         {
-            return _objectMap.GetMapping.TryGetValue(oldObject, out nowObject);
+            if (l == r) { return true; }
+
+            return GetOrigin(l) == GetOrigin(r);
+
+            Object GetOrigin(Object obj)
+            {
+                if (obj == null) { return null; }
+                while (_replaceMap.ContainsKey(obj)) { obj = _replaceMap[obj]; }
+                return obj;
+            }
+
         }
-        public void RegisterReplace(Object oldObject, Object nowObject)
+        public virtual void RegisterReplace(Object oldObject, Object nowObject)
         {
-            _objectMap.Add(oldObject, nowObject);
+            _replaceMap[nowObject] = oldObject;
         }
         public virtual void EditFinish()
         {
-            ProgressStateEnter("Finalize");
-            ProgressUpdate("MergeStack", 0.0f);
-
             MergeStack();
-
-            ProgressUpdate("DeferTexDestroy", 0.3f);
-
-            _textureManager.DestroyTextures();
-
-            ProgressUpdate("TexCompressDelegationInvoke", 0.6f);
-
-            _textureManager.TextureFinalize();
-
-            ProgressUpdate("End", 1f);
-            ProgressStateExit();
-            ProgressStateExit();
-            _progressHandler?.ProgressFinalize();
+            _textureManager.DestroyDeferred();
+            _textureManager.CompressDeferred();
         }
 
         public virtual void MergeStack()
         {
-            ProgressUpdate("MergeStack", 0f);
             var MergedStacks = _textureStacks.MergeStacks();
-            ProgressUpdate("MergeStack", 0.9f);
+
             foreach (var mergeResult in MergedStacks)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
                 SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
                 TransferAsset(mergeResult.MergeTexture);
             }
-            ProgressUpdate("MergeStack", 1);
         }
 
 
-        public void ProgressStateEnter(string enterName) => _progressHandler?.ProgressStateEnter(enterName);
-        public void ProgressUpdate(string state, float value) => _progressHandler?.ProgressUpdate(state, value);
-        public void ProgressStateExit() => _progressHandler?.ProgressStateExit();
-        public void ProgressFinalize() => _progressHandler?.ProgressFinalize();
-
-
-
+        public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
+        public bool IsPreview() => Previewing;
         public ITextureManager GetTextureManager() => _textureManager;
 
-        public bool IsPreview() => Previewing;
     }
 }

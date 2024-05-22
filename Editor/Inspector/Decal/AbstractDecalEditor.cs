@@ -4,6 +4,8 @@ using net.rs64.TexTransTool.Decal;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.Pool;
+using net.rs64.TexTransTool.Preview.RealTime;
+using net.rs64.TexTransTool.Preview;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -46,52 +48,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
             EditorGUI.indentLevel -= 1;
         }
-        public static void DrawerRealTimePreviewEditor(object[] target)
-        {
-            var list = ListPool<AbstractDecal>.Get(); list.Capacity = target.Length;
-            foreach (var decal in target)
-            { if (decal is AbstractDecal abstractDecal) { list.Add(abstractDecal); } }
 
-            DrawerRealTimePreviewEditor(list);
-
-            ListPool<AbstractDecal>.Release(list);
-        }
-        public static void DrawerRealTimePreviewEditor(IEnumerable<AbstractDecal> target)
-        {
-            if (!target.Any()) { return; }
-
-
-            if (!target.Any(RealTimePreviewManager.Contains))
-            {
-                bool IsPossibleRealTimePreview = !PreviewContext.IsPreviewContains;
-                IsPossibleRealTimePreview &= !AnimationMode.InAnimationMode();
-                IsPossibleRealTimePreview |= RealTimePreviewManager.IsContainsRealTimePreviewDecal;
-
-                EditorGUI.BeginDisabledGroup(!IsPossibleRealTimePreview);
-                if (GUILayout.Button(IsPossibleRealTimePreview ? "SimpleDecal:button:RealTimePreview".Glc() : "Common:PreviewNotAvailable".Glc()))
-                {
-                    PreviewContext.LastPreviewClear();
-                    foreach (var decal in target) { RealTimePreviewManager.instance.RegtAbstractDecal(decal); }
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-            else
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(RealTimePreviewManager.instance.LastDecalUpdateTime + "ms", GUILayout.Width(40));
-
-                if (GUILayout.Button("SimpleDecal:button:ExitRealTimePreview".Glc()))
-                {
-                    foreach (var decal in target) { RealTimePreviewManager.instance.UnRegtAbstractDecal(decal); }
-                }
-                if (RealTimePreviewManager.ContainsPreviewCount > 1 && GUILayout.Button("SimpleDecal:button:AllExit".Glc(), GUILayout.Width(60)))
-                {
-                    RealTimePreviewManager.instance.ExitPreview();
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-
-        }
 
 
         static bool FoldoutAdvancedOption;

@@ -1,6 +1,6 @@
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.Utils;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(Clipping, false); return; }
 
             var canvasSize = canvasContext.CanvasSize;
-            var rTex = RenderTexture.GetTemporary(canvasSize, canvasSize, 0); rTex.Clear();
+            var rTex = TTRt.G(canvasSize, canvasSize, true);
 
             GetImage(rTex, canvasContext.TextureManager);
 

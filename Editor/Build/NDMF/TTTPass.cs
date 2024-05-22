@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
     {
         protected TexTransBuildSession TTTContext(BuildContext context)
         {
-            return context.Extension<TexTransToolContext>().TTTBuildContext;
+            return context.GetState(b => new TexTransBuildSession(new NDMFDomain(b)));
         }
     }
     internal class PreviewCancelerPass : Pass<PreviewCancelerPass>
@@ -70,6 +70,27 @@ namespace net.rs64.TexTransTool.Build.NDMF
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.UnDefined);
+        }
+    }
+    internal class BeforeOptimizingMergeStackPass : TTTPass<BeforeOptimizingMergeStackPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).MidwayMergeStack();
+        }
+    }
+    internal class OptimizingPass : TTTPass<OptimizingPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).ApplyFor(TexTransPhase.Optimizing);
+        }
+    }
+    internal class TTTSessionEndPass : TTTPass<TTTSessionEndPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).TTTSessionEnd();
         }
     }
 }

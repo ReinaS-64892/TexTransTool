@@ -6,9 +6,11 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
     [RequireComponent(typeof(AtlasTexture))]
     [DisallowMultipleComponent]
-    [AddComponentMenu("TexTransTool/Resolver/TTT AtlasTexture AbsoluteMaterialResolver")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     internal class AddAbsoluteMaterials : AbstractResolver
     {
+        internal const string ComponentName = "TTT AtlasTexture AbsoluteMaterialResolver";
+        private const string MenuPath = FoldoutName + "/" + ComponentName;
         public List<AtlasTexture.MatSelector> AddSelectors = new List<AtlasTexture.MatSelector>();
 
         public override void Resolving(ResolverContext avatar)
@@ -22,7 +24,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
                 if (index != -1)
                 {
                     var matSelector = atlasTexture.SelectMatList[index];
-                    matSelector.AdditionalTextureSizeOffSet = add.AdditionalTextureSizeOffSet;
+                    matSelector.MaterialFineTuningValue = add.MaterialFineTuningValue;
                     atlasTexture.SelectMatList[index] = matSelector;
                 }
                 else

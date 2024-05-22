@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
+using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
@@ -8,39 +9,39 @@ using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IProgressHandling
+    internal interface IDomain : IAssetSaver, IReplaceTracking
     {
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false);
         void SetMesh(Renderer renderer, Mesh mesh);
-        public void AddTextureStack<BlendTex>(Texture2D dist, BlendTex setTex) where BlendTex : IBlendTexturePair;//RenderTextureを入れる場合 Temp にすること、そしてこちら側でそれが解放される。
-        bool TryReplaceQuery(UnityEngine.Object oldObject, out UnityEngine.Object nowObject);
-        //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
-        void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
 
-        bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
+        public IEnumerable<Renderer> EnumerateRenderer();
 
         ITextureManager GetTextureManager();
+
+        bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
     }
     internal interface IAssetSaver
     {
         void TransferAsset(UnityEngine.Object asset);
     }
-    internal interface IProgressHandling
-    {
-        void ProgressStateEnter(string enterName);
-        void ProgressUpdate(string state, float value);
-        void ProgressStateExit();
-        void ProgressFinalize();
-    }
 
     internal interface ITextureManager : IOriginTexture
     {
-        void DeferDestroyTexture2D(Texture2D texture2D);
-        void DestroyTextures();
+        void DeferDestroyOf(Texture2D texture2D);
+        void DestroyDeferred();
 
-        void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
-        void ReplaceTextureCompressDelegation(Texture2D souse, Texture2D target);
-        void TextureFinalize();
+
+        void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
+        void DeferInheritTextureCompress(Texture2D source, Texture2D target);
+        void CompressDeferred();
+    }
+    internal interface IReplaceTracking
+    {
+        bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+
+        //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
+        void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
     public interface IOriginTexture
     {
@@ -62,16 +63,18 @@ namespace net.rs64.TexTransTool
         public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D)
         {
             var originSize = origin.GetOriginalTextureSize(texture2D);
-            var tempRt = RenderTexture.GetTemporary(originSize, originSize, 0);
+            var tempRt = TTRt.G(originSize, originSize, true);
+            tempRt.CopyFilWrap(texture2D);
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }
         public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
         {
-            var tempRt = RenderTexture.GetTemporary(size, size, 0);
-            tempRt.Clear();
+            var tempRt = TTRt.G(size, size, true);
+            tempRt.CopyFilWrap(texture2D);
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }
     }
+
 }

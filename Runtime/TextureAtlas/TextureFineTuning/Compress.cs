@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public FormatQuality FormatQualityValue;
         public bool UseOverride;
         public TextureFormat OverrideTextureFormat;
-        [Range(0, 100)]public int CompressionQuality;
+        [Range(0, 100)] public int CompressionQuality;
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
@@ -28,29 +28,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static Compress Default => new(FormatQuality.High, false, TextureFormat.DXT5, 50, PropertyName.DefaultValue, PropertySelect.Equal);
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
             {
-                var compressionQualityData = target.TuningDataList.Find(I => I is CompressionQualityData) as CompressionQualityData;
-                if (compressionQualityData != null)
-                {
-                    compressionQualityData.FormatQualityValue = FormatQualityValue;
-                    compressionQualityData.CompressionQuality = CompressionQuality;
+                var tuningHolder = target.Value;
+                var compressionQualityData = tuningHolder.Get<CompressionQualityData>();
 
-                    compressionQualityData.UseOverride = UseOverride;
-                    compressionQualityData.OverrideTextureFormat = OverrideTextureFormat;
-                }
-                else
-                {
-                    target.TuningDataList.Add(new CompressionQualityData()
-                    {
-                        FormatQualityValue = FormatQualityValue,
-                        UseOverride = UseOverride,
-                        OverrideTextureFormat = OverrideTextureFormat,
-                        CompressionQuality = CompressionQuality
-                    });
-                }
+                compressionQualityData.FormatQualityValue = FormatQualityValue;
+                compressionQualityData.CompressionQuality = CompressionQuality;
+
+                compressionQualityData.UseOverride = UseOverride;
+                compressionQualityData.OverrideTextureFormat = OverrideTextureFormat;
+
             }
         }
 
@@ -63,8 +53,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         Normal,
         High,
     }
-
-    internal class CompressionQualityData : ITuningData
+    [Serializable]
+    public class CompressionQualityData : ITuningData
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
 
@@ -72,17 +62,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public TextureFormat OverrideTextureFormat;
 
 
-        public int CompressionQuality = 50;
+        [Range(0, 100)] public int CompressionQuality = 50;
     }
     internal class CompressionQualityApplicant : ITuningApplicant
     {
         public int Order => 0;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             // Delegated to ITextureManager
         }
-        public static TextureFormat GetTextureFormat(Texture2D texture2D, CompressionQualityData compressionQualityData)
+        public static TextureFormat GetTextureFormat(CompressionQualityData compressionQualityData)
         {
             if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
 

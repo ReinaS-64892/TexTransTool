@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
-using net.rs64.TexTransCore.TransTextureCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
-using Unity.Collections;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool
 {
@@ -17,29 +13,23 @@ namespace net.rs64.TexTransTool
         private readonly List<Texture2D> DestroyList;
         private readonly Dictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> CompressDict;
         private readonly Dictionary<Texture2D, Texture2D> OriginDict;
-        private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSouse;
+        private readonly Dictionary<TTTImportedCanvasDescription, byte[]> CanvasSource;
 
-        public TextureManager(bool previewing)
+        public TextureManager(bool previewing, bool? useCompress = null)
         {
             Previewing = previewing;
-            if (!Previewing) { DestroyList = new List<Texture2D>(); }
-            else { DestroyList = null; }
-            if (!Previewing) { CompressDict = new Dictionary<Texture2D, (TextureFormat, int)>(); }
-            else { CompressDict = null; }
-            if (!Previewing) { OriginDict = new Dictionary<Texture2D, Texture2D>(); }
-            else { OriginDict = null; }
-            if (!Previewing) { CanvasSouse = new(); }
-            else { CanvasSouse = null; }
-
-
+            DestroyList = !Previewing ? new() : null;
+            CompressDict = useCompress ?? !Previewing ? new() : null;
+            OriginDict = !Previewing ? new() : null;
+            CanvasSource = !Previewing ? new() : null;
         }
 
-        public void DeferDestroyTexture2D(Texture2D texture2D)
+        public void DeferDestroyOf(Texture2D texture2D)
         {
             DestroyList.Add(texture2D);
         }
 
-        public void DestroyTextures()
+        public void DestroyDeferred()
         {
             if (DestroyList == null) { return; }
             foreach (var tex in DestroyList)
@@ -53,7 +43,7 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
-            return NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+            return TexTransCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
         }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
@@ -74,7 +64,7 @@ namespace net.rs64.TexTransTool
                 else
                 {
                     var originTex = texture2D.TryGetUnCompress();
-                    DeferDestroyTexture2D(originTex);
+                    DeferDestroyOf(originTex);
                     OriginDict.Add(texture2D, originTex);
                     return originTex;
                 }
@@ -88,33 +78,31 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                if (!CanvasSouse.ContainsKey(texture.CanvasDescription)) { CanvasSouse[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
-                // var timer = System.Diagnostics.Stopwatch.StartNew();
-                texture.LoadImage(CanvasSouse[texture.CanvasDescription], writeTarget);
-                // timer.Stop(); Debug.Log(texture.name + ":" + timer.ElapsedMilliseconds + "ms");
+                if (!CanvasSource.ContainsKey(texture.CanvasDescription)) { CanvasSource[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
+                texture.LoadImage(CanvasSource[texture.CanvasDescription], writeTarget);
             }
         }
-        public void TextureCompressDelegation((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
+        public void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
         {
             if (CompressDict == null) { return; }
             CompressDict[target] = compressSetting;
         }
-        public void ReplaceTextureCompressDelegation(Texture2D Souse, Texture2D Target)
+        public void DeferInheritTextureCompress(Texture2D source, Texture2D target)
         {
             if (CompressDict == null) { return; }
-            if (Target == Souse) { return; }
-            if (CompressDict.ContainsKey(Souse))
+            if (target == source) { return; }
+            if (CompressDict.ContainsKey(source))
             {
-                CompressDict[Target] = CompressDict[Souse];
-                CompressDict.Remove(Souse);
+                CompressDict[target] = CompressDict[source];
+                CompressDict.Remove(source);
             }
             else
             {
-                CompressDict[Target] = (Souse.format, 50);
+                CompressDict[target] = (source.format, 50);
             }
         }
 
-        public void TextureFinalize()
+        public void CompressDeferred()
         {
             if (CompressDict == null) { return; }
             foreach (var texAndFormat in CompressDict)
@@ -137,8 +125,5 @@ namespace net.rs64.TexTransTool
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
         }
-
-        public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
-
     }
 }

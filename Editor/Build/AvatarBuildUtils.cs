@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using net.rs64.TexTransTool.ReferenceResolver;
+using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -11,17 +12,17 @@ namespace net.rs64.TexTransTool.Build
     internal static class AvatarBuildUtils
     {
 
-        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool UseTemp = false, bool DisplayProgressBar = false)
+        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool DisplayProgressBar = false)
         {
             try
             {
-                if (OverrideAssetContainer == null && UseTemp) { AssetSaveHelper.IsTemporary = true; }
                 var timer = Stopwatch.StartNew();
 
                 var resolverContext = new ResolverContext(avatarGameObject);
                 resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
 
-                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer), DisplayProgressBar));
+                var session = new TexTransBuildSession(new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer)));
+                session.DisplayEditorProgressBar = DisplayProgressBar;
 
                 session.FindAtPhaseTTT();
 
@@ -32,6 +33,10 @@ namespace net.rs64.TexTransTool.Build
                 session.ApplyFor(TexTransPhase.UVModification);
                 session.ApplyFor(TexTransPhase.AfterUVModification);
                 session.ApplyFor(TexTransPhase.UnDefined);
+
+                session.MidwayMergeStack();
+
+                session.ApplyFor(TexTransPhase.Optimizing);
 
                 session.TTTSessionEnd();
                 timer.Stop(); Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
@@ -56,61 +61,68 @@ namespace net.rs64.TexTransTool.Build
         {
             AvatarDomain _avatarDomain;
             Dictionary<TexTransPhase, List<TexTransBehavior>> _phaseAtList;
+
             public AvatarDomain AvatarDomain => _avatarDomain;
             public Dictionary<TexTransPhase, List<TexTransBehavior>> PhaseAtList => _phaseAtList;
 
-            public TexTransBuildSession(AvatarDomain avatarDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseAtList)
-            {
-                _avatarDomain = avatarDomain;
-                _phaseAtList = phaseAtList;
-            }
+            public bool DisplayEditorProgressBar { get; set; } = false;
+
+
             public TexTransBuildSession(AvatarDomain avatarDomain)
             {
                 _avatarDomain = avatarDomain;
             }
+
             public void FindAtPhaseTTT()
             {
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("FindAtPhaseTTT", "", 0.0f);
                 _phaseAtList = FindAtPhase(_avatarDomain.AvatarRoot);
+                if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
             }
 
             public void ApplyFor(TexTransPhase texTransPhase)
             {
-                _avatarDomain.ProgressStateEnter(texTransPhase.ToString());
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), "", 0f);
                 var count = 0;
                 var timer = new System.Diagnostics.Stopwatch();
                 foreach (var tf in _phaseAtList[texTransPhase])
                 {
+                    if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), $"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
+
                     timer.Restart();
                     TTTLog.ReportingObject(tf, () => { tf.Apply(_avatarDomain); });
                     timer.Stop();
                     count += 1;
                     Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply : {timer.ElapsedMilliseconds}ms");
-                    _avatarDomain.ProgressUpdate($"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
                 }
-                _avatarDomain.ProgressStateExit();
+                if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
             }
 
             public void MidwayMergeStack()
             {
-                _avatarDomain.ProgressStateEnter("MidwayMergeStack");
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("MidwayMergeStack", "", 0.0f);
                 _avatarDomain.MergeStack();
-                _avatarDomain.ProgressStateExit();
+                if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
             }
 
             public void TTTSessionEnd()
             {
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("TTTSessionEnd", "EditFinisher", 0.0f);
                 _avatarDomain.EditFinish();
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("TTTSessionEnd", "Page TexTransToolComponents", 0.5f);
                 DestroyITexTransToolTags(_avatarDomain.AvatarRoot);
+                if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
             }
         }
 
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject)
         {
             var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
                     {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
                     {TexTransPhase.UVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
                 };
 
             var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>();
@@ -160,10 +172,11 @@ namespace net.rs64.TexTransTool.Build
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhaseAll(GameObject avatarGameObject)
         {
             var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
                     {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
                     {TexTransPhase.UVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()}
+                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()},
+                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
+                    {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
                 };
 
             var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>(true);
@@ -198,6 +211,14 @@ namespace net.rs64.TexTransTool.Build
         public static void WhiteList(Dictionary<TexTransPhase, List<TexTransBehavior>> phase, HashSet<TexTransBehavior> whitelist)
         {
             foreach (var kv in phase) { kv.Value.RemoveAll(i => !whitelist.Contains(i)); }
+        }
+        public static IEnumerable<TexTransBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict)
+        {
+            foreach (var ttb in phaseDict[TexTransPhase.BeforeUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.UVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.AfterUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.UnDefined]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            foreach (var ttb in phaseDict[TexTransPhase.Optimizing]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
         }
 
         private static HashSet<TexTransBehavior> FindChildren(TexTransGroup[] abstractTexTransGroups)

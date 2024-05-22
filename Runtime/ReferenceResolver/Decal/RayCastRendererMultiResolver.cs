@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 {
-    [AddComponentMenu("TexTransTool/Resolver/TTT Decal RendererMultiResolver")]
+    [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     internal class RayCastRendererMultiResolver : AbstractRayCastRendererResolver
     {
+        internal const string ComponentName = "TTT Decal RendererMultiResolver";
+        private const string MenuPath = FoldoutName + "/" + ComponentName;
         public GameObject ResolveTargetRoot;
 
         public override void Resolving(ResolverContext avatar)
@@ -14,7 +16,7 @@ namespace net.rs64.TexTransTool.ReferenceResolver.ATResolver
 
             var hits = FindRayCast(avatar.AvatarRoot);
 
-            foreach (var abstractDecal in ResolveTargetRoot.GetComponentsInChildren<AbstractDecal>())
+            foreach (var abstractDecal in ResolveTargetRoot.GetComponentsInChildren<SimpleDecal>())
             {
                 AddToDecal(abstractDecal, hits);
             }

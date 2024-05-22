@@ -21,19 +21,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static ColorSpace Default => new(PropertyName.DefaultValue, PropertySelect.Equal, true);
 
-        public void AddSetting(List<TexFineTuningTarget> propAndTextures)
+        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, propAndTextures))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
             {
-                var colorSpaceData = target.TuningDataList.Find(I => I is ColorSpaceData) as ColorSpaceData;
-                if (colorSpaceData != null)
-                {
-                    colorSpaceData.Linear = Linear;
-                }
-                else
-                {
-                    target.TuningDataList.Add(new ColorSpaceData() { Linear = Linear });
-                }
+                var tuningDataHolder = target.Value;
+                tuningDataHolder.Get<ColorSpaceData>().Linear = Linear;
             }
 
         }
@@ -48,22 +41,23 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => -34;
 
-        public void ApplyTuning(List<TexFineTuningTarget> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var texf in texFineTuningTargets)
             {
-                var colorSpaceData = texf.TuningDataList.Find(I => I is ColorSpaceData) as ColorSpaceData;
+                var tuningHolder = texf.Value;
+                var colorSpaceData = tuningHolder.Find<ColorSpaceData>();
                 if (colorSpaceData == null) { continue; }
-                if (colorSpaceData.Linear == !texf.Texture2D.isDataSRGB) { continue; }
+                if (colorSpaceData.Linear == !tuningHolder.Texture2D.isDataSRGB) { continue; }
                 // GraphicsFormatUtility.GetLinearFormat()
                 // GraphicsFormatUtility.IsSRGBFormat()
 
-                var newTex = new Texture2D(texf.Texture2D.width, texf.Texture2D.height, TextureFormat.RGBA32, texf.Texture2D.mipmapCount > 1, colorSpaceData.Linear);
-                var pixelData = texf.Texture2D.GetPixelData<Color32>(0);
+                var newTex = new Texture2D(tuningHolder.Texture2D.width, tuningHolder.Texture2D.height, TextureFormat.RGBA32, tuningHolder.Texture2D.mipmapCount > 1, colorSpaceData.Linear);
+                var pixelData = tuningHolder.Texture2D.GetPixelData<Color32>(0);
                 newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
                 newTex.Apply();
-                newTex.name = texf.Texture2D.name;
-                texf.Texture2D = newTex;
+                newTex.name = tuningHolder.Texture2D.name;
+                tuningHolder.Texture2D = newTex;
             }
         }
     }
