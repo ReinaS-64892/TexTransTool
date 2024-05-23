@@ -13,6 +13,8 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Fixed
 
+- PSDImportedRasterImage がアルファのないレイヤーをロードできない問題を修正 (#484)
+
 ### Deprecated
 
 ## 0.7.0
