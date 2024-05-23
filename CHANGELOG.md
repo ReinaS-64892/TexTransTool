@@ -15,9 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 同じプロパティ名が複数存在するシェーダーが存在する場合に例外が発生する問題を修正 (#483)
-
 ### Deprecated
+
+## [0.7.1]
+
+### Fixed
+
+- 同じプロパティ名が複数存在するシェーダーが存在する場合に例外が発生する問題を修正 (#483)
 
 ## [0.7.0]
 
@@ -521,7 +525,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...master
+[0.7.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0
 [0.6.6]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...v0.6.6
 [0.6.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5
