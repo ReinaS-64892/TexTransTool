@@ -54,7 +54,7 @@ namespace net.rs64.TexTransCore.Utils
                 var texture = material.GetTexture(propName);
                 if (texture != null && texture is Texture2D texture2D)
                 {
-                    output.Add(propName, texture2D);
+                    output.TryAdd(propName, texture2D);
                 }
             }
             return output;
