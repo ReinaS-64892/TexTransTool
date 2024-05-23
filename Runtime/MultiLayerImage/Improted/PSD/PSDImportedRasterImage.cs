@@ -88,11 +88,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             // var timer = System.Diagnostics.Stopwatch.StartNew();
+            var containsAlpha = RasterImageData.A.Length != 0;
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
             getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle));
             getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSource, RasterImageData.RectTangle));
             getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSource, RasterImageData.RectTangle));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
+            if (containsAlpha) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
 
             var texWidth = RasterImageData.RectTangle.GetWidth();
             var texHeight = RasterImageData.RectTangle.GetHeight();
@@ -103,8 +104,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             texG.filterMode = FilterMode.Point;
             var texB = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
             texB.filterMode = FilterMode.Point;
-            var texA = RasterImageData.A != null ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
-            if (RasterImageData.A != null) { texA.filterMode = FilterMode.Point; }
+            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
+            if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
             if (s_tempMat == null) { s_tempMat = new Material(MargeColorAndOffsetShader); }
             s_tempMat.SetTexture("_RTex", texR);
@@ -121,7 +122,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             texR.LoadRawTextureData(image[0]); texR.Apply();
             texG.LoadRawTextureData(image[1]); texG.Apply();
             texB.LoadRawTextureData(image[2]); texB.Apply();
-            texA?.LoadRawTextureData(image[3]); texA?.Apply();
+            if (containsAlpha) { texA.LoadRawTextureData(image[3]); texA.Apply(); }
 
             // timer.Stop(); Debug.Log("LoadRawDataAndApply:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
 
@@ -133,12 +134,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             image[0].Dispose();
             image[1].Dispose();
             image[2].Dispose();
-            if (RasterImageData.A != null) { image[3].Dispose(); }
+            if (containsAlpha) { image[3].Dispose(); }
 
             UnityEngine.Object.DestroyImmediate(texR);
             UnityEngine.Object.DestroyImmediate(texG);
             UnityEngine.Object.DestroyImmediate(texB);
-            if (RasterImageData.A != null) { UnityEngine.Object.DestroyImmediate(texA); }
+            if (containsAlpha) { UnityEngine.Object.DestroyImmediate(texA); }
 
             // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
         }
