@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- 同じプロパティ名が複数存在するシェーダーが存在する場合に例外が発生する問題を修正 (#483)
+
 ### Deprecated
 
 ## [0.7.0]
