@@ -23,9 +23,12 @@ namespace net.rs64.TexTransCore
             var tmpRt = RenderTexture.GetTemporary(width, height, depth, format);
             s_tempSet.Add(tmpRt);
 
-
-            tmpRt.useMipMap = useMipMap;
-            tmpRt.autoGenerateMips = false;
+            if (tmpRt.useMipMap != useMipMap)
+            {
+                if (tmpRt.IsCreated()) { tmpRt.Release(); }
+                tmpRt.useMipMap = useMipMap;
+                tmpRt.autoGenerateMips = false;
+            }
 
             if (useRandomRW && tmpRt.enableRandomWrite != useRandomRW)
             {
