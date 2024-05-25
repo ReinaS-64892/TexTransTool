@@ -1,4 +1,4 @@
-Shader "Hidden/MargeColorAndOffset"
+Shader "Hidden/MergeColorAndOffset"
 {
     Properties
     {

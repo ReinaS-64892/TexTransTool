@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
             var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
-            var sMaterialMargeGroups = sAtlasSettings.FindPropertyRelative("MaterialMargeGroups");
+            var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
 
 
 
@@ -106,7 +106,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
 
-            EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMarge".Glc());
+            EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMerge".Glc());
             if (sMergeMaterials.boolValue)
             {
                 EditorGUILayout.PropertyField(sPropertyBakeSetting, "AtlasTexture:prop:PropertyBakeSetting".Glc());
@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
                 EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
-                if (sMergeMaterials.boolValue) { DrawMaterialMargeGroup(sMatSelectors, sMaterialMargeGroups); }
+                if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
                 EditorGUI.indentLevel -= 1;
             }
 
@@ -134,13 +134,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private static void DrawMaterialMargeGroup(SerializedProperty sMatSelectors, SerializedProperty sMaterialMargeGroups)
+        private static void DrawMaterialMergeGroup(SerializedProperty sMatSelectors, SerializedProperty sMaterialMergeGroups)
         {
             var headerRect = EditorGUILayout.GetControlRect();
-            var guiContent = EditorGUI.BeginProperty(headerRect, "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups".Glc(), sMaterialMargeGroups);
+            var guiContent = EditorGUI.BeginProperty(headerRect, "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups".Glc(), sMaterialMergeGroups);
 
-            s_MaterialMargeGroupsFoldout = EditorGUI.Foldout(headerRect, s_MaterialMargeGroupsFoldout, guiContent);
-            if (s_MaterialMargeGroupsFoldout)
+            s_MaterialMergeGroupsFoldout = EditorGUI.Foldout(headerRect, s_MaterialMergeGroupsFoldout, guiContent);
+            if (s_MaterialMergeGroupsFoldout)
             {
 
                 var buttonWidth = headerRect.width * 0.125f;
@@ -148,36 +148,36 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 headerRect.width = buttonWidth;
                 if (GUI.Button(headerRect, "+"))
                 {
-                    var newIndex = sMaterialMargeGroups.arraySize;
-                    sMaterialMargeGroups.arraySize += 1;
+                    var newIndex = sMaterialMergeGroups.arraySize;
+                    sMaterialMergeGroups.arraySize += 1;
 
-                    var mmg = sMaterialMargeGroups.GetArrayElementAtIndex(newIndex);
-                    mmg.FindPropertyRelative("MargeReferenceMaterial").objectReferenceValue = null;
+                    var mmg = sMaterialMergeGroups.GetArrayElementAtIndex(newIndex);
+                    mmg.FindPropertyRelative("MergeReferenceMaterial").objectReferenceValue = null;
                     mmg.FindPropertyRelative("GroupMaterials").arraySize = 0;
                 }
                 headerRect.x += headerRect.width;
-                if (GUI.Button(headerRect, "-")) { sMaterialMargeGroups.arraySize += -1; }
+                if (GUI.Button(headerRect, "-")) { sMaterialMergeGroups.arraySize += -1; }
             }
 
             EditorGUI.EndProperty();
 
-            if (!s_MaterialMargeGroupsFoldout) { return; }
+            if (!s_MaterialMergeGroupsFoldout) { return; }
 
             s_targetMatHash.Clear();
             for (var i = 0; sMatSelectors.arraySize > i; i += 1) { s_targetMatHash.Add(sMatSelectors.GetArrayElementAtIndex(i).FindPropertyRelative("Material").objectReferenceValue as Material); }
 
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                for (var i = 0; sMaterialMargeGroups.arraySize > i; i += 1)
+                for (var i = 0; sMaterialMergeGroups.arraySize > i; i += 1)
                 {
                     using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                     {
-                        var mmg = sMaterialMargeGroups.GetArrayElementAtIndex(i);
-                        var mRef = mmg.FindPropertyRelative("MargeReferenceMaterial");
+                        var mmg = sMaterialMergeGroups.GetArrayElementAtIndex(i);
+                        var mRef = mmg.FindPropertyRelative("MergeReferenceMaterial");
                         var mg = mmg.FindPropertyRelative("GroupMaterials");
-                        var mgGUIContent = "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials".Glc();
+                        var mgGUIContent = "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials".Glc();
 
-                        EditorGUILayout.PropertyField(mRef, "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial".Glc());
+                        EditorGUILayout.PropertyField(mRef, "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:MergeReferenceMaterial".Glc());
 
                         using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                         {
@@ -223,7 +223,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
 
         static bool s_ExperimentalFutureOption = false;
-        static bool s_MaterialMargeGroupsFoldout = false;
+        static bool s_MaterialMergeGroupsFoldout = false;
         static HashSet<Material> s_targetMatHash = new();
 
 

@@ -79,17 +79,17 @@ msgstr "AtlasTextureSize"
 msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
 msgstr "Size of atlas texture, square."
 
-msgid "AtlasTexture:prop:MaterialMarge"
-msgstr "MaterialMarge"
+msgid "AtlasTexture:prop:MaterialMerge"
+msgstr "MaterialMerge"
 
-msgid "AtlasTexture:prop:MaterialMarge:tooltip"
+msgid "AtlasTexture:prop:MaterialMerge:tooltip"
 msgstr "Force material to merge when applying atlas. Note quality may not be maintenance."
 
 msgid "AtlasTexture:prop:PropertyBakeSetting"
 msgstr "PropertyBakeSetting"
 
 msgid "AtlasTexture:prop:PropertyBakeSetting:tooltip"
-msgstr "Feature bake some of the material property to texture when material marge."
+msgstr "Feature bake some of the material property to texture when material merge."
 
 msgid "AtlasTexture:prop:MergeReferenceMaterial"
 msgstr "MergeReferenceMaterial"
@@ -130,13 +130,13 @@ msgstr "PixelNormalize"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
-msgstr "MaterialMargeGroups"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups"
+msgstr "MaterialMergeGroups"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
-msgstr "MargeReferenceMaterial"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:MergeReferenceMaterial"
+msgstr "MergeReferenceMaterial"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials"
 msgstr "GroupMaterials"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"

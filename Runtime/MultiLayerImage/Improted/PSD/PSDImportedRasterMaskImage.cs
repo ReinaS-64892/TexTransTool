@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
-            if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MargeColorAndOffsetShader); }
+            if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MergeColorAndOffsetShader); }
             var mat = PSDImportedRasterImage.s_tempMat;
             var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
             texR.filterMode = FilterMode.Point;

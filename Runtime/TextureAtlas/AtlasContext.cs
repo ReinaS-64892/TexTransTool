@@ -166,8 +166,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.EndSample();
 
 
-            Profiler.BeginSample("Cross SubMesh Island Marge");
-            //Cross SubMesh Island Marge
+            Profiler.BeginSample("Cross SubMesh Island Merge");
+            //Cross SubMesh Island Merge
             foreach (var atSubGroup in AtlasSubAll.GroupBy(i => (i.MeshID, i.MaterialGroupID)))
             {
                 var atSubCrossTarget = atSubGroup.ToArray();
@@ -202,7 +202,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     usedUVVertIndexUsed[i] = bitArray;
                 }
 
-                var margeAt = new Dictionary<int, int>();
+                var mergeAt = new Dictionary<int, int>();
 
                 for (var fi = 0; atSubCrossTarget.Length > fi; fi += 1)
                 {
@@ -210,13 +210,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     {
                         for (var vi = 0; usedUVVertIndexUsed[fi].Length > vi; vi += 1)
                         {
-                            if (usedUVVertIndexUsed[fi][vi] && usedUVVertIndexUsed[ti][vi]) { margeAt[fi] = ti; break; }
+                            if (usedUVVertIndexUsed[fi][vi] && usedUVVertIndexUsed[ti][vi]) { mergeAt[fi] = ti; break; }
                         }
                     }
 
                 }
 
-                foreach (var mki in margeAt)
+                foreach (var mki in mergeAt)
                 {
                     var fromAtSub = atSubCrossTarget[mki.Key];
                     var toAtSub = atSubCrossTarget[mki.Value];
@@ -305,9 +305,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 while (true)
                 {
-                    var margeAt = Find(atlasSubSets);
-                    if (margeAt is null) { return; }
-                    var val = margeAt.Value;
+                    var mergeAt = Find(atlasSubSets);
+                    if (mergeAt is null) { return; }
+                    var val = mergeAt.Value;
                     atlasSubSets.RemoveAt(val.Item2);
                 }
 
