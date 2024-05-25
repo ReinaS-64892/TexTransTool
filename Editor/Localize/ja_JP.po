@@ -79,10 +79,10 @@ msgstr "アトラステクスチャーサイズ"
 msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
 msgstr "アトラス化したテクスチャーの大きさ、正方形になります。"
 
-msgid "AtlasTexture:prop:MaterialMarge"
+msgid "AtlasTexture:prop:MaterialMerge"
 msgstr "マテリアルの結合"
 
-msgid "AtlasTexture:prop:MaterialMarge:tooltip"
+msgid "AtlasTexture:prop:MaterialMerge:tooltip"
 msgstr "アトラス化を適用するときにマテリアルを強制的に結合、見た目を維持できない可能性が高いので注意"
 
 msgid "AtlasTexture:prop:PropertyBakeSetting"
@@ -130,13 +130,13 @@ msgstr "ピクセルノーマライズ"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "アイランドの移動をピクセル単位にノーマライズする機能"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups"
 msgstr "マテリアル統合グループ"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:MargeReferenceMaterial"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:MergeReferenceMaterial"
 msgstr "結合時マテリアルの参照"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMargeGroups:GroupMaterials"
+msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials"
 msgstr "グループのマテリアル"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"

@@ -107,7 +107,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var texA = containsAlpha ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
             if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
-            if (s_tempMat == null) { s_tempMat = new Material(MargeColorAndOffsetShader); }
+            if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
             s_tempMat.SetTexture("_RTex", texR);
             s_tempMat.SetTexture("_GTex", texG);
             s_tempMat.SetTexture("_BTex", texB);
@@ -151,10 +151,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [TexTransInitialize]
         public static void Init()
         {
-            MargeColorAndOffsetShader = Shader.Find(MARGE_COLOR_AND_OFFSET_SHADER);
+            MergeColorAndOffsetShader = Shader.Find(MERGE_COLOR_AND_OFFSET_SHADER);
         }
-        internal const string MARGE_COLOR_AND_OFFSET_SHADER = "Hidden/MargeColorAndOffset";
-        internal static Shader MargeColorAndOffsetShader;
+        internal const string MERGE_COLOR_AND_OFFSET_SHADER = "Hidden/MergeColorAndOffset";
+        internal static Shader MergeColorAndOffsetShader;
         internal static Material s_tempMat;
         internal const string SHADER_KEYWORD_SRGB = "COLOR_SPACE_SRGB";
 

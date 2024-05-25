@@ -751,13 +751,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First();
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
-                var matGroupGenerate = AtlasSetting.MaterialMargeGroups.ToDictionary(m => m, m => GenerateAtlasMat(m.MargeReferenceMaterial, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture));
+                var matGroupGenerate = AtlasSetting.MaterialMergeGroups.ToDictionary(m => m, m => GenerateAtlasMat(m.MergeReferenceMaterial, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture));
 
                 domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)), true);
 
                 Material FindGroup(Material material)
                 {
-                    foreach (var matGroup in AtlasSetting.MaterialMargeGroups)
+                    foreach (var matGroup in AtlasSetting.MaterialMergeGroups)
                     {
                         var index = matGroup.GroupMaterials.FindIndex(m => domain.OriginEqual(m, material));
                         if (index != -1) { return matGroupGenerate[matGroup]; }
@@ -851,7 +851,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             return AtlasSetting.IslandFineTuners.SelectMany(i => i.GetDependency())
             .Concat(Renderers)
-            .Concat(AtlasSetting.MaterialMargeGroups.Select(m => m.MargeReferenceMaterial))
+            .Concat(AtlasSetting.MaterialMergeGroups.Select(m => m.MergeReferenceMaterial))
             .Append(AtlasSetting.AtlasIslandRelocator)
             .Append(AtlasSetting.MergeReferenceMaterial);
         }
@@ -861,7 +861,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var hash = 0;
             foreach (var ift in AtlasSetting.IslandFineTuners) { hash ^= ift.GetDependencyHash(); }
             hash ^= TargetRoot?.GetInstanceID() ?? 0;
-            foreach (var mmg in AtlasSetting.MaterialMargeGroups) { hash ^= mmg.MargeReferenceMaterial?.GetInstanceID() ?? 0; }
+            foreach (var mmg in AtlasSetting.MaterialMergeGroups) { hash ^= mmg.MergeReferenceMaterial?.GetInstanceID() ?? 0; }
             hash ^= AtlasSetting.AtlasIslandRelocator?.GetInstanceID() ?? 0;
             hash ^= AtlasSetting.MergeReferenceMaterial?.GetInstanceID() ?? 0;
             return hash;

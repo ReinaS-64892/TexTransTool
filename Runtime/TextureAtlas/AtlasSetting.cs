@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture;
 
-        public List<MaterialMargeGroup> MaterialMargeGroups;
+        [FormerlySerializedAs("MaterialMargeGroups")] public List<MaterialMergeGroup> MaterialMergeGroups;
 
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
@@ -47,9 +47,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
     }
 
     [Serializable]
-    public class MaterialMargeGroup
+    public class MaterialMergeGroup
     {
-        public Material MargeReferenceMaterial;
+        [FormerlySerializedAs("MargeReferenceMaterial")] public Material MergeReferenceMaterial;
         public List<Material> GroupMaterials;
     }
 
