@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Marge -> Merge  スペルミス修正 (#486)
+- AtlasTexture の実行時に、MipMapを使用するときにエラーが発生する問題を修正 (#487)
 
 ### Deprecated
 
