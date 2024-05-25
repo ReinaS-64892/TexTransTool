@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Marge -> Merge  スペルミス修正 ()
+- Marge -> Merge  スペルミス修正 (#486)
 
 ### Deprecated
 
