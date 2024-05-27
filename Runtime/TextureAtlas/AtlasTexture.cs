@@ -742,7 +742,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var compressSetting = atlasTexFTData.Value.Find<CompressionQualityData>();
                 if (compressSetting == null) { continue; }
                 var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting), (int)compressSetting.CompressionQuality);
-                domain.GetTextureManager().DeferTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
+                domain.GetTextureManager().DeferredTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
             }
 
 

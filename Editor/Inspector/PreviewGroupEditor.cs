@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.Editor
                 rootVE.styleSheets.Add(s_style);
 
                 var previewGroup = target as PreviewGroup;
-                var phase = AvatarBuildUtils.FindAtPhaseAll(previewGroup.gameObject);
+                var phase = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
 
                 var label = new Label(TexTransPhase.BeforeUVModification.ToString());
                 label.style.fontSize = 16f;
