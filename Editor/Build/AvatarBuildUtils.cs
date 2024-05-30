@@ -17,6 +17,9 @@ namespace net.rs64.TexTransTool.Build
 
         public bool DisplayEditorProgressBar { get; set; } = false;
 
+        public RenderersDomain Domain => _domain;
+        public IReadOnlyDictionary<TexTransPhase, List<TexTransBehavior>> PhaseAtList => _phaseAtList;
+
 
         public TexTransBuildSession(RenderersDomain renderersDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseAtList)
         {
