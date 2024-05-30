@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- 他ツールがレンダラーを破棄した場合などに、正しく OptimizingPhase が実行できない問題を修正 (#491)
+
 ### Deprecated
 
 ## [0.7.2]
