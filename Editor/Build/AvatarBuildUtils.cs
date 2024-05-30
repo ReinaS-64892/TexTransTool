@@ -203,7 +203,7 @@ namespace net.rs64.TexTransTool.Build
         }
 
 
-        private static void DestroyITexTransToolTags(GameObject avatarGameObject)
+        public static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
             foreach (var itttTag in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {

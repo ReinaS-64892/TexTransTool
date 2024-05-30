@@ -27,6 +27,12 @@ namespace net.rs64.TexTransTool
             }
         }
 
+        public AssetSaver(string path)
+        {
+            Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
+            AssetDatabase.CreateAsset(Asset, path);
+        }
+
         public void TransferAsset(UnityEngine.Object unityObject)
         {
             Asset.AddSubObject(unityObject);
