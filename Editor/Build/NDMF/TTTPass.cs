@@ -72,6 +72,13 @@ namespace net.rs64.TexTransTool.Build.NDMF
             TTTContext(context).MidwayMergeStack();
         }
     }
+    internal class ReFindRenderersPass : TTTPass<ReFindRenderersPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            if (TTTContext(context).Domain is NDMFDomain domain) { domain.ReFindRenderers(); }
+        }
+    }
     internal class OptimizingPass : TTTPass<OptimizingPass>
     {
         protected override void Execute(BuildContext context)
@@ -84,6 +91,13 @@ namespace net.rs64.TexTransTool.Build.NDMF
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).TTTSessionEnd();
+        }
+    }
+    internal class TTTComponentPurgePass : TTTPass<TTTComponentPurgePass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            DestroyITexTransToolTags(context.AvatarRootObject);
         }
     }
 }

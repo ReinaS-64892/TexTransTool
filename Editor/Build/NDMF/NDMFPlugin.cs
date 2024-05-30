@@ -40,8 +40,10 @@ namespace net.rs64.TexTransTool.Build.NDMF
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
 
+            .Run(ReFindRenderersPass.Instance).Then
             .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance);
+            .Run(TTTSessionEndPass.Instance).Then
+            .Run(TTTComponentPurgePass.Instance);
 
 
         }

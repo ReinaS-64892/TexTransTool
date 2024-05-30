@@ -30,6 +30,8 @@ namespace net.rs64.TexTransTool
         [SerializeField] GameObject _avatarRoot;
         public GameObject AvatarRoot => _avatarRoot;
 
+        public void ReFindRenderers() { _renderers = _avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(); }
+
     }
 
     internal class FlatMapDict<TKeyValue>

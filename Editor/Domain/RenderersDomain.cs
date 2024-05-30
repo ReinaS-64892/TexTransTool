@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
     /// </summary>
     internal class RenderersDomain : IEditorCallDomain
     {
-        List<Renderer> _renderers;
+       protected List<Renderer> _renderers;
         public readonly bool Previewing;
 
         [CanBeNull] protected readonly IAssetSaver _saver;
