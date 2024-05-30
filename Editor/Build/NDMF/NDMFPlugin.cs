@@ -26,7 +26,6 @@ namespace net.rs64.TexTransTool.Build.NDMF
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
 
-            .Run(FindAtPhasePass.Instance).Then
             .Run(BeforeUVModificationPass.Instance).Then
 
             .Run(MidwayMergeStackPass.Instance).Then

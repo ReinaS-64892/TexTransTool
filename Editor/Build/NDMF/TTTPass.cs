@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
     {
         protected TexTransBuildSession TTTContext(BuildContext context)
         {
-            return context.GetState(b => new TexTransBuildSession(new NDMFDomain(b)));
+            return context.GetState(b => new TexTransBuildSession(new NDMFDomain(b), FindAtPhase(context.AvatarRootObject)));
         }
     }
     internal class PreviewCancelerPass : Pass<PreviewCancelerPass>
@@ -28,13 +28,6 @@ namespace net.rs64.TexTransTool.Build.NDMF
         {
             var resolverContext = new ResolverContext(context.AvatarRootObject);
             resolverContext.ResolvingFor(context.AvatarRootObject.GetComponentsInChildren<AbstractResolver>());
-        }
-    }
-    internal class FindAtPhasePass : TTTPass<FindAtPhasePass>
-    {
-        protected override void Execute(BuildContext context)
-        {
-            TTTContext(context).FindAtPhaseTTT();
         }
     }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>

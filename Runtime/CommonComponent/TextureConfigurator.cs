@@ -87,8 +87,8 @@ namespace net.rs64.TexTransTool
             newTexture2D.CopyFilWrap(targetTex2D);
             domain.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(materials, targetTex2D, newTexture2D));
 
-            if (OverrideCompression) { textureManager.DeferTextureCompress((CompressionQualityApplicant.GetTextureFormat(CompressionSetting), CompressionSetting.CompressionQuality), newTexture2D); }
-            else { textureManager.DeferInheritTextureCompress(targetTex2D, newTexture2D); }
+            if (OverrideCompression) { textureManager.DeferredTextureCompress((CompressionQualityApplicant.GetTextureFormat(CompressionSetting), CompressionSetting.CompressionQuality), newTexture2D); }
+            else { textureManager.DeferredInheritTextureCompress(targetTex2D, newTexture2D); }
 
         }
 

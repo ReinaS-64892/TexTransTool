@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.TextureStack
         {
             var resultTex = renderTexture.CopyTexture2D().CopySetting(FirstTexture, false);
             resultTex.name = FirstTexture.name + "_MergedStack";
-            TextureManager.DeferInheritTextureCompress(FirstTexture, resultTex);
+            TextureManager.DeferredInheritTextureCompress(FirstTexture, resultTex);
 
 
             TTRt.R(renderTexture);

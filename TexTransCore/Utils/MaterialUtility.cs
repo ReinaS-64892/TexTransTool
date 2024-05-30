@@ -29,7 +29,24 @@ namespace net.rs64.TexTransCore.Utils
             }
             return outPut;
         }
-        public static void SetTexture2Ds(this Material targetMat, Dictionary<string,Texture2D> propAndTextures, bool focusSetTexture = false)
+        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Dictionary<Texture2D, Texture2D> texturePair, Dictionary<Material, Material> outPut = null)
+        {
+            outPut?.Clear(); outPut ??= new();
+            foreach (var mat in materials)
+            {
+                var textures = GetAllTexture2D(mat);
+
+                bool replacedFlag = false;
+                foreach (var tex in textures) { if (texturePair.ContainsKey(tex.Value)) { replacedFlag = true; break; } }
+                if (replacedFlag == false) { continue; }
+
+                var material = Object.Instantiate(mat);
+                foreach (var tex in textures) { if (texturePair.TryGetValue(tex.Value, out var swapTex)) { material.SetTexture(tex.Key, swapTex); } }
+                outPut.Add(mat, material);
+            }
+            return outPut;
+        }
+        public static void SetTexture2Ds(this Material targetMat, Dictionary<string, Texture2D> propAndTextures, bool focusSetTexture = false)
         {
             foreach (var propAndTexture in propAndTextures)
             {

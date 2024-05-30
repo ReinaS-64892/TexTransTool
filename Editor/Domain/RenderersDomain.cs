@@ -26,24 +26,26 @@ namespace net.rs64.TexTransTool
         List<Renderer> _renderers;
         public readonly bool Previewing;
 
-        [CanBeNull] private readonly IAssetSaver _saver;
-        private readonly ITextureManager _textureManager;
-        private readonly StackManager<ImmediateTextureStack> _textureStacks;
+        [CanBeNull] protected readonly IAssetSaver _saver;
+        protected readonly ITextureManager _textureManager;
+        protected readonly StackManager<ImmediateTextureStack> _textureStacks;
 
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, bool saveAsset = false, bool? useCompress = null)
-        : this(previewRenderers, previewing, saveAsset ? new AssetSaver() : null, useCompress) { }
-        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, IAssetSaver assetSaver, bool? useCompress = null)
+        public RenderersDomain(List<Renderer> renderers, bool previewing, bool saveAsset = false, bool? useCompress = null)
+        : this(renderers, previewing, saveAsset ? new AssetSaver() : null, useCompress) { }
+        public RenderersDomain(List<Renderer> renderers, bool previewing, IAssetSaver assetSaver, bool? useCompress = null)
+        : this(renderers, previewing, new TextureManager(previewing, useCompress), assetSaver) { }
+        public RenderersDomain(List<Renderer> previewRenderers, bool previewing, ITextureManager textureManager, IAssetSaver assetSaver)
         {
             _renderers = previewRenderers;
             Previewing = previewing;
             _saver = assetSaver;
-            _textureManager = new TextureManager(Previewing, useCompress);
+            _textureManager = textureManager;
             _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
+        public virtual void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
         {
             _textureStacks.AddTextureStack(dist as Texture2D, setTex);
         }

@@ -25,17 +25,6 @@ namespace net.rs64.TexTransTool
     {
         void TransferAsset(UnityEngine.Object asset);
     }
-
-    internal interface ITextureManager : IOriginTexture
-    {
-        void DeferDestroyOf(Texture2D texture2D);
-        void DestroyDeferred();
-
-
-        void DeferTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
-        void DeferInheritTextureCompress(Texture2D source, Texture2D target);
-        void CompressDeferred();
-    }
     internal interface IReplaceTracking
     {
         bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
@@ -43,11 +32,24 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
+
+    internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
+    public interface IDeferredDestroyTexture
+    {
+        void DeferredDestroyOf(Texture2D texture2D);
+        void DestroyDeferred();
+    }
     public interface IOriginTexture
     {
         int GetOriginalTextureSize(Texture2D texture2D);
         void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
         void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget);
+    }
+    public interface IDeferTextureCompress
+    {
+        void DeferredTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
+        void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
+        void CompressDeferred();
     }
 
     internal static class DomainUtility
