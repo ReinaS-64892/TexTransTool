@@ -116,9 +116,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //情報を集めるフェーズ
-            var NowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers));
-            var targetMaterials = NowContainsMatSet.Distinct().Where(i => i != null)
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers));
+            var targetMaterials = nowContainsMatSet.Distinct().Where(i => i != null)
             .Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
+            var sizePriorityDict = targetMaterials.ToDictionary(i => i, i => SelectMatList.First(m => domain.OriginEqual(m.Material, i)).MaterialFineTuningValue);
 
             atlasData.AtlasInMaterials = targetMaterials;
             var atlasSetting = AtlasSetting;
@@ -128,8 +129,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("AtlasContext:ctor");
             var atlasContext = new AtlasContext(targetMaterials, Renderers, propertyBakeSetting != PropertyBakeSetting.NotBake);
             Profiler.EndSample();
-
-            var islandSizeOffset = GetTextureSizeOffset(SelectMatList.Select(i => i.Material), atlasSetting);
 
             //アイランドまわり
             if (atlasSetting.PixelNormalize)
@@ -207,14 +206,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var materialGroupID = Array.FindIndex(atlasContext.MaterialGroup, i => i.Any(m => m == mat));
                 if (materialGroupID == -1) { continue; }
                 var group = atlasContext.MaterialGroup[materialGroupID];
-                var targets = SelectMatList.Where(i => group.Any(m => domain.OriginEqual(m, i.Material)));
 
                 var materialFineTuningValue = 0f;
                 var count = 0;
-                foreach (var selector in targets)
+                foreach (var gm in group)
                 {
-                    materialFineTuningValue += selector.MaterialFineTuningValue;
-                    count += 1;
+                    if (sizePriorityDict.TryGetValue(gm, out var priorityValue))
+                    {
+                        materialFineTuningValue += priorityValue;
+                        count += 1;
+                    }
                 }
                 materialFineTuningValue /= count;
                 sizePriority[i] = materialFineTuningValue;
