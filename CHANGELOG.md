@@ -15,9 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 他ツールがレンダラーを破棄した場合などに、正しく OptimizingPhase が実行できない問題を修正 (#491)
+- AtlasTexture の選択対象に None が含まれていると例外が発生する問題を修正 (#493)
 
 ### Deprecated
+
+## [0.7.3]
+
+### Fixed
+
+- 他ツールがレンダラーを破棄した場合などに、正しく OptimizingPhase が実行できない問題を修正 (#491)
 
 ## [0.7.2]
 
@@ -535,7 +541,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.2...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.3...master
+[0.7.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0
