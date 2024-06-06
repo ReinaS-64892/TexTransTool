@@ -3,7 +3,7 @@ using System;
 using Object = UnityEngine.Object;
 
 
-namespace net.rs64.TexTransTool.Build.NDMF
+namespace net.rs64.TexTransTool.NDMF
 {
     internal class NDMFDomain : AvatarDomain
     {

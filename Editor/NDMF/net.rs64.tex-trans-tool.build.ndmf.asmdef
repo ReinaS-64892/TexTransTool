@@ -1,5 +1,5 @@
 {
-    "name": "net.rs64.tex-trans-tool.build.ndmf",
+    "name": "net.rs64.tex-trans-tool.ndmf",
     "rootNamespace": "",
     "references": [
         "net.rs64.tex-trans-tool.runtime",

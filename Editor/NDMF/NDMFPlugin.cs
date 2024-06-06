@@ -5,7 +5,7 @@ using UnityEngine;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
-namespace net.rs64.TexTransTool.Build.NDMF
+namespace net.rs64.TexTransTool.NDMF
 {
 
     internal class NDMFPlugin : Plugin<NDMFPlugin>

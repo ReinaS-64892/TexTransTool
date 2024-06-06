@@ -3,7 +3,7 @@ using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransTool.ReferenceResolver;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
-namespace net.rs64.TexTransTool.Build.NDMF
+namespace net.rs64.TexTransTool.NDMF
 {
     abstract class TTTPass<T> : Pass<T> where T : Pass<T>, new()
     {
