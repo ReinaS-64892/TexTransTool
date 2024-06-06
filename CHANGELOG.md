@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture の選択対象に None が含まれていると例外が発生する問題を修正 (#493)
+- AtlasTexture のアトラス化対象に、Texture Offset Tiling が使用されているとその部分が黒くなる問題を修正 (#494)
 
 ### Deprecated
 
