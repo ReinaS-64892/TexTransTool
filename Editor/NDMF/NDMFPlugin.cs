@@ -1,5 +1,5 @@
 using nadena.dev.ndmf;
-using net.rs64.TexTransTool.Build.NDMF;
+using net.rs64.TexTransTool.NDMF;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
 
