@@ -5,7 +5,7 @@
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.inspector")]
 [assembly: InternalsVisibleTo("net.ra64.tex-trans-tool.test-code")]
 
-[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.build.ndmf")]
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf")]
 
 [assembly: InternalsVisibleTo("net.rs64.multi-layer-image-parser")]
 
