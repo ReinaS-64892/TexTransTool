@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransCore.MipMap;
 using net.rs64.TexTransCore.Unsafe;
 using Unity.Collections;
 using UnityEngine;
@@ -175,6 +176,7 @@ namespace net.rs64.TexTransCore.Utils
         public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
         {
             var tmp = rt.CloneTemp();
+            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorism.Average); }
             ApplyTextureST(tmp, s, t, rt);
             TTRt.R(tmp);
         }
