@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.Preview
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
-                else { previewDomain = new RenderersDomain(targetTTBehavior.GetRenderers, true, false, true); }
+                else { Debug.LogError("Domainが見つかりません！！！"); return; }
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
                 //カスタムプレビューとエディターコールビヘイビアは違うから注意

@@ -58,38 +58,38 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
         #endregion
 
-        internal override List<Renderer> GetRenderers => TargetRenderers;
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
         internal override void Apply(IDomain domain)
         {
             if (!IsPossibleApply) { TTTRuntimeLog.Error(GetType().Name + ":error:TTTNotExecutable"); return; }
+            var targetRenderers = domain.GetDomainsRenderers(TargetRenderers);
+            var decalCompiledTextures = CompileDecal(targetRenderers, domain);
 
-            var decalCompiledTextures = CompileDecal(domain.GetTextureManager(), DictionaryPool<Material, RenderTexture>.Get());
-
+            domain.LookAt(transform);
+            domain.LookAt(decalCompiledTextures.Keys);
             foreach (var matAndTex in decalCompiledTextures)
             {
                 domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
             }
-
-            DictionaryPool<Material, RenderTexture>.Release(decalCompiledTextures);
-
         }
 
-        internal static RenderTexture GetMultipleDecalTexture(ITextureManager textureManager, Texture2D sourceDecalTexture, Color color)
+        internal static RenderTexture GetMultipleDecalTexture(IDomain domain, Texture2D sourceDecalTexture, Color color)
         {
             RenderTexture mulDecalTexture;
+            var texManager = domain.GetTextureManager();
+            domain.LookAt(sourceDecalTexture);
 
             if (sourceDecalTexture != null)
             {
-                var decalSourceSize = textureManager.GetOriginalTextureSize(sourceDecalTexture);
+                var decalSourceSize = texManager.GetOriginalTextureSize(sourceDecalTexture);
                 mulDecalTexture = TTRt.G(decalSourceSize, decalSourceSize);
             }
             else { mulDecalTexture = TTRt.G(32, 32); }
             mulDecalTexture.Clear();
             if (sourceDecalTexture != null)
             {
-                var tempRt = textureManager.GetOriginTempRt(sourceDecalTexture);
+                var tempRt = texManager.GetOriginTempRt(sourceDecalTexture);
                 TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
                 TTRt.R(tempRt);
             }
@@ -124,10 +124,10 @@ namespace net.rs64.TexTransTool.Decal
 
         [ExpandTexture2D] public Texture2D DecalTexture;
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
-        internal Dictionary<Material, RenderTexture> CompileDecal(ITextureManager textureManager, Dictionary<Material, RenderTexture> decalCompiledRenderTextures = null)
+        internal Dictionary<Material, RenderTexture> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
         {
             Profiler.BeginSample("GetMultipleDecalTexture");
-            RenderTexture mulDecalTexture = GetMultipleDecalTexture(textureManager, DecalTexture, Color);
+            RenderTexture mulDecalTexture = GetMultipleDecalTexture(domain, DecalTexture, Color);
             Profiler.EndSample();
 
             var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>, Vector3>(GetSpaceConverter(), GetTriangleFilter());
@@ -137,16 +137,46 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.HighQualityPadding = HighQualityPadding;
             decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
 
-            decalCompiledRenderTextures ??= new();
-            foreach (var renderer in TargetRenderers)
+            var decalCompiledRenderTextures = new Dictionary<Material, RenderTexture>();
+            domain.LookAt(targetRenderers);
+            foreach (var renderer in targetRenderers)
             {
-                if (renderer == null) { continue; }
                 Profiler.BeginSample("CreateDecalTexture");
                 decalContext.WriteDecalTexture(decalCompiledRenderTextures, renderer, mulDecalTexture);
                 Profiler.EndSample();
             }
             TTRt.R(mulDecalTexture);
             return decalCompiledRenderTextures;
+        }
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            var targetRenderers = replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers);
+            var modificationTarget = new HashSet<Texture>();
+
+            foreach (var tr in targetRenderers)
+            {
+                if (tr is not SkinnedMeshRenderer && tr is not MeshRenderer) { continue; }
+                if (tr.GetMesh() == null) { continue; }
+                foreach (var mat in tr.sharedMaterials)
+                {
+                    var targetTex = mat.HasProperty(TargetPropertyName) ? mat.GetTexture(TargetPropertyName) : null;
+                    if (targetTex == null) { continue; }
+                    modificationTarget.Add(targetTex);
+                }
+            }
+            return GetTextureReplacedRange(domainRenderers, modificationTarget);
+        }
+
+        public static IEnumerable<Renderer> GetTextureReplacedRange(IEnumerable<Renderer> domainRenderers, HashSet<Texture> modificationTarget)
+        {
+            var modificationMatHash = new HashSet<Material>();
+            foreach (var mat in RendererUtility.GetFilteredMaterials(domainRenderers))
+            {
+                foreach (var tex in mat.GetAllTexture2D().Values)
+                { if (modificationTarget.Contains(tex)) { modificationMatHash.Add(mat); break; } }
+            }
+
+            return domainRenderers.Where(dr => dr.sharedMaterials.Any(mat => modificationMatHash.Contains(mat)));
         }
 
         internal ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }

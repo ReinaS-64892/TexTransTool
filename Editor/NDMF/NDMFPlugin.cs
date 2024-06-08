@@ -2,6 +2,7 @@ using nadena.dev.ndmf;
 using net.rs64.TexTransTool.NDMF;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
+using System.Collections.Generic;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -28,21 +29,26 @@ namespace net.rs64.TexTransTool.NDMF
 
             .Run(BeforeUVModificationPass.Instance).Then
 
-            .Run(MidwayMergeStackPass.Instance).Then
+            .Run(MidwayMergeStackPass.Instance)
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification })).Then
 
             .Run(UVModificationPass.Instance).Then
             .Run(AfterUVModificationPass.Instance).Then
             .Run(UnDefinedPass.Instance).Then
 
-            .Run(BeforeOptimizingMergeStackPass.Instance);
+            .Run(BeforeOptimizingMergeStackPass.Instance)
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }));
 
 
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
 
             .Run(ReFindRenderersPass.Instance).Then
+
             .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance).Then
+            .Run(TTTSessionEndPass.Instance)
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing })).Then
+
             .Run(TTTComponentPurgePass.Instance);
 
 

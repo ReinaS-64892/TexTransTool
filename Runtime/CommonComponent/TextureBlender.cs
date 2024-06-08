@@ -20,9 +20,6 @@ namespace net.rs64.TexTransTool
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
-
-        internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.RendererAsPath };
-
         internal override bool IsPossibleApply => TargetTexture.RendererAsPath != null && BlendTexture != null;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
@@ -43,6 +40,11 @@ namespace net.rs64.TexTransTool
         internal override int GetDependencyHash(IDomain domain)
         {
             return TargetTexture.GetDependencyHash() ^ BlendTexture?.GetInstanceID() ?? 0;
+        }
+
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            return TargetTexture.ModificationTargetRenderers(domainRenderers);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.EditorProcessor
@@ -21,6 +22,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
     internal interface IEditorProcessor
     {
         void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain);
+        IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
     }
 
     internal static class EditorProcessorUtility
@@ -55,14 +57,23 @@ namespace net.rs64.TexTransTool.EditorProcessor
         }
 
 
-        public static void CallProcessorApply(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        private static IEditorProcessor GetPresserType(Type texTransCallEditorBehaviorType)
         {
             if (s_processor is null) { InitProcessor(); }
 
-            var targetType = texTransCallEditorBehavior.GetType();
+            var targetType = texTransCallEditorBehaviorType;
             if (!s_processor.ContainsKey(targetType)) { throw new EditorProcessorNotFound(targetType); }
 
-            s_processor[targetType].Process(texTransCallEditorBehavior, editorCallDomain);
+            return s_processor[targetType];
+        }
+        public static void CallProcessorApply(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        {
+            GetPresserType(texTransCallEditorBehavior.GetType()).Process(texTransCallEditorBehavior, editorCallDomain);
+        }
+
+        public static IEnumerable<Renderer> CallProcessorModificationTargetRenderers(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, domainRenderers, replaceTracking);
         }
 
     }

@@ -2,9 +2,12 @@
     "name": "net.rs64.tex-trans-tool.ndmf",
     "rootNamespace": "",
     "references": [
+        "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.tex-trans-tool.editor",
-        "nadena.dev.ndmf"
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.runtime",
+        "nadena.dev.ndmf.reactive-query.core"
     ],
     "includePlatforms": [
         "Editor"

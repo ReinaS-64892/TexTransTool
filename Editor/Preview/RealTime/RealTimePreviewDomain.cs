@@ -135,7 +135,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         }
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
 
-        public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false) { throw new NotImplementedException(); }
+        public void ReplaceMaterials(Dictionary<Material, Material> mapping) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }
         public void TransferAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
     }

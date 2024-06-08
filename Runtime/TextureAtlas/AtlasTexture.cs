@@ -30,7 +30,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override bool IsPossibleApply => TargetRoot != null;
 
-        internal override List<Renderer> GetRenderers => Renderers;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
@@ -116,9 +115,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //情報を集めるフェーズ
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers));
-            var targetMaterials = nowContainsMatSet.Distinct().Where(i => i != null)
-            .Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers).Where(i => i != null));
+            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
             var sizePriorityDict = targetMaterials.ToDictionary(i => i, i => SelectMatList.First(m => domain.OriginEqual(m.Material, i)).MaterialFineTuningValue);
 
             atlasData.AtlasInMaterials = targetMaterials;
@@ -754,7 +752,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
                 var matGroupGenerate = AtlasSetting.MaterialMergeGroups.ToDictionary(m => m, m => GenerateAtlasMat(m.MergeReferenceMaterial, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture));
 
-                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)), true);
+                domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)));
 
                 Material FindGroup(Material material)
                 {
@@ -775,7 +773,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     var generateMat = GenerateAtlasMat(distMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
                     materialMap.Add(distMat, generateMat);
                 }
-                domain.ReplaceMaterials(materialMap, true);
+                domain.ReplaceMaterials(materialMap);
             }
 
         }
@@ -866,6 +864,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
             hash ^= AtlasSetting.AtlasIslandRelocator?.GetInstanceID() ?? 0;
             hash ^= AtlasSetting.MergeReferenceMaterial?.GetInstanceID() ?? 0;
             return hash;
+        }
+
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            var renderer = replaceTracking.GetDomainsRenderers(domainRenderers, Renderers);
+
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(renderer).Where(i => i != null));
+            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => replaceTracking(smat.Material, mat))).ToHashSet();
+            return domainRenderers.Where(r => r.sharedMaterials.Any(targetMaterials.Contains));
         }
     }
 }
