@@ -15,8 +15,6 @@ namespace net.rs64.TexTransTool
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
         internal IEnumerable<TexTransBehavior> Targets => GetChildeComponent<TexTransBehavior>(transform);
 
-        internal override List<Renderer> GetRenderers => TextureTransformerFilter(Targets).SelectMany(I => I.GetRenderers).ToList();
-
         internal override bool IsPossibleApply => PossibleApplyCheck();
 
         internal static IEnumerable<TexTransBehavior> TextureTransformerFilter(IEnumerable<TexTransBehavior> targets) => targets.Where(tf => tf != null && tf.ThisEnable);

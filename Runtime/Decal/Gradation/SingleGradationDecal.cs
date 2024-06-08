@@ -21,7 +21,6 @@ namespace net.rs64.TexTransTool.Decal
         internal const string ComponentName = "TTT SingleGradationDecal";
         internal const string MenuPath = ComponentName;
 
-        internal override List<Renderer> GetRenderers => null;
         internal override bool IsPossibleApply => TargetMaterials != null && TargetMaterials.Any();
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
@@ -59,7 +58,7 @@ namespace net.rs64.TexTransTool.Decal
             foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(m2rt.Value, BlendTypeKey)); }
         }
 
-        private HashSet<Material> GetTargetMaterials(Func<UnityEngine.Object, UnityEngine.Object, bool> originEqual, IEnumerable<Renderer> domainRenderers)
+        private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
         {
             if (!IsPossibleApply) { return new(); }
             return RendererUtility.GetMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
@@ -116,6 +115,14 @@ namespace net.rs64.TexTransTool.Decal
             var hash = 0;
             if (TargetMaterials != null) foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
             return hash;
+        }
+
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            var targetMat = GetTargetMaterials(replaceTracking, domainRenderers);
+            var texHash = targetMat.Select(m => m.HasProperty(TargetPropertyName) ? m.GetTexture(TargetPropertyName) : null).Where(t => t != null).ToHashSet();
+
+            return SimpleDecal.GetTextureReplacedRange(domainRenderers, texHash);
         }
     }
 

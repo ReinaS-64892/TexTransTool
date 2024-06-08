@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool
         /// <param name="domain">The domain</param>
         internal abstract void Apply([NotNull] IDomain domain);
 
+        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
 
         /// <summary>
         /// Enumerates references that depend on the component externally.

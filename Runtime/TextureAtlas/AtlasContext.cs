@@ -98,11 +98,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             Profiler.BeginSample("Normalize And Bake Mash");
-            var TargetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
-            var normalizedMesh = SubVertNormalize(TargetRenderers);
+            var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
+            var normalizedMesh = SubVertNormalize(targetRenderers);
 
             var m2md = new Dictionary<Mesh, MeshData>();
-            foreach (var mkr in TargetRenderers.GroupBy(r => r.GetMesh()))
+            foreach (var mkr in targetRenderers.GroupBy(r => r.GetMesh()))
             {
                 var nmMesh = normalizedMesh[mkr.Key];
                 var renderer = mkr.First(r => r.sharedMaterials.Length == nmMesh.subMeshCount);
@@ -130,9 +130,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Get AtlasSubAll");
             AtlasSubAll = new();
             var atlasSubSets = new List<AtlasSubData?[]>();
-            for (var ri = 0; TargetRenderers.Length > ri; ri += 1)
+            for (var ri = 0; targetRenderers.Length > ri; ri += 1)
             {
-                var renderer = TargetRenderers[ri];
+                var renderer = targetRenderers[ri];
                 var mats = renderer.sharedMaterials;
                 var mesh = renderer.GetMesh();
                 var meshID = Array.IndexOf(Meshes, mesh);

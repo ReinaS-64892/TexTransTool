@@ -32,6 +32,13 @@ namespace net.rs64.TexTransCore.Utils
             ListPool<Material>.Release(tempList);
             return output;
         }
+        public static void SwapMaterials(IEnumerable<Renderer> renderers, Dictionary<Material, Material> matMap) { foreach (var r in renderers) { SwapMaterials(r, matMap); } }
+        public static void SwapMaterials(Renderer renderer, Dictionary<Material, Material> matMap)
+        {
+            if (renderer == null) { return; }
+            if (!renderer.sharedMaterials.Any()) { return; }
+            renderer.sharedMaterials = renderer.sharedMaterials.Select(i => matMap.TryGetValue(i, out var r) ? r : i).ToArray();
+        }
         public static Mesh GetMesh(this Renderer target)
         {
             Mesh mesh = null;
@@ -51,6 +58,24 @@ namespace net.rs64.TexTransCore.Utils
                     break;
             }
             return mesh;
+        }
+        public static bool SetMesh(this Renderer target, Mesh mesh)
+        {
+            switch (target)
+            {
+                case SkinnedMeshRenderer SMR:
+                    {
+                        SMR.sharedMesh = mesh;
+                        return true;
+                    }
+                case MeshRenderer MR:
+                    {
+                        MR.GetComponent<MeshFilter>().sharedMesh = mesh;
+                        return true;
+                    }
+                default:
+                    return false;
+            }
         }
     }
 }

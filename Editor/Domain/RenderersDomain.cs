@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
     /// </summary>
     internal class RenderersDomain : IEditorCallDomain
     {
-       protected List<Renderer> _renderers;
+        protected List<Renderer> _renderers;
         public readonly bool Previewing;
 
         [CanBeNull] protected readonly IAssetSaver _saver;
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool
             property.objectReferenceValue = value;
         }
 
-        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping, bool rendererOnly = false)
+        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping)
         {
             foreach (var replacement in mapping.Values)
                 TransferAsset(replacement);
@@ -91,13 +91,8 @@ namespace net.rs64.TexTransTool
                 }
             }
 
-            if (!rendererOnly)
-            {
-                foreach (var keyValuePair in mapping)
-                {
-                    RegisterReplace(keyValuePair.Key, keyValuePair.Value);
-                }
-            }
+            foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); }
+            this.transferAssets(mapping.Values);
         }
 
         public virtual void SetMesh(Renderer renderer, Mesh mesh)
@@ -126,10 +121,8 @@ namespace net.rs64.TexTransTool
         }
         public virtual void SetTexture(Texture2D target, Texture2D setTex)
         {
-            var mats = ListPool<Material>.Get(); RendererUtility.GetFilteredMaterials(_renderers, mats);
+            var mats = RendererUtility.GetFilteredMaterials(_renderers);
             ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
-            ListPool<Material>.Release(mats);
-
             RegisterReplace(target, setTex);
         }
 
@@ -139,17 +132,16 @@ namespace net.rs64.TexTransTool
         public virtual bool OriginEqual(Object l, Object r)
         {
             if (l == r) { return true; }
-
-            return GetOrigin(l) == GetOrigin(r);
-
-            Object GetOrigin(Object obj)
-            {
-                if (obj == null) { return null; }
-                while (_replaceMap.ContainsKey(obj)) { obj = _replaceMap[obj]; }
-                return obj;
-            }
-
+            return GetOrigin(_replaceMap, l) == GetOrigin(_replaceMap, r);
         }
+
+        public static T GetOrigin<T>(Dictionary<T, T> replaceMap, T obj)
+        {
+            if (obj == null) { return default; }
+            while (replaceMap.ContainsKey(obj)) { obj = replaceMap[obj]; }
+            return obj;
+        }
+
         public virtual void RegisterReplace(Object oldObject, Object nowObject)
         {
             _replaceMap[nowObject] = oldObject;
