@@ -18,9 +18,7 @@ namespace net.rs64.TexTransTool.Build.NDMF
         protected override void Configure()
         {
             InPhase(BuildPhase.Resolving)
-
-            .Run(PreviewCancelerPass.Instance).Then
-            .Run(ResolvingPass.Instance);
+            .Run(PreviewCancelerPass.Instance);
 
 
             InPhase(BuildPhase.Transforming)
