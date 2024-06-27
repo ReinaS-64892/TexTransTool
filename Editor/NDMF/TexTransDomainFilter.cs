@@ -209,6 +209,8 @@ namespace net.rs64.TexTransTool.NDMF
 
         private void RegisterRecall(Renderer proxyRenderer, Action<Renderer> recall)
         {
+            if (!_proxy2OriginRendererDict.ContainsKey(proxyRenderer)) { Debug.Log($" {proxyRenderer.name} はプロキシーリストにないよ...?"); return; }
+
             if (_rendererApplyRecaller.ContainsKey(_proxy2OriginRendererDict[proxyRenderer])) { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] += recall; }
             else { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] = recall; }
         }
@@ -217,8 +219,8 @@ namespace net.rs64.TexTransTool.NDMF
         {
             foreach (var dr in _proxyDomainRenderers)
             {
-                RendererUtility.SwapMaterials(dr, mapping);
                 RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
+                RendererUtility.SwapMaterials(dr, mapping);
             }
             foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
             this.transferAssets(mapping.Values);
@@ -226,8 +228,8 @@ namespace net.rs64.TexTransTool.NDMF
 
         public void SetMesh(Renderer renderer, Mesh mesh)
         {
-            renderer.SetMesh(mesh);
             RegisterRecall(renderer, i => i.SetMesh(mesh));
+            renderer.SetMesh(mesh);
         }
 
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
