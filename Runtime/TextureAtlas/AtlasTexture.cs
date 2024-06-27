@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal const string ComponentName = "TTT AtlasTexture";
         internal const string MenuPath = ComponentName;
         public GameObject TargetRoot;
-        public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
+        // public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
         public List<MatSelector> SelectMatList = new List<MatSelector>();
         public AtlasSetting AtlasSetting = new AtlasSetting();
 
@@ -107,7 +107,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        bool TryCompileAtlasTextures(IDomain domain, out AtlasData atlasData)
+        bool TryCompileAtlasTextures(List<Renderer> targetRenderers, IDomain domain, out AtlasData atlasData)
         {
             Profiler.BeginSample("AtlasData and FindRenderers");
             var texManage = domain.GetTextureManager();
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //情報を集めるフェーズ
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(Renderers).Where(i => i != null));
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(targetRenderers).Where(i => i != null));
             var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
             var sizePriorityDict = targetMaterials.ToDictionary(i => i, i => SelectMatList.First(m => domain.OriginEqual(m.Material, i)).MaterialFineTuningValue);
 
@@ -125,7 +125,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.EndSample();
 
             Profiler.BeginSample("AtlasContext:ctor");
-            var atlasContext = new AtlasContext(targetMaterials, Renderers, propertyBakeSetting != PropertyBakeSetting.NotBake);
+            var atlasContext = new AtlasContext(targetMaterials, targetRenderers, propertyBakeSetting != PropertyBakeSetting.NotBake);
             Profiler.EndSample();
 
             //アイランドまわり
@@ -700,12 +700,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TTTRuntimeLog.Error("AtlasTexture:error:TTTNotExecutable");
                 return;
             }
+            var nowRenderers = domain.EnumerateRenderer()
+                .Where(i => i.gameObject.activeInHierarchy)
+                .Where(i => AtlasAllowedRenderer(i))
+                .ToList();
+
 
             Profiler.BeginSample("TryCompileAtlasTextures");
-            if (!TryCompileAtlasTextures(domain, out var atlasData)) { Profiler.EndSample(); return; }
+            if (!TryCompileAtlasTextures(nowRenderers, domain, out var atlasData)) { Profiler.EndSample(); return; }
             Profiler.EndSample();
-
-            var nowRenderers = Renderers;
 
             Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
             var shaderSupport = new AtlasShaderSupportUtils();
@@ -834,22 +837,26 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var result = new List<Renderer>();
             foreach (var item in targetRoot.GetComponentsInChildren<Renderer>(includeDisabledRenderer))
             {
-                if (item.tag == "EditorOnly") continue;
-                if (item.GetMesh() == null) continue;
-                if (item.GetMesh().uv.Any() == false) continue;
-                if (item.sharedMaterials.Length == 0) continue;
-                if (item.sharedMaterials.Any(Mat => Mat == null)) continue;
-                if (item.GetComponent<AtlasExcludeTag>() != null) continue;
-
-                result.Add(item);
+                if (AtlasAllowedRenderer(item)) { result.Add(item); }
             }
             return result;
+        }
+
+        private static bool AtlasAllowedRenderer(Renderer item)
+        {
+            if (item.tag == "EditorOnly") return false;
+            if (item.GetMesh() == null) return false;
+            if (item.GetMesh().uv.Any() == false) return false;
+            if (item.sharedMaterials.Length == 0) return false;
+            if (item.sharedMaterials.Any(Mat => Mat == null)) return false;
+            if (item.GetComponent<AtlasExcludeTag>() != null) return false;
+
+            return true;
         }
 
         internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
         {
             return AtlasSetting.IslandFineTuners.SelectMany(i => i.GetDependency())
-            .Concat(Renderers)
             .Concat(AtlasSetting.MaterialMergeGroups.Select(m => m.MergeReferenceMaterial))
             .Append(AtlasSetting.AtlasIslandRelocator)
             .Append(AtlasSetting.MergeReferenceMaterial);
@@ -868,10 +875,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var renderer = replaceTracking.GetDomainsRenderers(domainRenderers, Renderers);
 
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(renderer).Where(i => i != null));
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(
+                    domainRenderers.Where(i => i.gameObject.activeInHierarchy)
+                        .Where(i => AtlasAllowedRenderer(i))
+                    ).Where(i => i != null));
             var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => replaceTracking(smat.Material, mat))).ToHashSet();
+
             return domainRenderers.Where(r => r.sharedMaterials.Any(targetMaterials.Contains));
         }
     }
