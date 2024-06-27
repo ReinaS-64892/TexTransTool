@@ -1,7 +1,6 @@
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
-using net.rs64.TexTransTool.ReferenceResolver;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -21,14 +20,6 @@ namespace net.rs64.TexTransTool.NDMF
             PreviewUtility.ExitPreviews();
             TTTLog.Error("Common:error:BuildWasRunDuringPreviewing");
             throw new TTTNotExecutable();
-        }
-    }
-    internal class ResolvingPass : Pass<ResolvingPass>
-    {
-        protected override void Execute(BuildContext context)
-        {
-            var resolverContext = new ResolverContext(context.AvatarRootObject);
-            resolverContext.ResolvingFor(context.AvatarRootObject.GetComponentsInChildren<AbstractResolver>());
         }
     }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>

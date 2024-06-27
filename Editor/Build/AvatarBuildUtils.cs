@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using net.rs64.TexTransTool.ReferenceResolver;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -74,9 +73,6 @@ namespace net.rs64.TexTransTool.Build
             {
                 var timer = Stopwatch.StartNew();
 
-                var resolverContext = new ResolverContext(avatarGameObject);
-                resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
-
                 var domain = new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer));
                 var session = new TexTransBuildSession(domain, FindAtPhase(avatarGameObject));
                 session.DisplayEditorProgressBar = DisplayProgressBar;
@@ -109,14 +105,6 @@ namespace net.rs64.TexTransTool.Build
             session.TTTSessionEnd();
         }
 
-
-        public static void ResolvingFor(this ResolverContext resolverContext, IEnumerable<AbstractResolver> abstractResolvers)
-        {
-            foreach (var resolver in abstractResolvers)
-            {
-                resolver.Resolving(resolverContext);
-            }
-        }
 
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject) { return FindAtPhase(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()); }
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(IEnumerable<TexTransBehavior> behaviors)
