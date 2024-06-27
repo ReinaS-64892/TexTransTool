@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using nadena.dev.ndmf;
@@ -20,95 +21,114 @@ namespace net.rs64.TexTransTool.NDMF
     {
         public IEnumerable<TexTransPhase> PreviewTargetPhase;
 
-        public ReactiveValue<IImmutableList<IImmutableList<Renderer>>> TargetGroups { get; private set; }
+        public ReactiveValue<ImmutableList<RenderGroup>> TargetGroups { get; private set; }
 
         public TexTransDomainFilter(IEnumerable<TexTransPhase> previewTargetPhase)
         {
             PreviewTargetPhase = previewTargetPhase;
             var queryName = string.Join("-", PreviewTargetPhase.Select(i => i.ToString())) + "-TargetRenderers";
-            TargetGroups = ReactiveValue<IImmutableList<IImmutableList<Renderer>>>.Create(queryName, QueryPreviewTarget);
+            TargetGroups = ReactiveValue<ImmutableList<RenderGroup>>.Create(queryName, QueryPreviewTarget);
         }
 
 
-        private async Task<IImmutableList<IImmutableList<Renderer>>> QueryPreviewTarget(ComputeContext ctx)
+        private async Task<ImmutableList<RenderGroup>> QueryPreviewTarget(ComputeContext ctx)
         {
             var ttBehaviors = await ctx.Observe(CommonQueries.GetComponentsByType<TexTransBehavior>());
 
             var avatarGrouping = GroupingByAvatar(ttBehaviors);
-            var targetGroupRenderer = new List<List<Renderer>>();
+            var allGroups = new List<RenderGroup>();
             foreach (var ag in avatarGrouping)
             {
-                var phaseDict = AvatarBuildUtils.FindAtPhase(ag.Value);
-                var gr = GetPreviewTargetsOnDomain(ctx, ag.Key, phaseDict, PreviewTargetPhase);
-                foreach (var gr2 in gr.PreviewGroup) { targetGroupRenderer.Add(gr2); }
+                var domainRoot = ag.Key;
+                var TexTransBehaviors = ag.Value;
+
+                var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true);
+                var phaseDict = AvatarBuildUtils.FindAtPhase(TexTransBehaviors);
+
+                var (previewTargetBehavior, behaviorIndex) = GetFlattenBehaviorAndIndex(phaseDict);
+
+                var targetRendererGroup = GetTargetGrouping(ctx, domainRenderers, previewTargetBehavior);
+                var renderersGroup2behavior = GetRendererGrouping(behaviorIndex, targetRendererGroup);
+
+                allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(i.Value)));
             }
 
-            return targetGroupRenderer.Select(i => (IImmutableList<Renderer>)ImmutableList.CreateRange(i)).ToImmutableList();
+            return allGroups.ToImmutableList();
         }
 
-        private static (List<List<Renderer>> PreviewGroup, Dictionary<Renderer, HashSet<TexTransBehavior>> ModTargetMap) GetPreviewTargetsOnDomain(ComputeContext ctx, GameObject domainRoot, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict, IEnumerable<TexTransPhase> targetPhaseList)
+        private (List<TexTransBehavior> previewTargetBehavior, Dictionary<TexTransBehavior, int> behaviorIndex) GetFlattenBehaviorAndIndex(Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict)
         {
-            var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true);
-
-            var targetGroup = new List<HashSet<Renderer>>();
-            var modTargetMap = new Dictionary<Renderer, HashSet<TexTransBehavior>>();
-
-            foreach (var targetPhase in targetPhaseList)
+            var behaviorIndex = new Dictionary<TexTransBehavior, int>();
+            var previewTargetBehavior = new List<TexTransBehavior>();
+            var index = 0;
+            foreach (var phase in PreviewTargetPhase)
             {
-                var ttbList = AvatarBuildUtils.PhaseFlatten(phaseDict[targetPhase]);
-
-                foreach (var ttb in ttbList)
-                {
-                    if (!ctx.ActiveInHierarchy(ttb.gameObject)) { continue; }
-                    var target = ttb.ModificationTargetRenderers(domainRenderers, (l, r) => l == r);
-
-                    var index = targetGroup.FindIndex(g => g.Intersect(target).Any());
-
-                    if (index == -1) { targetGroup.Add(target.ToHashSet()); }
-                    else { targetGroup[index].UnionWith(target); }
-
-                    foreach (var r in target)
-                    {
-                        if (!modTargetMap.ContainsKey(r)) { modTargetMap[r] = new(); }
-                        modTargetMap[r].Add(ttb);
-                    }
-                }
+                var flattenPhase = AvatarBuildUtils.PhaseFlatten(phaseDict[phase]);
+                foreach (var behavior in flattenPhase) { behaviorIndex[behavior] = index; index -= 1; }
+                previewTargetBehavior.AddRange(flattenPhase);
             }
 
-            ForMarge();
-            targetGroup.RemoveAll(g => !g.Any());
-
-            void ForMarge()
-            {
-                var indexMax = targetGroup.Count - 1;
-                for (var l = 0; indexMax > l; l += 1)
-                    for (var r = l + 1; indexMax >= r; r += 1)
-                    {
-                        var intersect = targetGroup[l].Intersect(targetGroup[r]).Any();
-                        if (intersect)
-                        {
-                            var margG = targetGroup[r];
-                            var margS = targetGroup[l];
-                            margS.UnionWith(margG);
-
-                            targetGroup.RemoveAt(r);
-                            ForMarge();
-                            return;
-                        }
-                    }
-            }
-
-            return (targetGroup.Select(g => g.ToList()).ToList(), modTargetMap);
+            return (previewTargetBehavior, behaviorIndex);
         }
+
+        private static Dictionary<IEnumerable<Renderer>, SortedList<int, TexTransBehavior>> GetRendererGrouping(Dictionary<TexTransBehavior, int> behaviorIndex, Dictionary<TexTransBehavior, HashSet<Renderer>> targetRendererGroup)
+        {
+            var renderer2Behavior = new Dictionary<Renderer, SortedList<int, TexTransBehavior>>();
+
+            foreach (var trg in targetRendererGroup)
+            {
+                var thisGroup = new SortedList<int, TexTransBehavior>() { { behaviorIndex[trg.Key], trg.Key } };
+                var thisGroupTarget = new HashSet<Renderer>();
+                foreach (var target in trg.Value)
+                {
+                    if (renderer2Behavior.ContainsKey(target))
+                    {
+                        var group = renderer2Behavior[target];
+
+                        thisGroupTarget.UnionWith(renderer2Behavior.Where(i => i.Value == group).Select(i => i.Key));
+                        foreach (var kv in group) { thisGroup[kv.Key] = kv.Value; }
+                    }
+                    else { thisGroupTarget.Add(target); }
+                }
+
+                foreach (var t in thisGroupTarget) { renderer2Behavior[t] = thisGroup; }
+            }
+
+            var grouping = new Dictionary<IEnumerable<Renderer>, SortedList<int, TexTransBehavior>>();
+
+            foreach (var group in renderer2Behavior.Values.Distinct().ToArray())
+            {
+                grouping.Add(renderer2Behavior.Where(i => i.Value == group).Select(i => i.Key), group);
+            }
+
+            return grouping;
+        }
+
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(ComputeContext ctx, Renderer[] domainRenderers, List<TexTransBehavior> previewTargetBehavior)
+        {
+            var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
+            foreach (var ttb in previewTargetBehavior)
+            {
+                if (!ctx.ActiveInHierarchy(ttb.gameObject)) { continue; }
+                var modificationTargets = ttb.ModificationTargetRenderers(domainRenderers, (l, r) => l == r);
+                targetRendererGroup.Add(ttb, modificationTargets.ToHashSet());
+            }
+
+            return targetRendererGroup;
+        }
+
 
         private static Dictionary<GameObject, List<TexTransBehavior>> GroupingByAvatar(ImmutableList<TexTransBehavior> ttBehaviors)
         {
             var avatarGrouping = new Dictionary<GameObject, List<TexTransBehavior>>();
             foreach (var ttb in ttBehaviors)
             {
+                if (ttb == null) { continue; }
                 var root = RuntimeUtil.FindAvatarInParents(ttb.transform);
                 if (root == null) { continue; }
+
                 var avatarRootGameObject = root.gameObject;
+
                 if (!avatarGrouping.ContainsKey(avatarRootGameObject)) { avatarGrouping[avatarRootGameObject] = new(); }
                 avatarGrouping[avatarRootGameObject].Add(ttb);
             }
@@ -116,38 +136,22 @@ namespace net.rs64.TexTransTool.NDMF
             return avatarGrouping;
         }
 
-        public async Task<IRenderFilterNode> Instantiate(IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
+        public Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
-            var ttBehaviors = await context.Observe(CommonQueries.GetComponentsByType<TexTransBehavior>());
+            var sortedBehaviors = group.GetData<SortedList<int, TexTransBehavior>>();
 
-            var avatarGrouping = GroupingByAvatar(ttBehaviors);
+            var node = new TexTransPhaseNode();
+            node.NodeExecuteAndInit(sortedBehaviors.Select(i => i.Value), proxyPairs, context);
 
-            var previewTargetGroup = proxyPairs.Select(r => r.Item1).ToHashSet();
-            foreach (var avatar2TTB in avatarGrouping)
-            {
-                var phaseDict = AvatarBuildUtils.FindAtPhase(avatar2TTB.Value);
-                var (previewGroup, modTargetMap) = GetPreviewTargetsOnDomain(context, avatar2TTB.Key, phaseDict, PreviewTargetPhase);
-                foreach (var group in previewGroup)
-                {
-                    if (new HashSet<Renderer>(group).SequenceEqual(previewTargetGroup))
-                    {
-                        var previewExecuteTTB = previewTargetGroup.SelectMany(i => modTargetMap[i]).ToHashSet();
-                        var previewExecuteTTBAsOrdered = PreviewTargetPhase.SelectMany(i => AvatarBuildUtils.PhaseFlatten(phaseDict[i])).Where(i => previewExecuteTTB.Contains(i)).ToList();
-                        var node = new TexTransPhaseNode();
-                        node.NodeExecuteAndInit(previewExecuteTTBAsOrdered, proxyPairs, context);
-                        return node;
-                    }
-                }
-            }
-            throw new InvalidOperationException("にゃああああああああああああああああああ！");
+            return Task.FromResult(node as IRenderFilterNode);
         }
     }
 
     internal class TexTransPhaseNode : IRenderFilterNode
     {
-        public ulong Reads => IRenderFilterNode.Everything;
+        public RenderAspects Reads => RenderAspects.Everything;
 
-        public ulong WhatChanged => IRenderFilterNode.Material | IRenderFilterNode.Mesh | IRenderFilterNode.Texture;
+        public RenderAspects WhatChanged => RenderAspects.Material | RenderAspects.Mesh | RenderAspects.Texture;
 
         NodeExecuteDomain _nodeDomain;
 
