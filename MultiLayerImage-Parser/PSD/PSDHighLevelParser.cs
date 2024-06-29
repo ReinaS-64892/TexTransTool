@@ -66,10 +66,34 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         static Dictionary<string, string> s_clipBlendModeDict = new()
         {
-            {"ColorDodgeGlow", "Clip/ColorDodgeGlow"},
+            {"Normal","Clip/Normal"},
+            {"Mul","Clip/Mul"},
+            {"Screen","Clip/Screen"},
+            {"Overlay","Clip/Overlay"},
+            {"HardLight","Clip/HardLight"},
+            {"SoftLight","Clip/SoftLight"},
+            {"ColorDodge","Clip/ColorDodge"},
+            {"ColorBurn","Clip/ColorBurn"},
+            {"LinearBurn","Clip/LinearBurn"},
+            {"VividLight","Clip/VividLight"},
+            {"LinearLight","Clip/LinearLight"},
+            {"Divide","Clip/Divide"},
             {"Addition","Clip/Addition"},
-            {"AdditionGlow","Clip/AdditionGlow"},
+            {"Subtract","Clip/Subtract"},
+            {"Difference","Clip/Difference"},
+            {"DarkenOnly","Clip/DarkenOnly"},
+            {"LightenOnly","Clip/LightenOnly"},
+            {"Hue","Clip/Hue"},
+            {"Saturation","Clip/Saturation"},
+            {"Color","Clip/Color"},
+            {"Luminosity","Clip/Luminosity"},
             {"Exclusion","Clip/Exclusion"},
+            {"DarkenColorOnly","Clip/DarkenColorOnly"},
+            {"LightenColorOnly","Clip/LightenColorOnly"},
+            {"PinLight","Clip/PinLight"},
+            {"HardMix","Clip/HardMix"},
+            {"AdditionGlow","Clip/AdditionGlow"},
+            {"ColorDodgeGlow","Clip/ColorDodgeGlow"},
         };
 
         private static void ParseAsLayers(List<AbstractLayerData> rootLayers, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)

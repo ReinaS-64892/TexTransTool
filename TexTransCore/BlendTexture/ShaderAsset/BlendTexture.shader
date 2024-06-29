@@ -15,7 +15,7 @@ Shader "Hidden/BlendTexture"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_local_fragment Normal Dissolve Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity AlphaLerp Exclusion DarkenColorOnly LightenColorOnly PinLight HardMix AdditionGlow ColorDodgeGlow NotBlend Clip_Exclusion Clip_Addition Clip_AdditionGlow Clip_ColorDodgeGlow
+            #pragma multi_compile_local_fragment Normal Dissolve Mul Screen Overlay HardLight SoftLight ColorDodge ColorBurn LinearBurn VividLight LinearLight Divide Addition Subtract Difference DarkenOnly LightenOnly Hue Saturation Color Luminosity Exclusion DarkenColorOnly LightenColorOnly PinLight HardMix AdditionGlow ColorDodgeGlow NotBlend Clip_Normal Clip_Mul Clip_Screen Clip_Overlay Clip_HardLight Clip_SoftLight Clip_ColorDodge Clip_ColorBurn Clip_LinearBurn Clip_VividLight Clip_LinearLight Clip_Divide Clip_Addition Clip_Subtract Clip_Difference Clip_DarkenOnly Clip_LightenOnly Clip_Hue Clip_Saturation Clip_Color Clip_Luminosity Clip_AlphaLerp Clip_Exclusion Clip_DarkenColorOnly Clip_LightenColorOnly Clip_PinLight Clip_HardMix Clip_AdditionGlow Clip_ColorDodgeGlow
             #pragma shader_feature_local_fragment KeepAlpha
 
             #include "UnityCG.cginc"
