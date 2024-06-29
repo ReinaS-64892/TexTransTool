@@ -90,12 +90,40 @@ namespace net.rs64.TexTransCore.BlendTexture
             var stdBlendShader = BlendTexShader;
             var stdBlendShaders = new Dictionary<string, Shader>()
             {
+                {"Clip/Normal", stdBlendShader},
 
-                {"Clip/ColorDodgeGlow",stdBlendShader},//クリスタ覆い焼き(発光)
-                {"Clip/Addition",stdBlendShader},//クリスタ加算
-                {"Clip/AdditionGlow",stdBlendShader},//クリスタ加算(発光)
+                {"Clip/Mul", stdBlendShader},
+                {"Clip/ColorBurn", stdBlendShader},
+                {"Clip/LinearBurn", stdBlendShader},
+                {"Clip/DarkenOnly", stdBlendShader},
+                {"Clip/DarkenColorOnly", stdBlendShader},
 
-                {"Clip/Exclusion", stdBlendShader},//クリスタ除外
+                {"Clip/Screen", stdBlendShader},
+                {"Clip/ColorDodge", stdBlendShader},
+                {"Clip/ColorDodgeGlow", stdBlendShader},
+                {"Clip/Addition", stdBlendShader},
+                {"Clip/AdditionGlow", stdBlendShader},
+                {"Clip/LightenOnly", stdBlendShader},
+                {"Clip/LightenColorOnly", stdBlendShader},
+
+                {"Clip/Overlay", stdBlendShader},
+                {"Clip/SoftLight", stdBlendShader},
+                {"Clip/HardLight", stdBlendShader},
+                {"Clip/VividLight", stdBlendShader},
+                {"Clip/LinearLight", stdBlendShader},
+                {"Clip/PinLight", stdBlendShader},
+                {"Clip/HardMix", stdBlendShader},
+
+                {"Clip/Difference", stdBlendShader},
+                {"Clip/Exclusion", stdBlendShader},
+                {"Clip/Subtract", stdBlendShader},
+                {"Clip/Divide", stdBlendShader},
+
+                {"Clip/Hue", stdBlendShader},
+                {"Clip/Saturation", stdBlendShader},
+                {"Clip/Color", stdBlendShader},
+                {"Clip/Luminosity", stdBlendShader},
+
 
 
                 //特殊な色合成をしない系
