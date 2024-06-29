@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- AdditionGlow と ColorDodgeGlow の計算式をより正しいものに修正 (#513)
+- Clip系の合成モードが不足していた問題を修正 (#513)
+
 ### Deprecated
 
 ## [0.7.4]
