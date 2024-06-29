@@ -15,11 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Deprecated
+
+## [0.7.5]
+
+### Fixed
+
 - AdditionGlow と ColorDodgeGlow の計算式をより正しいものに修正 (#513)
 - Clip系の合成モードが不足していた問題を修正 (#513)
 - MeshFilter が存在しない MeshRenderer が存在するとき、 AtlasTexture の TargetRoot が指定できず、例外が発生する問題を修正 (#514)
-
-### Deprecated
 
 ## [0.7.4]
 
@@ -550,7 +554,8 @@ Cherry-Pick
 
 - AvatarTag 系のコンポーネントを削除しました `#11`
 
-[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.4...master
+[unreleased]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...master
+[0.7.5]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.2
