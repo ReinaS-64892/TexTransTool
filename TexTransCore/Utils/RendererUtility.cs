@@ -44,7 +44,9 @@ namespace net.rs64.TexTransCore.Utils
                     }
                 case MeshRenderer MR:
                     {
-                        mesh = MR.GetComponent<MeshFilter>().sharedMesh;
+                        var meshFilter = MR.GetComponent<MeshFilter>();
+                        if (meshFilter == null) { break; }
+                        mesh = meshFilter.sharedMesh;
                         break;
                     }
                 default:
