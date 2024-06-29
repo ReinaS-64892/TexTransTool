@@ -26,6 +26,13 @@ namespace net.rs64.TexTransTool.NDMF
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
 
+
+        public bool UsedTextureStack { get; private set; } = false;
+        public bool UsedMaterialReplace { get; private set; } = false;
+        public bool UsedSetMesh { get; private set; } = false;
+        public bool UsedLookAt { get; private set; } = false;
+
+
         public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext)
         {
             _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
@@ -35,10 +42,13 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx = computeContext;
         }
 
-        public void LookAt(UnityEngine.Object obj) { _ctx?.Observe(obj); }
+        public void LookAt(UnityEngine.Object obj) { _ctx?.Observe(obj); UsedLookAt = true; }
 
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
-        { _textureStacks.AddTextureStack(dist as Texture2D, setTex); }
+        {
+            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
+            UsedTextureStack = true;
+        }
         public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
 
         public ITextureManager GetTextureManager() => _textureManager;
@@ -62,12 +72,14 @@ namespace net.rs64.TexTransTool.NDMF
             }
             foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
             this.transferAssets(mapping.Values);
+            UsedMaterialReplace = true;
         }
 
         public void SetMesh(Renderer renderer, Mesh mesh)
         {
             RegisterRecall(renderer, i => i.SetMesh(mesh));
             renderer.SetMesh(mesh);
+            UsedSetMesh = true;
         }
 
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)

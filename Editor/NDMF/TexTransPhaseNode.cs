@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.rq;
 using nadena.dev.ndmf.rq.unity.editor;
@@ -10,8 +11,20 @@ namespace net.rs64.TexTransTool.NDMF
     internal class TexTransPhaseNode : IRenderFilterNode
     {
         //TODO : 決め打ちじゃなくて、もっと調べて正しい状態にしてもいい気がする。
-        public RenderAspects Reads => RenderAspects.Everything;
-        public RenderAspects WhatChanged => RenderAspects.Material | RenderAspects.Mesh | RenderAspects.Texture;
+        public RenderAspects Reads => _nodeDomain.UsedLookAt ? RenderAspects.Everything : 0;
+        public RenderAspects WhatChanged
+        {
+            get
+            {
+                RenderAspects flag = 0;
+
+                if (_nodeDomain.UsedMaterialReplace) flag |= RenderAspects.Material;
+                if (_nodeDomain.UsedSetMesh) flag |= RenderAspects.Mesh | RenderAspects.Texture;
+                if (_nodeDomain.UsedTextureStack) flag |= RenderAspects.Material | RenderAspects.Texture;
+
+                return flag;
+            }
+        }
 
         NodeExecuteDomain _nodeDomain;
 
