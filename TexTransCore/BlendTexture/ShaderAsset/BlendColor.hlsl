@@ -1,6 +1,5 @@
-// References
-// MIT License Copyright (c) 2022 lilxyzw
-// https://github.com/lilxyzw/lilMatCapGenerator/blob/2fa421e168b0a42526e1407456ad565b4db72911/Assets/lilMatCapGenerator/ShaderBase.txt#L142-L200
+// References - 参考資料
+// MIT License Copyright (c) 2022 lilxyzw https://github.com/lilxyzw/lilMatCapGenerator/blob/2fa421e168b0a42526e1407456ad565b4db72911/Assets/lilMatCapGenerator/ShaderBase.txt#L142-L200
 // https://web.archive.org/web/20230211165421/http://www.deepskycolors.com/archivo/2010/04/21/formulas-for-Photoshop-blending-modes.html
 // http://www.simplefilter.de/en/basics/mixmods.html
 // https://odashi.hatenablog.com/entry/20110921/1316610121
@@ -32,8 +31,12 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 
   float3 Bcol = BaseColor.rgb;
   float3 Acol = AddColor.rgb;
-  float3 Al = BaseColor.a;
-  float3 Bl = AddColor.a;
+
+  float aAlpha = AddColor.a;
+  float bAlpha = BaseColor.a;
+
+  float aAlphaG = LinearToGammaSpaceExact(AddColor.a);
+  float bAlphaG = LinearToGammaSpaceExact(BaseColor.a);
 
 
   float3 Addc = Bcol + Acol;
@@ -102,9 +105,14 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor) {
 #elif HardMix
   BlendColor = ( Acol + Bcol ) > 1.0 ;
 #elif AdditionGlow || Clip_AdditionGlow
-  BlendColor = Bcol + Acol * Al;
+  BlendColor = Bcol + Acol;
 #elif ColorDodgeGlow || Clip_ColorDodgeGlow
-  BlendColor = Bcol / (1.0 - Acol * Al);
+  BlendColor = Bcol / (1.0 -  Acol * aAlpha);
+
+#if Clip_ColorDodgeGlow
+  return float4( BlendColor , AlphaBlending(BaseColor,AddColor,BlendColor).a);
+#endif
+
 #endif
 
   return AlphaBlending(BaseColor,AddColor,BlendColor);
