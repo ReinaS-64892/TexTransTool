@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AdditionGlow と ColorDodgeGlow の計算式をより正しいものに修正 (#513)
 - Clip系の合成モードが不足していた問題を修正 (#513)
+- MeshFilter が存在しない MeshRenderer が存在するとき、 AtlasTexture の TargetRoot が指定できず、例外が発生する問題を修正 (#514)
 
 ### Deprecated
 
