@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply([NotNull] IDomain domain)
         {
+            domain.LookAt(transform);
             var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
             var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
@@ -52,6 +53,7 @@ namespace net.rs64.TexTransTool.Decal
             foreach (var renderer in domain.EnumerateRenderer())
             {
                 if (!renderer.sharedMaterials.Any(mat => targetMat.Contains(mat))) { continue; }
+                domain.LookAt(renderer);
                 decalContext.WriteDecalTexture(writeable, renderer, gradTex);
             }
 
