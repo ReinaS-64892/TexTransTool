@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool.NDMF
         }
 
         NodeExecuteDomain _nodeDomain;
+        internal IEnumerable<TexTransPhase> TargetPhase;
 
         public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
         {
@@ -48,6 +49,11 @@ namespace net.rs64.TexTransTool.NDMF
         {
             _nodeDomain.Dispose();
             _nodeDomain = null;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + string.Join("-", TargetPhase.Select(i => i.ToString()));
         }
     }
 }

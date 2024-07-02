@@ -16,19 +16,19 @@ namespace net.rs64.TexTransTool.NDMF
     {
         public IEnumerable<TexTransPhase> PreviewTargetPhase;
 
-        public ReactiveValue<ImmutableList<RenderGroup>> TargetGroups { get; private set; }
-
         public TexTransDomainFilter(IEnumerable<TexTransPhase> previewTargetPhase)
         {
             PreviewTargetPhase = previewTargetPhase;
-            var queryName = string.Join("-", PreviewTargetPhase.Select(i => i.ToString())) + "-TargetRenderers";
-            TargetGroups = ReactiveValue<ImmutableList<RenderGroup>>.Create(queryName, QueryPreviewTarget);
+        }
+        public ImmutableList<RenderGroup> GetTargetGroups(ComputeContext context)
+        {
+            return QueryPreviewTarget(context);
         }
 
-
-        private async Task<ImmutableList<RenderGroup>> QueryPreviewTarget(ComputeContext ctx)
+        private  ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
         {
-            var ttBehaviors = await ctx.Observe(CommonQueries.GetComponentsByType<TexTransBehavior>());
+            var ttBehaviors = ctx.GetComponentsByType<TexTransBehavior>();
+            foreach (var ttb in ttBehaviors) { ctx.Observe(ttb); }
 
             var avatarGrouping = GroupingByAvatar(ttBehaviors);
             var allGroups = new List<RenderGroup>();
@@ -138,7 +138,13 @@ namespace net.rs64.TexTransTool.NDMF
             await Task.Delay(0);
 
             var node = new TexTransPhaseNode();
+            node.TargetPhase = PreviewTargetPhase;
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+
             node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
+
+            timer.Stop();
+            Debug.Log($"Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))} time:{timer.ElapsedMilliseconds}ms");
 
             return node;
         }
