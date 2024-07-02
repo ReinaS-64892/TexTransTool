@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.NDMF
         {
             _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
             _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
-            _textureManager = new TextureManager(false);
+            _textureManager = new TextureManager(true);
             _textureStacks = new(_textureManager);
             _ctx = computeContext;
         }
