@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.NDMF
             return QueryPreviewTarget(context);
         }
 
-        private  ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
+        private ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
         {
             var ttBehaviors = ctx.GetComponentsByType<TexTransBehavior>();
             foreach (var ttb in ttBehaviors) { ctx.Observe(ttb); }
@@ -141,7 +141,7 @@ namespace net.rs64.TexTransTool.NDMF
             node.TargetPhase = PreviewTargetPhase;
             var timer = System.Diagnostics.Stopwatch.StartNew();
 
-            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
+            await node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
 
             timer.Stop();
             Debug.Log($"Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))} time:{timer.ElapsedMilliseconds}ms");

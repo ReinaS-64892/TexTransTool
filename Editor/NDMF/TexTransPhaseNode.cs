@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.rq;
 using nadena.dev.ndmf.rq.unity.editor;
@@ -29,7 +30,7 @@ namespace net.rs64.TexTransTool.NDMF
         NodeExecuteDomain _nodeDomain;
         internal IEnumerable<TexTransPhase> TargetPhase;
 
-        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
+        public async Task NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
         {
             _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx);
             foreach (var ttb in flattenTTB)
@@ -37,6 +38,8 @@ namespace net.rs64.TexTransTool.NDMF
                 if (ttb == null) { continue; }
                 ctx.Observe(ttb);
                 ttb.Apply(_nodeDomain);
+
+                await Task.Delay(10);
             }
             _nodeDomain.DomainFinish();
         }
