@@ -64,14 +64,14 @@ namespace net.rs64.TexTransTool.NDMF
             else { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] = recall; }
         }
 
-        public void ReplaceMaterials(Dictionary<Material, Material> mapping)
+        public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
             foreach (var dr in _proxyDomainRenderers)
             {
                 RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
                 RendererUtility.SwapMaterials(dr, mapping);
             }
-            foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
+            if(one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
             this.transferAssets(mapping.Values);
             UsedMaterialReplace = true;
         }

@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool
             property.objectReferenceValue = value;
         }
 
-        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping)
+        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
             foreach (var replacement in mapping.Values)
                 TransferAsset(replacement);
@@ -91,7 +91,8 @@ namespace net.rs64.TexTransTool
                 }
             }
 
-            foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); }
+            if (one2one)
+            { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
             this.transferAssets(mapping.Values);
         }
 
