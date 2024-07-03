@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - lilToon の \[Optional\] 系を誤って 通常のlilToonの対応で認識してしまい、例外が発生する問題を修正 (#520)
+- SubMesh よりも多くの MaterialSlot がある場合 AtlasTexture のメッシュノーマライズで、誤ったサブメッシュで複製される問題を修正 (#521)
 
 ### Deprecated
 
