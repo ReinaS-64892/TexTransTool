@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: liltoonAtlasSupport
   m_EditorClassIdentifier: 
   SupportedShaderComparer:
-    rid: 5350865774560935942
+    rid: 5350865774560935961
   Priority: 0
   AtlasTargetDefines:
   - TexturePropertyName: _MainTex
@@ -229,11 +229,29 @@ MonoBehaviour:
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         Name: Outline
-    - rid: 5350865774560935942
+    - rid: 5350865774560935961
+      type: {class: AndComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparers:
+        - rid: 5350865774560935962
+        - rid: 5350865774560935963
+    - rid: 5350865774560935962
       type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         Name: lilToon
+    - rid: 5350865774560935963
+      type: {class: NotComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparer:
+          rid: 5350865774560935964
+    - rid: 5350865774560935964
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: _lil/[Optional]
     - rid: 7150698656081904264
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
