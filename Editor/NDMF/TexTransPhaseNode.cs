@@ -1,3 +1,4 @@
+#if NDMF_1_5_x
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,3 +61,4 @@ namespace net.rs64.TexTransTool.NDMF
         }
     }
 }
+#endif

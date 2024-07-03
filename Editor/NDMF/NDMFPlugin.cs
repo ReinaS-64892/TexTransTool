@@ -13,9 +13,7 @@ namespace net.rs64.TexTransTool.NDMF
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
         public override string DisplayName => "TexTransTool";
-#if NDMF_1_3_x
         public override Texture2D LogoTexture => TTTImageAssets.Logo;
-#endif
         protected override void Configure()
         {
             InPhase(BuildPhase.Resolving)
@@ -30,14 +28,19 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(BeforeUVModificationPass.Instance).Then
 
             .Run(MidwayMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification })).Then
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification }))
+#endif
+            .Then
 
             .Run(UVModificationPass.Instance).Then
             .Run(AfterUVModificationPass.Instance).Then
             .Run(UnDefinedPass.Instance).Then
-
             .Run(BeforeOptimizingMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }));
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }))
+#endif
+            ;
 
 
             InPhase(BuildPhase.Optimizing)
@@ -47,7 +50,10 @@ namespace net.rs64.TexTransTool.NDMF
 
             .Run(OptimizingPass.Instance).Then
             .Run(TTTSessionEndPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing })).Then
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
+#endif
+            .Then
 
             .Run(TTTComponentPurgePass.Instance);
 
