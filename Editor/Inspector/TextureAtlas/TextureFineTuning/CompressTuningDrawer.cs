@@ -21,8 +21,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position.height = 18f;
-            if (ITextureFineTuningDrawer.DrawTuningSelector(position, property)) { return; }
-            position.y += 18;
             position = DrawCompressEditor(position, property);
 
             var sCompressPropertyNames = property.FindPropertyRelative("PropertyNames");
@@ -72,7 +70,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         public static float GetPropertyHeightStatic(SerializedProperty property)
         {
-            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 7 : 5);
+            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 6 : 4);
         }
     }
 }

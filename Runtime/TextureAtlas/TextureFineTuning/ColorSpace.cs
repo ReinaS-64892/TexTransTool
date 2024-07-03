@@ -6,19 +6,19 @@ using UnityEngine.Experimental.Rendering;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
-    public struct ColorSpace : ITextureFineTuning
+    public class ColorSpace : ITextureFineTuning
     {
         public PropertyName PropertyNames;
         public PropertySelect Select;
         public bool Linear;
 
+        public ColorSpace() { }
         public ColorSpace(PropertyName propertyNames, PropertySelect select, bool linear)
         {
             PropertyNames = propertyNames;
             Select = select;
             Linear = linear;
         }
-
         public static ColorSpace Default => new(PropertyName.DefaultValue, PropertySelect.Equal, true);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
-    public struct Compress : ITextureFineTuning
+    public class Compress : ITextureFineTuning
     {
         public FormatQuality FormatQualityValue;
         public bool UseOverride;
@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
-
+        public Compress() { }
         public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, int compressionQuality, PropertyName propertyNames, PropertySelect select)
         {
             FormatQualityValue = formatQuality;

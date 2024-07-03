@@ -11,6 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public PropertyName SourcePropertyName;
         public PropertyName TargetPropertyName;
 
+        public ReferenceCopy() { }
         public ReferenceCopy(PropertyName sourcePropertyName, PropertyName targetPropertyName)
         {
             SourcePropertyName = sourcePropertyName;

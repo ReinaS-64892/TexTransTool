@@ -9,11 +9,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     [CreateAssetMenu(fileName = "AtlasShaderSupportScriptedObject", menuName = "TexTransTool/AtlasShaderSupportScriptedObject")]
     public class AtlasShaderSupportScriptableObject : ScriptableObject
     {
-        [SerializeReference] public ISupportedShaderComparer SupportedShaderComparer = new ContainsName();
+        [SerializeReference, SubclassSelector] public ISupportedShaderComparer SupportedShaderComparer = new ContainsName();
         public int Priority;
         public List<AtlasTargetDefine> AtlasTargetDefines;
         public Shader BakeShader;
-        [SerializeReference] public List<IAtlasMaterialPostProses> AtlasMaterialPostProses = new();
+        [SerializeReference, SubclassSelector] public List<IAtlasMaterialPostProses> AtlasMaterialPostProses = new();
 
 
         public List<AtlasShaderTexture2D> GetAtlasShaderTexture2D(Material material)
@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     public class AtlasTargetDefine
     {
         public string TexturePropertyName;
-        [SerializeReference] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
+        [SerializeReference,SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
 
         public List<string> BakePropertyNames;
     }

@@ -6,11 +6,12 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
-    public struct MipMapRemove : ITextureFineTuning
+    public class MipMapRemove : ITextureFineTuning
     {
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
+        public MipMapRemove() { }
         public MipMapRemove(PropertyName propertyNames, PropertySelect select)
         {
             PropertyNames = propertyNames;

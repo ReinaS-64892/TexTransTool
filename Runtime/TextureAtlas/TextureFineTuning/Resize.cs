@@ -7,12 +7,13 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
-    public struct Resize : ITextureFineTuning
+    public class Resize : ITextureFineTuning
     {
         [PowerOfTwo] public int Size;
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
+        public Resize() { }
         public Resize(int size, PropertyName propertyNames, PropertySelect select)
         {
             Size = size;

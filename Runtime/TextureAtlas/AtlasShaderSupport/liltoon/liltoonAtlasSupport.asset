@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2369c186c1ab3c44b9ef86b3a8cbccf, type: 3}
-  m_Name: lilToonAtlasSupport
+  m_Name: liltoonAtlasSupport
   m_EditorClassIdentifier: 
   SupportedShaderComparer:
-    rid: 7150698656081904266
+    rid: 5350865774560935942
+  Priority: 0
   AtlasTargetDefines:
   - TexturePropertyName: _MainTex
     AtlasDefineConstraints:
@@ -228,17 +229,17 @@ MonoBehaviour:
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         Name: Outline
+    - rid: 5350865774560935942
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: lilToon
     - rid: 7150698656081904264
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         SourcePropertyName: _MainTex
         TargetPropertyName: _BaseMap
-    - rid: 7150698656081904266
-      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
-        asm: net.rs64.tex-trans-tool.runtime}
-      data:
-        Name: lilToon
     - rid: 7150698656081904301
       type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
