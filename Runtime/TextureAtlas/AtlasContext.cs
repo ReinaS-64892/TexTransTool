@@ -407,7 +407,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
                 var subMeshViArray = new int[expandSlot][];
-                for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(si % mesh.subMeshCount); }
+                for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(Math.Min(si, mesh.subMeshCount - 1)); }
 
                 var subMeshOfVertex = new Vertex[expandSlot][];
                 for (var si = 0; subMeshViArray.Length > si; si += 1)
