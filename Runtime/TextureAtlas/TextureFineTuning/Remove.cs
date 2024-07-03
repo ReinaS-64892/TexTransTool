@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public PropertyName PropertyNames;
         public PropertySelect Select;
 
+        public Remove() { }
         public Remove(PropertyName propertyNames, PropertySelect select)
         {
             PropertyNames = propertyNames;

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NDMF の対応バージョンが v1.3.0 以上に変更 (#516)
 - 二のべき乗の値を想定する入力欄がポップアップに変更 (#516)
 - TargetRoot は LimitCandidateMaterials に変更され、割り当てなくてもマテリアルの選択が行えるように変更 (#518)
+- SerializeReference を使用している部分のUIが、[Unity-SerializeReferenceExtensions](https://github.com/mackysoft/Unity-SerializeReferenceExtensions) を使用したものに変更 (#519)
 
 ### Removed
 
