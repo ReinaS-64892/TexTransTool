@@ -1,20 +1,19 @@
 using nadena.dev.ndmf;
-using net.rs64.TexTransTool.Build.NDMF;
+using net.rs64.TexTransTool.NDMF;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
+using System.Collections.Generic;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
-namespace net.rs64.TexTransTool.Build.NDMF
+namespace net.rs64.TexTransTool.NDMF
 {
 
     internal class NDMFPlugin : Plugin<NDMFPlugin>
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
         public override string DisplayName => "TexTransTool";
-#if NDMF_1_3_x
         public override Texture2D LogoTexture => TTTImageAssets.Logo;
-#endif
         protected override void Configure()
         {
             InPhase(BuildPhase.Resolving)
@@ -28,21 +27,34 @@ namespace net.rs64.TexTransTool.Build.NDMF
 
             .Run(BeforeUVModificationPass.Instance).Then
 
-            .Run(MidwayMergeStackPass.Instance).Then
+            .Run(MidwayMergeStackPass.Instance)
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification }))
+#endif
+            .Then
 
             .Run(UVModificationPass.Instance).Then
             .Run(AfterUVModificationPass.Instance).Then
             .Run(UnDefinedPass.Instance).Then
-
-            .Run(BeforeOptimizingMergeStackPass.Instance);
+            .Run(BeforeOptimizingMergeStackPass.Instance)
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }))
+#endif
+            ;
 
 
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
 
             .Run(ReFindRenderersPass.Instance).Then
+
             .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance).Then
+            .Run(TTTSessionEndPass.Instance)
+#if NDMF_1_5_x
+            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
+#endif
+            .Then
+
             .Run(TTTComponentPurgePass.Instance);
 
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore.Utils;
@@ -9,16 +10,14 @@ namespace net.rs64.TexTransTool.EditorProcessor
     [EditorProcessor(typeof(MaterialOverrideTransfer))]
     internal class MaterialOverrideTransferProcessor : IEditorProcessor
     {
+
         public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
             if (!materialOverrideTransfer.IsPossibleApply) { throw new TTTNotExecutable(); }
 
             var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
-            var targetMaterial = materialOverrideTransfer.TargetMaterial;
-
-
-            var mats = RendererUtility.GetFilteredMaterials(editorCallDomain.EnumerateRenderer()).Where(m => editorCallDomain.OriginEqual(m, targetMaterial));
+            var mats = GetTargetMaterials(editorCallDomain.EnumerateRenderer(), editorCallDomain.OriginEqual, materialOverrideTransfer.TargetMaterial);
 
             var overridePropertyDict = new Dictionary<string, ShaderPropertyType>();
             var shader = materialVariantSource.shader;
@@ -73,6 +72,20 @@ namespace net.rs64.TexTransTool.EditorProcessor
             }
 
             editorCallDomain.ReplaceMaterials(materialSwapDict);
+        }
+
+        private static IEnumerable<Material> GetTargetMaterials(IEnumerable<Renderer> domainRenderer, OriginEqual originEqual, Material target)
+        {
+            return RendererUtility.GetFilteredMaterials(domainRenderer).Where(m => originEqual(m, target));
+        }
+
+        public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
+            if (materialOverrideTransfer.IsPossibleApply == false) { return Array.Empty<Renderer>(); }
+
+            var modTarget = GetTargetMaterials(domainRenderers, replaceTracking, materialOverrideTransfer.TargetMaterial).ToHashSet();
+            return domainRenderers.Where(i => i.sharedMaterials.Any(mat => modTarget.Contains(mat)));
         }
     }
 }

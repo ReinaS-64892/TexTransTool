@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
+using System.Linq;
+using net.rs64.TexTransCore.Utils;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
@@ -42,6 +44,28 @@ namespace net.rs64.TexTransTool
                     }
                 default: { return null; }
             }
+        }
+
+        internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
+        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers)
+        {
+            var targetTex = GetTexture() as Texture2D;
+            return FindModificationTargetRenderers(domainRenderers, targetTex);
+        }
+
+        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, Texture2D targetTex)
+        {
+            if (targetTex == null) { return Array.Empty<Renderer>(); }
+            var mats = RendererUtility.GetFilteredMaterials(domainRenderers);
+            var targetMatHash = new HashSet<Material>();
+
+            foreach (var mat in mats)
+            {
+                if (targetMatHash.Contains(mat)) { continue; }
+                var dict = mat.GetAllTexture2D();
+                if (dict.ContainsValue(targetTex)) { targetMatHash.Add(mat); }
+            }
+            return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
         }
 
         internal IEnumerable<UnityEngine.Object> GetDependency()
@@ -90,6 +114,8 @@ namespace net.rs64.TexTransTool
 
             return hash;
         }
+
+
 
     }
 }

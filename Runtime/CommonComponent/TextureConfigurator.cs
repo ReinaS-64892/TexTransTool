@@ -17,7 +17,6 @@ namespace net.rs64.TexTransTool
         internal const string ComponentName = "TTT TextureConfigurator";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
 
-        internal override List<Renderer> GetRenderers => null;
         internal override bool IsPossibleApply => TargetTexture.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
         internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain) { return TargetTexture.GetDependency(); }
@@ -90,6 +89,12 @@ namespace net.rs64.TexTransTool
             if (OverrideCompression) { textureManager.DeferredTextureCompress((CompressionQualityApplicant.GetTextureFormat(CompressionSetting), CompressionSetting.CompressionQuality), newTexture2D); }
             else { textureManager.DeferredInheritTextureCompress(targetTex2D, newTexture2D); }
 
+        }
+
+
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            return TargetTexture.ModificationTargetRenderers(domainRenderers);
         }
 
     }

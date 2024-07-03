@@ -14,8 +14,6 @@ namespace net.rs64.TexTransTool
         internal const string FoldoutName = "Other";
         internal const string MenuPath = FoldoutName + "/" + Name;
 
-        internal override List<Renderer> GetRenderers => null;
-
         internal override bool IsPossibleApply => TargetMaterial != null && MaterialVariantSource != null ;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;

@@ -11,11 +11,17 @@ namespace net.rs64.TexTransTool
         [NotNull] public AvatarDomainAsset Asset;
         public const string SaveDirectory = "Assets/TexTransToolGenerates";
 
+        public static void CheckSaveDirectory()
+        {
+            if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
+        }
+
         public AssetSaver(Object container = null)
         {
             if (container == null)
             {
                 Asset = ScriptableObject.CreateInstance<AvatarDomainAsset>();
+                CheckSaveDirectory();
                 AssetDatabase.CreateAsset(Asset, AssetDatabase.GenerateUniqueAssetPath(Path.Combine(SaveDirectory, "AvatarDomainAsset.asset")));
             }
             else
