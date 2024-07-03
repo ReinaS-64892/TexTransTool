@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     [Serializable]
     public class AndConstraints : IAtlasDefineConstraints
     {
-        [SerializeReference] public List<IAtlasDefineConstraints> AtlasDefineConstraints;
+        [SerializeReference, SubclassSelector] public List<IAtlasDefineConstraints> AtlasDefineConstraints;
         public bool Constraints(Material material)
         {
             foreach (var adc in AtlasDefineConstraints) { if (!adc.Constraints(material)) { return false; } }
@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     [Serializable]
     public class OrConstraints : IAtlasDefineConstraints
     {
-        [SerializeReference] public List<IAtlasDefineConstraints> AtlasDefineConstraints;
+        [SerializeReference, SubclassSelector] public List<IAtlasDefineConstraints> AtlasDefineConstraints;
         public bool Constraints(Material material)
         {
             foreach (var adc in AtlasDefineConstraints) { if (!adc.Constraints(material)) { return true; } }
@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public bool Less;
         public bool Constraints(Material material)
         {
-                return !Less ? material.GetFloat(PropertyName) > ComparerValue : material.GetFloat(PropertyName) < ComparerValue;
+            return !Less ? material.GetFloat(PropertyName) > ComparerValue : material.GetFloat(PropertyName) < ComparerValue;
         }
     }
     [Serializable]
