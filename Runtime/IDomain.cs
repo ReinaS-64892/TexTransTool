@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool
 
     internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject
     {
-        void ReplaceMaterials(Dictionary<Material, Material> mapping);
+        void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
 
