@@ -98,7 +98,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         }
         private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSource, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
         {
-            NewAtlasTextureTarget.TargetRoot = atlasTextureSource.TargetRoot;
+            NewAtlasTextureTarget.LimitCandidateMaterials = atlasTextureSource.LimitCandidateMaterials;
             NewAtlasTextureTarget.AtlasSetting = atlasTextureSource.AtlasSettings[atlasSettingIndex];
             NewAtlasTextureTarget.AtlasSetting.UseIslandCache = atlasTextureSource.UseIslandCache;
             NewAtlasTextureTarget.SelectMatList = atlasTextureSource.MatSelectors

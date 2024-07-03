@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の影響範囲が TargetRoot に影響されなくなり、インスペクターのマテリアル表示制限の機能のみに変更 (#516)
 - NDMF の対応バージョンが v1.3.0 以上に変更 (#516)
 - 二のべき乗の値を想定する入力欄がポップアップに変更 (#516)
+- TargetRoot は LimitCandidateMaterials に変更され、割り当てなくてもマテリアルの選択が行えるように変更 (#518)
 
 ### Removed
 

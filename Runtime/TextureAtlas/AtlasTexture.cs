@@ -23,12 +23,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         internal const string ComponentName = "TTT AtlasTexture";
         internal const string MenuPath = ComponentName;
-        public GameObject TargetRoot;
-        // public List<Renderer> Renderers => FilteredRenderers(TargetRoot, AtlasSetting.IncludeDisabledRenderer);
+        [FormerlySerializedAs("TargetRoot")] public GameObject LimitCandidateMaterials;
         public List<MatSelector> SelectMatList = new List<MatSelector>();
         public AtlasSetting AtlasSetting = new AtlasSetting();
 
-        internal override bool IsPossibleApply => TargetRoot != null;
+        internal override bool IsPossibleApply => SelectMatList.Any();
 
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
@@ -49,30 +48,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [Obsolete("V0SaveData", true)][SerializeField] internal List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
         [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
         #endregion
-
-
-        // public override bool IsPossibleCompile => TargetRoot != null && AtlasSettings.Count > 0;
-        /*
-        TargetRenderers 対象となるのはメッシュが存在しマテリアルスロットにNullが含まれていないかつ、無効化されておらず、エディターオンリーではないもの。
-
-        MaterialReference レンダラーから集めた重複のないマテリアルの配列に対してのインデックス。
-
-        MeshReference 上のメッシュ版。
-
-        AtlasMeshData すべてのレンダラーをMeshReferenceとMaterialReferenceに変換し、まったく同じReferenceを持つものを消した物
-
-
-        AtlasSettings アトラス化するときの細かい設定
-
-        SelectRefsMat インスペクター上で表示されているマテリアルたちの配列。
-        MatSelectors SelectRefsMatに含まれているマテリアルの参照を持ち マテリアルがターゲットであるか、大きさのオフセットやどのChannelに属しているかの情報を持っている。
-
-        MatData MatSelectorsをMaterialReferenceとTextureSizeOffSet、PropAndTexturesにしたもの。
-        このMaterialReferenceはSelectRefsMatを使ってインデックスに変換している。
-
-        MeshAndMatRef MeshReferenceとマテリアルスロット分のMaterialReferenceをもち、適応するときこれをもとに、マテリアル違いやマテリアルの一部違いなども識別して適応する。
-
-        */
 
         struct AtlasData
         {
@@ -866,7 +841,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var hash = 0;
             foreach (var ift in AtlasSetting.IslandFineTuners) { hash ^= ift.GetDependencyHash(); }
-            hash ^= TargetRoot?.GetInstanceID() ?? 0;
             foreach (var mmg in AtlasSetting.MaterialMergeGroups) { hash ^= mmg.MergeReferenceMaterial?.GetInstanceID() ?? 0; }
             hash ^= AtlasSetting.AtlasIslandRelocator?.GetInstanceID() ?? 0;
             hash ^= AtlasSetting.MergeReferenceMaterial?.GetInstanceID() ?? 0;
