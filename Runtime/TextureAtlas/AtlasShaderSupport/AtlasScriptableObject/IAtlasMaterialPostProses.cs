@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
 {
     public interface IAtlasMaterialPostProses { void Proses(Material material); }
+    [Serializable]
     public class TextureReferenceCopy : IAtlasMaterialPostProses
     {
         [FormerlySerializedAs("SousePropertyName")] public string SourcePropertyName;
