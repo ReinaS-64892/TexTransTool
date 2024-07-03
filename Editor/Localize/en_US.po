@@ -43,11 +43,11 @@ msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
 
-msgid "AtlasTexture:prop:TargetRoot"
-msgstr "TargetRoot"
+msgid "AtlasTexture:prop:LimitCandidateMaterials"
+msgstr "LimitCandidateMaterials"
 
-msgid "AtlasTexture:prop:TargetRoot:tooltip"
-msgstr "Maximum Range of renderers atlas"
+msgid "AtlasTexture:prop:LimitCandidateMaterials:tooltip"
+msgstr "Limit candidate materials to GameObject subordinates."
 
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"

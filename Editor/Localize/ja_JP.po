@@ -43,11 +43,11 @@ msgstr "マテリアルスロットの数が、サブメッシュよりも多い
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性があるためご注意ください。"
 
-msgid "AtlasTexture:prop:TargetRoot"
-msgstr "ターゲットルート"
+msgid "AtlasTexture:prop:LimitCandidateMaterials"
+msgstr "マテリアル選択候補の制限"
 
-msgid "AtlasTexture:prop:TargetRoot:tooltip"
-msgstr "アトラス化されるレンダラーの最大範囲"
+msgid "AtlasTexture:prop:LimitCandidateMaterials:tooltip"
+msgstr "下に表示されるマテリアルを、割り当てた GameObject 配下のレンダラーの物だけにします。"
 
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "リフレッシュマテリアル"

@@ -46,18 +46,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 #pragma warning restore CS0612
 
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
-            var sTargetRoot = thisSObject.FindProperty("TargetRoot");
+            var sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sTargetRoot.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+            EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
 
-            if (sTargetRoot.objectReferenceValue != null && !OneTimePreviewContext.IsPreviewContains)
+            if (!OneTimePreviewContext.IsPreviewContains)
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
-                { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
-                MaterialSelectEditor(sMatSelectors, _displayMaterial);
+                { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+                if (_displayMaterial is not null) { MaterialSelectEditor(sMatSelectors, _displayMaterial); }
             }
 
             EditorGUI.indentLevel += 1;
@@ -75,6 +75,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private void DrawAtlasSettings(SerializedProperty sAtlasSettings, SerializedProperty sMatSelectors)
         {
+            var thisTarget = target as AtlasTexture;
             EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
@@ -101,7 +102,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
             EditorGUILayout.PropertyField(sForceSizePriority, "AtlasTexture:prop:ForceSizePriority".Glc());
 
 
@@ -229,11 +230,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
         List<Material> _displayMaterial;
-        void RefreshMaterials(GameObject targetRoot, bool includeDisabledRenderer)
+        void RefreshMaterials(AtlasTexture domainFindPoint, GameObject limitRoot, bool includeDisabledRenderer)
         {
-            if (targetRoot == null) { _displayMaterial = null; return; }
-            var renderers = AtlasTexture.FilteredRenderers(targetRoot, includeDisabledRenderer);
-            _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
+            var domainRoot = DomainMarkerFinder.FindMarker(domainFindPoint.gameObject);
+            if (domainRoot == null) { _displayMaterial = null; return; }
+
+            var domainRenderers = AtlasTexture.FilteredRenderers(domainRoot, includeDisabledRenderer);
+
+            if (limitRoot != null)
+            {
+                var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
+                _displayMaterial = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().ToList();
+            }
+            else
+            {
+                _displayMaterial = RendererUtility.GetMaterials(domainRenderers).Distinct().ToList();
+            }
         }
 
         public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)
