@@ -119,6 +119,7 @@ namespace net.rs64.TexTransCore.Utils
         public static RenderTexture CreateColorTexForRT(Color color)
         {
             var rt = TTRt.G(1);
+            rt.name = $"ColorTex4RT-{rt.width}x{rt.height}";
             TextureBlend.ColorBlit(rt, color);
             return rt;
         }

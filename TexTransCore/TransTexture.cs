@@ -202,6 +202,7 @@ namespace net.rs64.TexTransCore
                 if (depthInvert.HasValue)
                 {
                     depthRt = TTRt.G(targetTexture.width, targetTexture.height, true, true, rtFormat: RenderTextureFormat.RFloat);
+                    depthRt.name = $"TransTexture-depthTempRt-{depthRt.width}x{depthRt.height}";
 
                     s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
 

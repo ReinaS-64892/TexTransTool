@@ -148,7 +148,7 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.EndSample();
 
             timer.Stop();
-            Debug.Log($"Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))} time:{timer.ElapsedMilliseconds}ms");
+            Debug.Log($" time:{timer.ElapsedMilliseconds}ms - Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))}  \n  {string.Join("-", group.Renderers.Select(r => r.gameObject.name))} ");
 
             return node;
         }

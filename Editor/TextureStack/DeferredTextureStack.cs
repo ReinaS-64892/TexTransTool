@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureStack
 {
     internal class DeferredTextureStack : AbstractTextureStack
     {
-        [SerializeField]protected List<IBlendTexturePair> _stackTextures = new();
+        [SerializeField] protected List<IBlendTexturePair> _stackTextures = new();
 
 
         public override void AddStack<BlendTex>(BlendTex blendTexturePair) => _stackTextures.Add(blendTexturePair);
@@ -20,6 +20,8 @@ namespace net.rs64.TexTransTool.TextureStack
         {
             if (!_stackTextures.Any()) { return FirstTexture; }
             var renderTexture = TTRt.G(FirstTexture.width, FirstTexture.height, true);
+            renderTexture.name = $"{FirstTexture.name}:DeferredTextureStack-{renderTexture.width}x{renderTexture.height}";
+
             TextureManager.WriteOriginalTexture(FirstTexture, renderTexture);
 
             renderTexture.BlendBlit(_stackTextures);

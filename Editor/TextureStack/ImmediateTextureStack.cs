@@ -19,6 +19,7 @@ namespace net.rs64.TexTransTool.TextureStack
             using (new RTActiveSaver())
             {
                 _renderTexture = TTRt.G(FirstTexture.width, FirstTexture.height);
+                _renderTexture.name = $"{firstTexture.name}:ImmediateTextureStack-{_renderTexture.width}x{_renderTexture.height}";
                 textureManager.WriteOriginalTexture(FirstTexture, _renderTexture);//解像度は維持しないといけないが、VRAM上の圧縮は外さないといけない
             }
         }

@@ -27,6 +27,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (LayerMask.ContainedMask)
             {
                 var rt = TTRt.G(canvasContext.CanvasSize, canvasContext.CanvasSize, true);
+                rt.name = $"GetLayerAlphaMod.TempRt-{rt.width}x{rt.height}";
+
                 LayerMask.WriteMaskTexture(rt, canvasContext.TextureManager);
                 return new LayerAlphaMod(rt, Opacity);
             }

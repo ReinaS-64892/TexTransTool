@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore;
@@ -72,18 +73,38 @@ namespace net.rs64.TexTransTool
         {
             var originSize = origin.GetOriginalTextureSize(texture2D);
             var tempRt = TTRt.G(originSize, originSize, true);
-            tempRt.CopyFilWrap(texture2D);
-            origin.WriteOriginalTexture(texture2D, tempRt);
-            return tempRt;
-        }
-        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
-        {
-            var tempRt = TTRt.G(size, size, true);
+            tempRt.name = $"{texture2D.name}:GetOriginTempRt-{tempRt.width}x{tempRt.height}";
             tempRt.CopyFilWrap(texture2D);
             origin.WriteOriginalTexture(texture2D, tempRt);
             return tempRt;
         }
 
+        public static IDisposable GetOriginTempRtU(this IOriginTexture origin, out RenderTexture tempRt, Texture2D texture2D)
+        {
+            var originSize = origin.GetOriginalTextureSize(texture2D);
+            var useVal = TTRt.U(out tempRt, originSize, originSize, true);
+            tempRt.name = $"{texture2D.name}:GetOriginTempRtU-{tempRt.width}x{tempRt.height}";
+            tempRt.CopyFilWrap(texture2D);
+            origin.WriteOriginalTexture(texture2D, tempRt);
+            return useVal;
+        }
+        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
+        {
+            var tempRt = TTRt.G(size, size, true);
+            tempRt.name = $"{texture2D.name}:GetOriginTempRtWithSize-{tempRt.width}x{tempRt.height}";
+            tempRt.CopyFilWrap(texture2D);
+            origin.WriteOriginalTexture(texture2D, tempRt);
+            return tempRt;
+        }
+
+        public static IDisposable GetOriginTempRt(this IOriginTexture origin, out RenderTexture tempRt, Texture2D texture2D, int size)
+        {
+            var useVal = TTRt.U(out tempRt, size, size, true);
+            tempRt.name = $"{texture2D.name}:GetOriginTempRtWithSizeU-{tempRt.width}x{tempRt.height}";
+            tempRt.CopyFilWrap(texture2D);
+            origin.WriteOriginalTexture(texture2D, tempRt);
+            return useVal;
+        }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IDomain domain, IEnumerable<Renderer> renderers)
         {
             return domain.EnumerateRenderer().Where(Contains);

@@ -10,6 +10,12 @@ namespace net.rs64.TexTransCore
         public static RenderTextureFormat RenderTextureDefaultFormat = RenderTextureFormat.ARGB32;
 
         public static RenderTexture G(int size) => G(size, size);
+        public static RenderTexture G(int size, string rtName)
+        {
+            var rt = G(size, size);
+            rt.name = rtName;
+            return rt;
+        }
         public static UsingRenderTexture U(out RenderTexture tmpRt, int size)
         {
             tmpRt = G(size);

@@ -312,6 +312,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     var originSize = texManage.GetOriginalTextureSize(atlasTex);
                     var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                    rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
                     rt.CopyFilWrap(atlasTex);
                     rt.filterMode = FilterMode.Trilinear;
                     texManage.WriteOriginalTexture(atlasTex, rt);
@@ -405,11 +406,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                             MipMapUtility.GenerateMips(sTex, downScalingAlgorism);
                                             texDict[propName] = sTex;
                                         }
-                                        else { texDict[propName] = TTRt.G(2); }
+                                        else
+                                        {
+                                            var rt = texDict[propName] = TTRt.G(2);
+                                            rt.name = $"AtlasTexColRT-2x2";
+                                        }
                                         continue;
                                     }
 
-                                    var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2);
+                                    var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2, "AtlasEmptyDefaultTexColRT-2x2");
 
 
                                     if (atlasTex != null)
@@ -500,6 +505,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
                 {
                     var heightClampRt = TTRt.G(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
+                    heightClampRt.name = $"heightClamp-TempRt-{heightClampRt.width}x{heightClampRt.height}";
                     Graphics.CopyTexture(targetRT, 0, 0, 0, 0, heightClampRt.width, heightClampRt.height, heightClampRt, 0, 0, 0, 0);
                     TTRt.R(targetRT);
                     targetRT = heightClampRt;

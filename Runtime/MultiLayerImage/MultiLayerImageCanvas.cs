@@ -105,6 +105,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public LayerCanvas(RenderTexture renderTexture)
             {
                 _canvas = renderTexture; _canvas.Clear();
+                _canvas.name = $"CanvasTempRt-{_canvas.width}x{_canvas.height}";
                 _layerScopes = new();
             }
             public void AddLayer(BlendRenderTexture blendLayer, LayerAlphaMod layerAlphaMod, bool thisClipping)
@@ -209,14 +210,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             internal static void DrawOnClipping(BlendRenderTexture drawTargetLayer, IEvaluateBlending clippingLayer)
             {
                 var targetRt = drawTargetLayer.Texture;
-                var swap = TTRt.G(targetRt.descriptor);
-                Graphics.CopyTexture(targetRt, swap);
+                using (TTRt.U(out var swap, targetRt.descriptor))
+                {
 
-                TextureBlend.AlphaOne(targetRt);
-                clippingLayer.EvalDrawCanvas(targetRt);
-                TextureBlend.AlphaCopy(swap, targetRt);
+                    Graphics.CopyTexture(targetRt, swap);
 
-                TTRt.R(swap);
+                    TextureBlend.AlphaOne(targetRt);
+                    clippingLayer.EvalDrawCanvas(targetRt);
+                    TextureBlend.AlphaCopy(swap, targetRt);
+                }
             }
 
             public LayerScopeUsingStruct UsingLayerScope(LayerAlphaMod layerAlphaMod) { EnterLayerScope(layerAlphaMod); return new(this); }
@@ -230,6 +232,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             private RenderTexture GetTempRtMask()
             {
                 var rt = TTRt.G(_canvas.descriptor);
+                rt.name = $"GetTempRtMask-{rt.width}x{rt.height}";
+
                 TextureBlend.ColorBlit(rt, Color.white);
                 return rt;
             }
@@ -247,7 +251,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             internal static void LayerAlphaAnd(ref LayerAlphaMod target, LayerAlphaMod and)
             {
-                if (target.Mask == null) { target.Mask = TTRt.G(and.Mask.descriptor); TextureBlend.ColorBlit(target.Mask, Color.white); }
+                if (target.Mask == null)
+                {
+                    target.Mask = TTRt.G(and.Mask.descriptor);
+                    target.Mask.name = $"LayerAlphaAndMaskTempRt-{target.Mask.width}x{target.Mask.height}";
+                    TextureBlend.ColorBlit(target.Mask, Color.white);
+                }
                 if (and.Mask != null) { TextureBlend.MaskDrawRenderTexture(target.Mask, and.Mask); }
 
                 target.Opacity *= and.Opacity;
