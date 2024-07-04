@@ -19,9 +19,6 @@ namespace net.rs64.TexTransTool
 
         internal override bool IsPossibleApply => TargetTexture.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain) { return TargetTexture.GetDependency(); }
-        internal override int GetDependencyHash(IDomain domain) { return TargetTexture.GetDependencyHash(); }
-
 
         public TextureSelector TargetTexture;
 
@@ -36,6 +33,7 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply([NotNull] IDomain domain)
         {
+            domain.LookAt(this);
             if (!OverrideTextureSetting && !OverrideCompression) { return; }
 
             var textureManager = domain.GetTextureManager();
@@ -47,6 +45,8 @@ namespace net.rs64.TexTransTool
             .FirstOrDefault(i => domain.OriginEqual(i, target));
 
             if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return;}
+
+            domain.LookAt(targetTex2D);
 
             var newTexture2D = default(Texture2D);
             if (OverrideTextureSetting)

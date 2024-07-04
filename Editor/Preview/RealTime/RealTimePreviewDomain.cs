@@ -13,9 +13,12 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         ITextureManager _textureManager = new TextureManager(true);
         PreviewStackManager _stackManager = new();
         Dictionary<Material, Material> _previewMaterialMap = new();
-        public RealTimePreviewDomain(GameObject domainRoot)
+        Action<TexTransRuntimeBehavior, int> _lookAtCallBack;
+
+        public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransRuntimeBehavior, int> lookAtCallBack)
         {
             _domainRoot = domainRoot;
+            _lookAtCallBack = lookAtCallBack;
             _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
             _domainRenderers.Clear();
@@ -25,10 +28,12 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         public GameObject DomainRoot => _domainRoot;
         int _nowPriority;
+        TexTransRuntimeBehavior _texTransRuntimeBehavior;
 
-        public void SetNowPriority(int priority)
+        public void SetNowBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior, int priority)
         {
             _nowPriority = priority;
+            _texTransRuntimeBehavior = texTransRuntimeBehavior;
             _stackManager.ReleaseStackOfPriority(_nowPriority);
         }
 
@@ -138,5 +143,6 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }
         public void TransferAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
+        public void LookAt(UnityEngine.Object obj) { _lookAtCallBack(_texTransRuntimeBehavior, obj.GetInstanceID()); }
     }
 }

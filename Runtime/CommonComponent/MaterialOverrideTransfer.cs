@@ -20,18 +20,5 @@ namespace net.rs64.TexTransTool
 
         public Material TargetMaterial;
         public Material MaterialVariantSource;
-
-        internal IEnumerable<Object> GetDependency(IDomain domain)
-        {
-            yield return TargetMaterial;
-            yield return MaterialVariantSource;
-        }
-
-        internal int GetDependencyHash(IDomain domain)
-        {
-            var hash = TargetMaterial?.GetInstanceID() ?? 0;
-            hash ^= MaterialVariantSource?.GetInstanceID() ?? 0;
-            return hash;
-        }
     }
 }

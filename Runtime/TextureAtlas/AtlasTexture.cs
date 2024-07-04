@@ -828,25 +828,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
         }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            return AtlasSetting.IslandFineTuners.SelectMany(i => i.GetDependency())
-            .Concat(AtlasSetting.MaterialMergeGroups.Select(m => m.MergeReferenceMaterial))
-            .Append(AtlasSetting.AtlasIslandRelocator)
-            .Append(AtlasSetting.MergeReferenceMaterial);
-        }
-
-        internal override int GetDependencyHash(IDomain domain)
-        {
-            var hash = 0;
-            foreach (var ift in AtlasSetting.IslandFineTuners) { hash ^= ift.GetDependencyHash(); }
-            foreach (var mmg in AtlasSetting.MaterialMergeGroups) { hash ^= mmg.MergeReferenceMaterial?.GetInstanceID() ?? 0; }
-            hash ^= AtlasSetting.AtlasIslandRelocator?.GetInstanceID() ?? 0;
-            hash ^= AtlasSetting.MergeReferenceMaterial?.GetInstanceID() ?? 0;
-            return hash;
-        }
-
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
 
