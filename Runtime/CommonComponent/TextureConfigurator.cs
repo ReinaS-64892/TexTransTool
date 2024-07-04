@@ -33,6 +33,7 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply([NotNull] IDomain domain)
         {
+            domain.LookAt(this);
             if (!OverrideTextureSetting && !OverrideCompression) { return; }
 
             var textureManager = domain.GetTextureManager();
@@ -44,6 +45,8 @@ namespace net.rs64.TexTransTool
             .FirstOrDefault(i => domain.OriginEqual(i, target));
 
             if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return;}
+
+            domain.LookAt(targetTex2D);
 
             var newTexture2D = default(Texture2D);
             if (OverrideTextureSetting)
