@@ -66,10 +66,11 @@ namespace net.rs64.TexTransTool.Decal
             var targetRenderers = domain.GetDomainsRenderers(TargetRenderers);
             var decalCompiledTextures = CompileDecal(targetRenderers, domain);
 
+            domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));
             domain.LookAt(decalCompiledTextures.Keys);
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
-            
+
             foreach (var matAndTex in decalCompiledTextures)
             {
                 domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
