@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal virtual void LookAtCalling(ILookingObject lookingObject)
         {
             lookingObject.LookAt(gameObject);
+            lookingObject.LookAt(this);
             LayerMask.LookAtCalling(lookingObject);
         }
     }
