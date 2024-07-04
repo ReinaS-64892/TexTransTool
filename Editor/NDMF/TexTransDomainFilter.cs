@@ -10,6 +10,7 @@ using nadena.dev.ndmf.rq.unity.editor;
 using nadena.dev.ndmf.runtime;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.NDMF
 {
@@ -142,7 +143,9 @@ namespace net.rs64.TexTransTool.NDMF
             node.TargetPhase = PreviewTargetPhase;
             var timer = System.Diagnostics.Stopwatch.StartNew();
 
-            await node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
+            Profiler.BeginSample("node.NodeExecuteAndInit");
+            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
+            Profiler.EndSample();
 
             timer.Stop();
             Debug.Log($"Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))} time:{timer.ElapsedMilliseconds}ms");

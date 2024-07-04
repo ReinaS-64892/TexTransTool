@@ -6,6 +6,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.rq;
 using nadena.dev.ndmf.rq.unity.editor;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
@@ -17,7 +18,8 @@ namespace net.rs64.TexTransTool.NDMF
     internal class NodeExecuteDomain : IEditorCallDomain, IDisposable
     {
         HashSet<UnityEngine.Object> _transferredObject = new();
-        protected readonly StackManager<ImmediateTextureStack> _textureStacks;
+        HashSet<RenderTexture> _neededReleaseTempRt = new();
+        protected readonly NDMFPreviewStackManager _textureStacks;
         protected readonly ITextureManager _textureManager;
 
         ComputeContext _ctx;
@@ -39,7 +41,7 @@ namespace net.rs64.TexTransTool.NDMF
             _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
             _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
             _textureManager = new TextureManager(true);
-            _textureStacks = new(_textureManager);
+            _textureStacks = new();
             _ctx = computeContext;
         }
 
@@ -47,14 +49,14 @@ namespace net.rs64.TexTransTool.NDMF
 
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
         {
-            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
+            _textureStacks.AddTextureStack(dist, setTex);
             UsedTextureStack = true;
         }
         public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
 
         public ITextureManager GetTextureManager() => _textureManager;
 
-        public bool IsPreview() => false;
+        public bool IsPreview() => true;
 
         private void RegisterRecall(Renderer proxyRenderer, Action<Renderer> recall)
         {
@@ -71,7 +73,7 @@ namespace net.rs64.TexTransTool.NDMF
                 RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
                 RendererUtility.SwapMaterials(dr, mapping);
             }
-            if(one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
+            if (one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
             this.transferAssets(mapping.Values);
             UsedMaterialReplace = true;
         }
@@ -106,7 +108,7 @@ namespace net.rs64.TexTransTool.NDMF
         public void TransferAsset(UnityEngine.Object asset)
         {
             _transferredObject.Add(asset);
-            TempAssetContainer.TempPost(asset);
+            // TempAssetContainer.TempPost(asset);
 
             // これらじゃ Unityによる謎の破棄を回避できなかった
             // asset.hideFlags = HideFlags.DontUnloadUnusedAsset;
@@ -116,20 +118,20 @@ namespace net.rs64.TexTransTool.NDMF
 
         public void DomainFinish()
         {
-            var MergedStacks = _textureStacks.MergeStacks();
 
-            foreach (var mergeResult in MergedStacks)
+
+            foreach (var mergeResult in _textureStacks.StackDict)
             {
-                if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
-                SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
-                TransferAsset(mergeResult.MergeTexture);
+                if (mergeResult.Key == null || mergeResult.Value == null) continue;
+                SetTexture(mergeResult.Key, mergeResult.Value);
+                _neededReleaseTempRt.Add(mergeResult.Value);
             }
 
             _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred();
 
 
-            void SetTexture(Texture2D firstTexture, Texture2D mergeTexture)
+            void SetTexture(Texture firstTexture, Texture mergeTexture)
             {
                 var mats = RendererUtility.GetFilteredMaterials(_proxyDomainRenderers);
                 ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, firstTexture, mergeTexture));
@@ -140,6 +142,7 @@ namespace net.rs64.TexTransTool.NDMF
         public void Dispose()
         {
             foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj, true); }
+            foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
             _transferredObject.Clear();
 
             _ctx = null;
@@ -186,9 +189,22 @@ namespace net.rs64.TexTransTool.NDMF
         }
     }
 
+    class NDMFPreviewStackManager
+    {
+        Dictionary<Texture, RenderTexture> _stackDict = new();
+        public IReadOnlyDictionary<Texture, RenderTexture> StackDict => _stackDict;
 
-
-
-
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        {
+            if (_stackDict.ContainsKey(dist) is false)
+            {
+                var stackTexture = TTRt.G(dist.width, dist.height);
+                stackTexture.CopyFilWrap(dist);
+                Graphics.Blit(dist, stackTexture);
+                _stackDict.Add(dist, stackTexture);
+            }
+            _stackDict[dist].BlendBlit(setTex);
+        }
+    }
 }
 #endif
