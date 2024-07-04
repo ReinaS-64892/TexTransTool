@@ -344,13 +344,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 var ve = new VisualElement();
                 var serializedObject = new SerializedObject(at);
-                var sTargetRenderers = serializedObject.FindProperty("TargetRoot");
+                var sTargetRenderers = serializedObject.FindProperty("LimitCandidateMaterials");
                 var sAtlasTextureSize = serializedObject.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
 
-                var targetRoot = new PropertyField();
-                targetRoot.label = "AtlasTexture:prop:TargetRoot".GetLocalize();
-                targetRoot.BindProperty(sTargetRenderers);
-                ve.hierarchy.Add(targetRoot);
+                var limitCandidateMaterials = new PropertyField();
+                limitCandidateMaterials.label = "AtlasTexture:prop:LimitCandidateMaterials".GetLocalize();
+                limitCandidateMaterials.BindProperty(sTargetRenderers);
+                ve.hierarchy.Add(limitCandidateMaterials);
 
                 var atlasTextureSize = new PropertyField();
                 atlasTextureSize.label = "AtlasTexture:prop:AtlasTextureSize".GetLocalize();
