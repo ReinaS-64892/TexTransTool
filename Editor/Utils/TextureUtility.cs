@@ -88,6 +88,7 @@ namespace net.rs64.TexTransTool.Utils
             else
             {
                 var newRt = TTRt.G(texture2D.width, texture2D.height);
+                newRt.name = $"{texture2D.name}:CloneTexture2D-{newRt.width}x{newRt.height}";
                 Graphics.Blit(texture2D, newRt);
                 var cloneTex = newRt.CopyTexture2D().CopySetting(texture2D);
                 TTRt.R(newRt);

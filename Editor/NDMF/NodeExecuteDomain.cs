@@ -55,6 +55,9 @@ namespace net.rs64.TexTransTool.NDMF
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
         {
             _textureStacks.AddTextureStack(dist, setTex);
+
+            if (setTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
+            { TTRt.R(rt); }
             UsedTextureStack = true;
         }
         public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
@@ -204,6 +207,7 @@ namespace net.rs64.TexTransTool.NDMF
             if (_stackDict.ContainsKey(dist) is false)
             {
                 var stackTexture = TTRt.G(dist.width, dist.height);
+                stackTexture.name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
                 stackTexture.CopyFilWrap(dist);
                 Graphics.Blit(dist, stackTexture);
                 _stackDict.Add(dist, stackTexture);

@@ -84,7 +84,11 @@ namespace net.rs64.TexTransCore.Decal
                 Profiler.EndSample();
                 if (filteredTriangle.Length == 0) { continue; }
 
-                if (!renderTextures.ContainsKey(targetMat)) { renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true); }
+                if (!renderTextures.ContainsKey(targetMat))
+                {
+                    var newTempRt = renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
+                    newTempRt.name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.width}x{newTempRt.height}";
+                }
 
                 var sUV = _convertSpace.OutPutUV();
 
@@ -115,6 +119,7 @@ namespace net.rs64.TexTransCore.Decal
                 if (targetTexture == null) { continue; }
 
                 var rt = writeable[mat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
+                rt.name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.width}x{rt.height}";
             }
         }
     }

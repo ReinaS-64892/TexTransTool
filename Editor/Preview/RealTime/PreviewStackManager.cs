@@ -107,6 +107,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             {
                 _initialTexture = initialTexture;
                 _stackViewTexture = TTRt.G(initialTexture.width, initialTexture.height);
+                _stackViewTexture.name = $"{initialTexture.name}:PrioritizedDeferredStack-{_stackViewTexture.width}x{_stackViewTexture.height}";
+
                 _stackViewTexture.CopyFilWrap(initialTexture);
                 Graphics.Blit(initialTexture, _stackViewTexture);
             }
