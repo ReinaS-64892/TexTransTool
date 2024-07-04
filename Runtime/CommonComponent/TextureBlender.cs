@@ -26,10 +26,13 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
+            domain.LookAt(this);
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 
             var distTex = TargetTexture.GetTexture();
             if (distTex == null) { return; }
+
+            domain.LookAt(distTex);
 
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
             domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
