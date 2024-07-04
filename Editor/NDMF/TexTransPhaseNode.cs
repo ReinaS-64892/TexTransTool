@@ -7,6 +7,7 @@ using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.rq;
 using nadena.dev.ndmf.rq.unity.editor;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.NDMF
 {
@@ -31,18 +32,24 @@ namespace net.rs64.TexTransTool.NDMF
         NodeExecuteDomain _nodeDomain;
         internal IEnumerable<TexTransPhase> TargetPhase;
 
-        public async Task NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
+        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
         {
+            Profiler.BeginSample("NodeExecuteDomain.ctr");
             _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx);
+            Profiler.EndSample();
+            Profiler.BeginSample("apply ttb s");
             foreach (var ttb in flattenTTB)
             {
                 if (ttb == null) { continue; }
                 ctx.Observe(ttb);
+                Profiler.BeginSample("apply-" + ttb.name);
                 ttb.Apply(_nodeDomain);
-
-                await Task.Delay(10);
+                Profiler.EndSample();
             }
+            Profiler.EndSample();
+            Profiler.BeginSample("DomainFinish");
             _nodeDomain.DomainFinish();
+            Profiler.EndSample();
         }
         public void OnFrame(Renderer original, Renderer proxy)
         {

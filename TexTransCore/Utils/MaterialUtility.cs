@@ -5,12 +5,13 @@ namespace net.rs64.TexTransCore.Utils
 {
     internal static class MaterialUtility
     {
-        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Texture2D target, Texture2D setTex, Dictionary<Material, Material> outPut = null)
+        public static Dictionary<Material, Material> ReplaceTextureAll<Tex>(IEnumerable<Material> materials, Tex target, Tex setTex)
+        where Tex : Texture
         {
-            outPut?.Clear(); outPut ??= new();
+            var outPut = new Dictionary<Material, Material>();
             foreach (var mat in materials)
             {
-                var textures = GetAllTexture2D(mat);
+                var textures = GetAllTexture(mat);
 
                 if (textures.ContainsValue(target))
                 {
@@ -29,19 +30,20 @@ namespace net.rs64.TexTransCore.Utils
             }
             return outPut;
         }
-        public static Dictionary<Material, Material> ReplaceTextureAll(IEnumerable<Material> materials, Dictionary<Texture2D, Texture2D> texturePair, Dictionary<Material, Material> outPut = null)
+        public static Dictionary<Material, Material> ReplaceTextureAll<Tex>(IEnumerable<Material> materials, Dictionary<Tex, Tex> texturePair)
+        where Tex : Texture
         {
-            outPut?.Clear(); outPut ??= new();
+            var outPut = new Dictionary<Material, Material>();
             foreach (var mat in materials)
             {
-                var textures = GetAllTexture2D(mat);
+                var textures = GetAllTexture(mat);
 
                 bool replacedFlag = false;
-                foreach (var tex in textures) { if (texturePair.ContainsKey(tex.Value)) { replacedFlag = true; break; } }
+                foreach (var tex in textures) { if (texturePair.ContainsKey(tex.Value as Tex)) { replacedFlag = true; break; } }
                 if (replacedFlag == false) { continue; }
 
                 var material = Object.Instantiate(mat);
-                foreach (var tex in textures) { if (texturePair.TryGetValue(tex.Value, out var swapTex)) { material.SetTexture(tex.Key, swapTex); } }
+                foreach (var tex in textures) { if (texturePair.TryGetValue(tex.Value as Tex, out var swapTex)) { material.SetTexture(tex.Key, swapTex); } }
                 outPut.Add(mat, material);
             }
             return outPut;
@@ -58,9 +60,9 @@ namespace net.rs64.TexTransCore.Utils
             }
         }
 
-        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material, Dictionary<string, Texture2D> output = null)
+        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material)
         {
-            output?.Clear(); output ??= new();
+            var output = new Dictionary<string, Texture2D>();
             if (material == null || material.shader == null) { return output; }
             var shader = material.shader;
             var propCount = shader.GetPropertyCount();
@@ -73,6 +75,21 @@ namespace net.rs64.TexTransCore.Utils
                 {
                     output.TryAdd(propName, texture2D);
                 }
+            }
+            return output;
+        }
+        public static Dictionary<string, Texture> GetAllTexture(this Material material)
+        {
+            var output = new Dictionary<string, Texture>();
+            if (material == null || material.shader == null) { return output; }
+            var shader = material.shader;
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
+                var propName = shader.GetPropertyName(i);
+                var texture = material.GetTexture(propName);
+                if (texture != null) { output.TryAdd(propName, texture); }
             }
             return output;
         }
