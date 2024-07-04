@@ -80,8 +80,18 @@ namespace net.rs64.TexTransCore
 
         public static void ForceLeakedRelease()
         {
-            foreach (var rt in s_tempSet) { RenderTexture.ReleaseTemporary(rt); }
+            foreach (var rt in s_tempSet)
+            {
+                Debug.Log("ForceReleased-" + rt.name);
+                RenderTexture.ReleaseTemporary(rt);
+            }
             s_tempSet.Clear();
+        }
+
+        [TexTransInitialize]
+        static void RegisterForceLakedResolve()
+        {
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += ForceLeakedRelease;
         }
 
 
