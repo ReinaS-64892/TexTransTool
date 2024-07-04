@@ -35,9 +35,10 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply([NotNull] IDomain domain)
         {
+            domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
-            
+
             var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
             var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
