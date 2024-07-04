@@ -45,7 +45,12 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx = computeContext;
         }
 
-        public void LookAt(UnityEngine.Object obj) { _ctx?.Observe(obj); UsedLookAt = true; }
+        public void LookAt(UnityEngine.Object obj)
+        {
+            if (obj is Renderer renderer && _proxy2OriginRendererDict.ContainsKey(renderer)) { return; }
+            _ctx?.Observe(obj);
+            UsedLookAt = true;
+        }
 
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
         {
