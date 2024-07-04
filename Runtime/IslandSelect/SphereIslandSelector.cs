@@ -13,9 +13,11 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT SphereIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public bool IsAll;
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { return transform.GetParents().Append(transform); }
-        internal override int GetDependencyHash() { return 0; }
+        internal override void LookAtCalling(ILookingObject looker)
+        {
+            looker.LookAt(transform.GetParents().Append(transform));
+            looker.LookAt(this);
+        }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);

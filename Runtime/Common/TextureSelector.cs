@@ -67,55 +67,6 @@ namespace net.rs64.TexTransTool
             }
             return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
         }
-
-        internal IEnumerable<UnityEngine.Object> GetDependency()
-        {
-            switch (Mode)
-            {
-                default: yield break;
-                case SelectMode.Absolute: yield return SelectTexture; yield break;
-                case SelectMode.Relative:
-                    {
-                        yield return RendererAsPath;
-
-                        var DistMaterials = RendererAsPath.sharedMaterials;
-                        if (DistMaterials.Length <= SlotAsPath) { yield return DistMaterials[SlotAsPath]; }
-
-                        yield return GetTexture();
-                        yield break;
-                    }
-            }
-        }
-        internal int GetDependencyHash()
-        {
-            var hash = 0;
-            hash ^= (int)Mode;
-            switch (Mode)
-            {
-
-                case SelectMode.Absolute:
-                    {
-                        hash ^= SelectTexture?.GetInstanceID() ?? 0;
-                        break;
-                    }
-                case SelectMode.Relative:
-                    {
-                        if (RendererAsPath == null) { break; }
-                        hash ^= RendererAsPath?.GetInstanceID() ?? 0;
-                        var DistMaterials = RendererAsPath.sharedMaterials;
-                        if (DistMaterials.Length <= SlotAsPath) { break; }
-                        hash ^= SlotAsPath;
-                        hash ^= DistMaterials[SlotAsPath]?.GetInstanceID() ?? 0;
-
-                        hash ^= GetTexture()?.GetInstanceID() ?? 0;
-                        break;
-                    }
-            }
-
-            return hash;
-        }
-
-
-
+        internal void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(GetTexture()); }
     }
 }

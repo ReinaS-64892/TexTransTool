@@ -16,8 +16,11 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT RayCastIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         public float IslandSelectorRange = 0.1f;
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { return transform.GetParents().Append(transform); }
-        internal override int GetDependencyHash() { return 0; }
+        internal override void LookAtCalling(ILookingObject looker)
+        {
+            looker.LookAt(transform.GetParents().Append(transform));
+            looker.LookAt(this);
+        }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             return RayCastIslandSelect(GetIslandSelectorRay(), islands, islandDescription);

@@ -13,22 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT IslandSelectorNOT";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency()
-        {
-            var islandSelector = GetIslandSelector();
-            if (islandSelector != null)
-            {
-                yield return islandSelector;
-                foreach (var depend in islandSelector.GetDependency()) { yield return depend; }
-            }
-        }
-
-        internal override int GetDependencyHash()
-        {
-            var islandSelector = GetIslandSelector();
-            return (islandSelector?.GetInstanceID() ?? 0) ^ (islandSelector?.GetDependencyHash() ?? 0);
-        }
-
+        internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector().LookAtCalling(looker); }
         internal AbstractIslandSelector GetIslandSelector()
         {
             var childeCount = transform.childCount;

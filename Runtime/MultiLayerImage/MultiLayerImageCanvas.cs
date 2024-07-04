@@ -27,6 +27,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void Apply([NotNull] IDomain domain)
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
+
+            TextureSelector.LookAtCalling(domain);
+            domain.LookAt(this);
+            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(domain); }
+
             var replaceTarget = TextureSelector.GetTexture();
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
@@ -67,23 +72,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
             else { return nextV; }
         }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            var chileLayers = GetChileLayers();
-            return TextureSelector.GetDependency().Append(tttImportedCanvasDescription).Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
-        }
-
-        internal override int GetDependencyHash(IDomain domain)
-        {
-            var hash = TextureSelector.GetDependencyHash();
-            foreach (var cl in GetChileLayers())
-            {
-                hash ^= cl.GetDependencyHash();
-            }
-            return hash;
-        }
-
         internal class CanvasContext
         {
             public ITextureManager TextureManager;

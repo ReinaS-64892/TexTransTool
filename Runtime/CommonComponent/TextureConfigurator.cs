@@ -19,9 +19,6 @@ namespace net.rs64.TexTransTool
 
         internal override bool IsPossibleApply => TargetTexture.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain) { return TargetTexture.GetDependency(); }
-        internal override int GetDependencyHash(IDomain domain) { return TargetTexture.GetDependencyHash(); }
-
 
         public TextureSelector TargetTexture;
 

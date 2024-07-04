@@ -35,7 +35,9 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply([NotNull] IDomain domain)
         {
-            domain.LookAt(transform);
+            domain.LookAt(transform.GetParents().Append(transform));
+            if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
+            
             var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
             var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
@@ -88,21 +90,6 @@ namespace net.rs64.TexTransTool.Decal
 
             return s_GradientTempTexture;
         }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            IEnumerable<UnityEngine.Object> depend = new UnityEngine.Object[] { transform };
-            if (IslandSelector != null) { depend = depend.Concat(IslandSelector.GetDependency()); }
-            var materials = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
-            var dependRenderer = domain.EnumerateRenderer().Where(x => x.sharedMaterials.Any(m => materials.Contains(m)));
-
-            return depend.Concat(transform.GetParents().Select(i => i as UnityEngine.Object))
-            .Concat(dependRenderer)
-            .Concat(dependRenderer.Select(x => x.transform))
-            .Concat(dependRenderer.Select(x => x.GetMesh()))
-            .Concat(dependRenderer.Where(x => x is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(x => x.bones));
-        }
-
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
@@ -111,14 +98,6 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
             IslandSelector?.OnDrawGizmosSelected();
         }
-
-        internal override int GetDependencyHash(IDomain domain)
-        {
-            var hash = 0;
-            if (TargetMaterials != null) foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
-            return hash;
-        }
-
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
             var targetMat = GetTargetMaterials(replaceTracking, domainRenderers);

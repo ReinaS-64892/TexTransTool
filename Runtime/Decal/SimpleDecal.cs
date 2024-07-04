@@ -66,8 +66,10 @@ namespace net.rs64.TexTransTool.Decal
             var targetRenderers = domain.GetDomainsRenderers(TargetRenderers);
             var decalCompiledTextures = CompileDecal(targetRenderers, domain);
 
-            domain.LookAt(transform);
+            domain.LookAt(transform.GetParents().Append(transform));
             domain.LookAt(decalCompiledTextures.Keys);
+            if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
+            
             foreach (var matAndTex in decalCompiledTextures)
             {
                 domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
@@ -99,29 +101,6 @@ namespace net.rs64.TexTransTool.Decal
             }
             return mulDecalTexture;
         }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            var targetRenderers = TargetRenderers.Where(r => r != null);
-            var dependencies = new UnityEngine.Object[] { transform }
-            .Concat(transform.GetParents())
-            .Concat(targetRenderers)
-            .Concat(targetRenderers.Select(r => r.transform))
-            .Concat(targetRenderers.Select(r => r.GetMesh()))
-            .Concat(targetRenderers.Where(r => r is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(r => r.bones))
-            .Append(DecalTexture);
-
-            if (IslandSelector != null) { dependencies = dependencies.Concat(IslandSelector.GetDependency()); }
-            return dependencies;
-        }
-        internal override int GetDependencyHash(IDomain domain)
-        {
-            var hash = 0;
-            foreach (var tr in TargetRenderers) { hash ^= tr?.GetInstanceID() ?? 0; }
-            hash ^= DecalTexture?.GetInstanceID() ?? 0;
-            return hash;
-        }
-
         [ExpandTexture2D] public Texture2D DecalTexture;
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         internal Dictionary<Material, RenderTexture> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)

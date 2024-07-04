@@ -14,7 +14,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             originTexture.WriteOriginalTexture(RasterTexture, renderTexture);
         }
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { return base.GetDependency().Append(RasterTexture); }
-        internal override int GetDependencyHash() { return base.GetDependencyHash() ^ RasterTexture?.GetInstanceID() ?? 0; }
+        internal override void LookAtCalling(ILookingObject lookingObject)
+        {
+            base.LookAtCalling(lookingObject);
+            lookingObject.LookAt(RasterTexture);
+        }
     }
 }

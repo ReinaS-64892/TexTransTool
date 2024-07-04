@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface ILookingObject
+    public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
     }
