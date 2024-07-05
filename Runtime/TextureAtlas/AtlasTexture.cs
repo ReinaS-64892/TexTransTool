@@ -203,18 +203,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             Profiler.BeginSample("Relocation");
-
             var relocateManage = new IslandRelocationManager(relocator);
             relocateManage.Padding = atlasSetting.IslandPadding;
             relocateManage.ForceSizePriority = atlasSetting.ForceSizePriority;
 
             var timer = System.Diagnostics.Stopwatch.StartNew();
-
             var relocatedRect = relocateManage.RelocateLoop(rectArray, sizePriority, out var relocateResult);
-
             timer.Stop();
-            TTTRuntimeLog.Info("AtlasTexture:info:RelocateResult", relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, timer.ElapsedMilliseconds);
-
             Profiler.EndSample();
 
             var rectTangleMove = relocator.RectTangleMove;
@@ -248,9 +243,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Debug.Assert(Mathf.IsPowerOfTwo(atlasTextureHeightSize));
             Profiler.EndSample();
 
-            // var areaSum = IslandRectUtility.CalculateAllAreaSum(islandRectPool.Values);
-            // Debug.Log(areaSum + ":AreaSum" + "-" + height + ":height");
-
+            TTTRuntimeLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, timer.ElapsedMilliseconds);
 
 
             //新しいUVを持つMeshを生成するフェーズ

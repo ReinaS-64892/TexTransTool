@@ -44,7 +44,7 @@ msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
 
 msgid "AtlasTexture:info:RelocateResult"
-msgstr "Atlas Relocate Result\nPriority shrink: {0}x \nOverall shrink: {1}x \nTotal relocate count: {2} \nTime taken relocate: {3}ms"
+msgstr "Atlas Relocate Result\nTop free space: {0}\nPriority shrink: {1}x \nOverall shrink: {2}x \nTotal relocate count: {3} \nTime taken relocate: {4}ms"
 
 msgid "AtlasTexture:prop:LimitCandidateMaterials"
 msgstr "LimitCandidateMaterials"
