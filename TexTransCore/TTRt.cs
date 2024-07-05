@@ -94,12 +94,13 @@ namespace net.rs64.TexTransCore
             s_tempSet.Clear();
         }
 
+#if UNITY_EDITOR
         [TexTransInitialize]
         static void RegisterForceLakedResolve()
         {
             UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += ForceLeakedRelease;
         }
-
+#endif
 
         public readonly struct UsingRenderTexture : IDisposable
         {
