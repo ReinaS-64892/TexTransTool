@@ -29,6 +29,8 @@ namespace net.rs64.TexTransTool.Migration.V4
                         { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
                     case TextureAtlas.FineTuning.Resize tfs:
                         { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                    case TextureAtlas.FineTuning.ReferenceCopy rc:
+                        { rc.TargetPropertyNameList = new() { rc.TargetPropertyName }; break; }
                 }
             }
 
