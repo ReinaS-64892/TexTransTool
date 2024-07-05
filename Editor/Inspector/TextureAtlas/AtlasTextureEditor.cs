@@ -21,30 +21,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
             thisSObject.Update();
 
-#pragma warning disable CS0612
-            if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
-            {
-                if (TTTag.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
-                {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(thisTarget);
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
-                {
-                    net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 2 && GUILayout.Button("Migrate DSV2 To DSV3"))
-                {
-                    net.rs64.TexTransTool.Migration.V2.AtlasTextureV2.MigrationAtlasTextureV2ToV3(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 3 && GUILayout.Button("Migrate DSV3 To DSV4"))
-                {
-                    net.rs64.TexTransTool.Migration.V3.AtlasTextureV3.MigrationAtlasTextureV3ToV4(thisTarget);
-                }
-                return;
-            }
-#pragma warning restore CS0612
-
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
             var sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
