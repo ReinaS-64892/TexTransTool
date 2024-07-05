@@ -7,12 +7,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Compress : ITextureFineTuning
     {
-        public FormatQuality FormatQualityValue;
-        public bool UseOverride;
-        public TextureFormat OverrideTextureFormat;
-        [Range(0, 100)] public int CompressionQuality;
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
+        public FormatQuality FormatQualityValue = FormatQuality.High;
+        public bool UseOverride = false;
+        public TextureFormat OverrideTextureFormat =  TextureFormat.DXT5;
+        [Range(0, 100)] public int CompressionQuality =  50;
+        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect Select = PropertySelect.Equal;
 
         public Compress() { }
         public Compress(FormatQuality formatQuality, bool overrideFormat, TextureFormat overrideTextureFormat, int compressionQuality, PropertyName propertyNames, PropertySelect select)
@@ -25,8 +25,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             Select = select;
 
         }
-
-        public static Compress Default => new(FormatQuality.High, false, TextureFormat.DXT5, 50, PropertyName.DefaultValue, PropertySelect.Equal);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {

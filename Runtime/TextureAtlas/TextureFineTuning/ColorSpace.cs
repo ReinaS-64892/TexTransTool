@@ -8,9 +8,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class ColorSpace : ITextureFineTuning
     {
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
-        public bool Linear;
+        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect Select = PropertySelect.Equal;
+        public bool Linear = true;
 
         public ColorSpace() { }
         public ColorSpace(PropertyName propertyNames, PropertySelect select, bool linear)
@@ -19,8 +19,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             Select = select;
             Linear = linear;
         }
-        public static ColorSpace Default => new(PropertyName.DefaultValue, PropertySelect.Equal, true);
-
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))

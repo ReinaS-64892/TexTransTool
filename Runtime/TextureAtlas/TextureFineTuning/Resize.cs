@@ -9,9 +9,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Resize : ITextureFineTuning
     {
-        [PowerOfTwo] public int Size;
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
+        [PowerOfTwo] public int Size = 512;
+        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect Select = PropertySelect.NotEqual;
 
         public Resize() { }
         public Resize(int size, PropertyName propertyNames, PropertySelect select)
@@ -29,10 +29,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 target.Value.Get<SizeData>().TextureSize = Size;
             }
         }
-
-
-        public static Resize Default => new(512, PropertyName.DefaultValue, PropertySelect.NotEqual);
-        public ITextureFineTuning GetDefault => Default;
     }
 
     internal class SizeData : ITuningData

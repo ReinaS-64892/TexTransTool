@@ -8,8 +8,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class MipMapRemove : ITextureFineTuning
     {
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
+        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect Select = PropertySelect.Equal;
 
         public MipMapRemove() { }
         public MipMapRemove(PropertyName propertyNames, PropertySelect select)
@@ -18,8 +18,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             Select = select;
 
         }
-
-        public static MipMapRemove Default => new(PropertyName.DefaultValue, PropertySelect.Equal);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {

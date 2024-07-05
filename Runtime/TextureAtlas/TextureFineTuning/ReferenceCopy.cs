@@ -8,8 +8,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public class ReferenceCopy : ITextureFineTuning
     {
 
-        public PropertyName SourcePropertyName;
-        public PropertyName TargetPropertyName;
+        public PropertyName SourcePropertyName = PropertyName.DefaultValue;
+        public PropertyName TargetPropertyName = PropertyName.DefaultValue;
 
         public ReferenceCopy() { }
         public ReferenceCopy(PropertyName sourcePropertyName, PropertyName targetPropertyName)
@@ -17,8 +17,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             SourcePropertyName = sourcePropertyName;
             TargetPropertyName = targetPropertyName;
         }
-
-        public static ReferenceCopy Default => new(PropertyName.DefaultValue, PropertyName.DefaultValue);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {

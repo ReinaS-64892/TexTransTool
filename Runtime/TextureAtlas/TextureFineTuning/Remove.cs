@@ -7,8 +7,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Remove : ITextureFineTuning
     {
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
+        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public PropertySelect Select = PropertySelect.NotEqual;
 
         public Remove() { }
         public Remove(PropertyName propertyNames, PropertySelect select)
@@ -16,8 +16,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             PropertyNames = propertyNames;
             Select = select;
         }
-
-        public static Remove Default => new(PropertyName.DefaultValue, PropertySelect.NotEqual);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
