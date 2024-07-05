@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- AtlasTexture の アイランド再配置結果の詳細を NDMFConsole にレポートする機能を追加 (#531)
+
 ### Changed
 
 - AtlasTexture の影響範囲が TargetRoot に影響されなくなり、インスペクターのマテリアル表示制限の機能のみに変更 (#516)
