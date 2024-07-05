@@ -10,21 +10,29 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public class Resize : ITextureFineTuning
     {
         [PowerOfTwo] public int Size = 512;
-        public PropertyName PropertyNames = PropertyName.DefaultValue;
+        [Obsolete("V4SaveData",true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.NotEqual;
 
         public Resize() { }
+        [Obsolete("V4SaveData",true)]
         public Resize(int size, PropertyName propertyNames, PropertySelect select)
         {
             Size = size;
             PropertyNames = propertyNames;
+            Select = select;
+        }
+        public Resize(int size, List<PropertyName> propertyNames, PropertySelect select)
+        {
+            Size = size;
+            PropertyNameList = propertyNames;
             Select = select;
 
         }
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 target.Value.Get<SizeData>().TextureSize = Size;
             }
