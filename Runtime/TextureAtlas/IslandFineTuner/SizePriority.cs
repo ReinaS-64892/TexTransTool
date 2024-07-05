@@ -16,6 +16,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         public void LookAtCalling(ILookingObject lookingObject) { if (IslandSelector != null) { IslandSelector.LookAtCalling(lookingObject); } }
         public void IslandFineTuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
         {
+            if (IslandSelector == null) { return; }
+
             var targetBit = IslandSelector.IslandSelect(islands, islandDescriptions);
 
             for (var i = 0; sizePriority.Length > i; i += 1)

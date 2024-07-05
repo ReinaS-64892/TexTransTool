@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 sizePriority[i] = materialFineTuningValue;
             }
 
-            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner.IslandFineTuning(sizePriority, islandArray, islandDescription, domain); }
+            foreach (var islandFineTuner in atlasSetting.IslandFineTuners) { islandFineTuner?.IslandFineTuning(sizePriority, islandArray, islandDescription, domain); }
             for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = Mathf.Clamp01(sizePriority[i]); }
             Profiler.EndSample();
 
