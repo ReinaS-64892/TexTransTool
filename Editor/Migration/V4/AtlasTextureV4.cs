@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Migration.V4
         public static void MigrationAtlasTextureV4ToV5(AtlasTexture atlasTexture)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion >= 5) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
+            if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 5) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
 
             foreach (var tf in atlasTexture.AtlasSetting.TextureFineTuning)
             {
