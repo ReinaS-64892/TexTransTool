@@ -43,6 +43,9 @@ msgstr "マテリアルスロットの数が、サブメッシュよりも多い
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性があるためご注意ください。"
 
+msgid "AtlasTexture:info:RelocateResult"
+msgstr "アトラス再配置結果\n優先度に応じた縮小: {0}倍 \n全体的な縮小: {1}倍 \n累計再配置計算回数: {2}回 \n再配置実行時間: {3}ms"
+
 msgid "AtlasTexture:prop:LimitCandidateMaterials"
 msgstr "マテリアル選択候補の制限"
 

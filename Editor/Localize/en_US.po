@@ -43,6 +43,9 @@ msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
 
+msgid "AtlasTexture:info:RelocateResult"
+msgstr "Atlas Relocate Result\nPriority shrink: {0}x \nOverall shrink: {1}x \nTotal relocate count: {2} \nTime taken relocate: {3}ms"
+
 msgid "AtlasTexture:prop:LimitCandidateMaterials"
 msgstr "LimitCandidateMaterials"
 

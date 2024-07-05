@@ -200,10 +200,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             IAtlasIslandRelocator relocator = atlasSetting.AtlasIslandRelocator != null ? UnityEngine.Object.Instantiate(atlasSetting.AtlasIslandRelocator) : new NFDHPlasFC();
-            relocator.Padding = atlasSetting.IslandPadding;
+
 
             Profiler.BeginSample("Relocation");
-            var relocatedRect = RelocateLoop(rectArray, sizePriority, relocator, atlasSetting.ForceSizePriority, atlasSetting.IslandPadding);
+
+            var relocateManage = new IslandRelocationManager(relocator);
+            relocateManage.Padding = atlasSetting.IslandPadding;
+            relocateManage.ForceSizePriority = atlasSetting.ForceSizePriority;
+
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+
+            var relocatedRect = relocateManage.RelocateLoop(rectArray, sizePriority, out var relocateResult);
+
+            timer.Stop();
+            TTTRuntimeLog.Info("AtlasTexture:info:RelocateResult", relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, timer.ElapsedMilliseconds);
+
             Profiler.EndSample();
 
             var rectTangleMove = relocator.RectTangleMove;
@@ -531,114 +542,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
 
-        }
-
-        private static IslandRect[] RelocateLoop(IslandRect[] rectArray, float[] sizePriority, IAtlasIslandRelocator relocator, bool forceSizePriority, float padding)
-        {
-            var relocatedRect = rectArray.ToArray();
-            var refRect = rectArray;
-
-            if (forceSizePriority)
-            {
-                refRect = GetPriorityMinSizeRectArray(rectArray, sizePriority);
-                if (relocator.Relocation(refRect)) { return refRect; }
-            }
-            else
-            {
-                if (relocator.Relocation(relocatedRect)) { return relocatedRect; }
-
-                if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
-                {
-                    Profiler.BeginSample("Priority");
-                    var priorityMinSize = GetPriorityMinSizeRectArray(rectArray, sizePriority);
-
-                    for (var lerpValue = 1f; 0 < lerpValue; lerpValue -= 0.05f)
-                    {
-                        LerpPriority(relocatedRect, priorityMinSize, rectArray, lerpValue);
-                        if (relocator.Relocation(relocatedRect)) { Profiler.EndSample(); return relocatedRect; }
-                    }
-                    refRect = priorityMinSize;
-                    Profiler.EndSample();
-                }
-            }
-
-
-
-            Profiler.BeginSample("Expand");
-
-            var refRectSize = IslandRectUtility.CalculateAllAreaSum(refRect);
-
-            var lastRelocated = relocatedRect.ToArray();
-
-            for (var size = 0.5f; size >= 0; size -= 0.01f)
-            {
-                for (var i = 0; rectArray.Length > i; i += 1) { relocatedRect[i] = refRect[i]; }
-                ScaleApplyDown(relocatedRect, Mathf.Sqrt(size / refRectSize));
-
-                if (ExpandLoop(relocator, relocatedRect, lastRelocated)) { break; }
-            }
-
-            Profiler.EndSample();
-
-            return lastRelocated;
-
-
-            static void LerpPriority(IslandRect[] write, IslandRect[] min, IslandRect[] max, float lerpValue)
-            {
-                for (var i = 0; max.Length > i; i += 1)
-                {
-                    var size = Vector3.Lerp(min[i].Size, max[i].Size, lerpValue);
-                    if (write[i].Is90Rotation) { (size.x, size.y) = (size.y, size.x); }
-                    write[i].Size = size;
-                }
-            }
-
-            bool ExpandLoop(IAtlasIslandRelocator relocator, IslandRect[] relocatedRect, IslandRect[] lastRelocated)
-            {
-                var safetyCount = 0;
-                if (!relocator.Relocation(relocatedRect)) { return false; }
-                while (relocator.Relocation(relocatedRect) && safetyCount < 2048)//失敗するかセーフティにかかるまで、続けて失敗したら前回の物を使用する方針
-                {
-                    safetyCount += 1;
-                    for (int i = 0; relocatedRect.Length > i; i++) { lastRelocated[i] = relocatedRect[i]; }
-                    ScaleApplyUp(relocatedRect, 1.01f);
-                }
-                return true;
-            }
-
-            static void ScaleApplyDown(IslandRect[] rect, float scaleDownStep)
-            {
-                for (int i = 0; rect.Length > i; i++)
-                {
-                    rect[i].Size *= scaleDownStep;
-                }
-            }
-            void ScaleApplyUp(IslandRect[] rect, float scaleUpStep)
-            {
-                for (int i = 0; rect.Length > i; i++)
-                {
-                    var size = rect[i].Size *= scaleUpStep;
-
-
-                    var maxLength = 0.99f - padding - padding;
-                    if (size.x > maxLength || size.y > maxLength)//一つ大きいのがあるとすべて使いきれなくなってしまうために、これは必要。
-                    {
-                        var max = Mathf.Max(size.x, size.y);
-                        size *= maxLength / max;
-                        rect[i].Size = size;
-                    }
-                }
-            }
-
-
-        }
-
-        private static IslandRect[] GetPriorityMinSizeRectArray(IslandRect[] rectArray, float[] sizePriority)
-        {
-            var priorityMinSize = rectArray.ToArray();
-            for (var i = 0; priorityMinSize.Length > i; i += 1) { priorityMinSize[i].Size *= sizePriority[i]; }
-
-            return priorityMinSize;
         }
 
         private static Dictionary<Material, float> GetTextureSizeOffset(IEnumerable<Material> targetMaterialSelectors, AtlasSetting atlasSetting)
