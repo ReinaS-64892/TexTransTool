@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Migration.V3
         public static void MigrationSimpleDecalV3ToV4(SimpleDecal simpleDecal)
         {
             if (simpleDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (simpleDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 4) { Debug.Log(simpleDecal.name + " SimpleDecal : マイグレーション不可能なバージョンです。"); return; }
+            if (simpleDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion >= 4) { Debug.Log(simpleDecal.name + " SimpleDecal : マイグレーション不可能なバージョンです。"); return; }
 
             if (simpleDecal.IslandCulling) { MigrateIslandCullingToIslandSelector(simpleDecal); }
 

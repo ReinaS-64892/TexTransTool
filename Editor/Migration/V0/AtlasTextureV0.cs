@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void MigrationAtlasTextureV0ToV1(AtlasTexture atlasTexture)
         {
             if (atlasTexture == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
-            if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 1) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
+            if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion >= 1) { Debug.Log(atlasTexture.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
             if (atlasTexture.AtlasSettings.Count < 1) { Debug.LogWarning(atlasTexture.name + " AtlasTexture : マイグレーション不可能なアトラステクスチャーです。"); return; }
 
             var GameObject = atlasTexture.gameObject;
