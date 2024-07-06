@@ -69,7 +69,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public bool UseOverride;
         public TextureFormat OverrideTextureFormat;
 
-
         [Range(0, 100)] public int CompressionQuality = 50;
     }
     internal class CompressionQualityApplicant : ITuningApplicant

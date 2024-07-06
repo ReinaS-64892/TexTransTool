@@ -70,6 +70,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
             var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
             var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
+            var sTextureIndividualTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualTuning");
 
 
 
@@ -105,6 +106,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
 
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".Glc());
+            EditorGUILayout.PropertyField(sTextureIndividualTuning, "AtlasTexture:prop:TextureIndividualTuning".Glc());
 
 
             EditorGUI.indentLevel -= 1;

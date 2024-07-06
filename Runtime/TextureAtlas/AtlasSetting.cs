@@ -31,6 +31,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool PixelNormalize = false;
 
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
+        public List<TextureIndividualTuning> TextureIndividualTuning;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData
@@ -58,6 +59,29 @@ namespace net.rs64.TexTransTool.TextureAtlas
         NotBake,
         Bake,
         BakeAllProperty,
+    }
+    [Serializable]
+    public class TextureIndividualTuning
+    {
+        public PropertyName TuningTarget;
+
+        public bool OverrideAsReferenceCopy = false;
+        public PropertyName CopyReferenceSource = PropertyName.DefaultValue;
+
+        public bool OverrideResize = false;
+        [PowerOfTwo] public int TextureSize = 512;
+
+        public bool OverrideCompression = false;
+        public CompressionQualityData compressionQuality = new();
+
+        public bool OverrideMipMapRemove = false;
+        public bool UseMipMap = false;
+
+        public bool OverrideColorSpace = false;
+        public bool Linear = true;
+
+        public bool OverrideAsRemove = false;
+
     }
 
     #region V2SaveData

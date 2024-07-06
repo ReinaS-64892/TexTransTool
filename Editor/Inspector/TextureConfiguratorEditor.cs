@@ -38,10 +38,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUILayout.PropertyField(sOverrideCompression);
             using (new EditorGUI.DisabledScope(!sOverrideCompression.boolValue))
             using (new EditorGUI.IndentLevelScope())
-            {
-                var rect = EditorGUILayout.GetControlRect(GUILayout.Height(TextureAtlas.Editor.CompressTuningDrawer.GetPropertyHeightStatic(sCompressionSetting) - (18f * 3)));
-                TextureAtlas.Editor.CompressTuningDrawer.DrawCompressEditor(rect, sCompressionSetting);
-            }
+            { EditorGUILayout.PropertyField(sCompressionSetting); }
 
             OneTimePreviewContext.instance.DrawApplyAndRevert(targetTC);
             sObj.ApplyModifiedProperties();

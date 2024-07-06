@@ -71,12 +71,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return GetPropertyHeightStatic(property);
+            return GetPropertyHeightInter(property) + 18f + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("PropertyNameList"));
         }
 
-        public static float GetPropertyHeightStatic(SerializedProperty property)
+        public static float GetPropertyHeightInter(SerializedProperty property)
         {
-            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 5 : 3) + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("PropertyNameList"));
+            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 4 : 2);
         }
     }
 }

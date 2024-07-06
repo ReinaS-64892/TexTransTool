@@ -611,6 +611,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 fineTuning.AddSetting(atlasTexFineTuningTargets);
             }
+            foreach (var individualTuning in AtlasSetting.TextureIndividualTuning)
+            {
+                if (atlasTexFineTuningTargets.ContainsKey(individualTuning.TuningTarget) is false) { continue; }
+                var tuningTarget = atlasTexFineTuningTargets[individualTuning.TuningTarget];
+
+                if (individualTuning.OverrideAsReferenceCopy) { tuningTarget.Get<ReferenceCopyData>().CopySource = individualTuning.CopyReferenceSource; }
+                if (individualTuning.OverrideResize) { tuningTarget.Get<SizeData>().TextureSize = individualTuning.TextureSize; }
+                if (individualTuning.OverrideCompression) { tuningTarget.Set(individualTuning.compressionQuality); }
+                if (individualTuning.OverrideMipMapRemove) { tuningTarget.Get<MipMapData>().UseMipMap = individualTuning.UseMipMap; }
+                if (individualTuning.OverrideColorSpace) { tuningTarget.Get<ColorSpaceData>().Linear = individualTuning.Linear; }
+                if (individualTuning.OverrideAsRemove) { tuningTarget.Get<RemoveData>(); }
+            }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
             var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
             domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
