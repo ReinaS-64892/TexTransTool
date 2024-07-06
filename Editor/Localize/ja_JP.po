@@ -157,6 +157,12 @@ msgstr "テクスチャー詳細設定"
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "アトラス化したテクスチャーに様々な設定をするための項目"
 
+msgid "AtlasTexture:prop:TextureIndividualFineTuning"
+msgstr "テクスチャ個別詳細設定"
+
+msgid "AtlasTexture:prop:OpenTextureFineTuningManager"
+msgstr "テクスチャ詳細設定管理画面を開く"
+
 msgid "TextureFineTuning:prop:TargetPropertyName"
 msgstr "ターゲットプロパティネーム"
 

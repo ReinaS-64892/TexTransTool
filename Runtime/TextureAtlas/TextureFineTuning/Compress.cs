@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 var tuningHolder = target.Value;
-                var compressionQualityData = tuningHolder.Get<CompressionQualityData>();
+                var compressionQualityData = tuningHolder.Get<TextureCompressionData>();
 
                 compressionQualityData.FormatQualityValue = FormatQualityValue;
                 compressionQualityData.CompressionQuality = CompressionQuality;
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         High,
     }
     [Serializable]
-    public class CompressionQualityData : ITuningData
+    public class TextureCompressionData : ITuningData
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
 
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             // Delegated to ITextureManager
         }
-        public static TextureFormat GetTextureFormat(CompressionQualityData compressionQualityData)
+        public static TextureFormat GetTextureFormat(TextureCompressionData compressionQualityData)
         {
             if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
 

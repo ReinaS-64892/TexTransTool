@@ -8,6 +8,7 @@ using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Editor.OtherMenuItem;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -29,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
             if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
 
-            if (!OneTimePreviewContext.IsPreviewContains)
+            if (PreviewUtility.IsPreviewContains is false)
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
                 { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
@@ -70,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
             var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
             var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
-            var sTextureIndividualTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualTuning");
+            var sTextureIndividualFineTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualFineTuning");
 
 
 
@@ -102,11 +103,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
                 EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
+
+                EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".Glc());
+                if (PreviewUtility.IsPreviewContains is false)
+                {
+                    if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".Glc()))
+                    { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
+                }
+
                 EditorGUI.indentLevel -= 1;
             }
 
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".Glc());
-            EditorGUILayout.PropertyField(sTextureIndividualTuning, "AtlasTexture:prop:TextureIndividualTuning".Glc());
 
 
             EditorGUI.indentLevel -= 1;
