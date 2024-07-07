@@ -8,20 +8,20 @@ on:
         required: true
 
 jobs:
-  call-Update-Tag:
-    uses: ./.github/workflows/UpdatePackageJsonPlasTag.yml
+  Call-Update-Tag:
+    uses: ./.github/workflows/UpdateTTT.yml
     with:
       tag: ${{ github.event.inputs.tag }}
 
-  call-TagToZip:
-    needs: [call-Update-Tag]
-    uses: ./.github/workflows/TagToZip.yml
+  Call-Tag2Zip:
+    needs: [Call-Update-Tag]
+    uses: ./.github/workflows/Tag2Zip.yml
     with:
       tag: ${{ github.event.inputs.tag }}
 
-  call-ReleaseDraft:
-    needs: [call-TagToZip]
-    uses: ./.github/workflows/CreateReleaseDraftForTag.yml
+  Call-ReleaseDraft:
+    needs: [Call-Tag2Zip]
+    uses: ./.github/workflows/CreateReleaseDraft.yml
     with:
       tag: ${{ github.event.inputs.tag }}
 

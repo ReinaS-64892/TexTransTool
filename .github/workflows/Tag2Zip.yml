@@ -1,4 +1,4 @@
-name: tag-to-zip
+name: Tag2Zip
 
 on:
   workflow_call:
@@ -13,7 +13,7 @@ on:
         required: true
 
 jobs:
-  Create-tag-to-zip:
+  Tag2Zip:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -22,22 +22,11 @@ jobs:
           fetch-tags: true
           ref: ${{ github.event.inputs.tag }}
 
-      - name: Debug
-        run: |
-          pwd
-          ls -alh
-          ls -alh ../
-
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           repository: ReinaS-64892/TTT-ImageAssets
           path: .github/ImageAssets
-
-      - name: Debug
-        run: |
-          pwd
-          ls -alh
 
       - name: ReplaceImageAssets
         run: |

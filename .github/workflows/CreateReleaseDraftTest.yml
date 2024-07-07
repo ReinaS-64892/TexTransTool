@@ -1,4 +1,4 @@
-name: Create-Release-Draft-Test
+name: CreateReleaseDraft
 
 on:
   workflow_dispatch:
@@ -8,14 +8,14 @@ on:
         required: true
 
 jobs:
-  call-TagToZip:
-    uses: ./.github/workflows/TagToZip.yml
+  Call-Tag2Zip:
+    uses: ./.github/workflows/Tag2Zip.yml
     with:
       tag: ${{ github.event.inputs.tag }}
 
-  call-ReleaseDraft:
-    needs: [call-TagToZip]
-    uses: ./.github/workflows/CreateReleaseDraftForTag.yml
+  Call-ReleaseDraft:
+    needs: [Call-Tag2Zip]
+    uses: ./.github/workflows/CreateReleaseDraft.yml
     with:
       tag: ${{ github.event.inputs.tag }}
 
