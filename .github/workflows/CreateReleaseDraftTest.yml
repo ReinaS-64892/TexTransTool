@@ -1,4 +1,4 @@
-name: CreateReleaseDraft
+name: CreateReleaseDraftTest
 
 on:
   workflow_dispatch:
