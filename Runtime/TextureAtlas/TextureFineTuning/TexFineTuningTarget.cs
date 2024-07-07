@@ -42,13 +42,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     internal class TexFineTuningUtility
     {
 
-        public static void InitTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public static Dictionary<string, TexFineTuningHolder> InitTexFineTuning(Dictionary<string, Texture2D> textures)
         {
+            var texFineTuningTargets = textures.ToDictionary(i => i.Key, i => new TexFineTuningHolder(i.Value));
             foreach (var texKv in texFineTuningTargets)
             {
                 texKv.Value.Set(new MipMapData());
-                texKv.Value.Set(new CompressionQualityData());
+                texKv.Value.Set(new TextureCompressionData());
             }
+            return texFineTuningTargets;
         }
         public static void FinalizeTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {

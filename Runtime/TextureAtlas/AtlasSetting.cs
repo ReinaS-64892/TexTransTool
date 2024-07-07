@@ -30,7 +30,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool WriteOriginalUV = false;
         public bool PixelNormalize = false;
 
-        [SerializeReference,SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
+        [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
+        public List<TextureIndividualTuning> TextureIndividualFineTuning;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData
@@ -58,6 +59,29 @@ namespace net.rs64.TexTransTool.TextureAtlas
         NotBake,
         Bake,
         BakeAllProperty,
+    }
+    [Serializable]
+    public class TextureIndividualTuning
+    {
+        public string TuningTarget;
+
+        public bool OverrideAsReferenceCopy = false;
+        public string CopyReferenceSource = PropertyName.DefaultValue;
+
+        public bool OverrideResize = false;
+        [PowerOfTwo] public int TextureSize = 512;
+
+        public bool OverrideCompression = false;
+        public TextureCompressionData CompressionData = new();
+
+        public bool OverrideMipMapRemove = false;
+        public bool UseMipMap = true;
+
+        public bool OverrideColorSpace = false;
+        public bool Linear = false;
+
+        public bool OverrideAsRemove = false;
+
     }
 
     #region V2SaveData
@@ -111,7 +135,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case select.Compress:
                     return new Compress(Compress_FormatQuality, Compress_UseOverride, Compress_OverrideTextureFormat, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
                 case select.ReferenceCopy:
-                    return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
+                    return new ReferenceCopy(ReferenceCopy_SourcePropertyName, new() { ReferenceCopy_TargetPropertyName });
                 case select.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
                 case select.MipMapRemove:

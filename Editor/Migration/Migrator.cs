@@ -8,6 +8,7 @@ using net.rs64.TexTransTool.Migration.V0;
 using net.rs64.TexTransTool.Migration.V1;
 using net.rs64.TexTransTool.Migration.V2;
 using net.rs64.TexTransTool.Migration.V3;
+using net.rs64.TexTransTool.Migration.V4;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -35,6 +36,23 @@ namespace net.rs64.TexTransTool.Migration
 
 
 #pragma warning disable CS0612
+        public static bool MigrationITexTransToolTagV4ToV5(ITexTransToolTag texTransToolTag)
+        {
+            switch (texTransToolTag)
+            {
+                case AtlasTexture atlasTexture:
+                    {
+                        AtlasTextureV4.MigrationAtlasTextureV4ToV5(atlasTexture);
+                        return true;
+                    }
+
+                default:
+                    {
+                        MigrationUtility.SetSaveDataVersion(texTransToolTag, 5);
+                        return true;
+                    }
+            }
+        }
         public static bool MigrationITexTransToolTagV3ToV4(ITexTransToolTag texTransToolTag)
         {
             switch (texTransToolTag)
@@ -242,6 +260,11 @@ namespace net.rs64.TexTransTool.Migration
                             MigrateEverythingV3ToV4(true);
                             break;
                         }
+                    case 4:
+                        {
+                            MigrateEverythingV4ToV5(true);
+                            break;
+                        }
                 }
             }
             PostMigration();
@@ -397,6 +420,41 @@ namespace net.rs64.TexTransTool.Migration
                 if (!continuesMigrate) PostMigration();
             }
         }
+        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Everything v0.7.x to v0.8.x")]
+        private static void MigrateEverythingV4ToV5() { MigrateEverythingV4ToV5(false); }
+        private static void MigrateEverythingV4ToV5(bool continuesMigrate = false)
+        {
+            try
+            {
+                if (!continuesMigrate) PreMigration();
+                var prefabs = GetPrefabs();
+                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                float totalCount = prefabs.Count + scenePaths.Count;
+
+                MigratePrefabsV4ToV5(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Prefabs) ({i} / {totalCount})",
+                    i / totalCount));
+
+                MigrateAllScenesV4ToV5(scenePaths, (name, i) => EditorUtility.DisplayProgressBar(
+                    "Migrating Everything (pass 1)",
+                    $"{name} (Scenes) ({prefabs.Count + i} / {totalCount})",
+                    (prefabs.Count + i) / totalCount));
+
+                MigrationUtility.WriteVersion(5);
+
+            }
+            catch
+            {
+                EditorUtility.DisplayDialog("Error!", "Error in migration process!", "OK");
+                throw;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                if (!continuesMigrate) PostMigration();
+            }
+        }
         private static string[] _openingScenePaths;
 
         private static void PreMigration()
@@ -539,6 +597,14 @@ namespace net.rs64.TexTransTool.Migration
             {
                 Prefab = prefab;
             }
+        }
+        private static void MigratePrefabsV4ToV5(List<GameObject> prefabAssets, Action<string, int> progressCallback)
+        {
+            MigratePrefabsImpl(prefabAssets, progressCallback, MigrationITexTransToolTagV4ToV5);
+        }
+        private static void MigrateAllScenesV4ToV5(List<string> scenePaths, Action<string, int> progressCallback)
+        {
+            MigrateAllScenesImpl(scenePaths, progressCallback, MigrationITexTransToolTagV4ToV5);
         }
         private static void MigratePrefabsV3ToV4(List<GameObject> prefabAssets, Action<string, int> progressCallback)
         {

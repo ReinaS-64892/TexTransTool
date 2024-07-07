@@ -8,6 +8,7 @@ using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Editor.OtherMenuItem;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -21,30 +22,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
             thisSObject.Update();
 
-#pragma warning disable CS0612
-            if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
-            {
-                if (TTTag.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
-                {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(thisTarget);
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
-                {
-                    net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 2 && GUILayout.Button("Migrate DSV2 To DSV3"))
-                {
-                    net.rs64.TexTransTool.Migration.V2.AtlasTextureV2.MigrationAtlasTextureV2ToV3(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 3 && GUILayout.Button("Migrate DSV3 To DSV4"))
-                {
-                    net.rs64.TexTransTool.Migration.V3.AtlasTextureV3.MigrationAtlasTextureV3ToV4(thisTarget);
-                }
-                return;
-            }
-#pragma warning restore CS0612
-
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
             var sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
@@ -53,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
             if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
 
-            if (!OneTimePreviewContext.IsPreviewContains)
+            if (PreviewUtility.IsPreviewContains is false)
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
                 { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
@@ -94,6 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
             var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
             var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
+            var sTextureIndividualFineTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualFineTuning");
 
 
 
@@ -125,6 +103,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
                 EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
+
+                EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".Glc());
+                if (PreviewUtility.IsPreviewContains is false)
+                {
+                    if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".Glc()))
+                    { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
+                }
+
                 EditorGUI.indentLevel -= 1;
             }
 

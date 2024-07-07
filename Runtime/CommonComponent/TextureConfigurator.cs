@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool
         public DownScalingAlgorism DownScalingAlgorism;
 
         public bool OverrideCompression;
-        public CompressionQualityData CompressionSetting;
+        public TextureCompressionData CompressionSetting;
 
 
         internal override void Apply([NotNull] IDomain domain)
