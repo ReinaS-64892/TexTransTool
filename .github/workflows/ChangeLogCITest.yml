@@ -1,0 +1,41 @@
+name: ChangeLog-CI-Test
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        required: true
+
+jobs:
+  Update-TTT:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: update changelog
+        if: ${{ !contains(github.event.inputs.tag,'-') }}
+        uses: stefanzweifel/changelog-updater-action@v1
+        with:
+          latest-version: ${{ github.event.inputs.tag }}
+
+      - name: update changelog-experimental
+        continue-on-error: true
+        if: ${{ !contains(github.event.inputs.tag,'-') }}
+        uses: stefanzweifel/changelog-updater-action@v1
+        with:
+          latest-version: ${{ github.event.inputs.tag }}
+          path-to-changelog: CHANGELOG-EXPERIMENTAL.md
+
+      - name: debug log
+        run: |
+          cat CHANGELOG.md
+          cat CHANGELOG-EXPERIMENTAL.md
+
+

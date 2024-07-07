@@ -1,4 +1,4 @@
-name: CreateReleaseDraftTest
+name: Crate-TexTransTool-NewVersion-And-Draft-Release
 
 on:
   workflow_dispatch:
@@ -8,7 +8,13 @@ on:
         required: true
 
 jobs:
+  Call-Update-Tag:
+    uses: ./.github/workflows/UpdateTTT.yml
+    with:
+      tag: ${{ github.event.inputs.tag }}
+
   Call-Tag2Zip:
+    needs: [Call-Update-Tag]
     uses: ./.github/workflows/Tag2Zip.yml
     with:
       tag: ${{ github.event.inputs.tag }}
