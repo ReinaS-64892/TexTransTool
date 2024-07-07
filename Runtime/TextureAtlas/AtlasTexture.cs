@@ -15,6 +15,7 @@ using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore.MipMap;
+using Unity.Mathematics;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -296,7 +297,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     newMesh.SetUVs(0, movedUV);
                 }
-                if (AtlasSetting.WriteOriginalUV) { newMesh.SetUVs(1, meshData.VertexUV); }
+                if (atlasSetting.WriteOriginalUV) { newMesh.SetUVs(math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7), meshData.VertexUV); }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }

@@ -121,11 +121,14 @@ msgstr "Name of Island sorter, can not editable."
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "WriteOriginalUV"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "Write to any UV the UV when before atlas."
+
+msgid "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel"
+msgstr "OriginalUVWriteTargetChannel"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
 msgstr "AtlasIslandRelocator"
-
-msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
-msgstr "Write to UV1 the UV when before atlas."
 
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
 msgstr "PixelNormalize"

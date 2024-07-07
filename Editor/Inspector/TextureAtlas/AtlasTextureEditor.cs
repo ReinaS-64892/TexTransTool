@@ -65,6 +65,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sPadding = sAtlasSettings.FindPropertyRelative("IslandPadding");
             var sAtlasIslandRelocator = sAtlasSettings.FindPropertyRelative("AtlasIslandRelocator");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
+            var sOriginalUVWriteTargetChannel = sAtlasSettings.FindPropertyRelative("OriginalUVWriteTargetChannel");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
             var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
             var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
@@ -101,6 +102,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
+                if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".Glc()); }
                 EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
