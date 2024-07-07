@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の IslandFineTuning が Null な場合や IslandSelector が Null の場合に例外が発生する問題を修正 (#530)
 - SimpleDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
 
-## [0.7.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.4...v0.7.5) - 2024-06-29
+## [v0.7.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.4...v0.7.5) - 2024-06-29
 
 ### Fixed
 
@@ -40,20 +40,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clip系の合成モードが不足していた問題を修正 (#513)
 - MeshFilter が存在しない MeshRenderer が存在するとき、 AtlasTexture の TargetRoot が指定できず、例外が発生する問題を修正 (#514)
 
-## [0.7.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.3...v0.7.4) - 2024-06-07
+## [v0.7.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.3...v0.7.4) - 2024-06-07
 
 ### Fixed
 
 - AtlasTexture の選択対象に None が含まれていると例外が発生する問題を修正 (#493)
 - AtlasTexture のアトラス化対象に、Texture Offset Tiling が使用されているとその部分が黒くなる問題を修正 (#494)
 
-## [0.7.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.2...v0.7.3) - 2024-05-30
+## [v0.7.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.2...v0.7.3) - 2024-05-30
 
 ### Fixed
 
 - 他ツールがレンダラーを破棄した場合などに、正しく OptimizingPhase が実行できない問題を修正 (#491)
 
-## [0.7.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.2) - 2024-05-25
+## [v0.7.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.2) - 2024-05-25
 
 ### Fixed
 
@@ -61,13 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の実行時に、MipMapを使用するときにエラーが発生する問題を修正 (#487)
 - Default の AtlasShaderSupporter が何らかの問題で存在しない場合に例外が発生する問題を修正 (#488)
 
-## [0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
+## [v0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
 
 ### Fixed
 
 - 同じプロパティ名が複数存在するシェーダーが存在する場合に例外が発生する問題を修正 (#483)
 
-## [0.7.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0) - 2024-05-22
+## [v0.7.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.6...v0.7.0) - 2024-05-22
 
 ### Added
 
@@ -108,19 +108,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [0.6.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...v0.6.6) - 2024-04-16
+## [v0.6.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.5...v0.6.6) - 2024-04-16
 
 ### Fixed
 
 - SimpleDecal の 深度デカールを有効化した場合に例外が発生し正しく処理できない問題を修正 (#441)
 
-## [0.6.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5) - 2024-04-15
+## [v0.6.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.4...v0.6.5) - 2024-04-15
 
 ### Fixed
 
 - エディター起動から一度も、TexTransToolのコンポーネントを表示してない状態で、 NDMFのエラーレポートでエラーが表示されたときに正しくローカライザーがロードされない問題を修正 (#439)
 
-## [0.6.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4) - 2024-04-01
+## [v0.6.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.3...v0.6.4) - 2024-04-01
 
 ### Added
 
@@ -137,26 +137,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 0~1 範囲外のUVを持つメッシュにデカールのリアルタイムプレビューを使用した時真っ黒になる問題を修正 (#430)
 - SimpleDecal のリアルタイムプレビューが不必要にレンダーテクスチャの更新を重複して行っていた問題を修正 (#430)
 
-## [0.6.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.2...v0.6.3) - 2024-03-15
+## [v0.6.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.2...v0.6.3) - 2024-03-15
 
 ### Fixed
 
 - TexTransToolのコンポーネントを削除する処理で、GameObjectも削除されていた問題を修正 (#414)
 
-## [0.6.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...v0.6.2) - 2024-03-13
+## [v0.6.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.1...v0.6.2) - 2024-03-13
 
 ### Fixed
 
 - AtlasTexture サブメッシュを超えて同一頂点を使用されているメッシュを正しく処理できない問題を、そのサブメッシュ間で同一テクスチャーが使用されている場合でかつ、それらサブメッシュのマテリアルがどちらもアトラス化対象の場合に限り正しく動くように修正 (#407)
 
-## [0.6.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.6.1) - 2024-03-12
+## [v0.6.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.6.1) - 2024-03-12
 
 ### Fixed
 
 - Glow系の合成のアルファの計算が正しくないのを修正 (#405)
 - Exclusion の計算式が調整されました (#405)
 
-## [0.6.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.7...v0.6.0) - 2024-03-12
+## [v0.6.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.7...v0.6.0) - 2024-03-12
 
 ### Added
 
@@ -210,13 +210,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NDMFのエラーレポートウィンドウでローカライズのロードのバグで正しく表示されない問題を修正 (#396)
 - マテリアルスロットの数がサブメッシュよりも多いレンダラーが存在している状態で AtlasTexture が実行できない問題を修正 (#398)
 
-## [0.5.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.6...v0.5.7) - 2024-02-27
+## [v0.5.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.6...v0.5.7) - 2024-02-27
 
 ### Fixed
 
 - マイグレーションが必要かどうかの検証が正しく行われない問題を修正 (#378)
 
-## [0.5.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.6) - 2024-02-25
+## [v0.5.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.4...v0.5.6) - 2024-02-25
 
 リリース処理の誤りにより、パッチが一つ上がっており内容は 0.5.5 の物です。
 
@@ -224,7 +224,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - MatCap の二番目を一番目と見間違えて例外が発生し、正常にアトラス化できない問題を修正しました (#374)
 
-## [0.5.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.5.4) - 2024-02-07
+## [v0.5.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.5.4) - 2024-02-07
 
 ### Fixed
 
@@ -233,26 +233,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture のプロパティベイクが値は同じだけどほかにテクスチャーが存在する場合、既定の値のテクスチャーを生成し忘れていた問題の修正 (#355)
 - BlendTypeKey VividLight の色合成を修正 (#356)
 
-## [0.5.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3) - 2024-02-02
+## [v0.5.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.2...v0.5.3) - 2024-02-02
 
 ### Added
 
 - NDMFのエラーレポートに最低限の対応が追加 (#349)
 
-## [0.5.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2) - 2024-01-25
+## [v0.5.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.1...v0.5.2) - 2024-01-25
 
 ### Fixed
 
 - TextureSelector が NullReferenceException を吐き続ける問題を修正 (#342)
 - ColorDodge,ColorBurn (覆い焼カラー、焼きこみカラー) の色合成を修正 (#344)
 
-## [0.5.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1) - 2024-01-20
+## [v0.5.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.0...v0.5.1) - 2024-01-20
 
 ### Fixed
 
 - ブレンドタイプキー SoftLight が一般的な画像編集ソフトに近くなりました (#295)
 
-## [0.5.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0) - 2024-01-18
+## [v0.5.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.5...v0.5.0) - 2024-01-18
 
 ### Added
 
@@ -331,26 +331,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [0.4.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...v0.4.5) - 2024-01-10
+## [v0.4.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.4...v0.4.5) - 2024-01-10
 
 ### Fixed
 
 - Cherry-Pick AtlasTexture でアトラス化した時にテクスチャがずれる問題を修正 (#280)
 - Cherry-Pick 一部の衣装などで AtlasTexture の NFDHPlasFC が正常に並び替えできない問題を修正 (#255)
 
-## [0.4.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...v0.4.4) - 2023-11-03
+## [v0.4.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.3...v0.4.4) - 2023-11-03
 
 ### Fixed
 
 - AtlasTexture の liltoonAtlasSupport のマットキャップマスクの対応漏れ修正 (#210)
 
-## [0.4.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...v0.4.3) - 2023-10-15
+## [v0.4.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.2...v0.4.3) - 2023-10-15
 
 ### Fixed
 
 - ターゲットプロパティの違うデカールをリアルタイムプレビューしたときに起きるバグを修正 (#190)
 
-## [0.4.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.1...v0.4.2) - 2023-10-09
+## [v0.4.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.1...v0.4.2) - 2023-10-09
 
 ### Fixed
 
@@ -359,13 +359,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ネイティブサイズを使用しないことで、二のべき乗の解像度ではない画像になることを修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/9288cba0b0f621c85003601e1d14bf5e35026830)
 - デカール系や AtlasTexture で圧縮されていないテクスチャーを使用するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/0faa9177c0138230cce6c40274024edef5a79610)
 
-## [0.4.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...v0.4.1) - 2023-10-08
+## [v0.4.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.4.0...v0.4.1) - 2023-10-08
 
 ### Fixed
 
 - 複数同時のリアルタイムプレビューができない問題を修正 (#189)
 
-## [0.4.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.6...v0.4.0) - 2023-10-07
+## [v0.4.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.6...v0.4.0) - 2023-10-07
 
 ### Added
 
@@ -417,19 +417,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 名前変更と Deprecated にマーク TexTransGroup => TexTransListGroup (#159)
 
-## [0.3.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.5...v0.3.6) - 2023-09-12
+## [v0.3.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.5...v0.3.6) - 2023-09-12
 
 ### Fixed
 
 - TexTransTool のコンポーネントを一切使わず、TexTransToolGenerates/TempDirectory が生成されていない状態でアップロードできない問題を修正 (#147)
 
-## [0.3.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.4...v0.3.5) - 2023-09-08
+## [v0.3.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.4...v0.3.5) - 2023-09-08
 
 ### Fixed
 
 - TexTrans(Parent)Group または AvatarDomainDefinition の対象にすでにプレビューされている物があるとき、プレビューを実行できないように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/719ee708506530c1c104d49fa05b13776327c291)
 
-## [0.3.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.3...v0.3.4) - 2023-09-07
+## [v0.3.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.3...v0.3.4) - 2023-09-07
 
 ### Fixed
 
@@ -439,7 +439,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal のリアルタイムプレビューが、ほかの SimpleDecal によってされている場合に、警告を出し、中断するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/ccf2ea1feebaaf4bba26f781ba6ac7e47acc0bf7)
 - シーンのリロードやスクリプトのリロードなどでリアルタイムプレビューが継続できなくなったときに自動的にプレビューを中断するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/ccf2ea1feebaaf4bba26f781ba6ac7e47acc0bf7)
 
-## [0.3.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.2...v0.3.3) - 2023-09-07
+## [v0.3.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.2...v0.3.3) - 2023-09-07
 
 ### Added
 
@@ -450,7 +450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Decal などを使用せず AtlasTexture だけ使用した場合に発生するエラーを修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/90f290d0054199ef93425123f5e72a9d83729f4e)
 - Decal や AtlasTexture に、何らかの問題で正しく適応できない場合に警告を出すように修正しました。[コミット](https://github.com/ReinaS-64892/TexTransTool/commit/7e0296d57221d6ad22de85a5d02f6298442ea821)
 
-## [0.3.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.1...v0.3.2) - 2023-09-07
+## [v0.3.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.1...v0.3.2) - 2023-09-07
 
 ### Added
 
@@ -466,13 +466,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 無効化 or EditorOnly なメッシュ(レンダラー)を無視するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/63d8428020e4dc9f134eea90f3d9adb41e595052)
 - UV の存在しないメッシュを無視するように修正 [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/2c9368d2f059597fa35a1e9e6017f0841c1226b5)
 
-## [0.3.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.0...v0.3.1) - 2023-09-05
+## [v0.3.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.3.0...v0.3.1) - 2023-09-05
 
 ### Fixed
 
 - ターゲットアバターのプロパティがなく正常に使用できない問題を修正 (#123)
 
-## [0.3.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.2...v0.3.0) - 2023-09-04
+## [v0.3.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.2...v0.3.0) - 2023-09-04
 
 ### Added
 
@@ -498,19 +498,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 様々なスペルミスの修正 (#99 #102)
 
-## [0.2.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.1...v0.2.2) - 2023-06-23
+## [v0.2.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.1...v0.2.2) - 2023-06-23
 
 ### Fixed
 
 - NextFitDecreasingHeightPlusFloorCeiling の計算の時に浮動小数点誤差により、正常に並び替えができてない問題を修正しました [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/a15bba3ddc785c6fcc197b1005623ac8a1d1c363)
 
-## [0.2.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.0...v0.2.1) - 2023-06-23
+## [v0.2.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.2.0...v0.2.1) - 2023-06-23
 
 ### Fixed
 
 - VPM 対応の際に Path が変わっていて、 ComputeShader のパスが無効になっていたのを修正しました [コミット](https://github.com/ReinaS-64892/TexTransTool/commit/6e687119d47c0f76c09d394e2e30705589250235)
 
-## [0.2.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.1.1...v0.2.0) - 2023-06-23
+## [v0.2.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.1.1...v0.2.0) - 2023-06-23
 
 ### Added
 
@@ -527,7 +527,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AvatarMaterialDomain を AvatarDomainDefinition に、MaterialDomain を AvatarDomain に名前を変更しました (#30)
 
-## [0.1.1](https://github.com/ReinaS-64892/TexTransTool/compare/0.1.0...v0.1.1) - 2023-06-06
+## [v0.1.1](https://github.com/ReinaS-64892/TexTransTool/compare/0.1.0...v0.1.1) - 2023-06-06
 
 ### Fixed
 
@@ -536,7 +536,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - - Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
 -
 
-## [0.1.0](https://github.com/ReinaS-64892/TexTransTool/releases/tag/0.1.0) - 2023-06-02
+## [v0.1.0](https://github.com/ReinaS-64892/TexTransTool/releases/tag/0.1.0) - 2023-06-02
 
 ### Added
 

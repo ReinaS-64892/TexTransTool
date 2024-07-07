@@ -18,13 +18,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
 - LayerFolder に 空の GameObject が含まれると、実行時に例外が発生する問題を修正 (#538)
 
-## [0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
+## [v0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
 
 ### Fixed
 
 - PSDImportedRasterImage がアルファのないレイヤーをロードできない問題を修正 (#484)
 
-## [0.7.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.7.0) - 2024-05-22
+## [v0.7.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.6.0...v0.7.0) - 2024-05-22
 
 ### Added
 
@@ -67,7 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Deprecated
 
-## [0.6.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.6.0) - 2024-03-12
+## [v0.6.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.5.3...v0.6.0) - 2024-03-12
 
 ### Added
 
@@ -99,7 +99,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - グループからプレビューかビルドの場合で UseDepth を使用した SimpleDecal が二つ以上存在し、二つ目以降に実行された SimpleDecal が正しくはられない問題を修正 (#394)
 - いくつかのクリッピングの状態で例外の発生や意図した挙動ではない状態になっていた問題を修正 (#395)
 
-## [0.5.3](https://github.com/ReinaS-64892/TexTransTool/releases/tag/v0.5.3) - 2024-02-02
+## [v0.5.3](https://github.com/ReinaS-64892/TexTransTool/releases/tag/v0.5.3) - 2024-02-02
 
 ### Added
 
