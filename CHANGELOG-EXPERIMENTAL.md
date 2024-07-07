@@ -10,7 +10,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 - AtlasTexture に TextureFineTuning を個別に行う TextureIndividualFineTuning が追加 (#532)
 - TextureIndividualFineTuning の調整用ウィンドウ TextureFineTuningManager が追加 (#532)
 - SingleGradationDecal に SimpleDecal と同じ詳細設定が追加されました (#539)
-- AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#532)
+- AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#540)
 
 ### Changed
 
