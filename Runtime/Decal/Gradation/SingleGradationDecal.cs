@@ -31,6 +31,8 @@ namespace net.rs64.TexTransTool.Decal
         public AbstractIslandSelector IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
+        public float Padding = 5;
+        public bool HighQualityPadding = false;
 
 
         internal override void Apply([NotNull] IDomain domain)
@@ -48,6 +50,8 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.TextureWarp = GradientClamp ? TextureWrap.NotWrap : TextureWrap.Stretch;
             decalContext.NotContainsKeyAutoGenerate = false;
+            decalContext.DecalPadding = Padding;
+            decalContext.HighQualityPadding = HighQualityPadding;
 
 
             var writeable = new Dictionary<Material, RenderTexture>();
