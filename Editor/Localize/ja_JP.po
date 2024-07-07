@@ -121,11 +121,14 @@ msgstr "アイランドを再配置し、並び替えるアルゴリズムの名
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "元のUVを書き込む"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "アトラス化する前のUVを任意のUVチャンネルに書き込む機能"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel"
+msgstr "元のUVを書き込むチャンネル"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
 msgstr "アトラスアイランドリロケーター"
-
-msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
-msgstr "UV1にアトラス化する前のUVを書き込む機能"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
 msgstr "ピクセルノーマライズ"

@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
+        [Range(1,7)]public int OriginalUVWriteTargetChannel = 1;
         public bool PixelNormalize = false;
 
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
