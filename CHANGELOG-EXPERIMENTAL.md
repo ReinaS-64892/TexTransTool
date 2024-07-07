@@ -7,11 +7,16 @@ v0.5.2 以降の実験的機能の変更記録です。
 
 ### Added
 
+- AtlasTexture に TextureFineTuning を個別に行う TextureIndividualFineTuning が追加 (#532)
+- TextureIndividualFineTuning の調整用ウィンドウ TextureFineTuningManager が追加 (#532)
+
 ### Changed
 
 ### Removed
 
 ### Fixed
+
+- SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
 
 ### Deprecated
 
