@@ -1,4 +1,4 @@
-name: update-version
+name: Crate-TexTransTool-NewVersion-And-Draft-Release
 
 on:
   workflow_dispatch:
