@@ -1,4 +1,4 @@
-name: Create-Release-Draft-For-Tag
+name: CreateReleaseDraft
 
 on:
   workflow_call:
@@ -8,19 +8,13 @@ on:
         required: true
 
 jobs:
-  Create-Release-Draft-For-Tag:
+  Create-Release-Draft:
     runs-on: ubuntu-latest
     steps:
     - name: DownloadArtifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: tex-trans-tool-${{ github.event.inputs.tag }}
-
-    - name: Debug
-      run: |
-        pwd
-        ls -alh
-        ls -alh ../
 
     - name: checkout
       uses: actions/checkout@v4
@@ -28,13 +22,6 @@ jobs:
         path: ./TTTRepo
         fetch-tags: true
         ref: ${{ github.event.inputs.tag }}
-
-    - name: Debug
-      run: |
-        pwd
-        ls -alh
-        ls -alh ../
-
 
     - name: CrateRelease
       uses: softprops/action-gh-release@v1
