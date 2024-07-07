@@ -49,13 +49,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
-        internal IEnumerable<AbstractLayer> GetChileLayers()
-        {
-            return transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Reverse();
-        }
-
+        IEnumerable<AbstractLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
         internal override void LookAtCalling(ILookingObject lookingObject)
         {
             base.LookAtCalling(lookingObject);

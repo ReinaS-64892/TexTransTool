@@ -54,7 +54,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return result;
         }
 
-        private IEnumerable<AbstractLayer> GetChileLayers()
+        IEnumerable<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }
+        internal static IEnumerable<AbstractLayer> GetChileLayers(Transform transform)
         {
             return transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())

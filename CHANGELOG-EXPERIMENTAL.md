@@ -17,6 +17,7 @@ v0.5.2 以降の実験的機能の変更記録です。
 ### Fixed
 
 - SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
+- LayerFolder に 空の GameObject が含まれると、実行時に例外が発生する問題を修正 (#538)
 
 ### Deprecated
 
