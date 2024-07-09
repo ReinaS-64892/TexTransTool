@@ -468,8 +468,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
                 var l = propL[propName];
                 var r = propR[propName];
-                if (l.Texture2D == null || r.Texture2D == null) { continue; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { continue; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }
@@ -486,8 +486,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var l = propL[propName];
                 var r = propR[propName];
 
-                if (l.Texture2D == null || r.Texture2D == null) { return false; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { return false; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }

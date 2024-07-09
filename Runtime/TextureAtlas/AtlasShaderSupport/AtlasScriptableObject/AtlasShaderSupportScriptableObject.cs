@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
 {
@@ -24,9 +25,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
                 var constraint = atlasTargetDefine.AtlasDefineConstraints;
                 if (!constraint.Constraints(material)) { continue; }
                 var asTex = new AtlasShaderTexture2D();
-                var tex = material.GetTexture(atlasTargetDefine.TexturePropertyName) as Texture2D;
 
-                asTex.Texture2D = tex;
+                var tex = material.GetTexture(atlasTargetDefine.TexturePropertyName);
+                if (tex != null && tex.dimension != TextureDimension.Tex2D) { tex = null; }
+
+                asTex.Texture = tex;
                 asTex.TextureScale = material.GetTextureScale(atlasTargetDefine.TexturePropertyName);
                 asTex.TextureTranslation = material.GetTextureOffset(atlasTargetDefine.TexturePropertyName);
 
@@ -41,7 +44,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     public class AtlasTargetDefine
     {
         public string TexturePropertyName;
-        [SerializeReference,SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
+        [SerializeReference, SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
 
         public List<string> BakePropertyNames;
     }

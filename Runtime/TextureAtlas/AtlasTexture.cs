@@ -114,7 +114,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 foreach (var islandKV in atlasContext.IslandDict)
                 {
                     var material = atlasContext.MaterialToAtlasShaderTexDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
-                    var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture2D : null;
+                    var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture : null;
                     if (refTex == null) { continue; }
                     foreach (var island in islandKV.Value)
                     {
@@ -316,15 +316,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property)
             {
-                static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture2D atlasTex)
+                static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
                 {
-                    var originSize = texManage.GetOriginalTextureSize(atlasTex);
-                    var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                    rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                    rt.CopyFilWrap(atlasTex);
-                    rt.filterMode = FilterMode.Trilinear;
-                    texManage.WriteOriginalTexture(atlasTex, rt);
-                    return rt;
+                    switch (atlasTex)
+                    {
+                        default:
+                            {
+                                var originSize = atlasTex.width;
+                                var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                                rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                                rt.CopyFilWrap(atlasTex);
+                                rt.filterMode = FilterMode.Trilinear;
+                                Graphics.Blit(atlasTex, rt);
+                                return rt;
+                            }
+                        case Texture2D atlasTex2D:
+                            {
+                                var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                                var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                                rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                                rt.CopyFilWrap(atlasTex);
+                                rt.filterMode = FilterMode.Trilinear;
+                                texManage.WriteOriginalTexture(atlasTex2D, rt);
+                                return rt;
+                            }
+
+                    }
                 }
                 var downScalingAlgorism = DownScalingAlgorism.Average;
                 switch (propertyBakeSetting)
@@ -345,10 +362,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 var dict = new Dictionary<string, RenderTexture>();
                                 foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
                                 {
-                                    if (kv.Any(i => i.Value.Texture2D != null) == false) { continue; }
-                                    var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
+                                    if (kv.Any(i => i.Value.Texture != null) == false) { continue; }
+                                    var atlasTex = kv.First(i => i.Value.Texture != null).Value;
 
-                                    var rt = GetOriginAtUseMip(texManage, atlasTex.Texture2D);
+                                    var rt = GetOriginAtUseMip(texManage, atlasTex.Texture);
 
                                     if (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)
                                     { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
@@ -367,7 +384,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             property = new HashSet<string>(atlasContext.MaterialToAtlasShaderTexDict
                                     .SelectMany(i => i.Value)
                                     .GroupBy(i => i.Key)
-                                    .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture2D != null))
+                                    .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture != null))
                                     .Select(i => i.Key)
                                 );
 
@@ -403,7 +420,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 foreach (var propName in property)
                                 {
                                     atlasTexDict.TryGetValue(propName, out var atlasTex);
-                                    var sTex = atlasTex?.Texture2D != null ? GetOriginAtUseMip(texManage, atlasTex.Texture2D) : null;
+                                    var sTex = atlasTex?.Texture != null ? GetOriginAtUseMip(texManage, atlasTex.Texture) : null;
 
                                     if (sTex != null && (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
 
@@ -715,7 +732,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
-            editableTMat.SetTexture2Ds(atlasTex, forceSetTexture);
+            editableTMat.SetTextures(atlasTex.ToDictionary(i => i.Key, i => i.Value as Texture), forceSetTexture);
             var supporter = shaderSupport.GetAtlasShaderSupporter(editableTMat);
 
             foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }

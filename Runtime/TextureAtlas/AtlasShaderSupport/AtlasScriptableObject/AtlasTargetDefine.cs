@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     public class AtlasShaderTexture2D
     {
         public string PropertyName;
-        public Texture2D Texture2D;
+        public Texture Texture;
 
         public Vector2 TextureScale;
         public Vector2 TextureTranslation;

@@ -48,12 +48,13 @@ namespace net.rs64.TexTransCore.Utils
             }
             return outPut;
         }
-        public static void SetTexture2Ds(this Material targetMat, Dictionary<string, Texture2D> propAndTextures, bool focusSetTexture = false)
+        public static void SetTextures<Tex>(this Material targetMat, Dictionary<string, Tex> propAndTextures, bool focusSetTexture = false)
+        where Tex : Texture
         {
             foreach (var propAndTexture in propAndTextures)
             {
                 if (!targetMat.HasProperty(propAndTexture.Key)) { continue; }
-                if (focusSetTexture || targetMat.GetTexture(propAndTexture.Key) is Texture2D)
+                if (focusSetTexture || targetMat.GetTexture(propAndTexture.Key) is Tex)
                 {
                     targetMat.SetTexture(propAndTexture.Key, propAndTexture.Value);
                 }
