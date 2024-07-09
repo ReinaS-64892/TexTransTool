@@ -31,11 +31,10 @@ namespace net.rs64.TexTransTool.NDMF
 
         NodeExecuteDomain _nodeDomain;
         internal IEnumerable<TexTransPhase> TargetPhase;
-
-        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
+        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx, RenderFilterContext renderFilterContext)
         {
             Profiler.BeginSample("NodeExecuteDomain.ctr");
-            _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx);
+            _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx, renderFilterContext.ObjectRegistry);
             Profiler.EndSample();
             Profiler.BeginSample("apply ttb s");
             foreach (var ttb in flattenTTB)

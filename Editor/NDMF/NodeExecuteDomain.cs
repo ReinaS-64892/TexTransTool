@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using nadena.dev.ndmf;
+using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.rq;
 using nadena.dev.ndmf.rq.unity.editor;
 using net.rs64.TexTransCore;
@@ -28,7 +29,7 @@ namespace net.rs64.TexTransTool.NDMF
         Dictionary<Renderer, Renderer> _proxy2OriginRendererDict;
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
-
+        private IObjectRegistry _objectRegistry;
 
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
@@ -36,13 +37,14 @@ namespace net.rs64.TexTransTool.NDMF
         public bool UsedLookAt { get; private set; } = false;
 
 
-        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext)
+        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext,IObjectRegistry objectRegistry)
         {
             _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
             _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
             _textureManager = new TextureManager(true);
             _textureStacks = new();
             _ctx = computeContext;
+            _objectRegistry = objectRegistry;
         }
 
         public void LookAt(UnityEngine.Object obj)
@@ -95,7 +97,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
         {
-            ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
+            _objectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
         public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
         {
@@ -104,7 +106,7 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (RenderersDomain.GetOrigin(_proxy2OriginRendererDict, lRen) == RenderersDomain.GetOrigin(_proxy2OriginRendererDict, rRen)) { return true; }
             }
-            return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r);
+            return _objectRegistry.GetReference(l) == _objectRegistry.GetReference(r);
         }
 
         public void SetSerializedProperty(UnityEditor.SerializedProperty property, UnityEngine.Object value)

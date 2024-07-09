@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool.NDMF
             return avatarGrouping;
         }
 
-        public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
+        public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context, RenderFilterContext renderFilterContext)
         {
             var sortedBehaviors = group.GetData<SortedList<int, TexTransBehavior>>().Select(i => i.Value).ToArray();
 
@@ -144,7 +144,7 @@ namespace net.rs64.TexTransTool.NDMF
             var timer = System.Diagnostics.Stopwatch.StartNew();
 
             Profiler.BeginSample("node.NodeExecuteAndInit");
-            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
+            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context, renderFilterContext);
             Profiler.EndSample();
 
             timer.Stop();
