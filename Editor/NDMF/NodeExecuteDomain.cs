@@ -37,7 +37,7 @@ namespace net.rs64.TexTransTool.NDMF
         public bool UsedLookAt { get; private set; } = false;
 
 
-        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext,IObjectRegistry objectRegistry)
+        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext, IObjectRegistry objectRegistry)
         {
             _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
             _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
@@ -106,7 +106,7 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (RenderersDomain.GetOrigin(_proxy2OriginRendererDict, lRen) == RenderersDomain.GetOrigin(_proxy2OriginRendererDict, rRen)) { return true; }
             }
-            return _objectRegistry.GetReference(l) == _objectRegistry.GetReference(r);
+            return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
         }
 
         public void SetSerializedProperty(UnityEditor.SerializedProperty property, UnityEngine.Object value)
