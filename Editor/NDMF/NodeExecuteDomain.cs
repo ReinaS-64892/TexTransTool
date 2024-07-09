@@ -106,7 +106,21 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (RenderersDomain.GetOrigin(_proxy2OriginRendererDict, lRen) == RenderersDomain.GetOrigin(_proxy2OriginRendererDict, rRen)) { return true; }
             }
-            return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
+            var lr = GetRefRec(_objectRegistry.GetReference(l));
+            var rr = GetRefRec(_objectRegistry.GetReference(r));
+            var res = lr.Equals(rr);
+            return res;
+
+            ObjectReference GetRefRec(ObjectReference objectReference)
+            {
+                UnityEngine.Object obj = null;
+                while (obj != objectReference.Object)
+                {
+                    objectReference = _objectRegistry.GetReference(objectReference.Object);
+                    obj = objectReference.Object;
+                }
+                return objectReference;
+            }
         }
 
         public void SetSerializedProperty(UnityEditor.SerializedProperty property, UnityEngine.Object value)
