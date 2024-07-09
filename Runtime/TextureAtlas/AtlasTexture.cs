@@ -732,7 +732,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
-            editableTMat.SetTextures(atlasTex.ToDictionary(i => i.Key, i => i.Value as Texture), forceSetTexture);
+            editableTMat.SetTextures(atlasTex, (tex) =>
+            {
+                if (forceSetTexture is false && tex == null) { return false; }
+                if (tex is Texture2D) { return true; }
+                if (tex is RenderTexture rt) { if (TTRt.IsTemp(rt)) { return true; } }
+                return false;
+            });
             var supporter = shaderSupport.GetAtlasShaderSupporter(editableTMat);
 
             foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }

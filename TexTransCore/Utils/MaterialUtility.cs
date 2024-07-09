@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace net.rs64.TexTransCore.Utils
 
                 if (textures.ContainsValue(target))
                 {
-                    var material = Object.Instantiate(mat);
+                    var material = UnityEngine.Object.Instantiate(mat);
 
                     foreach (var kvp in textures)
                     {
@@ -42,19 +43,19 @@ namespace net.rs64.TexTransCore.Utils
                 foreach (var tex in textures) { if (texturePair.ContainsKey(tex.Value as Tex)) { replacedFlag = true; break; } }
                 if (replacedFlag == false) { continue; }
 
-                var material = Object.Instantiate(mat);
+                var material = UnityEngine.Object.Instantiate(mat);
                 foreach (var tex in textures) { if (texturePair.TryGetValue(tex.Value as Tex, out var swapTex)) { material.SetTexture(tex.Key, swapTex); } }
                 outPut.Add(mat, material);
             }
             return outPut;
         }
-        public static void SetTextures<Tex>(this Material targetMat, Dictionary<string, Tex> propAndTextures, bool focusSetTexture = false)
+        public static void SetTextures<Tex>(this Material targetMat, Dictionary<string, Tex> propAndTextures, Func<Texture, bool> setTargetComparer)
         where Tex : Texture
         {
             foreach (var propAndTexture in propAndTextures)
             {
                 if (!targetMat.HasProperty(propAndTexture.Key)) { continue; }
-                if (focusSetTexture || targetMat.GetTexture(propAndTexture.Key) is Tex)
+                if (setTargetComparer(targetMat.GetTexture(propAndTexture.Key)))
                 {
                     targetMat.SetTexture(propAndTexture.Key, propAndTexture.Value);
                 }
