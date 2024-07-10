@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Decal
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
 
             var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
-            var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
+            var gradTex = GradientTempTexture.Get(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
             var filter = new IslandSelectFilter(IslandSelector);
 
@@ -73,28 +73,6 @@ namespace net.rs64.TexTransTool.Decal
             return RendererUtility.GetMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 
-        internal static Texture2D s_GradientTempTexture;
-        internal static Texture2D GradientToTextureWithTemp(Gradient gradient, float alpha)
-        {
-            if (s_GradientTempTexture == null) { s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false); }
-
-
-            using (var colorArray = new NativeArray<Color32>(256, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
-            {
-                var writeSpan = colorArray.AsSpan();
-                for (var i = 0; colorArray.Length > i; i += 1)
-                {
-                    var col = gradient.Evaluate(i / 255f);
-                    col.a *= alpha;
-                    writeSpan[i] = col;
-                }
-
-                s_GradientTempTexture.LoadRawTextureData(colorArray);
-            }
-            s_GradientTempTexture.Apply(true);
-
-            return s_GradientTempTexture;
-        }
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.black;
