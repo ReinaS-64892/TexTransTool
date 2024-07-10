@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TextureIndividualFineTuning の調整用ウィンドウ TextureFineTuningManager が追加 (#532)
 - SingleGradationDecal に SimpleDecal と同じ詳細設定が追加されました (#539)
 - AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#540)
+- 簡易的なグラデーションマップとして UnityGradationMapLayer が追加されました (#545)
 
 ### Changed
 

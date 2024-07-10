@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             HSLAdjustmentShader = Shader.Find(HSL_ADJUSTMENT_SHADER);
             LevelAdjustmentShader = Shader.Find(LEVEL_ADJUSTMENT_SHADER);
             SelectiveColorAdjustment = Shader.Find(SELECTIVE_COLOR_ADJUSTMENT_SHADER);
+            LuminanceMappingShader = Shader.Find(LUMINANCE_MAPPING_SHADER);
         }
 
         public const string HSL_ADJUSTMENT_SHADER = "Hidden/HSLAdjustment";
@@ -20,6 +21,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public const string SELECTIVE_COLOR_ADJUSTMENT_SHADER = "Hidden/SelectiveColorAdjustment";
         public static Shader SelectiveColorAdjustment;
+        public const string LUMINANCE_MAPPING_SHADER = "Hidden/LuminanceMappingShader";
+        public static Shader LuminanceMappingShader;
 
 
     }
