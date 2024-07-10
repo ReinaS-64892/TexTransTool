@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SingleGradationDecal に SimpleDecal と同じ詳細設定が追加されました (#539)
 - AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#540)
 
+### Changed
+
+- SolidColorLayer Color の Alpha を無効化 (#544)
+
 ### Fixed
 
 - SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
