@@ -12,13 +12,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [Range(-1, 1)] public float Lightness;
         public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
-            var mat = new Material(SpecialLayerShaders.HSLAdjustmentShader);
+            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.HSLAdjustmentShader);
             mat.SetFloat("_Hue", Hue);
             mat.SetFloat("_Saturation", Saturation);
             mat.SetFloat("_Lightness", Lightness);
 
             Graphics.Blit(grabSource, writeTarget, mat);
-            UnityEngine.Object.DestroyImmediate(mat);
         }
     }
 }
