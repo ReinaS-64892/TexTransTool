@@ -132,10 +132,22 @@ namespace net.rs64.TexTransTool.Editor
                 rowRoot.style.height = imageSize;
                 _analyzerElementContainer.hierarchy.Add(rowRoot);
 
+                var aspect = (float)usedRecord.MainTexture.height / usedRecord.MainTexture.width;
                 var previewImage = new Image { image = usedRecord.MainTexture };
-                previewImage.style.width = previewImage.style.height = imageSize;
+                previewImage.style.width = imageSize;
+                previewImage.style.height = imageSize * aspect;
+                previewImage.style.marginTop = Length.Auto();
                 previewImage.style.backgroundColor = Color.white;
                 rowRoot.hierarchy.Add(previewImage);
+                var rectScaler = new VisualElement();
+                previewImage.hierarchy.Add(rectScaler);
+
+                rectScaler.style.scale = new StyleScale(new Vector2(1, aspect));
+                rectScaler.style.width = previewImage.style.width;
+                rectScaler.style.height = previewImage.style.width;
+                rectScaler.style.position = Position.Absolute;
+                rectScaler.style.bottom = imageSize * -0.5f ;
+                rectScaler.style.left = 0;
 
                 foreach (var island in usedRecord.Islands)
                 {
@@ -145,12 +157,12 @@ namespace net.rs64.TexTransTool.Editor
                     rect.style.backgroundColor = col;
 
                     rect.style.left = island.Pivot.x * imageSize;
-                    rect.style.bottom = island.Pivot.y * imageSize;
+                    rect.style.bottom = (island.Pivot.y * imageSize) + (imageSize * 0.5f);
 
                     rect.style.width = island.Size.x * imageSize;
                     rect.style.height = island.Size.y * imageSize;
 
-                    previewImage.hierarchy.Add(rect);
+                    rectScaler.hierarchy.Add(rect);
                 }
 
                 var columElement = new VisualElement();
