@@ -55,6 +55,13 @@ namespace net.rs64.TexTransTool.Editor
         {
             _analyzerElementContainer.hierarchy.Clear();
 
+            if (DomainRoot == null)
+            {
+                var label = new Label("please set DomainRoot!");
+                _analyzerElementContainer.hierarchy.Add(label);
+                return;
+            }
+
             var domainRenderers = DomainRoot.GetComponentsInChildren<Renderer>(true);
             domainRenderers = domainRenderers.Where(i => i is SkinnedMeshRenderer || i is MeshRenderer).Where(i => AtlasTexture.AtlasAllowedRenderer(i, IncludeDisableRenderers)).ToArray();
 
