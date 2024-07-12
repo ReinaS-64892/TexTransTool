@@ -102,6 +102,7 @@ namespace net.rs64.TexTransTool.Editor
 
                     for (var i = 0; subMeshCount > i; i += 1)
                     {
+                        if (sharedMaterials.Length <= i) { break; }
                         if (matG.Contains(sharedMaterials[i]) is false) { continue; }
                         record.Islands.AddRange(IslandUtility.UVtoIsland(mesh.GetSubTriangleIndex(i), mesh.GetUVList(0)));
                     }
