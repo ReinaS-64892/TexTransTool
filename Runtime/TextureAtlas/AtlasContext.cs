@@ -81,19 +81,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             Profiler.BeginSample("LookUp MatGroup");
-            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
-            foreach (var matKv in material2AtlasTargets)
-            {
-                var index = materialGroupList.FindIndex(matGroup =>
-                        matGroup.All(m2 =>
-                            supporters[matKv.Key] == supporters[m2.Key]
-                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
-                );
-
-                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
-                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
-            }
-            MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+            MaterialGroup = LookUpMaterialGroup(material2AtlasTargets, supporters, usePropertyBake);
             Profiler.EndSample();
 
 
@@ -352,6 +340,23 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
             }
+        }
+
+        internal static OrderedHashSet<Material>[] LookUpMaterialGroup(Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> material2AtlasTargets, Dictionary<Material, AtlasShaderSupportScriptableObject> supporters, bool usePropertyBake = false)
+        {
+            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
+            foreach (var matKv in material2AtlasTargets)
+            {
+                var index = materialGroupList.FindIndex(matGroup =>
+                        matGroup.All(m2 =>
+                            supporters[matKv.Key] == supporters[m2.Key]
+                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
+                );
+
+                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
+                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
+            }
+            return materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
         }
 
         private Dictionary<Mesh, Mesh> SubVertNormalize(Renderer[] targetRenderers)
