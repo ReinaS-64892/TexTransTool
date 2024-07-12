@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         private VisualElement GenerateTopBar()
         {
             var topBar = new VisualElement();
+            topBar.style.flexShrink = 0;
             topBar.style.flexDirection = FlexDirection.Row;
 
             var targetView = new ObjectField("TuningManageTarget");
