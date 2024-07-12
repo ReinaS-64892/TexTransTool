@@ -21,6 +21,7 @@ namespace net.rs64.TexTransTool.Editor
             var selectedGameObject = Selection.activeGameObject;
             var window = GetWindow<DomainTextureAnalyzer>();
             window.DomainRoot = selectedGameObject;
+            window.Analyzing();
         }
         VisualElement _analyzerElementContainer;
         public void CreateGUI()
@@ -41,6 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             var domainRootField = new PropertyField();
             domainRootField.BindProperty(sDomainRoot);
             domainRootField.style.flexGrow = 1;
+            domainRootField.RegisterValueChangeCallback(i => Analyzing());
             var analyzeButton = new Button(Analyzing);
             analyzeButton.text = "Analyze!";
 
@@ -146,7 +148,7 @@ namespace net.rs64.TexTransTool.Editor
                 rectScaler.style.width = previewImage.style.width;
                 rectScaler.style.height = previewImage.style.width;
                 rectScaler.style.position = Position.Absolute;
-                rectScaler.style.bottom = imageSize * -0.5f ;
+                rectScaler.style.bottom = imageSize * -0.5f;
                 rectScaler.style.left = 0;
 
                 foreach (var island in usedRecord.Islands)
