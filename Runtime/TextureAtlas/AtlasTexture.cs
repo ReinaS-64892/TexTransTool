@@ -57,6 +57,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public List<AtlasMeshAndDist> Meshes;
             public List<Material> AtlasInMaterials;
             public HashSet<Material>[] MaterialID;
+            public Dictionary<string, List<string>> ReferenceCopyDict;
 
             public struct AtlasMeshAndDist
             {
@@ -373,8 +374,60 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TTRt.R(targetRT);
             }
             Profiler.EndSample();
+
+            if (atlasSetting.AutoReferenceCopySetting && propertyBakeSetting == PropertyBakeSetting.NotBake)
+            {
+                var prop = containsProperty.ToArray();
+                var refCopyDict = new Dictionary<string, string>();
+
+                var gtHash = containsProperty.ToDictionary(p => p, p => groupedTextures.Where(i => i.Value.ContainsKey(p)).Select(i => i.Value[p]).ToHashSet());
+
+                for (var i = 0; prop.Length > i; i += 1)
+                    for (var i2 = 0; prop.Length > i2; i2 += 1)
+                    {
+                        if (i == i2) { continue; }
+
+                        var copySource = prop[i];
+                        var copyTarget = prop[i2];
+
+                        var sTexHash = gtHash[copySource];
+                        var tTexHash = gtHash[copyTarget];
+
+                        if (sTexHash.SetEquals(tTexHash)) { refCopyDict.Remove(copySource); }
+
+                        if (sTexHash.IsSupersetOf(tTexHash) is false) { continue; }
+                        refCopyDict[copyTarget] = copySource;
+
+                        // if (refCopyDict.ContainsKey(copySource) is false) { refCopyDict[copySource] = new(); }
+                        // refCopyDict[copySource].Add(copyTarget);
+                    }
+
+
+                var isContinue = true;
+                var values = refCopyDict.Values.ToArray();
+                while (isContinue)
+                {
+                    foreach (var s in values)
+                    {
+                        if (refCopyDict.ContainsKey(s))
+                        {
+                            foreach (var t in refCopyDict.Where(i => i.Value == s).ToArray())
+                            {
+                                refCopyDict[t.Key] = refCopyDict[s];
+                            }
+                            isContinue = true;
+                        }
+                    }
+                    isContinue = false;
+                }
+
+                atlasData.ReferenceCopyDict = refCopyDict.GroupBy(i => i.Value).ToDictionary(i => i.Key, i => i.Select(k => k.Key).ToList());
+            }
+
+            Profiler.BeginSample("ReleaseGroupeTextures");
             foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { TTRt.R(tex.Value); } }
             groupedTextures = null;
+            Profiler.EndSample();
 
             Profiler.BeginSample("TextureMaxSize");
             var texMaxDict = new Dictionary<string, int>();
@@ -419,10 +472,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         Dictionary<string, RenderTexture> ZipDictAndOffset(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
                         {
                             var dict = new Dictionary<string, RenderTexture>();
+                            var rtDict = new Dictionary<(Texture sTex, Vector2 tScale, Vector2 tTiling), RenderTexture>();
                             foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
                             {
                                 if (kv.Any(i => i.Value.Texture2D != null) == false) { continue; }
                                 var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
+
+                                var texHash = (atlasTex.Texture2D, atlasTex.TextureScale, atlasTex.TextureTranslation);
+                                if (rtDict.ContainsKey(texHash)) { dict[kv.Key] = rtDict[texHash]; continue; }
 
                                 var rt = GetOriginAtUseMip(texManage, atlasTex.Texture2D);
 
@@ -430,7 +487,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
 
                                 MipMapUtility.GenerateMips(rt, downScalingAlgorism);
-                                dict[kv.Key] = rt;
+
+                                rtDict[texHash] = dict[kv.Key] = rt;
                             }
                             return dict;
 
@@ -596,6 +654,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuning(atlasData.Textures);
             SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasData.SourceTextureMaxSize);
+            DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasData.ReferenceCopyDict);
             foreach (var fineTuning in AtlasSetting.TextureFineTuning)
             {
                 fineTuning?.AddSetting(atlasTexFineTuningTargets);
@@ -661,6 +720,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.ReplaceMaterials(materialMap);
             }
 
+        }
+
+        internal static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, List<string>> referenceCopyDict)
+        {
+            if (referenceCopyDict != null)
+            {
+                foreach (var fineTuning in referenceCopyDict.Select(i => new ReferenceCopy(new(i.Key), i.Value.Select(i => new PropertyName(i)).ToList())))
+                {
+                    fineTuning.AddSetting(atlasTexFineTuningTargets);
+                }
+            }
         }
 
         internal static void SetSizeDataMaxSize(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, int> sourceTextureMaxSize)

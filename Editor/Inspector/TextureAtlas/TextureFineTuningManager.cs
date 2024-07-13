@@ -88,6 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture.Textures);
             AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, _previewedAtlasTexture.SourceTextureMaxSize);
+            AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.ReferenceCopyDict);
             foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
