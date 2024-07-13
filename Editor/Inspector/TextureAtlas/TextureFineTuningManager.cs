@@ -184,16 +184,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             overrideDescriptionsRoot.style.justifyContent = Justify.SpaceBetween;
             overrideDescriptionsRoot.style.flexGrow = 1;
 
-            Action<bool> descriptionsUpdateEnable = usedRefCp =>
-            {
-                for (var index = 1; overrideDescriptionsRoot.hierarchy.childCount > index; index += 1)
-                {
-                    var child = overrideDescriptionsRoot.hierarchy[index];
-                    child.SetEnabled(!usedRefCp);
-                }
-            };
 
-            var topHorizontal = CreateTopHorizontalElement(descriptionsUpdateEnable);
+            var topHorizontal = CreateTopHorizontalElement();
             overrideDescriptionsRoot.hierarchy.Add(topHorizontal);
 
             var inheritStr = "(inherit)-";
@@ -222,15 +214,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 _textureIndividualTuning.FindPropertyRelative("OverrideColorSpace"), pfLinear,
                 d => inheritStr + "is linier " + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
 
-            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideAsReferenceCopy");
-            var refCopyInherit = _texFineTuningHolder.Find<ReferenceCopyData>()?.CopySource;
-            var finallyEnabledRefCopy = refCpOverrideBoolSProperty.boolValue is false ? (refCopyInherit is not null ? true : false) : true;
-            descriptionsUpdateEnable(finallyEnabledRefCopy);
-
             _viRoot.hierarchy.Add(overrideDescriptionsRoot);
         }
 
-        private VisualElement CreateTopHorizontalElement(Action<bool> enabledReferenceCopy = null)
+        private VisualElement CreateTopHorizontalElement()
         {
             var topHorizontal = new VisualElement();
             topHorizontal.name = "TopHorizontalElement";
@@ -285,7 +272,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 refCpArrow.style.display = finallyEnabledRefCopy ? DisplayStyle.Flex : DisplayStyle.None;
                 refCopyOverrideInput.style.display = nowOverrideUseValue ? DisplayStyle.Flex : DisplayStyle.None;
                 padding.style.display = nowOverrideUseValue ? DisplayStyle.None : DisplayStyle.Flex;
-                enabledReferenceCopy?.Invoke(finallyEnabledRefCopy);
             }
 
             return topHorizontal;
