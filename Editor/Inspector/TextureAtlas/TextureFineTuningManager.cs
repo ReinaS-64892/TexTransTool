@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         [SerializeField] AtlasTexture _fineTuningManageTarget;
         public AtlasTexture FineTuningManageTarget => _fineTuningManageTarget;
 
-        Dictionary<string, Texture2D> _previewedAtlasTexture;
+        AtlasTexture.AtlasData _previewedAtlasTexture;
         internal static void OpenAtlasTexture(AtlasTexture thisTarget)
         {
             var window = GetWindow<TextureFineTuningManager>();
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture, domainRoot);
             if (_previewedAtlasTexture == null) { return null; }
 
-            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.Keys);
+            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.Textures.Keys);
             atlasTextureSerializeObject.Update();
 
             var viRoot = new ScrollView();
@@ -86,7 +86,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             content.hierarchy.Clear();
 
-            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture);
+            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture.Textures);
+            AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, _previewedAtlasTexture.SourceTextureMaxSize);
             foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
@@ -128,7 +129,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             foreach (var propertyName in generateTarget)
             { atlasTexture.AtlasSetting.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
         }
-        private Dictionary<string, Texture2D> GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
+        private AtlasTexture.AtlasData GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
         {
             using (var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TextureManager(true)))
             {
@@ -143,7 +144,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
                 foreach (var mesh in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(mesh.AtlasMesh); }
-                return atlasData.Textures;
+                return atlasData;
             }
         }
     }
