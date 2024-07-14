@@ -75,8 +75,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public struct MatSelector
         {
             public Material Material;
-            [FormerlySerializedAs("AdditionalTextureSizeOffSet")] public float MaterialFineTuningValue;
+            public float MaterialFineTuningValue;
 
+            #region V3SaveData
+            [Obsolete("V3SaveData", true)][SerializeField] internal float AdditionalTextureSizeOffSet;
+            #endregion
             #region V1SaveData
             [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
             #endregion

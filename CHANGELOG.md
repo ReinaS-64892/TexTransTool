@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...HEAD)
 
 ### Added
 
@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SubMesh よりも多くの MaterialSlot がある場合 AtlasTexture のメッシュノーマライズで、誤ったサブメッシュで複製される問題を修正 (#521)
 - AtlasTexture の IslandFineTuning が Null な場合や IslandSelector が Null の場合に例外が発生する問題を修正 (#530)
 - SimpleDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
+
+## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...v0.7.6) - 2024-07-14
+
+### Fixed
+
+- マイグレーション時のメッセージテキストが調整されました (#549)
+- v0.6.x からのマイグレーションで、 AtlasTexture の TextureSizeOffset が正しく SizePriority にマイグレーションされるようになりました (#553)
 
 ## [v0.7.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.4...v0.7.5) - 2024-06-29
 
@@ -531,10 +538,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- AtlasSet
-- - Null のマテリアルが表示される問題の修正 (#17)
-- - Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
--
+- AtlasSet Null のマテリアルが表示される問題の修正 (#17)
+- AtlasSet Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
 
 ## [v0.1.0](https://github.com/ReinaS-64892/TexTransTool/releases/tag/0.1.0) - 2023-06-02
 

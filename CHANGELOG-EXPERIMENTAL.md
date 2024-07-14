@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
 - LayerFolder に 空の GameObject が含まれると、実行時に例外が発生する問題を修正 (#538)
 
+## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.6) - 2024-07-14
+
 ## [v0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
 
 ### Fixed
@@ -122,7 +124,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTT PSD Importer はコンテキストメニューから、ScriptedImporter に変更 (#346)
 - SolidLayer は SolidColorLayer に名称変更 (#346)
 - TextureSelector にモードが追加され、以前までのデータは Relative に変更(#347)
-  - 上記に伴いフィールド名を変更 (#347)
+- 上記に伴い TextureSelector のフィールド名を変更 (#347)
 
 ### Removed
 
