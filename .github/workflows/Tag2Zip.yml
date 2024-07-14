@@ -42,7 +42,7 @@ jobs:
           zip -r tex-trans-tool-${{ github.event.inputs.tag }}.zip ./*
 
       - name: Upload-artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tex-trans-tool-${{ github.event.inputs.tag }}
           path: tex-trans-tool-${{ github.event.inputs.tag }}.zip
