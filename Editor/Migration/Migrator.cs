@@ -179,8 +179,8 @@ namespace net.rs64.TexTransTool.Migration
                 }
                 else if (SaveDataVersionJsonI.SaveDataVersion > TexTransBehavior.TTTDataVersion)
                 {
-                    EditorUtility.DisplayDialog("ダウングレードは保証しません！！！",
-                     "互換性の持たないTexTransToolのダウングレードが検出されました。セーブを行わず終了してください。従わなかった場合セーブデータが消失する可能性があります。",
+                    EditorUtility.DisplayDialog("ダウングレードは保証されていません!!",
+                     "以前インストールされていたTexTransToolの新バージョンと、現在インストールされているTexTransToolの旧バージョンの間に互換性がありません。データを保護するには、保存せずにUnityを終了してください。保存した場合、TexTransTool関連のデータが消失する可能性があります。",
                      "理解しました", "Yes");
                 }
             }
@@ -193,17 +193,17 @@ namespace net.rs64.TexTransTool.Migration
         private static bool DoMigrate()
         {
             InProgress = true;
-            var result = EditorUtility.DisplayDialog("Migrate!",
+            var result = EditorUtility.DisplayDialog("マイグレーションが必要です!",
 #if !UNITY_EDITOR_OSX
-@"互換性の持たないTexTransToolのアップグレードが検出されました!
-正常な動作のためにはすべてのシーンとプレハブをマイグレーションする必要があります。
-プロジェクトが壊れる可能性もあり、長い時間がかかります。
-バックアップをしていない場合はバックアップをしてから移行してください。
-マイグレーションを完了させない場合、Unityを再起動するたびにこのウィンドウが出現します。
+@"以前インストールされていたTexTransToolの旧バージョンと、現在インストールされているTexTransToolの新バージョンの間に互換性がありません!
+TexTransToolを正常に動作させるためには、すべてのシーンとプレハブをこのバージョン用にマイグレーションする必要があります。
+マイグレーションには長い時間がかかり、プロジェクトが壊れる可能性もあります。
+バックアップをしていない場合はバックアップを行ってからマイグレーションしてください。
+マイグレーションしない場合、Unityを再起動するたびにこのウィンドウが表示されます。
 
 "+
 #endif
-                "プロジェクトをマイグレーションしますか？",
+                "プロジェクトをマイグレーションしますか?",
                 "マイグレーションする (Migrate)",
                 "キャンセル (Cancel)");
 
