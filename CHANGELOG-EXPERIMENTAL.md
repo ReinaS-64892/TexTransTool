@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...HEAD)
+
+## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.6) - 2024-07-14
 
 ## [v0.7.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.0...v0.7.1) - 2024-05-23
 
@@ -105,6 +107,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SolidLayer は SolidColorLayer に名称変更 (#346)
 - TextureSelector にモードが追加され、以前までのデータは Relative に変更(#347)
   - 上記に伴いフィールド名を変更 (#347)
+  
 
 ### Removed
 
