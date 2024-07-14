@@ -193,7 +193,7 @@ namespace net.rs64.TexTransTool.Migration
         private static bool DoMigrate()
         {
             InProgress = true;
-            var result = EditorUtility.DisplayDialog("Migrate!",
+            var result = EditorUtility.DisplayDialog("マイグレーションが必要です!",
 #if !UNITY_EDITOR_OSX
 @"以前インストールされていたTexTransToolの旧バージョンと、現在インストールされているTexTransToolの新バージョンの間に互換性がありません!
 TexTransToolを正常に動作させるためには、すべてのシーンとプレハブをこのバージョン用にマイグレーションする必要があります。
