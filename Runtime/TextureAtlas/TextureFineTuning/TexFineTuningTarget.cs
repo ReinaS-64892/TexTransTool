@@ -11,10 +11,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public Texture2D Texture2D;
         Dictionary<Type, ITuningData> _tuningDataDict;
 
+        public Texture2D OriginTexture2D;
+
+
 
         internal TexFineTuningHolder(Texture2D texture2D)
         {
             Texture2D = texture2D;
+            OriginTexture2D = texture2D;
             _tuningDataDict = new();
         }
 

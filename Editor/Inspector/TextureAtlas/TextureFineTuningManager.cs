@@ -88,6 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture.Textures);
             AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, _previewedAtlasTexture.SourceTextureMaxSize);
+            AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.MargeTextureDict);
             AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.ReferenceCopyDict);
             foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
@@ -231,51 +232,83 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             propertyNameLabel.RegisterCallback<ClickEvent>(ce => GUIUtility.systemCopyBuffer = _propertyName);
             topHorizontal.hierarchy.Add(propertyNameLabel);
 
+            var topHorizontalCol = new VisualElement();
+            topHorizontalCol.style.flexDirection = FlexDirection.Column;
+            topHorizontalCol.style.flexGrow = 1;
+            topHorizontal.hierarchy.Add(topHorizontalCol);
+
+
+
             var refCpData = _texFineTuningHolder.Find<ReferenceCopyData>();
             var refCopyInherit = refCpData?.CopySource;
 
-            var refCpArrow = new Label(" <-- ");
-            topHorizontal.hierarchy.Add(refCpArrow);
+            var sCopyReferenceSource = _textureIndividualTuning.FindPropertyRelative("CopyReferenceSource");
+            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideAsReferenceCopy");
 
-            var refCopyLabelStr = refCopyInherit is not null ? "(inherit)" + refCopyInherit : "";
-            var refCopyLabel = new Label(refCopyLabelStr);
-            topHorizontal.hierarchy.Add(refCopyLabel);
+            topHorizontalCol.hierarchy.Add(NewMethod(" <-- ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
 
-            var refCopyOverrideInput = new TextField();
-            refCopyOverrideInput.BindProperty(_textureIndividualTuning.FindPropertyRelative("CopyReferenceSource"));
-            refCopyOverrideInput.style.flexGrow = 1;
-            topHorizontal.hierarchy.Add(refCopyOverrideInput);
+
+            var mergeTexData = _texFineTuningHolder.Find<MergeTextureData>();
+            var mergeTexInherit = mergeTexData?.MargeParent;
+
+            var sMargeRootProperty = _textureIndividualTuning.FindPropertyRelative("MargeRootProperty");
+            var sOverrideAsMargeTexture = _textureIndividualTuning.FindPropertyRelative("OverrideAsMargeTexture");
+
+            topHorizontalCol.hierarchy.Add(NewMethod(" --> <-- ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
+
+
+
+
+
+            return topHorizontal;
+        }
+
+        private VisualElement NewMethod(string arrowLabelStr, string inheritValueStr, string overrideButtonText, SerializedProperty strInputSerializedProperty, SerializedProperty boolOverrideSerializedProperty)
+        {
+            var topHorizontalRefCopRow = new VisualElement();
+            topHorizontalRefCopRow.style.flexDirection = FlexDirection.Row;
+
+            var refCpArrow = new Label(arrowLabelStr);
+            topHorizontalRefCopRow.hierarchy.Add(refCpArrow);
+
+            var inheritLabelStr = inheritValueStr is not null ? "(inherit)" + inheritValueStr : "";
+            var inheritLabel = new Label(inheritLabelStr);
+            topHorizontalRefCopRow.hierarchy.Add(inheritLabel);
+
+            var overrideInput = new TextField();
+            overrideInput.BindProperty(strInputSerializedProperty);
+            overrideInput.style.flexGrow = 1;
+            topHorizontalRefCopRow.hierarchy.Add(overrideInput);
 
             var padding = new VisualElement();
             padding.style.flexGrow = 1;
-            topHorizontal.hierarchy.Add(padding);
+            topHorizontalRefCopRow.hierarchy.Add(padding);
 
 
             var refCopyOverrideButton = new Button();
-            refCopyOverrideButton.text = "ReferenceCopyOverride";
+            refCopyOverrideButton.text = overrideButtonText;
             refCopyOverrideButton.style.width = 160f;
-            topHorizontal.hierarchy.Add(refCopyOverrideButton);
+            topHorizontalRefCopRow.hierarchy.Add(refCopyOverrideButton);
 
-            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideAsReferenceCopy");
             refCopyOverrideButton.clicked += () =>
             {
-                refCpOverrideBoolSProperty.serializedObject.Update();
-                refCpOverrideBoolSProperty.boolValue = !refCpOverrideBoolSProperty.boolValue;
-                refCpOverrideBoolSProperty.serializedObject.ApplyModifiedProperties();
-                UpdateDisplay();
+                boolOverrideSerializedProperty.serializedObject.Update();
+                boolOverrideSerializedProperty.boolValue = !boolOverrideSerializedProperty.boolValue;
+                boolOverrideSerializedProperty.serializedObject.ApplyModifiedProperties();
+                UpdateDisplayRefCp();
             };
-            UpdateDisplay();
-            void UpdateDisplay()
+            UpdateDisplayRefCp();
+            void UpdateDisplayRefCp()
             {
-                var nowOverrideUseValue = refCpOverrideBoolSProperty.boolValue;
-                refCopyLabel.style.display = nowOverrideUseValue is false ? DisplayStyle.Flex : DisplayStyle.None;
-                var finallyEnabledRefCopy = nowOverrideUseValue is false ? (refCopyInherit is not null ? true : false) : true;
+                var nowOverrideUseValue = boolOverrideSerializedProperty.boolValue;
+                inheritLabel.style.display = nowOverrideUseValue is false ? DisplayStyle.Flex : DisplayStyle.None;
+                var finallyEnabledRefCopy = nowOverrideUseValue is false ? (inheritValueStr is not null ? true : false) : true;
                 refCpArrow.style.display = finallyEnabledRefCopy ? DisplayStyle.Flex : DisplayStyle.None;
-                refCopyOverrideInput.style.display = nowOverrideUseValue ? DisplayStyle.Flex : DisplayStyle.None;
+                overrideInput.style.display = nowOverrideUseValue ? DisplayStyle.Flex : DisplayStyle.None;
                 padding.style.display = nowOverrideUseValue ? DisplayStyle.None : DisplayStyle.Flex;
             }
 
-            return topHorizontal;
+            return topHorizontalRefCopRow;
         }
 
         private VisualElement CreateFineTuningDataElement<TuningData>(string dataName, SerializedProperty overrideBoolSProperty, VisualElement overrideInputElement, Func<TuningData, string> getInheritString) where TuningData : class, ITuningData, new()

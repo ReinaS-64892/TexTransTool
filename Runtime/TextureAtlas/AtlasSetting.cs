@@ -28,12 +28,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public AtlasIslandRelocatorObject AtlasIslandRelocator;
         public bool WriteOriginalUV = false;
-        [Range(1,7)]public int OriginalUVWriteTargetChannel = 1;
+        [Range(1, 7)] public int OriginalUVWriteTargetChannel = 1;
         public bool PixelNormalize = false;
 
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning;
         public bool AutoReferenceCopySetting = false;
+        public bool AutoMergeTextureSetting = false;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData
@@ -84,6 +85,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public bool OverrideAsRemove = false;
 
+        public bool OverrideAsMargeTexture = false;
+        public string MargeRootProperty;
     }
 
     #region V2SaveData
