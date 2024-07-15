@@ -34,7 +34,9 @@
                 o.vertex.y *= 2;
                 o.vertex.x -=1;
                 o.vertex.y -=1;
-                o.vertex.z = 1;
+
+                o.vertex.z = Linear01Depth(0);
+
 #if UNITY_UV_STARTS_AT_TOP
                 o.vertex.y = -1 * o.vertex.y;
                 o.normal.y = -1 * o.normal.y;
@@ -93,7 +95,7 @@
                 o.vertex = lerp(input.vertex ,center.vertex ,PaddingValue);
 #endif
 
-                o.vertex.z = 0;
+                o.vertex.z = Linear01Depth(1);
                 o.normal = input.normal;
                 return o;
             }
