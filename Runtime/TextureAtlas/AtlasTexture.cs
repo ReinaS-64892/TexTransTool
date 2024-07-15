@@ -805,7 +805,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             editableTMat.SetTextures(atlasTex, (tex) =>
             {
-                if (forceSetTexture is false && tex == null) { return false; }
+                if (forceSetTexture) { return true; }
+                if (tex == null) { return false; }
                 if (tex is Texture2D) { return true; }
                 if (tex is RenderTexture rt) { if (TTRt.IsTemp(rt)) { return true; } }
                 return false;
