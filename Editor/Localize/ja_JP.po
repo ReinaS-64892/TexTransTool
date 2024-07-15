@@ -163,6 +163,9 @@ msgstr "アトラス化したテクスチャーに様々な設定をするため
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
 msgstr "自動リファレンスコピー設定"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting"
+msgstr "自動マージテクスチャー設定"
+
 msgid "AtlasTexture:prop:TextureIndividualFineTuning"
 msgstr "テクスチャ個別詳細設定"
 

@@ -74,6 +74,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
             var sTextureIndividualFineTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualFineTuning");
             var sAutoReferenceCopySetting = sAtlasSettings.FindPropertyRelative("AutoReferenceCopySetting");
+            var sAutoMergeTextureSetting = sAtlasSettings.FindPropertyRelative("AutoMergeTextureSetting");
 
 
 
@@ -108,6 +109,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
                 if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".Glc()); }
+                EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".Glc());
 
                 EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".Glc());
                 if (PreviewUtility.IsPreviewContains is false)

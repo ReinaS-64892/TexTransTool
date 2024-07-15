@@ -163,6 +163,9 @@ msgstr "Setting for various fine tuning for atlas texture."
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
 msgstr "AutoReferenceCopySetting"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting"
+msgstr "AutoMergeTextureSetting"
+
 msgid "AtlasTexture:prop:TextureIndividualFineTuning"
 msgstr "TextureIndividualFineTuning"
 
