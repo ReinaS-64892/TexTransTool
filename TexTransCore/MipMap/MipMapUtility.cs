@@ -23,12 +23,16 @@ namespace net.rs64.TexTransCore.MipMap
         public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
+            if (SystemInfo.supportsComputeShaders is false
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3
+            ) { algorism = (DownScalingAlgorism)(-1); }
             bool result;
 
             switch (algorism)
             {
                 case DownScalingAlgorism.Average: { result = Average(renderTexture); break; }
-                default: { result = false; break; }
+                default: { renderTexture.GenerateMips(); result = true; break; }
             }
 
             return result;
