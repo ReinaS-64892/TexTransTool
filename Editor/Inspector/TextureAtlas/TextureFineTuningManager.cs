@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         [SerializeField] AtlasTexture _fineTuningManageTarget;
         public AtlasTexture FineTuningManageTarget => _fineTuningManageTarget;
 
-        Dictionary<string, Texture2D> _previewedAtlasTexture;
+        AtlasTexture.AtlasData _previewedAtlasTexture;
         internal static void OpenAtlasTexture(AtlasTexture thisTarget)
         {
             var window = GetWindow<TextureFineTuningManager>();
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture, domainRoot);
             if (_previewedAtlasTexture == null) { return null; }
 
-            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.Keys);
+            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.Textures.Keys);
             atlasTextureSerializeObject.Update();
 
             var viRoot = new ScrollView();
@@ -86,7 +86,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             content.hierarchy.Clear();
 
-            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture);
+            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture.Textures);
+            AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, _previewedAtlasTexture.SourceTextureMaxSize);
+            AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.ReferenceCopyDict);
             foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
@@ -128,7 +130,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             foreach (var propertyName in generateTarget)
             { atlasTexture.AtlasSetting.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
         }
-        private Dictionary<string, Texture2D> GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
+        private AtlasTexture.AtlasData GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
         {
             using (var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TextureManager(true)))
             {
@@ -143,7 +145,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
                 foreach (var mesh in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(mesh.AtlasMesh); }
-                return atlasData.Textures;
+                return atlasData;
             }
         }
     }
@@ -183,16 +185,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             overrideDescriptionsRoot.style.justifyContent = Justify.SpaceBetween;
             overrideDescriptionsRoot.style.flexGrow = 1;
 
-            Action<bool> descriptionsUpdateEnable = usedRefCp =>
-            {
-                for (var index = 1; overrideDescriptionsRoot.hierarchy.childCount > index; index += 1)
-                {
-                    var child = overrideDescriptionsRoot.hierarchy[index];
-                    child.SetEnabled(!usedRefCp);
-                }
-            };
 
-            var topHorizontal = CreateTopHorizontalElement(descriptionsUpdateEnable);
+            var topHorizontal = CreateTopHorizontalElement();
             overrideDescriptionsRoot.hierarchy.Add(topHorizontal);
 
             var inheritStr = "(inherit)-";
@@ -221,15 +215,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 _textureIndividualTuning.FindPropertyRelative("OverrideColorSpace"), pfLinear,
                 d => inheritStr + "is linier " + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
 
-            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideAsReferenceCopy");
-            var refCopyInherit = _texFineTuningHolder.Find<ReferenceCopyData>()?.CopySource;
-            var finallyEnabledRefCopy = refCpOverrideBoolSProperty.boolValue is false ? (refCopyInherit is not null ? true : false) : true;
-            descriptionsUpdateEnable(finallyEnabledRefCopy);
-
             _viRoot.hierarchy.Add(overrideDescriptionsRoot);
         }
 
-        private VisualElement CreateTopHorizontalElement(Action<bool> enabledReferenceCopy = null)
+        private VisualElement CreateTopHorizontalElement()
         {
             var topHorizontal = new VisualElement();
             topHorizontal.name = "TopHorizontalElement";
@@ -284,7 +273,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 refCpArrow.style.display = finallyEnabledRefCopy ? DisplayStyle.Flex : DisplayStyle.None;
                 refCopyOverrideInput.style.display = nowOverrideUseValue ? DisplayStyle.Flex : DisplayStyle.None;
                 padding.style.display = nowOverrideUseValue ? DisplayStyle.None : DisplayStyle.Flex;
-                enabledReferenceCopy?.Invoke(finallyEnabledRefCopy);
             }
 
             return topHorizontal;

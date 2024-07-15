@@ -50,12 +50,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
         #endregion
 
-        internal struct AtlasData
+        internal class AtlasData
         {
             public Dictionary<string, Texture2D> Textures;
+            public Dictionary<string, int> SourceTextureMaxSize;
             public List<AtlasMeshAndDist> Meshes;
             public List<Material> AtlasInMaterials;
             public HashSet<Material>[] MaterialID;
+            public Dictionary<string, List<string>> ReferenceCopyDict;
 
             public struct AtlasMeshAndDist
             {
@@ -311,176 +313,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var compiledAtlasTextures = new Dictionary<string, AsyncTexture2D>();
 
             Profiler.BeginSample("GetGroupedTextures");
-            var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty);
+            var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty, texManage);
             Profiler.EndSample();
-
-            Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property)
-            {
-                static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
-                {
-                    switch (atlasTex)
-                    {
-                        default:
-                            {
-                                var originSize = atlasTex.width;
-                                var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                                rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                                rt.CopyFilWrap(atlasTex);
-                                rt.filterMode = FilterMode.Trilinear;
-                                Graphics.Blit(atlasTex, rt);
-                                return rt;
-                            }
-                        case Texture2D atlasTex2D:
-                            {
-                                var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
-                                var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                                rt.name = $"GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                                rt.CopyFilWrap(atlasTex);
-                                rt.filterMode = FilterMode.Trilinear;
-                                texManage.WriteOriginalTexture(atlasTex2D, rt);
-                                return rt;
-                            }
-
-                    }
-                }
-                var downScalingAlgorism = DownScalingAlgorism.Average;
-                switch (propertyBakeSetting)
-                {
-                    default: { property = null; return null; }
-                    case PropertyBakeSetting.NotBake:
-                        {
-                            var dict = atlasContext.MaterialGroup
-                                .Select(mg => (Array.IndexOf(atlasContext.MaterialGroup, mg), mg.Select(m => atlasContext.MaterialToAtlasShaderTexDict[m])))
-                                .Select(mg => (mg.Item1, ZipDictAndOffset(mg.Item2)))
-                                .ToDictionary(i => i.Item1, i => i.Item2);
-
-                            property = new HashSet<string>(dict.SelectMany(i => i.Value.Keys));
-                            return dict;
-
-                            Dictionary<string, RenderTexture> ZipDictAndOffset(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
-                            {
-                                var dict = new Dictionary<string, RenderTexture>();
-                                foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
-                                {
-                                    if (kv.Any(i => i.Value.Texture != null) == false) { continue; }
-                                    var atlasTex = kv.First(i => i.Value.Texture != null).Value;
-
-                                    var rt = GetOriginAtUseMip(texManage, atlasTex.Texture);
-
-                                    if (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)
-                                    { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
-
-                                    MipMapUtility.GenerateMips(rt, downScalingAlgorism);
-                                    dict[kv.Key] = rt;
-                                }
-                                return dict;
-
-
-                            }
-                        }
-                    case PropertyBakeSetting.Bake:
-                    case PropertyBakeSetting.BakeAllProperty:
-                        {
-                            property = new HashSet<string>(atlasContext.MaterialToAtlasShaderTexDict
-                                    .SelectMany(i => i.Value)
-                                    .GroupBy(i => i.Key)
-                                    .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture != null))
-                                    .Select(i => i.Key)
-                                );
-
-                            var groupDict = new Dictionary<int, Dictionary<string, RenderTexture>>(atlasContext.MaterialGroup.Length);
-                            var tmpMat = new Material(Shader.Find("Unlit/Texture"));
-
-                            var bakePropMaxValue = atlasContext.MaterialToAtlasShaderTexDict.Values.SelectMany(kv => kv)
-                                .SelectMany(i => i.Value.BakeProperties)
-                                .GroupBy(i => i.PropertyName)
-                                .Where(i => i.First() is BakeFloat || i.First() is BakeRange)
-                                .ToDictionary(i => i.Key, i => i.Max(p =>
-                                    {
-                                        if (p is BakeFloat bakeFloat) { return bakeFloat.Float; }
-                                        if (p is BakeRange bakeRange) { return bakeRange.Float; }
-                                        return 0;
-                                    }
-                                )
-                            );//一旦 Float として扱えるものだけの実装にしておく。
-
-
-                            for (var gi = 0; atlasContext.MaterialGroup.Length > gi; gi += 1)
-                            {
-                                var matGroup = atlasContext.MaterialGroup[gi];
-                                var groupMat = matGroup.First();
-
-                                var atlasTexDict = atlasContext.MaterialToAtlasShaderTexDict[groupMat];//テクスチャに関する情報が完全に同じでないと同じグループにならない。だから適当なものでよい。
-                                var shaderSupport = atlasContext.AtlasShaderSupporters[groupMat];
-
-                                tmpMat.shader = shaderSupport.BakeShader;
-
-                                var texDict = groupDict[gi] = new();
-
-                                foreach (var propName in property)
-                                {
-                                    atlasTexDict.TryGetValue(propName, out var atlasTex);
-                                    var sTex = atlasTex?.Texture != null ? GetOriginAtUseMip(texManage, atlasTex.Texture) : null;
-
-                                    if (sTex != null && (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
-
-                                    if (shaderSupport.BakeShader == null)
-                                    {
-                                        if (sTex != null)
-                                        {
-                                            MipMapUtility.GenerateMips(sTex, downScalingAlgorism);
-                                            texDict[propName] = sTex;
-                                        }
-                                        else
-                                        {
-                                            var rt = texDict[propName] = TTRt.G(2);
-                                            rt.name = $"AtlasTexColRT-2x2";
-                                        }
-                                        continue;
-                                    }
-
-                                    var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2, "AtlasEmptyDefaultTexColRT-2x2");
-
-
-                                    if (atlasTex != null)
-                                    {
-                                        foreach (var bakeProp in atlasTex.BakeProperties)
-                                        {
-                                            bakeProp.WriteMaterial(tmpMat);
-
-                                            var bakePropName = bakeProp.PropertyName;
-                                            var maxValPropName = bakePropName + "_MaxValue";
-                                            if (tmpMat.HasProperty(maxValPropName) && bakePropMaxValue.TryGetValue(bakePropName, out var bakeMaxValue))
-                                            {
-                                                tmpMat.SetFloat(maxValPropName, bakeMaxValue);
-                                            }
-                                        }
-                                    }
-
-                                    tmpMat.EnableKeyword("Bake" + propName);
-                                    if (atlasTex == null) { tmpMat.EnableKeyword("Constraint_Invalid"); }
-
-                                    tmpMat.SetTexture(propName, sTex);
-                                    Graphics.Blit(sTex, bakedTex, tmpMat);
-                                    MipMapUtility.GenerateMips(bakedTex, downScalingAlgorism);
-
-                                    texDict[propName] = bakedTex;
-
-                                    if (sTex != null) { TTRt.R(sTex); }
-                                    tmpMat.AllPropertyReset();
-                                    tmpMat.shaderKeywords = Array.Empty<string>();
-
-                                }
-
-
-                            }
-
-                            return groupDict;
-                        }
-                }
-            }
-
-
 
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
@@ -543,8 +377,72 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 TTRt.R(targetRT);
             }
             Profiler.EndSample();
+
+            if (atlasSetting.AutoReferenceCopySetting && propertyBakeSetting == PropertyBakeSetting.NotBake)
+            {
+                var prop = containsProperty.ToArray();
+                var refCopyDict = new Dictionary<string, string>();
+
+                var gtHash = containsProperty.ToDictionary(p => p, p => groupedTextures.Where(i => i.Value.ContainsKey(p)).Select(i => i.Value[p]).ToHashSet());
+
+                for (var i = 0; prop.Length > i; i += 1)
+                    for (var i2 = 0; prop.Length > i2; i2 += 1)
+                    {
+                        if (i == i2) { continue; }
+
+                        var copySource = prop[i];
+                        var copyTarget = prop[i2];
+
+                        var sTexHash = gtHash[copySource];
+                        var tTexHash = gtHash[copyTarget];
+
+                        if (sTexHash.SetEquals(tTexHash)) { refCopyDict.Remove(copySource); }
+
+                        if (sTexHash.IsSupersetOf(tTexHash) is false) { continue; }
+                        refCopyDict[copyTarget] = copySource;
+
+                        // if (refCopyDict.ContainsKey(copySource) is false) { refCopyDict[copySource] = new(); }
+                        // refCopyDict[copySource].Add(copyTarget);
+                    }
+
+
+                var isContinue = true;
+                var values = refCopyDict.Values.ToArray();
+                while (isContinue)
+                {
+                    foreach (var s in values)
+                    {
+                        if (refCopyDict.ContainsKey(s))
+                        {
+                            foreach (var t in refCopyDict.Where(i => i.Value == s).ToArray())
+                            {
+                                refCopyDict[t.Key] = refCopyDict[s];
+                            }
+                            isContinue = true;
+                        }
+                    }
+                    isContinue = false;
+                }
+
+                atlasData.ReferenceCopyDict = refCopyDict.GroupBy(i => i.Value).ToDictionary(i => i.Key, i => i.Select(k => k.Key).ToList());
+            }
+
+            Profiler.BeginSample("ReleaseGroupeTextures");
             foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { TTRt.R(tex.Value); } }
             groupedTextures = null;
+            Profiler.EndSample();
+
+            Profiler.BeginSample("TextureMaxSize");
+            var texMaxDict = new Dictionary<string, int>();
+            foreach (var atlasTexKV in atlasContext.MaterialToAtlasShaderTexDict.SelectMany(x => x.Value))
+            {
+                if (compiledAtlasTextures.ContainsKey(atlasTexKV.Key) is false) { continue; }
+                if (texMaxDict.ContainsKey(atlasTexKV.Key) is false) { texMaxDict[atlasTexKV.Key] = 2; }
+                if (atlasTexKV.Value.Texture == null) { continue; }
+                texMaxDict[atlasTexKV.Key] = math.max(texMaxDict[atlasTexKV.Key], atlasTexKV.Value.Texture.width);
+            }
+            atlasData.SourceTextureMaxSize = texMaxDict;
+            Profiler.EndSample();
 
             Profiler.BeginSample("Async Readback");
             atlasData.Textures = compiledAtlasTextures.ToDictionary(kv => kv.Key, kv => kv.Value.GetTexture2D());
@@ -558,26 +456,176 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        private static Dictionary<Material, float> GetTextureSizeOffset(IEnumerable<Material> targetMaterialSelectors, AtlasSetting atlasSetting)
+        private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
         {
-            float atlasTexPixelCount = atlasSetting.AtlasTextureSize * atlasSetting.AtlasTextureSize;
-            var islandSizeOffset = new Dictionary<Material, float>();
-            foreach (var material in targetMaterialSelectors)
+            var downScalingAlgorism = DownScalingAlgorism.Average;
+            switch (propertyBakeSetting)
             {
-                var tex = material.mainTexture;
-                float textureSizeOffset;
-                if (tex != null)
-                {
-                    textureSizeOffset = tex.width * tex.height / atlasTexPixelCount;
-                }
-                else { textureSizeOffset = (float)0.01f; }
+                default: { property = null; return null; }
+                case PropertyBakeSetting.NotBake:
+                    {
+                        var dict = atlasContext.MaterialGroup
+                            .Select(mg => (Array.IndexOf(atlasContext.MaterialGroup, mg), mg.Select(m => atlasContext.MaterialToAtlasShaderTexDict[m])))
+                            .Select(mg => (mg.Item1, ZipDictAndOffset(mg.Item2)))
+                            .ToDictionary(i => i.Item1, i => i.Item2);
 
-                islandSizeOffset[material] = Mathf.Sqrt(textureSizeOffset);
+                        property = new HashSet<string>(dict.SelectMany(i => i.Value.Keys));
+                        return dict;
+
+                        Dictionary<string, RenderTexture> ZipDictAndOffset(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
+                        {
+                            var dict = new Dictionary<string, RenderTexture>();
+                            foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
+                            {
+                                var rtDict = new Dictionary<(Texture sTex, Vector2 tScale, Vector2 tTiling), RenderTexture>();
+                                if (kv.Any(i => i.Value.Texture != null) == false) { continue; }
+                                var atlasTex = kv.First(i => i.Value.Texture != null).Value;
+                                var texHash = (atlasTex.Texture, atlasTex.TextureScale, atlasTex.TextureTranslation);
+                                if (rtDict.ContainsKey(texHash)) { dict[kv.Key] = rtDict[texHash]; continue; }
+
+                                var rt = GetOriginAtUseMip(texManage, atlasTex.Texture);
+
+                                if (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)
+                                { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
+
+                                MipMapUtility.GenerateMips(rt, downScalingAlgorism);
+
+                                rtDict[texHash] = dict[kv.Key] = rt;
+                            }
+                            return dict;
+
+
+                        }
+                    }
+                case PropertyBakeSetting.Bake:
+                case PropertyBakeSetting.BakeAllProperty:
+                    {
+                        property = new HashSet<string>(atlasContext.MaterialToAtlasShaderTexDict
+                                .SelectMany(i => i.Value)
+                                .GroupBy(i => i.Key)
+                                .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture != null))
+                                .Select(i => i.Key)
+                            );
+
+                        var groupDict = new Dictionary<int, Dictionary<string, RenderTexture>>(atlasContext.MaterialGroup.Length);
+                        var tmpMat = new Material(Shader.Find("Unlit/Texture"));
+
+                        var bakePropMaxValue = atlasContext.MaterialToAtlasShaderTexDict.Values.SelectMany(kv => kv)
+                            .SelectMany(i => i.Value.BakeProperties)
+                            .GroupBy(i => i.PropertyName)
+                            .Where(i => i.First() is BakeFloat || i.First() is BakeRange)
+                            .ToDictionary(i => i.Key, i => i.Max(p =>
+                                {
+                                    if (p is BakeFloat bakeFloat) { return bakeFloat.Float; }
+                                    if (p is BakeRange bakeRange) { return bakeRange.Float; }
+                                    return 0;
+                                }
+                            )
+                        );//一旦 Float として扱えるものだけの実装にしておく。
+
+
+                        for (var gi = 0; atlasContext.MaterialGroup.Length > gi; gi += 1)
+                        {
+                            var matGroup = atlasContext.MaterialGroup[gi];
+                            var groupMat = matGroup.First();
+
+                            var atlasTexDict = atlasContext.MaterialToAtlasShaderTexDict[groupMat];//テクスチャに関する情報が完全に同じでないと同じグループにならない。だから適当なものでよい。
+                            var shaderSupport = atlasContext.AtlasShaderSupporters[groupMat];
+
+                            tmpMat.shader = shaderSupport.BakeShader;
+
+                            var texDict = groupDict[gi] = new();
+
+                            foreach (var propName in property)
+                            {
+                                atlasTexDict.TryGetValue(propName, out var atlasTex);
+                                var sTex = atlasTex?.Texture != null ? GetOriginAtUseMip(texManage, atlasTex.Texture) : null;
+
+                                if (sTex != null && (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
+
+                                if (shaderSupport.BakeShader == null)
+                                {
+                                    if (sTex != null)
+                                    {
+                                        MipMapUtility.GenerateMips(sTex, downScalingAlgorism);
+                                        texDict[propName] = sTex;
+                                    }
+                                    else
+                                    {
+                                        var rt = texDict[propName] = TTRt.G(2);
+                                        rt.name = $"AtlasTexColRT-2x2";
+                                    }
+                                    continue;
+                                }
+
+                                var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2, "AtlasEmptyDefaultTexColRT-2x2");
+
+
+                                if (atlasTex != null)
+                                {
+                                    foreach (var bakeProp in atlasTex.BakeProperties)
+                                    {
+                                        bakeProp.WriteMaterial(tmpMat);
+
+                                        var bakePropName = bakeProp.PropertyName;
+                                        var maxValPropName = bakePropName + "_MaxValue";
+                                        if (tmpMat.HasProperty(maxValPropName) && bakePropMaxValue.TryGetValue(bakePropName, out var bakeMaxValue))
+                                        {
+                                            tmpMat.SetFloat(maxValPropName, bakeMaxValue);
+                                        }
+                                    }
+                                }
+
+                                tmpMat.EnableKeyword("Bake" + propName);
+                                if (atlasTex == null) { tmpMat.EnableKeyword("Constraint_Invalid"); }
+
+                                tmpMat.SetTexture(propName, sTex);
+                                Graphics.Blit(sTex, bakedTex, tmpMat);
+                                MipMapUtility.GenerateMips(bakedTex, downScalingAlgorism);
+
+                                texDict[propName] = bakedTex;
+
+                                if (sTex != null) { TTRt.R(sTex); }
+                                tmpMat.AllPropertyReset();
+                                tmpMat.shaderKeywords = Array.Empty<string>();
+
+                            }
+
+
+                        }
+
+                        return groupDict;
+                    }
             }
-
-            return islandSizeOffset;
         }
 
+        private static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
+        {
+            switch (atlasTex)
+            {
+                default:
+                    {
+                        var originSize = atlasTex.width;
+                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                        rt.CopyFilWrap(atlasTex);
+                        rt.filterMode = FilterMode.Trilinear;
+                        Graphics.Blit(atlasTex, rt);
+                        return rt;
+                    }
+                case Texture2D atlasTex2D:
+                    {
+                        var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                        rt.CopyFilWrap(atlasTex);
+                        rt.filterMode = FilterMode.Trilinear;
+                        texManage.WriteOriginalTexture(atlasTex2D, rt);
+                        return rt;
+                    }
+
+            }
+        }
         private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)
         {
             switch (height)
@@ -623,6 +671,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuning(atlasData.Textures);
+            SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasData.SourceTextureMaxSize);
+            DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasData.ReferenceCopyDict);
             foreach (var fineTuning in AtlasSetting.TextureFineTuning)
             {
                 fineTuning?.AddSetting(atlasTexFineTuningTargets);
@@ -688,6 +738,27 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.ReplaceMaterials(materialMap);
             }
 
+        }
+
+        internal static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, List<string>> referenceCopyDict)
+        {
+            if (referenceCopyDict != null)
+            {
+                foreach (var fineTuning in referenceCopyDict.Select(i => new ReferenceCopy(new(i.Key), i.Value.Select(i => new PropertyName(i)).ToList())))
+                {
+                    fineTuning.AddSetting(atlasTexFineTuningTargets);
+                }
+            }
+        }
+
+        internal static void SetSizeDataMaxSize(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, int> sourceTextureMaxSize)
+        {
+            foreach (var texMax in sourceTextureMaxSize)
+            {
+                if (texMax.Key == "_MainTex") { continue; }
+                var sizeData = atlasTexFineTuningTargets[texMax.Key].Get<SizeData>();
+                sizeData.TextureSize = texMax.Value;
+            }
         }
 
         internal List<Renderer> GetTargetAllowedFilter(IEnumerable<Renderer> domainRenderers) { return domainRenderers.Where(i => AtlasAllowedRenderer(i, AtlasSetting.IncludeDisabledRenderer)).ToList(); }

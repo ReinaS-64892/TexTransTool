@@ -33,6 +33,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning;
+        public bool AutoReferenceCopySetting = false;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
 
         #region V3SaveData
