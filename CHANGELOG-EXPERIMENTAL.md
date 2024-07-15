@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#540)
 - 簡易的なグラデーションマップとして UnityGradationMapLayer が追加されました (#545)
 - テクスチャの使用率をざっくりと調べることができる DomainTextureAnalyzer が追加されました (#546)
+- AtlasTexture に同じテクスチャが割り当てれる場合に ReferenceCopy を自動で設定する AutoReferenceCopySetting が追加されました (#550)
 
 ### Changed
 

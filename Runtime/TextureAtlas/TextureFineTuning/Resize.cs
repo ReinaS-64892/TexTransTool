@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             {
                 var sizeData = texKv.Value.Find<SizeData>();
                 if (sizeData == null) { continue; }
-                if (sizeData.TextureSize == texKv.Value.Texture2D.width) { continue; }
+                if (sizeData.TextureSize >= texKv.Value.Texture2D.width) { continue; }
                 texKv.Value.Texture2D = TextureUtility.ResizeTexture(texKv.Value.Texture2D, new Vector2Int(sizeData.TextureSize, (int)((texKv.Value.Texture2D.height / (float)texKv.Value.Texture2D.width) * sizeData.TextureSize)));
             }
         }
