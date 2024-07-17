@@ -1,6 +1,9 @@
             #include "UnityCG.cginc"
             #include "./Compute/TransMapperHelper.hlsl"
 
+#define DEPTH_MIN Linear01Depth(0.1)
+#define DEPTH_MAX Linear01Depth(0.9)
+
             struct appdata
             {
                 #if NotDepth
@@ -35,7 +38,7 @@
                 o.vertex.x -=1;
                 o.vertex.y -=1;
 
-                o.vertex.z = Linear01Depth(0);
+                o.vertex.z = DEPTH_MIN;
 
 #if UNITY_UV_STARTS_AT_TOP
                 o.vertex.y = -1 * o.vertex.y;
@@ -95,7 +98,7 @@
                 o.vertex = lerp(input.vertex ,center.vertex ,PaddingValue);
 #endif
 
-                o.vertex.z = Linear01Depth(1);
+                o.vertex.z = DEPTH_MAX;
                 o.normal = input.normal;
                 return o;
             }
