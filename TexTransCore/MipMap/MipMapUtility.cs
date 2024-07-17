@@ -20,17 +20,19 @@ namespace net.rs64.TexTransCore.MipMap
         public static ComputeShader MipMapShader;
         const string WTex = "WTex";
         const string RTex = "RTex";
-        const string PixelRatio = "PixelRatio";
-
         public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
+            if (SystemInfo.supportsComputeShaders is false
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3
+            ) { algorism = (DownScalingAlgorism)(-1); }
             bool result;
 
             switch (algorism)
             {
                 case DownScalingAlgorism.Average: { result = Average(renderTexture); break; }
-                default: { result = false; break; }
+                default: { renderTexture.GenerateMips(); result = true; break; }
             }
 
             return result;
@@ -96,27 +98,19 @@ namespace net.rs64.TexTransCore.MipMap
 
         static bool Average(RenderTexture renderTexture)
         {
-            var kernel32ID = MipMapShader.FindKernel("Average32");
-            var kernel1ID = MipMapShader.FindKernel("Average1");
+            var kernelID = MipMapShader.FindKernel("Average");
 
             var width = renderTexture.width;
             var height = renderTexture.height;
 
-            bool useOne = false;
             for (var mipIndex = 0; renderTexture.mipmapCount - 1 > mipIndex; mipIndex += 1)
             {
                 width /= 2;
                 height /= 2;
 
-                if (width < 32 || height < 32) { useOne = true; }
-
-                var kernelID = useOne ? kernel1ID : kernel32ID;
-                var kernelSize = useOne ? 1 : 32;
-
                 MipMapShader.SetTexture(kernelID, RTex, renderTexture, mipIndex);
                 MipMapShader.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
-                MipMapShader.SetInts(PixelRatio, 2, 2);
-                MipMapShader.Dispatch(kernelID, width / kernelSize, height / kernelSize, 1);
+                MipMapShader.Dispatch(kernelID, Mathf.Max(1, width / 32), Mathf.Max(1, height / 32), 1);
             }
 
             return true;
