@@ -1,8 +1,8 @@
             #include "UnityCG.cginc"
             #include "./Compute/TransMapperHelper.hlsl"
 
-#define DEPTH_MIN Linear01Depth(0.1)
-#define DEPTH_MAX Linear01Depth(0.9)
+#define DEPTH_MIN UNITY_NEAR_CLIP_VALUE
+#define DEPTH_MAX 0
 
             struct appdata
             {
@@ -39,6 +39,7 @@
                 o.vertex.y -=1;
 
                 o.vertex.z = DEPTH_MIN;
+                o.vertex.w = 1;
 
 #if UNITY_UV_STARTS_AT_TOP
                 o.vertex.y = -1 * o.vertex.y;
@@ -99,6 +100,7 @@
 #endif
 
                 o.vertex.z = DEPTH_MAX;
+                o.vertex.w = 1;
                 o.normal = input.normal;
                 return o;
             }
@@ -113,7 +115,7 @@
             }
             float2 ReCalUV(in v2f input[3], v2f Target)
             {
-              float4 CrossT = CrossTriangle(input[0].vertex.xyz , input[1].vertex.xyz , input[2].vertex.xyz , Target.vertex.xyz);
+              float4 CrossT = CrossTriangle(float3(input[0].vertex.xy,0) , float3(input[1].vertex.xy,0) , float3(input[2].vertex.xy,0) , float3(Target.vertex.xy,0));
               float2 recalUV = FromBarycentricCoordinateSystem(input[0].uv.xy , input[1].uv.xy , input[2].uv.xy , ToBarycentricCoordinateSystem(CrossT)).xy;
               recalUV = isnan(recalUV) ? Target.uv : recalUV;
               return recalUV;
