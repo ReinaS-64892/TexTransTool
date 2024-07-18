@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.IslandFineTuner;
+using net.rs64.TexTransCore.MipMap;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -30,7 +31,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool WriteOriginalUV = false;
         [Range(1, 7)] public int OriginalUVWriteTargetChannel = 1;
         public bool PixelNormalize = false;
-
+        public Color BackGroundColor = Color.white;
+        public DownScalingAlgorism DownScalingAlgorism = DownScalingAlgorism.Average;
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning;
         public bool AutoReferenceCopySetting = false;

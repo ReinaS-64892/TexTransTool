@@ -106,6 +106,9 @@ msgstr "テクスチャーを強制的にセット"
 msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
 msgstr "アトラス化したテクスチャーをマテリアルに割り当てるとき、マテリアルにテクスチャーが存在しなくても割り当てを行う機能"
 
+msgid "AtlasTexture:prop:BackGroundColor"
+msgstr "背景色"
+
 msgid "AtlasTexture:prop:Padding"
 msgstr "パディング"
 
@@ -159,6 +162,9 @@ msgstr "テクスチャー詳細設定"
 
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "アトラス化したテクスチャーに様々な設定をするための項目"
+
+msgid "AtlasTexture:prop:DownScalingAlgorism"
+msgstr "ダウンスケーリングアルゴリズム"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
 msgstr "自動リファレンスコピー設定"

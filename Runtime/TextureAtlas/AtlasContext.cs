@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public OrderedHashSet<Material>[] MaterialGroup;
         public Dictionary<Material, AtlasShaderSupportScriptableObject> AtlasShaderSupporters;
         public Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> MaterialToAtlasShaderTexDict;
+        public Dictionary<int, Dictionary<string, AtlasShaderTexture2D>> MaterialGroupToAtlasShaderTexDict;
         public AtlasShaderSupportUtils AtlasShaderSupportUtils;
         public HashSet<AtlasSubData> AtlasSubAll;
         public List<AtlasSubData?[]> AtlasSubSets;
@@ -84,6 +85,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             MaterialGroup = LookUpMaterialGroup(material2AtlasTargets, supporters, usePropertyBake);
             Profiler.EndSample();
 
+            MaterialGroupToAtlasShaderTexDict = MaterialGroup
+                .Select(mg => (Array.IndexOf(MaterialGroup, mg), mg.Select(m => material2AtlasTargets[m])))
+                .Select(mg => (mg.Item1, mg.Item2.SelectMany(i => i).GroupBy(i => i.Key)))
+                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture2D != null).Value ?? p.First().Value));
 
             Profiler.BeginSample("Normalize And Bake Mash");
             var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();

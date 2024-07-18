@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool
         public void DestroyDeferred() { _deferDestroyTextureManager?.DestroyDeferred(); }
 
         public void DeferredInheritTextureCompress(Texture2D source, Texture2D target) { _textureCompressManager?.DeferredInheritTextureCompress(source, target); }
-        public void DeferredTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target) { _textureCompressManager?.DeferredTextureCompress(compressFormat, target); }
+        public void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target) { _textureCompressManager?.DeferredTextureCompress(compressFormat, target); }
         public void CompressDeferred() { _textureCompressManager?.CompressDeferred(); }
 
 
@@ -123,10 +123,10 @@ namespace net.rs64.TexTransTool
     }
     internal class TextureCompress : IDeferTextureCompress
     {
-        private protected Dictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> _compressDict = new();
-        public IReadOnlyDictionary<Texture2D, (TextureFormat CompressFormat, int Quality)> CompressDict => _compressDict;
+        private protected Dictionary<Texture2D, ITTTextureFormat> _compressDict = new();
+        public IReadOnlyDictionary<Texture2D, ITTTextureFormat> CompressDict => _compressDict;
 
-        public void DeferredTextureCompress((TextureFormat CompressFormat, int Quality) compressSetting, Texture2D target)
+        public void DeferredTextureCompress(ITTTextureFormat compressSetting, Texture2D target)
         {
             if (_compressDict == null) { return; }
             _compressDict[target] = compressSetting;
@@ -142,7 +142,7 @@ namespace net.rs64.TexTransTool
             }
             else
             {
-                _compressDict[target] = (source.format, 50);
+                _compressDict[target] = GetTTTextureFormat(source);
             }
         }
 
@@ -151,7 +151,8 @@ namespace net.rs64.TexTransTool
             if (_compressDict == null) { return; }
             foreach (var texAndFormat in _compressDict)
             {
-                EditorUtility.CompressTexture(texAndFormat.Key, texAndFormat.Value.CompressFormat, texAndFormat.Value.Quality);
+                var compressFormat = texAndFormat.Value.Get(texAndFormat.Key);
+                EditorUtility.CompressTexture(texAndFormat.Key, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
             foreach (var tex in _compressDict.Keys)
@@ -167,6 +168,38 @@ namespace net.rs64.TexTransTool
                 sStreamingMipmaps.boolValue = true;
 
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        public static ITTTextureFormat GetTTTextureFormat(Texture2D texture2D)
+        {
+            static ITTTextureFormat GetDirect(Texture2D texture2D) { return new DirectFormat(texture2D.format, 50); }
+            if (AssetDatabase.Contains(texture2D) is false) { return GetDirect(texture2D); }
+
+            var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture2D));
+            if (importer is not TextureImporter textureImporter) { return GetDirect(texture2D); }
+
+            return new RefAtImporterFormat(texture2D.format, textureImporter);
+        }
+        class DirectFormat : ITTTextureFormat
+        {
+            public (TextureFormat CompressFormat, int Quality) format;
+            public DirectFormat(TextureFormat compressFormat, int quality) { format = (compressFormat, quality); }
+            public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D) { return format; }
+        }
+
+        internal class RefAtImporterFormat : ITTTextureFormat
+        {
+            public TextureImporter TextureImporter;
+            public TextureFormat TextureFormat;
+            public RefAtImporterFormat(TextureFormat textureFormat, TextureImporter textureImporter)
+            {
+                TextureImporter = textureImporter;
+                TextureFormat = textureFormat;
+            }
+            public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D)
+            {
+                return (TextureFormat, TextureImporter.compressionQuality);
             }
         }
     }
