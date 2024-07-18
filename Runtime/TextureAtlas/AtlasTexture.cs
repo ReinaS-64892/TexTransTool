@@ -17,6 +17,8 @@ using UnityEngine.Profiling;
 using net.rs64.TexTransCore.MipMap;
 using Unity.Mathematics;
 using System.Collections;
+using UnityEngine.Experimental.Rendering;
+using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -60,6 +62,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public HashSet<Material>[] MaterialID;
             public Dictionary<string, List<string>> ReferenceCopyDict;
             public Dictionary<string, List<string>> MargeTextureDict;
+            public Dictionary<string, bool> AlphaContainsDict;
 
             public struct AtlasMeshAndDist
             {
@@ -315,13 +318,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var compiledAtlasTextures = new Dictionary<string, AsyncTexture2D>();
 
             Profiler.BeginSample("GetGroupedTextures");
-            var groupedTextures = GetGroupedTextures(atlasContext, propertyBakeSetting, out var containsProperty, texManage);
+            var groupedTextures = GetGroupedTextures(atlasSetting, atlasContext, propertyBakeSetting, out var containsProperty, texManage);
             Profiler.EndSample();
 
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true);
+                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
+                TextureBlend.ColorBlit(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)
@@ -371,6 +375,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     TTRt.R(targetRT);
                     targetRT = heightClampRt;
                 }
+                MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorism);
 
                 Profiler.BeginSample("Readback");
                 compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
@@ -501,30 +506,26 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
+        private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
         {
-            var downScalingAlgorism = DownScalingAlgorism.Average;
+            var downScalingAlgorism = atlasSetting.DownScalingAlgorism;
             switch (propertyBakeSetting)
             {
                 default: { property = null; return null; }
                 case PropertyBakeSetting.NotBake:
                     {
-                        var dict = atlasContext.MaterialGroup
-                            .Select(mg => (Array.IndexOf(atlasContext.MaterialGroup, mg), mg.Select(m => atlasContext.MaterialToAtlasShaderTexDict[m])))
-                            .Select(mg => (mg.Item1, ZipDictAndOffset(mg.Item2)))
-                            .ToDictionary(i => i.Item1, i => i.Item2);
-
+                        var dict = atlasContext.MaterialGroupToAtlasShaderTexDict.ToDictionary(i => i.Key, i => ZipDictAndOffset(i.Value));
                         property = new HashSet<string>(dict.SelectMany(i => i.Value.Keys));
                         return dict;
 
-                        Dictionary<string, RenderTexture> ZipDictAndOffset(IEnumerable<Dictionary<string, AtlasShaderTexture2D>> keyValuePairs)
+                        Dictionary<string, RenderTexture> ZipDictAndOffset(Dictionary<string, AtlasShaderTexture2D> keyValuePairs)
                         {
                             var dict = new Dictionary<string, RenderTexture>();
                             var rtDict = new Dictionary<(Texture sTex, Vector2 tScale, Vector2 tTiling), RenderTexture>();
-                            foreach (var kv in keyValuePairs.SelectMany(i => i).GroupBy(i => i.Key))
+                            foreach (var kv in keyValuePairs)
                             {
-                                if (kv.Any(i => i.Value.Texture2D != null) == false) { continue; }
-                                var atlasTex = kv.First(i => i.Value.Texture2D != null).Value;
+                                if (kv.Value.Texture2D == null) { continue; }
+                                var atlasTex = kv.Value;
 
                                 var texHash = (atlasTex.Texture2D, atlasTex.TextureScale, atlasTex.TextureTranslation);
                                 if (rtDict.ContainsKey(texHash)) { dict[kv.Key] = rtDict[texHash]; continue; }
@@ -734,8 +735,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var compressSetting = atlasTexFTData.Value.Find<TextureCompressionData>();
                 if (compressSetting == null) { continue; }
-                var compressSettingTuple = (CompressionQualityApplicant.GetTextureFormat(compressSetting), (int)compressSetting.CompressionQuality);
-                domain.GetTextureManager().DeferredTextureCompress(compressSettingTuple, atlasTexFTData.Value.Texture2D);
+                domain.GetTextureManager().DeferredTextureCompress(compressSetting, atlasTexFTData.Value.Texture2D);
             }
 
 

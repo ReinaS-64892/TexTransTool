@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool
             var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values)
             .FirstOrDefault(i => domain.OriginEqual(i, target));
 
-            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return;}
+            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return; }
 
             domain.LookAt(targetTex2D);
 
@@ -86,7 +86,7 @@ namespace net.rs64.TexTransTool
             newTexture2D.CopyFilWrap(targetTex2D);
             domain.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(materials, targetTex2D, newTexture2D));
 
-            if (OverrideCompression) { textureManager.DeferredTextureCompress((CompressionQualityApplicant.GetTextureFormat(CompressionSetting), CompressionSetting.CompressionQuality), newTexture2D); }
+            if (OverrideCompression) { textureManager.DeferredTextureCompress(CompressionSetting, newTexture2D); }
             else { textureManager.DeferredInheritTextureCompress(targetTex2D, newTexture2D); }
 
         }
