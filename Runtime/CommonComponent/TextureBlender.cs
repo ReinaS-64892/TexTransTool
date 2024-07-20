@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
-        internal override bool IsPossibleApply => TargetTexture.RendererAsPath != null && BlendTexture != null;
+        internal override bool IsPossibleApply => TargetTexture.GetTexture() != null && BlendTexture != null;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
