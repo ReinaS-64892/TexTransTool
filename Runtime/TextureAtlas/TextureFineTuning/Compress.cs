@@ -8,9 +8,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Compress : ITextureFineTuning
     {
-        public FormatQuality FormatQualityValue = FormatQuality.High;
+        public FormatQuality FormatQualityValue = FormatQuality.Normal;
         public bool UseOverride = false;
-        public TextureFormat OverrideTextureFormat = TextureFormat.DXT5;
+        public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
         [Range(0, 100)] public int CompressionQuality = 50;
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
