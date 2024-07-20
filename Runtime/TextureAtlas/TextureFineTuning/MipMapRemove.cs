@@ -12,6 +12,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;
 
+        public bool IsRemove = true;
+
         public MipMapRemove() { }
         [Obsolete("V4SaveData", true)]
         public MipMapRemove(PropertyName propertyNames, PropertySelect select)
@@ -31,7 +33,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
-                target.Value.Get<MipMapData>().UseMipMap = false;
+                target.Value.Get<MipMapData>().UseMipMap = IsRemove is false;
             }
 
         }
