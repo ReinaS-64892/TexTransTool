@@ -52,6 +52,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
             foreach (var ftMarge in mergeDict)
             {
+                if (texFineTuningTargets.ContainsKey(ftMarge.Key) is false) { continue; }
                 var parentFTHolder = texFineTuningTargets[ftMarge.Key];
 
                 using (var taxNa = new NativeArray<Color32>(parentFTHolder.OriginTexture2D.GetPixelData<Color32>(0), Allocator.Temp))
