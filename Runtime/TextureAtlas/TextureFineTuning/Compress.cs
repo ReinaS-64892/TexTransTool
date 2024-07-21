@@ -67,8 +67,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
 
-        public bool UseOverride;
-        public TextureFormat OverrideTextureFormat;
+        public bool UseOverride = false;
+        public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
 
         [Range(0, 100)] public int CompressionQuality = 50;
 

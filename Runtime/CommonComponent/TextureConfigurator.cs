@@ -22,13 +22,13 @@ namespace net.rs64.TexTransTool
 
         public TextureSelector TargetTexture;
 
-        public bool OverrideTextureSetting;
-        [PowerOfTwo] public int TextureSize;
-        public bool MipMap;
-        public DownScalingAlgorism DownScalingAlgorism;
+        public bool OverrideTextureSetting = false;
+        [PowerOfTwo] public int TextureSize = 2048;
+        public bool MipMap = true;
+        public DownScalingAlgorism DownScalingAlgorism = DownScalingAlgorism.Average;
 
-        public bool OverrideCompression;
-        public TextureCompressionData CompressionSetting;
+        public bool OverrideCompression = false;
+        public TextureCompressionData CompressionSetting = new();
 
 
         internal override void Apply([NotNull] IDomain domain)
