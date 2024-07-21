@@ -3,6 +3,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using System.Collections.Generic;
 using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransTool.Editor.OtherMenuItem;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -16,14 +17,18 @@ namespace net.rs64.TexTransTool.Editor.Decal
             TextureTransformerEditor.DrawerWarning(target.GetType().Name);
 
             var sTargetMaterials = serializedObject.FindProperty("TargetMaterials");
-            foreach (var mat2mat in EnumPair(_materialSelectionCandidates))
+            if (_materialSelectionCandidates is not null)
             {
-                var rect = EditorGUILayout.GetControlRect();
-                rect.width *= 0.5f;
-                DrawAtMaterial(sTargetMaterials, mat2mat.Item1, rect);
-                rect.x += rect.width;
-                if (mat2mat.Item2 != null) { DrawAtMaterial(sTargetMaterials, mat2mat.Item2, rect); }
+                foreach (var mat2mat in EnumPair(_materialSelectionCandidates))
+                {
+                    var rect = EditorGUILayout.GetControlRect();
+                    rect.width *= 0.5f;
+                    DrawAtMaterial(sTargetMaterials, mat2mat.Item1, rect);
+                    rect.x += rect.width;
+                    if (mat2mat.Item2 != null) { DrawAtMaterial(sTargetMaterials, mat2mat.Item2, rect); }
+                }
             }
+            else { FinedMaterialSelectionCandidates(); }
 
             EditorGUILayout.PropertyField(sTargetMaterials, "SingleGradationDecal:prop:SelectedMaterialView".Glc());
 
@@ -120,14 +125,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
         }
 
 
-        private void OnEnable() { FinedMaterialSelectionCandidates(); }
-
         List<Material> _materialSelectionCandidates;
         void FinedMaterialSelectionCandidates()
         {
+            _materialSelectionCandidates = null;
+            if (PreviewUtility.IsPreviewContains) { return; }
+
             var ep = target as SingleGradationDecal;
             var marker = DomainMarkerFinder.FindMarker(ep.gameObject);
             if (marker == null) { return; }
+
             _materialSelectionCandidates = RendererUtility.GetFilteredMaterials(marker.GetComponentsInChildren<Renderer>(true), _materialSelectionCandidates);
         }
     }

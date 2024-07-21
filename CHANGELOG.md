@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...HEAD)
 
+### Fixed
+
+- SingleGradationDecal のマテリアル選択候補の表示に Missing や Clone のマテリアルが表示される問題を修正 (#563)
+
 ## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...v0.7.6) - 2024-07-14
 
 ### Fixed
