@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の _MainTex 以外のプロパティで アトラス化対象だった場合、アトラス化後のサイズが自動的にそのプロパティのテクスチャの最大サイズが割り当てられるようになりました (#550)
 - AtlasTexture に BackGroundColor が追加され、初期設定で白色に背景色が設定されるようになります (#558)
 - AtlasTexture TextureFineTuning MipMapRemove に MipMap を削除しないように上書きすることを可能にするための IsRemove プロパティを追加 (#561)
+- AtlasTexture の選択候補の表示が、マテリアルのグループ化された状態で表示されるようになりました (#564)
 
 ### Changed
 
