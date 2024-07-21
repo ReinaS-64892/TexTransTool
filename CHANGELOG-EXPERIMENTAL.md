@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - SolidColorLayer Color の Alpha を無効化 (#544)
 - TextureConfigurator の圧縮設定のオーバーライドでフォーマットクオリティで決定されるフォーマットがアルファの使用有無を加味したものになるようになりました (#558)
+- TextureConfigurator の初期設定を変更 (#562)
 
 ### Fixed
 
