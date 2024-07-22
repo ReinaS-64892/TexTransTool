@@ -505,7 +505,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public void Dispose()
         {
             foreach (var md in MeshDataDict) { md.Value.Dispose(); }
+            MeshDataDict = null;
+            foreach (var md in NormalizeMeshes) { UnityEngine.Object.DestroyImmediate(md.Value); }
+            NormalizeMeshes = null;
             foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }
+            _bakedMesh = null;
         }
 
 

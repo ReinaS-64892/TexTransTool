@@ -57,22 +57,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             public Dictionary<string, Texture2D> Textures;
             public Dictionary<string, int> SourceTextureMaxSize;
-            public List<AtlasMeshAndDist> Meshes;
+            public List<AtlasMeshHolder> Meshes;
             public List<Material> AtlasInMaterials;
             public HashSet<Material>[] MaterialID;
             public Dictionary<string, List<string>> ReferenceCopyDict;
             public Dictionary<string, List<string>> MargeTextureDict;
             public Dictionary<string, bool> AlphaContainsDict;
 
-            public struct AtlasMeshAndDist
+            public struct AtlasMeshHolder
             {
                 public Mesh DistMesh;
+                public Mesh NormalizedMesh;
                 public Mesh AtlasMesh;
                 public int[] MatIDs;
 
-                public AtlasMeshAndDist(Mesh distMesh, Mesh atlasMesh, int[] mats)
+                public AtlasMeshHolder(Mesh distMesh, Mesh normalizedMesh, Mesh atlasMesh, int[] mats)
                 {
                     DistMesh = distMesh;
+                    NormalizedMesh = normalizedMesh;
                     AtlasMesh = atlasMesh;
                     MatIDs = mats;
                 }
@@ -259,7 +261,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //新しいUVを持つMeshを生成するフェーズ
             Profiler.BeginSample("MeshCompile");
-            var compiledMeshes = new List<AtlasData.AtlasMeshAndDist>();
+            var compiledMeshes = new List<AtlasData.AtlasMeshHolder>();
             var normMeshes = atlasContext.Meshes.Select(m => atlasContext.NormalizeMeshes[m]).ToArray();
             var subSetMovedUV = new NativeArray<Vector2>[atlasContext.AtlasSubSets.Count];
             var scale = atlasSetting.AtlasTextureSize / atlasTextureHeightSize;
@@ -309,7 +311,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 }
                 if (atlasSetting.WriteOriginalUV) { newMesh.SetUVs(math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7), meshData.VertexUV); }
 
-                compiledMeshes.Add(new AtlasData.AtlasMeshAndDist(distMesh, newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
+                compiledMeshes.Add(new AtlasData.AtlasMeshHolder(distMesh, UnityEngine.Object.Instantiate(nmMesh), newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }
             atlasData.Meshes = compiledMeshes;
             Profiler.EndSample();
@@ -370,7 +372,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
                 {
                     var heightClampRt = TTRt.G(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
-                    heightClampRt.name = $"heightClamp-TempRt-{heightClampRt.width}x{heightClampRt.height}";
+                    heightClampRt.name = $"{targetRT.name}-heightClamp-TempRt-{heightClampRt.width}x{heightClampRt.height}";
                     Graphics.CopyTexture(targetRT, 0, 0, 0, 0, heightClampRt.width, heightClampRt.height, heightClampRt, 0, 0, 0, 0);
                     TTRt.R(targetRT);
                     targetRT = heightClampRt;
@@ -692,10 +694,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var mesh = renderer.GetMesh();
                 var matIDs = renderer.sharedMaterials.Select(i => Array.FindIndex(atlasData.MaterialID, mh => mh.Contains(i)));
-                var atlasMeshAndDist = atlasData.Meshes.FindAll(I => I.DistMesh == mesh).Find(I => I.MatIDs.SequenceEqual(matIDs));
-                if (atlasMeshAndDist.AtlasMesh == null) { continue; }
+                var atlasMeshHolder = atlasData.Meshes.FindAll(I => I.DistMesh == mesh).Find(I => I.MatIDs.SequenceEqual(matIDs));
+                if (atlasMeshHolder.AtlasMesh == null) { continue; }
 
-                var atlasMesh = atlasMeshAndDist.AtlasMesh;
+                try
+                {
+                    var reMappingCallTargets = renderer.GetComponents<IAtlasReMappingReceiver>();
+                    foreach (var target in reMappingCallTargets.Where(i => i != null)) { target.ReMappingReceive(atlasMeshHolder.NormalizedMesh, atlasMeshHolder.AtlasMesh); }
+                }
+                catch (Exception e) { TTTRuntimeLog.Exception(e); }
+
+                var atlasMesh = atlasMeshHolder.AtlasMesh;
                 domain.SetMesh(renderer, atlasMesh);
                 domain.TransferAsset(atlasMesh);
             }
@@ -770,6 +779,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.ReplaceMaterials(materialMap);
             }
 
+            foreach (var atlasMeshHolder in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(atlasMeshHolder.NormalizedMesh); }
         }
 
         internal static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, List<string>> referenceCopyDict)
