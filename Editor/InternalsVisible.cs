@@ -6,6 +6,7 @@
 [assembly: InternalsVisibleTo("net.ra64.tex-trans-tool.test-code")]
 
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf")]
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf.aao-support")]
 
 [assembly: InternalsVisibleTo("net.rs64.multi-layer-image-parser")]
 

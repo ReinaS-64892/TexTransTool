@@ -1,8 +1,6 @@
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.NDMF;
-using net.rs64.TexTransTool.Build;
 using UnityEngine;
-using System.Collections.Generic;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -22,6 +20,17 @@ namespace net.rs64.TexTransTool.NDMF
 
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
+
+#if AAO_1_7_8
+            .Run("Add AAORemoveMeshByMaskReMappingTransmit", ctx =>
+            {
+                foreach (var component in ctx.AvatarRootObject.GetComponentsInChildren(AAORemoveMeshByMaskReMappingTransmit.TargetType, true))
+                {
+                    if (component == null) { continue; }
+                    component.gameObject.AddComponent<AAORemoveMeshByMaskReMappingTransmit>();
+                }
+            }).Then
+#endif
 
             .Run(BeforeUVModificationPass.Instance).Then
 

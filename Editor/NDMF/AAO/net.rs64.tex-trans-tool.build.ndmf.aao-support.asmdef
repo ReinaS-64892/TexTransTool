@@ -1,36 +1,23 @@
 {
-    "name": "net.rs64.tex-trans-tool.ndmf",
+    "name": "net.rs64.tex-trans-tool.ndmf.aao-support",
     "rootNamespace": "",
     "references": [
         "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.tex-trans-tool.editor",
         "nadena.dev.ndmf",
-        "nadena.dev.ndmf.runtime",
-        "net.rs64.tex-trans-tool.ndmf.aao-support"
+        "nadena.dev.ndmf.runtime"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "CONTAINS_NDMF"
+        "AAO_1_7_8"
     ],
     "versionDefines": [
-        {
-            "name": "nadena.dev.ndmf",
-            "expression": "1.3.0",
-            "define": "CONTAINS_NDMF"
-        },
-        {
-            "name": "nadena.dev.ndmf",
-            "expression": "1.5.0-beta.1",
-            "define": "NDMF_1_5_x"
-        },
         {
             "name": "com.anatawa12.avatar-optimizer",
             "expression": "[1.7.8]",
