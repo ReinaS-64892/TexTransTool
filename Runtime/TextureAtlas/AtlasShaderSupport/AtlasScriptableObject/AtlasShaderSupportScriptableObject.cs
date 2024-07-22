@@ -36,12 +36,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
             }
             return atlasTex;
         }
+
+        public bool IsConstraintValid(Material material, string propertyName)
+        {
+            var define = AtlasTargetDefines.Find(i => i.TexturePropertyName == propertyName);
+            if (define is null) { return false; }
+
+            return define.AtlasDefineConstraints.Constraints(material);
+        }
     }
     [Serializable]
     public class AtlasTargetDefine
     {
         public string TexturePropertyName;
-        [SerializeReference,SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
+        [SerializeReference, SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
 
         public List<string> BakePropertyNames;
     }
