@@ -841,10 +841,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         private static Material GenerateAtlasMat(Material targetMat, Dictionary<string, Texture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
         {
+            var supporter = shaderSupport.GetAtlasShaderSupporter(targetMat);
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
 
-            editableTMat.SetTexture2Ds(atlasTex, forceSetTexture);
-            var supporter = shaderSupport.GetAtlasShaderSupporter(editableTMat);
+            foreach (var texKV in atlasTex)
+            {
+                if (supporter.IsConstraintValid(targetMat, texKV.Key) is false) { continue; }
+                var tex2D = editableTMat.GetTexture(texKV.Key) as Texture2D;
+
+                if (forceSetTexture is false && tex2D == null) { continue; }
+                editableTMat.SetTexture(texKV.Key, texKV.Value);
+            }
 
             foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }
 
