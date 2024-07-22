@@ -24,10 +24,10 @@ namespace net.rs64.TexTransTool.NDMF
 #if AAO_1_7_8
             .Run("Add AAORemoveMeshByMaskReMappingTransmit", ctx =>
             {
-                foreach (var component in ctx.AvatarRootObject.GetComponentsInChildren(AAORemoveMeshByMaskReMappingTransmit.TargetType, true))
+                foreach (var component in ctx.AvatarRootObject.GetComponentsInChildren(TransmitReMappingToAAORemoveMeshByMask.TargetType, true))
                 {
                     if (component == null) { continue; }
-                    component.gameObject.AddComponent<AAORemoveMeshByMaskReMappingTransmit>();
+                    component.gameObject.AddComponent<TransmitReMappingToAAORemoveMeshByMask>();
                 }
             }).Then
 #endif

@@ -14,7 +14,8 @@ using System.Linq;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class AAORemoveMeshByMaskReMappingTransmit : MonoBehaviour, ITexTransToolTag, IAtlasReMappingReceiver
+    [AddComponentMenu("")]
+    internal class TransmitReMappingToAAORemoveMeshByMask : MonoBehaviour, ITexTransToolTag, IAtlasReMappingReceiver
     {
         [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
