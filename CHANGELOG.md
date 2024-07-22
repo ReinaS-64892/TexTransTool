@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の IslandFineTuning が Null な場合や IslandSelector が Null の場合に例外が発生する問題を修正 (#530)
 - SimpleDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
 - AtlasTexture の TextureFineTuning Resize が AtlasTextureSize よりも大きい解像度に変更できていた問題を修正 (#550)
+- AtlasTexture でアトラス化されたテクスチャが他UVを参照していたり無効だった場合に割り当てないようになりました (#565)
 
 ## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...v0.7.6) - 2024-07-14
 
