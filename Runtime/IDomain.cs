@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool
     public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
+        void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
     public interface IDeferredDestroyTexture

@@ -30,6 +30,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             TextureSelector.LookAtCalling(domain);
             domain.LookAt(this);
+            domain.LookAtChildeComponents<AbstractLayer>(gameObject);
             foreach (var cl in GetChileLayers()) { cl.LookAtCalling(domain); }
 
             var replaceTarget = TextureSelector.GetTexture();
