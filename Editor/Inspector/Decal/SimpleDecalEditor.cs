@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;
 
-            AbstractDecalEditor.DrawerDecalEditor(thisSObject);
+            DrawerDecalEditor(thisSObject);
 
             if (!isMultiEdit)
             {
@@ -42,14 +42,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel -= 1;
 
-            AbstractDecalEditor.DrawerAdvancedOption(thisSObject);
-
+            DecalEditorUtil.DrawerAdvancedOption(thisSObject);
 
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
                 var sIslandSelector = thisSObject.FindProperty("IslandSelector");
                 EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
+
+                var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
+                EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
 
                 if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is RayCastIslandSelector)
                 {
@@ -73,7 +75,37 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             thisSObject.ApplyModifiedProperties();
         }
+        public static void DrawerDecalEditor(SerializedObject thisSObject)
+        {
+            EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
 
+            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
+            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
+            EditorGUILayout.PropertyField(sMultiRendererMode, "CommonDecal:prop:MultiRendererMode".Glc());
+
+
+            EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+
+            if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null)
+            {
+                var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+                EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
+
+                var sColor = thisSObject.FindProperty("Color");
+                EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
+            }
+
+            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
+            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
+
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
+            EditorGUI.indentLevel -= 1;
+        }
         static bool s_ExperimentalFutureOption = false;
 
         public static void DrawerScale(SerializedObject thisSObject, SerializedObject tf_sObg, Texture2D decalTexture)

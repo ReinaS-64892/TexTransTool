@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sTargetPropertyName, "SingleGradationDecal:prop:TargetPropertyName".Glc());
 
 
-            AbstractDecalEditor.DrawerAdvancedOption(serializedObject);
+            DecalEditorUtil.DrawerAdvancedOption(serializedObject);
 
             TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior);
             serializedObject.ApplyModifiedProperties();

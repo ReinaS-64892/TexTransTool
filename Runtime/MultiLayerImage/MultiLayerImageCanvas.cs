@@ -28,10 +28,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 
-            TextureSelector.LookAtCalling(domain);
-            domain.LookAt(this);
-            domain.LookAtChildeComponents<AbstractLayer>(gameObject);
-            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(domain); }
+            LookAtCallingCanvas(domain);
 
             var replaceTarget = TextureSelector.GetTexture();
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
@@ -40,6 +37,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
         }
+
+        internal void LookAtCallingCanvas(ILookingObject looker)
+        {
+            TextureSelector.LookAtCalling(looker);
+            looker.LookAt(this);
+            looker.LookAtChildeComponents<AbstractLayer>(gameObject);
+            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(looker); }
+        }
+
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
             return TextureSelector.ModificationTargetRenderers(domainRenderers);
