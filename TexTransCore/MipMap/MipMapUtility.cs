@@ -15,12 +15,14 @@ namespace net.rs64.TexTransCore.MipMap
         [TexTransInitialize]
         public static void Init()
         {
-            MipMapShader = TexTransCoreRuntime.LoadAsset("5f6d88c53276bb14eace10771023ae01", typeof(ComputeShader)) as ComputeShader;
+            AverageComputeShader = TexTransCoreRuntime.LoadAsset("5f6d88c53276bb14eace10771023ae01", typeof(ComputeShader)) as ComputeShader;
+            AverageIgnoreAlphaComputeShader = TexTransCoreRuntime.LoadAsset("02d034f8ef4b20842b4238f631d78dd3", typeof(ComputeShader)) as ComputeShader;
         }
-        public static ComputeShader MipMapShader;
+        public static ComputeShader AverageComputeShader;
+        public static ComputeShader AverageIgnoreAlphaComputeShader;
         const string WTex = "WTex";
         const string RTex = "RTex";
-        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism)
+        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism, bool ignoreAlpha = false)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
             if (SystemInfo.supportsComputeShaders is false
@@ -31,7 +33,7 @@ namespace net.rs64.TexTransCore.MipMap
 
             switch (algorism)
             {
-                case DownScalingAlgorism.Average: { result = Average(renderTexture); break; }
+                case DownScalingAlgorism.Average: { result = Average(renderTexture, ignoreAlpha); break; }
                 default: { renderTexture.GenerateMips(); result = true; break; }
             }
 
@@ -96,9 +98,10 @@ namespace net.rs64.TexTransCore.MipMap
         }
 
 
-        static bool Average(RenderTexture renderTexture)
+        static bool Average(RenderTexture renderTexture, bool ignoreAlpha = false)
         {
-            var kernelID = MipMapShader.FindKernel("Average");
+            var cs = ignoreAlpha is false ? AverageComputeShader : AverageIgnoreAlphaComputeShader;
+            var kernelID = cs.FindKernel("Average");
 
             var width = renderTexture.width;
             var height = renderTexture.height;
@@ -108,9 +111,9 @@ namespace net.rs64.TexTransCore.MipMap
                 width /= 2;
                 height /= 2;
 
-                MipMapShader.SetTexture(kernelID, RTex, renderTexture, mipIndex);
-                MipMapShader.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
-                MipMapShader.Dispatch(kernelID, Mathf.Max(1, width / 32), Mathf.Max(1, height / 32), 1);
+                cs.SetTexture(kernelID, RTex, renderTexture, mipIndex);
+                cs.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
+                cs.Dispatch(kernelID, Mathf.Max(1, width / 32), Mathf.Max(1, height / 32), 1);
             }
 
             return true;
