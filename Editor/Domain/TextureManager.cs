@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -149,18 +150,20 @@ namespace net.rs64.TexTransTool
         public virtual void CompressDeferred()
         {
             if (_compressDict == null) { return; }
-            foreach (var texAndFormat in _compressDict)
+            var compressTargets = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
+
+            foreach (var texAndFormat in compressTargets)
             {
                 var compressFormat = texAndFormat.Value.Get(texAndFormat.Key);
                 EditorUtility.CompressTexture(texAndFormat.Key, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
-            foreach (var tex in _compressDict.Keys)
+            foreach (var tex in compressTargets.Select(i => i.Key))
             {
                 tex.Apply(true, true);
             }
 
-            foreach (var tex in _compressDict.Keys)
+            foreach (var tex in compressTargets.Select(i => i.Key))
             {
                 var sTexture = new SerializedObject(tex);
 
@@ -169,6 +172,7 @@ namespace net.rs64.TexTransTool
 
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
+            _compressDict.Clear();
         }
 
         public static ITTTextureFormat GetTTTextureFormat(Texture2D texture2D)
