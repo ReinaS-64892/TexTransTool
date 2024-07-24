@@ -55,25 +55,32 @@ namespace net.rs64.TexTransTool
                 var aspect = targetTex2D.height / targetTex2D.width;
                 var originalSize = textureManager.GetOriginalTextureSize(targetTex2D);
 
-                using (TTRt.U(out var originRt, originalSize, Mathf.RoundToInt(aspect * originalSize), true, false, true, true))
                 using (TTRt.U(out var newTempRt, TextureSize, Mathf.RoundToInt(aspect * TextureSize), true, false, MipMap, MipMap))
                 {
-                    textureManager.WriteOriginalTexture(targetTex2D, originRt);
-                    MipMapUtility.GenerateMips(originRt, DownScalingAlgorism, !DownScalingWithLookAtAlpha);
-                    if (MipMap)
-                    {
-                        var originMipCount = originRt.mipmapCount;
-                        var targetSizeMipCount = newTempRt.mipmapCount;
-
-                        var copyMipIndex = 1;
-                        while ((originMipCount - copyMipIndex) >= 0 && (targetSizeMipCount - copyMipIndex) >= 0)
+                    if (originalSize >= TextureSize)
+                        using (TTRt.U(out var originRt, originalSize, Mathf.RoundToInt(aspect * originalSize), true, false, true, true))
                         {
-                            Graphics.CopyTexture(originRt, 0, originMipCount - copyMipIndex, newTempRt, 0, targetSizeMipCount - copyMipIndex);
-                            copyMipIndex += 1;
-                        }
-                    }
-                    else { Graphics.Blit(originRt, newTempRt); }
+                            textureManager.WriteOriginalTexture(targetTex2D, originRt);
+                            MipMapUtility.GenerateMips(originRt, DownScalingAlgorism, !DownScalingWithLookAtAlpha);
+                            if (MipMap)
+                            {
+                                var originMipCount = originRt.mipmapCount;
+                                var targetSizeMipCount = newTempRt.mipmapCount;
 
+                                var copyMipIndex = 1;
+                                while ((originMipCount - copyMipIndex) >= 0 && (targetSizeMipCount - copyMipIndex) >= 0)
+                                {
+                                    Graphics.CopyTexture(originRt, 0, originMipCount - copyMipIndex, newTempRt, 0, targetSizeMipCount - copyMipIndex);
+                                    copyMipIndex += 1;
+                                }
+                            }
+                            else { Graphics.Blit(originRt, newTempRt); }
+                        }
+                    else
+                    {
+                        textureManager.WriteOriginalTexture(targetTex2D, newTempRt);
+                        if (MipMap) MipMapUtility.GenerateMips(newTempRt, DownScalingAlgorism);
+                    }
                     newTexture2D = newTempRt.CopyTexture2D();
                 }
             }
