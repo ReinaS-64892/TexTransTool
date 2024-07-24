@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...HEAD)
+
+## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
 ### Fixed
 
@@ -520,6 +522,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasSet
+  
 - - Null のマテリアルが表示される問題の修正 (#17)
   
 - - Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
