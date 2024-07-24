@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...HEAD)
 
 ### Added
 
@@ -42,6 +42,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の TextureFineTuning Resize が AtlasTextureSize よりも大きい解像度に変更できていた問題を修正 (#550)
 - AtlasTexture でアトラス化されたテクスチャが他UVを参照していたり無効だった場合に割り当てないようになりました (#565)
 - 一部のコンポーネントの子となり取り扱われるコンポーネントが NDMF-Preview で追加や削除が正しく反応しない問題を修正 (#569)
+
+## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
+
+### Fixed
+
+- SingleGradationDecal のマテリアル選択候補の表示に Missing や Clone のマテリアルが表示される問題を修正 (#563)
+- GameObject TexTransTool のメニューで生成される GameObject が常にワールド原点に生成されていた問題を修正 (#574)
+- GameObject TexTransTool のメニューで生成される GameObject が自動で選択されない仕様を修正 (#574)
 
 ## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.5...v0.7.6) - 2024-07-14
 
