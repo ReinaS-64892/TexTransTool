@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.Editor
             var sTextureSize = sObj.FindProperty("TextureSize");
             var sMipMap = sObj.FindProperty("MipMap");
             var sDownScalingAlgorism = sObj.FindProperty("DownScalingAlgorism");
+            var sDownScalingWithLookAtAlpha = sObj.FindProperty("DownScalingWithLookAtAlpha");
 
             var sOverrideCompression = sObj.FindProperty("OverrideCompression");
             var sCompressionSetting = sObj.FindProperty("CompressionSetting");
@@ -33,6 +34,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.PropertyField(sTextureSize);
                 EditorGUILayout.PropertyField(sMipMap);
                 EditorGUILayout.PropertyField(sDownScalingAlgorism);
+                EditorGUILayout.PropertyField(sDownScalingWithLookAtAlpha);
             }
 
             EditorGUILayout.PropertyField(sOverrideCompression);
