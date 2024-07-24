@@ -12,6 +12,7 @@ using UnityEngine.Pool;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore.Utils;
 using Unity.Collections;
+using net.rs64.TexTransTool.MultiLayerImage;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -33,7 +34,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool PolygonOutOfCulling = true;
 
         public AbstractIslandSelector IslandSelector;
-
+        public MultiLayerImageCanvas OverrideDecalTextureWithMultiLayerImageCanvas;
         public bool UseDepth;
         public bool DepthInvert;
         internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
@@ -110,9 +111,20 @@ namespace net.rs64.TexTransTool.Decal
         internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         internal Dictionary<Material, RenderTexture> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
         {
-            Profiler.BeginSample("GetMultipleDecalTexture");
-            RenderTexture mulDecalTexture = GetMultipleDecalTexture(domain, DecalTexture, Color);
-            Profiler.EndSample();
+            RenderTexture mulDecalTexture;
+            if (OverrideDecalTextureWithMultiLayerImageCanvas == null)
+            {
+                Profiler.BeginSample("GetMultipleDecalTexture");
+                mulDecalTexture = GetMultipleDecalTexture(domain, DecalTexture, Color);
+                Profiler.EndSample();
+            }
+            else
+            {
+                Profiler.BeginSample("Rendering MultiLayerImageCanvas");
+                OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
+                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048);
+                Profiler.EndSample();
+            }
 
             var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>, Vector3>(GetSpaceConverter(), GetTriangleFilter());
             decalContext.TargetPropertyName = TargetPropertyName;
