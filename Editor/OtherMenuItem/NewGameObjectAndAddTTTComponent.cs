@@ -14,8 +14,10 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         {
             var parent = Selection.activeGameObject;
             var newGameObj = new GameObject(typeof(TTB).Name);
-            newGameObj.transform.SetParent(parent?.transform);
+            newGameObj.transform.SetParent(parent?.transform, false);
             newGameObj.AddComponent<TTB>();
+            Selection.activeGameObject = newGameObj;
+            EditorGUIUtility.PingObject(newGameObj);
         }
         const string GOPath = "GameObject";
         const string BP = GOPath + "/" + TexTransBehavior.TTTName + "/";
