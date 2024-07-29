@@ -43,6 +43,12 @@ msgstr "マテリアルスロットの数が、サブメッシュよりも多い
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性があるためご注意ください。"
 
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
+msgstr "アイランドパディングがゼロでピクセルノーマライズが使用されています！ \nアイランド同士が重なってしまい一部の場所が違う色になる可能性があるためご注意ください。"
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
+msgstr "アイランドパディングを増やすか、ピクセルノーマライズを無効化してください。"
+
 msgid "AtlasTexture:info:RelocateResult"
 msgstr "アトラス再配置結果\n上部の空き領域: {0}\n優先度に応じた縮小: {1}倍 \n全体的な縮小: {2}倍 \n累計再配置計算回数: {3}回 \n再配置実行時間: {4}ms"
 
@@ -121,6 +127,9 @@ msgstr "アイランドソーターネーム"
 msgid "AtlasTexture:prop:IslandSorterName:tooltip"
 msgstr "アイランドを再配置し、並び替えるアルゴリズムの名前、編集不可"
 
+msgid "AtlasTexture:prop:PixelNormalize"
+msgstr "ピクセルノーマライズ"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "元のUVを書き込む"
 
@@ -133,8 +142,6 @@ msgstr "元のUVを書き込むチャンネル"
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
 msgstr "アトラスアイランドリロケーター"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
-msgstr "ピクセルノーマライズ"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "アイランドの移動をピクセル単位にノーマライズする機能"

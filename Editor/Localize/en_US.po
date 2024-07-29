@@ -43,6 +43,12 @@ msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look
 msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
 msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
 
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
+msgstr "IslandPadding is zero and PixelNormalize is used. \nPlease note that some Island may overlap and result the different color in some pixel."
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
+msgstr "increment IslandPadding or place disabled PixelNormalize."
+
 msgid "AtlasTexture:info:RelocateResult"
 msgstr "Atlas Relocate Result\nTop free space: {0}\nPriority shrink: {1}x \nOverall shrink: {2}x \nTotal relocate count: {3} \nTime taken relocate: {4}ms"
 
@@ -121,6 +127,9 @@ msgstr "IslandSorterName"
 msgid "AtlasTexture:prop:IslandSorterName:tooltip"
 msgstr "Name of Island sorter, can not editable."
 
+msgid "AtlasTexture:prop:PixelNormalize"
+msgstr "PixelNormalize"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "WriteOriginalUV"
 
@@ -132,9 +141,6 @@ msgstr "OriginalUVWriteTargetChannel"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
 msgstr "AtlasIslandRelocator"
-
-msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
-msgstr "PixelNormalize"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
