@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.Island;
 using Island = net.rs64.TexTransCore.Island.Island;
@@ -16,8 +15,6 @@ using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore.MipMap;
 using Unity.Mathematics;
-using System.Collections;
-using UnityEngine.Experimental.Rendering;
 using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
@@ -125,11 +122,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     var material = atlasContext.MaterialToAtlasShaderTexDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
                     var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture : null;
                     if (refTex == null) { continue; }
-                    foreach (var island in islandKV.Value)
-                    {
-                        island.Pivot.y = Mathf.Round(island.Pivot.y * refTex.height) / refTex.height;
-                        island.Pivot.x = Mathf.Round(island.Pivot.x * refTex.width) / refTex.width;
-                    }
+                    foreach (var island in islandKV.Value) { NormalizeIsland(refTex.width, refTex.height, island); }
                 }
                 Profiler.EndSample();
             }
@@ -231,13 +224,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             if (atlasSetting.PixelNormalize)
             {
+                if (Mathf.Approximately(atlasSetting.IslandPadding, 0)) { TTTRuntimeLog.Warning("AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"); }
                 Profiler.BeginSample("AtlasReferenceData:PixelNormalize");
                 for (var i = 0; relocatedRect.Length > i; i += 1)
                 {
-                    var island = relocatedRect[i];
-                    island.Pivot.y = Mathf.Round(island.Pivot.y * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
-                    island.Pivot.x = Mathf.Round(island.Pivot.x * atlasSetting.AtlasTextureSize) / atlasSetting.AtlasTextureSize;
-                    relocatedRect[i] = island;
+                    relocatedRect[i] = NormalizeIsland(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, relocatedRect[i]);
                 }
                 Profiler.EndSample();
             }
@@ -507,7 +498,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return true;
 
         }
-
+        static T NormalizeIsland<T>(int width, int height, T island) where T : IIslandRect
+        {
+            var minPos = island.Pivot;
+            var maxPos = island.Pivot + island.Size;
+            island.Pivot = Normalize(width, height, minPos);
+            island.Size = Normalize(width, height, maxPos) - island.Pivot;
+            return island;
+        }
+        static Vector2 Normalize(int width, int height, Vector2 vector2)
+        {
+            vector2.y = Mathf.Round(vector2.y * height) / height;
+            vector2.x = Mathf.Round(vector2.x * width) / width;
+            return vector2;
+        }
         private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
         {
             var downScalingAlgorism = atlasSetting.DownScalingAlgorism;

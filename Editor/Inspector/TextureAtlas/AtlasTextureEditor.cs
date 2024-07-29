@@ -103,6 +103,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".Glc());
 
+            EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".Glc());
+
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
@@ -111,7 +113,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
                 if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".Glc()); }
-                EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
                 EditorGUILayout.PropertyField(sDownScalingAlgorism, "AtlasTexture:prop:DownScalingAlgorism".Glc());
