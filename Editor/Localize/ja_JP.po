@@ -37,11 +37,11 @@ msgstr "AtlasTexture は実行不可能な状態です。"
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "ターゲットルートやマテリアルの選択を見直してください。"
 
-msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
-msgstr "マテリアルスロットの数が、サブメッシュよりも多いレンダラーが存在します。 \n 大きく違う見た目になる可能性があるためご注意ください。"
+msgid "AtlasTexture:error:RelocationFailed"
+msgstr "アイランドの再配置に失敗しました!"
 
-msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
-msgstr "複数のサブメッシュが同一頂点を使用しているメッシュが存在します。\n正しくない見た目になる可能性があるためご注意ください。"
+msgid "AtlasTexture:error:RelocationFailed:hint"
+msgstr "パディングが極端に大きいか、アトラス化対象が多すぎる可能性があります。\nそれぞれパディングの値を減らすか、アトラス化対象を減らしてください!"
 
 msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
 msgstr "アイランドパディングがゼロでピクセルノーマライズが使用されています！ \nアイランド同士が重なってしまい一部の場所が違う色になる可能性があるためご注意ください。"

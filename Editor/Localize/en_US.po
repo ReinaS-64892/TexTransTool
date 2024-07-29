@@ -37,11 +37,11 @@ msgstr "AtlasTexture is not executable."
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
 
-msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
-msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look is potential."
+msgid "AtlasTexture:error:RelocationFailed"
+msgstr "Island relocation failed!"
 
-msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
-msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
+msgid "AtlasTexture:error:RelocationFailed:hint"
+msgstr "Extremely large Padding, or very many atlas target.\nPlease each for decrease Padding, or reduce atlas target."
 
 msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
 msgstr "IslandPadding is zero and PixelNormalize is used. \nPlease note that some Island may overlap and result the different color in some pixel."

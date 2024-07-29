@@ -78,6 +78,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                 if (expandResult)
                 {
                     relocateResult.OverallDownScale = IslandRectUtility.CalculateAllAreaSum(lastWorkedRect) / initialRectArea;
+                    relocateResult.IsRelocateSuccess = true;
                     break;
                 }
             }
@@ -88,7 +89,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             {
                 loopCount = 0;
                 if (!_islandRelocator.Relocation(relocatedRect)) { return false; }
-                while (_islandRelocator.Relocation(relocatedRect) && loopCount < 2048)//失敗するかセーフティにかかるまで、続けて失敗したら前回の物を使用する方針
+                while (_islandRelocator.Relocation(relocatedRect) && loopCount < 2048)//失敗するかセーフティにかかるまで続けて、失敗したら前回の物を使用する方針
                 {
                     loopCount += 1;
                     RectCopy(lastRelocated, relocatedRect);
@@ -149,6 +150,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             public float PriorityDownScale = 1;
             public float OverallDownScale = 1;
             public int TotalRelocateCount = 0;
+            public bool IsRelocateSuccess = false;
         }
 
     }
