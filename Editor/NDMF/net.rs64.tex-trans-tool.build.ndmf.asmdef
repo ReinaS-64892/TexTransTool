@@ -7,7 +7,8 @@
         "net.rs64.tex-trans-tool.editor",
         "nadena.dev.ndmf",
         "nadena.dev.ndmf.runtime",
-        "net.rs64.tex-trans-tool.ndmf.aao-support"
+        "net.rs64.tex-trans-tool.ndmf.aao-support",
+        "com.anatawa12.avatar-optimizer.runtime"
     ],
     "includePlatforms": [
         "Editor"
@@ -33,8 +34,8 @@
         },
         {
             "name": "com.anatawa12.avatar-optimizer",
-            "expression": "[1.7.8]",
-            "define": "AAO_1_7_8"
+            "expression": "1.8.0",
+            "define": "AAO_CONTAINS"
         }
     ],
     "noEngineReferences": false

@@ -6,7 +6,8 @@
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.tex-trans-tool.editor",
         "nadena.dev.ndmf",
-        "nadena.dev.ndmf.runtime"
+        "nadena.dev.ndmf.runtime",
+        "com.anatawa12.avatar-optimizer.runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -15,13 +16,13 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "AAO_1_7_8"
+        "AAO_CONTAINS"
     ],
     "versionDefines": [
         {
             "name": "com.anatawa12.avatar-optimizer",
-            "expression": "[1.7.8]",
-            "define": "AAO_1_7_8"
+            "expression": "1.8.0",
+            "define": "AAO_CONTAINS"
         }
     ],
     "noEngineReferences": false

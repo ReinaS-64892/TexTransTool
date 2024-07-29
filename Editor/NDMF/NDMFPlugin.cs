@@ -22,10 +22,10 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
 
-#if AAO_1_7_8
+#if AAO_CONTAINS
             .Run("Add AAORemoveMeshByMaskReMappingTransmit", ctx =>
             {
-                foreach (var component in ctx.AvatarRootObject.GetComponentsInChildren(TransmitReMappingToAAORemoveMeshByMask.TargetType, true))
+                foreach (var component in ctx.AvatarRootObject.GetComponentsInChildren< Anatawa12.AvatarOptimizer.RemoveMeshByMask>( true))
                 {
                     if (component == null) { continue; }
                     component.gameObject.AddComponent<TransmitReMappingToAAORemoveMeshByMask>();
