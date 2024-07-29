@@ -22,13 +22,14 @@ namespace net.rs64.TexTransTool
 
         public TextureSelector TargetTexture;
 
-        public bool OverrideTextureSetting;
-        [PowerOfTwo] public int TextureSize;
-        public bool MipMap;
-        public DownScalingAlgorism DownScalingAlgorism;
+        public bool OverrideTextureSetting = false;
+        [PowerOfTwo] public int TextureSize = 2048;
+        public bool MipMap = true;
+        public DownScalingAlgorism DownScalingAlgorism = DownScalingAlgorism.Average;
+        public bool DownScalingWithLookAtAlpha = true;
 
-        public bool OverrideCompression;
-        public TextureCompressionData CompressionSetting;
+        public bool OverrideCompression = false;
+        public TextureCompressionData CompressionSetting = new();
 
 
         internal override void Apply([NotNull] IDomain domain)
@@ -44,7 +45,7 @@ namespace net.rs64.TexTransTool
             var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values)
             .FirstOrDefault(i => domain.OriginEqual(i, target));
 
-            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return;}
+            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return; }
 
             domain.LookAt(targetTex2D);
 
@@ -54,39 +55,52 @@ namespace net.rs64.TexTransTool
                 var aspect = targetTex2D.height / targetTex2D.width;
                 var originalSize = textureManager.GetOriginalTextureSize(targetTex2D);
 
-                using (TTRt.U(out var originRt, originalSize, Mathf.RoundToInt(aspect * originalSize), true, false, true, true))
                 using (TTRt.U(out var newTempRt, TextureSize, Mathf.RoundToInt(aspect * TextureSize), true, false, MipMap, MipMap))
                 {
-                    textureManager.WriteOriginalTexture(targetTex2D, originRt);
-                    MipMapUtility.GenerateMips(originRt, DownScalingAlgorism);
-                    if (MipMap)
-                    {
-                        var originMipCount = originRt.mipmapCount;
-                        var targetSizeMipCount = newTempRt.mipmapCount;
-
-                        var copyMipIndex = 1;
-                        while ((originMipCount - copyMipIndex) >= 0 && (targetSizeMipCount - copyMipIndex) >= 0)
+                    if (originalSize >= TextureSize)
+                        using (TTRt.U(out var originRt, originalSize, Mathf.RoundToInt(aspect * originalSize), true, false, true, true))
                         {
-                            Graphics.CopyTexture(originRt, 0, originMipCount - copyMipIndex, newTempRt, 0, targetSizeMipCount - copyMipIndex);
-                            copyMipIndex += 1;
-                        }
-                    }
-                    else { Graphics.Blit(originRt, newTempRt); }
+                            textureManager.WriteOriginalTexture(targetTex2D, originRt);
+                            MipMapUtility.GenerateMips(originRt, DownScalingAlgorism, !DownScalingWithLookAtAlpha);
+                            if (MipMap)
+                            {
+                                var originMipCount = originRt.mipmapCount;
+                                var targetSizeMipCount = newTempRt.mipmapCount;
 
+                                var copyMipIndex = 1;
+                                while ((originMipCount - copyMipIndex) >= 0 && (targetSizeMipCount - copyMipIndex) >= 0)
+                                {
+                                    Graphics.CopyTexture(originRt, 0, originMipCount - copyMipIndex, newTempRt, 0, targetSizeMipCount - copyMipIndex);
+                                    copyMipIndex += 1;
+                                }
+                            }
+                            else { Graphics.Blit(originRt, newTempRt); }
+                        }
+                    else
+                    {
+                        textureManager.WriteOriginalTexture(targetTex2D, newTempRt);
+                        if (MipMap) MipMapUtility.GenerateMips(newTempRt, DownScalingAlgorism);
+                    }
                     newTexture2D = newTempRt.CopyTexture2D();
                 }
             }
             else
             {
-                var tmpRt = textureManager.GetOriginTempRt(targetTex2D);
-                newTexture2D = tmpRt.CopyTexture2D();
-                TTRt.R(tmpRt);
+                var useMipMapDefault = targetTex2D.mipmapCount > 1;
+                using (TTRt.U(out var tmpRt, targetTex2D.width, targetTex2D.height, false, false, useMipMapDefault, useMipMapDefault))
+                {
+                    textureManager.WriteOriginalTexture(targetTex2D, tmpRt);
+                    tmpRt.CopyFilWrap(targetTex2D);
+
+                    if (useMipMapDefault) { tmpRt.GenerateMips(); }
+                    newTexture2D = tmpRt.CopyTexture2D();
+                }
             }
 
             newTexture2D.CopyFilWrap(targetTex2D);
             domain.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(materials, targetTex2D, newTexture2D));
 
-            if (OverrideCompression) { textureManager.DeferredTextureCompress((CompressionQualityApplicant.GetTextureFormat(CompressionSetting), CompressionSetting.CompressionQuality), newTexture2D); }
+            if (OverrideCompression) { textureManager.DeferredTextureCompress(CompressionSetting, newTexture2D); }
             else { textureManager.DeferredInheritTextureCompress(targetTex2D, newTexture2D); }
 
         }

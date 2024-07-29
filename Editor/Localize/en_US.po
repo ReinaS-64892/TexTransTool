@@ -106,6 +106,9 @@ msgstr "ForceSetTexture"
 msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
 msgstr "Assign an atlas texture to material even If the texture  not exist in material"
 
+msgid "AtlasTexture:prop:BackGroundColor"
+msgstr "BackGroundColor"
+
 msgid "AtlasTexture:prop:Padding"
 msgstr "Padding"
 
@@ -160,8 +163,14 @@ msgstr "TextureFineTuning"
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "Setting for various fine tuning for atlas texture."
 
+msgid "AtlasTexture:prop:DownScalingAlgorism"
+msgstr "DownScalingAlgorism"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
 msgstr "AutoReferenceCopySetting"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting"
+msgstr "AutoMergeTextureSetting"
 
 msgid "AtlasTexture:prop:TextureIndividualFineTuning"
 msgstr "TextureIndividualFineTuning"

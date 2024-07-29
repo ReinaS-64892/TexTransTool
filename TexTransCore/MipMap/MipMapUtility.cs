@@ -15,22 +15,26 @@ namespace net.rs64.TexTransCore.MipMap
         [TexTransInitialize]
         public static void Init()
         {
-            MipMapShader = TexTransCoreRuntime.LoadAsset("5f6d88c53276bb14eace10771023ae01", typeof(ComputeShader)) as ComputeShader;
+            AverageComputeShader = TexTransCoreRuntime.LoadAsset("5f6d88c53276bb14eace10771023ae01", typeof(ComputeShader)) as ComputeShader;
+            AverageIgnoreAlphaComputeShader = TexTransCoreRuntime.LoadAsset("02d034f8ef4b20842b4238f631d78dd3", typeof(ComputeShader)) as ComputeShader;
         }
-        public static ComputeShader MipMapShader;
+        public static ComputeShader AverageComputeShader;
+        public static ComputeShader AverageIgnoreAlphaComputeShader;
         const string WTex = "WTex";
         const string RTex = "RTex";
-        const string PixelRatio = "PixelRatio";
-
-        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism)
+        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism, bool ignoreAlpha = false)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
+            if (SystemInfo.supportsComputeShaders is false
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore
+            || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3
+            ) { algorism = (DownScalingAlgorism)(-1); }
             bool result;
 
             switch (algorism)
             {
-                case DownScalingAlgorism.Average: { result = Average(renderTexture); break; }
-                default: { result = false; break; }
+                case DownScalingAlgorism.Average: { result = Average(renderTexture, ignoreAlpha); break; }
+                default: { renderTexture.GenerateMips(); result = true; break; }
             }
 
             return result;
@@ -94,29 +98,22 @@ namespace net.rs64.TexTransCore.MipMap
         }
 
 
-        static bool Average(RenderTexture renderTexture)
+        static bool Average(RenderTexture renderTexture, bool ignoreAlpha = false)
         {
-            var kernel32ID = MipMapShader.FindKernel("Average32");
-            var kernel1ID = MipMapShader.FindKernel("Average1");
+            var cs = ignoreAlpha is false ? AverageComputeShader : AverageIgnoreAlphaComputeShader;
+            var kernelID = cs.FindKernel("Average");
 
             var width = renderTexture.width;
             var height = renderTexture.height;
 
-            bool useOne = false;
             for (var mipIndex = 0; renderTexture.mipmapCount - 1 > mipIndex; mipIndex += 1)
             {
                 width /= 2;
                 height /= 2;
 
-                if (width < 32 || height < 32) { useOne = true; }
-
-                var kernelID = useOne ? kernel1ID : kernel32ID;
-                var kernelSize = useOne ? 1 : 32;
-
-                MipMapShader.SetTexture(kernelID, RTex, renderTexture, mipIndex);
-                MipMapShader.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
-                MipMapShader.SetInts(PixelRatio, 2, 2);
-                MipMapShader.Dispatch(kernelID, width / kernelSize, height / kernelSize, 1);
+                cs.SetTexture(kernelID, RTex, renderTexture, mipIndex);
+                cs.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
+                cs.Dispatch(kernelID, Mathf.Max(1, width / 32), Mathf.Max(1, height / 32), 1);
             }
 
             return true;

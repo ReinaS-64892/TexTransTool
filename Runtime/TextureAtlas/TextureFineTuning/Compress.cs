@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
     public class Compress : ITextureFineTuning
     {
-        public FormatQuality FormatQualityValue = FormatQuality.High;
+        public FormatQuality FormatQualityValue = FormatQuality.Normal;
         public bool UseOverride = false;
-        public TextureFormat OverrideTextureFormat = TextureFormat.DXT5;
+        public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
         [Range(0, 100)] public int CompressionQuality = 50;
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
@@ -62,47 +63,54 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         High,
     }
     [Serializable]
-    public class TextureCompressionData : ITuningData
+    public class TextureCompressionData : ITuningData, ITTTextureFormat
     {
         public FormatQuality FormatQualityValue = FormatQuality.Normal;
 
-        public bool UseOverride;
-        public TextureFormat OverrideTextureFormat;
+        public bool UseOverride = false;
+        public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
 
         [Range(0, 100)] public int CompressionQuality = 50;
-    }
-    internal class CompressionQualityApplicant : ITuningApplicant
-    {
-        public int Order => 0;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public virtual (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D)
         {
-            // Delegated to ITextureManager
+            if (UseOverride) { return (OverrideTextureFormat, CompressionQuality); }
+
+#if UNITY_STANDALONE_WIN
+            var hasAlpha = HasAlphaChannel(texture2D);
+#else
+            var hasAlpha = true;
+#endif
+            TextureFormat textureFormat = GetQuality2TextureFormat(FormatQualityValue, hasAlpha);
+            return (textureFormat, CompressionQuality);
         }
-        public static TextureFormat GetTextureFormat(TextureCompressionData compressionQualityData)
-        {
-            if (compressionQualityData.UseOverride) { return compressionQualityData.OverrideTextureFormat; }
 
+        public static TextureFormat GetQuality2TextureFormat(FormatQuality formatQualityValue, bool hasAlpha)
+        {
             var textureFormat = TextureFormat.RGBA32;
 #if UNITY_STANDALONE_WIN
-            switch (compressionQualityData.FormatQualityValue)
+            switch (formatQualityValue, hasAlpha)
             {
-                case FormatQuality.None:
+                case (FormatQuality.None, false):
+                case (FormatQuality.None, true):
                     textureFormat = TextureFormat.RGBA32;
                     break;
-                case FormatQuality.Low:
+                case (FormatQuality.Low, false):
+                case (FormatQuality.Normal, false):
                     textureFormat = TextureFormat.DXT1;
                     break;
                 default:
-                case FormatQuality.Normal:
+                case (FormatQuality.Low, true):
+                case (FormatQuality.Normal, true):
                     textureFormat = TextureFormat.DXT5;
                     break;
-                case FormatQuality.High:
+                case (FormatQuality.High, false):
+                case (FormatQuality.High, true):
                     textureFormat = TextureFormat.BC7;
                     break;
             }
 #elif UNITY_ANDROID
-            switch (compressionQualityData.FormatQualityValue)
+            switch (formatQualityValue)
             {
                 case FormatQuality.None:
                     textureFormat = TextureFormat.RGBA32;
@@ -120,6 +128,30 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             }
 #endif
             return textureFormat;
+        }
+
+        public bool HasAlphaChannel(Texture2D texture2D)
+        {
+            if (GraphicsFormatUtility.HasAlphaChannel(texture2D.format) is false) { return false; }
+            if (texture2D.format != TextureFormat.RGBA32) { return true; }//RGBA32以外の実装はいったんしない TODO
+
+            var containsAlpha = false;
+            var span = texture2D.GetRawTextureData<Color32>().AsReadOnlySpan();
+            for (int i = 0; span.Length > i; i += 1)
+            {
+                containsAlpha |= span[i].a != 255 && span[i].a != 254;
+            }
+            return containsAlpha;
+        }
+
+    }
+    internal class CompressionQualityApplicant : ITuningApplicant
+    {
+        public int Order => 0;
+
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            // Delegated to ITextureManager
         }
     }
 

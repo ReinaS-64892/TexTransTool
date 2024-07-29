@@ -69,12 +69,14 @@ namespace net.rs64.TexTransCore.Utils
         }
 
 
-        public static Texture2D ResizeTexture(Texture2D source, Vector2Int size)
+        public static Texture2D ResizeTexture(Texture2D source, Vector2Int size, bool forceRegenerateMipMap = false)
         {
             Profiler.BeginSample("ResizeTexture");
             using (new RTActiveSaver())
             {
                 var useMip = source.mipmapCount > 1;
+                if (forceRegenerateMipMap) { useMip = false; }
+
                 var rt = TTRt.G(size.x, size.y, true);
                 if (useMip)
                 {
@@ -82,19 +84,15 @@ namespace net.rs64.TexTransCore.Utils
                 }
                 else
                 {
-                    var mipRt = TTRt.G(source.width, source.height);
-                    mipRt.Release();
-                    var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
+                    var mipRt = TTRt.G(source.width, source.height, false, false, true, true);
 
                     mipRt.useMipMap = true;
                     mipRt.autoGenerateMips = false;
 
                     Graphics.Blit(source, mipRt);
-                    mipRt.GenerateMips();
+                    MipMapUtility.GenerateMips(mipRt, DownScalingAlgorism.Average);
                     Graphics.Blit(mipRt, rt);
 
-                    mipRt.Release();
-                    (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
                     TTRt.R(mipRt);
                 }
 

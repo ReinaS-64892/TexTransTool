@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool
     public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
+        void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
     public interface IDeferredDestroyTexture
@@ -54,10 +55,12 @@ namespace net.rs64.TexTransTool
     }
     public interface IDeferTextureCompress
     {
-        void DeferredTextureCompress((TextureFormat CompressFormat, int Quality) compressFormat, Texture2D target);
+        void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target);
         void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
         void CompressDeferred();
     }
+
+    public interface ITTTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
 
     internal static class DomainUtility
     {

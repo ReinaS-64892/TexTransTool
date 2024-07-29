@@ -39,7 +39,7 @@ float3 SetLum(float3 rgbCol,float l)
 }
 
 
-float GetSat(float3 rgbCol)
+float GetSat(float3 rgbCol)//双円錐モデル
 {
     return max(max(rgbCol.r,rgbCol.g),rgbCol.b) -  min(min(rgbCol.r,rgbCol.g),rgbCol.b) ;
 }

@@ -54,6 +54,11 @@ namespace net.rs64.TexTransTool.NDMF
             UsedLookAt = true;
         }
 
+        public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
+        {
+            _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true);
+        }
+
         public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
         {
             _textureStacks.AddTextureStack(dist, setTex);
