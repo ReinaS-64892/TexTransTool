@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.NDMF;
 using UnityEngine;
