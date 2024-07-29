@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 foreach (var islandKV in atlasContext.IslandDict)
                 {
                     var material = atlasContext.MaterialToAtlasShaderTexDict[atlasContext.MaterialGroup[islandKV.Key.MaterialGroupID].First()];
-                    var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture2D : null;
+                    var refTex = material.TryGetValue("_MainTex", out var tex2D) ? tex2D.Texture : null;
                     if (refTex == null) { continue; }
                     foreach (var island in islandKV.Value)
                     {
@@ -490,8 +490,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (compiledAtlasTextures.ContainsKey(atlasTexKV.Key) is false) { continue; }
                 if (texMaxDict.ContainsKey(atlasTexKV.Key) is false) { texMaxDict[atlasTexKV.Key] = 2; }
-                if (atlasTexKV.Value.Texture2D == null) { continue; }
-                texMaxDict[atlasTexKV.Key] = math.max(texMaxDict[atlasTexKV.Key], atlasTexKV.Value.Texture2D.width);
+                if (atlasTexKV.Value.Texture == null) { continue; }
+                texMaxDict[atlasTexKV.Key] = math.max(texMaxDict[atlasTexKV.Key], atlasTexKV.Value.Texture.width);
             }
             atlasData.SourceTextureMaxSize = texMaxDict;
             Profiler.EndSample();
@@ -526,13 +526,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var rtDict = new Dictionary<(Texture sTex, Vector2 tScale, Vector2 tTiling), RenderTexture>();
                             foreach (var kv in keyValuePairs)
                             {
-                                if (kv.Value.Texture2D == null) { continue; }
+                                if (kv.Value.Texture == null) { continue; }
                                 var atlasTex = kv.Value;
 
-                                var texHash = (atlasTex.Texture2D, atlasTex.TextureScale, atlasTex.TextureTranslation);
+                                var texHash = (atlasTex.Texture, atlasTex.TextureScale, atlasTex.TextureTranslation);
                                 if (rtDict.ContainsKey(texHash)) { dict[kv.Key] = rtDict[texHash]; continue; }
 
-                                var rt = GetOriginAtUseMip(texManage, atlasTex.Texture2D);
+                                var rt = GetOriginAtUseMip(texManage, atlasTex.Texture);
 
                                 if (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)
                                 { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
@@ -552,7 +552,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         property = new HashSet<string>(atlasContext.MaterialToAtlasShaderTexDict
                                 .SelectMany(i => i.Value)
                                 .GroupBy(i => i.Key)
-                                .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture2D != null))
+                                .Where(i => PropertyBakeSetting.BakeAllProperty == propertyBakeSetting || i.Any(st => st.Value.Texture != null))
                                 .Select(i => i.Key)
                             );
 
@@ -588,7 +588,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             foreach (var propName in property)
                             {
                                 atlasTexDict.TryGetValue(propName, out var atlasTex);
-                                var sTex = atlasTex?.Texture2D != null ? GetOriginAtUseMip(texManage, atlasTex.Texture2D) : null;
+                                var sTex = atlasTex?.Texture != null ? GetOriginAtUseMip(texManage, atlasTex.Texture) : null;
 
                                 if (sTex != null && (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)) { sTex.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
 
@@ -648,17 +648,33 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture2D atlasTex)
+        private static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
         {
-            var originSize = texManage.GetOriginalTextureSize(atlasTex);
-            var rt = TTRt.G(originSize, originSize, true, false, true, true);
-            rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-            rt.CopyFilWrap(atlasTex);
-            rt.filterMode = FilterMode.Trilinear;
-            texManage.WriteOriginalTexture(atlasTex, rt);
-            return rt;
-        }
+            switch (atlasTex)
+            {
+                default:
+                    {
+                        var originSize = atlasTex.width;
+                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                        rt.CopyFilWrap(atlasTex);
+                        rt.filterMode = FilterMode.Trilinear;
+                        Graphics.Blit(atlasTex, rt);
+                        return rt;
+                    }
+                case Texture2D atlasTex2D:
+                    {
+                        var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                        rt.CopyFilWrap(atlasTex);
+                        rt.filterMode = FilterMode.Trilinear;
+                        texManage.WriteOriginalTexture(atlasTex2D, rt);
+                        return rt;
+                    }
 
+            }
+        }
         private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)
         {
             switch (height)
@@ -857,9 +873,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var texKV in atlasTex)
             {
                 if (supporter.IsConstraintValid(targetMat, texKV.Key) is false) { continue; }
-                var tex2D = editableTMat.GetTexture(texKV.Key) as Texture2D;
+                var tex = editableTMat.GetTexture(texKV.Key);
 
-                if (forceSetTexture is false && tex2D == null) { continue; }
+                if (forceSetTexture is false && tex == null) { continue; }
+                if (tex is not Texture2D && tex is not RenderTexture) { continue; }
+                if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
+
                 editableTMat.SetTexture(texKV.Key, texKV.Value);
             }
 

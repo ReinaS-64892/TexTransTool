@@ -28,7 +28,7 @@
         },
         {
             "name": "nadena.dev.ndmf",
-            "expression": "1.5.0-alpha.3",
+            "expression": "1.5.0-beta.1",
             "define": "NDMF_1_5_x"
         }
     ],

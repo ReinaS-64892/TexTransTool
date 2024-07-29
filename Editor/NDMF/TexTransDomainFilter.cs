@@ -5,8 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using nadena.dev.ndmf.preview;
-using nadena.dev.ndmf.rq;
-using nadena.dev.ndmf.rq.unity.editor;
 using nadena.dev.ndmf.runtime;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;

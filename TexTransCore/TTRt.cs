@@ -78,6 +78,8 @@ namespace net.rs64.TexTransCore
 
         internal static HashSet<RenderTexture> s_tempSet = new();
 
+        public static bool IsTemp(RenderTexture renderTexture) => s_tempSet.Contains(renderTexture);
+
         public static void R(RenderTexture renderTexture)
         {
             RenderTexture.ReleaseTemporary(renderTexture);

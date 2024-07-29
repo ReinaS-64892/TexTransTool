@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             MaterialGroupToAtlasShaderTexDict = MaterialGroup
                 .Select(mg => (Array.IndexOf(MaterialGroup, mg), mg.Select(m => material2AtlasTargets[m])))
                 .Select(mg => (mg.Item1, mg.Item2.SelectMany(i => i).GroupBy(i => i.Key)))
-                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture2D != null).Value ?? p.First().Value));
+                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture != null).Value ?? p.First().Value));
 
             Profiler.BeginSample("Normalize And Bake Mash");
             var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
@@ -473,8 +473,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
                 var l = propL[propName];
                 var r = propR[propName];
-                if (l.Texture2D == null || r.Texture2D == null) { continue; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { continue; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }
@@ -491,8 +491,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var l = propL[propName];
                 var r = propR[propName];
 
-                if (l.Texture2D == null || r.Texture2D == null) { return false; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { return false; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }
