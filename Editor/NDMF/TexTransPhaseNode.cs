@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
-using nadena.dev.ndmf.rq;
-using nadena.dev.ndmf.rq.unity.editor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -31,10 +29,10 @@ namespace net.rs64.TexTransTool.NDMF
 
         NodeExecuteDomain _nodeDomain;
         internal IEnumerable<TexTransPhase> TargetPhase;
-        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx, RenderFilterContext renderFilterContext)
+        public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, IEnumerable<(Renderer origin, Renderer proxy)> proxyPairs, ComputeContext ctx)
         {
             Profiler.BeginSample("NodeExecuteDomain.ctr");
-            _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx, renderFilterContext.ObjectRegistry);
+            _nodeDomain = new NodeExecuteDomain(proxyPairs, ctx, ObjectRegistry.ActiveRegistry);
             Profiler.EndSample();
             Profiler.BeginSample("apply ttb s");
             foreach (var ttb in flattenTTB)

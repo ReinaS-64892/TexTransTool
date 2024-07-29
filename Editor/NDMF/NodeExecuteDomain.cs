@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
-using nadena.dev.ndmf.rq;
-using nadena.dev.ndmf.rq.unity.editor;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransCore.Utils;
@@ -123,11 +121,6 @@ namespace net.rs64.TexTransTool.NDMF
         public void TransferAsset(UnityEngine.Object asset)
         {
             _transferredObject.Add(asset);
-            // TempAssetContainer.TempPost(asset);
-
-            // これらじゃ Unityによる謎の破棄を回避できなかった
-            // asset.hideFlags = HideFlags.DontUnloadUnusedAsset;
-            // UnityEditor.EditorUtility.SetDirty(asset);
         }
 
 

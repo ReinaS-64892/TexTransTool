@@ -5,8 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using nadena.dev.ndmf.preview;
-using nadena.dev.ndmf.rq;
-using nadena.dev.ndmf.rq.unity.editor;
 using nadena.dev.ndmf.runtime;
 using net.rs64.TexTransTool.Build;
 using UnityEngine;
@@ -133,7 +131,7 @@ namespace net.rs64.TexTransTool.NDMF
             return avatarGrouping;
         }
 
-        public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context, RenderFilterContext renderFilterContext)
+        public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
             var sortedBehaviors = group.GetData<SortedList<int, TexTransBehavior>>().Select(i => i.Value).ToArray();
 
@@ -144,7 +142,7 @@ namespace net.rs64.TexTransTool.NDMF
             var timer = System.Diagnostics.Stopwatch.StartNew();
 
             Profiler.BeginSample("node.NodeExecuteAndInit");
-            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context, renderFilterContext);
+            node.NodeExecuteAndInit(sortedBehaviors, proxyPairs, context);
             Profiler.EndSample();
 
             timer.Stop();
