@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             MaterialGroupToAtlasShaderTexDict = MaterialGroup
                 .Select(mg => (Array.IndexOf(MaterialGroup, mg), mg.Select(m => material2AtlasTargets[m])))
                 .Select(mg => (mg.Item1, mg.Item2.SelectMany(i => i).GroupBy(i => i.Key)))
-                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture2D != null).Value ?? p.First().Value));
+                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture != null).Value ?? p.First().Value));
 
             Profiler.BeginSample("Normalize And Bake Mash");
             var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();

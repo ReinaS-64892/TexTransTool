@@ -526,10 +526,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var rtDict = new Dictionary<(Texture sTex, Vector2 tScale, Vector2 tTiling), RenderTexture>();
                             foreach (var kv in keyValuePairs)
                             {
-                                if (kv.Value.Texture2D == null) { continue; }
+                                if (kv.Value.Texture == null) { continue; }
                                 var atlasTex = kv.Value;
 
-                                var texHash = (atlasTex.Texture2D, atlasTex.TextureScale, atlasTex.TextureTranslation);
+                                var texHash = (atlasTex.Texture, atlasTex.TextureScale, atlasTex.TextureTranslation);
                                 if (rtDict.ContainsKey(texHash)) { dict[kv.Key] = rtDict[texHash]; continue; }
 
                                 var rt = GetOriginAtUseMip(texManage, atlasTex.Texture);
@@ -875,7 +875,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (supporter.IsConstraintValid(targetMat, texKV.Key) is false) { continue; }
                 var tex = editableTMat.GetTexture(texKV.Key);
 
-                if (forceSetTexture is false && tex2D == null) { continue; }
+                if (forceSetTexture is false && tex == null) { continue; }
                 if (tex is not Texture2D && tex is not RenderTexture) { continue; }
                 if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
 
