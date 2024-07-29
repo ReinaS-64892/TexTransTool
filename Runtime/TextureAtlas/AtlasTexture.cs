@@ -218,6 +218,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             timer.Stop();
             Profiler.EndSample();
 
+            if (relocateResult.IsRelocateSuccess is false) { TTTRuntimeLog.Error("AtlasTexture:error:RelocationFailed"); }
+
             var rectTangleMove = relocator.RectTangleMove;
 
             if (relocator is UnityEngine.Object unityObject) { DestroyImmediate(unityObject); }
