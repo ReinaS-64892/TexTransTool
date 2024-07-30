@@ -281,7 +281,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                var movedUV = new NativeArray<Vector2>(meshData.VertexUV, Allocator.Temp);
+                var movedUV = new NativeArray<Vector2>(meshData.VertexUV, Allocator.TempJob);
                 IslandUtility.IslandPoolMoveUV(meshData.VertexUV, movedUV, originLink.ToArray(), movedLink.ToArray());
 
                 subSetMovedUV[subSetIndex] = movedUV;
@@ -867,7 +867,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop);
+                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
             }
         }
 
