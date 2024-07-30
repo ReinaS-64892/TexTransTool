@@ -45,6 +45,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
                 asTex.Texture = tex;
                 asTex.TextureScale = material.GetTextureScale(atlasTargetDefine.TexturePropertyName);
                 asTex.TextureTranslation = material.GetTextureOffset(atlasTargetDefine.TexturePropertyName);
+                asTex.IsNormalMap = atlasTargetDefine.IsNormalMap;
 
                 asTex.PropertyName = atlasTargetDefine.TexturePropertyName;
                 asTex.BakeProperties = atlasTargetDefine.BakePropertyNames.Select(s => BakeProperty.GetBakeProperty(material, s)).ToList();
@@ -66,7 +67,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     {
         public string TexturePropertyName;
         [SerializeReference, SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
-
+        public bool IsNormalMap;
         public List<string> BakePropertyNames;
     }
 }

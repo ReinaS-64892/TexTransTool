@@ -19,6 +19,7 @@ MonoBehaviour:
   - TexturePropertyName: _MainTex
     AtlasDefineConstraints:
       rid: 7150698656081904301
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color
     - _MainColorAdjustMask
@@ -26,181 +27,218 @@ MonoBehaviour:
   - TexturePropertyName: _MainColorAdjustMask
     AtlasDefineConstraints:
       rid: 7150698656081904310
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _Main2ndTex
     AtlasDefineConstraints:
       rid: 7150698656081904335
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color2nd
   - TexturePropertyName: _Main2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904338
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _Main2ndDissolveMask
     AtlasDefineConstraints:
       rid: 7150698656081904341
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _Main3rdTex
     AtlasDefineConstraints:
       rid: 7150698656081904345
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color3rd
   - TexturePropertyName: _Main3rdBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904348
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _AlphaMask
     AtlasDefineConstraints:
       rid: 7150698705470881809
+    IsNormalMap: 0
     BakePropertyNames:
     - _AlphaMaskScale
     - _AlphaMaskValue
   - TexturePropertyName: _BumpMap
     AtlasDefineConstraints:
       rid: 7150698705470881810
+    IsNormalMap: 1
     BakePropertyNames:
     - _BumpScale
   - TexturePropertyName: _Bump2ndMap
     AtlasDefineConstraints:
       rid: 7150698656081904357
+    IsNormalMap: 1
     BakePropertyNames:
     - _Bump2ndScale
     - _Bump2ndScaleMask
   - TexturePropertyName: _Bump2ndScaleMask
     AtlasDefineConstraints:
       rid: 7150698656081904353
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _AnisotropyTangentMap
     AtlasDefineConstraints:
       rid: 7150698705470881815
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _AnisotropyScaleMask
     AtlasDefineConstraints:
       rid: 7150698705470881816
+    IsNormalMap: 0
     BakePropertyNames:
     - _AnisotropyScale
   - TexturePropertyName: _BacklightColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881817
+    IsNormalMap: 0
     BakePropertyNames:
     - _BacklightColor
   - TexturePropertyName: _ShadowStrengthMask
     AtlasDefineConstraints:
       rid: 7150698705470881818
+    IsNormalMap: 0
     BakePropertyNames:
     - _ShadowStrength
   - TexturePropertyName: _ShadowBorderMask
     AtlasDefineConstraints:
       rid: 7150698705470881819
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _ShadowBlurMask
     AtlasDefineConstraints:
       rid: 7150698705470881820
+    IsNormalMap: 0
     BakePropertyNames: []
   - TexturePropertyName: _ShadowColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881821
+    IsNormalMap: 0
     BakePropertyNames:
     - _ShadowColor
   - TexturePropertyName: _Shadow2ndColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881822
+    IsNormalMap: 0
     BakePropertyNames:
     - _Shadow2ndColor
   - TexturePropertyName: _Shadow3rdColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881823
+    IsNormalMap: 0
     BakePropertyNames:
     - _Shadow3rdColor
   - TexturePropertyName: _RimShadeMask
     AtlasDefineConstraints:
       rid: 7150698705470881824
+    IsNormalMap: 0
     BakePropertyNames:
     - _RimShadeColor
   - TexturePropertyName: _SmoothnessTex
     AtlasDefineConstraints:
       rid: 7150698705470881825
+    IsNormalMap: 0
     BakePropertyNames:
     - _Smoothness
   - TexturePropertyName: _MetallicGlossMap
     AtlasDefineConstraints:
       rid: 7150698705470881826
+    IsNormalMap: 0
     BakePropertyNames:
     - _Metallic
   - TexturePropertyName: _ReflectionColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881827
+    IsNormalMap: 0
     BakePropertyNames:
     - _ReflectionColor
   - TexturePropertyName: _MatCapBlendMask
     AtlasDefineConstraints:
       rid: 7150698705470881828
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCapBlend
   - TexturePropertyName: _MatCapBumpMap
     AtlasDefineConstraints:
       rid: 7150698656081904369
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCapBumpScale
   - TexturePropertyName: _MatCap2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698705470881831
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCap2ndBlend
   - TexturePropertyName: _MatCap2ndBumpMap
     AtlasDefineConstraints:
       rid: 7150698656081904366
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCap2ndBumpScale
   - TexturePropertyName: _RimColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881834
+    IsNormalMap: 0
     BakePropertyNames:
     - _RimColor
   - TexturePropertyName: _GlitterColorTex
     AtlasDefineConstraints:
       rid: 7150698656081904372
+    IsNormalMap: 0
     BakePropertyNames:
     - _GlitterColor
   - TexturePropertyName: _EmissionMap
     AtlasDefineConstraints:
       rid: 7150698656081904375
+    IsNormalMap: 0
     BakePropertyNames:
     - _EmissionColor
   - TexturePropertyName: _EmissionBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904378
+    IsNormalMap: 0
     BakePropertyNames:
     - _EmissionBlend
   - TexturePropertyName: _Emission2ndMap
     AtlasDefineConstraints:
       rid: 7150698656081904381
+    IsNormalMap: 0
     BakePropertyNames:
     - _Emission2ndColor
   - TexturePropertyName: _Emission2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904384
+    IsNormalMap: 0
     BakePropertyNames:
     - _Emission2ndBlend
   - TexturePropertyName: _ParallaxMap
     AtlasDefineConstraints:
       rid: 7150698705470881845
+    IsNormalMap: 0
     BakePropertyNames:
     - _Parallax
   - TexturePropertyName: _OutlineTex
     AtlasDefineConstraints:
       rid: 7150698656081904303
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineColor
     - _OutlineTexHSVG
   - TexturePropertyName: _OutlineWidthMask
     AtlasDefineConstraints:
       rid: 7150698656081904302
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineWidth
   - TexturePropertyName: _OutlineVectorTex
     AtlasDefineConstraints:
       rid: 1595567437379272704
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineVectorScale
   BakeShader: {fileID: 4800000, guid: 9d918a30dc195d94ea1916f48779948f, type: 3}

@@ -370,7 +370,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     TTRt.R(targetRT);
                     targetRT = heightClampRt;
                 }
-                MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorithm);
+
+                var containsNormalMap = atlasContext.MaterialGroupToAtlasShaderTexDict.SelectMany(i => i.Value).Where(i => i.Key == propName).Any(i => i.Value.IsNormalMap);
+                MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorithm, containsNormalMap);
 
                 Profiler.BeginSample("Readback");
                 compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
