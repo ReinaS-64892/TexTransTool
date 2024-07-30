@@ -15,6 +15,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public Vector2 TextureScale;
         public Vector2 TextureTranslation;
 
+        public bool IsNormalMap;
+
         [SerializeReference] public List<BakeProperty> BakeProperties;
     }
 
