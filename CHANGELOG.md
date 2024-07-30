@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の アイランド再配置結果の詳細を NDMFConsole にレポートする機能を追加 (#531)
 - AtlasTexture TextureFineTuning ReferenceCopy の TargetPropertyName がリストに変更されコピー対象を複数指定可能になりました (#532)
 - AtlasTexture の _MainTex 以外のプロパティで アトラス化対象だった場合、アトラス化後のサイズが自動的にそのプロパティのテクスチャの最大サイズが割り当てられるようになりました (#550)
+- AtlasTexture で生成されるテクスチャーの MipMap 生成が Unity標準ではなく、アルファを加味したもを使用するようになりました (#558)
 - AtlasTexture に BackGroundColor が追加され、初期設定で白色に背景色が設定されるようになります (#558)
 - AtlasTexture TextureFineTuning MipMapRemove に MipMap を削除しないように上書きすることを可能にするための IsRemove プロパティを追加 (#561)
 - AtlasTexture の選択候補の表示が、マテリアルのグループ化された状態で表示されるようになりました (#564)
