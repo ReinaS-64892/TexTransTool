@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool WriteOriginalUV = false;
         [Range(1, 7)] public int OriginalUVWriteTargetChannel = 1;
         public Color BackGroundColor = Color.white;
-        public DownScalingAlgorism DownScalingAlgorism = DownScalingAlgorism.Average;
+        [FormerlySerializedAs("DownScalingAlgorism")]public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning;
         public bool AutoReferenceCopySetting = false;

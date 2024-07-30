@@ -370,7 +370,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     TTRt.R(targetRT);
                     targetRT = heightClampRt;
                 }
-                MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorism);
+                MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorithm);
 
                 Profiler.BeginSample("Readback");
                 compiledAtlasTextures.Add(propName, new AsyncTexture2D(targetRT));
@@ -516,7 +516,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
         {
-            var downScalingAlgorism = atlasSetting.DownScalingAlgorism;
+            var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
             {
                 default: { property = null; return null; }
@@ -543,7 +543,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 if (atlasTex.TextureScale != Vector2.one || atlasTex.TextureTranslation != Vector2.zero)
                                 { rt.ApplyTextureST(atlasTex.TextureScale, atlasTex.TextureTranslation); }
 
-                                MipMapUtility.GenerateMips(rt, downScalingAlgorism);
+                                MipMapUtility.GenerateMips(rt, downScalingAlgorithm);
 
                                 rtDict[texHash] = dict[kv.Key] = rt;
                             }
@@ -602,7 +602,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                 {
                                     if (sTex != null)
                                     {
-                                        MipMapUtility.GenerateMips(sTex, downScalingAlgorism);
+                                        MipMapUtility.GenerateMips(sTex, downScalingAlgorithm);
                                         texDict[propName] = sTex;
                                     }
                                     else
@@ -636,7 +636,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                                 tmpMat.SetTexture(propName, sTex);
                                 Graphics.Blit(sTex, bakedTex, tmpMat);
-                                MipMapUtility.GenerateMips(bakedTex, downScalingAlgorism);
+                                MipMapUtility.GenerateMips(bakedTex, downScalingAlgorithm);
 
                                 texDict[propName] = bakedTex;
 

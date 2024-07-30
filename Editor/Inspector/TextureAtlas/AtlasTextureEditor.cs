@@ -76,7 +76,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sAutoReferenceCopySetting = sAtlasSettings.FindPropertyRelative("AutoReferenceCopySetting");
             var sAutoMergeTextureSetting = sAtlasSettings.FindPropertyRelative("AutoMergeTextureSetting");
             var sBackGroundColor = sAtlasSettings.FindPropertyRelative("BackGroundColor");
-            var sDownScalingAlgorism = sAtlasSettings.FindPropertyRelative("DownScalingAlgorism");
+            var sDownScalingAlgorithm = sAtlasSettings.FindPropertyRelative("DownScalingAlgorithm");
 
             var sLimitCandidateMaterials = sIncludeDisabledRenderer.serializedObject.FindProperty("LimitCandidateMaterials");
 
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".Glc()); }
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
-                EditorGUILayout.PropertyField(sDownScalingAlgorism, "AtlasTexture:prop:DownScalingAlgorism".Glc());
+                EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
                 if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".Glc()); }
                 EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".Glc());
 

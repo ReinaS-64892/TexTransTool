@@ -169,8 +169,8 @@ msgstr "TextureFineTuning"
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "Setting for various fine tuning for atlas texture."
 
-msgid "AtlasTexture:prop:DownScalingAlgorism"
-msgstr "DownScalingAlgorism"
+msgid "AtlasTexture:prop:DownScalingAlgorithm"
+msgstr "DownScalingAlgorithm"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
 msgstr "AutoReferenceCopySetting"

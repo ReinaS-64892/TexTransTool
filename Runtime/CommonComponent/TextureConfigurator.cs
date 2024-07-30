@@ -8,6 +8,7 @@ using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.MipMap;
 using net.rs64.TexTransCore;
+using UnityEngine.Serialization;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
@@ -25,7 +26,7 @@ namespace net.rs64.TexTransTool
         public bool OverrideTextureSetting = false;
         [PowerOfTwo] public int TextureSize = 2048;
         public bool MipMap = true;
-        public DownScalingAlgorism DownScalingAlgorism = DownScalingAlgorism.Average;
+        [FormerlySerializedAs("DownScalingAlgorism")] public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
         public bool DownScalingWithLookAtAlpha = true;
 
         public bool OverrideCompression = false;
@@ -61,7 +62,7 @@ namespace net.rs64.TexTransTool
                         using (TTRt.U(out var originRt, originalSize, Mathf.RoundToInt(aspect * originalSize), true, false, true, true))
                         {
                             textureManager.WriteOriginalTexture(targetTex2D, originRt);
-                            MipMapUtility.GenerateMips(originRt, DownScalingAlgorism, !DownScalingWithLookAtAlpha);
+                            MipMapUtility.GenerateMips(originRt, DownScalingAlgorithm, !DownScalingWithLookAtAlpha);
                             if (MipMap)
                             {
                                 var originMipCount = originRt.mipmapCount;
@@ -79,7 +80,7 @@ namespace net.rs64.TexTransTool
                     else
                     {
                         textureManager.WriteOriginalTexture(targetTex2D, newTempRt);
-                        if (MipMap) MipMapUtility.GenerateMips(newTempRt, DownScalingAlgorism);
+                        if (MipMap) MipMapUtility.GenerateMips(newTempRt, DownScalingAlgorithm);
                     }
                     newTexture2D = newTempRt.CopyTexture2D();
                 }

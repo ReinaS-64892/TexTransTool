@@ -90,7 +90,7 @@ namespace net.rs64.TexTransCore.Utils
                     mipRt.autoGenerateMips = false;
 
                     Graphics.Blit(source, mipRt);
-                    MipMapUtility.GenerateMips(mipRt, DownScalingAlgorism.Average);
+                    MipMapUtility.GenerateMips(mipRt, DownScalingAlgorithm.Average);
                     Graphics.Blit(mipRt, rt);
 
                     TTRt.R(mipRt);
@@ -175,7 +175,7 @@ namespace net.rs64.TexTransCore.Utils
         public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
         {
             var tmp = rt.CloneTemp();
-            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorism.Average); }
+            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorithm.Average); }
             ApplyTextureST(tmp, s, t, rt);
             TTRt.R(tmp);
         }

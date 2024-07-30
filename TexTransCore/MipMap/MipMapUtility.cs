@@ -22,18 +22,18 @@ namespace net.rs64.TexTransCore.MipMap
         public static ComputeShader AverageIgnoreAlphaComputeShader;
         const string WTex = "WTex";
         const string RTex = "RTex";
-        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorism algorism, bool ignoreAlpha = false)
+        public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorithm algorism, bool ignoreAlpha = false)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
             if (SystemInfo.supportsComputeShaders is false
             || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore
             || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3
-            ) { algorism = (DownScalingAlgorism)(-1); }
+            ) { algorism = (DownScalingAlgorithm)(-1); }
             bool result;
 
             switch (algorism)
             {
-                case DownScalingAlgorism.Average: { result = Average(renderTexture, ignoreAlpha); break; }
+                case DownScalingAlgorithm.Average: { result = Average(renderTexture, ignoreAlpha); break; }
                 default: { renderTexture.GenerateMips(); result = true; break; }
             }
 
@@ -182,7 +182,7 @@ namespace net.rs64.TexTransCore.MipMap
             return i.y * width + i.x;
         }
     }
-    public enum DownScalingAlgorism
+    public enum DownScalingAlgorithm
     {
         Average = 0,
     }

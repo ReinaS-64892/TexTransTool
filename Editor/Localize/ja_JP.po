@@ -170,7 +170,7 @@ msgstr "テクスチャー詳細設定"
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "アトラス化したテクスチャーに様々な設定をするための項目"
 
-msgid "AtlasTexture:prop:DownScalingAlgorism"
+msgid "AtlasTexture:prop:DownScalingAlgorithm"
 msgstr "ダウンスケーリングアルゴリズム"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
