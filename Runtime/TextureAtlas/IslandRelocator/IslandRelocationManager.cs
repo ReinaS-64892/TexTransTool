@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             var originalRatioMedicatedReference = originalRectArray;
 
 
-            if (_islandRelocator.Relocation(workRect)) { return workRect; }
+            if (_islandRelocator.Relocation(workRect)) { relocateResult.IsRelocateSuccess = true; return workRect; }
 
             if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
             {
@@ -42,7 +42,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                 {
                     relocateResult.PriorityDownScale = 0;
                     RectCopy(workRect, minPrioritySizeRect);
-                    if (_islandRelocator.Relocation(workRect)) { return workRect; }
+                    if (_islandRelocator.Relocation(workRect))
+                    {
+                        relocateResult.IsRelocateSuccess = true;
+                        return workRect;
+                    }
                 }
                 else
                 {
@@ -53,6 +57,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                         if (_islandRelocator.Relocation(workRect))
                         {
                             relocateResult.PriorityDownScale = lerpValue;
+                            relocateResult.IsRelocateSuccess = true;
                             return workRect;
                         }
                     }
