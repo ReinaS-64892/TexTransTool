@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture でアトラス化されたテクスチャが他UVを参照していたり無効だった場合に割り当てないようになりました (#565)
 - 一部のコンポーネントの子となり取り扱われるコンポーネントが NDMF-Preview で追加や削除が正しく反応しない問題を修正 (#569)
 - プレイモードに入るときなどのビルド時にコンポーネントが新しく生成したが、最終的に使用されていないテクスチャが Null となりテクスチャ圧縮のタイミングで例外が発生する問題を修正 (#581)
+- AtlasTexture の アイランド再配置 NFDHPlasFC が 上の列から見た空き空間の計算を誤った値にしてしまいアイランドが重なって見た目が変わってしまう問題を修正 (#591)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
