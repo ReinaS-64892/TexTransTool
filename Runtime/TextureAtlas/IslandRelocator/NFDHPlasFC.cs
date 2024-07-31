@@ -85,12 +85,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
                 Profiler.BeginSample("NewBox");
                 var Floor = uvWidthBox.Any() is false ? 0 : uvWidthBox.Last.Value.Ceil + islandPadding;
-                var Ceil = sortedIslands[i].Size.y + Floor;
-                var newWithBox = new UVWidthBox<IslandRect>(Ceil, Floor, islandPadding);
+                var newWithBox = new UVWidthBox<IslandRect>(Floor, sortedIslands[i].Size.y, islandPadding);
 
                 var pivot = newWithBox.TrySetBox(sortedIslands[i]);
-                if (pivot is null) { Profiler.EndSample(); return false; }
-
+                Debug.Assert(pivot is not null);
                 sortedIslands[i].Pivot = pivot.Value;
 
                 uvWidthBox.AddLast(newWithBox);
@@ -121,17 +119,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
         {
             public readonly float Width;
             public readonly float Padding;
-            public readonly float Ceil;
+            public readonly float Ceil => Floor + Height;
             public readonly float Floor;
-            public float Height => Ceil - Floor;
+            public readonly float Height;
             public readonly LinkedList<TIslandRect> Upper;
             public readonly LinkedList<TIslandRect> Lower;
 
-            public UVWidthBox(float ceil, float floor, float padding, float width = 1)
+            public UVWidthBox(float floor, float height, float padding, float width = 1)
             {
                 Width = width;
 
-                Ceil = ceil;
+                Height = height;
                 Floor = floor;
                 Padding = padding;
 
@@ -141,34 +139,35 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             public Vector2? TrySetBox(TIslandRect islandRect)
             {
-                if (Height + 0.01f < islandRect.Size.y) return null;
+                if (Height < islandRect.Size.y) return null;
 
-
-                var isFirst = Lower.Any() is false;
-                var emptyXMin = isFirst ? 0 : Lower.Last.Value.GetMaxPos().x;
-                var emptyXMax = GetCeilWithEmpty(Mathf.Clamp(Floor + islandRect.Size.y, Floor, Ceil));
-                var emptyWidthSize = emptyXMax - emptyXMin;
-                var islandWidth = isFirst ? islandRect.Size.x + Padding : Padding + islandRect.Size.x + Padding;
-                if (emptyWidthSize > islandWidth)
                 {
-                    var xPos = isFirst ? emptyXMin : emptyXMin + Padding;
-                    islandRect.Pivot = new Vector2(xPos, Floor);
-                    Lower.AddLast(islandRect);
-                    return islandRect.Pivot;
+                    var isFirst = Lower.Any() is false;
+                    var emptyXMin = isFirst ? 0 : Lower.Last.Value.GetMaxPos().x;
+                    var emptyXMax = GetCeilWithEmpty(Mathf.Clamp(Floor + islandRect.Size.y, Floor, Ceil));
+                    var emptyWidthSize = emptyXMax - emptyXMin;
+                    var islandWidth = isFirst ? islandRect.Size.x + Padding : Padding + islandRect.Size.x + Padding;
+                    if (emptyWidthSize > islandWidth)
+                    {
+                        var xPos = isFirst ? emptyXMin : emptyXMin + Padding;
+                        islandRect.Pivot = new Vector2(xPos, Floor);
+                        Lower.AddLast(islandRect);
+                        return islandRect.Pivot;
+                    }
                 }
-
-
-                isFirst = Upper.Any() is false;
-                emptyXMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - islandRect.Size.y - Padding, Floor, Ceil));
-                emptyXMax = isFirst ? Width : Upper.Last.Value.Pivot.x;
-                emptyWidthSize = emptyXMax - emptyXMin;
-                islandWidth = isFirst ? Padding + islandRect.Size.x : Padding + islandRect.Size.x + Padding;
-                if (emptyWidthSize > islandWidth)
                 {
-                    var xPos = isFirst ? emptyXMax - islandRect.Size.x : emptyXMax - islandRect.Size.x - Padding;
-                    islandRect.Pivot = new Vector2(xPos, Ceil - islandRect.Size.y);
-                    Upper.AddLast(islandRect);
-                    return islandRect.Pivot;
+                    var isFirst = Upper.Any() is false;
+                    var emptyXMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - islandRect.Size.y - Padding, Floor, Ceil));
+                    var emptyXMax = isFirst ? Width : Upper.Last.Value.Pivot.x;
+                    var emptyWidthSize = emptyXMax - emptyXMin;
+                    var islandWidth = isFirst ? Padding + islandRect.Size.x : Padding + islandRect.Size.x + Padding;
+                    if (emptyWidthSize > islandWidth)
+                    {
+                        var xPos = isFirst ? emptyXMax - islandRect.Size.x : emptyXMax - islandRect.Size.x - Padding;
+                        islandRect.Pivot = new Vector2(xPos, Ceil - islandRect.Size.y);
+                        Upper.AddLast(islandRect);
+                        return islandRect.Pivot;
+                    }
                 }
 
                 return null;
@@ -176,39 +175,33 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
             public float GetFloorWithEmpty(float targetHeight)
             {
-                if (!VectorUtility.InRange(Floor, Ceil, targetHeight)) { throw new Exception("TargetHeight is not in range!"); }
+                if (VectorUtility.InRange(Floor, Ceil, targetHeight) is false) { throw new Exception("TargetHeight is not in range!"); }
 
-                var minWith = 0f;
+                var xMin = 0f;
+                var targetF2Height = targetHeight - Floor;
 
-                foreach (var box in Lower)
-                {
-                    var island = box;
-                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos().y, targetHeight))
+                foreach (var island in Lower)
+                    if (targetF2Height < island.Size.y)
                     {
-                        if (minWith < island.GetMaxPos().x) { minWith = island.GetMaxPos().x; }
+                        xMin = Mathf.Max(xMin, island.Pivot.x + island.Size.x);
                     }
-                }
 
-
-
-                return minWith;
+                return xMin;
             }
             public float GetCeilWithEmpty(float targetHeight)
             {
-                if (!VectorUtility.InRange(Floor, Ceil, targetHeight)) throw new Exception("TargetHeight is not in range!");
+                if (VectorUtility.InRange(Floor, Ceil, targetHeight) is false) throw new Exception("TargetHeight is not in range!");
 
-                var maxWith = Width;
+                var xMax = Width;
+                var targetC2Height = targetHeight - Ceil;
 
-                foreach (var Box in Upper)
-                {
-                    var island = Box;
-                    if (VectorUtility.InRange(island.Pivot.y, island.GetMaxPos().y, targetHeight))
+                foreach (var island in Upper)
+                    if (targetC2Height < island.Size.y)
                     {
-                        if (island.GetMaxPos().x < maxWith) { maxWith = island.GetMaxPos().x; }
+                        xMax = Mathf.Min(xMax, island.Pivot.x);
                     }
-                }
 
-                return maxWith;
+                return xMax;
             }
         }
     }
