@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
     internal class NotWorkingProcessor : IEditorProcessor
     {
 
-        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
         {
             //何もしない
         }

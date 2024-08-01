@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class NodeExecuteDomain : IEditorCallDomain, IDisposable
+    internal class NodeExecuteDomain : IDomain, IDisposable
     {
         HashSet<UnityEngine.Object> _transferredObject = new();
         HashSet<RenderTexture> _neededReleaseTempRt = new();
@@ -109,12 +109,6 @@ namespace net.rs64.TexTransTool.NDMF
                 if (RenderersDomain.GetOrigin(_proxy2OriginRendererDict, lRen) == RenderersDomain.GetOrigin(_proxy2OriginRendererDict, rRen)) { return true; }
             }
             return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
-        }
-
-        public void SetSerializedProperty(UnityEditor.SerializedProperty property, UnityEngine.Object value)
-        {
-            property.objectReferenceValue = value;
-            property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
         public void TransferAsset(UnityEngine.Object asset)

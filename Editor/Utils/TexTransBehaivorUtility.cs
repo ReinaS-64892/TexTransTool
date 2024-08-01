@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool
 {
     internal static class TexTransBehaviorUtility
     {
-        public static void Apply(this TexTransBehavior texTransBehavior, IEditorCallDomain domain)
+        public static void Apply(this TexTransBehavior texTransBehavior, IDomain domain)
         {
             switch (texTransBehavior)
             {

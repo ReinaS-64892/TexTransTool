@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
     [EditorProcessor(typeof(PhaseDefinition))]
     internal class TexTransGroupProcessor : IEditorProcessor
     {
-        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
         {
             var ttg = texTransCallEditorBehavior as TexTransGroup;
 
@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
             foreach (var tf in targetList)
             {
                 count += 1;
-                tf.Apply(editorCallDomain);
+                tf.Apply(domain);
                 // editorCallDomain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
             }
             // editorCallDomain.ProgressStateExit();

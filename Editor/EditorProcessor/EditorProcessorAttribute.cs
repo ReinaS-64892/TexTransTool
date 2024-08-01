@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
 
     internal interface IEditorProcessor
     {
-        void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain);
+        void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain);
         IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
     }
 
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
 
             return s_processor[targetType];
         }
-        public static void CallProcessorApply(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        public static void CallProcessorApply(this TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain editorCallDomain)
         {
             GetPresserType(texTransCallEditorBehavior.GetType()).Process(texTransCallEditorBehavior, editorCallDomain);
         }

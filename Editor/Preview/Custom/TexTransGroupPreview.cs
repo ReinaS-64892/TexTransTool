@@ -8,17 +8,17 @@ namespace net.rs64.TexTransTool.Preview.Custom
     [TTTCustomPreview(typeof(TexTransGroup))]
     internal class TexTransGroupPreview : ITTTCustomPreview
     {
-        public void Preview(TexTransBehavior texTransBehavior, IEditorCallDomain editorCallDomain)
+        public void Preview(TexTransBehavior texTransBehavior, IDomain domin)
         {
             if (texTransBehavior is not TexTransGroup texTransGroup) { return; }
             static IEnumerable<TexTransBehavior> FinedTTGroupBehaviors(TexTransGroup texTransGroup) { return texTransGroup.Targets.Where(i => i is not PhaseDefinition).SelectMany(i => i is TexTransGroup ttg ? FinedTTGroupBehaviors(ttg) : new[] { i }); }
 
             var phaseOnTf = AvatarBuildUtils.FindAtPhase(texTransGroup.gameObject);
             AvatarBuildUtils.WhiteList(phaseOnTf, new(FinedTTGroupBehaviors(texTransGroup)));
-            ExecutePhases(editorCallDomain, phaseOnTf);
+            ExecutePhases(domin, phaseOnTf);
         }
 
-        internal static void ExecutePhases(IEditorCallDomain editorCallDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseOnTf)
+        internal static void ExecutePhases(IDomain editorCallDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseOnTf)
         {
             foreach (var tf in TexTransGroup.TextureTransformerFilter(phaseOnTf[TexTransPhase.BeforeUVModification])) { tf.Apply(editorCallDomain); }
             if (editorCallDomain is RenderersDomain previewDomain) { previewDomain.MergeStack(); }
