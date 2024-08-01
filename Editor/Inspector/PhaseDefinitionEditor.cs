@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Editor
             var previewButton = new IMGUIContainer(() =>
             {
                 serializedObject.Update();
-                OneTimePreviewContext.instance.DrawApplyAndRevert(target as TexTransGroup);
+                PreviewButtonDrawUtil.Draw(target as PreviewGroup);
                 var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
                 EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.Glc());
                 serializedObject.ApplyModifiedProperties();

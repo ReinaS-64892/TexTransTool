@@ -16,8 +16,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
 
-            var thisTarget = target as MultiLayerImageCanvas;
-            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(thisTarget);
+            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
 
 
             sTarget.ApplyModifiedProperties();

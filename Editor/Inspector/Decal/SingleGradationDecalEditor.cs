@@ -63,7 +63,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             DecalEditorUtil.DrawerAdvancedOption(serializedObject);
 
-            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior);
+            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
             serializedObject.ApplyModifiedProperties();
             tf.ApplyModifiedProperties();
         }

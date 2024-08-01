@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             }
 
-            TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior);
+            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
 
             thisSObject.ApplyModifiedProperties();
         }

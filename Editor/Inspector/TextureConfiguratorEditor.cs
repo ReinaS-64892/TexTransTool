@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
             using (new EditorGUI.IndentLevelScope())
             { EditorGUILayout.PropertyField(sCompressionSetting); }
 
-            OneTimePreviewContext.instance.DrawApplyAndRevert(targetTC);
+            PreviewButtonDrawUtil.Draw(targetTC);
             sObj.ApplyModifiedProperties();
         }
     }
