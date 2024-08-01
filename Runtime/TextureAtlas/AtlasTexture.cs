@@ -882,9 +882,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (supporter.IsConstraintValid(targetMat, texKV.Key) is false) { continue; }
                 var tex = editableTMat.GetTexture(texKV.Key);
+                if (tex == null) { tex = null; }
 
                 if (forceSetTexture is false && tex == null) { continue; }
-                if (tex is not Texture2D && tex is not RenderTexture) { continue; }
+                if (tex is not Texture2D && tex is not RenderTexture && tex is not null) { continue; }
                 if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
 
                 editableTMat.SetTexture(texKV.Key, texKV.Value);
