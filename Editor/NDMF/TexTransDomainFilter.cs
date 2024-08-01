@@ -1,4 +1,3 @@
-#if NDMF_1_5_x
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
@@ -25,6 +24,12 @@ namespace net.rs64.TexTransTool.NDMF
             return QueryPreviewTarget(context);
         }
 
+        public bool IsEnabled(ComputeContext context)
+        {
+            var pubVal = NDMFPlugin.s_togglablePreviewPhases[PreviewTargetPhase.First()].IsActive;
+            context.Observe(pubVal);
+            return pubVal.Value;
+        }
         private ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
         {
             var ttBehaviors = ctx.GetComponentsByType<TexTransBehavior>();
@@ -112,7 +117,6 @@ namespace net.rs64.TexTransTool.NDMF
             return targetRendererGroup;
         }
 
-
         private static Dictionary<GameObject, List<TexTransBehavior>> GroupingByAvatar(ImmutableList<TexTransBehavior> ttBehaviors)
         {
             var avatarGrouping = new Dictionary<GameObject, List<TexTransBehavior>>();
@@ -149,9 +153,7 @@ namespace net.rs64.TexTransTool.NDMF
 #if TTT_DISPLAY_RUNTIME_LOG
             Debug.Log($" time:{timer.ElapsedMilliseconds}ms - Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))}  \n  {string.Join("-", group.Renderers.Select(r => r.gameObject.name))} ");
 #endif
-
             return node;
         }
     }
 }
-#endif

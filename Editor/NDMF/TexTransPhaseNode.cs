@@ -1,4 +1,3 @@
-#if NDMF_1_5_x
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +36,13 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.BeginSample("apply ttb s");
             foreach (var ttb in flattenTTB)
             {
+                var pubVal = NDMFPlugin.s_togglablePreviewTexTransBehaviors[ttb.GetType()].IsActive;
+                ctx.Observe(pubVal);
+                if (pubVal.Value is false) { continue; }
+
                 if (ttb == null) { continue; }
                 ctx.Observe(ttb);
+
                 Profiler.BeginSample("apply-" + ttb.name);
                 ttb.Apply(_nodeDomain);
                 Profiler.EndSample();
@@ -65,4 +69,3 @@ namespace net.rs64.TexTransTool.NDMF
         }
     }
 }
-#endif

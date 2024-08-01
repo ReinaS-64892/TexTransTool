@@ -13,7 +13,7 @@ namespace net.rs64.TexTransCore
         public static Action NextUpdateCall;
         public static Func<string, Type, UnityEngine.Object> LoadAsset;
         public static Func<Type, IEnumerable<UnityEngine.Object>> LoadAssetsAtType;
-        public static Dictionary<Type,Action> NewAssetListen = new();
+        public static Dictionary<Type, Action> NewAssetListen = new();
 
     }
 
@@ -27,9 +27,7 @@ namespace net.rs64.TexTransCore
         public static void CallInitialize()//シェーダー等がロードさている状態を想定している。
         {
             Profiler.BeginSample("FindInitializers");
-            var initializers = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(i => i.FullName.Contains("net.rs64"))
-            .SelectMany(i => i.GetTypes().SelectMany(t => t.GetRuntimeMethods()))
+            var initializers = TexTransToolAssembly().SelectMany(i => i.GetTypes().SelectMany(t => t.GetRuntimeMethods()))
             .Where(i => i.IsStatic && i.GetCustomAttribute<TexTransInitialize>() is not null)
             .Select(i => (Action)i.CreateDelegate(typeof(Action))).ToArray();
             Profiler.EndSample();
@@ -44,7 +42,10 @@ namespace net.rs64.TexTransCore
             Profiler.EndSample();
         }
 
-
+        internal static IEnumerable<Assembly> TexTransToolAssembly()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().Where(i => i.FullName.Contains("net.rs64"));
+        }
     }
 
 }
