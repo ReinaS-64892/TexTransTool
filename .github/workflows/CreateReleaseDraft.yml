@@ -24,7 +24,7 @@ jobs:
         ref: ${{ github.event.inputs.tag }}
 
     - name: CrateRelease
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: ${{ github.event.inputs.tag }}
         tag_name: ${{ github.event.inputs.tag }}
