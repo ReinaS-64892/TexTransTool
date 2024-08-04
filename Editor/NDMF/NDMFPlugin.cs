@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool.NDMF
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
             { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
             { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined",  true) },
-            { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", true) },
+            { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", false) },
         };
     }
 
