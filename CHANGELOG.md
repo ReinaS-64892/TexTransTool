@@ -21,17 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の PixelNormalize 実験的機能から外れました！ (#585)
 - AtlasTexture のアイランド再配置に失敗した場合にエラーログを出力するようになりました (#586)
 - AtlasTexture の NFDHPlasFC が外側のパディングを消去し再配置効率が上がりました (#588)
+- NDMF v1.5.0 以上がプロジェクトに存在する場合 Preview、RealTimePreview のボタンは NDMF-Preview の フェーズ単位で有効化、無効化のボタンになるようになりました (#593)
 
 ### Changed
 
 - AtlasTexture の影響範囲が TargetRoot に影響されなくなり、インスペクターのマテリアル表示制限の機能のみに変更 (#516)
-- NDMF の対応バージョンが v1.3.0 以上に変更 (#516)
+- ~~NDMF の対応バージョンが v1.3.0 以上に変更 (#516)~~
 - 二のべき乗の値を想定する入力欄がポップアップに変更 (#516)
 - TargetRoot は LimitCandidateMaterials に変更され、割り当てなくてもマテリアルの選択が行えるように変更 (#518)
 - SerializeReference を使用している部分のUIが、[Unity-SerializeReferenceExtensions](https://github.com/mackysoft/Unity-SerializeReferenceExtensions) を使用したものに変更 (#519)
 - AtlasTexture TextureFineTuning の PropertyNames でスペース区切りの複数指定が行える仕様は削除され、リストに変更されました (#532)
 - AtlasTexture TextureFineTuning Compress のフォーマットクオリティで決定されるフォーマットがアルファの使用有無を加味したものになるようになりました (#558)
 - AtlasTexture TextureFineTuning Compress を新しく生成した時の値を変更しました (#561)
+- NDMF の対応バージョンが v1.5.0 以上に変更 (#593)
 
 ### Removed
 
