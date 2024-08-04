@@ -11,13 +11,13 @@ namespace net.rs64.TexTransTool.EditorProcessor
     internal class MaterialOverrideTransferProcessor : IEditorProcessor
     {
 
-        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IEditorCallDomain editorCallDomain)
+        public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
             if (!materialOverrideTransfer.IsPossibleApply) { throw new TTTNotExecutable(); }
 
             var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
-            var mats = GetTargetMaterials(editorCallDomain.EnumerateRenderer(), editorCallDomain.OriginEqual, materialOverrideTransfer.TargetMaterial);
+            var mats = GetTargetMaterials(domain.EnumerateRenderer(), domain.OriginEqual, materialOverrideTransfer.TargetMaterial);
 
             var overridePropertyDict = new Dictionary<string, ShaderPropertyType>();
             var shader = materialVariantSource.shader;
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
                 }
             }
 
-            editorCallDomain.ReplaceMaterials(materialSwapDict);
+            domain.ReplaceMaterials(materialSwapDict);
         }
 
         private static IEnumerable<Material> GetTargetMaterials(IEnumerable<Renderer> domainRenderer, OriginEqual originEqual, Material target)

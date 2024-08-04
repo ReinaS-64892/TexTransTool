@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 rootVE.hierarchy.Clear();
 
-                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup)); OneTimePreviewContext.instance.DrawApplyAndRevert(target as PreviewGroup); });
+                var previewButton = new IMGUIContainer(() => { TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup)); PreviewButtonDrawUtil.Draw(target as PreviewGroup); });
 
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(s_style);

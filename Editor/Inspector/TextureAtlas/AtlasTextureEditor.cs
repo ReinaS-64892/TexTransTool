@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             DrawAtlasSettings(sAtlasSetting, sMatSelectors);
 
-            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            PreviewButtonDrawUtil.Draw(thisTarget);
 
             serializedObject.ApplyModifiedProperties();
 

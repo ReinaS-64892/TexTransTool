@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.Editor
             EditorGUI.EndDisabledGroup();
 
 
-            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            PreviewButtonDrawUtil.Draw(thisTarget);
             thisSObject.ApplyModifiedProperties();
         }
 

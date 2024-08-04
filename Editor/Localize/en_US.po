@@ -29,6 +29,12 @@ msgstr "Build was run during previewing."
 msgid "Common:error:BuildWasRunDuringPreviewing:hint"
 msgstr "If this error, preview has exit. please try again."
 
+msgid "Common:ndmf:DisableThisComponentPhasePreview"
+msgstr "(NDMF) Disable {0} Preview"
+
+msgid "Common:ndmf:EnableThisComponentPhasePreview"
+msgstr "(NDMF) Enable {0} Preview"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"

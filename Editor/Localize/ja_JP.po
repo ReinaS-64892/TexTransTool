@@ -29,6 +29,12 @@ msgstr "プレビュー中にビルドが実行されました。"
 msgid "Common:error:BuildWasRunDuringPreviewing:hint"
 msgstr "このエラーが出ている場合プレビューは自動で終了しているため、もう一度実行してください。"
 
+msgid "Common:ndmf:DisableThisComponentPhasePreview"
+msgstr "(NDMF) {0} のプレビューを無効化する"
+
+msgid "Common:ndmf:EnableThisComponentPhasePreview"
+msgstr "(NDMF) {0} のプレビューを有効化する"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"

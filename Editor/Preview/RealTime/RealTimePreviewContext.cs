@@ -25,6 +25,18 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public event Action<GameObject> OnPreviewEnter;
         public event Action OnPreviewExit;
 
+        public static bool IsPreviewPossibleType(TexTransRuntimeBehavior ttr)
+        {
+            switch (ttr)
+            {
+                default: { return false; }
+                case SimpleDecal:
+                case MultiLayerImageCanvas:
+                case SingleGradationDecal:
+                    { return true; }
+            }
+        }
+
 
         protected RealTimePreviewContext()
         {
@@ -66,15 +78,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         void AddPreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
-            switch (texTransRuntimeBehavior)
-            {
-                default: { return; }
-                case SimpleDecal:
-                case MultiLayerImageCanvas:
-                case SingleGradationDecal:
-                    { break; }
-            }
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
+            if (IsPreviewPossibleType(texTransRuntimeBehavior) is false) { return; }
 
             _updateQueue.Enqueue(texTransRuntimeBehavior);
         }

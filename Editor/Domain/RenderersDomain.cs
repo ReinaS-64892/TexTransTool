@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
     /// This class doesn't call <see cref="AnimationMode.BeginSampling"/> and <see cref="AnimationMode.EndSampling"/>
     /// so user must call those if needed.
     /// </summary>
-    internal class RenderersDomain : IEditorCallDomain
+    internal class RenderersDomain : IDomain
     {
         protected List<Renderer> _renderers;
         public readonly bool Previewing;
@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool
                 true);
         }
 
-        public void SetSerializedProperty(SerializedProperty property, Object value)
+        private void SetSerializedProperty(SerializedProperty property, Object value)
         {
             AddPropertyModification(property.serializedObject.targetObject, property.propertyPath,
                 property.objectReferenceValue);

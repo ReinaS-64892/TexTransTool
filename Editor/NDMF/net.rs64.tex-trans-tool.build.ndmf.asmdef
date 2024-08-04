@@ -5,6 +5,7 @@
         "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.tex-trans-tool.editor",
+        "net.rs64.tex-trans-tool.inspector",
         "nadena.dev.ndmf",
         "nadena.dev.ndmf.runtime",
         "nadena.dev.ndmf.reactive-query.core"
@@ -23,13 +24,8 @@
     "versionDefines": [
         {
             "name": "nadena.dev.ndmf",
-            "expression": "1.3.0",
-            "define": "CONTAINS_NDMF"
-        },
-        {
-            "name": "nadena.dev.ndmf",
             "expression": "1.5.0-beta.1",
-            "define": "NDMF_1_5_x"
+            "define": "CONTAINS_NDMF"
         }
     ],
     "noEngineReferences": false
