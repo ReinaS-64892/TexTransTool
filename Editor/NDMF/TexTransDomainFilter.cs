@@ -158,8 +158,7 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public IEnumerable<TogglablePreviewNode> GetPreviewControlNodes()
         {
-            if (PreviewTargetPhase.First() is not TexTransPhase.BeforeUVModification) { return Array.Empty<TogglablePreviewNode>(); }
-            return NDMFPlugin.s_togglablePreviewPhases.Values.Concat(NDMFPlugin.s_togglablePreviewTexTransBehaviors.Values);
+            yield return NDMFPlugin.s_togglablePreviewPhases[PreviewTargetPhase.First()];
         }
     }
 }

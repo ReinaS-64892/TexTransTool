@@ -1,4 +1,5 @@
 
+using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Editor;
 using UnityEngine;
@@ -15,20 +16,32 @@ namespace net.rs64.TexTransTool.NDMF
 
         static void DrawNDMFPreviewToggleButton(TexTransBehavior texTransBehavior)
         {
-            if (NDMFPlugin.s_togglablePreviewTexTransBehaviors.ContainsKey(texTransBehavior.GetType()) is false) { return; }
+            if (texTransBehavior.GetType() == typeof(TexTransGroup) || texTransBehavior.GetType() == typeof(PreviewGroup)) { return; }
 
-            var isPreviewValue = NDMFPlugin.s_togglablePreviewTexTransBehaviors[texTransBehavior.GetType()].IsEnabled;
-            var thisComponentName = texTransBehavior.GetType().Name;
-
-            if (isPreviewValue.Value)
+            var phase = texTransBehavior is not PhaseDefinition pd ? texTransBehavior.PhaseDefine : pd.TexTransPhase;
+            TogglablePreviewNode previewNode;
+            switch (phase)
             {
-                if (GUILayout.Button("Common:ndmf:DisableThisComponentTypePreview".Glf(thisComponentName)))
-                { isPreviewValue.Value = !isPreviewValue.Value; }
+                default: { return; }
+                case TexTransPhase.BeforeUVModification:
+                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.BeforeUVModification]; break; }
+                case TexTransPhase.UVModification:
+                case TexTransPhase.AfterUVModification:
+                case TexTransPhase.UnDefined:
+                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.UVModification]; break; }
+                case TexTransPhase.Optimizing:
+                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.Optimizing]; break; }
+            }
+
+            if (previewNode.IsEnabled.Value)
+            {
+                if (GUILayout.Button("Common:ndmf:DisableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
+                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
             }
             else
             {
-                if (GUILayout.Button("Common:ndmf:EnableThisComponentTypePreview".Glf(thisComponentName)))
-                { isPreviewValue.Value = !isPreviewValue.Value; }
+                if (GUILayout.Button("Common:ndmf:EnableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
+                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
             }
         }
 

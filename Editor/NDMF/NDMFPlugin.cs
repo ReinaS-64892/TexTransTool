@@ -59,17 +59,6 @@ namespace net.rs64.TexTransTool.NDMF
             { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined",  true) },
             { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", true) },
         };
-        internal static Dictionary<Type, TogglablePreviewNode> s_togglablePreviewTexTransBehaviors =
-        TexTransInitialize.TexTransToolAssembly().SelectMany(a => a.GetTypes()).Where(t => t.IsAbstract is false)
-            .Where(t => typeof(TexTransBehavior).IsAssignableFrom(t))
-            .Where(t => typeof(TexTransGroup).IsAssignableFrom(t) is false)
-            .Where(t => typeof(PreviewGroup).IsAssignableFrom(t) is false)
-            .OrderBy(t => t.Name)
-            .ToDictionary(t => t, t =>
-            {
-                var i = Activator.CreateInstance(t) as TexTransBehavior;
-                return TogglablePreviewNode.Create(() => t.Name + "-Component", t.Name, i.PhaseDefine is not TexTransPhase.Optimizing);
-            });
     }
 
 }
