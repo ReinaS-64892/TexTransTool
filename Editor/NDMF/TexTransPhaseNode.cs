@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.BeginSample("apply ttb s");
             foreach (var ttb in flattenTTB)
             {
-                var pubVal = NDMFPlugin.s_togglablePreviewTexTransBehaviors[ttb.GetType()].IsActive;
+                var pubVal = NDMFPlugin.s_togglablePreviewTexTransBehaviors[ttb.GetType()].IsEnabled;
                 ctx.Observe(pubVal);
                 if (pubVal.Value is false) { continue; }
 

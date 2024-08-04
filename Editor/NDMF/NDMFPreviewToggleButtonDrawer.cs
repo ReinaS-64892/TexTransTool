@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.NDMF
         {
             if (NDMFPlugin.s_togglablePreviewTexTransBehaviors.ContainsKey(texTransBehavior.GetType()) is false) { return; }
 
-            var isPreviewValue = NDMFPlugin.s_togglablePreviewTexTransBehaviors[texTransBehavior.GetType()].IsActive;
+            var isPreviewValue = NDMFPlugin.s_togglablePreviewTexTransBehaviors[texTransBehavior.GetType()].IsEnabled;
             var thisComponentName = texTransBehavior.GetType().Name;
 
             if (isPreviewValue.Value)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
@@ -26,7 +27,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         public bool IsEnabled(ComputeContext context)
         {
-            var pubVal = NDMFPlugin.s_togglablePreviewPhases[PreviewTargetPhase.First()].IsActive;
+            var pubVal = NDMFPlugin.s_togglablePreviewPhases[PreviewTargetPhase.First()].IsEnabled;
             context.Observe(pubVal);
             return pubVal.Value;
         }
@@ -154,6 +155,11 @@ namespace net.rs64.TexTransTool.NDMF
             Debug.Log($" time:{timer.ElapsedMilliseconds}ms - Instantiate: {string.Join("-", PreviewTargetPhase.Select(i => i.ToString()))}  \n  {string.Join("-", group.Renderers.Select(r => r.gameObject.name))} ");
 #endif
             return node;
+        }
+        public IEnumerable<TogglablePreviewNode> GetPreviewControlNodes()
+        {
+            if (PreviewTargetPhase.First() is not TexTransPhase.BeforeUVModification) { return Array.Empty<TogglablePreviewNode>(); }
+            return NDMFPlugin.s_togglablePreviewPhases.Values.Concat(NDMFPlugin.s_togglablePreviewTexTransBehaviors.Values);
         }
     }
 }

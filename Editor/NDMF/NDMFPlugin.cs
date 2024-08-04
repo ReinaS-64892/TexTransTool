@@ -55,9 +55,9 @@ namespace net.rs64.TexTransTool.NDMF
 
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
-            { TexTransPhase.BeforeUVModification, new TogglablePreviewNode(() => "BeforeUVModification-Phase", "BeforeUVModification", new(true), true) },
-            { TexTransPhase.UVModification, new TogglablePreviewNode(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined", new(true), true) },
-            { TexTransPhase.Optimizing, new TogglablePreviewNode(() => "Optimizing-Phase", "Optimizing", new(true), true) },
+            { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
+            { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined",  true) },
+            { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", true) },
         };
         internal static Dictionary<Type, TogglablePreviewNode> s_togglablePreviewTexTransBehaviors =
         TexTransInitialize.TexTransToolAssembly().SelectMany(a => a.GetTypes()).Where(t => t.IsAbstract is false)
@@ -65,8 +65,11 @@ namespace net.rs64.TexTransTool.NDMF
             .Where(t => typeof(TexTransGroup).IsAssignableFrom(t) is false)
             .Where(t => typeof(PreviewGroup).IsAssignableFrom(t) is false)
             .OrderBy(t => t.Name)
-            .ToDictionary(t => t, t => new TogglablePreviewNode(() => t.Name + "-Component", t.Name, new(true), true));
-        public override IEnumerable<TogglablePreviewNode> TogglablePreviewNodes => s_togglablePreviewPhases.Values.Concat(s_togglablePreviewTexTransBehaviors.Values);
+            .ToDictionary(t => t, t =>
+            {
+                var i = Activator.CreateInstance(t) as TexTransBehavior;
+                return TogglablePreviewNode.Create(() => t.Name + "-Component", t.Name, i.PhaseDefine is not TexTransPhase.Optimizing);
+            });
     }
 
 }
