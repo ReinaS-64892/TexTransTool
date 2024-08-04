@@ -153,7 +153,9 @@ namespace net.rs64.TexTransTool.NDMF
         {
             if (!_rendererApplyRecaller.ContainsKey(original))
             {
+#if TTT_DISPLAY_RUNTIME_LOG
                 Debug.Log($"{original.name} is can not Recall");
+#endif
                 return;
             }
 
