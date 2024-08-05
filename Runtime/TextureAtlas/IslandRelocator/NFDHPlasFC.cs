@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                 var newWithBox = new UVWidthBox<IslandRect>(Floor, sortedIslands[i].Size.y, islandPadding);
 
                 var pivot = newWithBox.TrySetBox(sortedIslands[i]);
-                Debug.Assert(pivot is not null);
+                if (pivot is null) { Profiler.EndSample(); return false; }
                 sortedIslands[i].Pivot = pivot.Value;
 
                 uvWidthBox.AddLast(newWithBox);
