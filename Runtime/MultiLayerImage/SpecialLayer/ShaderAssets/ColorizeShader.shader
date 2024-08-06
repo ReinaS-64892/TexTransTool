@@ -56,23 +56,23 @@ Shader "Hidden/ColorizeShader"
 
             float4 frag (v2f i) : SV_Target
             {
-                float4 col = LiniearToGamma(tex2Dlod(_MainTex,float4( i.uv,0,0)));
+                float4 col = LiniearToGamma(tex2Dlod(_MainTex,float4(i.uv,0,0)));
 
-                float3 hsl = RGBtoHSL(col.rgb);
+                float3 hsl = float3(0,0,0);
                 float3 targetHSL = RGBtoHSL(LiniearToGamma(_Color).rgb);
 
-                hsl.x = targetHSL.x;
-                hsl.y = targetHSL.y; 
-                
+                hsl.r = targetHSL.r;
+                hsl.g = targetHSL.g;
+
                 float lum = GetLum(col.rgb);
-                lum = lum * 2.0 - 1.0;
-                if (lum > 0.0)
+                float lightness = targetHSL.b * 2.0 - 1.0;
+                if (lightness > 0.0)
                 {
-                    lum = (lum * (1.0 - lum)) + (1.0 - (1.0 - lum));
+                    lum = (lum * (1.0 - lightness)) + (1.0 - (1.0 - lightness));
                 }
                 else
                 {
-                    lum = lum * (lum + 1.0);
+                    lum = lum * (lightness + 1.0);
                 }
                 hsl.z = lum;
 
