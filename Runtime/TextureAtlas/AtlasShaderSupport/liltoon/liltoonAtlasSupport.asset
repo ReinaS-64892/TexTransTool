@@ -274,6 +274,7 @@ MonoBehaviour:
         Comparers:
         - rid: 5350865774560935962
         - rid: 5350865774560935963
+        - rid: 5998925668339154946
     - rid: 5350865774560935962
       type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
@@ -290,6 +291,17 @@ MonoBehaviour:
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         Name: _lil/[Optional]
+    - rid: 5998925668339154946
+      type: {class: NotComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparer:
+          rid: 5998925668339154947
+    - rid: 5998925668339154947
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Gem
     - rid: 7150698656081904264
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
