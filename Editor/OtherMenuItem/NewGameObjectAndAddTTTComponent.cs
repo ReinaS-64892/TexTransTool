@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + SelectiveColoringAdjustmentLayer.MenuPath)] static void SCAL() => C<SelectiveColoringAdjustmentLayer>();
         [M(BP + UnityGradationMapLayer.MenuPath)] static void UGML() => C<UnityGradationMapLayer>();
         [M(BP + YAsixFixedGradientLayer.MenuPath)] static void YAFGL() => C<YAsixFixedGradientLayer>();
+        [M(BP + ColorizeLayer.MenuPath)] static void CL() => C<ColorizeLayer>();
 
         [M(BP + TexTransGroup.MenuPath)] static void TTG() => C<TexTransGroup>();
         [M(BP + PhaseDefinition.PDMenuPath)] static void PD() => C<PhaseDefinition>();
