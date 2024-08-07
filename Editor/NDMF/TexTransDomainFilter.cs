@@ -34,7 +34,12 @@ namespace net.rs64.TexTransTool.NDMF
         private ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
         {
             var ttBehaviors = ctx.GetComponentsByType<TexTransBehavior>();
-            foreach (var ttb in ttBehaviors) { ctx.Observe(ttb); }
+
+            foreach (var ttb in ttBehaviors)
+            {
+                var isEnable = ctx.ActiveInHierarchy(ttb.gameObject); //先に ActiveInHierarchy をすべて見て無効化されているやつも見る
+                if (isEnable) ctx.Observe(ttb);
+            }
 
             var avatarGrouping = GroupingByAvatar(ttBehaviors);
             var allGroups = new List<RenderGroup>();
@@ -43,12 +48,14 @@ namespace net.rs64.TexTransTool.NDMF
                 var domainRoot = ag.Key;
                 var TexTransBehaviors = ag.Value;
 
+
+
                 var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true);
-                var phaseDict = AvatarBuildUtils.FindAtPhase(TexTransBehaviors);
+                var phaseDict = AvatarBuildUtils.FindAtPhase(TexTransBehaviors);//ここのなかで 無効化されたものはフィルタリングされる事がある
 
                 var (previewTargetBehavior, behaviorIndex) = GetFlattenBehaviorAndIndex(phaseDict);
 
-                var targetRendererGroup = GetTargetGrouping(ctx, domainRenderers, previewTargetBehavior);
+                var targetRendererGroup = GetTargetGrouping(ctx, domainRenderers, previewTargetBehavior);//ここでも無効化されたものはフィルタリングされる
                 var renderersGroup2behavior = GetRendererGrouping(behaviorIndex, targetRendererGroup);
 
                 allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(i.Value)));
@@ -110,7 +117,7 @@ namespace net.rs64.TexTransTool.NDMF
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttb in previewTargetBehavior)
             {
-                if (!ctx.ActiveInHierarchy(ttb.gameObject)) { continue; }
+                if (ttb.ThisEnable is false) { continue; }
                 var modificationTargets = ttb.ModificationTargetRenderers(domainRenderers, (l, r) => l == r);
                 targetRendererGroup.Add(ttb, modificationTargets.ToHashSet());
             }
