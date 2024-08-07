@@ -16,6 +16,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
             var newGameObj = new GameObject(typeof(TTB).Name);
             newGameObj.transform.SetParent(parent?.transform, false);
             newGameObj.AddComponent<TTB>();
+            Undo.RegisterCreatedObjectUndo(newGameObj, "Create " + typeof(TTB).Name);
             Selection.activeGameObject = newGameObj;
             EditorGUIUtility.PingObject(newGameObj);
         }
