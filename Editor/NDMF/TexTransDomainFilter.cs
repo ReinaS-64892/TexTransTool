@@ -35,6 +35,12 @@ namespace net.rs64.TexTransTool.NDMF
         {
             var ttBehaviors = ctx.GetComponentsByType<TexTransBehavior>();
 
+            foreach (var ttb in ttBehaviors)
+            {
+                var isEnable = ctx.ActiveInHierarchy(ttb.gameObject); //先に ActiveInHierarchy をすべて見て無効化されているやつも見る
+                if (isEnable) ctx.Observe(ttb);
+            }
+
             var avatarGrouping = GroupingByAvatar(ttBehaviors);
             var allGroups = new List<RenderGroup>();
             foreach (var ag in avatarGrouping)
@@ -42,7 +48,7 @@ namespace net.rs64.TexTransTool.NDMF
                 var domainRoot = ag.Key;
                 var TexTransBehaviors = ag.Value;
 
-                foreach (var ttb in TexTransBehaviors) { ctx.ActiveInHierarchy(ttb.gameObject); }//先に ActiveInHierarchy をすべて見て無効化されているやつも見る
+
 
                 var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true);
                 var phaseDict = AvatarBuildUtils.FindAtPhase(TexTransBehaviors);//ここのなかで 無効化されたものはフィルタリングされる事がある
