@@ -196,6 +196,9 @@ msgstr "TargetPropertyName"
 msgid "TextureFineTuning:prop:Select"
 msgstr "Select"
 
+msgid "TextureFineTuning:prop:IsRemove"
+msgstr "IsRemove"
+
 msgid "TextureFineTuning:prop:Select:tooltip"
 msgstr "Property select condition."
 

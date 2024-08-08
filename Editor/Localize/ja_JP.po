@@ -197,6 +197,9 @@ msgstr "ターゲットプロパティネーム"
 msgid "TextureFineTuning:prop:Select"
 msgstr "選択"
 
+msgid "TextureFineTuning:prop:IsRemove"
+msgstr "削除する"
+
 msgid "TextureFineTuning:prop:Select:tooltip"
 msgstr "プロパティをどのように選択するか"
 
