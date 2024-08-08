@@ -73,6 +73,7 @@ namespace net.rs64.TexTransCore.Decal
             {
                 var targetMat = targetRenderer.sharedMaterials[i];
 
+                if (targetMat == null) { continue; }
                 if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
                 var targetTexture = targetMat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }

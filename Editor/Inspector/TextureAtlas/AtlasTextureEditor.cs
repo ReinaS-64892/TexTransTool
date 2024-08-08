@@ -245,9 +245,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (limitRoot != null)
             {
                 var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
-                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().ToList();
+                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().Where(m => m != null).ToList();
             }
-            else { filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().ToList(); }
+            else { filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList(); }
 
             var atlasSSupport = new AtlasShaderSupportUtils();
             var supportDict = filteredMaterials.ToDictionary(m => m, m => atlasSSupport.GetAtlasShaderSupporter(m));

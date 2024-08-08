@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.Decal
         private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
         {
             if (!IsPossibleApply) { return new(); }
-            return RendererUtility.GetMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
+            return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 
         private void OnDrawGizmosSelected()

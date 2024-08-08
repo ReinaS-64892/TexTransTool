@@ -910,7 +910,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (item.GetMesh() == null) return false;
             if (item.GetMesh().uv.Any() == false) return false;
             if (item.sharedMaterials.Length == 0) return false;
-            if (item.sharedMaterials.Any(Mat => Mat == null)) return false;
             if (item.GetComponent<AtlasExcludeTag>() != null) return false;
 
             return true;

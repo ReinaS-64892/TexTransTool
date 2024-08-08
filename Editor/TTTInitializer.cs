@@ -43,6 +43,7 @@ namespace net.rs64.TexTransTool.Utils
                 foreach (var path in importedAssets)
                 {
                     var type = AssetDatabase.GetMainAssetTypeAtPath(path);
+                    if (type is null) { continue; }
                     if (TexTransCoreRuntime.NewAssetListen.TryGetValue(type, out var action)) { action.Invoke(); }
                 }
             }
