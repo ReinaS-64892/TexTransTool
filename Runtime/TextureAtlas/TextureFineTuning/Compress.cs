@@ -12,6 +12,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public bool UseOverride = false;
         public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
         [Range(0, 100)] public int CompressionQuality = 50;
+        
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;

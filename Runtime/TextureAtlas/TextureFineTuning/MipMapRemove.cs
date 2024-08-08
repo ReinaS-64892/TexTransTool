@@ -8,11 +8,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class MipMapRemove : ITextureFineTuning
     {
+        public bool IsRemove = true;
+
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;
-
-        public bool IsRemove = true;
 
         public MipMapRemove() { }
         [Obsolete("V4SaveData", true)]
