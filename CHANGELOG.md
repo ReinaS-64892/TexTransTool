@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture のアイランド再配置に失敗した場合にエラーログを出力するようになりました (#586)
 - AtlasTexture の NFDHPlasFC が外側のパディングを消去し再配置効率が上がりました (#588)
 - NDMF v1.5.0 以上がプロジェクトに存在する場合 Preview、RealTimePreview のボタンは NDMF-Preview の フェーズ単位で有効化、無効化のボタンになるようになりました (#593)
+- AtlasTexture が レンダラーのマテリアルに Null が含まれている場合でもアトラス化の対象にできるようになりました (#612)
 
 ### Changed
 
@@ -53,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - lilToon の宝石シェーダーが誤って 通常の lilToon としてサポートされていた問題を修正 (#598)
 - GameObject/TexTransTool から生成した GameObject がレコードされて終らず、元に戻すを行っても消えない問題を修正 (#602)
 - AtlasTexture の lilToon _MainTexHSVG のベイクが正しく行われない問題を修正 (#611)
+- SimpleDecal の適用対象のレンダラーのマテリアルに Null が含まれている場合に例外が発生する問題を修正 (#612)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
