@@ -7,10 +7,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Remove : ITextureFineTuning
     {
+        public bool IsRemove = true;
+
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.NotEqual;
-
         public Remove() { }
         [Obsolete("V4SaveData", true)]
         public Remove(PropertyName propertyNames, PropertySelect select)
@@ -28,7 +29,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
-                target.Value.Get<RemoveData>();
+                target.Value.Get<RemoveData>().IsRemove = IsRemove;
             }
         }
 
@@ -36,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal class RemoveData : ITuningData
     {
-
+        public bool IsRemove = true;
     }
 
     internal class RemoveApplicant : ITuningApplicant
@@ -48,7 +49,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             foreach (var removeTarget in texFineTuningTargets.Where(i => i.Value.Find<RemoveData>() is not null).ToArray())
             {
-                texFineTuningTargets.Remove(removeTarget.Key);
+                if (removeTarget.Value.Find<RemoveData>().IsRemove) { texFineTuningTargets.Remove(removeTarget.Key); }
             }
 
         }

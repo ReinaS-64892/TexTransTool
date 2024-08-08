@@ -11,9 +11,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [AddTypeMenu("(Experimental) Discard Alpha Channel")]
     public class DiscardAlphaChannel : ITextureFineTuning
     {
+        public bool IsDiscard = true;
+
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;
-        public bool IsDiscard = true;
         public DiscardAlphaChannel() { }
         public DiscardAlphaChannel(List<PropertyName> propertyNames, PropertySelect propertySelect)
         {
