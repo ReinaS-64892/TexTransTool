@@ -13,6 +13,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var sPropertyNames = property.FindPropertyRelative("PropertyNameList");
             var sSelect = property.FindPropertyRelative("Select");
+            var sIsRemove = property.FindPropertyRelative("IsRemove");
+
+            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:IsRemove".Glc());
+            position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sPropertyNames);
             EditorGUI.PropertyField(position, sPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
@@ -21,11 +25,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUI.PropertyField(position, sSelect, "TextureFineTuning:prop:Select".Glc());
             position.y += 18;
+
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return base.GetPropertyHeight(property, label) + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("PropertyNameList"));
+            return base.GetPropertyHeight(property, label) * 2 + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("PropertyNameList"));
         }
     }
 }
