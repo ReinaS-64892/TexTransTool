@@ -392,7 +392,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #if Bake_MainTex
                 float4 col = tex2D(_MainTex ,i.uv);
                 float3 tcCol = lilToneCorrection(col.rgb,_MainTexHSVG);
-                col.rgb = lerp(tcCol , col.rgb , tex2D(_MainColorAdjustMask,i.uv));
+                col.rgb = lerp(col.rgb, tcCol, tex2D(_MainColorAdjustMask,i.uv));
                 col *= _Color;
                 return col;
 #elif Bake_Main2ndTex
