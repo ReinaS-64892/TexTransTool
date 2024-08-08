@@ -39,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - AtlasTexture TextureFineTuning MergeTexture で MergeParent を存在しないものに指定した場合に例外が発生する問題を修正 (#561)
 - TextureConfigurator で OverrideCompression は有効だが、OverrideTextureSetting が無効な場合に解像度や MipMap の有無が正しくないテクスチャが生成される問題を修正 (#573)
 - TextureConfigurator でもともとのテクスチャよりも大きい解像度を指定した場合に MipMap の0番あたりが黒くなってしまう問題を修正 (#580)
-- TexTransToolPSDImporter がインポートするレイヤーのプレビューTexture2D の圧縮軽視が誤って DXT5 になっていた問題を修正 (#604)
+- TexTransToolPSDImporter がインポートするレイヤーのプレビューTexture2D の圧縮形式が誤って DXT5 になっていた問題を修正 (#604)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
