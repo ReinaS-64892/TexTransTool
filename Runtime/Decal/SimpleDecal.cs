@@ -155,6 +155,7 @@ namespace net.rs64.TexTransTool.Decal
                 if (tr.GetMesh() == null) { continue; }
                 foreach (var mat in tr.sharedMaterials)
                 {
+                    if (mat == null) { continue; }
                     var targetTex = mat.HasProperty(TargetPropertyName) ? mat.GetTexture(TargetPropertyName) : null;
                     if (targetTex == null) { continue; }
                     modificationTarget.Add(targetTex);

@@ -37,7 +37,7 @@ namespace net.rs64.TexTransCore.Utils
         {
             if (renderer == null) { return; }
             if (!renderer.sharedMaterials.Any()) { return; }
-            renderer.sharedMaterials = renderer.sharedMaterials.Select(i => matMap.TryGetValue(i, out var r) ? r : i).ToArray();
+            renderer.sharedMaterials = renderer.sharedMaterials.Select(i => i != null ? matMap.TryGetValue(i, out var r) ? r : i : i).ToArray();
         }
         public static Mesh GetMesh(this Renderer target)
         {
