@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NDMF v1.5.0 以上がプロジェクトに存在する場合 Preview、RealTimePreview のボタンは NDMF-Preview の フェーズ単位で有効化、無効化のボタンになるようになりました (#593)
 - AtlasTexture が レンダラーのマテリアルに Null が含まれている場合でもアトラス化の対象にできるようになりました (#612)
 - AtlasTexture TextureFineTuning Remove に 削除しない等に上書きすることを可能にするために IsRemove プロパティを追加 (#613)
+- 部分的マイグレーションが可能なウィンドウ追加と、ツールバーと、マイグレーション通知から開けるようになりました (#620)
 
 ### Changed
 
@@ -57,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の lilToon _MainTexHSVG のベイクが正しく行われない問題を修正 (#611)
 - SimpleDecal の適用対象のレンダラーのマテリアルに Null が含まれている場合に例外が発生する問題を修正 (#612)
 - NDMF v1.4.1 などの NDMF 非対応バージョンがプロジェクトが存在する場合に警告が発生しない問題を修正 (#619)
+- マイグレーションの時に、拡張子が `.Unity` となっているシーンが存在するとマイグレーションに必ず失敗する問題を修正 (#620)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
