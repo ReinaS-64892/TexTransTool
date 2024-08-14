@@ -46,7 +46,8 @@ namespace net.rs64.TexTransTool.Migration
     /*
     これは AAO のマイクグレーターにあった便利な関数などを引き抜いていじった何か
     */
-    internal static class AAOMigrator
+    [InitializeOnLoad]
+    internal class AAOMigrator
     {
 
 
