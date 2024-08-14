@@ -15,12 +15,17 @@
         {
             "name": "com.vrchat.avatars",
             "expression": "",
-            "define": "ぶいちゃあばたー"
+            "define": "VRC_AVATAR"
         },
         {
             "name": "nadena.dev.ndmf",
             "expression": "",
-            "define": "なでもふっっ"
+            "define": "NDMF"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.5.0-beta.2",
+            "define": "NDMF_DEPEND_VERSION"
         }
     ],
     "noEngineReferences": false
