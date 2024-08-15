@@ -101,7 +101,6 @@ namespace net.rs64.TexTransTool.Migration
             }
             foreach (var prefabKV in PrefabInfo)
             {
-                Debug.Log(prefabKV.Value.Prefab.name);
                 var toggle = PrefabToToggle[prefabKV.Key];
                 var parentPrefab = PrefabUtility.GetCorrespondingObjectFromSource(prefabKV.Value.Prefab);
                 if (parentPrefab != null && PrefabToToggle.ContainsKey(parentPrefab))
@@ -137,8 +136,11 @@ namespace net.rs64.TexTransTool.Migration
         void Migration()
         {
             var prefabTarget = MigrationTarget.Where(kv => kv.Value).Select(kv => kv.Key).ToHashSet();
-            AAOMigrator.MigratePartial(PrefabMinimumSaveDataVersion.Where(kv => prefabTarget.Contains(kv.Key)).Min(kv => kv.Value)
-            , prefabTarget, Scene.Where(kv => kv.Value).Select(kv => kv.Key).ToHashSet());
+
+            var saveDataVersionValues = PrefabMinimumSaveDataVersion.Where(kv => prefabTarget.Contains(kv.Key)).Select(i => i.Value);
+            if (saveDataVersionValues.Any() is false) { saveDataVersionValues = saveDataVersionValues.Append(0); }
+
+            AAOMigrator.MigratePartial(saveDataVersionValues.Min(), prefabTarget, Scene.Where(kv => kv.Value).Select(kv => kv.Key).ToHashSet());
 
             this.Close();
         }
