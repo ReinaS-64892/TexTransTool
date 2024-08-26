@@ -1,3 +1,4 @@
+using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
@@ -20,6 +21,34 @@ namespace net.rs64.TexTransTool.NDMF
             PreviewUtility.ExitPreviews();
             TTTLog.Error("Common:error:BuildWasRunDuringPreviewing");
             throw new TTTNotExecutable();
+        }
+    }
+    internal class TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning : Pass<TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            var warningTarget = context.AvatarRootObject.GetComponentsInChildren<TexTransBehavior>()
+               .Where(ttb =>
+               {
+                   var parent = ttb.transform.parent;
+                   if (parent == null) { return false; }
+                   return parent.GetComponentsInParent<TexTransBehavior>().Any(pttb =>
+                          {
+                              switch (pttb)
+                              {
+                                  case PhaseDefinition:
+                                  case TexTransGroup:
+                                  case PreviewGroup:
+                                      return false;
+                                  default:
+                                      return true;
+                              }
+                          });
+               }).ToArray();
+
+            if (warningTarget.Any() is false) { return; }
+
+            TTTLog.Warning("Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning", warningTarget);
         }
     }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>

@@ -28,6 +28,7 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
 
             .Run(BeforeUVModificationPass.Instance).Then
+            .Run(TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning.Instance).Then
 
             .Run(MidwayMergeStackPass.Instance)
             .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification }))

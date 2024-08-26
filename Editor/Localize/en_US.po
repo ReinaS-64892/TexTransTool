@@ -29,6 +29,15 @@ msgstr "Build was run during previewing."
 msgid "Common:error:BuildWasRunDuringPreviewing:hint"
 msgstr "If this error, preview has exit. please try again."
 
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning"
+msgstr "The Component is nested inside a TexTransTool's non-Group component!"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:description"
+msgstr "In the next version v0.9.x, nesting TexTransTool components other then Group component(such as TexTransGroup) will not longer work."
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
+msgstr "Try not to nest component, but place them elsewhere."
+
 msgid "Common:ndmf:DisableThisComponentPhasePreview"
 msgstr "(NDMF) Disable {0} Preview"
 
