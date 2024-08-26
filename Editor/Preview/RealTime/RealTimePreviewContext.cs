@@ -152,7 +152,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
                 Profiler.BeginSample("Apply");
                 _previewDomain.SetNowBehavior(texTransRuntimeBehavior, priority);
-                try { if (texTransRuntimeBehavior.gameObject.activeInHierarchy && texTransRuntimeBehavior.IsPossibleApply) { texTransRuntimeBehavior.Apply(_previewDomain); } }
+                try { if (texTransRuntimeBehavior.gameObject.activeInHierarchy) { texTransRuntimeBehavior.Apply(_previewDomain); } }
                 catch (Exception ex) { Debug.LogException(ex); }
                 Profiler.EndSample();
 

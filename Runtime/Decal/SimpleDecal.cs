@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.Decal
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
-            if (!IsPossibleApply) { TTTRuntimeLog.Error(GetType().Name + ":error:TTTNotExecutable"); return; }
+            if (TargetRenderers.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
             var targetRenderers = domain.GetDomainsRenderers(TargetRenderers);
             var decalCompiledTextures = CompileDecal(targetRenderers, domain);
 
@@ -110,7 +110,6 @@ namespace net.rs64.TexTransTool.Decal
             return mulDecalTexture;
         }
         [ExpandTexture2D] public Texture2D DecalTexture;
-        internal override bool IsPossibleApply => TargetRenderers.Any(i => i != null);
         internal Dictionary<Material, RenderTexture> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
         {
             RenderTexture mulDecalTexture;

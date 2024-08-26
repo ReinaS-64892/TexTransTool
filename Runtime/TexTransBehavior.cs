@@ -23,7 +23,6 @@ namespace net.rs64.TexTransTool
     public abstract class TexTransBehavior : MonoBehaviour, ITexTransToolTag
     {
         internal bool ThisEnable => gameObject.activeInHierarchy;
-        internal abstract bool IsPossibleApply { get; }
         internal abstract TexTransPhase PhaseDefine { get; }
 
         //v0.3.x == 0

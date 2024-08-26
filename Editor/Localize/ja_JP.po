@@ -52,8 +52,11 @@ msgstr "AtlasTexture は実行不可能な状態です。"
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "ターゲットルートやマテリアルの選択を見直してください。"
 
+msgid "AtlasTexture:info:TargetNotSet"
+msgstr "アトラス化対象が設定されていません！"
+
 msgid "AtlasTexture:info:TargetNotFound"
-msgstr "適用対象が存在しません！"
+msgstr "アトラス化対象が存在しません！"
 
 msgid "AtlasTexture:error:RelocationFailed"
 msgstr "アイランドの再配置に失敗しました!"
@@ -389,6 +392,9 @@ msgstr "SimpleDecal は実行不可能な状態です。"
 msgid "SimpleDecal:error:TTTNotExecutable:hint"
 msgstr "ターゲットレンダラーが存在しているか確認してください。"
 
+msgid "SimpleDecal:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
 msgid "SimpleDecal:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
 
@@ -477,6 +483,9 @@ msgstr "グループの子"
 
 # SingleGradationDecal
 
+msgid "SingleGradationDecal:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
 msgid "SingleGradationDecal:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
 
@@ -504,7 +513,37 @@ msgstr "ターゲットプロパティネーム"
 msgid "SingleGradationDecal:prop:GradientClamp"
 msgstr "グラデーションのクランプ"
 
+# TextureBlender
+
+msgid "TextureBlender:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
+msgid "TextureBlender:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
 # TextureConfigurator
 
+msgid "TextureConfigurator:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
 msgid "TextureConfigurator:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
+# MaterialOverrideTransfer
+
+msgid "MaterialOverrideTransfer:info:TargetNotSet"
+msgstr "転送対象が設定されていません！"
+
+msgid "MaterialOverrideTransfer:info:VariantNotSet"
+msgstr "転送する情報を持つバリアントが設定されていません！"
+
+msgid "MaterialOverrideTransfer:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
+# MultiLayerImageCanvas
+
+msgid "MultiLayerImageCanvas:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
+msgid "MultiLayerImageCanvas:info:TargetNotFound"
 msgstr "適用対象が存在しません！"

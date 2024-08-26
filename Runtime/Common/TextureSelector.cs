@@ -47,23 +47,25 @@ namespace net.rs64.TexTransTool
         }
 
         internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
-        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers)
+        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var targetTex = GetTexture() as Texture2D;
-            return FindModificationTargetRenderers(domainRenderers, targetTex);
+            var targetTex = GetTexture();
+            var targetTextures = RendererUtility.GetAllTexture<Texture>(domainRenderers).Where(m => replaceTracking(m, targetTex));
+            return FindModificationTargetRenderers(domainRenderers, targetTextures);
         }
 
-        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, Texture2D targetTex)
+        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, IEnumerable<Texture> targetTex)
         {
-            if (targetTex == null) { return Array.Empty<Renderer>(); }
+            if (targetTex.Any() is false) { return Array.Empty<Renderer>(); }
+            var targetTexHash = new HashSet<Texture>(targetTex);
             var mats = RendererUtility.GetFilteredMaterials(domainRenderers);
             var targetMatHash = new HashSet<Material>();
 
             foreach (var mat in mats)
             {
                 if (targetMatHash.Contains(mat)) { continue; }
-                var dict = mat.GetAllTexture2D();
-                if (dict.ContainsValue(targetTex)) { targetMatHash.Add(mat); }
+                var dict = mat.GetAllTexture<Texture>();
+                if (dict.Values.Any(t => targetTexHash.Contains(t))) { targetMatHash.Add(mat); }
             }
             return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
         }
