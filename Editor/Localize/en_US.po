@@ -52,6 +52,9 @@ msgstr "AtlasTexture is not executable."
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
 
+msgid "AtlasTexture:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "AtlasTexture:error:RelocationFailed"
 msgstr "Island relocation failed!"
 
@@ -387,6 +390,9 @@ msgstr "AtlasTexture is not executable."
 msgid "SimpleDecal:error:TTTNotExecutable:hint"
 msgstr "Please review target renderers exist."
 
+msgid "SimpleDecal:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "ScaleSettings"
 
@@ -472,6 +478,9 @@ msgstr "GroupChildren"
 
 # SingleGradationDecal
 
+msgid "SingleGradationDecal:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "SelectedMaterialView"
 
@@ -499,4 +508,4 @@ msgstr "GradientClamp"
 # TextureConfigurator
 
 msgid "TextureConfigurator:error:TargetNotFound"
-msgstr "TargetNotFound"
+msgstr "Target not found!"

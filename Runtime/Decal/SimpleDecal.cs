@@ -76,6 +76,8 @@ namespace net.rs64.TexTransTool.Decal
             {
                 domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
             }
+
+            if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
         }
 
         internal static RenderTexture GetMultipleDecalTexture(IDomain domain, Texture2D sourceDecalTexture, Color color)

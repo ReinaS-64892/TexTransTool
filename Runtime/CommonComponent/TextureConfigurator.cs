@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool
             var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values)
             .FirstOrDefault(i => domain.OriginEqual(i, target));
 
-            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return; }
+            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             domain.LookAt(targetTex2D);
 

@@ -52,6 +52,9 @@ msgstr "AtlasTexture は実行不可能な状態です。"
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "ターゲットルートやマテリアルの選択を見直してください。"
 
+msgid "AtlasTexture:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
 msgid "AtlasTexture:error:RelocationFailed"
 msgstr "アイランドの再配置に失敗しました!"
 
@@ -386,6 +389,9 @@ msgstr "SimpleDecal は実行不可能な状態です。"
 msgid "SimpleDecal:error:TTTNotExecutable:hint"
 msgstr "ターゲットレンダラーが存在しているか確認してください。"
 
+msgid "SimpleDecal:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "スケール設定"
 
@@ -471,6 +477,9 @@ msgstr "グループの子"
 
 # SingleGradationDecal
 
+msgid "SingleGradationDecal:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "選択済みマテリアル"
 
@@ -494,3 +503,8 @@ msgstr "ターゲットプロパティネーム"
 
 msgid "SingleGradationDecal:prop:GradientClamp"
 msgstr "グラデーションのクランプ"
+
+# TextureConfigurator
+
+msgid "TextureConfigurator:info:TargetNotFound"
+msgstr "適用対象が存在しません！"

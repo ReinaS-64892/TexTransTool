@@ -105,6 +105,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var sizePriorityDict = targetMaterials.ToDictionary(i => i, i => SelectMatList.First(m => domain.OriginEqual(m.Material, i)).MaterialFineTuningValue);
 
             atlasData.AtlasInMaterials = targetMaterials;
+            if (atlasData.AtlasInMaterials.Any() is false) { return false; }
+
             var atlasSetting = AtlasSetting;
             var propertyBakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
             Profiler.EndSample();
@@ -706,7 +708,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var nowRenderers = GetTargetAllowedFilter(domain.EnumerateRenderer());
 
             Profiler.BeginSample("TryCompileAtlasTextures");
-            if (!TryCompileAtlasTextures(nowRenderers, domain, out var atlasData)) { Profiler.EndSample(); return; }
+            if (!TryCompileAtlasTextures(nowRenderers, domain, out var atlasData))
+            {
+                Profiler.EndSample();
+                if (atlasData.AtlasInMaterials.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotFound"); return; }
+                return;
+            }
             Profiler.EndSample();
 
             Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
