@@ -468,6 +468,9 @@ msgstr "AllExit"
 msgid "SimpleDecal:button:AllExit:tooltip"
 msgstr "Exit all decal real time preview."
 
+msgid "SimpleDecal:info:ScaleInvert"
+msgstr "Scale of the Decal is inverted!\nIt may unintended behavior such as being decal only on the back side!"
+
 # TexTransGroup
 
 msgid "SimpleDecal:label:DuringPreviewNoSummary"

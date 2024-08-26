@@ -116,6 +116,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sLocalScale = tf_sObg.FindProperty("m_LocalScale");
             var sFixedAspect = thisSObject.FindProperty("FixedAspect");
 
+            var localScaleValue = sLocalScale.vector3Value;
+            if (localScaleValue.x < 0 || localScaleValue.y < 0 || localScaleValue.z < 0) { EditorGUILayout.HelpBox("SimpleDecal:info:ScaleInvert".GetLocalize(), MessageType.Info); }
+
             TextureTransformerEditor.Filter<float> editCollBack = (value) =>
             {
                 var aspectValue = 1f;
