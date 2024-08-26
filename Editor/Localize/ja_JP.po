@@ -467,6 +467,9 @@ msgstr "AllExit"
 msgid "SimpleDecal:button:AllExit:tooltip"
 msgstr "すべてのリアルタイムプレビュー中のデカールのプレビューを終了する。"
 
+msgid "SimpleDecal:info:ScaleInvert"
+msgstr "デカールのスケールが反転しています！\n裏面にのみ貼られるなど意図しない挙動をする可能性があります！"
+
 # TexTransGroup
 
 msgid "TexTransGroup:label:DuringPreviewNoSummary"
