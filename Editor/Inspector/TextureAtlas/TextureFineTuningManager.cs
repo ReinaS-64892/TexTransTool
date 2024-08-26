@@ -136,8 +136,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             using (var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TextureManager(true)))
             {
 
+                var nowRenderers = atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer());
+                var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers);
+                if (targetMaterials.Any() is false) { return null; }
+
                 var result = atlasTexture.TryCompileAtlasTextures(
-                    atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer()),
+                    atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer()), targetMaterials,
                     previewDomain,
                     out var atlasData
                     );

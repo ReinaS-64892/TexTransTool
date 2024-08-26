@@ -14,10 +14,16 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
-            if (!materialOverrideTransfer.IsPossibleApply) { throw new TTTNotExecutable(); }
+
+            var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
+            if (materialOverrideTransfer.TargetMaterial == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotSet"); }
+            if (materialOverrideTransfer.MaterialVariantSource == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:VariantNotSet"); }
+            if (isValid is false) { return; }
 
             var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
             var mats = GetTargetMaterials(domain.EnumerateRenderer(), domain.OriginEqual, materialOverrideTransfer.TargetMaterial);
+
+            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotFound"); return; }
 
             var overridePropertyDict = new Dictionary<string, ShaderPropertyType>();
             var shader = materialVariantSource.shader;
@@ -82,7 +88,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
-            if (materialOverrideTransfer.IsPossibleApply == false) { return Array.Empty<Renderer>(); }
+            if (materialOverrideTransfer.TargetMaterial == null) { return Array.Empty<Renderer>(); }
 
             var modTarget = GetTargetMaterials(domainRenderers, replaceTracking, materialOverrideTransfer.TargetMaterial).ToHashSet();
             return domainRenderers.Where(i => i.sharedMaterials.Any(mat => modTarget.Contains(mat)));

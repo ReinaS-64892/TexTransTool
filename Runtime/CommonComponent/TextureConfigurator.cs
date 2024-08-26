@@ -17,8 +17,6 @@ namespace net.rs64.TexTransTool
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureConfigurator";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
-
-        internal override bool IsPossibleApply => TargetTexture.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
         public TextureSelector TargetTexture;
@@ -40,13 +38,14 @@ namespace net.rs64.TexTransTool
 
             var textureManager = domain.GetTextureManager();
             var target = TargetTexture.GetTexture();
+            if (target == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
+
             var materials = domain.EnumerateRenderer()
             .SelectMany(i => i.sharedMaterials)
             .Distinct().Where(i => i != null);
-            var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values)
-            .FirstOrDefault(i => domain.OriginEqual(i, target));
+            var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values).FirstOrDefault(i => domain.OriginEqual(i, target));
 
-            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:error:TargetNotFound"); return; }
+            if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             domain.LookAt(targetTex2D);
 
@@ -109,7 +108,7 @@ namespace net.rs64.TexTransTool
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TargetTexture.ModificationTargetRenderers(domainRenderers);
+            return TargetTexture.ModificationTargetRenderers(domainRenderers, replaceTracking);
         }
 
     }

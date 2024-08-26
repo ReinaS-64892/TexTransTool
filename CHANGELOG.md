@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture TextureFineTuning Remove に 削除しない等に上書きすることを可能にするために IsRemove プロパティを追加 (#613)
 - 部分的マイグレーションが可能なウィンドウ追加と、ツールバーとマイグレーション通知から開けるようになりました (#620)
 - v0.9.0 にて廃止される予定のコンポーネントの入れ子状態に警告を発生させるようになりました (#629)
+- 実行できない場合などの information などが以前よりも細かく出力されるようになりました (#630)
 
 ### Changed
 

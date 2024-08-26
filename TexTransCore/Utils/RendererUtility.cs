@@ -79,5 +79,14 @@ namespace net.rs64.TexTransCore.Utils
                     return false;
             }
         }
+        public static HashSet<Tex> GetAllTexture<Tex>(IEnumerable<Renderer> renderers) where Tex : Texture
+        {
+            var hash = new HashSet<Tex>();
+
+            var matHash = new HashSet<Material>(GetFilteredMaterials(renderers));
+            foreach (var mat in matHash) { hash.UnionWith(mat.GetAllTexture<Tex>().Values); }
+
+            return hash;
+        }
     }
 }

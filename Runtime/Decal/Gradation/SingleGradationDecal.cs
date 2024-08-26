@@ -20,11 +20,9 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SingleGradationDecal";
         internal const string MenuPath = ComponentName;
-
-        internal override bool IsPossibleApply => TargetMaterials != null && TargetMaterials.Any();
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
-        public List<Material> TargetMaterials;
+        public List<Material> TargetMaterials = new();
         public Gradient Gradient;
         [Range(0, 1)] public float Alpha = 1;
         public bool GradientClamp = true;
@@ -41,7 +39,9 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(transform.GetParents().Append(transform));
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
 
-            var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
+            if (TargetMaterials.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotSet"); return; }
+            var nowTargetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
+
             var gradTex = GradientTempTexture.Get(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
             var filter = new IslandSelectFilter(IslandSelector);
@@ -55,11 +55,13 @@ namespace net.rs64.TexTransTool.Decal
 
 
             var writeable = new Dictionary<Material, RenderTexture>();
-            decalContext.GenerateKey(writeable, targetMat);
+            decalContext.GenerateKey(writeable, nowTargetMat);
+
+            if (writeable.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotFound"); return; }
 
             foreach (var renderer in domain.EnumerateRenderer())
             {
-                if (!renderer.sharedMaterials.Any(mat => targetMat.Contains(mat))) { continue; }
+                if (!renderer.sharedMaterials.Any(mat => nowTargetMat.Contains(mat))) { continue; }
                 domain.LookAt(renderer);
                 decalContext.WriteDecalTexture(writeable, renderer, gradTex);
             }
@@ -69,7 +71,7 @@ namespace net.rs64.TexTransTool.Decal
 
         private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
         {
-            if (!IsPossibleApply) { return new(); }
+            if (TargetMaterials.Any() is false) { return new(); }
             return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 

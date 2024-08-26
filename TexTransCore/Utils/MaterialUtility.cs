@@ -82,7 +82,11 @@ namespace net.rs64.TexTransCore.Utils
         }
         public static Dictionary<string, Texture> GetAllTexture(this Material material)
         {
-            var output = new Dictionary<string, Texture>();
+            return GetAllTexture<Texture>(material);
+        }
+        public static Dictionary<string, Tex> GetAllTexture<Tex>(this Material material) where Tex : Texture
+        {
+            var output = new Dictionary<string, Tex>();
             if (material == null || material.shader == null) { return output; }
             var shader = material.shader;
             var propCount = shader.GetPropertyCount();
@@ -90,7 +94,7 @@ namespace net.rs64.TexTransCore.Utils
             {
                 if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
                 var propName = shader.GetPropertyName(i);
-                var texture = material.GetTexture(propName);
+                var texture = material.GetTexture(propName) as Tex;
                 if (texture != null) { output.TryAdd(propName, texture); }
             }
             return output;

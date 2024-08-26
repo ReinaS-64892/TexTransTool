@@ -13,7 +13,6 @@ namespace net.rs64.TexTransTool.EditorProcessor
         {
             var ttg = texTransCallEditorBehavior as TexTransGroup;
 
-            if (!ttg.IsPossibleApply) { TTTLog.Error("Not executable"); return; }
             // editorCallDomain.ProgressStateEnter("TexTransGroup");
 
             var targetList = TexTransGroup.TextureTransformerFilter(ttg.Targets).ToArray();
@@ -21,7 +20,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
             foreach (var tf in targetList)
             {
                 count += 1;
-                tf.Apply(domain);
+                TTTLog.ReportingObject(tf, () => tf.Apply(domain));
                 // editorCallDomain.ProgressUpdate(tf.name + " Apply", (float)count / targetList.Length);
             }
             // editorCallDomain.ProgressStateExit();
@@ -29,7 +28,6 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
             var ttg = texTransCallEditorBehavior as TexTransGroup;
-            if (!ttg.IsPossibleApply) { TTTLog.Error("Not executable"); return Array.Empty<Renderer>(); }
 
             var targetList = TexTransGroup.TextureTransformerFilter(ttg.Targets).ToArray();
             return targetList.SelectMany(i => i.ModificationTargetRenderers(domainRenderers, replaceTracking));

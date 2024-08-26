@@ -151,6 +151,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         internal void DomainRecaller(Renderer original, Renderer proxy)
         {
+            if (_rendererApplyRecaller.Any() is false) { return; }
             if (!_rendererApplyRecaller.ContainsKey(original))
             {
 #if TTT_DISPLAY_RUNTIME_LOG

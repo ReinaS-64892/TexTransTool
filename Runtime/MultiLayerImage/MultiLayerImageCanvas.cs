@@ -17,7 +17,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string FoldoutName = "MultiLayerImage";
         internal const string ComponentName = "TTT MultiLayerImageCanvas";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        internal override bool IsPossibleApply => TextureSelector.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         public TextureSelector TextureSelector;
@@ -26,16 +25,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void Apply([NotNull] IDomain domain)
         {
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
+            var replaceTarget = TextureSelector.GetTexture();
+            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); domain.LookAt(this); return; }
+
+            var nowDomainsTargets = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer()).Where(m => domain.OriginEqual(m, replaceTarget));
+            if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
 
             LookAtCallingCanvas(domain);
 
-            var replaceTarget = TextureSelector.GetTexture();
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
             RenderTexture result = EvaluateCanvas(domain.GetTextureManager(), canvasSize);
 
-            domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
         }
 
         internal void LookAtCallingCanvas(ILookingObject looker)
@@ -48,7 +50,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TextureSelector.ModificationTargetRenderers(domainRenderers);
+            return TextureSelector.ModificationTargetRenderers(domainRenderers, replaceTracking);
         }
         internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasSize)
         {

@@ -27,10 +27,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [FormerlySerializedAs("TargetRoot")] public GameObject LimitCandidateMaterials;
         public List<MatSelector> SelectMatList = new List<MatSelector>();
         public AtlasSetting AtlasSetting = new AtlasSetting();
-
-        internal override bool IsPossibleApply => SelectMatList.Any();
-
-
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
         #region V0SaveData
@@ -92,7 +88,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         }
 
-        internal bool TryCompileAtlasTextures(List<Renderer> nowTargetAllowedRenderer, IDomain domain, out AtlasData atlasData)
+        internal bool TryCompileAtlasTextures(List<Renderer> nowTargetAllowedRenderer, List<Material> targetMaterials, IDomain domain, out AtlasData atlasData)
         {
             Profiler.BeginSample("AtlasData and FindRenderers");
             var texManage = domain.GetTextureManager();
@@ -100,11 +96,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //情報を集めるフェーズ
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(nowTargetAllowedRenderer).Where(i => i != null));
-            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
             var sizePriorityDict = targetMaterials.ToDictionary(i => i, i => SelectMatList.First(m => domain.OriginEqual(m.Material, i)).MaterialFineTuningValue);
 
             atlasData.AtlasInMaterials = targetMaterials;
+            if (atlasData.AtlasInMaterials.Any() is false) { return false; }
+
             var atlasSetting = AtlasSetting;
             var propertyBakeSetting = atlasSetting.MergeMaterials ? atlasSetting.PropertyBakeSetting : PropertyBakeSetting.NotBake;
             Profiler.EndSample();
@@ -698,15 +694,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override void Apply(IDomain domain = null)
         {
-            if (!IsPossibleApply)
-            {
-                TTTRuntimeLog.Error("AtlasTexture:error:TTTNotExecutable");
-                return;
-            }
+            if (SelectMatList.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotSet"); return; }
+
             var nowRenderers = GetTargetAllowedFilter(domain.EnumerateRenderer());
+            var targetMaterials = GetTargetMaterials(domain, nowRenderers);
+            if (targetMaterials.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotFound"); return; }
 
             Profiler.BeginSample("TryCompileAtlasTextures");
-            if (!TryCompileAtlasTextures(nowRenderers, domain, out var atlasData)) { Profiler.EndSample(); return; }
+            if (!TryCompileAtlasTextures(nowRenderers, targetMaterials, domain, out var atlasData)) { Profiler.EndSample(); return; }
             Profiler.EndSample();
 
             Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
@@ -804,6 +799,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
             foreach (var atlasMeshHolder in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(atlasMeshHolder.NormalizedMesh); }
+        }
+
+        internal List<Material> GetTargetMaterials(IDomain domain, List<Renderer> nowRenderers)
+        {
+            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(nowRenderers).Where(i => i != null));
+            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
+            return targetMaterials;
         }
 
         internal static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, Dictionary<string, List<string>> referenceCopyDict)

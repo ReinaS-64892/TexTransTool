@@ -4,6 +4,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using System;
 using net.rs64.TexTransTool.Utils;
 using System.Linq;
+using net.rs64.TexTransCore.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
@@ -20,27 +21,28 @@ namespace net.rs64.TexTransTool
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
-        internal override bool IsPossibleApply => TargetTexture.GetTexture() != null && BlendTexture != null;
-
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
 
             var distTex = TargetTexture.GetTexture();
-            if (distTex == null) { return; }
+            if (distTex == null) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
-            domain.LookAt(distTex);
+            var domainTexture = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer());
+            var targetTextures = domainTexture.Where(m => domain.OriginEqual(m, distTex));
+            if (targetTextures.Any() is false) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotFound"); return; }
+
+            domain.LookAt(targetTextures);
 
             var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
-            domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
+            foreach (var t in targetTextures) { domain.AddTextureStack<TextureBlend.BlendTexturePair>(t, new(addTex, BlendTypeKey)); }
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TargetTexture.ModificationTargetRenderers(domainRenderers);
+            return TargetTexture.ModificationTargetRenderers(domainRenderers,replaceTracking);
         }
     }
 }

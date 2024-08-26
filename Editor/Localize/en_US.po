@@ -52,6 +52,12 @@ msgstr "AtlasTexture is not executable."
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
 
+msgid "AtlasTexture:info:TargetNotSet"
+msgstr "AtlasTarget not set!"
+
+msgid "AtlasTexture:info:TargetNotFound"
+msgstr "AtlasTarget not found!"
+
 msgid "AtlasTexture:error:RelocationFailed"
 msgstr "Island relocation failed!"
 
@@ -387,6 +393,12 @@ msgstr "AtlasTexture is not executable."
 msgid "SimpleDecal:error:TTTNotExecutable:hint"
 msgstr "Please review target renderers exist."
 
+msgid "SimpleDecal:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "SimpleDecal:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "ScaleSettings"
 
@@ -472,6 +484,12 @@ msgstr "GroupChildren"
 
 # SingleGradationDecal
 
+msgid "SingleGradationDecal:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "SingleGradationDecal:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "SelectedMaterialView"
 
@@ -496,7 +514,37 @@ msgstr "TargetPropertyName"
 msgid "SingleGradationDecal:prop:GradientClamp"
 msgstr "GradientClamp"
 
+# TextureBlender
+
+msgid "TextureBlender:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "TextureBlender:info:TargetNotFound"
+msgstr "Target not found!"
+
 # TextureConfigurator
 
+msgid "TextureConfigurator:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
 msgid "TextureConfigurator:error:TargetNotFound"
-msgstr "TargetNotFound"
+msgstr "Target not found!"
+
+# MaterialOverrideTransfer
+
+msgid "MaterialOverrideTransfer:info:TargetNotSet"
+msgstr "Target not Set!"
+
+msgid "MaterialOverrideTransfer:info:VariantNotSet"
+msgstr "MaterialVariant not Set!"
+
+msgid "MaterialOverrideTransfer:info:TargetNotFound"
+msgstr "Target not found!"
+
+# MultiLayerImageCanvas
+
+msgid "MultiLayerImageCanvas:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "MultiLayerImageCanvas:info:TargetNotFound"
+msgstr "Target not found!"
