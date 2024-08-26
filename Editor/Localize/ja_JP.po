@@ -29,6 +29,15 @@ msgstr "プレビュー中にビルドが実行されました。"
 msgid "Common:error:BuildWasRunDuringPreviewing:hint"
 msgstr "このエラーが出ている場合プレビューは自動で終了しているため、もう一度実行してください。"
 
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning"
+msgstr "TexTransTool の Group系ではないコンポーネントの入れ子になっています!"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:description"
+msgstr "次期バージョンの v0.9.x では、Group系コンポーネント(TexTransGroupなど)以外の TexTransTool コンポーネントの入れ子にすると動作しないようになります。"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
+msgstr "コンポーネントを入れ子にせず、別の場所に配置するようにしてください。"
+
 msgid "Common:ndmf:DisableThisComponentPhasePreview"
 msgstr "(NDMF) {0} のプレビューを無効化する"
 
