@@ -438,6 +438,9 @@ Shader "Hidden/lilToonAtlasBaker"
 #elif Bake_ReflectionColorTex
                 return tex2D(_ReflectionColorTex,i.uv) * _ReflectionColor;
 #elif Bake_MatCapBlendMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_MatCapBlendMask,i.uv) * _MatCapBlend;
 #elif Bake_MatCapBumpMap
 #if Constraint_Invalid
@@ -445,6 +448,9 @@ Shader "Hidden/lilToonAtlasBaker"
 #endif
                 return tex2D(_MatCapBumpMap,i.uv);
 #elif Bake_MatCap2ndBlendMask
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
                 return tex2D(_MatCap2ndBlendMask,i.uv) * _MatCap2ndBlend;
 #elif Bake_MatCap2ndBumpMap
 #if Constraint_Invalid
