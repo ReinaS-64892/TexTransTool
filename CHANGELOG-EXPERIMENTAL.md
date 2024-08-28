@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TextureConfigurator でもともとのテクスチャよりも大きい解像度を指定した場合に MipMap の0番あたりが黒くなってしまう問題を修正 (#580)
 - TexTransToolPSDImporter がインポートするレイヤーのプレビューTexture2D の圧縮形式が誤って DXT5 になっていた問題を修正 (#604)
 - SingleGradientDecal の適用対象のレンダラーのマテリアルに Null が含まれている場合に例外が発生する問題を修正 (#612)
+- TTT PSD Importer 一部の PSD で ImageResourceBlock に Name が含まれている物の読み取りに失敗する問題を修正 (#632)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
