@@ -478,7 +478,7 @@ MonoBehaviour:
       data:
         PropertyName: _UseMain3rdTex
         ComparerValue: 0
-        Less: 1
+        Less: 0
     - rid: 7150698705470881806
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
