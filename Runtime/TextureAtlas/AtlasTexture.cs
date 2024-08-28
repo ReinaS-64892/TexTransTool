@@ -694,6 +694,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override void Apply(IDomain domain = null)
         {
+            domain.LookAt(this);
+            if (AtlasSetting.MergeMaterials)
+            {
+                domain.LookAt(AtlasSetting.MergeReferenceMaterial);
+                foreach (var mmg in AtlasSetting.MaterialMergeGroups) { if (mmg.MergeReferenceMaterial != null) { domain.LookAt(mmg.MergeReferenceMaterial); } }
+            }
+
             if (SelectMatList.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotSet"); return; }
 
             var nowRenderers = GetTargetAllowedFilter(domain.EnumerateRenderer());
