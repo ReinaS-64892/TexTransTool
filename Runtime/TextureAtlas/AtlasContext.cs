@@ -103,12 +103,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
                 {
-                    var newMesh = new Mesh();
+                    bakedMesh = new Mesh();
+                    _bakedMesh.Add(bakedMesh);//nmMeshのほうは勝手に破棄されるが bakedMeshそうではない、なので別の _bakedMesh に詰めて後に破棄される
+
                     var tempRenderer = UnityEngine.Object.Instantiate(skinnedMeshRenderer);
                     tempRenderer.sharedMesh = nmMesh;
-                    tempRenderer.BakeMesh(newMesh);
-                    bakedMesh = newMesh;
-                    _bakedMesh.Add(newMesh);
+                    tempRenderer.BakeMesh(bakedMesh);
                     UnityEngine.Object.DestroyImmediate(tempRenderer.gameObject);
                 }
 
