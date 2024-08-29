@@ -184,6 +184,12 @@ msgstr "Option to Include disabled renderers in the atlas."
 msgid "AtlasTexture:prop:ForceSizePriority"
 msgstr "ForceSizePriority"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset"
+msgstr "TextureScaleOffsetReset"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue"
+msgstr "BakedPropertyWriteMaxValue"
+
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "TextureFineTuning"
 

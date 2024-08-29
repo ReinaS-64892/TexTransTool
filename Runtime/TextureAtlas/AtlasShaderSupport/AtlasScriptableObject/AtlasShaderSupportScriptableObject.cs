@@ -11,9 +11,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
     [CreateAssetMenu(fileName = "AtlasShaderSupportScriptedObject", menuName = "TexTransTool/AtlasShaderSupportScriptedObject")]
     public class AtlasShaderSupportScriptableObject : ScriptableObject
     {
+        [HideInInspector, SerializeField] internal int TTTSaveDataVersion = TexTransRuntimeBehavior.TTTDataVersion;
         [SerializeReference, SubclassSelector] public ISupportedShaderComparer SupportedShaderComparer = new ContainsName();
         public int Priority;
-        public List<AtlasTargetDefine> AtlasTargetDefines;
+        public List<AtlasTargetDefine> AtlasTargetDefines = new();
         public Shader BakeShader;
         [SerializeReference, SubclassSelector] public List<IAtlasMaterialPostProses> AtlasMaterialPostProses = new();
 
@@ -48,18 +49,30 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
                 asTex.IsNormalMap = atlasTargetDefine.IsNormalMap;
 
                 asTex.PropertyName = atlasTargetDefine.TexturePropertyName;
-                asTex.BakeProperties = atlasTargetDefine.BakePropertyNames.Select(s => BakeProperty.GetBakeProperty(material, s)).ToList();
+                asTex.BakeProperties = atlasTargetDefine.BakePropertyDescriptions.Select(s => BakeProperty.GetBakeProperty(material, s.PropertyName)).ToList();
+                asTex.BakeUseMaxValueProperties = atlasTargetDefine.BakePropertyDescriptions.Where(i => i.UseMaxValue).Select(i => i.PropertyName).ToHashSet();
                 atlasTex.Add(asTex);
             }
             return atlasTex;
         }
 
+        AtlasTargetDefine GetDefine(string propertyName)
+        {
+            return AtlasTargetDefines.Find(i => i.TexturePropertyName == propertyName);
+        }
         public bool IsConstraintValid(Material material, string propertyName)
         {
-            var define = AtlasTargetDefines.Find(i => i.TexturePropertyName == propertyName);
+            var define = GetDefine(propertyName);
             if (define is null) { return false; }
 
             return define.AtlasDefineConstraints.Constraints(material);
+        }
+        public IReadOnlyList<BakePropertyDescription> GetBakePropertyNames(string propertyName)
+        {
+            var define = GetDefine(propertyName);
+            if (define is null) { return null; }
+
+            return define.BakePropertyDescriptions;
         }
     }
     [Serializable]
@@ -68,6 +81,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public string TexturePropertyName;
         [SerializeReference, SubclassSelector] public IAtlasDefineConstraints AtlasDefineConstraints = new Anything();
         public bool IsNormalMap;
-        public List<string> BakePropertyNames;
+        [Obsolete("V4SaveData", true)][HideInInspector] public List<string> BakePropertyNames = new();
+        public List<BakePropertyDescription> BakePropertyDescriptions = new();
+    }
+    [Serializable]
+    public class BakePropertyDescription
+    {
+        public string PropertyName;
+        public bool UseMaxValue;
     }
 }

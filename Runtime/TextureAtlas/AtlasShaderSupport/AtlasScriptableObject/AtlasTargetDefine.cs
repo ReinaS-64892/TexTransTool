@@ -18,6 +18,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject
         public bool IsNormalMap;
 
         [SerializeReference] public List<BakeProperty> BakeProperties;
+        public HashSet<string> BakeUseMaxValueProperties;
     }
 
 

@@ -56,6 +56,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public Dictionary<string, List<string>> ReferenceCopyDict;
             public Dictionary<string, List<string>> MargeTextureDict;
             public Dictionary<string, bool> AlphaContainsDict;
+            public Dictionary<string, float> BakePropMaxValue;
 
             public struct AtlasMeshHolder
             {
@@ -309,7 +310,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var compiledAtlasTextures = new Dictionary<string, AsyncTexture2D>();
 
             Profiler.BeginSample("GetGroupedTextures");
-            var groupedTextures = GetGroupedTextures(atlasSetting, atlasContext, propertyBakeSetting, out var containsProperty, texManage);
+            var groupedTextures = GetGroupedTextures(texManage, atlasSetting, atlasContext, propertyBakeSetting, out var containsProperty, out var bakePropMaxValue);
             Profiler.EndSample();
 
             Profiler.BeginSample("Texture synthesis");
@@ -495,6 +496,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             atlasContext.Dispose();
             foreach (var movedUV in subSetMovedUV) { movedUV.Dispose(); }
 
+            atlasData.BakePropMaxValue = bakePropMaxValue;
+
             return true;
 
         }
@@ -512,8 +515,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             vector2.x = Mathf.Round(vector2.x * width) / width;
             return vector2;
         }
-        private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, ITextureManager texManage)
+        private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(ITextureManager texManage, AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, out Dictionary<string, float> bakePropMaxValue)
         {
+            bakePropMaxValue = null;
             var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
             {
@@ -563,7 +567,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         var groupDict = new Dictionary<int, Dictionary<string, RenderTexture>>(atlasContext.MaterialGroup.Length);
                         var tmpMat = new Material(Shader.Find("Unlit/Texture"));
 
-                        var bakePropMaxValue = atlasContext.MaterialToAtlasShaderTexDict.Values.SelectMany(kv => kv)
+                        bakePropMaxValue = atlasContext.MaterialToAtlasShaderTexDict.Values.SelectMany(kv => kv)
                             .SelectMany(i => i.Value.BakeProperties)
                             .GroupBy(i => i.PropertyName)
                             .Where(i => i.First() is BakeFloat || i.First() is BakeRange)
@@ -574,7 +578,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                                     return 0;
                                 }
                             )
-                        );//一旦 Float として扱えるものだけの実装にしておく。
+                        );//一旦 Float として扱えるものだけの実装にしておく。Color がほしいシェーダーを作ってたりしたら issues たてて これをみたひと
 
 
                         for (var gi = 0; atlasContext.MaterialGroup.Length > gi; gi += 1)
@@ -613,18 +617,21 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                                 var bakedTex = sTex != null ? sTex.CloneTemp() : TTRt.G(2, "AtlasEmptyDefaultTexColRT-2x2");
 
-
                                 if (atlasTex != null)
                                 {
+                                    var bakePropertyDescriptions = shaderSupport.GetBakePropertyNames(propName);
                                     foreach (var bakeProp in atlasTex.BakeProperties)
                                     {
                                         bakeProp.WriteMaterial(tmpMat);
 
                                         var bakePropName = bakeProp.PropertyName;
-                                        var maxValPropName = bakePropName + "_MaxValue";
-                                        if (tmpMat.HasProperty(maxValPropName) && bakePropMaxValue.TryGetValue(bakePropName, out var bakeMaxValue))
+                                        if (bakePropertyDescriptions.First(i => i.PropertyName == bakePropName).UseMaxValue)
                                         {
-                                            tmpMat.SetFloat(maxValPropName, bakeMaxValue);
+                                            var maxValPropName = bakePropName + "_MaxValue";
+                                            if (tmpMat.HasProperty(maxValPropName) && bakePropMaxValue.TryGetValue(bakePropName, out var bakeMaxValue))
+                                            {
+                                                tmpMat.SetFloat(maxValPropName, bakeMaxValue);
+                                            }
                                         }
                                     }
                                 }
@@ -775,11 +782,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //MaterialGenerate And Change
+            var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = AtlasSetting.ForceSetTexture, TextureScaleOffsetReset = AtlasSetting.TextureScaleOffsetReset };
             if (AtlasSetting.MergeMaterials)
             {
+                if (AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake) { atlasMatOption.BakedPropertyReset = AtlasSetting.BakedPropertyWriteMaxValue; }
                 var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First();
-                Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
-                var matGroupGenerate = AtlasSetting.MaterialMergeGroups.ToDictionary(m => m, m => GenerateAtlasMat(m.MergeReferenceMaterial, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture));
+                Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, atlasData.BakePropMaxValue, atlasMatOption);
+                var matGroupGenerate = AtlasSetting.MaterialMergeGroups.Where(m => m.GroupMaterials.Any()).ToDictionary(m => m, m => GenerateAtlasMat(m.MergeReferenceMaterial != null ? m.MergeReferenceMaterial : m.GroupMaterials.First(), atlasTexture, shaderSupport, atlasData.BakePropMaxValue, atlasMatOption));
 
                 domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)), false);
 
@@ -799,7 +808,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 foreach (var MatSelector in atlasData.AtlasInMaterials)
                 {
                     var distMat = MatSelector;
-                    var generateMat = GenerateAtlasMat(distMat, atlasTexture, shaderSupport, AtlasSetting.ForceSetTexture);
+                    var generateMat = GenerateAtlasMat(distMat, atlasTexture, shaderSupport, null, atlasMatOption);
                     materialMap.Add(distMat, generateMat);
                 }
                 domain.ReplaceMaterials(materialMap);
@@ -882,7 +891,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private static Material GenerateAtlasMat(Material targetMat, Dictionary<string, Texture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, bool forceSetTexture)
+        private static Material GenerateAtlasMat(Material targetMat, Dictionary<string, Texture2D> atlasTex, AtlasShaderSupportUtils shaderSupport, Dictionary<string, float> bakePropMaxValue, AtlasMatGenerateOption option)
         {
             var supporter = shaderSupport.GetAtlasShaderSupporter(targetMat);
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
@@ -891,18 +900,39 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 if (supporter.IsConstraintValid(targetMat, texKV.Key) is false) { continue; }
                 var tex = editableTMat.GetTexture(texKV.Key);
-                if (tex == null) { tex = null; }
+                if (tex == null) { tex = null; }//これは Unity側の Null を C# の Null にしてるやつ
 
-                if (forceSetTexture is false && tex == null) { continue; }
+                if (option.ForceSetTexture is false && tex == null) { continue; }
                 if (tex is not Texture2D && tex is not RenderTexture && tex is not null) { continue; }
                 if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
 
                 editableTMat.SetTexture(texKV.Key, texKV.Value);
+
+                if (option.TextureScaleOffsetReset)
+                {
+                    editableTMat.SetTextureScale(texKV.Key, Vector2.one);
+                    editableTMat.SetTextureOffset(texKV.Key, Vector2.zero);
+                }
+                if (option.BakedPropertyReset && bakePropMaxValue != null)
+                {
+                    foreach (var bakedPropertyDescriptor in supporter.GetBakePropertyNames(texKV.Key))
+                    {
+                        if (bakePropMaxValue.ContainsKey(bakedPropertyDescriptor.PropertyName) is false || bakedPropertyDescriptor.UseMaxValue is false)
+                        { editableTMat.PropertyReset(bakedPropertyDescriptor.PropertyName); }
+                        else { editableTMat.SetFloat(bakedPropertyDescriptor.PropertyName, bakePropMaxValue[bakedPropertyDescriptor.PropertyName]); }
+                    }
+                }
             }
 
             foreach (var postProcess in supporter.AtlasMaterialPostProses) { postProcess.Proses(editableTMat); }
 
             return editableTMat;
+        }
+        class AtlasMatGenerateOption
+        {
+            public bool ForceSetTexture = false;
+            public bool TextureScaleOffsetReset = false;
+            public bool BakedPropertyReset = false;
         }
 
 
