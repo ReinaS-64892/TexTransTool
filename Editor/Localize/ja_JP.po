@@ -185,6 +185,12 @@ msgstr "アトラス化を適用するときに、非アクティブなGameObjec
 msgid "AtlasTexture:prop:ForceSizePriority"
 msgstr "大きさの優先度を強制"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset"
+msgstr "テクスチャースケールオフセットをリセット"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue"
+msgstr "ベイクされたプロパティに最大値を書き込む"
+
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "テクスチャー詳細設定"
 

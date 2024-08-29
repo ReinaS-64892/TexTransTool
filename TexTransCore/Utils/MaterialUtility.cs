@@ -104,41 +104,49 @@ namespace net.rs64.TexTransCore.Utils
         {
             var shader = material.shader;
             var propCount = shader.GetPropertyCount();
-            for (var i = 0; propCount > i; i += 1)
+            for (var propIndex = 0; propCount > propIndex; propIndex += 1)
             {
-                var pID = shader.GetPropertyNameId(i);
-                switch (shader.GetPropertyType(i))
-                {
-                    case UnityEngine.Rendering.ShaderPropertyType.Color:
-                        {
-                            material.SetColor(pID, shader.GetPropertyDefaultVectorValue(i));
-                            break;
-                        }
-                    case UnityEngine.Rendering.ShaderPropertyType.Vector:
-                        {
-                            material.SetVector(pID, shader.GetPropertyDefaultVectorValue(i));
-                            break;
-                        }
-                    case UnityEngine.Rendering.ShaderPropertyType.Float:
-                    case UnityEngine.Rendering.ShaderPropertyType.Range:
-                        {
-                            material.SetFloat(pID, shader.GetPropertyDefaultFloatValue(i));
-                            break;
-                        }
-                    case UnityEngine.Rendering.ShaderPropertyType.Int:
-                        {
-                            material.SetInt(pID, shader.GetPropertyDefaultIntValue(i));
-                            break;
-                        }
-                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
-                        {
-                            material.SetTexture(pID, null);
-                            material.SetTextureScale(pID, Vector2.zero);
-                            material.SetTextureOffset(pID, Vector2.zero);
-                            break;
-
-                        }
-                }
+                ResetPropertyFromNameID(material, shader, propIndex);
+            }
+        }
+        public static void PropertyReset(this Material material, string propertyName)
+        {
+            var shader = material.shader;
+            ResetPropertyFromNameID(material, shader, shader.FindPropertyIndex(propertyName));
+        }
+        private static void ResetPropertyFromNameID(Material material, Shader shader, int propertyIndex)
+        {
+            var NameID = shader.GetPropertyNameId(propertyIndex);
+            switch (shader.GetPropertyType(propertyIndex))
+            {
+                case UnityEngine.Rendering.ShaderPropertyType.Color:
+                    {
+                        material.SetColor(NameID, shader.GetPropertyDefaultVectorValue(propertyIndex));
+                        break;
+                    }
+                case UnityEngine.Rendering.ShaderPropertyType.Vector:
+                    {
+                        material.SetVector(NameID, shader.GetPropertyDefaultVectorValue(propertyIndex));
+                        break;
+                    }
+                case UnityEngine.Rendering.ShaderPropertyType.Float:
+                case UnityEngine.Rendering.ShaderPropertyType.Range:
+                    {
+                        material.SetFloat(NameID, shader.GetPropertyDefaultFloatValue(propertyIndex));
+                        break;
+                    }
+                case UnityEngine.Rendering.ShaderPropertyType.Int:
+                    {
+                        material.SetInt(NameID, shader.GetPropertyDefaultIntValue(propertyIndex));
+                        break;
+                    }
+                case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                    {
+                        material.SetTexture(NameID, null);
+                        material.SetTextureScale(NameID, Vector2.one);
+                        material.SetTextureOffset(NameID, Vector2.zero);
+                        break;
+                    }
             }
         }
     }
