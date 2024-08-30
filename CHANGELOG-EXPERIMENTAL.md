@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Gimp の着色と同じ効果を持つ ColorizeLayer が追加されました (#601)
 - AtlasTexture に アトラス化後のマテリアルに対して スケール(タイリング)とオフセットをリセットする TextureScaleOffsetReset が追加されました (#636)
 - AtlasTexture に アトラス化後のマテリアルに対して ベイクされたプロパティに最大値を割り当てる BakedPropertyWriteMaxValue が追加されました (#636)
+- AtlasTexture に アトラス化後のマテリアルに対して 特定のテクスチャに対して割り当てを行わ²ようにできる UnsetTextures が追加されました (#637)
 
 ### Changed
 
