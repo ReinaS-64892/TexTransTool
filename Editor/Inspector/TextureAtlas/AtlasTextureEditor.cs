@@ -79,6 +79,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sDownScalingAlgorithm = sAtlasSettings.FindPropertyRelative("DownScalingAlgorithm");
             var sTextureScaleOffsetReset = sAtlasSettings.FindPropertyRelative("TextureScaleOffsetReset");
             var sBakedPropertyWriteMaxValue = sAtlasSettings.FindPropertyRelative("BakedPropertyWriteMaxValue");
+            var sUnsetTextures = sAtlasSettings.FindPropertyRelative("UnsetTextures");
 
             var sLimitCandidateMaterials = sIncludeDisabledRenderer.serializedObject.FindProperty("LimitCandidateMaterials");
 
@@ -120,6 +121,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sTextureScaleOffsetReset, "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset".Glc());
                 if(sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
                 {EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc());}
+
+                EditorGUILayout.PropertyField(sUnsetTextures,"AtlasTexture:prop:ExperimentalFuture:UnsetTextures".Glc());
 
                 EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
                 if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".Glc()); }

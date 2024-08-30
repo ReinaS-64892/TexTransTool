@@ -190,6 +190,9 @@ msgstr "TextureScaleOffsetReset"
 msgid "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue"
 msgstr "BakedPropertyWriteMaxValue"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:UnsetTextures"
+msgstr "UnsetTextures"
+
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "TextureFineTuning"
 

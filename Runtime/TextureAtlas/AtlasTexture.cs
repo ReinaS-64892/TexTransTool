@@ -783,6 +783,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //MaterialGenerate And Change
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = AtlasSetting.ForceSetTexture, TextureScaleOffsetReset = AtlasSetting.TextureScaleOffsetReset };
+            if (AtlasSetting.UnsetTextures.Any())
+            {
+                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTexture().Select(i => i.Value));
+                atlasMatOption.UnsetTextures = AtlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
+            }
             if (AtlasSetting.MergeMaterials)
             {
                 if (AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake) { atlasMatOption.BakedPropertyReset = AtlasSetting.BakedPropertyWriteMaxValue; }
@@ -906,6 +911,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (tex is not Texture2D && tex is not RenderTexture && tex is not null) { continue; }
                 if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
 
+                if (option.UnsetTextures is not null && option.UnsetTextures.Contains(tex)) { continue; }
+
                 editableTMat.SetTexture(texKV.Key, texKV.Value);
 
                 if (option.TextureScaleOffsetReset)
@@ -933,6 +940,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public bool ForceSetTexture = false;
             public bool TextureScaleOffsetReset = false;
             public bool BakedPropertyReset = false;
+            public HashSet<Texture> UnsetTextures = null;
         }
 
 
