@@ -41,6 +41,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
         public bool TextureScaleOffsetReset = false;
         public bool BakedPropertyWriteMaxValue = false;
+        public List<TextureSelector> UnsetTextures = new();
 
         #region V3SaveData
         public bool UseUpScaling = false;
