@@ -310,6 +310,21 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         private static Dictionary<ChannelIDEnum, ChannelImageData> DeuceChannelInfoAndImage(LayerRecord record, Queue<ChannelImageData> imageDataQueue)
         {
             var channelInfoAndImage = new Dictionary<ChannelIDEnum, ChannelImageData>();
+
+            {//重複した色チャンネルを持つと主張する、治安の悪いPSDに対するワークアラウンド (確認されたケースはレイヤーフォルダーの開始を意味する空レイヤーですべて赤色という記述だった)
+                var channelInfos = record.ChannelInformationArray;
+                var channelIDs = channelInfos.Select(i => i.ChannelID);
+                if (channelIDs.Distinct().Count() != channelIDs.Count())
+                {
+                    var id = -1;
+                    for (var i = 0; channelInfos.Length > i; i += 1)
+                    {
+                        channelInfos[i].ChannelID = (ChannelInformation.ChannelIDEnum)id;
+                        id += 1;
+                    }
+                }
+            }
+
             foreach (var item in record.ChannelInformationArray)
             {
                 channelInfoAndImage.Add(item.ChannelID, imageDataQueue.Dequeue());
