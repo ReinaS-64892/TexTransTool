@@ -146,10 +146,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                     var emptyXMin = isFirst ? 0 : Lower.Last.Value.GetMaxPos().x;
                     var emptyXMax = GetCeilWithEmpty(Mathf.Clamp(Floor + islandRect.Size.y, Floor, Ceil));
                     var emptyWidthSize = emptyXMax - emptyXMin;
-                    var islandWidth = isFirst ? islandRect.Size.x + Padding : Padding + islandRect.Size.x + Padding;
+                    var islandWidth = isFirst ? (Padding * 0.5f) + islandRect.Size.x + Padding : Padding + islandRect.Size.x + Padding;
                     if (emptyWidthSize > islandWidth)
                     {
-                        var xPos = isFirst ? emptyXMin : emptyXMin + Padding;
+                        var xPos = isFirst ? emptyXMin + (Padding * 0.5f) : emptyXMin + Padding;
                         islandRect.Pivot = new Vector2(xPos, Floor);
                         Lower.AddLast(islandRect);
                         return islandRect.Pivot;
@@ -160,10 +160,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                     var emptyXMin = GetFloorWithEmpty(Mathf.Clamp(Ceil - islandRect.Size.y - Padding, Floor, Ceil));
                     var emptyXMax = isFirst ? Width : Upper.Last.Value.Pivot.x;
                     var emptyWidthSize = emptyXMax - emptyXMin;
-                    var islandWidth = isFirst ? Padding + islandRect.Size.x : Padding + islandRect.Size.x + Padding;
+                    var islandWidth = isFirst ? Padding + islandRect.Size.x + (Padding * 0.5f) : Padding + islandRect.Size.x + Padding;
                     if (emptyWidthSize > islandWidth)
                     {
-                        var xPos = isFirst ? emptyXMax - islandRect.Size.x : emptyXMax - islandRect.Size.x - Padding;
+                        var xPos = isFirst ? emptyXMax - islandRect.Size.x - (Padding * 0.5f): emptyXMax - islandRect.Size.x - Padding;
                         islandRect.Pivot = new Vector2(xPos, Ceil - islandRect.Size.y);
                         Upper.AddLast(islandRect);
                         return islandRect.Pivot;

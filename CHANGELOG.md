@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の選択候補の表示が、マテリアルのグループ化された状態で表示されるようになりました (#564)
 - AtlasTexture の PixelNormalize 実験的機能から外れました！ (#585)
 - AtlasTexture のアイランド再配置に失敗した場合にエラーログを出力するようになりました (#586)
-- AtlasTexture の NFDHPlasFC が外側のパディングを消去し再配置効率が上がりました (#588)
+- ~~AtlasTexture の NFDHPlasFC が外側のパディングを消去し再配置効率が上がりました (#588)~~
 - NDMF v1.5.0 以上がプロジェクトに存在する場合 Preview、RealTimePreview のボタンは NDMF-Preview の フェーズ単位で有効化、無効化のボタンになるようになりました (#593)
 - AtlasTexture が レンダラーのマテリアルに Null が含まれている場合でもアトラス化の対象にできるようになりました (#612)
 - AtlasTexture TextureFineTuning Remove に 削除しない等に上書きすることを可能にするために IsRemove プロパティを追加 (#613)
@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - v0.9.0 にて廃止される予定のコンポーネントの入れ子状態に警告を発生させるようになりました (#629)
 - 実行できない場合などの information などが以前よりも細かく出力されるようになりました (#630)
 - SimpleDecal のスケールが反転しているときにヘルプボックスを表示するようになりました (#631)
+- AtlasTexture の NFDHPlasFC が外側のパディングが半分になり、再配置効率が上がりました (#640)
 
 ### Changed
 
