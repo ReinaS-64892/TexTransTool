@@ -37,14 +37,33 @@ internal class ReportUnsupportedNDMFVersionPlugin : Plugin<ReportUnsupportedNDMF
 #if NDMF_ERROR_REPORT
     public override Texture2D LogoTexture => TTTImageAssets.Logo;
     public const string ErrorMessage_JP = "TexTransTool の対応している NDMF バージョンではありません！ NDMF をアップデートしてください！！！";
+    public const string ErrorMessage_Description_JP = "TexTransTool がベータ版の場合は NDMF ベータ版が必要になる場合があります。";
     public const string ErrorMessage_EN = "This is no compatible NDMF version for TexTransTool! Please update NDMF!!!";
+    public const string ErrorMessage_Description_EN = "If current TexTransTool is in beta version, may need the NDMF Beta version.";
 #endif
     protected override void Configure()
     {
         InPhase(BuildPhase.Resolving).Run("Report Unsupported NDMF Version", ctx =>
         {
 #if NDMF_ERROR_REPORT
-            ErrorReport.ReportError(new Localizer("ja", () => new List<(string, Func<string, string>)>() { ("ja", s => s == "MES" ? ErrorMessage_JP : null), ("en", s => s == "MES" ? ErrorMessage_EN : null) }), ErrorSeverity.NonFatal, "MES");
+            ErrorReport.ReportError(new Localizer("ja", () => new List<(string, Func<string, string>)>() {
+                ("ja", s => {
+                    switch (s)
+                    {
+                        case "MES": return ErrorMessage_JP;
+                        case "MES:description": return ErrorMessage_Description_JP;
+                        default: return null;
+                    }
+                }),
+                ("en", s => {
+                    switch (s)
+                    {
+                        case "MES": return ErrorMessage_EN;
+                        case "MES:description": return ErrorMessage_Description_EN;
+                        default: return null;
+                    }
+                })
+            }), ErrorSeverity.NonFatal, "MES");
 #endif
             AvatarBuildUtils.DestroyITexTransToolTags(ctx.AvatarRootObject);
         });
