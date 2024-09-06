@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal のスケールが反転しているときにヘルプボックスを表示するようになりました (#631)
 - AtlasTexture の NFDHPlasFC が外側のパディングが半分になり、再配置効率が上がりました (#640)
 - NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に警告を表示するようになりました (#643)
+- NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に表示される警告にデスクリプションを表示するようになりました (#644)
 
 ### Changed
 
