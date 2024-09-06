@@ -1,7 +1,11 @@
 {
     "name": "net.rs64.tex-trans-tool.editor.ndmf-not-exist-waring",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "net.rs64.tex-trans-tool.runtime",
+        "net.rs64.tex-trans-tool.editor",
+        "nadena.dev.ndmf"
+    ],
     "includePlatforms": [
         "Editor"
     ],
@@ -21,6 +25,11 @@
             "name": "nadena.dev.ndmf",
             "expression": "",
             "define": "NDMF"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.3.0",
+            "define": "NDMF_ERROR_REPORT"
         },
         {
             "name": "nadena.dev.ndmf",
