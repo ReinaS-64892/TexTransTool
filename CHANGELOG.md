@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - v0.9.0 にて廃止される予定のコンポーネントの入れ子状態に警告を発生させるようになりました (#629)
 - 実行できない場合などの information などが以前よりも細かく出力されるようになりました (#630)
 - SimpleDecal のスケールが反転しているときにヘルプボックスを表示するようになりました (#631)
-- AtlasTexture の NFDHPlasFC が外側のパディングが半分になり、再配置効率が上がりました (#640)
+- AtlasTexture の NFDHPlasFC が外側のパディングが半分になり、再配置効率が上がりました (#640 #648)
 - NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に警告を表示するようになりました (#643)
 - NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に表示される警告にデスクリプションを表示するようになりました (#644)
 

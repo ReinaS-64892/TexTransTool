@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                 Profiler.EndSample();
 
                 Profiler.BeginSample("NewBox");
-                var Floor = uvWidthBox.Any() is false ? 0 : uvWidthBox.Last.Value.Ceil + islandPadding;
+                var Floor = uvWidthBox.Any() is false ? islandPadding * 0.5f : uvWidthBox.Last.Value.Ceil + islandPadding;
                 var newWithBox = new UVWidthBox<IslandRect>(Floor, sortedIslands[i].Size.y, islandPadding);
 
                 var pivot = newWithBox.TrySetBox(sortedIslands[i]);
@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             }
 
             var lastHeight = uvWidthBox.Last.Value.Ceil;
-            return lastHeight <= 1;
+            return lastHeight <= (1 - islandPadding * 0.5f);
 
             bool TrySetUVBoxList(Span<IslandRect> sortedIslands, int index)
             {
@@ -163,7 +163,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                     var islandWidth = isFirst ? Padding + islandRect.Size.x + (Padding * 0.5f) : Padding + islandRect.Size.x + Padding;
                     if (emptyWidthSize > islandWidth)
                     {
-                        var xPos = isFirst ? emptyXMax - islandRect.Size.x - (Padding * 0.5f): emptyXMax - islandRect.Size.x - Padding;
+                        var xPos = isFirst ? emptyXMax - islandRect.Size.x - (Padding * 0.5f) : emptyXMax - islandRect.Size.x - Padding;
                         islandRect.Pivot = new Vector2(xPos, Ceil - islandRect.Size.y);
                         Upper.AddLast(islandRect);
                         return islandRect.Pivot;
