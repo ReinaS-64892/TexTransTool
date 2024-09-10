@@ -160,7 +160,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var tex in compressTargets.Select(i => i.Key))
             {
-                tex.Apply(true, true);
+                tex.Apply(false, true);
             }
 
             foreach (var tex in compressTargets.Select(i => i.Key))
