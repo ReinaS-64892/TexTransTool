@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture lilToonSupport の _Main3rdTex の使用可否判定が誤っていた問題を修正 (#634)
 - UnsafeNativeArrayUtility の不要な using で Android ビルドにてコンパイルエラーが発生する問題を修正 (#641)
 - 圧縮設定を None などの圧縮しない形式にした場合に誤って MipMap が Unity標準の物で再生成されることがあった問題を修正 (#649)
+- AtlasTexture の TextureFineTuning Compress が ReferenceCopy などが行われた場合に誤った形式で圧縮される問題を修正 (#654)
 
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
