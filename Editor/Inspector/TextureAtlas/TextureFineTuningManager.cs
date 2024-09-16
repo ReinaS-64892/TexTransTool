@@ -218,7 +218,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             pfLinear.BindProperty(_textureIndividualTuning.FindPropertyRelative("Linear"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<ColorSpaceData>("ColorSpace",
                 _textureIndividualTuning.FindPropertyRelative("OverrideColorSpace"), pfLinear,
-                d => inheritStr + "is linier " + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
+                d => inheritStr + "Linear-is-" + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
 
             _viRoot.hierarchy.Add(overrideDescriptionsRoot);
         }
