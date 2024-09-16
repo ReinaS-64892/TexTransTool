@@ -765,7 +765,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (individualTuning.OverrideCompression) { tuningTarget.Set(individualTuning.CompressionData); }
                 if (individualTuning.OverrideMipMapRemove) { tuningTarget.Get<MipMapData>().UseMipMap = individualTuning.UseMipMap; }
                 if (individualTuning.OverrideColorSpace) { tuningTarget.Get<ColorSpaceData>().Linear = individualTuning.Linear; }
-                if (individualTuning.OverrideAsRemove) { tuningTarget.Get<RemoveData>(); }
+                if (individualTuning.OverrideRemove) { tuningTarget.Get<RemoveData>().IsRemove = individualTuning.IsRemove; }
                 if (individualTuning.OverrideAsMargeTexture) { tuningTarget.Get<MergeTextureData>().MargeParent = individualTuning.MargeRootProperty; }
             }
             TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);

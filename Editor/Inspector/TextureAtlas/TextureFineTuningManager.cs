@@ -196,6 +196,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var inheritStr = "(inherit)-";
 
+            var pfRemove = new PropertyField();
+            pfRemove.BindProperty(_textureIndividualTuning.FindPropertyRelative("IsRemove"));
+            overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<RemoveData>("Remove",
+                _textureIndividualTuning.FindPropertyRelative("OverrideRemove"), pfRemove,
+                d => inheritStr + (d?.IsRemove.ToString() ?? false.ToString())));
+
             var pfOverrideResize = new PropertyField();
             pfOverrideResize.BindProperty(_textureIndividualTuning.FindPropertyRelative("TextureSize"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<SizeData>("TextureSize",

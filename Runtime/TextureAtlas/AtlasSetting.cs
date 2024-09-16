@@ -88,7 +88,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool OverrideColorSpace = false;
         public bool Linear = false;
 
-        public bool OverrideAsRemove = false;
+        public bool OverrideRemove = false;
+        public bool IsRemove = false;
 
         public bool OverrideAsMargeTexture = false;
         public string MargeRootProperty;
