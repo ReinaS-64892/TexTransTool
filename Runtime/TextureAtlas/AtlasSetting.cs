@@ -73,7 +73,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         public string TuningTarget;
 
-        public bool OverrideAsReferenceCopy = false;
+        [FormerlySerializedAs("OverrideAsMargeTexture")] public bool OverrideReferenceCopy = false;
         public string CopyReferenceSource = PropertyName.DefaultValue;
 
         public bool OverrideResize = false;
@@ -91,7 +91,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool OverrideRemove = false;
         public bool IsRemove = false;
 
-        public bool OverrideAsMargeTexture = false;
+        [FormerlySerializedAs("OverrideAsMargeTexture")] public bool OverrideMargeTexture = false;
         public string MargeRootProperty;
     }
 
