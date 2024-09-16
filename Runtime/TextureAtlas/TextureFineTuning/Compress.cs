@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public bool UseOverride = false;
         public TextureFormat OverrideTextureFormat = TextureFormat.BC7;
         [Range(0, 100)] public int CompressionQuality = 50;
-        
+
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;
@@ -150,9 +150,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => 0;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
-            // Delegated to ITextureManager
+            foreach (var atlasTexFTData in texFineTuningTargets)
+            {
+                var compressSetting = atlasTexFTData.Value.Find<TextureCompressionData>();
+                if (compressSetting == null) { continue; }
+
+                compress.DeferredTextureCompress(compressSetting, atlasTexFTData.Value.Texture2D);
+            }
         }
     }
 

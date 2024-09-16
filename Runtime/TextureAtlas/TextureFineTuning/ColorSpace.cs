@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => -34;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             foreach (var texf in texFineTuningTargets)
             {
