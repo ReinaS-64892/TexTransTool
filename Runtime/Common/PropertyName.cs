@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool
             _useCustomProperty = false;
             _shaderName = "DefaultShader";
         }
+        internal bool UseCustomProperty => _useCustomProperty;
 
         public const string MainTex = "_MainTex";
         public static PropertyName DefaultValue => new PropertyName(MainTex);
