@@ -206,7 +206,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             pfCompressionData.BindProperty(_textureIndividualTuning.FindPropertyRelative("CompressionData"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<TextureCompressionData>("CompressionFormat",
                 _textureIndividualTuning.FindPropertyRelative("OverrideCompression"), pfCompressionData,
-                d => inheritStr + (d?.FormatQualityValue.ToString() ?? "None")));
+                d => inheritStr + (d is not null ? (d.UseOverride ? "UseOverride-" + d.OverrideTextureFormat.ToString() : d.FormatQualityValue.ToString()) : "None")));
 
             var pfUseMipMap = new PropertyField();
             pfUseMipMap.BindProperty(_textureIndividualTuning.FindPropertyRelative("UseMipMap"));
