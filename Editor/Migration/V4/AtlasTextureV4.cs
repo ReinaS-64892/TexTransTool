@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.TextureAtlas;
 using UnityEditor;
@@ -20,15 +21,15 @@ namespace net.rs64.TexTransTool.Migration.V4
                 {
                     default: { break; }
                     case TextureAtlas.FineTuning.ColorSpace tfs:
-                        { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                        { tfs.PropertyNameList = ConvertList(tfs.PropertyNames); break; }
                     case TextureAtlas.FineTuning.Compress tfs:
-                        { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                        { tfs.PropertyNameList = ConvertList(tfs.PropertyNames); break; }
                     case TextureAtlas.FineTuning.MipMapRemove tfs:
-                        { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                        { tfs.PropertyNameList = ConvertList(tfs.PropertyNames); break; }
                     case TextureAtlas.FineTuning.Remove tfs:
-                        { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                        { tfs.PropertyNameList = ConvertList(tfs.PropertyNames); break; }
                     case TextureAtlas.FineTuning.Resize tfs:
-                        { tfs.PropertyNameList = tfs.PropertyNames.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); break; }
+                        { tfs.PropertyNameList = ConvertList(tfs.PropertyNames); break; }
                     case TextureAtlas.FineTuning.ReferenceCopy rc:
                         { rc.TargetPropertyNameList = new() { rc.TargetPropertyName }; break; }
                 }
@@ -36,6 +37,12 @@ namespace net.rs64.TexTransTool.Migration.V4
 
             EditorUtility.SetDirty(atlasTexture);
             MigrationUtility.SetSaveDataVersion(atlasTexture, 5);
+        }
+
+        static List<PropertyName> ConvertList(PropertyName propertyName)
+        {
+            if (propertyName.UseCustomProperty) { return propertyName.ToString().Split(' ').Select(i => new PropertyName(i)).ToList(); }
+            return new() { propertyName };
         }
     }
 }
