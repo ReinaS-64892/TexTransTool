@@ -196,6 +196,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var inheritStr = "(inherit)-";
 
+            var pfRemove = new PropertyField();
+            pfRemove.BindProperty(_textureIndividualTuning.FindPropertyRelative("IsRemove"));
+            overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<RemoveData>("Remove",
+                _textureIndividualTuning.FindPropertyRelative("OverrideRemove"), pfRemove,
+                d => inheritStr + (d?.IsRemove.ToString() ?? false.ToString())));
+
             var pfOverrideResize = new PropertyField();
             pfOverrideResize.BindProperty(_textureIndividualTuning.FindPropertyRelative("TextureSize"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<SizeData>("TextureSize",
@@ -206,7 +212,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             pfCompressionData.BindProperty(_textureIndividualTuning.FindPropertyRelative("CompressionData"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<TextureCompressionData>("CompressionFormat",
                 _textureIndividualTuning.FindPropertyRelative("OverrideCompression"), pfCompressionData,
-                d => inheritStr + (d?.FormatQualityValue.ToString() ?? "None")));
+                d => inheritStr + (d is not null ? (d.UseOverride ? "UseOverride-" + d.OverrideTextureFormat.ToString() : d.FormatQualityValue.ToString()) : "None")));
 
             var pfUseMipMap = new PropertyField();
             pfUseMipMap.BindProperty(_textureIndividualTuning.FindPropertyRelative("UseMipMap"));
@@ -218,7 +224,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             pfLinear.BindProperty(_textureIndividualTuning.FindPropertyRelative("Linear"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<ColorSpaceData>("ColorSpace",
                 _textureIndividualTuning.FindPropertyRelative("OverrideColorSpace"), pfLinear,
-                d => inheritStr + "is linier " + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
+                d => inheritStr + "Linear-is-" + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
 
             _viRoot.hierarchy.Add(overrideDescriptionsRoot);
         }
@@ -247,7 +253,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var refCopyInherit = refCpData?.CopySource;
 
             var sCopyReferenceSource = _textureIndividualTuning.FindPropertyRelative("CopyReferenceSource");
-            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideAsReferenceCopy");
+            var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideReferenceCopy");
 
             topHorizontalCol.hierarchy.Add(NewMethod(" <-- ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
 
@@ -256,7 +262,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var mergeTexInherit = mergeTexData?.MargeParent;
 
             var sMargeRootProperty = _textureIndividualTuning.FindPropertyRelative("MargeRootProperty");
-            var sOverrideAsMargeTexture = _textureIndividualTuning.FindPropertyRelative("OverrideAsMargeTexture");
+            var sOverrideAsMargeTexture = _textureIndividualTuning.FindPropertyRelative("OverrideMargeTexture");
 
             topHorizontalCol.hierarchy.Add(NewMethod(" --> <-- ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
 
