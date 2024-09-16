@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public interface ITuningApplicant
     {
         int Order { get; }
-        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
+        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress);
     }
     public interface ITuningData
     {

@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => 30;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             var mergeDict = new Dictionary<string, List<string>>();
             foreach (var kv in texFineTuningTargets)
@@ -83,6 +83,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                         var tfHolder = texFineTuningTargets[c];
                         tfHolder.Texture2D = parentFTHolder.Texture2D;
                     }
+
+                    var compressSetting = parentFTHolder.Find<TextureCompressionData>();
+                    if (compressSetting is not null) compress.DeferredTextureCompress(compressSetting, parentFTHolder.Texture2D);
                 }
             }
 

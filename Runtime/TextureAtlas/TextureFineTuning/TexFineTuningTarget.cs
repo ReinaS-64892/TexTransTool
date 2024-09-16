@@ -56,13 +56,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             }
             return texFineTuningTargets;
         }
-        public static void FinalizeTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public static void FinalizeTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             var applicantList = InterfaceUtility.GetInterfaceInstance<ITuningApplicant>().ToList();
             applicantList.Sort((L, R) => L.Order - R.Order);
             foreach (var applicant in applicantList)
             {
-                applicant.ApplyTuning(texFineTuningTargets);
+                applicant.ApplyTuning(texFineTuningTargets, compress);
             }
         }
 

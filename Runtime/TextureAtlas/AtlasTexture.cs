@@ -768,18 +768,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (individualTuning.OverrideRemove) { tuningTarget.Get<RemoveData>().IsRemove = individualTuning.IsRemove; }
                 if (individualTuning.OverrideMargeTexture) { tuningTarget.Get<MergeTextureData>().MargeParent = individualTuning.MargeRootProperty; }
             }
-            TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets);
+            TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets, domain.GetTextureManager());
             var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
             domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
-
-            //CompressDelegation
-            foreach (var atlasTexFTData in atlasTexFineTuningTargets)
-            {
-                var compressSetting = atlasTexFTData.Value.Find<TextureCompressionData>();
-                if (compressSetting == null) { continue; }
-                domain.GetTextureManager().DeferredTextureCompress(compressSetting, atlasTexFTData.Value.Texture2D);
-            }
-
 
             //MaterialGenerate And Change
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = AtlasSetting.ForceSetTexture, TextureScaleOffsetReset = AtlasSetting.TextureScaleOffsetReset };
