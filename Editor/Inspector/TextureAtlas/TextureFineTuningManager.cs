@@ -255,7 +255,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sCopyReferenceSource = _textureIndividualTuning.FindPropertyRelative("CopyReferenceSource");
             var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideReferenceCopy");
 
-            topHorizontalCol.hierarchy.Add(NewMethod(" <-- ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
+            topHorizontalCol.hierarchy.Add(NewMethod(" <-- Copy-from ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
 
 
             var mergeTexData = _texFineTuningHolder.Find<MergeTextureData>();
@@ -264,7 +264,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sMargeRootProperty = _textureIndividualTuning.FindPropertyRelative("MargeRootProperty");
             var sOverrideAsMargeTexture = _textureIndividualTuning.FindPropertyRelative("OverrideMargeTexture");
 
-            topHorizontalCol.hierarchy.Add(NewMethod(" --> <-- ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
+            topHorizontalCol.hierarchy.Add(NewMethod(" --> MergeParent-as ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
 
 
 
