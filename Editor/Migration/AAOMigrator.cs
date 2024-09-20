@@ -523,26 +523,28 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
         }
 
 
-        private static string[] _openingScenePaths;
+        private static (string Path, bool IsLoaded)[] _openingSceneInfos;
         private static void PreMigration()
         {
             var scenes = Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt).ToArray();
             if (scenes.Any(x => x.isDirty))
                 EditorSceneManager.SaveScenes(scenes);
-            _openingScenePaths = scenes.Select(x => x.path).ToArray();
-            if (_openingScenePaths.Any(string.IsNullOrEmpty))
-                _openingScenePaths = null;
+            _openingSceneInfos = scenes.Select(x => (x.path, x.isLoaded)).ToArray();
+            if (_openingSceneInfos.Any(x => string.IsNullOrEmpty(x.Path)))
+                _openingSceneInfos = null;
         }
         private static void PostMigration()
         {
 
-            if (_openingScenePaths != null
+            if (_openingSceneInfos != null
                 && EditorUtility.DisplayDialog("Reopen?", "以前に開いたシーンを開きなおしますか?(Do you want to reopen previously opened scenes?)", "Yes",
                     "No"))
             {
-                EditorSceneManager.OpenScene(_openingScenePaths[0]);
-                foreach (var openingScenePath in _openingScenePaths.Skip(1))
-                    EditorSceneManager.OpenScene(openingScenePath, OpenSceneMode.Additive);
+                var scenes = _openingSceneInfos;
+                for (int i = 0; i < scenes.Length; i++)
+                {
+                    EditorSceneManager.OpenScene(scenes[i].Path, i == 0 ? OpenSceneMode.Single : scenes[i].IsLoaded ? OpenSceneMode.Additive : OpenSceneMode.AdditiveWithoutLoading);
+                }
             }
         }
 
