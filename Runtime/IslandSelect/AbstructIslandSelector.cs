@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             var hash = 0;
             var chiles = TexTransGroup.GetChildeComponent<AbstractIslandSelector>(abstractIslandSelector.transform);
             foreach (var chile in chiles) { chile.LookAtCalling(lookingObject); }
+            lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
         }
     }
