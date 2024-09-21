@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             LuminanceMappingShader = Shader.Find(LUMINANCE_MAPPING_SHADER);
             YAxisFixedGradientShader = Shader.Find(Y_AXIS_FIXED_GRADIENT);
             ColorizeShader = Shader.Find(COLORIZE_SHADER);
+            GaussianBluerComputeShader = TexTransCoreRuntime.LoadAsset(GAUSSIAN_BLUER_COMPUTE_SHADER, typeof(ComputeShader)) as ComputeShader;
         }
 
         public const string HSL_ADJUSTMENT_SHADER = "Hidden/HSLAdjustment";
@@ -31,6 +32,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public const string COLORIZE_SHADER= "Hidden/ColorizeShader";
         public static Shader ColorizeShader;
+        public const string GAUSSIAN_BLUER_COMPUTE_SHADER = "d8ade7140a0c2234f83e9374588e8497";
+        public static ComputeShader GaussianBluerComputeShader;
 
     }
 }

@@ -1,0 +1,34 @@
+#pragma kernel GaussianBluer
+
+float Sigma;
+uint2 TextureSize;
+RWTexture2D<float4> SourceTexture;
+RWTexture2D<float4> TargetTexture;
+
+const float PI = 3.1415926525;
+
+float GaussianFanction(float2 pos, float sigma)
+{
+    float r = pos.x * pos.x + pos.y * pos.y;
+    return exp(-r / (2 * sigma * sigma));
+}
+
+[numthreads(32, 32, 1)] void GaussianBluer(uint3 id : SV_DispatchThreadID)
+{
+    int kernelSize = int(ceil(Sigma)) * 4;
+    int2 pivot = id.xy;
+
+    float4 value = float4(0, 0, 0, 0);
+    float weightSum = float(0);
+    for (int y = -kernelSize; kernelSize >= y; y += 1)
+    {
+        for (int x = -kernelSize; kernelSize >= x; x += 1)
+        {
+            int2 pos = int2(x, y);
+            float gaussinaWeight = GaussianFanction(pos, Sigma);
+            value += SourceTexture[clamp(pivot + pos, uint2(0, 0), TextureSize - 1)] * gaussinaWeight;
+            weightSum += gaussinaWeight;
+        }
+    }
+    TargetTexture[id.xy] = value / weightSum;
+}
