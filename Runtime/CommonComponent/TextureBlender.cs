@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
 
         internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.RendererAsPath };
 
-        internal override bool IsPossibleApply => TargetTexture.RendererAsPath != null && BlendTexture != null;
+        internal override bool IsPossibleApply => (TargetTexture.Mode == TextureSelector.SelectMode.Absolute ? true : TargetTexture.RendererAsPath != null) && BlendTexture != null;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
