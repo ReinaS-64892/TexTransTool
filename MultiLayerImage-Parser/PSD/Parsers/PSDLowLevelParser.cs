@@ -56,7 +56,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             psd.ImageResources = PaseImageResourceBlocks(spanStream.ReadSubStream((int)psd.ImageResourcesSectionLength));
 
             // LayerAndMaskInformationSection
-
             psd.LayerAndMaskInformationSectionLength = spanStream.ReadUInt32();
             psd.LayerInfo = LayerInformationParser.PaseLayerInfo(spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength));
 

@@ -25,6 +25,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var layerInfo = new LayerInfo();
             layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
+            if (layerInfo.LayersInfoSectionLength == 0) //32Bit PSD で存在することが確認された 謎の 28Byte への迂回
+            {
+                stream.Position -= 4;
+                stream.ReadSubStream(28);
+                layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
+            }
             layerInfo.LayerCount = stream.ReadInt16();
             layerInfo.LayerCountAbsValue = Math.Abs(layerInfo.LayerCount);
 

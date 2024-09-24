@@ -152,6 +152,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
         }
+        internal override NativeArray<byte>? GetLowData(byte[] importSource)
+        {
+            return RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle);
+        }
 
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)
         {

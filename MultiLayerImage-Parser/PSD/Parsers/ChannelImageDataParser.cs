@@ -7,6 +7,7 @@ using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 using System.Threading.Tasks;
 using Unity.Collections;
 using System.Buffers.Binary;
+using System.IO.Compression;
 
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
@@ -62,8 +63,25 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                         {
                             return ParseRLECompressed(data, (uint)thisRect.GetWidth(), (uint)thisRect.GetHeight());
                         }
+                    case CompressionEnum.ZIPWithoutPrediction:
+                    case CompressionEnum.ZIPWithPrediction:
+                        {
+                            using (var memStream = new MemoryStream(psdBytes, StartIndex + 2, Length - 2))
+                            using (var memOutStream = new MemoryStream())
+                            {
+                                using (var gzipStream = new DeflateStream(memStream, System.IO.Compression.CompressionMode.Decompress))
+                                {
+                                    gzipStream.CopyTo(memOutStream);
+
+                                    var na = new NativeArray<byte>((int)memOutStream.Length, Allocator.TempJob);
+                                    memOutStream.Position = 0;
+                                    memOutStream.Read(na);
+                                    return na;
+                                }
+                            }
+                        }
                     default:
-                        throw new NotSupportedException("ZIP圧縮のPSDは非対応です。");
+                        throw new NotSupportedException("未知の圧縮です！！！");
                 }
             }
 

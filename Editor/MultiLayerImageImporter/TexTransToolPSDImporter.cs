@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using net.rs64.MultiLayerImage.LayerData;
 using net.rs64.MultiLayerImage.Parser.PSD;
 using Unity.Collections;
@@ -65,8 +66,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0f);
                 Profiler.BeginSample("CreatePreviews");
-
-                mliImporter.CreatePreview();
+                try
+                {
+                    mliImporter.CreatePreview();
+                }
+                catch (Exception e) { Debug.LogException(e); }
 
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);

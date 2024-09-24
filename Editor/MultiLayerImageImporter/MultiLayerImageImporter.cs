@@ -270,9 +270,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 // image.name = name;
 
-                image.PreviewTexture.name = image.name + "_Preview";
                 _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
-                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                try
+                {
+                    image.PreviewTexture.name = image.name + "_Preview";
+                    _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                }
+                catch (Exception e) { Debug.LogException(e); }
             }
         }
     }
