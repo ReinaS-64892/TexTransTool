@@ -35,11 +35,13 @@ namespace net.rs64.TexTransTool
                     }
                 case SelectMode.Relative:
                     {
+                        if (RendererAsPath == null) return null;
                         var DistMaterials = RendererAsPath.sharedMaterials;
 
                         if (DistMaterials.Length <= SlotAsPath) return null;
                         var DistMat = DistMaterials[SlotAsPath];
 
+                        if (DistMat.HasProperty(PropertyNameAsPath) is false) return null;
                         return DistMat.GetTexture(PropertyNameAsPath);
                     }
                 default: { return null; }

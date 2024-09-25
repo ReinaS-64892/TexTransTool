@@ -36,13 +36,13 @@ namespace net.rs64.TexTransTool
 
             domain.LookAt(targetTextures);
 
-            var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
+            var addTex = BlendTexture == null ? TextureUtility.CreateColorTexForRT(Color) : TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
             foreach (var t in targetTextures) { domain.AddTextureStack<TextureBlend.BlendTexturePair>(t, new(addTex, BlendTypeKey)); }
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TargetTexture.ModificationTargetRenderers(domainRenderers,replaceTracking);
+            return TargetTexture.ModificationTargetRenderers(domainRenderers, replaceTracking);
         }
     }
 }
