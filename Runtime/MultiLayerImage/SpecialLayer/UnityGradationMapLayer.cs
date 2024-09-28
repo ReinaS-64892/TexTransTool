@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT UnityGradationMapLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
 
-        public Gradient Gradation;
+        public Gradient Gradation = new();
 
 
         public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
