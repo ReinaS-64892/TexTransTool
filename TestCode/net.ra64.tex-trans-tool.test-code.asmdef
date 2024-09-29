@@ -2,7 +2,7 @@
     "name": "net.ra64.tex-trans-tool.test-code",
     "rootNamespace": "",
     "references": [
-        "net.rs64.tex-trans-core",
+        "net.rs64.tt-unity-core",
         "UnityEditor.TestRunner",
         "UnityEngine.TestRunner"
     ],

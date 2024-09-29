@@ -1,19 +1,17 @@
 {
-    "name": "net.rs64.tex-trans-tool.inspector",
+    "name": "net.rs64.tt-unity-core",
     "rootNamespace": "",
     "references": [
-        "net.rs64.tt-unity-core",
-        "net.rs64.tex-trans-tool.editor",
-        "net.rs64.tex-trans-tool.runtime"
+        "net.rs64.tt-unity-core.unsafe",
+        "Unity.Burst",
+        "Unity.Mathematics"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
