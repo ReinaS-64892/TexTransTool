@@ -11,10 +11,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public Texture2D Texture2D;
         Dictionary<Type, ITuningData> _tuningDataDict;
 
+        public Texture2D OriginTexture2D;
+
+
 
         internal TexFineTuningHolder(Texture2D texture2D)
         {
             Texture2D = texture2D;
+            OriginTexture2D = texture2D;
             _tuningDataDict = new();
         }
 
@@ -42,21 +46,23 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     internal class TexFineTuningUtility
     {
 
-        public static void InitTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public static Dictionary<string, TexFineTuningHolder> InitTexFineTuning(Dictionary<string, Texture2D> textures)
         {
+            var texFineTuningTargets = textures.ToDictionary(i => i.Key, i => new TexFineTuningHolder(i.Value));
             foreach (var texKv in texFineTuningTargets)
             {
                 texKv.Value.Set(new MipMapData());
-                texKv.Value.Set(new CompressionQualityData());
+                texKv.Value.Set(new TextureCompressionData());
             }
+            return texFineTuningTargets;
         }
-        public static void FinalizeTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public static void FinalizeTexFineTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             var applicantList = InterfaceUtility.GetInterfaceInstance<ITuningApplicant>().ToList();
             applicantList.Sort((L, R) => L.Order - R.Order);
             foreach (var applicant in applicantList)
             {
-                applicant.ApplyTuning(texFineTuningTargets);
+                applicant.ApplyTuning(texFineTuningTargets, compress);
             }
         }
 

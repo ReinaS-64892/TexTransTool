@@ -10,9 +10,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
     /// <see cref="RectTangleMove"/> true であれば　矩形でテクスチャの転写が行われ、そうでなければポリゴン単位でテクスチャの転写が行われます。
     ///
     /// そして並び替え <see cref="Sorting"/>
-    /// これは 引数 atlasIslands の Pivot や Size を書き換え返すことでそれら並び替えができ、
-    /// AtlasIslandID が同じであれば、戻り値の物はクローンの物でも問題はない。
-    /// atlasIslandReference は ReadOnly 想定で中身を書き換えると正常に動作しなくなるよ。
+    /// これは 引数 atlasIslands の Pivot や Size を書き換え返すことでそれら並び替えができ、成功したら trueを返すこと。
     /// </summary>
 
 

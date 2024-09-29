@@ -6,24 +6,31 @@ using UnityEngine.Experimental.Rendering;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
-    public struct ColorSpace : ITextureFineTuning
+    public class ColorSpace : ITextureFineTuning
     {
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
-        public bool Linear;
+        public bool Linear = true;
 
+        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
+        public PropertySelect Select = PropertySelect.Equal;
+
+        public ColorSpace() { }
+        [Obsolete("V4SaveData", true)]
         public ColorSpace(PropertyName propertyNames, PropertySelect select, bool linear)
         {
             PropertyNames = propertyNames;
             Select = select;
             Linear = linear;
         }
-
-        public static ColorSpace Default => new(PropertyName.DefaultValue, PropertySelect.Equal, true);
-
+        public ColorSpace(List<PropertyName> propertyNames, PropertySelect select, bool linear)
+        {
+            PropertyNameList = propertyNames;
+            Select = select;
+            Linear = linear;
+        }
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 var tuningDataHolder = target.Value;
                 tuningDataHolder.Get<ColorSpaceData>().Linear = Linear;
@@ -41,7 +48,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public int Order => -34;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             foreach (var texf in texFineTuningTargets)
             {

@@ -1,0 +1,32 @@
+{
+    "name": "net.rs64.tex-trans-tool.ndmf",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.tex-trans-core",
+        "net.rs64.tex-trans-tool.runtime",
+        "net.rs64.tex-trans-tool.editor",
+        "net.rs64.tex-trans-tool.inspector",
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.runtime",
+        "nadena.dev.ndmf.reactive-query.core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "CONTAINS_NDMF"
+    ],
+    "versionDefines": [
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.5.0-rc.6",
+            "define": "CONTAINS_NDMF"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public interface ITuningApplicant
     {
         int Order { get; }
-        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
+        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress);
     }
     public interface ITuningData
     {
@@ -24,9 +24,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal static class FineTuningUtil
     {
-        public static IEnumerable<KeyValuePair<string,TexFineTuningHolder>> FilteredTarget(string propertyNames, PropertySelect select, Dictionary<string,TexFineTuningHolder> targets)
+        public static IEnumerable<KeyValuePair<string,TexFineTuningHolder>> FilteredTarget(List<PropertyName> propertyNames, PropertySelect select, Dictionary<string,TexFineTuningHolder> targets)
         {
-            var propertyNameList = propertyNames.Split(' ');
+            var propertyNameList = propertyNames.Select(i => i.ToString()).ToHashSet();
             switch (select)
             {
                 default:

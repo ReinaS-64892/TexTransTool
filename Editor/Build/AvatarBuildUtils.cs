@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using net.rs64.TexTransTool.ReferenceResolver;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -74,9 +73,6 @@ namespace net.rs64.TexTransTool.Build
             {
                 var timer = Stopwatch.StartNew();
 
-                var resolverContext = new ResolverContext(avatarGameObject);
-                resolverContext.ResolvingFor(avatarGameObject.GetComponentsInChildren<AbstractResolver>());
-
                 var domain = new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer));
                 var session = new TexTransBuildSession(domain, FindAtPhase(avatarGameObject));
                 session.DisplayEditorProgressBar = DisplayProgressBar;
@@ -110,15 +106,8 @@ namespace net.rs64.TexTransTool.Build
         }
 
 
-        public static void ResolvingFor(this ResolverContext resolverContext, IEnumerable<AbstractResolver> abstractResolvers)
-        {
-            foreach (var resolver in abstractResolvers)
-            {
-                resolver.Resolving(resolverContext);
-            }
-        }
-
-        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject)
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject) { return FindAtPhase(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()); }
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(IEnumerable<TexTransBehavior> behaviors)
         {
             var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
                     {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
@@ -127,31 +116,32 @@ namespace net.rs64.TexTransTool.Build
                     {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
                     {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
                 };
+            behaviors = behaviors.Where(behavior => behavior.ThisEnable);
 
-            var phaseDefinitions = avatarGameObject.GetComponentsInChildren<PhaseDefinition>();
+            var phaseDefinitions = behaviors.OfType<PhaseDefinition>();
             var definedChildren = FindChildren(phaseDefinitions);
             var ContainsBy = new HashSet<TexTransBehavior>(definedChildren);
 
-            var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>();
-            foreach (var ce in chileExcluders)
-            {
-                var cec = ce as Component;
-                foreach (var tf in cec.GetComponentsInChildren<TexTransBehavior>(true))
-                {
-                    if (cec == tf) { continue; }
-                    ContainsBy.Add(tf);
-                }
-            }
+            // var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>();
+            // foreach (var ce in chileExcluders)
+            // {
+            //     var cec = ce as Component;
+            //     foreach (var tf in cec.GetComponentsInChildren<TexTransBehavior>(true))
+            //     {
+            //         if (cec == tf) { continue; }
+            //         ContainsBy.Add(tf);
+            //     }
+            // }
 
             foreach (var pd in phaseDefinitions)
             {
                 if (!definedChildren.Contains(pd)) { phaseDict[pd.TexTransPhase].Add(pd); ContainsBy.Add(pd); }
             }
 
-            foreach (var absTTG in avatarGameObject.GetComponentsInChildren<TexTransGroup>().Where(I => !ContainsBy.Contains(I)))
+            foreach (var absTTG in behaviors.OfType<TexTransGroup>().Where(I => !ContainsBy.Contains(I)))
             { PhaseRegister(absTTG, phaseDict, ContainsBy); }
 
-            foreach (var tf in TexTransGroup.TextureTransformerFilter(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()))
+            foreach (var tf in TexTransGroup.TextureTransformerFilter(behaviors.OfType<TexTransBehavior>()))
             { if (!ContainsBy.Contains(tf)) { phaseDict[tf.PhaseDefine].Add(tf); } }
 
             return phaseDict;
@@ -178,14 +168,18 @@ namespace net.rs64.TexTransTool.Build
         }
         public static IEnumerable<TexTransBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict)
         {
-            foreach (var ttb in phaseDict[TexTransPhase.BeforeUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
-            foreach (var ttb in phaseDict[TexTransPhase.UVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
-            foreach (var ttb in phaseDict[TexTransPhase.AfterUVModification]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
-            foreach (var ttb in phaseDict[TexTransPhase.UnDefined]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
-            foreach (var ttb in phaseDict[TexTransPhase.Optimizing]) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
+            return PhaseFlatten(phaseDict[TexTransPhase.BeforeUVModification]).Concat(
+            PhaseFlatten(phaseDict[TexTransPhase.UVModification])).Concat(
+            PhaseFlatten(phaseDict[TexTransPhase.AfterUVModification])).Concat(
+            PhaseFlatten(phaseDict[TexTransPhase.UnDefined])).Concat(
+            PhaseFlatten(phaseDict[TexTransPhase.Optimizing]));
+        }
+        public static IEnumerable<TexTransBehavior> PhaseFlatten(List<TexTransBehavior> phaseList)
+        {
+            foreach (var ttb in phaseList) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
         }
 
-        public static HashSet<TexTransBehavior> FindChildren(TexTransGroup[] abstractTexTransGroups)
+        public static HashSet<TexTransBehavior> FindChildren(IEnumerable<TexTransGroup> abstractTexTransGroups)
         {
             var children = new HashSet<TexTransBehavior>();
             foreach (var abstractTTG in abstractTexTransGroups)

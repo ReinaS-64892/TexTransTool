@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
-            var mat = new Material(SpecialLayerShaders.LevelAdjustmentShader);
+            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LevelAdjustmentShader);
             using (TTRt.U(out var tempRt, grabSource.descriptor))
             {
 
@@ -42,7 +42,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 Graphics.Blit(tempRt, writeTarget, mat);
                 mat.DisableKeyword("Blue");
             }
-            UnityEngine.Object.DestroyImmediate(mat);
         }
 
         [Serializable]

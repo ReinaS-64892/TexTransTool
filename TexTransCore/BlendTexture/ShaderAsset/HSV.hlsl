@@ -1,4 +1,5 @@
 // RGBtoHSV and HSVtoRGB origin of https://qiita.com/Maron_Vtuber/items/7e8e5f55dfbdf4b5da9e
+// Hue Saturation Value
 float3 RGBtoHSV(float3 rgb)
 {
 	float r = rgb.r;

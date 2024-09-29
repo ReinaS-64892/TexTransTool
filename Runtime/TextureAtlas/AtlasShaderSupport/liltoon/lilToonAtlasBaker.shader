@@ -86,6 +86,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _ShadowStrengthMask         ("sStrength", 2D) = "white" {}
         _ShadowStrength             ("sStrength", Range(0, 1)) = 1
+        _ShadowStrength_MaxValue    ("sStrength", float) = 1
 
         _ShadowBorderMask           ("sBorder", 2D) = "white" {}
 
@@ -113,9 +114,11 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _SmoothnessTex              ("Smoothness", 2D) = "white" {}
         _Smoothness                 ("Smoothness", Range(0, 1)) = 1
+        _Smoothness_MaxValue        ("Smoothness", float) = 1
 
         _MetallicGlossMap           ("Metallic", 2D) = "white" {}
         _Metallic                   ("Metallic", Range(0, 1)) = 0
+        _Metallic_MaxValue          ("Metallic", float) = 0
 
         _ReflectionColorTex         ("sColor", 2D) = "white" {}
         _ReflectionColor            ("sColor", Color) = (1,1,1,1)
@@ -126,6 +129,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _MatCapBlendMask            ("Mask", 2D) = "white" {}
         _MatCapBlend                ("Blend", Range(0, 1)) = 1
+        _MatCapBlend_MaxValue       ("Blend", float) = 1
 
 
         _MatCapCustomNormal         ("sMatCapCustomNormal", Int) = 0
@@ -141,6 +145,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _MatCap2ndBlendMask         ("Mask", 2D) = "white" {}
         _MatCap2ndBlend             ("Blend", Range(0, 1)) = 1
+        _MatCap2ndBlend_MaxValue    ("Blend", float) = 1
 
 
         _MatCap2ndCustomNormal      ("sMatCapCustomNormal", Int) = 0
@@ -173,6 +178,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _EmissionBlendMask          ("Mask", 2D) = "white" {}
         _EmissionBlend              ("Blend", Range(0,1)) = 1
+        _EmissionBlend_MaxValue     ("Blend", float) = 1
 
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -185,6 +191,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
         _Emission2ndBlendMask       ("Mask", 2D) = "white" {}
         _Emission2ndBlend           ("Blend", Range(0,1)) = 1
+        _Emission2ndBlend_MaxValue  ("Blend", float) = 1
 
         //----------------------------------------------------------------------------------------------------------------------
         // Parallax
@@ -283,6 +290,7 @@ Shader "Hidden/lilToonAtlasBaker"
 
             sampler2D _ShadowStrengthMask;
             float _ShadowStrength;
+            float _ShadowStrength_MaxValue;
 
             sampler2D _ShadowBorderMask;
 
@@ -302,21 +310,25 @@ Shader "Hidden/lilToonAtlasBaker"
 
             sampler2D _SmoothnessTex;
             float _Smoothness;
+            float _Smoothness_MaxValue;
 
             sampler2D _MetallicGlossMap;
             float _Metallic;
+            float _Metallic_MaxValue;
 
             sampler2D _ReflectionColorTex;
             float4 _ReflectionColor;
 
             sampler2D _MatCapBlendMask;
             float _MatCapBlend;
+            float _MatCapBlend_MaxValue;
 
             sampler2D _MatCapBumpMap;
             float _MatCapBumpScale;
 
             sampler2D _MatCap2ndBlendMask;
             float _MatCap2ndBlend;
+            float _MatCap2ndBlend_MaxValue;
 
             sampler2D _MatCap2ndBumpMap;
             float _MatCap2ndBumpScale;
@@ -332,12 +344,14 @@ Shader "Hidden/lilToonAtlasBaker"
 
             sampler2D _EmissionBlendMask;
             float _EmissionBlend;
+            float _EmissionBlend_MaxValue;
 
             sampler2D _Emission2ndMap;
             float4 _Emission2ndColor;
 
             sampler2D _Emission2ndBlendMask;
             float _Emission2ndBlend;
+            float _Emission2ndBlend_MaxValue;
 
             sampler2D _ParallaxMap;
             float _Parallax;
@@ -392,7 +406,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #if Bake_MainTex
                 float4 col = tex2D(_MainTex ,i.uv);
                 float3 tcCol = lilToneCorrection(col.rgb,_MainTexHSVG);
-                col.rgb = lerp(tcCol , col.rgb , tex2D(_MainColorAdjustMask,i.uv));
+                col.rgb = lerp(col.rgb, tcCol, tex2D(_MainColorAdjustMask,i.uv));
                 col *= _Color;
                 return col;
 #elif Bake_Main2ndTex
@@ -419,7 +433,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #elif Bake_BacklightColorTex
                 return tex2D(_BacklightColorTex,i.uv) * _BacklightColor;
 #elif Bake_ShadowStrengthMask
-                return tex2D(_ShadowStrengthMask,i.uv) * _ShadowStrength;
+                return tex2D(_ShadowStrengthMask,i.uv) * (_ShadowStrength / _ShadowStrength_MaxValue);
 #elif Bake_ShadowColorTex
                 return tex2D(_ShadowColorTex,i.uv) * _ShadowColor;
 #elif Bake_Shadow2ndColorTex
@@ -432,20 +446,26 @@ Shader "Hidden/lilToonAtlasBaker"
 #endif
                 return tex2D(_RimShadeMask,i.uv) * _RimShadeColor;
 #elif Bake_SmoothnessTex
-                return tex2D(_SmoothnessTex,i.uv) * _Smoothness;
+                return tex2D(_SmoothnessTex,i.uv) * (_Smoothness / _Smoothness_MaxValue);
 #elif Bake_MetallicGlossMap
-                return tex2D(_MetallicGlossMap,i.uv) * _Metallic;
+                return tex2D(_MetallicGlossMap,i.uv) * (_Metallic / _Metallic_MaxValue);
 #elif Bake_ReflectionColorTex
                 return tex2D(_ReflectionColorTex,i.uv) * _ReflectionColor;
 #elif Bake_MatCapBlendMask
-                return tex2D(_MatCapBlendMask,i.uv) * _MatCapBlend;
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
+                return tex2D(_MatCapBlendMask,i.uv) * (_MatCapBlend / _MatCapBlend_MaxValue);
 #elif Bake_MatCapBumpMap
 #if Constraint_Invalid
                 return float4(1,0.5,0.5,0.5);
 #endif
                 return tex2D(_MatCapBumpMap,i.uv);
 #elif Bake_MatCap2ndBlendMask
-                return tex2D(_MatCap2ndBlendMask,i.uv) * _MatCap2ndBlend;
+#if Constraint_Invalid
+                return float4(0,0,0,0);
+#endif
+                return tex2D(_MatCap2ndBlendMask,i.uv) * (_MatCap2ndBlend / _MatCap2ndBlend_MaxValue);
 #elif Bake_MatCap2ndBumpMap
 #if Constraint_Invalid
                 return float4(1,0.5,0.5,0.5);
@@ -464,7 +484,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #if Constraint_Invalid
                 return float4(0,0,0,0);
 #endif
-                return tex2D(_EmissionBlendMask,i.uv) * _EmissionBlend;
+                return tex2D(_EmissionBlendMask,i.uv) * (_EmissionBlend / _EmissionBlend_MaxValue);
 #elif Bake_Emission2ndMap
 #if Constraint_Invalid
                 return float4(0,0,0,0);
@@ -474,7 +494,7 @@ Shader "Hidden/lilToonAtlasBaker"
 #if Constraint_Invalid
                 return float4(0,0,0,0);
 #endif
-                return tex2D(_Emission2ndBlendMask,i.uv) * _Emission2ndBlend;
+                return tex2D(_Emission2ndBlendMask,i.uv) * (_Emission2ndBlend / _Emission2ndBlend_MaxValue);
 #elif Bake_ParallaxMap
                 return tex2D(_ParallaxMap,i.uv);
 #elif Bake_OutlineTex

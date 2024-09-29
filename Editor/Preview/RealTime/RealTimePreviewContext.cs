@@ -9,6 +9,7 @@ using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
@@ -18,12 +19,23 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         RealTimePreviewDomain _previewDomain = null;
         Dictionary<TexTransRuntimeBehavior, int> _PriorityMap = new();
         Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyMap = new();
-        Dictionary<TexTransRuntimeBehavior, int> _dependencyHashMap = new();
         HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
         public event Action<GameObject> OnPreviewEnter;
         public event Action OnPreviewExit;
+
+        public static bool IsPreviewPossibleType(TexTransRuntimeBehavior ttr)
+        {
+            switch (ttr)
+            {
+                default: { return false; }
+                case SimpleDecal:
+                case MultiLayerImageCanvas:
+                case SingleGradationDecal:
+                    { return true; }
+            }
+        }
 
 
         protected RealTimePreviewContext()
@@ -45,7 +57,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             AnimationMode.StartAnimationMode();
             AnimationMode.BeginSampling();
 
-            _previewDomain = new RealTimePreviewDomain(previewRoot);
+            _previewDomain = new RealTimePreviewDomain(previewRoot, RegisterDependency);
 
             var texTransBehaviors = AvatarBuildUtils.PhaseDictFlatten(AvatarBuildUtils.FindAtPhase(previewRoot));
             var priority = 0;
@@ -58,36 +70,18 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
             foreach (var ttb in texTransBehaviors) { AddPreviewBehavior(ttb as TexTransRuntimeBehavior); }
         }
+        void RegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior, int dependInstanceID)
+        {
+            if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
+            _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
+        }
 
         void AddPreviewBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
-            switch (texTransRuntimeBehavior)
-            {
-                default: { return; }
-                case SimpleDecal:
-                case MultiLayerImageCanvas:
-                case SingleGradationDecal:
-                    { break; }
-            }
             if (ContainsBehavior(texTransRuntimeBehavior)) { return; }
+            if (IsPreviewPossibleType(texTransRuntimeBehavior) is false) { return; }
 
-            RegisterDependency(texTransRuntimeBehavior);
             _updateQueue.Enqueue(texTransRuntimeBehavior);
-        }
-
-        private void RegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior)
-        {
-            _dependencyHashMap[texTransRuntimeBehavior] = texTransRuntimeBehavior.GetDependencyHash(_previewDomain);
-            foreach (var dependInstanceID in texTransRuntimeBehavior.GetDependency(_previewDomain)
-                                                                    .Append(texTransRuntimeBehavior)
-                                                                    .Append(texTransRuntimeBehavior.gameObject)
-                                                                    .Concat(texTransRuntimeBehavior.gameObject.GetParents())
-                                                                    .Where(g => g != null).Select(g => g.GetInstanceID())
-                                                                    )
-            {
-                if (!_dependencyMap.ContainsKey(dependInstanceID)) { _dependencyMap[dependInstanceID] = new(); }
-                _dependencyMap[dependInstanceID].Add(texTransRuntimeBehavior);
-            }
         }
 
         void UnRegisterDependency(TexTransRuntimeBehavior texTransRuntimeBehavior) { foreach (var depend in _dependencyMap) { depend.Value.Remove(texTransRuntimeBehavior); } }
@@ -149,21 +143,24 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         void UpdatePreview()
         {
+            Profiler.BeginSample("UpdatePreview");
             if (_updateQueue.TryDequeue(out var texTransRuntimeBehavior) && _PriorityMap.TryGetValue(texTransRuntimeBehavior, out var priority))
             {
-                if (_dependencyHashMap[texTransRuntimeBehavior] != texTransRuntimeBehavior.GetDependencyHash(_previewDomain))
-                {
-                    UnRegisterDependency(texTransRuntimeBehavior);
-                    RegisterDependency(texTransRuntimeBehavior);
-                }
+                Profiler.BeginSample("UnRegisterDependency");
+                UnRegisterDependency(texTransRuntimeBehavior);
+                Profiler.EndSample();
 
-                _previewDomain.SetNowPriority(priority);
-
-                try { if (texTransRuntimeBehavior.gameObject.activeInHierarchy && texTransRuntimeBehavior.IsPossibleApply) { texTransRuntimeBehavior.Apply(_previewDomain); } }
+                Profiler.BeginSample("Apply");
+                _previewDomain.SetNowBehavior(texTransRuntimeBehavior, priority);
+                try { if (texTransRuntimeBehavior.gameObject.activeInHierarchy) { texTransRuntimeBehavior.Apply(_previewDomain); } }
                 catch (Exception ex) { Debug.LogException(ex); }
+                Profiler.EndSample();
 
+                Profiler.BeginSample("NeededStackUpdate");
                 _previewDomain.UpdateNeeded();
+                Profiler.EndSample();
             }
+            Profiler.EndSample();
         }
 
 

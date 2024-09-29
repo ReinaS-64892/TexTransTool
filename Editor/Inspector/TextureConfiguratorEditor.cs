@@ -19,7 +19,8 @@ namespace net.rs64.TexTransTool.Editor
             var sOverrideTextureSetting = sObj.FindProperty("OverrideTextureSetting");
             var sTextureSize = sObj.FindProperty("TextureSize");
             var sMipMap = sObj.FindProperty("MipMap");
-            var sDownScalingAlgorism = sObj.FindProperty("DownScalingAlgorism");
+            var sDownScalingAlgorithm = sObj.FindProperty("DownScalingAlgorithm");
+            var sDownScalingWithLookAtAlpha = sObj.FindProperty("DownScalingWithLookAtAlpha");
 
             var sOverrideCompression = sObj.FindProperty("OverrideCompression");
             var sCompressionSetting = sObj.FindProperty("CompressionSetting");
@@ -32,18 +33,16 @@ namespace net.rs64.TexTransTool.Editor
             {
                 EditorGUILayout.PropertyField(sTextureSize);
                 EditorGUILayout.PropertyField(sMipMap);
-                EditorGUILayout.PropertyField(sDownScalingAlgorism);
+                EditorGUILayout.PropertyField(sDownScalingAlgorithm);
+                EditorGUILayout.PropertyField(sDownScalingWithLookAtAlpha);
             }
 
             EditorGUILayout.PropertyField(sOverrideCompression);
             using (new EditorGUI.DisabledScope(!sOverrideCompression.boolValue))
             using (new EditorGUI.IndentLevelScope())
-            {
-                var rect = EditorGUILayout.GetControlRect(GUILayout.Height(TextureAtlas.Editor.CompressTuningDrawer.GetPropertyHeightStatic(sCompressionSetting) - (18f * 3)));
-                TextureAtlas.Editor.CompressTuningDrawer.DrawCompressEditor(rect, sCompressionSetting);
-            }
+            { EditorGUILayout.PropertyField(sCompressionSetting); }
 
-            OneTimePreviewContext.instance.DrawApplyAndRevert(targetTC);
+            PreviewButtonDrawUtil.Draw(targetTC);
             sObj.ApplyModifiedProperties();
         }
     }

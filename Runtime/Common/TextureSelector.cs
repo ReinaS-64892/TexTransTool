@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
+using System.Linq;
+using net.rs64.TexTransCore.Utils;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
@@ -33,63 +35,42 @@ namespace net.rs64.TexTransTool
                     }
                 case SelectMode.Relative:
                     {
+                        if (RendererAsPath == null) return null;
                         var DistMaterials = RendererAsPath.sharedMaterials;
 
                         if (DistMaterials.Length <= SlotAsPath) return null;
                         var DistMat = DistMaterials[SlotAsPath];
 
+                        if (DistMat.HasProperty(PropertyNameAsPath) is false) return null;
                         return DistMat.GetTexture(PropertyNameAsPath);
                     }
                 default: { return null; }
             }
         }
 
-        internal IEnumerable<UnityEngine.Object> GetDependency()
+        internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
+        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            switch (Mode)
-            {
-                default: yield break;
-                case SelectMode.Absolute: yield return SelectTexture; yield break;
-                case SelectMode.Relative:
-                    {
-                        yield return RendererAsPath;
-
-                        var DistMaterials = RendererAsPath.sharedMaterials;
-                        if (DistMaterials.Length <= SlotAsPath) { yield return DistMaterials[SlotAsPath]; }
-
-                        yield return GetTexture();
-                        yield break;
-                    }
-            }
-        }
-        internal int GetDependencyHash()
-        {
-            var hash = 0;
-            hash ^= (int)Mode;
-            switch (Mode)
-            {
-
-                case SelectMode.Absolute:
-                    {
-                        hash ^= SelectTexture?.GetInstanceID() ?? 0;
-                        break;
-                    }
-                case SelectMode.Relative:
-                    {
-                        if (RendererAsPath == null) { break; }
-                        hash ^= RendererAsPath?.GetInstanceID() ?? 0;
-                        var DistMaterials = RendererAsPath.sharedMaterials;
-                        if (DistMaterials.Length <= SlotAsPath) { break; }
-                        hash ^= SlotAsPath;
-                        hash ^= DistMaterials[SlotAsPath]?.GetInstanceID() ?? 0;
-
-                        hash ^= GetTexture()?.GetInstanceID() ?? 0;
-                        break;
-                    }
-            }
-
-            return hash;
+            var targetTex = GetTexture();
+            var targetTextures = RendererUtility.GetAllTexture<Texture>(domainRenderers).Where(m => replaceTracking(m, targetTex));
+            return FindModificationTargetRenderers(domainRenderers, targetTextures);
         }
 
+        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, IEnumerable<Texture> targetTex)
+        {
+            if (targetTex.Any() is false) { return Array.Empty<Renderer>(); }
+            var targetTexHash = new HashSet<Texture>(targetTex);
+            var mats = RendererUtility.GetFilteredMaterials(domainRenderers);
+            var targetMatHash = new HashSet<Material>();
+
+            foreach (var mat in mats)
+            {
+                if (targetMatHash.Contains(mat)) { continue; }
+                var dict = mat.GetAllTexture<Texture>();
+                if (dict.Values.Any(t => targetTexHash.Contains(t))) { targetMatHash.Add(mat); }
+            }
+            return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
+        }
+        internal void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(GetTexture()); }
     }
 }

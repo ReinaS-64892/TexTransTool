@@ -22,6 +22,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var canvasSize = canvasContext.CanvasSize;
             var rTex = TTRt.G(canvasSize, canvasSize, true);
+            rTex.name = $"AbstractImageLayer.EvaluateTextureTempRt-{rTex.width}x{rTex.height}";
+
 
             GetImage(rTex, canvasContext.TextureManager);
 

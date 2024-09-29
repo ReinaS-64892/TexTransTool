@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
-            var mat = new Material(SpecialLayerShaders.SelectiveColorAdjustment);
+            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.SelectiveColorAdjustment);
 
             mat.SetVector("_RedsCMYK", RedsCMYK);
             mat.SetVector("_YellowsCMYK", YellowsCMYK);
@@ -35,7 +35,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             mat.SetFloat("_IsAbsolute", IsAbsolute ? 1f : 0f);
 
             Graphics.Blit(grabSource, writeTarget, mat);
-            UnityEngine.Object.DestroyImmediate(mat);
         }
     }
 }

@@ -34,9 +34,15 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     stream.ReadByte();
                     nowIRB.PascalStringName = null;
                 }
-                else { nowIRB.PascalStringName = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(strLength).Span); }
+                else
+                {
+                    nowIRB.PascalStringName = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(strLength).Span);
+                    if (strLength % 2 == 0) { stream.ReadByte(); }
+                    else { /* null文字は偶数の時にしか存在しないらしい...??????????*/  }
+                }
 
                 nowIRB.ActualDataSizeFollows = stream.ReadUInt32();
+                //ここなぜか 2の倍数にパディング入れないといけないの謎
                 var actualLength = nowIRB.ActualDataSizeFollows % 2 == 0 ? nowIRB.ActualDataSizeFollows : nowIRB.ActualDataSizeFollows + 1;
                 nowIRB.ActualDataSizeFollowsPlusPadding = actualLength;
                 nowIRB.ActualDataStartIndex = stream.ReadSubStream((int)actualLength).FirstToPosition;

@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
     }
     internal interface ITTTCustomPreview
     {
-        void Preview(TexTransBehavior texTransBehavior, IEditorCallDomain editorCallDomain);
+        void Preview(TexTransBehavior texTransBehavior, IDomain editorCallDomain);
     }
     internal static class TTTCustomPreviewUtility
     {
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
         }
 
 
-        internal static bool TryExecutePreview(TexTransBehavior texTransBehavior, IEditorCallDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
+        internal static bool TryExecutePreview(TexTransBehavior texTransBehavior, IDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
         {
             if (s_processor is null) { InitProcessor(); }
 

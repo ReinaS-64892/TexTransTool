@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
 using UnityEditor;
 using UnityEngine;
@@ -36,6 +37,12 @@ namespace net.rs64.TexTransTool
             if (tooltipKey == tooltipStr) { tooltipStr = ""; }
             return new GUIContent(str.GetLocalize(), tooltipStr);
         }
-
+        public static GUIContent Glf(this string str, params object[] objects)
+        {
+            var cuiContent = str.Glc();
+            cuiContent.text = string.Format(cuiContent.text, objects);
+            cuiContent.tooltip = string.Format(cuiContent.tooltip, objects);
+            return cuiContent;
+        }
     }
 }

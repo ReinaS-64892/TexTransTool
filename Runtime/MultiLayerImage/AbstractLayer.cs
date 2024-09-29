@@ -27,6 +27,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (LayerMask.ContainedMask)
             {
                 var rt = TTRt.G(canvasContext.CanvasSize, canvasContext.CanvasSize, true);
+                rt.name = $"GetLayerAlphaMod.TempRt-{rt.width}x{rt.height}";
+
                 LayerMask.WriteMaskTexture(rt, canvasContext.TextureManager);
                 return new LayerAlphaMod(rt, Opacity);
             }
@@ -36,15 +38,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
 
-        internal virtual IEnumerable<UnityEngine.Object> GetDependency()
+        internal virtual void LookAtCalling(ILookingObject lookingObject)
         {
-            yield return gameObject;
-            foreach (var m in LayerMask.GetDependency()) { yield return m; }
-        }
-
-        internal virtual int GetDependencyHash()
-        {
-            return LayerMask.GetDependencyHash();
+            lookingObject.LookAt(gameObject);
+            lookingObject.LookAt(this);
+            LayerMask.LookAtCalling(lookingObject);
         }
     }
     [Serializable]
@@ -55,9 +53,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
 
-        public IEnumerable<UnityEngine.Object> GetDependency() { yield return MaskTexture; }
-
-        public int GetDependencyHash() { return MaskTexture?.GetInstanceID() ?? 0; }
+        public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
 
         void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)
         {
@@ -69,8 +65,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         bool ContainedMask { get; }
         void WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture);
-        abstract IEnumerable<UnityEngine.Object> GetDependency();
-        int GetDependencyHash();
+        void LookAtCalling(ILookingObject lookingObject);
     }
 
 

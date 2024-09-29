@@ -14,11 +14,6 @@ namespace net.rs64.TexTransTool
         /// <param name="domain">The domain</param>
         internal abstract void Apply([NotNull] IDomain domain);
 
-
-        /// <summary>
-        /// Enumerates references that depend on the component externally.
-        /// </summary>
-        internal abstract IEnumerable<UnityEngine.Object> GetDependency(IDomain domain);
-        internal abstract int GetDependencyHash(IDomain domain);
+        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
     }
 }

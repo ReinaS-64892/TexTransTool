@@ -4,6 +4,6 @@ namespace net.rs64.MultiLayerImage.LayerData
 {
     internal class SolidColorLayerData : AbstractLayerData
     {
-        public Color Color;
+        [ColorUsage(false)] public Color Color;
     }
 }

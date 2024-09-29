@@ -5,9 +5,10 @@
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.inspector")]
 [assembly: InternalsVisibleTo("net.ra64.tex-trans-tool.test-code")]
 
-[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.build.ndmf")]
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf")]
 
 [assembly: InternalsVisibleTo("net.rs64.multi-layer-image-parser")]
+[assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.editor.ndmf-not-exist-waring")]
 
 [assembly: InternalsVisibleTo("net.rs64.ttt-clip-importer.editor")]
 [assembly: InternalsVisibleTo("net.rs64.ttt-destructive-texture-utilities.editor")]

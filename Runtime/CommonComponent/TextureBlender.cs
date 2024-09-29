@@ -4,6 +4,7 @@ using net.rs64.TexTransCore.BlendTexture;
 using System;
 using net.rs64.TexTransTool.Utils;
 using System.Linq;
+using net.rs64.TexTransCore.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
@@ -20,29 +21,28 @@ namespace net.rs64.TexTransTool
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
-
-        internal override List<Renderer> GetRenderers => new List<Renderer>() { TargetTexture.RendererAsPath };
-
-        internal override bool IsPossibleApply => TargetTexture.RendererAsPath != null && BlendTexture != null;
-
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         internal override void Apply(IDomain domain)
         {
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
+            domain.LookAt(this);
 
             var distTex = TargetTexture.GetTexture();
-            if (distTex == null) { return; }
+            if (distTex == null) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
-            var addTex = TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
-            domain.AddTextureStack<TextureBlend.BlendTexturePair>(distTex, new(addTex, BlendTypeKey));
+            var domainTexture = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer());
+            var targetTextures = domainTexture.Where(m => domain.OriginEqual(m, distTex));
+            if (targetTextures.Any() is false) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotFound"); return; }
+
+            domain.LookAt(targetTextures);
+
+            var addTex = BlendTexture == null ? TextureUtility.CreateColorTexForRT(Color) : TextureBlend.CreateMultipliedRenderTexture(BlendTexture, Color);
+            foreach (var t in targetTextures) { domain.AddTextureStack<TextureBlend.BlendTexturePair>(t, new(addTex, BlendTypeKey)); }
         }
 
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain) { return TargetTexture.GetDependency().Append(BlendTexture); }
-
-        internal override int GetDependencyHash(IDomain domain)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TargetTexture.GetDependencyHash() ^ BlendTexture?.GetInstanceID() ?? 0;
+            return TargetTexture.ModificationTargetRenderers(domainRenderers, replaceTracking);
         }
     }
 }

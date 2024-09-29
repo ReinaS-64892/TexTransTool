@@ -7,22 +7,29 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     [Serializable]
     public class Remove : ITextureFineTuning
     {
-        public PropertyName PropertyNames;
-        public PropertySelect Select;
+        public bool IsRemove = true;
 
+        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
+        public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
+        public PropertySelect Select = PropertySelect.NotEqual;
+        public Remove() { }
+        [Obsolete("V4SaveData", true)]
         public Remove(PropertyName propertyNames, PropertySelect select)
         {
             PropertyNames = propertyNames;
             Select = select;
         }
-
-        public static Remove Default => new(PropertyName.DefaultValue, PropertySelect.NotEqual);
+        public Remove(List<PropertyName> propertyNames, PropertySelect select)
+        {
+            PropertyNameList = propertyNames;
+            Select = select;
+        }
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNames, Select, texFineTuningTargets))
+            foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
-                target.Value.Get<RemoveData>();
+                target.Value.Get<RemoveData>().IsRemove = IsRemove;
             }
         }
 
@@ -30,7 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal class RemoveData : ITuningData
     {
-
+        public bool IsRemove = true;
     }
 
     internal class RemoveApplicant : ITuningApplicant
@@ -38,11 +45,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public int Order => 64;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             foreach (var removeTarget in texFineTuningTargets.Where(i => i.Value.Find<RemoveData>() is not null).ToArray())
             {
-                texFineTuningTargets.Remove(removeTarget.Key);
+                if (removeTarget.Value.Find<RemoveData>().IsRemove) { texFineTuningTargets.Remove(removeTarget.Key); }
             }
 
         }

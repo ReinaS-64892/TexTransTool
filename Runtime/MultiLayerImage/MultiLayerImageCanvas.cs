@@ -17,8 +17,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string FoldoutName = "MultiLayerImage";
         internal const string ComponentName = "TTT MultiLayerImageCanvas";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        internal override List<Renderer> GetRenderers => new List<Renderer>() { TextureSelector.RendererAsPath };
-        internal override bool IsPossibleApply => TextureSelector.GetTexture() != null;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         public TextureSelector TextureSelector;
@@ -27,15 +25,33 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void Apply([NotNull] IDomain domain)
         {
-            if (!IsPossibleApply) { throw new TTTNotExecutable(); }
             var replaceTarget = TextureSelector.GetTexture();
+            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); domain.LookAt(this); return; }
+
+            var nowDomainsTargets = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer()).Where(m => domain.OriginEqual(m, replaceTarget));
+            if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
+
+            LookAtCallingCanvas(domain);
+
             var canvasSize = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             if (domain.IsPreview()) { canvasSize = Mathf.Min(1024, canvasSize); }
             RenderTexture result = EvaluateCanvas(domain.GetTextureManager(), canvasSize);
 
-            domain.AddTextureStack(replaceTarget, new BlendTexturePair(result, "NotBlend"));
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
         }
 
+        internal void LookAtCallingCanvas(ILookingObject looker)
+        {
+            TextureSelector.LookAtCalling(looker);
+            looker.LookAt(this);
+            looker.LookAtChildeComponents<AbstractLayer>(gameObject);
+            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(looker); }
+        }
+
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        {
+            return TextureSelector.ModificationTargetRenderers(domainRenderers, replaceTracking);
+        }
         internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasSize)
         {
             var Layers = GetChileLayers();
@@ -47,7 +63,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return result;
         }
 
-        private IEnumerable<AbstractLayer> GetChileLayers()
+        IEnumerable<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }
+        internal static IEnumerable<AbstractLayer> GetChileLayers(Transform transform)
         {
             return transform.GetChildren()
             .Select(I => I.GetComponent<AbstractLayer>())
@@ -65,23 +82,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (Mathf.Abs(nextV - v) > Mathf.Abs(closetV - v)) { return closetV; }
             else { return nextV; }
         }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            var chileLayers = GetChileLayers();
-            return TextureSelector.GetDependency().Append(tttImportedCanvasDescription).Concat(chileLayers).Concat(chileLayers.SelectMany(l => l.GetDependency()));
-        }
-
-        internal override int GetDependencyHash(IDomain domain)
-        {
-            var hash = TextureSelector.GetDependencyHash();
-            foreach (var cl in GetChileLayers())
-            {
-                hash ^= cl.GetDependencyHash();
-            }
-            return hash;
-        }
-
         internal class CanvasContext
         {
             public ITextureManager TextureManager;
@@ -115,6 +115,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             public LayerCanvas(RenderTexture renderTexture)
             {
                 _canvas = renderTexture; _canvas.Clear();
+                _canvas.name = $"CanvasTempRt-{_canvas.width}x{_canvas.height}";
                 _layerScopes = new();
             }
             public void AddLayer(BlendRenderTexture blendLayer, LayerAlphaMod layerAlphaMod, bool thisClipping)
@@ -219,14 +220,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             internal static void DrawOnClipping(BlendRenderTexture drawTargetLayer, IEvaluateBlending clippingLayer)
             {
                 var targetRt = drawTargetLayer.Texture;
-                var swap = TTRt.G(targetRt.descriptor);
-                Graphics.CopyTexture(targetRt, swap);
+                using (TTRt.U(out var swap, targetRt.descriptor))
+                {
 
-                TextureBlend.AlphaOne(targetRt);
-                clippingLayer.EvalDrawCanvas(targetRt);
-                TextureBlend.AlphaCopy(swap, targetRt);
+                    Graphics.CopyTexture(targetRt, swap);
 
-                TTRt.R(swap);
+                    TextureBlend.AlphaOne(targetRt);
+                    clippingLayer.EvalDrawCanvas(targetRt);
+                    TextureBlend.AlphaCopy(swap, targetRt);
+                }
             }
 
             public LayerScopeUsingStruct UsingLayerScope(LayerAlphaMod layerAlphaMod) { EnterLayerScope(layerAlphaMod); return new(this); }
@@ -240,6 +242,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             private RenderTexture GetTempRtMask()
             {
                 var rt = TTRt.G(_canvas.descriptor);
+                rt.name = $"GetTempRtMask-{rt.width}x{rt.height}";
+
                 TextureBlend.ColorBlit(rt, Color.white);
                 return rt;
             }
@@ -257,7 +261,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
             internal static void LayerAlphaAnd(ref LayerAlphaMod target, LayerAlphaMod and)
             {
-                if (target.Mask == null) { target.Mask = TTRt.G(and.Mask.descriptor); TextureBlend.ColorBlit(target.Mask, Color.white); }
+                if (target.Mask == null)
+                {
+                    target.Mask = TTRt.G(and.Mask.descriptor);
+                    target.Mask.name = $"LayerAlphaAndMaskTempRt-{target.Mask.width}x{target.Mask.height}";
+                    TextureBlend.ColorBlit(target.Mask, Color.white);
+                }
                 if (and.Mask != null) { TextureBlend.MaskDrawRenderTexture(target.Mask, and.Mask); }
 
                 target.Opacity *= and.Opacity;

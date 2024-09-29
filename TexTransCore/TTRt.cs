@@ -10,6 +10,12 @@ namespace net.rs64.TexTransCore
         public static RenderTextureFormat RenderTextureDefaultFormat = RenderTextureFormat.ARGB32;
 
         public static RenderTexture G(int size) => G(size, size);
+        public static RenderTexture G(int size, string rtName)
+        {
+            var rt = G(size, size);
+            rt.name = rtName;
+            return rt;
+        }
         public static UsingRenderTexture U(out RenderTexture tmpRt, int size)
         {
             tmpRt = G(size);
@@ -72,6 +78,8 @@ namespace net.rs64.TexTransCore
 
         internal static HashSet<RenderTexture> s_tempSet = new();
 
+        public static bool IsTemp(RenderTexture renderTexture) => s_tempSet.Contains(renderTexture);
+
         public static void R(RenderTexture renderTexture)
         {
             RenderTexture.ReleaseTemporary(renderTexture);
@@ -80,10 +88,21 @@ namespace net.rs64.TexTransCore
 
         public static void ForceLeakedRelease()
         {
-            foreach (var rt in s_tempSet) { RenderTexture.ReleaseTemporary(rt); }
+            foreach (var rt in s_tempSet)
+            {
+                Debug.Log("ForceReleased-" + rt.name);
+                RenderTexture.ReleaseTemporary(rt);
+            }
             s_tempSet.Clear();
         }
 
+#if UNITY_EDITOR
+        [TexTransInitialize]
+        static void RegisterForceLakedResolve()
+        {
+            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += ForceLeakedRelease;
+        }
+#endif
 
         public readonly struct UsingRenderTexture : IDisposable
         {

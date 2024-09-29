@@ -8,28 +8,31 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public class ReferenceCopy : ITextureFineTuning
     {
 
-        public PropertyName SourcePropertyName;
-        public PropertyName TargetPropertyName;
+        public PropertyName SourcePropertyName = PropertyName.DefaultValue;
+        [Obsolete("V4SaveData", true)] public PropertyName TargetPropertyName = PropertyName.DefaultValue;
+        public List<PropertyName> TargetPropertyNameList = new() { PropertyName.DefaultValue };
 
-        public ReferenceCopy(PropertyName sourcePropertyName, PropertyName targetPropertyName)
+
+        public ReferenceCopy() { }
+        public ReferenceCopy(PropertyName sourcePropertyName, List<PropertyName> targetPropertyNameList)
         {
             SourcePropertyName = sourcePropertyName;
-            TargetPropertyName = targetPropertyName;
+            TargetPropertyNameList = targetPropertyNameList;
         }
-
-        public static ReferenceCopy Default => new(PropertyName.DefaultValue, PropertyName.DefaultValue);
 
         public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
-            if (!texFineTuningTargets.TryGetValue(TargetPropertyName, out var copyTargetTextureHolder)) { return; }
-            if (copyTargetTextureHolder == null)
+            foreach (var tpn in TargetPropertyNameList)
             {
-                copyTargetTextureHolder = new TexFineTuningHolder(null);
-                texFineTuningTargets.Add(TargetPropertyName, copyTargetTextureHolder);
+                if (!texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder)) { continue; }
+                if (copyTargetTextureHolder == null)
+                {
+                    copyTargetTextureHolder = new TexFineTuningHolder(null);
+                    texFineTuningTargets.Add(tpn, copyTargetTextureHolder);
+                }
+
+                copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
             }
-
-            copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
-
         }
     }
 
@@ -43,7 +46,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public int Order => 32;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
         {
             foreach (var texKv in texFineTuningTargets.ToArray())
             {

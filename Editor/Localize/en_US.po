@@ -29,6 +29,21 @@ msgstr "Build was run during previewing."
 msgid "Common:error:BuildWasRunDuringPreviewing:hint"
 msgstr "If this error, preview has exit. please try again."
 
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning"
+msgstr "The Component is nested inside a TexTransTool's non-Group component!"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:description"
+msgstr "In the next version v0.9.x, nesting TexTransTool components other then Group component(such as TexTransGroup) will not longer work."
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
+msgstr "Try not to nest component, but place them elsewhere."
+
+msgid "Common:ndmf:DisableThisComponentPhasePreview"
+msgstr "(NDMF) Disable {0} Preview"
+
+msgid "Common:ndmf:EnableThisComponentPhasePreview"
+msgstr "(NDMF) Enable {0} Preview"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
@@ -37,17 +52,32 @@ msgstr "AtlasTexture is not executable."
 msgid "AtlasTexture:error:TTTNotExecutable:hint"
 msgstr "Please review TargetRoot and MaterialSelect."
 
-msgid "AtlasTexture:error:MoreMaterialSlotThanSubMesh"
-msgstr "Exist a renderer has more MaterialSlot than SubMesh. Very different look is potential."
+msgid "AtlasTexture:info:TargetNotSet"
+msgstr "AtlasTarget not set!"
 
-msgid "AtlasTexture:error:IdenticalIslandForMultipleSubMesh"
-msgstr "Exist a mesh has identical Vertex use for multiple SubMesh.\nDifferent look is potential to become."
+msgid "AtlasTexture:info:TargetNotFound"
+msgstr "AtlasTarget not found!"
 
-msgid "AtlasTexture:prop:TargetRoot"
-msgstr "TargetRoot"
+msgid "AtlasTexture:error:RelocationFailed"
+msgstr "Island relocation failed!"
 
-msgid "AtlasTexture:prop:TargetRoot:tooltip"
-msgstr "Maximum Range of renderers atlas"
+msgid "AtlasTexture:error:RelocationFailed:hint"
+msgstr "Extremely large Padding, or very many atlas target.\nPlease each for decrease Padding, or reduce atlas target."
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
+msgstr "IslandPadding is zero and PixelNormalize is used. \nPlease note that some Island may overlap and result the different color in some pixel."
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
+msgstr "increment IslandPadding or place disabled PixelNormalize."
+
+msgid "AtlasTexture:info:RelocateResult"
+msgstr "Atlas Relocate Result\nTop free space: {0}\nPriority shrink: {1}x \nOverall shrink: {2}x \nTotal relocate count: {3} \nTime taken relocate: {4}ms"
+
+msgid "AtlasTexture:prop:LimitCandidateMaterials"
+msgstr "LimitCandidateMaterials"
+
+msgid "AtlasTexture:prop:LimitCandidateMaterials:tooltip"
+msgstr "Limit candidate materials to GameObject subordinates."
 
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"
@@ -103,6 +133,9 @@ msgstr "ForceSetTexture"
 msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
 msgstr "Assign an atlas texture to material even If the texture  not exist in material"
 
+msgid "AtlasTexture:prop:BackGroundColor"
+msgstr "BackGroundColor"
+
 msgid "AtlasTexture:prop:Padding"
 msgstr "Padding"
 
@@ -115,17 +148,20 @@ msgstr "IslandSorterName"
 msgid "AtlasTexture:prop:IslandSorterName:tooltip"
 msgstr "Name of Island sorter, can not editable."
 
+msgid "AtlasTexture:prop:PixelNormalize"
+msgstr "PixelNormalize"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
 msgstr "WriteOriginalUV"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "Write to any UV the UV when before atlas."
+
+msgid "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel"
+msgstr "OriginalUVWriteTargetChannel"
+
 msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
 msgstr "AtlasIslandRelocator"
-
-msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
-msgstr "Write to UV1 the UV when before atlas."
-
-msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize"
-msgstr "PixelNormalize"
 
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
@@ -148,17 +184,44 @@ msgstr "Option to Include disabled renderers in the atlas."
 msgid "AtlasTexture:prop:ForceSizePriority"
 msgstr "ForceSizePriority"
 
+msgid "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset"
+msgstr "TextureScaleOffsetReset"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue"
+msgstr "BakedPropertyWriteMaxValue"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:UnsetTextures"
+msgstr "UnsetTextures"
+
 msgid "AtlasTexture:prop:TextureFineTuning"
 msgstr "TextureFineTuning"
 
 msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
 msgstr "Setting for various fine tuning for atlas texture."
 
+msgid "AtlasTexture:prop:DownScalingAlgorithm"
+msgstr "DownScalingAlgorithm"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
+msgstr "AutoReferenceCopySetting"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting"
+msgstr "AutoMergeTextureSetting"
+
+msgid "AtlasTexture:prop:TextureIndividualFineTuning"
+msgstr "TextureIndividualFineTuning"
+
+msgid "AtlasTexture:prop:OpenTextureFineTuningManager"
+msgstr "OpenTextureFineTuningManager"
+
 msgid "TextureFineTuning:prop:TargetPropertyName"
 msgstr "TargetPropertyName"
 
 msgid "TextureFineTuning:prop:Select"
 msgstr "Select"
+
+msgid "TextureFineTuning:prop:IsRemove"
+msgstr "IsRemove"
 
 msgid "TextureFineTuning:prop:Select:tooltip"
 msgstr "Property select condition."
@@ -339,6 +402,12 @@ msgstr "AtlasTexture is not executable."
 msgid "SimpleDecal:error:TTTNotExecutable:hint"
 msgstr "Please review target renderers exist."
 
+msgid "SimpleDecal:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "SimpleDecal:info:TargetNotFound"
+msgstr "Target not found!"
+
 msgid "SimpleDecal:label:ScaleSettings"
 msgstr "ScaleSettings"
 
@@ -408,6 +477,9 @@ msgstr "AllExit"
 msgid "SimpleDecal:button:AllExit:tooltip"
 msgstr "Exit all decal real time preview."
 
+msgid "SimpleDecal:info:ScaleInvert"
+msgstr "Scale of the Decal is inverted!\nIt may unintended behavior such as being decal only on the back side!"
+
 # TexTransGroup
 
 msgid "SimpleDecal:label:DuringPreviewNoSummary"
@@ -423,6 +495,12 @@ msgid "TexTransGroup:label:GroupChildren"
 msgstr "GroupChildren"
 
 # SingleGradationDecal
+
+msgid "SingleGradationDecal:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "SingleGradationDecal:info:TargetNotFound"
+msgstr "Target not found!"
 
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "SelectedMaterialView"
@@ -448,7 +526,37 @@ msgstr "TargetPropertyName"
 msgid "SingleGradationDecal:prop:GradientClamp"
 msgstr "GradientClamp"
 
+# TextureBlender
+
+msgid "TextureBlender:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "TextureBlender:info:TargetNotFound"
+msgstr "Target not found!"
+
 # TextureConfigurator
 
+msgid "TextureConfigurator:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
 msgid "TextureConfigurator:error:TargetNotFound"
-msgstr "TargetNotFound"
+msgstr "Target not found!"
+
+# MaterialOverrideTransfer
+
+msgid "MaterialOverrideTransfer:info:TargetNotSet"
+msgstr "Target not Set!"
+
+msgid "MaterialOverrideTransfer:info:VariantNotSet"
+msgstr "MaterialVariant not Set!"
+
+msgid "MaterialOverrideTransfer:info:TargetNotFound"
+msgstr "Target not found!"
+
+# MultiLayerImageCanvas
+
+msgid "MultiLayerImageCanvas:info:TargetNotSet"
+msgstr "Target not set!"
+
+msgid "MultiLayerImageCanvas:info:TargetNotFound"
+msgstr "Target not found!"

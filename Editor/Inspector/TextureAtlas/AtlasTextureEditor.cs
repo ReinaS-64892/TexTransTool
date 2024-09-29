@@ -8,6 +8,7 @@ using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Editor.OtherMenuItem;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -21,43 +22,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
             thisSObject.Update();
 
-#pragma warning disable CS0612
-            if (thisTarget is ITexTransToolTag TTTag && TTTag.SaveDataVersion != TexTransBehavior.TTTDataVersion)
-            {
-                if (TTTag.SaveDataVersion == 0 && GUILayout.Button("Migrate DSV0 To DSV1"))
-                {
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.MigrationAtlasTextureV0ToV1(thisTarget);
-                    net.rs64.TexTransTool.Migration.V0.AtlasTextureV0.FinalizeMigrationAtlasTextureV0ToV1(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 1 && GUILayout.Button("Migrate DSV1 To DSV2"))
-                {
-                    net.rs64.TexTransTool.Migration.V1.AtlasTextureV1.MigrationAtlasTextureV1ToV2(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 2 && GUILayout.Button("Migrate DSV2 To DSV3"))
-                {
-                    net.rs64.TexTransTool.Migration.V2.AtlasTextureV2.MigrationAtlasTextureV2ToV3(thisTarget);
-                }
-                if (TTTag.SaveDataVersion == 3 && GUILayout.Button("Migrate DSV3 To DSV4"))
-                {
-                    net.rs64.TexTransTool.Migration.V3.AtlasTextureV3.MigrationAtlasTextureV3ToV4(thisTarget);
-                }
-                return;
-            }
-#pragma warning restore CS0612
-
             var sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
-            var sTargetRoot = thisSObject.FindProperty("TargetRoot");
+            var sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
             var sMatSelectors = thisSObject.FindProperty("SelectMatList");
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(sTargetRoot, "AtlasTexture:prop:TargetRoot".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sTargetRoot.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
+            EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, thisTarget.AtlasSetting.IncludeDisabledRenderer, thisTarget.AtlasSetting.MergeMaterials ? thisTarget.AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake : false); }
 
-            if (sTargetRoot.objectReferenceValue != null && !OneTimePreviewContext.IsPreviewContains)
+            if (PreviewUtility.IsPreviewContains is false)
             {
                 if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
-                { RefreshMaterials(thisTarget.TargetRoot, thisTarget.AtlasSetting.IncludeDisabledRenderer); }
-                MaterialSelectEditor(sMatSelectors, _displayMaterial);
+                { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer, thisTarget.AtlasSetting.MergeMaterials ? thisTarget.AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake : false); }
+                if (_displayMaterial is not null) { MaterialSelectEditor(sMatSelectors, _displayMaterial); }
             }
 
             EditorGUI.indentLevel += 1;
@@ -67,7 +44,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             DrawAtlasSettings(sAtlasSetting, sMatSelectors);
 
-            OneTimePreviewContext.instance.DrawApplyAndRevert(thisTarget);
+            PreviewButtonDrawUtil.Draw(thisTarget);
 
             serializedObject.ApplyModifiedProperties();
 
@@ -75,6 +52,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private void DrawAtlasSettings(SerializedProperty sAtlasSettings, SerializedProperty sMatSelectors)
         {
+            var thisTarget = target as AtlasTexture;
             EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
@@ -87,33 +65,48 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sPadding = sAtlasSettings.FindPropertyRelative("IslandPadding");
             var sAtlasIslandRelocator = sAtlasSettings.FindPropertyRelative("AtlasIslandRelocator");
             var sWriteOriginalUV = sAtlasSettings.FindPropertyRelative("WriteOriginalUV");
+            var sOriginalUVWriteTargetChannel = sAtlasSettings.FindPropertyRelative("OriginalUVWriteTargetChannel");
             var sIncludeDisabledRenderer = sAtlasSettings.FindPropertyRelative("IncludeDisabledRenderer");
             var sPixelNormalize = sAtlasSettings.FindPropertyRelative("PixelNormalize");
             var sTextureFineTuning = sAtlasSettings.FindPropertyRelative("TextureFineTuning");
             var sIslandFineTuners = sAtlasSettings.FindPropertyRelative("IslandFineTuners");
             var sForceSizePriority = sAtlasSettings.FindPropertyRelative("ForceSizePriority");
             var sMaterialMergeGroups = sAtlasSettings.FindPropertyRelative("MaterialMergeGroups");
+            var sTextureIndividualFineTuning = sAtlasSettings.FindPropertyRelative("TextureIndividualFineTuning");
+            var sAutoReferenceCopySetting = sAtlasSettings.FindPropertyRelative("AutoReferenceCopySetting");
+            var sAutoMergeTextureSetting = sAtlasSettings.FindPropertyRelative("AutoMergeTextureSetting");
+            var sBackGroundColor = sAtlasSettings.FindPropertyRelative("BackGroundColor");
+            var sDownScalingAlgorithm = sAtlasSettings.FindPropertyRelative("DownScalingAlgorithm");
+            var sTextureScaleOffsetReset = sAtlasSettings.FindPropertyRelative("TextureScaleOffsetReset");
+            var sBakedPropertyWriteMaxValue = sAtlasSettings.FindPropertyRelative("BakedPropertyWriteMaxValue");
+            var sUnsetTextures = sAtlasSettings.FindPropertyRelative("UnsetTextures");
 
-
+            var sLimitCandidateMaterials = sIncludeDisabledRenderer.serializedObject.FindProperty("LimitCandidateMaterials");
 
             EditorGUILayout.PropertyField(sAtlasTextureSize, "AtlasTexture:prop:AtlasTextureSize".Glc());
             EditorGUILayout.PropertyField(sPadding, "AtlasTexture:prop:Padding".Glc());
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sIncludeDisabledRenderer, "AtlasTexture:prop:IncludeDisabledRenderer".Glc());
-            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(sIncludeDisabledRenderer.serializedObject.FindProperty("TargetRoot").objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue, sMergeMaterials.boolValue ? sPropertyBakeSetting.enumValueIndex != 0 : false); }
             EditorGUILayout.PropertyField(sForceSizePriority, "AtlasTexture:prop:ForceSizePriority".Glc());
 
 
-
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMerge".Glc());
+            if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue, sMergeMaterials.boolValue ? sPropertyBakeSetting.enumValueIndex != 0 : false); }
             if (sMergeMaterials.boolValue)
             {
+                EditorGUI.BeginChangeCheck();
                 EditorGUILayout.PropertyField(sPropertyBakeSetting, "AtlasTexture:prop:PropertyBakeSetting".Glc());
+                if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue, sMergeMaterials.boolValue ? sPropertyBakeSetting.enumValueIndex != 0 : false); }
                 EditorGUILayout.PropertyField(sMergeReferenceMaterial, "AtlasTexture:prop:MergeReferenceMaterial".Glc());
             }
             EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".Glc());
 
+            EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".Glc());
+
+            EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".Glc());
 
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
@@ -122,8 +115,26 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());
-                EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:ExperimentalFuture:PixelNormalize".Glc());
+                if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".Glc()); }
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
+
+                EditorGUILayout.PropertyField(sTextureScaleOffsetReset, "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset".Glc());
+                if(sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
+                {EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc());}
+
+                EditorGUILayout.PropertyField(sUnsetTextures,"AtlasTexture:prop:ExperimentalFuture:UnsetTextures".Glc());
+
+                EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
+                if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".Glc()); }
+                EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".Glc());
+
+                EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".Glc());
+                if (PreviewUtility.IsPreviewContains is false)
+                {
+                    if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".Glc()))
+                    { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
+                }
+
                 EditorGUI.indentLevel -= 1;
             }
 
@@ -228,17 +239,35 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
 
-        List<Material> _displayMaterial;
-        void RefreshMaterials(GameObject targetRoot, bool includeDisabledRenderer)
+        List<List<Material>> _displayMaterial;
+        void RefreshMaterials(AtlasTexture domainFindPoint, GameObject limitRoot, bool includeDisabledRenderer, bool usePropertyBake)
         {
-            if (targetRoot == null) { _displayMaterial = null; return; }
-            var renderers = AtlasTexture.FilteredRenderers(targetRoot, includeDisabledRenderer);
-            _displayMaterial = RendererUtility.GetMaterials(renderers).Distinct().ToList();
+            _displayMaterial = null;
+            if (AtlasShaderSupportUtils.s_atlasShaderSupportList is null) { return; }
+
+            var domainRoot = DomainMarkerFinder.FindMarker(domainFindPoint.gameObject);
+            if (domainRoot == null) { return; }
+
+            var domainRenderers = AtlasTexture.FilteredRenderers(domainRoot, includeDisabledRenderer);
+
+            List<Material> filteredMaterials;
+            if (limitRoot != null)
+            {
+                var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
+                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().Where(m => m != null).ToList();
+            }
+            else { filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList(); }
+
+            var atlasSSupport = new AtlasShaderSupportUtils();
+            var supportDict = filteredMaterials.ToDictionary(m => m, m => atlasSSupport.GetAtlasShaderSupporter(m));
+            var atlasTexDict = supportDict.ToDictionary(m => m.Key, m => m.Value.GetAtlasShaderTexture2D(m.Key).ToDictionary(s => s.PropertyName, s => s));
+
+            _displayMaterial = AtlasContext.LookUpMaterialGroup(atlasTexDict, supportDict, usePropertyBake).Select(i => new List<Material>(i)).ToList();
         }
 
-        public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<Material> tempMaterial)
+        public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<List<Material>> tempMaterialGroupAll)
         {
-            EditorGUI.indentLevel += 1;
+            // EditorGUI.indentLevel += 1;
             var hadeRect = EditorGUILayout.GetControlRect();
             var hadeWidth = hadeRect.width;
             hadeRect.width = 64f;
@@ -252,52 +281,56 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             hadeRect.x = hadeRect.width;
             EditorGUI.LabelField(hadeRect, "AtlasTexture:label:Material".Glc());
 
-            foreach (var mat in tempMaterial)
-            {
-                var sMatSelector = FindMatSelector(targetMaterial, mat);
-                var rect = EditorGUILayout.GetControlRect();
-
-                var drawWidth = rect.width * 0.5f;
-
-                var isTarget = sMatSelector != null;
-
-                rect.width = 32f;
-                var editIsTarget = EditorGUI.Toggle(rect, isTarget);
-                rect.x += rect.width;
-
-                if (isTarget != editIsTarget)
-                {
-                    if (editIsTarget)
+            foreach (var matGroup in tempMaterialGroupAll)
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    foreach (var mat in matGroup)
                     {
-                        var index = targetMaterial.arraySize;
-                        targetMaterial.arraySize += 1;
-                        var sNewMatSelector = targetMaterial.GetArrayElementAtIndex(index);
-                        sNewMatSelector.FindPropertyRelative("Material").objectReferenceValue = mat;
-                        sNewMatSelector.FindPropertyRelative("MaterialFineTuningValue").floatValue = 1;
-                    }
-                    else
-                    {
-                        targetMaterial.DeleteArrayElementAtIndex(FindMatSelectorIndex(targetMaterial, mat));
-                    }
-                }
-                else if (isTarget)
-                {
-                    rect.width = drawWidth - 18f - 24f;
-                    var SOffset = sMatSelector.FindPropertyRelative("MaterialFineTuningValue");
-                    SOffset.floatValue = EditorGUI.Slider(rect, SOffset.floatValue, 0, 1);
-                    rect.x += rect.width;
-                }
-                rect.x = drawWidth - 2.5f;
-                rect.width = 18f;
-                var matPrevTex = AssetPreview.GetAssetPreview(mat);
-                if (matPrevTex != null) { EditorGUI.DrawTextureTransparent(rect, matPrevTex, ScaleMode.ScaleToFit); }
+                        var sMatSelector = FindMatSelector(targetMaterial, mat);
+                        var rect = EditorGUILayout.GetControlRect();
 
-                rect.width = drawWidth;
-                rect.x = rect.width;
-                EditorGUI.ObjectField(rect, mat, typeof(Material), false);
-            }
-            EditorGUI.indentLevel -= 1;
+                        var drawWidth = rect.width * 0.5f;
+                        var initialX = rect.x;
 
+                        var isTarget = sMatSelector != null;
+
+                        rect.width = 32f;
+                        var editIsTarget = EditorGUI.Toggle(rect, isTarget);
+                        rect.x += rect.width;
+
+                        if (isTarget != editIsTarget)
+                        {
+                            if (editIsTarget)
+                            {
+                                var index = targetMaterial.arraySize;
+                                targetMaterial.arraySize += 1;
+                                var sNewMatSelector = targetMaterial.GetArrayElementAtIndex(index);
+                                sNewMatSelector.FindPropertyRelative("Material").objectReferenceValue = mat;
+                                sNewMatSelector.FindPropertyRelative("MaterialFineTuningValue").floatValue = 1;
+                            }
+                            else
+                            {
+                                targetMaterial.DeleteArrayElementAtIndex(FindMatSelectorIndex(targetMaterial, mat));
+                            }
+                        }
+                        else if (isTarget)
+                        {
+                            rect.width = drawWidth - 32f;
+                            rect.x = initialX + 24f;
+                            var SOffset = sMatSelector.FindPropertyRelative("MaterialFineTuningValue");
+                            SOffset.floatValue = EditorGUI.Slider(rect, SOffset.floatValue, 0, 1);
+                            rect.x = initialX + drawWidth;
+                        }
+                        rect.x = initialX + drawWidth - 18f;
+                        rect.width = 18f;
+                        var matPrevTex = AssetPreview.GetAssetPreview(mat);
+                        if (matPrevTex != null) { EditorGUI.DrawTextureTransparent(rect, matPrevTex, ScaleMode.ScaleToFit); }
+
+                        rect.width = drawWidth;
+                        rect.x = initialX + drawWidth;
+                        EditorGUI.ObjectField(rect, mat, typeof(Material), false);
+                    }
+
+            // EditorGUI.indentLevel -= 1;
         }
         public static SerializedProperty FindMatSelector(SerializedProperty targetMaterialArray, Material material)
         {
@@ -332,13 +365,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 var ve = new VisualElement();
                 var serializedObject = new SerializedObject(at);
-                var sTargetRenderers = serializedObject.FindProperty("TargetRoot");
+                var sTargetRenderers = serializedObject.FindProperty("LimitCandidateMaterials");
                 var sAtlasTextureSize = serializedObject.FindProperty("AtlasSetting").FindPropertyRelative("AtlasTextureSize");
 
-                var targetRoot = new PropertyField();
-                targetRoot.label = "AtlasTexture:prop:TargetRoot".GetLocalize();
-                targetRoot.BindProperty(sTargetRenderers);
-                ve.hierarchy.Add(targetRoot);
+                var limitCandidateMaterials = new PropertyField();
+                limitCandidateMaterials.label = "AtlasTexture:prop:LimitCandidateMaterials".GetLocalize();
+                limitCandidateMaterials.BindProperty(sTargetRenderers);
+                ve.hierarchy.Add(limitCandidateMaterials);
 
                 var atlasTextureSize = new PropertyField();
                 atlasTextureSize.label = "AtlasTexture:prop:AtlasTextureSize".GetLocalize();

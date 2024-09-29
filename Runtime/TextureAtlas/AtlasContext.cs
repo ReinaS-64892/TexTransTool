@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public OrderedHashSet<Material>[] MaterialGroup;
         public Dictionary<Material, AtlasShaderSupportScriptableObject> AtlasShaderSupporters;
         public Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> MaterialToAtlasShaderTexDict;
+        public Dictionary<int, Dictionary<string, AtlasShaderTexture2D>> MaterialGroupToAtlasShaderTexDict;
         public AtlasShaderSupportUtils AtlasShaderSupportUtils;
         public HashSet<AtlasSubData> AtlasSubAll;
         public List<AtlasSubData?[]> AtlasSubSets;
@@ -81,28 +82,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             Profiler.BeginSample("LookUp MatGroup");
-            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
-            foreach (var matKv in material2AtlasTargets)
-            {
-                var index = materialGroupList.FindIndex(matGroup =>
-                        matGroup.All(m2 =>
-                            supporters[matKv.Key] == supporters[m2.Key]
-                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
-                );
-
-                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
-                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
-            }
-            MaterialGroup = materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+            MaterialGroup = LookUpMaterialGroup(material2AtlasTargets, supporters, usePropertyBake);
             Profiler.EndSample();
 
+            MaterialGroupToAtlasShaderTexDict = MaterialGroup
+                .Select(mg => (Array.IndexOf(MaterialGroup, mg), mg.Select(m => material2AtlasTargets[m])))
+                .Select(mg => (mg.Item1, mg.Item2.SelectMany(i => i).GroupBy(i => i.Key)))
+                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture != null).Value ?? p.First().Value));
 
             Profiler.BeginSample("Normalize And Bake Mash");
-            var TargetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
-            var normalizedMesh = SubVertNormalize(TargetRenderers);
+            var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
+            var normalizedMesh = SubVertNormalize(targetRenderers);
 
             var m2md = new Dictionary<Mesh, MeshData>();
-            foreach (var mkr in TargetRenderers.GroupBy(r => r.GetMesh()))
+            foreach (var mkr in targetRenderers.GroupBy(r => r.GetMesh()))
             {
                 var nmMesh = normalizedMesh[mkr.Key];
                 var renderer = mkr.First(r => r.sharedMaterials.Length == nmMesh.subMeshCount);
@@ -110,12 +103,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
                 {
-                    var newMesh = new Mesh();
+                    bakedMesh = new Mesh();
+                    _bakedMesh.Add(bakedMesh);//nmMeshのほうは勝手に破棄されるが bakedMeshそうではない、なので別の _bakedMesh に詰めて後に破棄される
+
                     var tempRenderer = UnityEngine.Object.Instantiate(skinnedMeshRenderer);
                     tempRenderer.sharedMesh = nmMesh;
-                    tempRenderer.BakeMesh(newMesh);
-                    bakedMesh = newMesh;
-                    _bakedMesh.Add(newMesh);
+                    tempRenderer.BakeMesh(bakedMesh);
                     UnityEngine.Object.DestroyImmediate(tempRenderer.gameObject);
                 }
 
@@ -130,9 +123,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Get AtlasSubAll");
             AtlasSubAll = new();
             var atlasSubSets = new List<AtlasSubData?[]>();
-            for (var ri = 0; TargetRenderers.Length > ri; ri += 1)
+            for (var ri = 0; targetRenderers.Length > ri; ri += 1)
             {
-                var renderer = TargetRenderers[ri];
+                var renderer = targetRenderers[ri];
                 var mats = renderer.sharedMaterials;
                 var mesh = renderer.GetMesh();
                 var meshID = Array.IndexOf(Meshes, mesh);
@@ -354,6 +347,23 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
+        internal static OrderedHashSet<Material>[] LookUpMaterialGroup(Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> material2AtlasTargets, Dictionary<Material, AtlasShaderSupportScriptableObject> supporters, bool usePropertyBake = false)
+        {
+            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
+            foreach (var matKv in material2AtlasTargets)
+            {
+                var index = materialGroupList.FindIndex(matGroup =>
+                        matGroup.All(m2 =>
+                            supporters[matKv.Key] == supporters[m2.Key]
+                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
+                );
+
+                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
+                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
+            }
+            return materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
+        }
+
         private Dictionary<Mesh, Mesh> SubVertNormalize(Renderer[] targetRenderers)
         {
             var normalizedMesh = new Dictionary<Mesh, Mesh>();
@@ -407,7 +417,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
                 var subMeshViArray = new int[expandSlot][];
-                for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(si % mesh.subMeshCount); }
+                for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(Math.Min(si, mesh.subMeshCount - 1)); }
 
                 var subMeshOfVertex = new Vertex[expandSlot][];
                 for (var si = 0; subMeshViArray.Length > si; si += 1)
@@ -463,8 +473,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
                 var l = propL[propName];
                 var r = propR[propName];
-                if (l.Texture2D == null || r.Texture2D == null) { continue; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { continue; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }
@@ -481,8 +491,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var l = propL[propName];
                 var r = propR[propName];
 
-                if (l.Texture2D == null || r.Texture2D == null) { return false; }
-                if (l.Texture2D != r.Texture2D) { return false; }
+                if (l.Texture == null || r.Texture == null) { return false; }
+                if (l.Texture != r.Texture) { return false; }
 
                 if (l.TextureScale != r.TextureScale) { return false; }
                 if (l.TextureTranslation != r.TextureTranslation) { return false; }
@@ -495,7 +505,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public void Dispose()
         {
             foreach (var md in MeshDataDict) { md.Value.Dispose(); }
+            MeshDataDict = null;
+            foreach (var md in NormalizeMeshes) { UnityEngine.Object.DestroyImmediate(md.Value); }
+            NormalizeMeshes = null;
             foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }
+            _bakedMesh = null;
         }
 
 

@@ -13,9 +13,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
         public int SelectSubMeshIndex = 0;
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency() { yield break; }
-        internal override int GetDependencyHash() { return 0; }
+        internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
         internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
         {
             var bitArray = new BitArray(islands.Length);

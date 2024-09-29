@@ -7,10 +7,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         internal const string ComponentName = "TTT SolidColorLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        public Color Color;
+        [ColorUsage(false)] public Color Color = Color.white;
         public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {
-            TextureBlend.ColorBlit(renderTexture, Color);
+            var col = Color;
+            col.a = 1f;
+            TextureBlend.ColorBlit(renderTexture, col);
         }
     }
 }

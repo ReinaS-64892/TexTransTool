@@ -6,6 +6,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...HEAD)
 
+### Added
+
+- AtlasTexture に TextureFineTuning を個別に行う TextureIndividualFineTuning が追加 (#532)
+- TextureIndividualFineTuning の調整用ウィンドウ TextureFineTuningManager が追加 (#532)
+- SingleGradationDecal に SimpleDecal と同じ詳細設定が追加されました (#539)
+- AtlasTexture WriteOriginalUV の書き込むチャンネルを指定できる OriginalUVWriteTargetChannel が追加されました (#540)
+- 簡易的なグラデーションマップとして UnityGradationMapLayer が追加されました (#545)
+- テクスチャの使用率をざっくりと調べることができる DomainTextureAnalyzer が追加されました (#546)
+- AtlasTexture に同じテクスチャが割り当てれる場合に ReferenceCopy を自動で設定する AutoReferenceCopySetting が追加されました (#550)
+- AtlasTexture TextureFineTuning に別のプロパティとテクスチャを適当に統合する MergeTexture が追加されました (#555)
+- AtlasTexture にテクスチャが衝突しない場合に MergeTexture を自動で設定する AutoMergeTextureSetting が追加されました (#555)
+- AtlasTexture に DownScalingAlgorism が表示されるようになりました (#558)
+- AtlasTexture TextureFineTuning にアルファチャンネルを最大値に塗りつぶし、アルファの情報を破棄する DiscardAlphaChannel が追加されました (#561)
+- TextureConfigurator にダウンスケール時にアルファを加味してサイズを縮小するかどうかのオプション DownScalingWithLookAtAlpha が追加されました (#573)
+- 縦方向固定でグラデーションをそのままキャンバスに描画するレイヤー YAsixFixedGradientLayer が追加されました (#577)
+- SimpleDecal に キャンバスの内容をそのままデカールにできる OverrideDecalTextureWithMultiLayerImageCanvas が追加されました (#579)
+- AtlasTargetDefine に MipMap の生成時などに使用される IsNormalMap が追加されました (#589)
+- Gimp の着色と同じ効果を持つ ColorizeLayer が追加されました (#601)
+- AtlasTexture に アトラス化後のマテリアルに対して スケール(タイリング)とオフセットをリセットする TextureScaleOffsetReset が追加されました (#636)
+- AtlasTexture に アトラス化後のマテリアルに対して ベイクされたプロパティに最大値を割り当てる BakedPropertyWriteMaxValue が追加されました (#636)
+- AtlasTexture に アトラス化後のマテリアルに対して 特定のテクスチャに対して割り当てを行わないようにできる UnsetTextures が追加されました (#637)
+
+### Changed
+
+- SolidColorLayer Color の Alpha を無効化 (#544)
+- TextureConfigurator の圧縮設定のオーバーライドでフォーマットクオリティで決定されるフォーマットがアルファの使用有無を加味したものになるようになりました (#558)
+- TextureConfigurator の初期設定を変更 (#562)
+- AtlasShaderSupportScriptableObject AtlasTargetDefine の BakePropertyNames は BakePropertyDescriptions に変更され、UseMaxValue が有効ではない場合 BakeShader に Bake時に最大値が割り当てられなくなりました (#636)
+
+### Fixed
+
+- SingleGradationDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
+- LayerFolder に 空の GameObject が含まれると、実行時に例外が発生する問題を修正 (#538)
+- TextureBlender TextureSelector が Absolute の場合、SelectTexture を割り当てても実行できない問題を修正 (#560)
+- AtlasTexture TextureFineTuning MergeTexture で MergeParent を存在しないものに指定した場合に例外が発生する問題を修正 (#561)
+- TextureConfigurator で OverrideCompression は有効だが、OverrideTextureSetting が無効な場合に解像度や MipMap の有無が正しくないテクスチャが生成される問題を修正 (#573)
+- TextureConfigurator でもともとのテクスチャよりも大きい解像度を指定した場合に MipMap の0番あたりが黒くなってしまう問題を修正 (#580)
+- TexTransToolPSDImporter がインポートするレイヤーのプレビューTexture2D の圧縮形式が誤って DXT5 になっていた問題を修正 (#604)
+- SingleGradientDecal の適用対象のレンダラーのマテリアルに Null が含まれている場合に例外が発生する問題を修正 (#612)
+- TTT PSD Importer 一部の PSD で ImageResourceBlock に Name が含まれている物の読み取りに失敗する問題を修正 (#632)
+- AtlasTexture MaterialMergeGroup の MergeReferenceMaterial が Null の場合例外が発生する問題を修正 (#636)
+- TTT PSD Importer 一部の PSD で 重複した色チャンネルを持つと主張する PSD の読み取りに失敗する問題を回避 (#638)
+- IslandSelectorOR などの子のコンポーネントを使用する IslandSelector が、子のコンポーネントの削除や増加を監視し忘れていた問題を修正 (#659)
+- TextureBlender BlendTexture が空の状態で実行できない問題を修正 (#665)
+- TextureBlender などの TextureSelector が AbsoluteMode だった場合、レンダラー Null 例外や存在しないプロパティへのアクセスが発生していた問題を修正 (#665)
+
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
 ## [v0.7.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.1...v0.7.6) - 2024-07-14
@@ -108,8 +154,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTT PSD Importer はコンテキストメニューから、ScriptedImporter に変更 (#346)
 - SolidLayer は SolidColorLayer に名称変更 (#346)
 - TextureSelector にモードが追加され、以前までのデータは Relative に変更(#347)
-  - 上記に伴いフィールド名を変更 (#347)
-  
+- 上記に伴い TextureSelector のフィールド名を変更 (#347)
 
 ### Removed
 

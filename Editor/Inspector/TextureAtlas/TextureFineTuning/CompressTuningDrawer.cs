@@ -21,14 +21,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position.height = 18f;
-            if (ITextureFineTuningDrawer.DrawTuningSelector(position, property)) { return; }
-            position.y += 18;
             position = DrawCompressEditor(position, property);
 
-            var sCompressPropertyNames = property.FindPropertyRelative("PropertyNames");
+            var sCompressPropertyNames = property.FindPropertyRelative("PropertyNameList");
             var sCompressSelect = property.FindPropertyRelative("Select");
+
+
+            position.height = EditorGUI.GetPropertyHeight(sCompressPropertyNames);
             EditorGUI.PropertyField(position, sCompressPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
-            position.y += 18;
+            position.y += position.height;
+            position.height = 18f;
+
+
             EditorGUI.PropertyField(position, sCompressSelect, "TextureFineTuning:prop:Select".Glc());
             position.y += 18;
         }
@@ -67,12 +71,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return GetPropertyHeightStatic(property);
+            return GetPropertyHeightInter(property) + 18f + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("PropertyNameList"));
         }
 
-        public static float GetPropertyHeightStatic(SerializedProperty property)
+        public static float GetPropertyHeightInter(SerializedProperty property)
         {
-            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 7 : 5);
+            return 18f * (property.FindPropertyRelative("UseOverride").boolValue ? 4 : 2);
         }
     }
 }

@@ -20,24 +20,29 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SingleGradationDecal";
         internal const string MenuPath = ComponentName;
-
-        internal override List<Renderer> GetRenderers => null;
-        internal override bool IsPossibleApply => TargetMaterials != null && TargetMaterials.Any();
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
-        public List<Material> TargetMaterials;
+        public List<Material> TargetMaterials = new();
         public Gradient Gradient;
         [Range(0, 1)] public float Alpha = 1;
         public bool GradientClamp = true;
         public AbstractIslandSelector IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
+        public float Padding = 5;
+        public bool HighQualityPadding = false;
 
 
         internal override void Apply([NotNull] IDomain domain)
         {
-            var targetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
-            var gradTex = GradientToTextureWithTemp(Gradient, Alpha);
+            domain.LookAt(this);
+            domain.LookAt(transform.GetParents().Append(transform));
+            if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
+
+            if (TargetMaterials.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotSet"); return; }
+            var nowTargetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
+
+            var gradTex = GradientTempTexture.Get(Gradient, Alpha);
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
             var filter = new IslandSelectFilter(IslandSelector);
 
@@ -45,61 +50,29 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.TextureWarp = GradientClamp ? TextureWrap.NotWrap : TextureWrap.Stretch;
             decalContext.NotContainsKeyAutoGenerate = false;
+            decalContext.DecalPadding = Padding;
+            decalContext.HighQualityPadding = HighQualityPadding;
 
 
             var writeable = new Dictionary<Material, RenderTexture>();
-            decalContext.GenerateKey(writeable, targetMat);
+            decalContext.GenerateKey(writeable, nowTargetMat);
+
+            if (writeable.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotFound"); return; }
 
             foreach (var renderer in domain.EnumerateRenderer())
             {
-                if (!renderer.sharedMaterials.Any(mat => targetMat.Contains(mat))) { continue; }
+                if (!renderer.sharedMaterials.Any(mat => nowTargetMat.Contains(mat))) { continue; }
+                domain.LookAt(renderer);
                 decalContext.WriteDecalTexture(writeable, renderer, gradTex);
             }
 
             foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(m2rt.Value, BlendTypeKey)); }
         }
 
-        private HashSet<Material> GetTargetMaterials(Func<UnityEngine.Object, UnityEngine.Object, bool> originEqual, IEnumerable<Renderer> domainRenderers)
+        private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
         {
-            if (!IsPossibleApply) { return new(); }
-            return RendererUtility.GetMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
-        }
-
-        internal static Texture2D s_GradientTempTexture;
-        internal static Texture2D GradientToTextureWithTemp(Gradient gradient, float alpha)
-        {
-            if (s_GradientTempTexture == null) { s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false); }
-
-
-            using (var colorArray = new NativeArray<Color32>(256, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
-            {
-                var writeSpan = colorArray.AsSpan();
-                for (var i = 0; colorArray.Length > i; i += 1)
-                {
-                    var col = gradient.Evaluate(i / 255f);
-                    col.a *= alpha;
-                    writeSpan[i] = col;
-                }
-
-                s_GradientTempTexture.LoadRawTextureData(colorArray);
-            }
-            s_GradientTempTexture.Apply(true);
-
-            return s_GradientTempTexture;
-        }
-
-        internal override IEnumerable<UnityEngine.Object> GetDependency(IDomain domain)
-        {
-            IEnumerable<UnityEngine.Object> depend = new UnityEngine.Object[] { transform };
-            if (IslandSelector != null) { depend = depend.Concat(IslandSelector.GetDependency()); }
-            var materials = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
-            var dependRenderer = domain.EnumerateRenderer().Where(x => x.sharedMaterials.Any(m => materials.Contains(m)));
-
-            return depend.Concat(transform.GetParents().Select(i => i as UnityEngine.Object))
-            .Concat(dependRenderer)
-            .Concat(dependRenderer.Select(x => x.transform))
-            .Concat(dependRenderer.Select(x => x.GetMesh()))
-            .Concat(dependRenderer.Where(x => x is SkinnedMeshRenderer).Cast<SkinnedMeshRenderer>().SelectMany(x => x.bones));
+            if (TargetMaterials.Any() is false) { return new(); }
+            return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 
         private void OnDrawGizmosSelected()
@@ -110,12 +83,12 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
             IslandSelector?.OnDrawGizmosSelected();
         }
-
-        internal override int GetDependencyHash(IDomain domain)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var hash = 0;
-            if (TargetMaterials != null) foreach (var mat in TargetMaterials) { if (mat != null) hash ^= mat.GetInstanceID(); }
-            return hash;
+            var targetMat = GetTargetMaterials(replaceTracking, domainRenderers);
+            var texHash = targetMat.Select(m => m.HasProperty(TargetPropertyName) ? m.GetTexture(TargetPropertyName) : null).Where(t => t != null).ToHashSet();
+
+            return SimpleDecal.GetTextureReplacedRange(domainRenderers, texHash);
         }
     }
 

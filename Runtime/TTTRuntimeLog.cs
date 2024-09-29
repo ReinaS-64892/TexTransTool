@@ -6,6 +6,30 @@ namespace net.rs64.TexTransTool
 {
     internal static class TTTRuntimeLog
     {
+        /*
+        ログのレベルに関するメモ
+
+        # info
+
+        - ユーザーの操作が足りていない場合
+        - 足りていても状況的に無効だったりと実行できない場合
+
+        ## example
+
+        - TargetNotSet -> ターゲットが設定されていない場合
+        - TargetNotFound -> ターゲットが設定されているが、ドメイン内に存在しない場合
+
+        # warn
+
+        - 意図しずらい状態になる場合
+        - 今後廃止される機能などの場合
+
+        # error
+
+        - 実行時エラー
+        - どうしようもなく失敗した場合
+
+        */
         internal const string LogPrefix = "TTTRuntimeLog:";
         public static void Info(string code, params object[] objects)
         {

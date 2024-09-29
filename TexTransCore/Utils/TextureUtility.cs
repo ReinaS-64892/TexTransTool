@@ -69,12 +69,14 @@ namespace net.rs64.TexTransCore.Utils
         }
 
 
-        public static Texture2D ResizeTexture(Texture2D source, Vector2Int size)
+        public static Texture2D ResizeTexture(Texture2D source, Vector2Int size, bool forceRegenerateMipMap = false)
         {
             Profiler.BeginSample("ResizeTexture");
             using (new RTActiveSaver())
             {
                 var useMip = source.mipmapCount > 1;
+                if (forceRegenerateMipMap) { useMip = false; }
+
                 var rt = TTRt.G(size.x, size.y, true);
                 if (useMip)
                 {
@@ -82,19 +84,15 @@ namespace net.rs64.TexTransCore.Utils
                 }
                 else
                 {
-                    var mipRt = TTRt.G(source.width, source.height);
-                    mipRt.Release();
-                    var preValue = (mipRt.useMipMap, mipRt.autoGenerateMips);
+                    var mipRt = TTRt.G(source.width, source.height, false, false, true, true);
 
                     mipRt.useMipMap = true;
                     mipRt.autoGenerateMips = false;
 
                     Graphics.Blit(source, mipRt);
-                    mipRt.GenerateMips();
+                    MipMapUtility.GenerateMips(mipRt, DownScalingAlgorithm.Average);
                     Graphics.Blit(mipRt, rt);
 
-                    mipRt.Release();
-                    (mipRt.useMipMap, mipRt.autoGenerateMips) = preValue;
                     TTRt.R(mipRt);
                 }
 
@@ -119,6 +117,7 @@ namespace net.rs64.TexTransCore.Utils
         public static RenderTexture CreateColorTexForRT(Color color)
         {
             var rt = TTRt.G(1);
+            rt.name = $"ColorTex4RT-{rt.width}x{rt.height}";
             TextureBlend.ColorBlit(rt, color);
             return rt;
         }
@@ -176,7 +175,7 @@ namespace net.rs64.TexTransCore.Utils
         public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
         {
             var tmp = rt.CloneTemp();
-            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorism.Average); }
+            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorithm.Average); }
             ApplyTextureST(tmp, s, t, rt);
             TTRt.R(tmp);
         }

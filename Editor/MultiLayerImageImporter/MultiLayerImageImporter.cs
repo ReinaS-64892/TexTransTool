@@ -219,7 +219,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                         tex2d.alphaIsTransparency = true;
 
                         tex2d.LoadRawTextureData(jobResult.GetResult);
-                        EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+                        EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
 
                         Profiler.EndSample();
                     }
@@ -238,7 +238,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                         tex2d.alphaIsTransparency = true;
 
                         tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
-                        EditorUtility.CompressTexture(tex2d, TextureFormat.DXT5, 100);
+                        EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
                         foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
 
                         Profiler.EndSample();

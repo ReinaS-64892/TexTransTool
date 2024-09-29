@@ -11,19 +11,21 @@ namespace net.rs64.TexTransTool.TextureStack
 {
     internal class DeferredTextureStack : AbstractTextureStack
     {
-        [SerializeField] List<IBlendTexturePair> StackTextures = new();
+        [SerializeField] protected List<IBlendTexturePair> _stackTextures = new();
 
 
-        public override void AddStack<BlendTex>(BlendTex blendTexturePair) => StackTextures.Add(blendTexturePair);
+        public override void AddStack<BlendTex>(BlendTex blendTexturePair) => _stackTextures.Add(blendTexturePair);
 
         public override Texture2D MergeStack()
         {
-            if (!StackTextures.Any()) { return FirstTexture; }
+            if (!_stackTextures.Any()) { return FirstTexture; }
             var renderTexture = TTRt.G(FirstTexture.width, FirstTexture.height, true);
+            renderTexture.name = $"{FirstTexture.name}:DeferredTextureStack-{renderTexture.width}x{renderTexture.height}";
+
             TextureManager.WriteOriginalTexture(FirstTexture, renderTexture);
 
-            renderTexture.BlendBlit(StackTextures);
-            foreach (var bTex in StackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { TTRt.R(rt); } }
+            renderTexture.BlendBlit(_stackTextures);
+            foreach (var bTex in _stackTextures) { if (bTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt)) { TTRt.R(rt); } }
 
             var resultTex = renderTexture.CopyTexture2D().CopySetting(FirstTexture, false);
             resultTex.name = FirstTexture.name + "_MergedStack";

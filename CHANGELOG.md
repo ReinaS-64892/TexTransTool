@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...HEAD)
 
+### Added
+
+- NDMF-Preview に対応 (#516)
+- NDMF-Preview の場合が テクスチャースタックをマージした時 Texture2D へのコンバートを行わないようにし高速化 (#526)
+- AtlasTexture の アイランド再配置結果の詳細を NDMFConsole にレポートする機能を追加 (#531)
+- AtlasTexture TextureFineTuning ReferenceCopy の TargetPropertyName がリストに変更されコピー対象を複数指定可能になりました (#532)
+- AtlasTexture の _MainTex 以外のプロパティで アトラス化対象だった場合、アトラス化後のサイズが自動的にそのプロパティのテクスチャの最大サイズが割り当てられるようになりました (#550)
+- AtlasTexture で生成されるテクスチャーの MipMap 生成が Unity標準ではなく、アルファを加味したもを使用するようになりました (#558)
+- AtlasTexture に BackGroundColor が追加され、初期設定で白色に背景色が設定されるようになります (#558)
+- AtlasTexture TextureFineTuning MipMapRemove に MipMap を削除しないように上書きすることを可能にするための IsRemove プロパティを追加 (#561)
+- AtlasTexture の選択候補の表示が、マテリアルのグループ化された状態で表示されるようになりました (#564)
+- AtlasTexture の PixelNormalize 実験的機能から外れました！ (#585)
+- AtlasTexture のアイランド再配置に失敗した場合にエラーログを出力するようになりました (#586)
+- ~~AtlasTexture の NFDHPlasFC が外側のパディングを消去し再配置効率が上がりました (#588)~~
+- NDMF v1.5.0 以上がプロジェクトに存在する場合 Preview、RealTimePreview のボタンは NDMF-Preview の フェーズ単位で有効化、無効化のボタンになるようになりました (#593)
+- AtlasTexture が レンダラーのマテリアルに Null が含まれている場合でもアトラス化の対象にできるようになりました (#612)
+- AtlasTexture TextureFineTuning Remove に 削除しない等に上書きすることを可能にするために IsRemove プロパティを追加 (#613)
+- 部分的マイグレーションが可能なウィンドウ追加と、ツールバーとマイグレーション通知から開けるようになりました (#620)
+- v0.9.0 にて廃止される予定のコンポーネントの入れ子状態に警告を発生させるようになりました (#629)
+- 実行できない場合などの information などが以前よりも細かく出力されるようになりました (#630)
+- SimpleDecal のスケールが反転しているときにヘルプボックスを表示するようになりました (#631)
+- AtlasTexture の NFDHPlasFC が外側のパディングが半分になり、再配置効率が上がりました (#640 #648)
+- NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に警告を表示するようになりました (#643)
+- NDMF の v1.3.0 以降で NDMF 要求バージョンを満たしていない場合に NDMF Console に表示される警告にデスクリプションを表示するようになりました (#644)
+
+### Changed
+
+- AtlasTexture の影響範囲が TargetRoot に影響されなくなり、インスペクターのマテリアル表示制限の機能のみに変更 (#516)
+- ~~NDMF の対応バージョンが v1.3.0 以上に変更 (#516)~~
+- 二のべき乗の値を想定する入力欄がポップアップに変更 (#516)
+- TargetRoot は LimitCandidateMaterials に変更され、割り当てなくてもマテリアルの選択が行えるように変更 (#518)
+- SerializeReference を使用している部分のUIが、[Unity-SerializeReferenceExtensions](https://github.com/mackysoft/Unity-SerializeReferenceExtensions) を使用したものに変更 (#519)
+- AtlasTexture TextureFineTuning の PropertyNames でスペース区切りの複数指定が行える仕様は削除され、リストに変更されました (#532)
+- AtlasTexture TextureFineTuning Compress のフォーマットクオリティで決定されるフォーマットがアルファの使用有無を加味したものになるようになりました (#558)
+- AtlasTexture TextureFineTuning Compress を新しく生成した時の値を変更しました (#561)
+- NDMF の対応バージョンが v1.5.0 以上に変更 (#593)
+
+### Removed
+
+- ReferenceResolver は削除されました (#517)
+
+### Fixed
+
+- lilToon の \[Optional\] 系を誤って 通常のlilToonの対応で認識してしまい、例外が発生する問題を修正 (#520)
+- SubMesh よりも多くの MaterialSlot がある場合 AtlasTexture のメッシュノーマライズで、誤ったサブメッシュで複製される問題を修正 (#521)
+- AtlasTexture の IslandFineTuning が Null な場合や IslandSelector が Null の場合に例外が発生する問題を修正 (#530)
+- SimpleDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)
+- AtlasTexture の TextureFineTuning Resize が AtlasTextureSize よりも大きい解像度に変更できていた問題を修正 (#550)
+- AtlasTexture でアトラス化されたテクスチャが他UVを参照していたり無効だった場合に割り当てないようになりました (#565)
+- 一部のコンポーネントの子となり取り扱われるコンポーネントが NDMF-Preview で追加や削除が正しく反応しない問題を修正 (#569)
+- プレイモードに入るときなどのビルド時にコンポーネントが新しく生成したが、最終的に使用されていないテクスチャが Null となりテクスチャ圧縮のタイミングで例外が発生する問題を修正 (#581)
+- AtlasTexture の アイランド再配置 NFDHPlasFC が 上の列から見た空き空間の計算を誤った値にしてしまいアイランドが重なって見た目が変わってしまう問題を修正 (#591)
+- lilToon の宝石シェーダーが誤って 通常の lilToon としてサポートされていた問題を修正 (#598)
+- GameObject/TexTransTool から生成した GameObject がレコードされて終らず、元に戻すを行っても消えない問題を修正 (#602)
+- AtlasTexture の lilToon _MainTexHSVG のベイクが正しく行われない問題を修正 (#611)
+- SimpleDecal の適用対象のレンダラーのマテリアルに Null が含まれている場合に例外が発生する問題を修正 (#612)
+- NDMF v1.4.1 などの NDMF 非対応バージョンがプロジェクトが存在する場合に警告が発生しない問題を修正 (#619)
+- マイグレーションの時に、拡張子が `.Unity` となっているシーンが存在するとマイグレーションに必ず失敗する問題を修正 (#620)
+- AtlasTexture lilToonSupport の TextureBake で MatCap が使用されていない場合 MatCapBlendMask が白色になってしまう問題を修正 (#634)
+- AtlasTexture lilToonSupport の _Main3rdTex の使用可否判定が誤っていた問題を修正 (#634)
+- UnsafeNativeArrayUtility の不要な using で Android ビルドにてコンパイルエラーが発生する問題を修正 (#641)
+- 圧縮設定を None などの圧縮しない形式にした場合に誤って MipMap が Unity標準の物で再生成されることがあった問題を修正 (#649)
+- AtlasTexture の TextureFineTuning Compress が ReferenceCopy などが行われた場合に誤った形式で圧縮される問題を修正 (#654)
+- マイグレーション終了時のシーン復元処理で、すべてのシーンがロード状態で復元されてしまう問題を修正 (#657)
+
 ## [v0.7.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.6...v0.7.7) - 2024-07-24
 
 ### Fixed
@@ -521,13 +586,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- AtlasSet
-  
-- - Null のマテリアルが表示される問題の修正 (#17)
-  
-- - Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
-  
-- 
+- AtlasSet Null のマテリアルが表示される問題の修正 (#17)
+- AtlasSet Mesh が Null のレンダラーが存在すると正常に実行できない問題の修正 (#20)
 
 ## [v0.1.0](https://github.com/ReinaS-64892/TexTransTool/releases/tag/0.1.0) - 2023-06-02
 

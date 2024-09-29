@@ -10,198 +10,346 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2369c186c1ab3c44b9ef86b3a8cbccf, type: 3}
-  m_Name: lilToonAtlasSupport
+  m_Name: liltoonAtlasSupport
   m_EditorClassIdentifier: 
+  TTTSaveDataVersion: 5
   SupportedShaderComparer:
-    rid: 7150698656081904266
+    rid: 5350865774560935961
+  Priority: 0
   AtlasTargetDefines:
   - TexturePropertyName: _MainTex
     AtlasDefineConstraints:
       rid: 7150698656081904301
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color
     - _MainColorAdjustMask
     - _MainTexHSVG
+    BakePropertyDescriptions:
+    - PropertyName: _Color
+      UseMaxValue: 0
+    - PropertyName: _MainColorAdjustMask
+      UseMaxValue: 0
+    - PropertyName: _MainTexHSVG
+      UseMaxValue: 0
   - TexturePropertyName: _MainColorAdjustMask
     AtlasDefineConstraints:
       rid: 7150698656081904310
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _Main2ndTex
     AtlasDefineConstraints:
       rid: 7150698656081904335
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color2nd
+    BakePropertyDescriptions:
+    - PropertyName: _Color2nd
+      UseMaxValue: 0
   - TexturePropertyName: _Main2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904338
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _Main2ndDissolveMask
     AtlasDefineConstraints:
       rid: 7150698656081904341
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _Main3rdTex
     AtlasDefineConstraints:
       rid: 7150698656081904345
+    IsNormalMap: 0
     BakePropertyNames:
     - _Color3rd
+    BakePropertyDescriptions:
+    - PropertyName: _Color3rd
+      UseMaxValue: 0
   - TexturePropertyName: _Main3rdBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904348
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _AlphaMask
     AtlasDefineConstraints:
       rid: 7150698705470881809
+    IsNormalMap: 0
     BakePropertyNames:
     - _AlphaMaskScale
     - _AlphaMaskValue
+    BakePropertyDescriptions:
+    - PropertyName: _AlphaMaskScale
+      UseMaxValue: 0
+    - PropertyName: _AlphaMaskValue
+      UseMaxValue: 0
   - TexturePropertyName: _BumpMap
     AtlasDefineConstraints:
       rid: 7150698705470881810
+    IsNormalMap: 1
     BakePropertyNames:
     - _BumpScale
+    BakePropertyDescriptions:
+    - PropertyName: _BumpScale
+      UseMaxValue: 0
   - TexturePropertyName: _Bump2ndMap
     AtlasDefineConstraints:
       rid: 7150698656081904357
+    IsNormalMap: 1
     BakePropertyNames:
     - _Bump2ndScale
     - _Bump2ndScaleMask
+    BakePropertyDescriptions:
+    - PropertyName: _Bump2ndScale
+      UseMaxValue: 0
+    - PropertyName: _Bump2ndScaleMask
+      UseMaxValue: 0
   - TexturePropertyName: _Bump2ndScaleMask
     AtlasDefineConstraints:
       rid: 7150698656081904353
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _AnisotropyTangentMap
     AtlasDefineConstraints:
       rid: 7150698705470881815
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _AnisotropyScaleMask
     AtlasDefineConstraints:
       rid: 7150698705470881816
+    IsNormalMap: 0
     BakePropertyNames:
     - _AnisotropyScale
+    BakePropertyDescriptions:
+    - PropertyName: _AnisotropyScale
+      UseMaxValue: 0
   - TexturePropertyName: _BacklightColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881817
+    IsNormalMap: 0
     BakePropertyNames:
     - _BacklightColor
+    BakePropertyDescriptions:
+    - PropertyName: _BacklightColor
+      UseMaxValue: 0
   - TexturePropertyName: _ShadowStrengthMask
     AtlasDefineConstraints:
       rid: 7150698705470881818
+    IsNormalMap: 0
     BakePropertyNames:
     - _ShadowStrength
+    BakePropertyDescriptions:
+    - PropertyName: _ShadowStrength
+      UseMaxValue: 1
   - TexturePropertyName: _ShadowBorderMask
     AtlasDefineConstraints:
       rid: 7150698705470881819
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _ShadowBlurMask
     AtlasDefineConstraints:
       rid: 7150698705470881820
+    IsNormalMap: 0
     BakePropertyNames: []
+    BakePropertyDescriptions: []
   - TexturePropertyName: _ShadowColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881821
+    IsNormalMap: 0
     BakePropertyNames:
     - _ShadowColor
+    BakePropertyDescriptions:
+    - PropertyName: _ShadowColor
+      UseMaxValue: 0
   - TexturePropertyName: _Shadow2ndColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881822
+    IsNormalMap: 0
     BakePropertyNames:
     - _Shadow2ndColor
+    BakePropertyDescriptions:
+    - PropertyName: _Shadow2ndColor
+      UseMaxValue: 0
   - TexturePropertyName: _Shadow3rdColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881823
+    IsNormalMap: 0
     BakePropertyNames:
     - _Shadow3rdColor
+    BakePropertyDescriptions:
+    - PropertyName: _Shadow3rdColor
+      UseMaxValue: 0
   - TexturePropertyName: _RimShadeMask
     AtlasDefineConstraints:
       rid: 7150698705470881824
+    IsNormalMap: 0
     BakePropertyNames:
     - _RimShadeColor
+    BakePropertyDescriptions:
+    - PropertyName: _RimShadeColor
+      UseMaxValue: 1
   - TexturePropertyName: _SmoothnessTex
     AtlasDefineConstraints:
       rid: 7150698705470881825
+    IsNormalMap: 0
     BakePropertyNames:
     - _Smoothness
+    BakePropertyDescriptions:
+    - PropertyName: _Smoothness
+      UseMaxValue: 1
   - TexturePropertyName: _MetallicGlossMap
     AtlasDefineConstraints:
       rid: 7150698705470881826
+    IsNormalMap: 0
     BakePropertyNames:
     - _Metallic
+    BakePropertyDescriptions:
+    - PropertyName: _Metallic
+      UseMaxValue: 1
   - TexturePropertyName: _ReflectionColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881827
+    IsNormalMap: 0
     BakePropertyNames:
     - _ReflectionColor
+    BakePropertyDescriptions:
+    - PropertyName: _ReflectionColor
+      UseMaxValue: 0
   - TexturePropertyName: _MatCapBlendMask
     AtlasDefineConstraints:
       rid: 7150698705470881828
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCapBlend
+    BakePropertyDescriptions:
+    - PropertyName: _MatCapBlend
+      UseMaxValue: 1
   - TexturePropertyName: _MatCapBumpMap
     AtlasDefineConstraints:
       rid: 7150698656081904369
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCapBumpScale
+    BakePropertyDescriptions:
+    - PropertyName: _MatCapBumpScale
+      UseMaxValue: 0
   - TexturePropertyName: _MatCap2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698705470881831
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCap2ndBlend
+    BakePropertyDescriptions:
+    - PropertyName: _MatCap2ndBlend
+      UseMaxValue: 1
   - TexturePropertyName: _MatCap2ndBumpMap
     AtlasDefineConstraints:
       rid: 7150698656081904366
+    IsNormalMap: 0
     BakePropertyNames:
     - _MatCap2ndBumpScale
+    BakePropertyDescriptions:
+    - PropertyName: _MatCap2ndBumpScale
+      UseMaxValue: 0
   - TexturePropertyName: _RimColorTex
     AtlasDefineConstraints:
       rid: 7150698705470881834
+    IsNormalMap: 0
     BakePropertyNames:
     - _RimColor
+    BakePropertyDescriptions:
+    - PropertyName: _RimColor
+      UseMaxValue: 0
   - TexturePropertyName: _GlitterColorTex
     AtlasDefineConstraints:
       rid: 7150698656081904372
+    IsNormalMap: 0
     BakePropertyNames:
     - _GlitterColor
+    BakePropertyDescriptions:
+    - PropertyName: _GlitterColor
+      UseMaxValue: 0
   - TexturePropertyName: _EmissionMap
     AtlasDefineConstraints:
       rid: 7150698656081904375
+    IsNormalMap: 0
     BakePropertyNames:
     - _EmissionColor
+    BakePropertyDescriptions:
+    - PropertyName: _EmissionColor
+      UseMaxValue: 0
   - TexturePropertyName: _EmissionBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904378
+    IsNormalMap: 0
     BakePropertyNames:
     - _EmissionBlend
+    BakePropertyDescriptions:
+    - PropertyName: _EmissionBlend
+      UseMaxValue: 1
   - TexturePropertyName: _Emission2ndMap
     AtlasDefineConstraints:
       rid: 7150698656081904381
+    IsNormalMap: 0
     BakePropertyNames:
     - _Emission2ndColor
+    BakePropertyDescriptions:
+    - PropertyName: _Emission2ndColor
+      UseMaxValue: 0
   - TexturePropertyName: _Emission2ndBlendMask
     AtlasDefineConstraints:
       rid: 7150698656081904384
+    IsNormalMap: 0
     BakePropertyNames:
     - _Emission2ndBlend
+    BakePropertyDescriptions:
+    - PropertyName: _Emission2ndBlend
+      UseMaxValue: 1
   - TexturePropertyName: _ParallaxMap
     AtlasDefineConstraints:
       rid: 7150698705470881845
+    IsNormalMap: 0
     BakePropertyNames:
     - _Parallax
+    BakePropertyDescriptions:
+    - PropertyName: _Parallax
+      UseMaxValue: 0
   - TexturePropertyName: _OutlineTex
     AtlasDefineConstraints:
       rid: 7150698656081904303
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineColor
     - _OutlineTexHSVG
+    BakePropertyDescriptions:
+    - PropertyName: _OutlineColor
+      UseMaxValue: 0
+    - PropertyName: _OutlineTexHSVG
+      UseMaxValue: 0
   - TexturePropertyName: _OutlineWidthMask
     AtlasDefineConstraints:
       rid: 7150698656081904302
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineWidth
+    BakePropertyDescriptions:
+    - PropertyName: _OutlineWidth
+      UseMaxValue: 1
   - TexturePropertyName: _OutlineVectorTex
     AtlasDefineConstraints:
       rid: 1595567437379272704
+    IsNormalMap: 0
     BakePropertyNames:
     - _OutlineVectorScale
+    BakePropertyDescriptions:
+    - PropertyName: _OutlineVectorScale
+      UseMaxValue: 0
   BakeShader: {fileID: 4800000, guid: 9d918a30dc195d94ea1916f48779948f, type: 3}
   AtlasMaterialPostProses:
   - rid: 7150698656081904264
@@ -228,17 +376,47 @@ MonoBehaviour:
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         Name: Outline
+    - rid: 5350865774560935961
+      type: {class: AndComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparers:
+        - rid: 5350865774560935962
+        - rid: 5350865774560935963
+        - rid: 5998925668339154946
+    - rid: 5350865774560935962
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: lilToon
+    - rid: 5350865774560935963
+      type: {class: NotComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparer:
+          rid: 5350865774560935964
+    - rid: 5350865774560935964
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: _lil/[Optional]
+    - rid: 5998925668339154946
+      type: {class: NotComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparer:
+          rid: 5998925668339154947
+    - rid: 5998925668339154947
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Gem
     - rid: 7150698656081904264
       type: {class: TextureReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
         SourcePropertyName: _MainTex
         TargetPropertyName: _BaseMap
-    - rid: 7150698656081904266
-      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
-        asm: net.rs64.tex-trans-tool.runtime}
-      data:
-        Name: lilToon
     - rid: 7150698656081904301
       type: {class: Anything, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
@@ -409,7 +587,7 @@ MonoBehaviour:
       data:
         PropertyName: _UseMain3rdTex
         ComparerValue: 0
-        Less: 1
+        Less: 0
     - rid: 7150698705470881806
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}

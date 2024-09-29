@@ -10,20 +10,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position.height = 18f;
-            if (ITextureFineTuningDrawer.DrawTuningSelector(position, property)) { return; }
-            position.y += 18;
 
             var sSourcePropertyName = property.FindPropertyRelative("SourcePropertyName");
-            var sTargetPropertyName = property.FindPropertyRelative("TargetPropertyName");
+            var sTargetPropertyName = property.FindPropertyRelative("TargetPropertyNameList");
             EditorGUI.PropertyField(position, sSourcePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
             position.y += 18;
+
+            position.height = EditorGUI.GetPropertyHeight(sTargetPropertyName);
             EditorGUI.PropertyField(position, sTargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".Glc());
-            position.y += 18;
+            position.y += position.height;
+            position.height = 18f;
+
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return base.GetPropertyHeight(property, label) * 3;
+            return base.GetPropertyHeight(property, label) + EditorGUI.GetPropertyHeight(property.FindPropertyRelative("TargetPropertyNameList"));
         }
     }
 }

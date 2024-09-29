@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.IslandFineTuner;
+using net.rs64.TexTransCore.MipMap;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -16,22 +17,31 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
 
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
-        public bool ForceSizePriority;
-        [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners;
+        public bool ForceSizePriority = false;
+        [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners = new();
 
-        public bool MergeMaterials;
-        public Material MergeReferenceMaterial;
+        public bool MergeMaterials = false;
+        public Material MergeReferenceMaterial = null;
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
-        public bool ForceSetTexture;
+        public bool ForceSetTexture = false;
+        public bool PixelNormalize = true;
 
-        [FormerlySerializedAs("MaterialMargeGroups")] public List<MaterialMergeGroup> MaterialMergeGroups;
+        [FormerlySerializedAs("MaterialMargeGroups")] public List<MaterialMergeGroup> MaterialMergeGroups = new();
+        public List<(Material, Material)> MaterialReplacedReference = new();
 
-        public AtlasIslandRelocatorObject AtlasIslandRelocator;
+        public AtlasIslandRelocatorObject AtlasIslandRelocator = null;
         public bool WriteOriginalUV = false;
-        public bool PixelNormalize = false;
-
-        [SerializeReference] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { Resize.Default };
+        [Range(1, 7)] public int OriginalUVWriteTargetChannel = 1;
+        public Color BackGroundColor = Color.white;
+        [FormerlySerializedAs("DownScalingAlgorism")] public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
+        [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
+        public List<TextureIndividualTuning> TextureIndividualFineTuning;
+        public bool AutoReferenceCopySetting = false;
+        public bool AutoMergeTextureSetting = false;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
+        public bool TextureScaleOffsetReset = false;
+        public bool BakedPropertyWriteMaxValue = false;
+        public List<TextureSelector> UnsetTextures = new();
 
         #region V3SaveData
         public bool UseUpScaling = false;
@@ -52,12 +62,37 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [FormerlySerializedAs("MargeReferenceMaterial")] public Material MergeReferenceMaterial;
         public List<Material> GroupMaterials;
     }
-
     public enum PropertyBakeSetting
     {
         NotBake,
         Bake,
         BakeAllProperty,
+    }
+    [Serializable]
+    public class TextureIndividualTuning
+    {
+        public string TuningTarget;
+
+        [FormerlySerializedAs("OverrideAsMargeTexture")] public bool OverrideReferenceCopy = false;
+        public string CopyReferenceSource = PropertyName.DefaultValue;
+
+        public bool OverrideResize = false;
+        [PowerOfTwo] public int TextureSize = 512;
+
+        public bool OverrideCompression = false;
+        public TextureCompressionData CompressionData = new();
+
+        public bool OverrideMipMapRemove = false;
+        public bool UseMipMap = true;
+
+        public bool OverrideColorSpace = false;
+        public bool Linear = false;
+
+        public bool OverrideRemove = false;
+        public bool IsRemove = false;
+
+        [FormerlySerializedAs("OverrideAsMargeTexture")] public bool OverrideMargeTexture = false;
+        public string MargeRootProperty;
     }
 
     #region V2SaveData
@@ -111,7 +146,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 case select.Compress:
                     return new Compress(Compress_FormatQuality, Compress_UseOverride, Compress_OverrideTextureFormat, Compress_CompressionQuality, Compress_PropertyNames, Compress_Select);
                 case select.ReferenceCopy:
-                    return new ReferenceCopy(ReferenceCopy_SourcePropertyName, ReferenceCopy_TargetPropertyName);
+                    return new ReferenceCopy(ReferenceCopy_SourcePropertyName, new() { ReferenceCopy_TargetPropertyName });
                 case select.Remove:
                     return new Remove(Remove_PropertyNames, Remove_Select);
                 case select.MipMapRemove:
