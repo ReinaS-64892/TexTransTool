@@ -7,6 +7,7 @@ using nadena.dev.ndmf.preview;
 using System;
 using System.Linq;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.NDMF.AAO;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -46,6 +47,9 @@ namespace net.rs64.TexTransTool.NDMF
 
             .Run(ReFindRenderersPass.Instance).Then
 
+#if CONTAINS_AAO
+            .Run(ProvideMeshRemovalToIsland.Instance).Then
+#endif
             .Run(OptimizingPass.Instance).Then
             .Run(TTTSessionEndPass.Instance)
             .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
