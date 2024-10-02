@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransUnityCore.Island;
 using System;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransUnityCore.Decal;
 using System.Linq;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using System.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;

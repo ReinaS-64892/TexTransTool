@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
-using net.rs64.TexTransCore.Utils;
+using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
+using net.rs64.TexTransUnityCore.Utils;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {

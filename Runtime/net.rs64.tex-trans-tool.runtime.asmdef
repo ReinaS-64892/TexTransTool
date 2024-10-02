@@ -2,6 +2,7 @@
     "name": "net.rs64.tex-trans-tool.runtime",
     "rootNamespace": "",
     "references": [
+        "net.rs64.tex-trans-core",
         "net.rs64.tt-unity-core",
         "net.rs64.tt-unity-core.unsafe",
         "net.rs64.multi-layer-image-parser",

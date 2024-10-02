@@ -2,7 +2,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]

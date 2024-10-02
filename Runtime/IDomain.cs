@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.Island;
+using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {

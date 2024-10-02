@@ -1,5 +1,5 @@
 using System.Linq;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;

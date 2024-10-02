@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 

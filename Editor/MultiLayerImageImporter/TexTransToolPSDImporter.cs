@@ -50,8 +50,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.SetMainObject(rootCanvas);
 
                 var canvasDescription = ScriptableObject.CreateInstance<PSDImportedCanvasDescription>();
-                canvasDescription.Width = pSDData.Size.x;
-                canvasDescription.Height = pSDData.Size.y;
+                canvasDescription.Width = pSDData.Width;
+                canvasDescription.Height = pSDData.Height;
                 canvasDescription.name = "CanvasDescription";
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
