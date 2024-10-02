@@ -1,13 +1,13 @@
 using UnityEngine;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using Unity.Jobs;
 using Unity.Collections;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 using System.Collections.Generic;
 using Unity.Burst;
 using System.Runtime.InteropServices;
 
-namespace net.rs64.TexTransCore.Island
+namespace net.rs64.TexTransUnityCore.Island
 {
     [BurstCompile]
     internal struct RayCastJob : IJobParallelFor

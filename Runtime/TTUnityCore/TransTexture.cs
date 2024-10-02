@@ -1,11 +1,11 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransUnityCore.BlendTexture;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -15,7 +15,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using System;
 
-namespace net.rs64.TexTransCore
+namespace net.rs64.TexTransUnityCore
 {
     internal static class TransTexture
     {

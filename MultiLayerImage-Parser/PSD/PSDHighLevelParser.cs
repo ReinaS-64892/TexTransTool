@@ -2,13 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.MultiLayerImage.LayerData;
-using UnityEngine;
 using net.rs64.TexTransCore;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
-using Debug = UnityEngine.Debug;
 using LayerMask = net.rs64.MultiLayerImage.LayerData.LayerMaskData;
-using Unity.Collections;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo.lsct;
 using net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo;
@@ -21,7 +18,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var psd = new PSDHighLevelData
             {
-                Size = new Vector2Int((int)levelData.width, (int)levelData.height),
+                Width = (int)levelData.width,
+                Height = (int)levelData.height,
                 Depth = levelData.Depth,
                 channels = levelData.channels,
                 RootLayers = new List<AbstractLayerData>()
@@ -332,67 +330,68 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             return channelInfoAndImage;
         }
 
-        public static NativeArrayMap<Color32> DrawOffsetEvaluateTexture(
-            NativeArrayMap<Color32> targetTexture,
-            Vector2Int texturePivot,
-            Vector2Int canvasSize,
-            Color? DefaultColor
-        )
-        {
-            var RightUpPos = texturePivot + targetTexture.MapSize;
-            var Pivot = texturePivot;
-            if (RightUpPos != canvasSize || Pivot != Vector2Int.zero)
-            {
-                return TextureOffset(targetTexture, canvasSize, Pivot, DefaultColor);
-            }
-            else
-            {
-                return targetTexture;
-            }
-        }
+        // public static NativeArrayMap<Color32> DrawOffsetEvaluateTexture(
+        //     NativeArrayMap<Color32> targetTexture,
+        //     Vector2Int texturePivot,
+        //     Vector2Int canvasSize,
+        //     Color? DefaultColor
+        // )
+        // {
+        //     var RightUpPos = texturePivot + targetTexture.MapSize;
+        //     var Pivot = texturePivot;
+        //     if (RightUpPos != canvasSize || Pivot != Vector2Int.zero)
+        //     {
+        //         return TextureOffset(targetTexture, canvasSize, Pivot, DefaultColor);
+        //     }
+        //     else
+        //     {
+        //         return targetTexture;
+        //     }
+        // }
 
-        public static NativeArrayMap<Color32> TextureOffset(NativeArrayMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
-        {
-            var sTex2D = texture;
-            var tTex2D = new NativeArrayMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
-            var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
-            tTex2D.Array.Fill(initColor);
-
-
-            var xStart = Mathf.Max(-Pivot.x, 0);
-            var xEnd = Mathf.Min(Pivot.x + sTex2D.Width, TargetSize.x) - Pivot.x;
-            var xLength = xEnd - xStart;
-
-            var yStart = Mathf.Max(-Pivot.y, 0);
-            var yEnd = Mathf.Min(Pivot.y + sTex2D.MapSize.y, TargetSize.y) - Pivot.y;
-
-            if (xLength < 0)
-            {
-                texture.Dispose();
-                return tTex2D;
-            }
+        // public static NativeArrayMap<Color32> TextureOffset(NativeArrayMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
+        // {
+        //     var sTex2D = texture;
+        //     var tTex2D = new NativeArrayMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
+        //     var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
+        //     tTex2D.Array.Fill(initColor);
 
 
-            for (var yi = yStart; yEnd > yi; yi += 1)
-            {
-                var sSpan = sTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart, yi, sTex2D.Width), xLength);
-                var tSpan = tTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart + Pivot.x, yi + Pivot.y, tTex2D.Width), xLength);
-                sSpan.CopyTo(tSpan);
-            }
-            texture.Dispose();
-            return tTex2D;
-        }
+        //     var xStart = Mathf.Max(-Pivot.x, 0);
+        //     var xEnd = Mathf.Min(Pivot.x + sTex2D.Width, TargetSize.x) - Pivot.x;
+        //     var xLength = xEnd - xStart;
+
+        //     var yStart = Mathf.Max(-Pivot.y, 0);
+        //     var yEnd = Mathf.Min(Pivot.y + sTex2D.MapSize.y, TargetSize.y) - Pivot.y;
+
+        //     if (xLength < 0)
+        //     {
+        //         texture.Dispose();
+        //         return tTex2D;
+        //     }
+
+
+        //     for (var yi = yStart; yEnd > yi; yi += 1)
+        //     {
+        //         var sSpan = sTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart, yi, sTex2D.Width), xLength);
+        //         var tSpan = tTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart + Pivot.x, yi + Pivot.y, tTex2D.Width), xLength);
+        //         sSpan.CopyTo(tSpan);
+        //     }
+        //     texture.Dispose();
+        //     return tTex2D;
+        // }
 
     }
 
     [Serializable]
     internal class PSDHighLevelData
     {
-        public Vector2Int Size;
+        public int Width;
+        public int Height;
         public ushort Depth;
         public ushort channels;
         public List<AbstractLayerData> RootLayers;
 
-        public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Size = hData.Size, RootLayers = hData.RootLayers };
+        public static explicit operator CanvasData(PSDHighLevelData hData) => new CanvasData() { Width = hData.Width, Height = hData.Height, RootLayers = hData.RootLayers };
     }
 }

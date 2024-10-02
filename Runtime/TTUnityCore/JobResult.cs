@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Jobs;
 using UnityEditor;
 
-namespace net.rs64.TexTransCore
+namespace net.rs64.TexTransUnityCore
 {
     internal class JobResult<T>
     {

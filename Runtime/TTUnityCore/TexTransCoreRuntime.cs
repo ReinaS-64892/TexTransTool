@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransUnityCore.BlendTexture;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransCore
+namespace net.rs64.TexTransUnityCore
 {
     public static class TexTransCoreRuntime
     {

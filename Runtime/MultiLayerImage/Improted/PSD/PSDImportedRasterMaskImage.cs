@@ -1,11 +1,12 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
+using net.rs64.MultiLayerImage.Parser;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal class PSDImportedRasterMaskImage : TTTImportedImage
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+            TexTransUnityCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
 
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
             var sourceTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
@@ -30,7 +31,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("RLE");
 
-            var data = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle);
+            var dataSpan = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle);
+            var data = new NativeArray<byte>(dataSpan.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            data.AsSpan().CopyFrom(dataSpan);
 
             Profiler.EndSample();
             Profiler.BeginSample("OffsetMoveAlphaJobSetUp");
@@ -63,8 +66,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             if (!isZeroSize)
             {
-                using (var data = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle))
+                var dataSpan = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle);
+                using (var data = new NativeArray<byte>(dataSpan.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
                 {
+                    dataSpan.CopyTo(data);
                     texR.LoadRawTextureData(data); texR.Apply();
                 }
 
@@ -82,7 +87,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal static NativeArray<byte> LoadPSDMaskImageData(PSDImportedRasterMaskImageData maskImageData, byte[] importSource)
         {
-            return ChannelImageDataParser.ChannelImageData.HeightInvert(maskImageData.MaskImage.GetImageData(importSource, maskImageData.RectTangle), maskImageData.RectTangle.GetWidth(), maskImageData.RectTangle.GetHeight());
+            var dataSpan = maskImageData.MaskImage.GetImageData(importSource, maskImageData.RectTangle);
+            var data = new NativeArray<byte>(dataSpan.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            ChannelImageDataParser.ChannelImageData.HeightInvert(dataSpan, data, maskImageData.RectTangle.GetWidth(), maskImageData.RectTangle.GetHeight());
+            return data;
         }
 
     }

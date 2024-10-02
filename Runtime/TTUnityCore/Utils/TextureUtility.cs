@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.MipMap;
-using net.rs64.TexTransCore.Unsafe;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore.MipMap;
+using net.rs64.TexTransUnityCore.Unsafe;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+using Color = UnityEngine.Color;
 
-namespace net.rs64.TexTransCore.Utils
+namespace net.rs64.TexTransUnityCore.Utils
 {
     internal static class TextureUtility
     {
@@ -65,7 +66,14 @@ namespace net.rs64.TexTransCore.Utils
                 RenderTexture.active = rt;
                 GL.Clear(true, true, Color.clear);
             }
-
+        }
+        public static void ClearWithColor(this RenderTexture rt, Color color)
+        {
+            using (new RTActiveSaver())
+            {
+                RenderTexture.active = rt;
+                GL.Clear(true, true, color);
+            }
         }
 
 

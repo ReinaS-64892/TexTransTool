@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;

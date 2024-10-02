@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 using System.Runtime.InteropServices;
 
-namespace net.rs64.TexTransCore
+namespace net.rs64.TexTransUnityCore
 {
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]

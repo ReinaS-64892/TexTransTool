@@ -1,13 +1,13 @@
 
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransUnityCore.Decal;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace net.rs64.TexTransCore.Utils
+namespace net.rs64.TexTransUnityCore.Utils
 {
     internal static class VectorUtility
     {

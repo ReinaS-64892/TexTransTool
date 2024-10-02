@@ -2,8 +2,8 @@
     "name": "net.rs64.multi-layer-image-parser",
     "rootNamespace": "",
     "references": [
-        "net.rs64.tt-unity-core",
-        "net.rs64.tt-unity-core.unsafe"
+        "net.rs64.tex-trans-core",
+        "net.rs64.tt-unity-core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -13,5 +13,5 @@
     "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

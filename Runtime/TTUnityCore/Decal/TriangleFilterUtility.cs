@@ -1,15 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransCore.Decal
+namespace net.rs64.TexTransUnityCore.Decal
 {
     internal struct FilterTriangleJobInput<InterSpace>
     {

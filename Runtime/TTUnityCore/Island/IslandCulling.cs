@@ -3,17 +3,17 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 using Unity.Jobs;
 using Unity.Collections;
 using System.Diagnostics;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransUnityCore.Decal;
 using Debug = UnityEngine.Debug;
 using UnityEngine.Pool;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransCore.Island
+namespace net.rs64.TexTransUnityCore.Island
 {
     [Serializable]
     internal struct IslandSelectorRay

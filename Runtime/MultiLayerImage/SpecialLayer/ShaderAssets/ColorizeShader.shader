@@ -18,8 +18,8 @@ Shader "Hidden/ColorizeShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../../../../TexTransCore/BlendTexture/ShaderAsset/SetSL.hlsl"
-            #include "../../../../TexTransCore/BlendTexture/ShaderAsset/HSL.hlsl"
+            #include "../../../TTUnityCore/BlendTexture/ShaderAsset/SetSL.hlsl"
+            #include "../../../TTUnityCore/BlendTexture/ShaderAsset/HSL.hlsl"
 
             struct appdata
             {

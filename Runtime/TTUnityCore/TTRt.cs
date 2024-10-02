@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using UnityEngine;
 
-namespace net.rs64.TexTransCore
+namespace net.rs64.TexTransUnityCore
 {
     internal static class TTRt
     {

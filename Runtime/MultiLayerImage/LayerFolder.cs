@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage

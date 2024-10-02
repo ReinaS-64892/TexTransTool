@@ -1,10 +1,10 @@
 using System;
-using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.MultiLayerImage.LayerData;
 using System.Linq;
 using System.Collections.Generic;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
+using net.rs64.TexTransUnityCore.BlendTexture;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {

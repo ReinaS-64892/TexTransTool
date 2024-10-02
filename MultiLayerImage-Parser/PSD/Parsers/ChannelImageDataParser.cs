@@ -3,10 +3,8 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 using System.Threading.Tasks;
-using Debug = UnityEngine.Debug;
 using Unity.Collections;
 using System.Buffers.Binary;
 
@@ -50,16 +48,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public int StartIndex;
             public int Length;
 
-            public NativeArray<byte> GetImageData(byte[] psdBytes, RectTangle thisRect)
+            public Span<byte> GetImageData(byte[] psdBytes, RectTangle thisRect)
             {
                 var data = psdBytes.AsSpan(StartIndex, Length);
                 switch (Compression)
                 {
                     case CompressionEnum.RawData:
                         {
-                            var rawArray = new NativeArray<byte>(Length, Allocator.TempJob);
-                            rawArray.CopyFrom(data);
-                            return rawArray;
+                            return data;
 
                         }
                     case CompressionEnum.RLECompressed:
@@ -72,18 +68,13 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
 
-            internal static NativeArray<T> HeightInvert<T>(NativeArray<T> lowMap, int width, int height) where T : struct
+            internal static void HeightInvert<T>(Span<T> lowMap, Span<T> dist, int width, int height) where T : struct
             {
-                var map = new NativeArray<T>(lowMap.Length, Allocator.TempJob);
-
                 for (var y = 0; height > y; y += 1)
                 {
                     var from = lowMap.Slice((height - 1 - y) * width, width);
-                    var to = map.Slice(y * width, width);
-                    to.CopyFrom(from);
+                    from.CopyTo(dist.Slice(y * width, width));
                 }
-                lowMap.Dispose();
-                return map;
             }
 
 
@@ -97,7 +88,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
 
-            var imageLength = (uint)Mathf.Abs(refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2);
+            var imageLength = (uint)Math.Abs(refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2);
 
             var imageData = stream.ReadSubStream((int)imageLength);
             channelImageData.StartIndex = (int)imageData.FirstToPosition;
@@ -111,17 +102,16 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
 
 
-        private static NativeArray<byte> ParseRLECompressed(Span<byte> imageDataSpan, uint Width, uint Height)
+        private static Span<byte> ParseRLECompressed(Span<byte> imageDataSpan, uint Width, uint Height)
         {
-            var rawDataArray = new NativeArray<byte>((int)(Width * Height), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var rawDataSpan = rawDataArray.AsSpan();
+            var rawDataArray = new byte[(int)(Width * Height)].AsSpan();
 
             int intWidth = (int)Width;
             var position = (int)Height * 2;
 
             for (var i = 0; Height > i; i += 1)
             {
-                var writeSpan = rawDataSpan.Slice(i * intWidth, intWidth);
+                var writeSpan = rawDataArray.Slice(i * intWidth, intWidth);
 
                 var widthRLEBytesCount = BinaryPrimitives.ReadUInt16BigEndian(imageDataSpan.Slice(i * 2, 2));
                 if (widthRLEBytesCount == 0) { writeSpan.Fill(byte.MinValue); continue; }

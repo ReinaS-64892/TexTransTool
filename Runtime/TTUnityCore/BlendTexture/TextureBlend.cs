@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransCore.BlendTexture
+namespace net.rs64.TexTransUnityCore.BlendTexture
 {
     [Obsolete("Replaced with BlendTypeKey", true)]
     internal enum BlendType
@@ -369,6 +369,21 @@ namespace net.rs64.TexTransCore.BlendTexture
                 Graphics.Blit(swap, rt, tempMat);
             }
         }
+        public static void AlphaFill(RenderTexture dist, float alpha)
+        {
+            using (new RTActiveSaver())
+            using (TTRt.U(out var swap, dist.descriptor))
+            {
+                var alphaRt = TextureUtility.CreateColorTexForRT(new(0, 0, 0, alpha));
+                var tempMat = MatTemp.GetTempMatShader(AlphaCopyShader);
+                tempMat.SetTexture("_AlphaTex", alphaRt);
+                Graphics.CopyTexture(dist, swap);
+                Graphics.Blit(swap, dist, tempMat);
+
+                TTRt.R(alphaRt);
+            }
+        }
+
         public static void AlphaCopy(RenderTexture alphaSource, RenderTexture rt)
         {
             using (new RTActiveSaver())

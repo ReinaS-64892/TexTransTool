@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using System.Diagnostics;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {

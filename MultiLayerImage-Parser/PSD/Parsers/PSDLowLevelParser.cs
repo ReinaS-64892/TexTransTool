@@ -19,8 +19,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         public static PSDLowLevelData Parse(string path)
         {
             using (var fileStream = File.OpenRead(path))
-            using (var nativePSDData = new NativeArray<byte>((int)fileStream.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-            {//NativeArrayのサイズ的に、32bit int の最大値を超えるファイルサイズのPSDが読めないけど... PS"D" ではあまり気にする価値がなさそう。
+            {
+                var nativePSDData = new byte[fileStream.Length];
                 fileStream.Read(nativePSDData);
                 return Parse(nativePSDData);
             }

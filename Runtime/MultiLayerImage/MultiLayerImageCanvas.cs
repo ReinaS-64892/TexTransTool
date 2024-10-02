@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
+using Color = UnityEngine.Color;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {

@@ -4,15 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransCore.Decal
+namespace net.rs64.TexTransUnityCore.Decal
 {
     internal interface IConvertSpace<UVDimension> : IDisposable
       where UVDimension : struct

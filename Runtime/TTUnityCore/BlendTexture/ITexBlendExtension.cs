@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace net.rs64.TexTransCore.BlendTexture
+namespace net.rs64.TexTransUnityCore.BlendTexture
 {
     /// <summary>
     /// これらinterfaceは非常に実験的なAPIで予告なく変更や削除される可能性があります。
