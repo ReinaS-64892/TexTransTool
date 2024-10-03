@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Codice.ThemeImages;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
@@ -62,13 +63,14 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void BlendForAlphaOperation(ITTRenderTexture canvasTexture, ImageLayer imageLayer, ITTRenderTexture layerRt)
         {
             var alphaOperation = imageLayer.AlphaOperation;
             var blendKey = imageLayer.BlendTypeKey;
             BlendForAlphaOperation(_engine, canvasTexture, layerRt, alphaOperation, blendKey);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BlendForAlphaOperation(ITTEngine engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
         {
             switch (alphaOperation)
@@ -118,7 +120,9 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             var layerStack = new Stack<PreBlendPairedLayer>();
 
-            void PushToStack(LayerObject l, bool forcedNull = false) { layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null)); }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void PushToStack(LayerObject l, bool forcedNull = false)
+            { layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null)); }
 
             foreach (var layer in layerObjects)
             {
@@ -184,6 +188,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             _preBlends = preBlends;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EvaluateContext NestContext(ITTEngine engine, int width, int height, EvaluateContext? sourceContext, AlphaMask addAlphaMask, List<LayerObject>? addPreBlends)
         {
             var newMask = engine.CreateRenderTexture(width, height);

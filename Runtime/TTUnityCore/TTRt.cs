@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using net.rs64.TexTransUnityCore.Utils;
 using PlasticPipe.PlasticProtocol.Messages;
 using UnityEngine;
@@ -75,6 +76,7 @@ namespace net.rs64.TexTransUnityCore
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static RenderTexture Get_Impl(TTRenderTextureDescriptor renderTextureDescriptor)
         {
             if (s_temporaryDictionary.ContainsKey(renderTextureDescriptor) is false) { s_temporaryDictionary[renderTextureDescriptor] = new List<TempRtState>(); }
@@ -100,6 +102,7 @@ namespace net.rs64.TexTransUnityCore
                 return tmpList[letIndex].RenderTexture;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Rel_Impl(RenderTexture renderTexture)
         {
             if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false) { throw new InvalidOperationException(); }
@@ -133,18 +136,22 @@ namespace net.rs64.TexTransUnityCore
 
         public static RenderTextureFormat RenderTextureDefaultFormat = RenderTextureFormat.ARGB32;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(int size) => G(size, size);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(int size, string rtName)
         {
             var rt = G(size, size);
             rt.name = rtName;
             return rt;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UsingRenderTexture U(out RenderTexture tmpRt, int size)
         {
             tmpRt = G(size);
             return new(tmpRt);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture Get(int width, int height, bool useDepthAndStencil = false, bool useMipMap = false)
         {
             var tmpRt = Get_Impl(new(width, height, useDepthAndStencil, useMipMap));
@@ -159,15 +166,18 @@ namespace net.rs64.TexTransUnityCore
 
             return tmpRt;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(int width, int height, bool clearRt = false, bool useDepthAndStencil = false, bool useMipMap = false, bool useRandomRW = false, RenderTextureFormat? rtFormat = null)
         {
             return Get(width, height, useDepthAndStencil, useMipMap);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UsingRenderTexture U(out RenderTexture tmpRt, int width, int height, bool clearRt = false, bool useDepthAndStencil = false, bool useMipMap = false, bool useRandomRW = false, RenderTextureFormat? rtFormat = null)
         {
             tmpRt = G(width, height, clearRt, useDepthAndStencil, useMipMap, useRandomRW, rtFormat);
             return new(tmpRt);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(RenderTexture rt, bool copyTexture = false)
         {
             var newRt = Get_Impl(new(rt));
@@ -183,10 +193,12 @@ namespace net.rs64.TexTransUnityCore
             if (copyTexture) Graphics.CopyTexture(rt, newRt);
             return newRt;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UsingRenderTexture U(out RenderTexture tmpRt, RenderTexture rt, bool copyTexture = false)
         {
             tmpRt = G(rt, copyTexture); return new(tmpRt);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(RenderTextureDescriptor renderTextureDescriptor, bool clearRt = false)
         {
             var rt = Get_Impl(new(renderTextureDescriptor));
@@ -198,6 +210,7 @@ namespace net.rs64.TexTransUnityCore
 #endif
             return rt;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static UsingRenderTexture U(out RenderTexture tmpRt, RenderTextureDescriptor renderTextureDescriptor, bool clearRt = false)
         {
             tmpRt = G(renderTextureDescriptor); return new(tmpRt);
@@ -213,6 +226,7 @@ namespace net.rs64.TexTransUnityCore
 
         public static bool IsTemp(RenderTexture renderTexture) => s_tempSet.Contains(renderTexture);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Rel(RenderTexture renderTexture)
         {
             s_tempSet.Remove(renderTexture);
@@ -223,6 +237,7 @@ namespace net.rs64.TexTransUnityCore
             Rel_Impl(renderTexture);
 
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void R(RenderTexture renderTexture)
         {
             Rel(renderTexture);

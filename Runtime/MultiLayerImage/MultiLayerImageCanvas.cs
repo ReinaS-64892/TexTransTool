@@ -52,7 +52,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var texTransUnityCoreEngine = new TTUnityCoreEngine(textureManager.LoadTexture);
             var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext(texTransUnityCoreEngine);
+            Profiler.BeginSample("ctr and GetRootLayerObjects");
             var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas(canvasWidth, canvasHeigh, GetRootLayerObjects(textureManager));
+            Profiler.EndSample();
 
             return canvasCtx.EvaluateCanvas(canvas).ToUnity();
         }
