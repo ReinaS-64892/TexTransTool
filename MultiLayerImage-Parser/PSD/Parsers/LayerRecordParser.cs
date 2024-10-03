@@ -35,7 +35,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public LayerMaskAdjustmentLayerData LayerMaskAdjustmentLayerData;
             public LayerBlendingRangesData LayerBlendingRangesData;
             public string LayerName;
-            [UnityEngine.SerializeReference] public AdditionalLayerInfo.AdditionalLayerInfoBase[] AdditionalLayerInformation;
+            public AdditionalLayerInfo.AdditionalLayerInfoBase[] AdditionalLayerInformation;
         }
         [Serializable]
         internal class RectTangle

@@ -21,7 +21,7 @@ Shader "Hidden/HSLAdjustment"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../../../../TexTransCore/BlendTexture/ShaderAsset/HSV.hlsl"
+            #include "../../../TTUnityCore/BlendTexture/ShaderAsset/HSV.hlsl"
 
             struct appdata
             {

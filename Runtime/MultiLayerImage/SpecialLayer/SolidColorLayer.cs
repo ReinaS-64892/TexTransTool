@@ -1,4 +1,4 @@
-using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransUnityCore.BlendTexture;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {

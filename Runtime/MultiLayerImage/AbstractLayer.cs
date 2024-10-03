@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -20,21 +21,31 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool Clipping;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [SerializeReference] public ILayerMask LayerMask = new LayerMask();
-        internal abstract void EvaluateTexture(CanvasContext canvasContext);
 
-        internal virtual LayerAlphaMod GetLayerAlphaMod(CanvasContext canvasContext)
+        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject GetLayerObject(ITextureManager textureManager);
+        internal virtual TexTransCore.MultiLayerImageCanvas.AlphaMask GetAlphaMask(ITextureManager textureManager)
+        { return new LayerAlphaMod(textureManager, Opacity, LayerMask); }
+        class LayerAlphaMod : TexTransCore.MultiLayerImageCanvas.AlphaMask
         {
-            if (LayerMask.ContainedMask)
+            private ITextureManager _textureManager;
+            float _opacity;
+            ILayerMask _layerMask;
+            public LayerAlphaMod(ITextureManager textureManager, float opacity, ILayerMask layerMask)
             {
-                var rt = TTRt.G(canvasContext.CanvasSize, canvasContext.CanvasSize, true);
-                rt.name = $"GetLayerAlphaMod.TempRt-{rt.width}x{rt.height}";
-
-                LayerMask.WriteMaskTexture(rt, canvasContext.TextureManager);
-                return new LayerAlphaMod(rt, Opacity);
+                _textureManager = textureManager;
+                _opacity = opacity;
+                _layerMask = layerMask;
             }
-            else
+            public override void Masking(ITTEngine engine, ITTRenderTexture maskTarget)
             {
-                return new LayerAlphaMod(null, Opacity);
+                engine.MulAlpha(maskTarget, _opacity);
+
+                if (_layerMask.ContainedMask)
+                    using (TTRt.U(out var rt, maskTarget.Width, maskTarget.Hight))
+                    {
+                        _layerMask.WriteMaskTexture(rt, _textureManager);
+                        TextureBlend.MaskDrawRenderTexture(maskTarget.ToUnity(), rt);
+                    }
             }
         }
 

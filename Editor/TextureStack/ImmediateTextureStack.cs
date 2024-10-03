@@ -1,10 +1,10 @@
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using UnityEditor;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore;
+using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore;
 
 namespace net.rs64.TexTransTool.TextureStack
 {

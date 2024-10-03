@@ -1,16 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransUnityCore.Decal;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore.BlendTexture;
+using net.rs64.TexTransUnityCore;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransUnityCore.Utils;
 using Unity.Collections;
 using net.rs64.TexTransTool.MultiLayerImage;
 
@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 Profiler.BeginSample("Rendering MultiLayerImageCanvas");
                 OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
-                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048);
+                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048, 2048);
                 Profiler.EndSample();
             }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Unity.Collections;
-using UnityEngine;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 
@@ -27,7 +26,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             var layerInfo = new LayerInfo();
             layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
             layerInfo.LayerCount = stream.ReadInt16();
-            layerInfo.LayerCountAbsValue = Mathf.Abs(layerInfo.LayerCount);
+            layerInfo.LayerCountAbsValue = Math.Abs(layerInfo.LayerCount);
 
             // var firstPos = stream.Position;
 

@@ -7,12 +7,10 @@ using UnityEditor;
 using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
 using Unity.Collections;
-using net.rs64.TexTransCore.MipMap;
-using Unity.Jobs;
+using net.rs64.TexTransUnityCore.MipMap;
 using Unity.Mathematics;
-using Unity.Burst;
 using UnityEngine.Profiling;
-using Unity.Collections.LowLevel.Unsafe;
+using net.rs64.TexTransUnityCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -94,15 +92,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var selectiveColoringAdjustmentLayer = newLayer.AddComponent<SelectiveColoringAdjustmentLayer>();
             CopyFromData(selectiveColoringAdjustmentLayer, selectiveColorLayerData);
 
-            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK;
-            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK;
-            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK;
-            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK;
-            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK;
-            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK;
-            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK;
-            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK;
-            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK;
+            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK.ToUnity();
+            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK.ToUnity();
             selectiveColoringAdjustmentLayer.IsAbsolute = selectiveColorLayerData.IsAbsolute;
         }
 
@@ -111,7 +109,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             var SolidColorLayerComponent = newLayer.AddComponent<SolidColorLayer>();
             CopyFromData(SolidColorLayerComponent, solidColorLayerData);
 
-            SolidColorLayerComponent.Color = solidColorLayerData.Color;
+            SolidColorLayerComponent.Color = solidColorLayerData.Color.ToUnity();
         }
 
         private void CreateHSLAdjustmentLayer(GameObject newLayer, HSLAdjustmentLayerData hSVAdjustmentLayerData)

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Unity.Collections;
-using UnityEngine;
 
 namespace net.rs64.MultiLayerImage.Parser
 {
@@ -170,14 +169,7 @@ namespace net.rs64.MultiLayerImage.Parser
 
 
 
-        public static void Fill<T>(this NativeArray<T> values, T val) where T : struct
-        {
-            for (var i = 0; values.Length > i; i += 1)
-            {
-                values[i] = val;
-            }
-        }
-        public static void Fill<T>(this NativeSlice<T> values, T val) where T : struct
+        public static void Fill<T>(this Span<T> values, T val) where T : struct
         {
             for (var i = 0; values.Length > i; i += 1)
             {
@@ -185,16 +177,12 @@ namespace net.rs64.MultiLayerImage.Parser
             }
         }
 
-        public static void CopyTo<T>(this NativeSlice<T> from, NativeSlice<T> to) where T : struct
-        {
-            to.CopyFrom(from);
-        }
-        public static void CopyTo<T>(this NativeArray<T> from, NativeSlice<T> to) where T : struct
+        public static void CopyTo<T>(this Span<T> from, Span<T> to) where T : struct
         {
             to.CopyFrom(from);
         }
 
-        public static void CopyFrom<T>(this NativeArray<T> to, Span<T> from) where T : struct
+        public static void CopyFrom<T>(this Span<T> to, Span<T> from) where T : struct
         {
             for (var i = 0; to.Length > i; i += 1)
             {

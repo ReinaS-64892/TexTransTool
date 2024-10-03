@@ -98,7 +98,7 @@ namespace net.rs64.TexTransTool
         }
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
-            return TexTransCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+            return TexTransUnityCore.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
         }
         public Texture2D GetOriginalTexture(Texture2D texture2D)
         {

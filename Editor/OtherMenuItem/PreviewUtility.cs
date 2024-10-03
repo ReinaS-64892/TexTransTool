@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         }
 
         public static bool IsPreviewContains => RealTimePreviewContext.instance.IsPreview() || OneTimePreviewContext.IsPreviewContains;
-        [TexTransCore.TexTransInitialize]
+        [TexTransUnityCore.TexTransInitialize]
         public static void Init()
         {
             OneTimePreviewContext.instance.OnPreviewEnter += ttb => { s_rePreviewActin = () => { if (ttb is TexTransBehavior texTransBehavior) { OneTimePreviewContext.instance.ApplyTexTransBehavior(texTransBehavior); } }; };

@@ -19,7 +19,7 @@ Shader "Hidden/LuminanceMappingShader"
             #pragma multi_compile_local_fragment RGB Red Green Brue
 
             #include "UnityCG.cginc"
-            #include "../../../../TexTransCore/BlendTexture/ShaderAsset/SetSL.hlsl"
+            #include "../../../TTUnityCore/BlendTexture/ShaderAsset/SetSL.hlsl"
 
             struct appdata
             {

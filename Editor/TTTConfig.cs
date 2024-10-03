@@ -1,5 +1,5 @@
 using System;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransUnityCore;
 using UnityEditor;
 
 namespace net.rs64.TexTransTool
@@ -51,5 +51,7 @@ namespace net.rs64.TexTransTool
 
         #endregion
 
+        [MenuItem(DEBUG_MENU_PATH + "/ForceTempRtRelease")]
+        static void ForceTempRtRelease() { TTRt.ForceLeakedRelease(); }
     }
 }

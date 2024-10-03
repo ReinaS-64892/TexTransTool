@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "net.rs64.tex-trans-core",
-        "net.rs64.tex-trans-core.unsafe",
+        "net.rs64.tt-unity-core",
+        "net.rs64.tt-unity-core.unsafe",
         "net.rs64.multi-layer-image-parser",
         "nadena.dev.ndmf",
         "Unity.Burst",
