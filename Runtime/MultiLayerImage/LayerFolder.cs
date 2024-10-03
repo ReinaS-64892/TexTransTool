@@ -8,6 +8,7 @@ using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore;
+using System.Runtime.CompilerServices;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -19,7 +20,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool PassThrough;
         internal override LayerObject GetLayerObject(ITextureManager textureManager)
         {
-            var chiles = GetChileLayers().Select(l => l.GetLayerObject(textureManager)).ToList();
+            var layers = GetChileLayers();
+            var chiles = new List<TexTransCore.MultiLayerImageCanvas.LayerObject>(layers.Capacity);
+            foreach (var l in layers) { chiles.Add(l.GetLayerObject(textureManager)); }
+
             if (PassThrough)
             {
                 return new PassThoughtFolder(Visible, GetAlphaMask(textureManager), Clipping, chiles);
@@ -30,7 +34,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 return new TexTransCore.MultiLayerImageCanvas.LayerFolder(Visible, GetAlphaMask(textureManager), alphaOperator, Clipping, new TTTBlendTypeKey(BlendTypeKey), chiles);
             }
         }
-        IEnumerable<AbstractLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        List<AbstractLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
         internal override void LookAtCalling(ILookingObject lookingObject)
         {
             base.LookAtCalling(lookingObject);

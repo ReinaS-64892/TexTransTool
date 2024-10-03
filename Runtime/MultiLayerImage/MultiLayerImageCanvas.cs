@@ -10,6 +10,7 @@ using UnityEngine;
 using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 using Color = UnityEngine.Color;
 using UnityEngine.Profiling;
+using System.Runtime.CompilerServices;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -61,8 +62,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal List<TexTransCore.MultiLayerImageCanvas.LayerObject> GetRootLayerObjects(ITextureManager textureManager)
         {
-            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject>();
-            foreach (var l in GetChileLayers()) { list.Add(l.GetLayerObject(textureManager)); }
+            var layers = GetChileLayers();
+            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject>(layers.Capacity);
+            foreach (var l in layers) { list.Add(l.GetLayerObject(textureManager)); }
             return list;
         }
 
@@ -79,13 +81,26 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return TextureSelector.ModificationTargetRenderers(domainRenderers, replaceTracking);
         }
 
-        IEnumerable<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }
-        internal static IEnumerable<AbstractLayer> GetChileLayers(Transform transform)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        List<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static List<AbstractLayer> GetChileLayers(Transform transform)
         {
-            return transform.GetChildren()
-            .Select(I => I.GetComponent<AbstractLayer>())
-            .Where(I => I != null)
-            .Reverse();
+            var tf = transform;
+            var chilesCount = tf.childCount;
+            var chiles = new List<AbstractLayer>(chilesCount);
+
+            for (var i = chilesCount - 1; 0 < i; i -= 1)
+            {
+                var layer = tf.GetChild(i).GetComponent<AbstractLayer>();
+                if (layer != null)
+                {
+                    chiles.Add(layer);
+                }
+            }
+
+            return chiles;
         }
 
         internal static int NormalizePowOfTow(int v)
