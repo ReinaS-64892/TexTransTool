@@ -91,7 +91,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var chilesCount = tf.childCount;
             var chiles = new List<AbstractLayer>(chilesCount);
 
-            for (var i = chilesCount - 1; 0 < i; i -= 1)
+            for (var i = chilesCount - 1; 0 <= i; i -= 1)
             {
                 var layer = tf.GetChild(i).GetComponent<AbstractLayer>();
                 if (layer != null)
