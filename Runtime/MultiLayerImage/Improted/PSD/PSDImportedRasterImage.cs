@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
@@ -88,10 +89,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSource)
         {
-            var dataSpan = imageData.GetImageData(importSource, RasterImageData.RectTangle);
-            var data = new NativeArray<byte>(dataSpan.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            dataSpan.CopyTo(data.AsSpan());
-            return data;
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
+            var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
+
+            var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            imageData.GetImageData(importSource, RasterImageData.RectTangle, psdCanvasDesc.BitDepth, writeArray);
+            return writeArray;
         }
 
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
@@ -106,14 +109,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var texWidth = RasterImageData.RectTangle.GetWidth();
             var texHeight = RasterImageData.RectTangle.GetHeight();
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-            var texR = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var format = BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
+
+            var texR = new Texture2D(texWidth, texHeight, format, false);
             texR.filterMode = FilterMode.Point;
-            var texG = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texG = new Texture2D(texWidth, texHeight, format, false);
             texG.filterMode = FilterMode.Point;
-            var texB = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texB = new Texture2D(texWidth, texHeight, format, false);
             texB.filterMode = FilterMode.Point;
-            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
+            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, format, false) : null;
             if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
             if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
@@ -152,9 +158,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
         }
-        internal override NativeArray<byte>? GetLowData(byte[] importSource)
+
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth)
         {
-            return RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle);
+            switch (bitDepth)
+            {
+                case 1:
+                case 8:
+                    { return TextureFormat.R8; }
+                case 16:
+                    { return TextureFormat.R16; }// maybe
+
+                case 32:
+                    { return TextureFormat.RFloat; }
+            }
+
+            throw new ArgumentOutOfRangeException();
         }
 
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)

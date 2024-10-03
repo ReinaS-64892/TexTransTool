@@ -15,8 +15,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal abstract JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null);
         internal abstract void LoadImage(byte[] importSource, RenderTexture writeTarget);
         internal abstract Vector2Int Pivot { get; }
-
-        internal virtual NativeArray<byte>? GetLowData(byte[] importSource) { return null; }
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(TTTImportedImage))]

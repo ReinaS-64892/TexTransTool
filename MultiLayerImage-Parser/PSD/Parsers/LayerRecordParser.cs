@@ -45,7 +45,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public int Bottom;
             public int Right;
 
-            public int CalculateRawCompressLength()
+            public int CalculateRectAreaSize()
             {
                 int height = GetHeight();
                 int width = GetWidth();

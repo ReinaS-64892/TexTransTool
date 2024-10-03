@@ -164,7 +164,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData)) { return abstractLayerData; }
 
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRawCompressLength() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record, channelInfoAndImage); return emptyData; }
+            || record.RectTangle.CalculateRectAreaSize() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record, channelInfoAndImage); return emptyData; }
 
             var rasterLayer = new RasterLayerData();
             rasterLayer.CopyFromRecord(record, channelInfoAndImage);
@@ -275,7 +275,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)) { return null; }
-            if (record.RectTangle.CalculateRawCompressLength() == 0) { return null; }
+            if (record.RectTangle.CalculateRectAreaSize() == 0) { return null; }
 
             var importedRaster = new PSDImportedRasterImageData();
             importedRaster.RectTangle = record.RectTangle;
