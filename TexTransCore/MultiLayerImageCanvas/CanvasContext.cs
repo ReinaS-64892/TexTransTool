@@ -18,7 +18,6 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         public ITTRenderTexture EvaluateCanvas(Canvas canvas)
         {
             var canvasTexture = _engine.CreateRenderTexture(canvas.Width, canvas.Height);
-            _engine.ClearRenderTexture(canvasTexture, Color.Zero);
 
             EvaluateForFlattened(canvasTexture, null, ToBelowFlattened(canvas.RootLayers));
 
@@ -38,13 +37,13 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                         {
                             using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
                             {
-                                _engine.ClearRenderTexture(layerRt, Color.Zero);
                                 imageLayer.GetImage(_engine, layerRt);
 
-                                using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaModifier, pairedLayer.PreBlends))
+                                using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, pairedLayer.PreBlends))
                                 {
-                                    if (nEvalCtx.PreBlends is not null) EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
                                     nEvalCtx.AlphaMask.Masking(_engine, layerRt);
+                                    if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
+                                        EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
                                 }
                                 BlendForAlphaOperation(canvasTex, imageLayer, layerRt);
                             }
@@ -52,7 +51,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                         }
                     case GrabLayer grabLayer:
                         {
-                            using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaModifier, pairedLayer.PreBlends))
+                            using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, pairedLayer.PreBlends))
                             {
                                 grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
                             }
@@ -65,40 +64,50 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public readonly void BlendForAlphaOperation(ITTRenderTexture canvasTexture, ImageLayer imageLayer, ITTRenderTexture layerRt)
         {
-            switch (imageLayer.AlphaOperation)
+            var alphaOperation = imageLayer.AlphaOperation;
+            var blendKey = imageLayer.BlendTypeKey;
+            BlendForAlphaOperation(_engine, canvasTexture, layerRt, alphaOperation, blendKey);
+        }
+
+        public static void BlendForAlphaOperation(ITTEngine engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
+        {
+            switch (alphaOperation)
             {
                 default:
                 case AlphaOperation.Normal:
                     {
-                        _engine.TextureBlend(canvasTexture, layerRt, imageLayer.BlendTypeKey);
+                        engine.TextureBlend(canvasTexture, layerRt, blendKey);
                         break;
                     }
                 case AlphaOperation.Inherit:
                     {
-                        using (var alphaTemp = _engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
+                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
                         {
-                            _engine.CopyAlpha(canvasTexture, alphaTemp);
-                            _engine.TextureBlend(canvasTexture, layerRt, imageLayer.BlendTypeKey);
-                            _engine.CopyAlpha(alphaTemp, canvasTexture);
+                            engine.CopyAlpha(canvasTexture, alphaTemp);
+                            engine.FillAlpha(canvasTexture, 1f);//クリッピングの場合はこうしないと困るが、そうではない場合が必要になるなら、ここの case の数を増やす必要がある。
+                            engine.TextureBlend(canvasTexture, layerRt, blendKey);
+                            engine.CopyAlpha(alphaTemp, canvasTexture);
                         }
                         break;
                     }
                 case AlphaOperation.Layer:
                     {
-                        _engine.TextureBlend(canvasTexture, layerRt, imageLayer.BlendTypeKey);
-                        _engine.CopyAlpha(layerRt, canvasTexture);
+                        engine.FillAlpha(canvasTexture, 1f);//これが必要かは考えるべき
+                        engine.TextureBlend(canvasTexture, layerRt, blendKey);
+                        engine.CopyAlpha(layerRt, canvasTexture);
 
                         break;
                     }
                 case AlphaOperation.Intersect:
                     {
-                        using (var alphaTemp = _engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
+                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
                         {
-                            _engine.CopyAlpha(canvasTexture, alphaTemp);
-                            _engine.TextureBlend(canvasTexture, layerRt, imageLayer.BlendTypeKey);
+                            engine.CopyAlpha(canvasTexture, alphaTemp);
+                            engine.FillAlpha(canvasTexture, 1f);//これが必要かは考えるべき
+                            engine.TextureBlend(canvasTexture, layerRt, blendKey);
 
-                            _engine.MulAlpha(alphaTemp, layerRt);
-                            _engine.CopyAlpha(alphaTemp, canvasTexture);
+                            engine.MulAlpha(alphaTemp, layerRt);
+                            engine.CopyAlpha(alphaTemp, canvasTexture);
                         }
                         break;
                     }
@@ -109,25 +118,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             var layerStack = new Stack<PreBlendPairedLayer>();
 
-            void PushToStack(LayerObject l, bool forcedNull = false)
-            {
-                switch (l)
-                {
-                    case ImageLayer imageLayer:
-                        {
-                            layerStack.Push(new PreBlendPairedLayer(imageLayer, forcedNull is false ? new() : null));
-                            return;
-                        }
-                    case GrabLayer grabLayer:
-                        {
-                            layerStack.Push(new PreBlendPairedLayer(grabLayer, null));
-                            return;
-                        }
-
-
-                    default: { throw new ArgumentException("これは表示されないはず、何かがおかしい、ここに渡る型なんてないはずだ。"); }
-                }
-            }
+            void PushToStack(LayerObject l, bool forcedNull = false) { layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null)); }
 
             foreach (var layer in layerObjects)
             {

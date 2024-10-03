@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 Profiler.BeginSample("Rendering MultiLayerImageCanvas");
                 OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
-                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048);
+                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048, 2048);
                 Profiler.EndSample();
             }
 

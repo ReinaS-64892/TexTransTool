@@ -5,7 +5,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     {
         public AlphaOperation AlphaOperation;
         public ITTBlendKey BlendTypeKey;
-        public ImageLayer(bool visible, AlphaMask alphaModifier, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey) : base(visible, preBlendToLayerBelow, alphaModifier)
+        public ImageLayer(bool visible, AlphaMask alphaMask, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey) : base(visible, preBlendToLayerBelow, alphaMask)
         {
             AlphaOperation = alphaOperation;
             BlendTypeKey = blendTypeKey;

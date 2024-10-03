@@ -11,7 +11,7 @@ namespace net.rs64.TexTransCore
     {
         /// <summary>
         /// フォーマットなどはエンジン側が決める話ですが、 RGBA の 4チャンネルあることを前提とします。
-        /// 内容が初期化されている保証はありません。
+        /// 内容は必ず すべてのチャンネルが 0 で初期化されている。
         /// </summary>
         ITTRenderTexture CreateRenderTexture(int width, int height, bool mipMap = false, bool depthAndStencil = false);
 

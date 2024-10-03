@@ -51,5 +51,7 @@ namespace net.rs64.TexTransTool
 
         #endregion
 
+        [MenuItem(DEBUG_MENU_PATH + "/ForceTempRtRelease")]
+        static void ForceTempRtRelease() { TTRt.ForceLeakedRelease(); }
     }
 }

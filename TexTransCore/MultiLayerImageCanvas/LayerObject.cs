@@ -9,13 +9,13 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     {
         public bool Visible;
         public bool PreBlendToLayerBelow;
-        public AlphaMask AlphaModifier;
+        public AlphaMask AlphaMask;
 
-        public LayerObject(bool visible, bool preBlendToLayerBelow, AlphaMask alphaModifier)
+        public LayerObject(bool visible, bool preBlendToLayerBelow, AlphaMask alphaMask)
         {
             Visible = visible;
             PreBlendToLayerBelow = preBlendToLayerBelow;
-            AlphaModifier = alphaModifier;
+            AlphaMask = alphaMask;
         }
     }
     /// <summary>
@@ -40,6 +40,6 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             MaskTexture = maskTexture;
         }
-        public override void Masking(ITTEngine engine, ITTRenderTexture maskTarget) { engine.MulAlpha(MaskTexture, maskTarget); }
+        public override void Masking(ITTEngine engine, ITTRenderTexture maskTarget) { engine.MulAlpha(maskTarget, MaskTexture); }
     }
 }

@@ -3,7 +3,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public abstract class GrabLayer : LayerObject
     {
-        public GrabLayer(bool visible, AlphaMask alphaModifier, bool preBlendToLayerBelow) : base(visible, preBlendToLayerBelow, alphaModifier)
+        public GrabLayer(bool visible, AlphaMask alphaMask, bool preBlendToLayerBelow) : base(visible, preBlendToLayerBelow, alphaMask)
         {
 
         }

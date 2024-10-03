@@ -15,7 +15,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public override void GrabImage(ITTEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
         {
-            using (var nEvalCtx = EvaluateContext.NestContext(engine, grabTexture.Width, grabTexture.Hight, evaluateContext, AlphaModifier, null))
+            using (var nEvalCtx = EvaluateContext.NestContext(engine, grabTexture.Width, grabTexture.Hight, evaluateContext, AlphaMask, null))
             {
                 new CanvasContext(engine).EvaluateForFlattened(grabTexture, evaluateContext, CanvasContext.ToBelowFlattened(Layers));
             }

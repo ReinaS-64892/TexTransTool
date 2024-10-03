@@ -101,7 +101,7 @@ namespace net.rs64.TexTransUnityCore
         internal RenderTexture RenderTexture;
         public UnityRenderTexture(int width, int height, bool mipMap, bool isDepthAndStencil)
         {
-            RenderTexture = TTRt.G(width, height, false, isDepthAndStencil, mipMap, true);
+            RenderTexture = TTRt.G(width, height, true, isDepthAndStencil, mipMap, true);
         }
         public bool IsDepthAndStencil => RenderTexture.depth != 0;
 
@@ -118,18 +118,20 @@ namespace net.rs64.TexTransUnityCore
 
     internal class UnityDiskTexture : ITTDiskTexture
     {
-        public int Width => throw new NotImplementedException();
-
-        public int Hight => throw new NotImplementedException();
-
-        public bool MipMap => throw new NotImplementedException();
-
-        public string Name { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public void Dispose()
+        internal Texture2D Texture;
+        public UnityDiskTexture(Texture2D texture)
         {
-            throw new NotImplementedException();
+            Texture = texture;
         }
+        public int Width => Texture.width;
+
+        public int Hight => Texture.height;
+
+        public bool MipMap => Texture.mipmapCount > 0;
+
+        public string Name { get => Texture.name; set => Texture.name = value; }
+
+        public void Dispose() { }
     }
 
     internal class TTTBlendTypeKey : ITTBlendKey
@@ -149,13 +151,8 @@ namespace net.rs64.TexTransUnityCore
         public static UnityEngine.Vector3 ToUnity(this TexTransCore.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
         public static UnityEngine.Vector4 ToUnity(this TexTransCore.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
 
-        public static RenderTexture ToUnity(this ITTRenderTexture renderTexture)
-        {
-            return ((UnityRenderTexture)renderTexture).RenderTexture;
-        }
-        public static string ToUnity(this ITTBlendKey key)
-        {
-            return ((TTTBlendTypeKey)key).BlendTypeKey;
-        }
+        public static RenderTexture ToUnity(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
+        public static Texture2D ToUnity(this ITTDiskTexture diskTexture) { return ((UnityDiskTexture)diskTexture).Texture; }
+        public static string ToUnity(this ITTBlendKey key) { return ((TTTBlendTypeKey)key).BlendTypeKey; }
     }
 }
