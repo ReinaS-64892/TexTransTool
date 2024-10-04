@@ -470,7 +470,7 @@ OpenFolder と ClosedFolder は lsct の終わりを示し、そのフォルダ�
 
 |Byte|Description|
 |---|---|
-|4(uint)|Version: 16 出なかった場合は読み取らないこと、未知の可能性がある。|
+|4(uint)|Version: 16 ではなかった場合は読み取らないこと、未知の可能性がある。|
 |Variable = [DescriptorStructure](#descriptorstructure)|下記参照|
 
 これに含まれる [DescriptorStructure](#descriptorstructure) の内容を Json で表現するならこんな感じになっています。
