@@ -49,7 +49,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             abstractLayer.LayerName = layerRecord.LayerName;
             abstractLayer.TransparencyProtected = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.TransparencyProtected);
-            abstractLayer.Visible = !layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible);
+            abstractLayer.Visible = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible) is false;
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
             abstractLayer.BlendTypeKey = ResolveGlow(ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)), layerRecord.AdditionalLayerInformation).ToString();

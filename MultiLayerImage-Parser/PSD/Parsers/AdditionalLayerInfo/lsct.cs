@@ -8,7 +8,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public SelectionDividerTypeEnum SelectionDividerType;
         public string BlendModeKey;
-        public int SubType;
+        public uint SubType;
 
         public enum SelectionDividerTypeEnum
         {
@@ -28,7 +28,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             }
             if (Length >= 16)
             {
-                SubType = stream.ReadInt32();
+                SubType = stream.ReadUInt32();
             }
         }
 

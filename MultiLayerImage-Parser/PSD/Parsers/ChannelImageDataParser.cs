@@ -29,7 +29,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 RealUserLayerMask = -3,
             }
 
-            public int CorrespondingChannelDataLength;
+            public uint CorrespondingChannelDataLength;
         }
 
         [Serializable]
@@ -228,7 +228,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             channelImageData.CompressionRawUshort = stream.ReadUInt16();
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
 
-            var imageLength = (uint)Math.Abs(refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2);
+            var imageLength = refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2;
 
             var imageData = stream.ReadSubStream((int)imageLength);
             channelImageData.StartIndex = (int)imageData.FirstToPosition;
