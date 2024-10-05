@@ -236,7 +236,7 @@ Right = 2048,
 |Byte|Description|
 |---|---|
 |2([short-Enum](#channelid))|ChannelID: [後述参照](#channelid)|
-|4(uint)|CorrespondingChannelDataLength: 対応するチャンネルデータの圧縮された状態での長さ。|
+|PSD 4(uint) or PSB 8(ulong)|CorrespondingChannelDataLength: 対応するチャンネルデータの圧縮された状態での長さ。|
 
 ###### ChannelID
 
@@ -407,7 +407,7 @@ ZIPWithPrediction = 3
 |---|---|
 |4(ASCII-String)|Signature: "8BIM" or "8B64" (私は "8BIM" しか見たことがないが、 "8B64" もあるらしい)|
 |4(ASCII-String)|Key: その追加情報が何出るかを識別できるキーコード。|
-|4(uint) or 一部例外 8(ulong) |Length: この追加情報の持つ任意の情報の長さ。(偶数のバイト数に切り上げられると元のSpecにはか書かれているが、おそらくこれは書き出すときの注意であり読み込む側は常に偶数であるだけという話であると思われる。)|
+|4(uint) or 一部例外 8(ulong) |Length: この追加情報の持つ任意の情報の長さ。レイヤーレコードに付属する追加情報の場合はそのまま使用できるが、キャンバスに付属するタイプは4の倍数に切り上げられるようです。|
 |Variable = Length|Data: Key に応じた任意のデータが入っています。|
 
 一部例外: PSB の場合で Key が "LMsk", "Lr16", "Lr32", "Layr", "Mt16", "Mt32", "Mtrn", "Alph", "FMsk", "lnk2, "FEid", "FXid", "PxSD" の場合は Length の Byte長が 8Byte(ulong) になるようです。
