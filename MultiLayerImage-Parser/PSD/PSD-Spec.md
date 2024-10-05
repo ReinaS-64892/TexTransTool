@@ -468,6 +468,8 @@ OpenFolder と ClosedFolder は lsct の終わりを示し、そのフォルダ�
 
 べた塗レイヤーこと単色塗りつぶしのレイヤーであることを示すレイヤー追加情報。
 
+Key -> "SoCo"
+
 |Byte|Description|
 |---|---|
 |4(uint)|Version: 16 ではなかった場合は読み取らないこと、未知の可能性がある。|
@@ -524,6 +526,47 @@ OpenFolder と ClosedFolder は lsct の終わりを示し、そのフォルダ�
 ```
 
 `ActualValue` の部分は実際の色が 0 ~ 255 の範囲で double で格納されているようです。
+
+### HueSaturation
+
+色相/彩度 の色調調整レイヤーである事を示すレイヤー追加情報。
+
+Key -> "hue2" or "hue "
+
+2 の方が新しいバージョンで、ついてないほうが古い。
+
+どちらであっても Version の値は 2 のようだ。
+
+|Byte|Description|
+|---|---|
+|2(ushort)|Version: 2 では無い場合、読み取らないこと|
+|1|Padding|
+|1(byte)|Colorization: 0 = 色相調整(つまり通常), 1 = 着色のような Colorization|
+||以下三つは Colorization が有効な場合に使用される値 (Colorization有効でなくてもフィールドは存在します。) |
+|2(short)|HueWithColorization: newVersion -180 ~ 180 oldVersion -100 ~ 100|
+|2(short)|SaturationWithColorization: -100 ~ 100|
+|2(short)|LightnessWithColorization: -100 ~ 100|
+||以下三つは Colorization が有効ではない場合に使用される値 (Colorization 無効でもフィールドは存在します。) |
+|2(short)|Hue: newVersion -180 ~ 180 oldVersion -100 ~ 100|
+|2(short)|Saturation: -100 ~ 100|
+|2(short)|Lightness: -100 ~ 100|
+|6 * 14([HueSaturationWithRange](#huesaturationwithrange))|HueSaturationWithRangeArray: Red,Yellow,Green,Cyan,Blue,Magentaの順でそれぞれの設定が並んでいるようだが、UIのラベルと初期値の違い意外でそれぞれに効果の違いはないと考えてよい。つまり範囲設定のある色相/彩度が追加で六つ並んでるだけ。|
+
+#### HueSaturationWithRange
+
+Photshop の UI で言えば中央の赤 が 0 それから右に行くにつれ増えて端が 180、反対側から中央までが 180 ~ 360 だと思われる。
+
+|Byte|Description|
+|---|---|
+||以下四つは範囲設定|
+|2(ushort)|RangeFallOffEndLeft: 0 ~ 360|
+|2(ushort)|RangeFallOffStartLeft: 0 ~ 360|
+|2(ushort)|RangeFallOffStartRight: 0 ~ 360|
+|2(ushort)|RangeFallOffEndRight: 0 ~ 360|
+||以下三つは、その範囲の色調調整の設定|
+|2(short)|Hue: newVersion -180 ~ 180 oldVersion -100 ~ 100|
+|2(short)|Saturation: -100 ~ 100|
+|2(short)|Lightness: -100 ~ 100|
 
 ## DescriptorStructure
 
