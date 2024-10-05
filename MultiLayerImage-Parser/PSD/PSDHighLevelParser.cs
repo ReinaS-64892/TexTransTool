@@ -235,7 +235,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             hueData.CopyFromRecord(record, channelInfoAndImage);
 
-            hueData.Hue = hue.Hue / (float)(hue.IsOld ? 100 : 180);
+            hueData.Hue = hue.Hue / (float)(hue.IsOld is false ? 180f : 100f);
             hueData.Saturation = hue.Saturation / 100f;
             hueData.Lightness = hue.Lightness / 100f;
 

@@ -42,7 +42,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public override bool IsOld => false;
     }
-    [Serializable, AdditionalLayerInfoParser("hue")]
+    [Serializable, AdditionalLayerInfoParser("hue ")]
     internal class hueOld : hue
     {
         public override bool IsOld => true;
