@@ -405,7 +405,7 @@ ZIPWithPrediction = 3
 |Byte|Description|
 |---|---|
 |4(ASCII-String)|Signature: "8BIM" or "8B64" (私は "8BIM" しか見たことがないが、 "8B64" もあるらしい)|
-|4(ASCII-String)|Key: その追加情報が何出るかを識別できるキーコード。|
+|4(ASCII-String)|Key: その追加情報がなんであるかを識別できるキーコード。|
 |4(uint) or 一部例外 8(ulong) |Length: この追加情報の持つ任意の情報の長さ。レイヤーレコードに付属する追加情報の場合はそのまま使用できるが、キャンバスに付属するタイプは4の倍数に切り上げられるようです。|
 |Variable = Length|Data: Key に応じた任意のデータが入っています。|
 

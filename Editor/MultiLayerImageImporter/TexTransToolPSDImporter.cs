@@ -10,7 +10,7 @@ using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    [ScriptedImporter(1, new string[] { }, new string[] { "psd" }, AllowCaching = true)]
+    [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
         public override void OnImportAsset(AssetImportContext ctx)

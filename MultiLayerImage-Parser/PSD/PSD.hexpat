@@ -337,13 +337,13 @@ struct GlobalLayerMaskInfo {
     {
     
         u16 OverlayColorSpace;
-        
+
         //Maybe
         u16 ColorR;
         u16 ColorG;
         u16 ColorB;
         u16 ColorA;
-        
+
         u16 Opacity;
         u8 Kind;
 

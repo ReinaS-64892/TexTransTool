@@ -34,14 +34,23 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             var spanStream = new SubSpanStream(psdByte);
 
             if (!spanStream.ReadSubStream(4).Span.SequenceEqual(OctBPSSignature)) { throw new System.Exception(); }
-            if (!spanStream.ReadSubStream(2).Span.SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
+            //if (!spanStream.ReadSubStream(2).Span.SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
+            psd.Version = spanStream.ReadUInt16();
+            switch (psd.Version)
+            {
+                case 1: { psd.IsPSB = false; break; }
+                case 2: { psd.IsPSB = true; break; }
+
+                default: throw new System.Exception("Unsupported Version PSD or PSB");
+            }
+
             if (!spanStream.ReadSubStream(6).Span.SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })) { throw new System.Exception(); }
 
             // File Header Section
 
-            psd.channels = spanStream.ReadUInt16();
-            psd.height = spanStream.ReadUInt32();
-            psd.width = spanStream.ReadUInt32();
+            psd.Channels = spanStream.ReadUInt16();
+            psd.Height = spanStream.ReadUInt32();
+            psd.Width = spanStream.ReadUInt32();
             psd.Depth = spanStream.ReadUInt16();
             psd.ColorMode = (PSDLowLevelData.ColorModeEnum)spanStream.ReadUInt16();
 
@@ -53,14 +62,24 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             // Image Resources Section
 
             psd.ImageResourcesSectionLength = spanStream.ReadUInt32();
-            psd.ImageResources = PaseImageResourceBlocks(spanStream.ReadSubStream((int)psd.ImageResourcesSectionLength));
+            if (psd.ImageResourcesSectionLength > 0)
+            {
+                psd.ImageResources = PaseImageResourceBlocks(spanStream.ReadSubStream((int)psd.ImageResourcesSectionLength));
+            }
+
 
             // LayerAndMaskInformationSection
-            psd.LayerAndMaskInformationSectionLength = spanStream.ReadUInt32();
-            psd.LayerInfo = LayerInformationParser.PaseLayerInfo(spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength));
+            psd.LayerAndMaskInformationSectionLength = psd.IsPSB is false ? spanStream.ReadUInt32() : spanStream.ReadUInt64();
+            if (psd.LayerAndMaskInformationSectionLength > 0)
+            {
+                var layerAndMaskInfoStream = spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength);
+                psd.LayerInfo = LayerInformationParser.PaseLayerInfo(psd.IsPSB, ref layerAndMaskInfoStream);
+                psd.GlobalLayerMaskInfo = GlobalLayerMaskInformationParser.PaseGlobalLayerMaskInformation(ref layerAndMaskInfoStream);
+                psd.CanvasTypeAdditionalLayerInfo = AdditionalLayerInfo.AdditionalLayerInformationParser.PaseAdditionalLayerInfos(psd.IsPSB, layerAndMaskInfoStream, true);
+            }
+
 
             // Image　Data　Section
-
             psd.ImageDataCompression = spanStream.ReadUInt16();
             psd.ImageDataStartIndex = spanStream.Position;
 
@@ -72,9 +91,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         internal class PSDLowLevelData
         {
             // File Header Section
-            public ushort channels;
-            public uint height;
-            public uint width;
+            public ushort Version;
+            public bool IsPSB;
+
+            public ushort Channels;
+            public uint Height;
+            public uint Width;
             public ushort Depth;
             public ColorModeEnum ColorMode;
             internal enum ColorModeEnum : ushort
@@ -101,10 +123,11 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             // LayerAndMaskInformationSection
 
-            public uint LayerAndMaskInformationSectionLength;
+            public ulong LayerAndMaskInformationSectionLength;
 
             public LayerInfo LayerInfo;
             public GlobalLayerMaskInfo GlobalLayerMaskInfo;
+            public AdditionalLayerInfo.AdditionalLayerInfoBase[] CanvasTypeAdditionalLayerInfo;
 
             //ImageDataSection
             public ushort ImageDataCompression;

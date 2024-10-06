@@ -13,7 +13,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         [Serializable]
         internal class LayerInfo
         {
-            public uint LayersInfoSectionLength;
+            public ulong LayersInfoSectionLength;
             public int LayerCount;
             public int LayerCountAbsValue;
 
@@ -21,17 +21,16 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public List<ChannelImageData> ChannelImageData;
 
         }
-        public static LayerInfo PaseLayerInfo(SubSpanStream stream)
+        public static LayerInfo PaseLayerInfo(bool isPSB,ref SubSpanStream stream)
         {
             var layerInfo = new LayerInfo();
-            layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
-            if (layerInfo.LayersInfoSectionLength == 0) //32Bit PSD で存在することが確認された 謎の 28Byte への迂回
-            {
-                stream.Position -= 4;
-                stream.ReadSubStream(28);
-                layerInfo.LayersInfoSectionLength = stream.ReadUInt32();
-            }
-            layerInfo.LayerCount = stream.ReadInt16();
+            layerInfo.LayersInfoSectionLength = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64();
+
+            if (layerInfo.LayersInfoSectionLength == 0) { return layerInfo; }
+
+            var layerInfoStream = stream.ReadSubStream((int)layerInfo.LayersInfoSectionLength);
+
+            layerInfo.LayerCount = layerInfoStream.ReadInt16();
             layerInfo.LayerCountAbsValue = Math.Abs(layerInfo.LayerCount);
 
             // var firstPos = stream.Position;
@@ -39,7 +38,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             var LayerRecordList = new List<LayerRecord>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
-                LayerRecordList.Add(PaseLayerRecord(ref stream));
+                LayerRecordList.Add(PaseLayerRecord(isPSB,ref layerInfoStream));
             }
             layerInfo.LayerRecords = LayerRecordList;
 
@@ -51,7 +50,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
                 {
-                    channelImageData.Add(PaseChannelImageData(ref stream, layerInfo.LayerRecords[i], Ci));
+                    channelImageData.Add(PaseChannelImageData(ref layerInfoStream, layerInfo.LayerRecords[i], Ci));
                 }
             }
             layerInfo.ChannelImageData = channelImageData;

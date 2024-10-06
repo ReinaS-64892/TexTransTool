@@ -18,17 +18,17 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var psd = new PSDHighLevelData
             {
-                Width = (int)levelData.width,
-                Height = (int)levelData.height,
+                Width = (int)levelData.Width,
+                Height = (int)levelData.Height,
                 Depth = levelData.Depth,
-                channels = levelData.channels,
+                channels = levelData.Channels,
                 RootLayers = new List<AbstractLayerData>()
             };
 
             importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
 
-            var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
-            var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
+            var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
+            var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords ?? new());
 
             ParseAsLayers(psd.RootLayers, imageRecordQueue, imageDataQueue);
 

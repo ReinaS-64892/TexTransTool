@@ -29,7 +29,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 RealUserLayerMask = -3,
             }
 
-            public uint CorrespondingChannelDataLength;
+            public ulong CorrespondingChannelDataLength;
         }
 
         [Serializable]
@@ -53,14 +53,29 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 if (writeSpan.Length != GetImageByteCount(rect, bitDepth)) { throw new ArgumentException(); }
 
+                var isPSB = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(4, 2)) == 2;
+
                 var imageSourceData = psdBytes.Slice(StartIndex, Length);
 
-                switch (bitDepth)
+                if (isPSB is false)
                 {
-                    case 1: { Decompress1Bit(imageSourceData, rect, writeSpan); return; }
-                    case 8: { Decompress8Bit(imageSourceData, rect, writeSpan); return; }
-                    case 16: { Decompress16Bit(imageSourceData, rect, writeSpan); return; }
-                    case 32: { Decompress32Bit(imageSourceData, rect, writeSpan); return; }
+                    switch (bitDepth)
+                    {
+                        case 1: { Decompress1Bit(imageSourceData, rect, writeSpan); return; }
+                        case 8: { Decompress8Bit(imageSourceData, rect, writeSpan); return; }
+                        case 16: { Decompress16Bit(imageSourceData, rect, writeSpan); return; }
+                        case 32: { Decompress32Bit(imageSourceData, rect, writeSpan); return; }
+                    }
+                }
+                else
+                {
+                    switch (bitDepth)
+                    {
+                        case 1: { Decompress1BitWithPSB(imageSourceData, rect, writeSpan); return; }
+                        case 8: { Decompress8BitWithPSB(imageSourceData, rect, writeSpan); return; }
+                        case 16: { Decompress16BitWithPSB(imageSourceData, rect, writeSpan); return; }
+                        case 32: { Decompress32BitWithPSB(imageSourceData, rect, writeSpan); return; }
+                    }
                 }
             }
 
@@ -204,6 +219,78 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
             }
 
+            private void Decompress1BitWithPSB(ReadOnlySpan<byte> imageSourceData, RectTangle rect, Span<byte> writeSpan)
+            {
+                switch (Compression)
+                {
+                    case CompressionEnum.RawData: { imageSourceData.CopyTo(writeSpan); return; }
+
+
+                    default:
+                        { throw new NotSupportedException($"{Compression}-1Bit は未知な圧縮です！！！"); }
+                }
+            }
+            private void Decompress8BitWithPSB(ReadOnlySpan<byte> imageSourceData, RectTangle rect, Span<byte> writeSpan)
+            {
+
+                switch (Compression)
+                {
+                    case CompressionEnum.RawData: { imageSourceData.CopyTo(writeSpan); return; }
+                    case CompressionEnum.RLECompressed: { ParseRLECompressedWithPSB(imageSourceData, (uint)rect.GetWidth(), (uint)rect.GetHeight(), writeSpan); return; }
+
+
+                    default:
+                        { throw new NotSupportedException($"{Compression}-8Bit は未知な圧縮です！！！"); }
+                }
+            }
+            private void Decompress16BitWithPSB(ReadOnlySpan<byte> imageSourceData, RectTangle rect, Span<byte> writeSpan)
+            {
+
+                switch (Compression)
+                {
+                    case CompressionEnum.RawData: { imageSourceData.CopyTo(writeSpan); return; }
+
+                    case CompressionEnum.ZIPWithPrediction:
+                        {
+                            DecompressZlib(imageSourceData, writeSpan);
+                            UnpackPredilection16Bit(writeSpan, rect);
+                            return;
+                        }
+
+
+                    default:
+                        { throw new NotSupportedException($"{Compression}-16Bit は未知な圧縮です！！！"); }
+                }
+            }
+            private void Decompress32BitWithPSB(ReadOnlySpan<byte> imageSourceData, RectTangle rect, Span<byte> writeSpan)
+            {
+
+                switch (Compression)
+                {
+                    case CompressionEnum.RawData: { imageSourceData.CopyTo(writeSpan); return; }
+
+                    case CompressionEnum.ZIPWithPrediction:
+                        {
+                            DecompressZlib(imageSourceData, writeSpan);
+                            UnpackPredilection32Bit(writeSpan, rect);
+                            return;
+                        }
+
+
+                    default:
+                        { throw new NotSupportedException($"{Compression}-32Bit は未知な圧縮です！！！"); }
+                }
+            }
+
+
+
+
+
+
+
+
+
+
             public static int GetImageByteCount(RectTangle rect, int bitDepth)
             {
                 return rect.GetWidth() * rect.GetHeight() * Math.Max(bitDepth / 8, 1);
@@ -216,6 +303,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     from.CopyTo(dist.Slice(y * width, width));
                 }
             }
+
+
+
 
 
         }
@@ -261,6 +351,24 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
         }
 
+        private static void ParseRLECompressedWithPSB(ReadOnlySpan<byte> imageDataSpan, uint Width, uint Height, Span<byte> write)
+        {
+            int intWidth = (int)Width;
+            var position = (int)Height * 4;
+
+            for (var i = 0; Height > i; i += 1)
+            {
+                var writeSpan = write.Slice(i * intWidth, intWidth);
+
+                var widthRLEBytesCount = BinaryPrimitives.ReadUInt32BigEndian(imageDataSpan.Slice(i * 4, 4));
+                if (widthRLEBytesCount == 0) { writeSpan.Fill(byte.MinValue); continue; }
+
+                var rleEncodedSpan = imageDataSpan.Slice(position, (int)widthRLEBytesCount);
+                position += (int)widthRLEBytesCount;
+
+                ParseRLECompressedWidthLine(rleEncodedSpan, writeSpan);
+            }
+        }
         private static void ParseRLECompressedWidthLine(ReadOnlySpan<byte> readRLEBytes, Span<byte> writeWidthLine)
         {
             var writePos = 0;
