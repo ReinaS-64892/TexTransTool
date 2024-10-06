@@ -33,7 +33,7 @@
 |4(ASCII-String)|シグネチャ: "8BPS" という 恐らく ASCII で シグネチャが確定で記述されている。これに一致しなかった場合は読み取らないように、という警告が元のSpecにも記述されている。 |
 |2(ushort)|バージョン: PSD だと 1 、PSB だと 2 になっている。上と同様にそれぞれサポートしていないなら読み取らないように|
 |6|予約済み: 必ずゼロで埋める必要がある領域のようだ|
-|2(ushort)|ChannelCount: 含まれるチャンネル数の数、通常の RGB+A を持つ場合は 4。 1 ~ 56 間でサポートされている。|
+|2(ushort)|ChannelCount: 含まれるチャンネル数の数、通常の RGB+A を持つ場合は 4。 1 ~ 56 間でサポートされている。[ImageData](#imagedata) に入っている色のチャンネル数となる。|
 |4(uint)|キャンバスサイズの縦幅: ここを読み取れば PSD の Height がわかる。 1 ~ 30000 まで、 PSB だと最大 300000|
 |4(uint)|キャンバスサイズの横幅: ここを読み取れば PSD の Width がわかる。1 ~ 30000 まで、 PSB だと最大 300000|
 |2(ushort)|ビット深度: [後述](#bitdepth) |
@@ -197,7 +197,7 @@ PSD の一番重要な レイヤー情報やそのレイヤーが持つピクセ
 |Byte|Description|
 |---|---|
 |16([RectTangle](#recttangle))|RectTangle: [後述](#recttangle)|
-|2(ushort)|LayerInChannelCount: FileHeader.ChannelCount と一致している。私が確認しているケースでは。|
+|2(ushort)|LayerInChannelCount: 下記 ChannelInformation の数。FileHeader.ChannelCount とは特に一致しない場合もある。|
 |6([ChannelInformation](#channelinformation)) \* LayerInChannelCount|ChannelInformationArray: [ChannelInformation](#channelinformation) がチャンネル数だけ並んでいます。詳細は[後述参照](#channelinformation) (ただ、ここに記述される [ChannelID](#channelid) がすべてユニークである保証はないようです。治安の悪い PSD を出力する実装が存在するだけの可能性もありますが...) |
 |4(ASCII-String)|Signature: "8BIM" |
 |4(ASCII-String)|BlendModeKey: そのレイヤーの合成モード。[後述](#blendmodekey)|
@@ -611,7 +611,14 @@ Jsonよりも読み取るのが困難ですが...はい
 
 ## ImageData
 
-基本的に [ChannelImageData](#channelimagedata)と同じ、っぽいけど...謎です...情報求む。
+基本的に [ChannelImageData](#channelimagedata)と同じ。
+
+|Byte|Description|
+|---|---|
+|2(ushort-Enum)|Compression: [Compression](#compression)|
+|Variable = Unknown|CompressedImageData: 長さはファイルの終わりまでのようです。|
+
+CompressedImageData の中身は FileHeader.ChannelCount の分だけデータがそのまま並んでいるような扱いだそう。
 
 ## CompressedImageData
 
@@ -620,6 +627,16 @@ Jsonよりも読み取るのが困難ですが...はい
 ### 0-RawData
 
 そのまま展開されていると思われる。情報がある状態でこの形式で保存されたデータを確認したことがないため謎です。
+
+#### RawDataWithImageData
+
+1Bit PSD (1 channel)にて確認されていて、ただそのまま並んでいるようです。
+
+1 pixel の最小単位が byte の環境に出力する場合 1byte に詰められた 8 pixel 分の情報を展開する必要があります。
+
+16Bit PSD , 32Bit PSD でも確認されており、
+
+ushort や float が Rの画像,Gの画像,Bの画像,Aの画像, そのまま並んでいる要です。
 
 ### 1-RLECompressed
 
@@ -674,6 +691,12 @@ private static void DecompressRLEWidthLine(ReadOnlySpan<byte> read, Span<byte> w
 }
 
 ```
+
+#### RLECompressedWithImageData
+
+[ImageData](#imagedata) の場合の注意点ですが、CompressedWidthLengthArray がチャンネル数の分だけ増加するので注意。
+
+展開が終わると RGBA だった場合 R の画像 , G の画像 , B の画像 , A の画像 が並んだ状態になります。
 
 ### 2-ZIPWithoutPrediction
 
