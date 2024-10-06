@@ -629,7 +629,7 @@ RunLengthEncoding こと RLE 圧縮。PSD の場合二つのパートに分か�
 
 |Byte|Description|
 |---|---|
-|PSD 2(short) or PSB 4(int) * Header.Height|CompressedWidthLengthArray: RLE圧縮された状態での画像の横一列の長さが縦幅のピクセル数分だけ並んでいます。|
+|PSD 2(ushort) or PSB 4(uint) * Header.Height|CompressedWidthLengthArray: RLE圧縮された状態での画像の横一列の長さが縦幅のピクセル数分だけ並んでいます。|
 |Variable = CompressedWidthLengthArray.Sum() |RLECompressedPixels: RLE圧縮については下記参照。 CompressedWidthLength の示す長さで区切って横一列の展開をするよとい。 |
 
 RLE の展開方法は、
