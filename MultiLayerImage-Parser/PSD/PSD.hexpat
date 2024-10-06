@@ -3,7 +3,11 @@
 
 #pragma endian big
 
+#pragma pattern_limit 16777216
+
 import std.math;
+
+bool ReadUnknownData in;
 
 enum ColorMode : u16 {
 
@@ -59,7 +63,8 @@ struct ImageResource {
     u32 ActualDataSizeFollows;
 
     u32 trueLength = (ActualDataSizeFollows % 2 ) == 0  ? ActualDataSizeFollows : ActualDataSizeFollows + 1 ;
-    u8 FollowsUnkownData[trueLength];
+    if (ReadUnknownData) u8 FollowsUnkownData[trueLength];
+    else padding[trueLength];
 
 };
 
@@ -70,9 +75,7 @@ struct ImageResources {
 
     if(Length > 0)
     {
-        //重くなるからなし！
-        //ImageResource Resoucers[while ($ < IR_End)];
-        padding[Length];
+        ImageResource Resoucers[while ($ < IR_End)];        
     }
 
 };
@@ -149,6 +152,7 @@ struct  MaskParametersFragAndFollows {
 struct LayerMaskAdjustmentLayerData {
 
     u32 SizeOfData;
+    u64 SoD_End = $ + SizeOfData;
 
     if (SizeOfData > 0)
     {
@@ -164,7 +168,7 @@ struct LayerMaskAdjustmentLayerData {
 
         }
 
-        if (SizeOfData == 20 ) { padding[2]; }
+        if (SizeOfData == 20 ) { padding[ SoD_End - $ ]; }
         else
         {
 
@@ -248,7 +252,8 @@ struct AdditionalLayerInformation {
 
     }
 
-    u8 AdditionalData[Length];
+    if (ReadUnknownData) u8 AdditionalData[Length];
+    else padding[Length];
 
     if (IsCanvasType == 1){
         if ((Length % 4) != 0)
@@ -283,7 +288,7 @@ struct LayerRecode {
     PascalStringLayerName PascalStringLayerName;
 
     AdditionalLayerInformation AdditionalLayerInformationArray[while ($ < EDF_Eed)];
-    //padding[while ($ < EDF_Eed)];
+    //padding[EDF_Eed - $];
 
 };
 
@@ -316,9 +321,8 @@ struct LayerInfo {
         LayerRecode layerRecode[std::math::abs(LayerCount)];
 
         //パターンランゲージ何もわからんからあきらめた
-        //u8 ChannelImageData[ LayerInfo_End - $ ];
-        //重たくなっちゃうからスキップ
-        padding[LayerInfo_End - $];
+        if (ReadUnknownData) u8 ChannelImageData[ LayerInfo_End - $ ];
+        else padding[LayerInfo_End - $];
     }
 
 };
@@ -366,11 +370,12 @@ struct LayerAndMaskInformation {
         IsCanvasType = 1;
 
         AdditionalLayerInformation CanvasTypeAdditionalLayerInformation[while ($ < LaM_Eed)];
+        // padding[LaM_Eed - $];
     }
 
 };
 
 LayerAndMaskInformation LayerAndMaskInformation @ $;
 
-//重たくなっちゃうからスキップ
+//重くなるから無効化
 //u8 ImageData[while (!std::mem::eof())] @ $;
