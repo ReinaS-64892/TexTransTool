@@ -609,6 +609,142 @@ Jsonよりも読み取るのが困難ですが...はい
 |---|---|
 |8(double)|ActualValue: 倍精度浮動小数点が格納されている。|
 
+## ImageData
+
+基本的に [ChannelImageData](#channelimagedata)と同じ、っぽいけど...謎です...情報求む。
+
 ## CompressedImageData
 
+[圧縮](#compression)に関する情報をすべてここに書き残しておきます。
+
+### 0-RawData
+
+そのまま展開されていると思われる。情報がある状態でこの形式で保存されたデータを確認したことがないため謎です。
+
+### 1-RLECompressed
+
+現状 8Bit PSD or 8Bit PSB でしか確認されておらず、それ以外のケースではどのようなってになっているかは謎です。
+
+RunLengthEncoding こと RLE 圧縮。PSD の場合二つのパートに分かれて圧縮されています。
+
+|Byte|Description|
+|---|---|
+|PSD 2(short) or PSB 4(int) * Header.Height|CompressedWidthLengthArray: RLE圧縮された状態での画像の横一列の長さが縦幅のピクセル数分だけ並んでいます。|
+|Variable = CompressedWidthLengthArray.Sum() |RLECompressedPixels: RLE圧縮については下記参照。 CompressedWidthLength の示す長さで区切って横一列の展開をするよとい。 |
+
+RLE の展開方法は、
+
+1Byte を sbyte として読み取りる。ここでは、これを Length と呼びます。
+
+Length が 0 かそれ以上だった場合は、不連続なByte列が Length + 1 分だけ続くのでそれを出力。
+
+Length が -1 かそれ以下だった場合は 次の値が Length + 1 分出力。
+
+具体的なコードで示すならこんな感じ。
+
+```csharp
+
+private static void DecompressRLEWidthLine(ReadOnlySpan<byte> read, Span<byte> write)
+{
+    var writePos = 0;
+    var readPos = 0;
+
+    while (readPos < read.Length)
+    {
+        var runLength = (sbyte)read[readPos++];
+        if (runLength >= 0)
+        {
+            var count = runLength + 1;
+
+            read.Slice(readPos, count).CopyTo(write.Slice(writePos, count));
+
+            writePos += count;
+            readPos += count;
+        }
+        else
+        {
+            var count = (-runLength) + 1;
+
+            write.Slice(writePos, count).Fill(read[readPos++]);
+
+            writePos += count;
+        }
+    }
+
+}
+
+```
+
+### 2-ZIPWithoutPrediction
+
+謎です、現状これで圧縮された PSD は確認されていません。
+
+### 2-ZIPWithPrediction
+
+現状 16Bit PSD 、32Bit PSD でしか確認されておらず、それ以外については謎です。
+
+基本的には zlib で圧縮されています。(ZIP とは???)
+
+そして Prediction とついているように、 少し特殊なことが行われており、一つ左のピクセルと足し算をすることでデータの解凍ができます。
+
+ただし、 現状確認されている 16Bit と 32Bit で、それぞれ展開する方法が異なります！ご注意！
+
+#### 16Bit-Prediction
+
+BigEndian で short として読み取り、左から順にそのまま足した結果を書き込んでいくことでできます。
+
+横一列分だけを展開する部分をコードにするとこんな感じ
+```csharp
+for (var i = 1; width > i; i += 1)
+{
+    var x = i * 2;
+    var left = widthSpan.Slice(x, 2);
+    var right = widthSpan.Slice(x - 2, 2);
+
+    BinaryPrimitives.WriteInt16BigEndian(left, (short)(BinaryPrimitives.ReadInt16BigEndian(left) + BinaryPrimitives.ReadInt16BigEndian(right)));
+}
+```
+
+展開ができたら BigEndian UShort の配列として使うことができます。
+
+#### 32Bit-Prediction
+
+1byte ずつ、そのまま 左と足した結果を書き込んでいくこと Prediction の展開だけはできます。
+
+Prediction の展開だけをコードにするならこんな感じ。
+
+```csharp
+for (var i = 1; widthBuffer.Length > i; i += 1)
+{
+    widthBuffer[i] += widthBuffer[i - 1];
+}
+```
+
+だたし、そのままでは使用することができず、 BigEndian float として使うためには、展開した配列を 四分の一にして、それぞれを float 1byte目 , float 2byte目 ... のように並べなおさないとできません。
+
+コードにするなら大体こんな感じ。
+
+```csharp
+var zero = widthBuffer.Slice(width * 0, width);
+var one = widthBuffer.Slice(width * 1, width);
+var tow = widthBuffer.Slice(width * 2, width);
+var three = widthBuffer.Slice(width * 3, width);
+
+for (var x = 0; width > x; x += 1)
+{
+    var writeIndex = index + (x * 4);
+    write[writeIndex + 0] = zero[x];
+    write[writeIndex + 1] = one[x];
+    write[writeIndex + 2] = tow[x];
+    write[writeIndex + 3] = three[x];
+}
+```
+
 ## UnicodeString
+
+|Byte|Description|
+|---|---|
+|4(uint)|StringLength: 文字数、後のバイト数とは一致しない|
+|Variable = StringLength * 2|String: BigEndian UTF16 |
+
+文字列の終わりに、 2byte の null が存在すると 元のSpec には書かれているが...確認できず、謎。
