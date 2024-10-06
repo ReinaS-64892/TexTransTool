@@ -194,7 +194,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     var index = y * withByteSize;
                     sourceAndWriteSpan.Slice(index, withByteSize).CopyTo(widthBuffer);
 
-                    for (var i = 1; withByteSize > i; i += 1)
+                    for (var i = 1; widthBuffer.Length > i; i += 1)
                     {
                         widthBuffer[i] += widthBuffer[i - 1];
                     }
@@ -376,7 +376,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             while (readPos < readRLEBytes.Length)
             {
-                var runLength = (sbyte)readRLEBytes[readPos++]; ;
+                var runLength = (sbyte)readRLEBytes[readPos++];
                 if (runLength >= 0)
                 {
                     var count = runLength + 1;
