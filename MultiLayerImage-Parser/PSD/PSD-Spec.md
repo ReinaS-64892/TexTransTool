@@ -720,7 +720,7 @@ for (var i = 1; widthBuffer.Length > i; i += 1)
 }
 ```
 
-だたし、そのままでは使用することができず、 BigEndian float として使うためには、展開した配列を 四分の一にして、それぞれを float 1byte目 , float 2byte目 ... のように並べなおさないとできません。
+ただし、そのままでは使用することができず、 BigEndian float として使うためには、展開した配列を 四分の一にして、それぞれを float 1byte目 , float 2byte目 ... のように並べなおさないとできません。
 
 コードにするなら大体こんな感じ。
 
