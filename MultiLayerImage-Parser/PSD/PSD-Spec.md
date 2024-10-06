@@ -275,9 +275,8 @@ Right = 2048,
 |16([RectTangle](#recttangle))|RectangleForLayerMask: レイヤーマスクの情報を持つ範囲を示す矩形。この矩形の範囲外は下の DefaultColor で埋められることを想定する。|
 |1(byte)|DefaultColor: このマスクのデフォルトカラーで 0 ~ 255|
 |1([byte-FlagEnum](#maskoradjustmentflag))|MaskOrAdjustmentFlag: [後述](#maskoradjustmentflag)|
-||これ以降は MaskOrAdjustmentFlag の 4bit が有効な場合のみ存在します。|
-|Variable = [後述](#maskparametersfragandfollows)|MaskParametersFragAndFollows: [後述](#maskparametersfragandfollows)|
-|Variable = SizeOfData == 20 ? 2 : 0 |SizeOfData が 20 の場合にのみ、ここに Padding が存在します。|
+|Variable = MaskOrAdjustmentFlag.UserOrVectorMasksHave ? [後述](#maskparametersfragandfollows)  : 0 |MaskParametersFragAndFollows:  MaskOrAdjustmentFlag の 4bit が有効な場合にのみ存在する。 [後述](#maskparametersfragandfollows)|
+|Variable = SizeOfData == 20 ? 20になるまで : 0 |SizeOfData が 20 の場合に、ここに Padding が存在します。(元の Spec には 2byte 存在すると表記されているが、正しくは ここまで消費した byte 数を加味しして Padding を詰める必要がある。(具体的には MaskOrAdjustmentFlag 4bit が有効な場合は MaskParametersFragAndFollows が 1byte 消費するので 1byte そうではない場合は 2byte 詰めることになるだろう。))|
 |1(byte-FragEnum)|RealFlag: [MaskOrAdjustmentFlag](#maskoradjustmentflag) と同じらしい。|
 |1(byte)|ReadUserMaskBackground: 謎|
 |16([RectTangle](#recttangle))|RealRectTangleLayerMask: 謎|
