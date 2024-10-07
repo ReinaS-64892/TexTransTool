@@ -7,14 +7,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     internal class AdditionalLayerInfoBase
     {
         public ulong Length;
-        public virtual void ParseAddLY(SubSpanStream stream) { }
+        public virtual void ParseAddLY(bool isPSB, SubSpanStream stream) { }
     }
     [Serializable]
     internal class FallBackAdditionalLayerInfoParser : AdditionalLayerInfoBase
     {
         public string KeyCode;
         public long ByteIndex;
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, SubSpanStream stream)
         {
             ByteIndex = stream.FirstToPosition;
         }

@@ -52,28 +52,23 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             abstractLayer.Visible = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible) is false;
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
-            abstractLayer.BlendTypeKey = ResolveGlow(ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)), layerRecord.AdditionalLayerInformation).ToString();
+            abstractLayer.BlendTypeKey = ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)).ToString();
             abstractLayer.LayerMask = PSDHighLevelParser.ParseLayerMask(layerRecord, channelImageData);
 
         }
 
-        private static TTTBlendTypeKeyEnum ResolveGlow(TTTBlendTypeKeyEnum tttBlendTypeKeyEnum, AdditionalLayerInfo.AdditionalLayerInfoBase[] additionalLayerInformation)
+        internal static string ResolveGlow(string blendTypeKey, AdditionalLayerInfo.AdditionalLayerInfoBase[] additionalLayerInformation)
         {
-            switch (tttBlendTypeKeyEnum)
+            switch (blendTypeKey)
             {
-                default: return tttBlendTypeKeyEnum;
+                default: return blendTypeKey;
 
-                case TTTBlendTypeKeyEnum.Addition:
+                case "Addition":
+                case "ColorDodge":
                     {
                         var tsly = GetTransparencyShapesLayerData(additionalLayerInformation);
-                        if (tsly == null || tsly.TransparencyShapesLayer == true) { return tttBlendTypeKeyEnum; }
-                        return TTTBlendTypeKeyEnum.AdditionGlow;
-                    }
-                case TTTBlendTypeKeyEnum.ColorDodge:
-                    {
-                        var tsly = GetTransparencyShapesLayerData(additionalLayerInformation);
-                        if (tsly == null || tsly.TransparencyShapesLayer == true) { return tttBlendTypeKeyEnum; }
-                        return TTTBlendTypeKeyEnum.ColorDodgeGlow;
+                        if (tsly == null || tsly.TransparencyShapesLayer == true) { return blendTypeKey; }
+                        return blendTypeKey + "Glow";
                     }
             }
 

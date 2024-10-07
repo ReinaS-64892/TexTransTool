@@ -21,29 +21,29 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public List<ChannelImageData> ChannelImageData;
 
         }
-        public static LayerInfo PaseLayerInfo(bool isPSB,ref SubSpanStream stream)
+        public static LayerInfo PaseLayerInfo(bool isPSB, ref SubSpanStream stream)
         {
             var layerInfo = new LayerInfo();
             layerInfo.LayersInfoSectionLength = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64();
 
             if (layerInfo.LayersInfoSectionLength == 0) { return layerInfo; }
 
-            var layerInfoStream = stream.ReadSubStream((int)layerInfo.LayersInfoSectionLength);
+            ParseLayerRecordAndChannelImage(isPSB, layerInfo, stream.ReadSubStream((int)layerInfo.LayersInfoSectionLength));
 
+            return layerInfo;
+        }
+
+        public static void ParseLayerRecordAndChannelImage(bool isPSB, LayerInfo layerInfo, SubSpanStream layerInfoStream)
+        {
             layerInfo.LayerCount = layerInfoStream.ReadInt16();
             layerInfo.LayerCountAbsValue = Math.Abs(layerInfo.LayerCount);
-
-            // var firstPos = stream.Position;
 
             var LayerRecordList = new List<LayerRecord>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
-                LayerRecordList.Add(PaseLayerRecord(isPSB,ref layerInfoStream));
+                LayerRecordList.Add(PaseLayerRecord(isPSB, ref layerInfoStream));
             }
             layerInfo.LayerRecords = LayerRecordList;
-
-            // var movedLength = stream.Position - firstPos;
-            // Debug.Log($"moved length:{movedLength} LayersInfoSectionLength:{layerInfo.LayersInfoSectionLength}");
 
             var channelImageData = new List<ChannelImageData>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
@@ -54,8 +54,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
             }
             layerInfo.ChannelImageData = channelImageData;
-
-            return layerInfo;
         }
     }
 }

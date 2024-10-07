@@ -18,7 +18,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             BoundingSectionDivider = 3,
         }
 
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
         {
             SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
             if (Length >= 12)

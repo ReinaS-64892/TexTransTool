@@ -20,21 +20,51 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 Width = (int)levelData.Width,
                 Height = (int)levelData.Height,
-                Depth = levelData.Depth,
+                Depth = levelData.BitDepth,
                 channels = levelData.Channels,
                 RootLayers = new List<AbstractLayerData>()
             };
 
+            var ctx = new HighLevelParserContext();
+
+            ctx.RootLayers = psd.RootLayers;
+
             importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
+            ctx.ImportMode = importMode.Value;
 
-            var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
-            var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords ?? new());
+            ctx.ImageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
+            ctx.ImageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords ?? new());
+            ctx.CanvasTypeAdditionalLayerInfo = levelData.CanvasTypeAdditionalLayerInfo;
 
-            ParseAsLayers(psd.RootLayers, imageRecordQueue, imageDataQueue);
+            CollectAdditionalLayer(ctx);
 
-            ResolveBlendTypeKeyImportMode(psd.RootLayers, importMode.Value);
+            ParseAsLayers(ctx);
+
+            ResolveBlendTypeKeyWithImportMode(ctx, ctx.RootLayers);
 
             return psd;
+        }
+
+        class HighLevelParserContext
+        {
+            internal PSDImportMode ImportMode;
+            internal Queue<ChannelImageData> ImageDataQueue;
+            internal Queue<LayerRecord> ImageRecordQueue;
+            internal AdditionalLayerInfoBase[] CanvasTypeAdditionalLayerInfo;
+            internal List<AbstractLayerData> RootLayers;
+            internal Dictionary<AbstractLayerData, List<LayerRecord>> SourceLayerRecode = new();
+        }
+
+        private static void CollectAdditionalLayer(HighLevelParserContext context)
+        {
+            foreach (var al in context.CanvasTypeAdditionalLayerInfo)
+            {
+                if (al is Lr32 lr)
+                {
+                    foreach (var l in lr.AdditionalLayerInformation.LayerRecords) context.ImageRecordQueue.Enqueue(l);
+                    foreach (var c in lr.AdditionalLayerInformation.ChannelImageData) context.ImageDataQueue.Enqueue(c);
+                }
+            }
         }
 
         public enum PSDImportMode
@@ -43,19 +73,19 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             Clip = 1,
         }
 
-        private static void ResolveBlendTypeKeyImportMode(List<AbstractLayerData> layers, PSDImportMode importMode)
+        private static void ResolveBlendTypeKeyWithImportMode(HighLevelParserContext ctx, List<AbstractLayerData> layerData)
         {
-            switch (importMode)
+            switch (ctx.ImportMode)
             {
                 case PSDImportMode.Clip:
                     {
-                        foreach (var layer in layers)
+                        foreach (var layer in layerData)
                         {
+                            layer.BlendTypeKey = PSDLayer.ResolveGlow(layer.BlendTypeKey, ctx.SourceLayerRecode[layer].LastOrDefault()?.AdditionalLayerInformation);
                             if (s_clipBlendModeDict.TryGetValue(layer.BlendTypeKey, out var actualModeKey))
-                            {
-                                layer.BlendTypeKey = actualModeKey;
-                            }
-                            if (layer is LayerFolderData layerFolderData) { ResolveBlendTypeKeyImportMode(layerFolderData.Layers, importMode); }
+                                { layer.BlendTypeKey = actualModeKey; }
+                            if (layer is LayerFolderData layerFolderData)
+                                { ResolveBlendTypeKeyWithImportMode(ctx, layerFolderData.Layers); }
                         }
                         break;
                     }
@@ -94,45 +124,46 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {"ColorDodgeGlow","Clip/ColorDodgeGlow"},
         };
 
-        private static void ParseAsLayers(List<AbstractLayerData> rootLayers, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
+        private static void ParseAsLayers(HighLevelParserContext ctx)
         {
-            while (imageRecordQueue.Count != 0)
+            while (ctx.ImageRecordQueue.Count != 0)
             {
-                var record = imageRecordQueue.Dequeue();
+                var record = ctx.ImageRecordQueue.Dequeue();
 
                 var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
                 if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInfo.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    rootLayers.Add(ParseLayerFolder(record, imageRecordQueue, imageDataQueue));
+                    ctx.RootLayers.Add(ParseLayerFolder(ctx, record));
                 }
                 else
                 {
-                    rootLayers.Add(ParseRasterLayer(record, imageDataQueue));
+                    ctx.RootLayers.Add(ParseRasterLayer(ctx, record));
                 }
 
             }
         }
 
-        private static LayerFolderData ParseLayerFolder(LayerRecord record, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
+        private static LayerFolderData ParseLayerFolder(HighLevelParserContext ctx, LayerRecord record)
         {
             var layerFolder = new LayerFolderData();
             layerFolder.Layers = new List<AbstractLayerData>();
+            ctx.SourceLayerRecode[layerFolder] = new() { record };
 
-            _ = DeuceChannelInfoAndImage(record, imageDataQueue);
+            _ = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
-            while (imageRecordQueue.Count != 0)
+            while (ctx.ImageRecordQueue.Count != 0)
             {
-                var PeekRecord = imageRecordQueue.Peek();
+                var PeekRecord = ctx.ImageRecordQueue.Peek();
 
                 var debugName = PeekRecord.LayerName;
 
                 var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
 
                 if (PeekSectionDividerSetting == null)
-                { layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), imageDataQueue)); }
+                { layerFolder.Layers.Add(ParseRasterLayer(ctx, ctx.ImageRecordQueue.Dequeue())); }
                 else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), imageRecordQueue, imageDataQueue));
+                    layerFolder.Layers.Add(ParseLayerFolder(ctx, ctx.ImageRecordQueue.Dequeue()));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.OpenFolder
                 || PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.ClosedFolder)
@@ -145,8 +176,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
 
             }
-            var EndFolderRecord = imageRecordQueue.Dequeue();
-            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
+            var EndFolderRecord = ctx.ImageRecordQueue.Dequeue();
+            ctx.SourceLayerRecode[layerFolder].Add(EndFolderRecord);
+            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, ctx.ImageDataQueue);
             layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
 
             var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
@@ -157,16 +189,27 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             return layerFolder;
         }
-        private static AbstractLayerData ParseRasterLayer(LayerRecord record, Queue<ChannelImageData> imageDataQueue)
+        private static AbstractLayerData ParseRasterLayer(HighLevelParserContext ctx, LayerRecord record)
         {
-            var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
+            var channelInfoAndImage = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
-            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData)) { return abstractLayerData; }
+            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData))
+            {
+                ctx.SourceLayerRecode[abstractLayerData] = new() { record };
+                return abstractLayerData;
+            }
 
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRectAreaSize() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record, channelInfoAndImage); return emptyData; }
+            || record.RectTangle.CalculateRectAreaSize() == 0)
+            {
+                var emptyData = new RasterLayerData();
+                ctx.SourceLayerRecode[emptyData] = new() { record };
+                emptyData.CopyFromRecord(record, channelInfoAndImage);
+                return emptyData;
+            }
 
             var rasterLayer = new RasterLayerData();
+            ctx.SourceLayerRecode[rasterLayer] = new() { record };
             rasterLayer.CopyFromRecord(record, channelInfoAndImage);
 
             rasterLayer.RasterTexture = ParseRasterImage(record, channelInfoAndImage);

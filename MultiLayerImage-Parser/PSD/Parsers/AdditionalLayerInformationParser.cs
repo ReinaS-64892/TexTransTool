@@ -39,7 +39,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             {
                 if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { break; }
                 var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
-                // var length = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64();
 
                 AdditionalLayerInfoBase info;
                 if (AdditionalLayerInfoParsersTypes.ContainsKey(keyCode))
@@ -47,7 +46,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
                     var TypeAndMayLong = AdditionalLayerInfoParsersTypes[keyCode];
                     var parser = info = Activator.CreateInstance(TypeAndMayLong.Item1) as AdditionalLayerInfoBase;
                     parser.Length = isPSB is false ? stream.ReadUInt32() : TypeAndMayLong.Item2 ? stream.ReadUInt64() : stream.ReadUInt32();
-                    parser.ParseAddLY(stream.ReadSubStream((int)parser.Length));
+                    parser.ParseAddLY(isPSB, stream.ReadSubStream((int)parser.Length));
                     addLayerInfoList.Add(parser);
                 }
                 else
@@ -56,7 +55,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
                     info = fallBack;
                     fallBack.KeyCode = keyCode;
                     fallBack.Length = stream.ReadUInt32();
-                    fallBack.ParseAddLY(stream.ReadSubStream((int)fallBack.Length));
+                    fallBack.ParseAddLY(isPSB, stream.ReadSubStream((int)fallBack.Length));
                     addLayerInfoList.Add(fallBack);
                 }
 

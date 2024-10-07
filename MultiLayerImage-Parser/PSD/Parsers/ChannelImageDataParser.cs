@@ -49,11 +49,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public int StartIndex;
             public int Length;
 
-            public void GetImageData(ReadOnlySpan<byte> psdBytes, RectTangle rect, int bitDepth, Span<byte> writeSpan)
+            public void GetImageData(ReadOnlySpan<byte> psdBytes, RectTangle rect, Span<byte> writeSpan)
             {
+                var isPSB = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(4, 2)) == 2;
+                var bitDepth = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(22, 2));
                 if (writeSpan.Length != GetImageByteCount(rect, bitDepth)) { throw new ArgumentException(); }
 
-                var isPSB = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(4, 2)) == 2;
 
                 var imageSourceData = psdBytes.Slice(StartIndex, Length);
 
@@ -113,7 +114,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     case CompressionEnum.ZIPWithPrediction:
                         {
                             DecompressZlib(imageSourceData, writeSpan);
-                            UnpackPredilection16Bit(writeSpan, rect);
+                            UnpackPrediction16Bit(writeSpan, rect);
                             return;
                         }
 
@@ -132,7 +133,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     case CompressionEnum.ZIPWithPrediction:
                         {
                             DecompressZlib(imageSourceData, writeSpan);
-                            UnpackPredilection32Bit(writeSpan, rect);
+                            UnpackPrediction32Bit(writeSpan, rect);
                             return;
                         }
 
@@ -142,17 +143,19 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
             }
 
-            private void DecompressZlib(ReadOnlySpan<byte> imageSourceData, Span<byte> writeSpan)
+            public static void DecompressZlib(ReadOnlySpan<byte> imageSourceData, Span<byte> writeSpan)
             {
                 using (var memStream = new MemoryStream(imageSourceData.ToArray(), 2, imageSourceData.Length - 2))
                 using (var gzipStream = new DeflateStream(memStream, System.IO.Compression.CompressionMode.Decompress))
                     gzipStream.Read(writeSpan);
 
             }
-            private void UnpackPredilection16Bit(Span<byte> sourceAndWriteSpan, RectTangle rect)
+            public static void UnpackPrediction16Bit(Span<byte> sourceAndWriteSpan, RectTangle rect)
             {
-                var width = rect.GetWidth();
-                var height = rect.GetHeight();
+                UnpackPrediction16Bit(sourceAndWriteSpan, rect.GetWidth(), rect.GetHeight());
+            }
+            public static void UnpackPrediction16Bit(Span<byte> sourceAndWriteSpan, int width, int height)
+            {
 
                 var byteCount = 2;
 
@@ -179,11 +182,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
 
-            private void UnpackPredilection32Bit(Span<byte> sourceAndWriteSpan, RectTangle rect)
+            public static void UnpackPrediction32Bit(Span<byte> sourceAndWriteSpan, RectTangle rect)
             {
-                var width = rect.GetWidth();
-                var height = rect.GetHeight();
-
+                UnpackPrediction32Bit(sourceAndWriteSpan, rect.GetWidth(), rect.GetHeight());
+            }
+            public static void UnpackPrediction32Bit(Span<byte> sourceAndWriteSpan, int width, int height)
+            {
                 var byteCount = 4;
 
                 var withByteSize = width * byteCount;
@@ -253,7 +257,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     case CompressionEnum.ZIPWithPrediction:
                         {
                             DecompressZlib(imageSourceData, writeSpan);
-                            UnpackPredilection16Bit(writeSpan, rect);
+                            UnpackPrediction16Bit(writeSpan, rect);
                             return;
                         }
 
@@ -272,7 +276,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                     case CompressionEnum.ZIPWithPrediction:
                         {
                             DecompressZlib(imageSourceData, writeSpan);
-                            UnpackPredilection32Bit(writeSpan, rect);
+                            UnpackPrediction32Bit(writeSpan, rect);
                             return;
                         }
 
@@ -293,8 +297,18 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             public static int GetImageByteCount(RectTangle rect, int bitDepth)
             {
-                return rect.GetWidth() * rect.GetHeight() * Math.Max(bitDepth / 8, 1);
+                return GetImageByteCount(rect.GetWidth(), rect.GetHeight(), bitDepth);
             }
+            public static int GetImageByteCount(int width, int height, int bitDepth)
+            {
+                return width * height * BitDepthToByteCount(bitDepth);
+            }
+
+            public static int BitDepthToByteCount(int bitDepth)
+            {
+                return Math.Max(bitDepth / 8, 1);
+            }
+
             internal static void HeightInvert<T>(Span<T> lowMap, Span<T> dist, int width, int height) where T : struct
             {
                 for (var y = 0; height > y; y += 1)
@@ -332,7 +346,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
 
 
-        private static void ParseRLECompressed(ReadOnlySpan<byte> imageDataSpan, uint Width, uint Height, Span<byte> write)
+        public static void ParseRLECompressed(ReadOnlySpan<byte> imageDataSpan, uint Width, uint Height, Span<byte> write)
         {
             int intWidth = (int)Width;
             var position = (int)Height * 2;
@@ -351,7 +365,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
         }
 
-        private static void ParseRLECompressedWithPSB(ReadOnlySpan<byte> imageDataSpan, uint Width, uint Height, Span<byte> write)
+        public static void ParseRLECompressedWithPSB(ReadOnlySpan<byte> imageDataSpan, uint Width, uint Height, Span<byte> write)
         {
             int intWidth = (int)Width;
             var position = (int)Height * 4;

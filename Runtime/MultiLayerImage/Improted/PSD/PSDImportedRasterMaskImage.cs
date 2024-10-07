@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
             var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, psdCanvasDesc.BitDepth, data);
+            MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, data);
 
             Profiler.EndSample();
             Profiler.BeginSample("OffsetMoveAlphaJobSetUp");
@@ -72,7 +72,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             {
                 using (var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
                 {
-                    MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, psdCanvasDesc.BitDepth, data);
+                    MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, data);
                     texR.LoadRawTextureData(data); texR.Apply();
                 }
 

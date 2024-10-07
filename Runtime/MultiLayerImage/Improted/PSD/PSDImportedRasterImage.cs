@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
 
             var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            imageData.GetImageData(importSource, RasterImageData.RectTangle, psdCanvasDesc.BitDepth, writeArray);
+            imageData.GetImageData(importSource, RasterImageData.RectTangle, writeArray);
             return writeArray;
         }
 
@@ -161,16 +161,30 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal static TextureFormat BitDepthToTextureFormat(int bitDepth)
         {
-            switch (bitDepth)
+            return BitDepthToTextureFormat(bitDepth, 1);
+        }
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth, int channelCount)
+        {
+            switch (bitDepth, channelCount)
             {
-                case 1:
-                case 8:
+                case (1, 1):
+                case (8, 1):
                     { return TextureFormat.R8; }
-                case 16:
-                    { return TextureFormat.R16; }// maybe
+                case (8, 3):
+                    { return TextureFormat.RGB24; }
+                case (8, 4):
+                    { return TextureFormat.RGBA32; }
+                case (16, 1):
+                    { return TextureFormat.R16; }
+                case (16, 3):
+                    { return TextureFormat.RGB48; }
+                case (16, 4):
+                    { return TextureFormat.RGBA64; }
 
-                case 32:
+                case (32, 1):
                     { return TextureFormat.RFloat; }
+                case (32, 4):
+                    { return TextureFormat.RGBAFloat; }
             }
 
             throw new ArgumentOutOfRangeException();
