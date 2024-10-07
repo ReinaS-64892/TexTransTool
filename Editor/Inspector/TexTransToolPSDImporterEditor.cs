@@ -13,15 +13,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             base.ApplyRevertGUI();
         }
         public override bool HasPreviewGUI() { return false; }
-        // public override void DrawPreview(Rect previewArea)
-        // {
-        //     var importer = target as TexTransToolPSDImporter;
-        //     var previewTex = AssetDatabase.LoadAllAssetsAtPath(importer.assetPath).FirstOrDefault(i => i.name == "TTT-CanvasPreviewResult") as Texture2D;
-        //     if (previewTex == null) { return; }
-
-        //     EditorGUI.DrawTextureTransparent(previewArea, previewTex, ScaleMode.ScaleToFit);
-        // }
-
     }
 
 

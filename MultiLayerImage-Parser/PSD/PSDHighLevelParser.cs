@@ -29,7 +29,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             ctx.RootLayers = psd.RootLayers;
 
-            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
+            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.ClipStudioPaint : PSDImportMode.Photoshop;
             ctx.ImportMode = importMode.Value;
 
             ctx.ImageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
@@ -41,6 +41,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             ParseAsLayers(ctx);
 
             ResolveBlendTypeKeyWithImportMode(ctx, ctx.RootLayers);
+            ResolveClippingAndPassThrough(ctx, ctx.RootLayers);
 
             return psd;
         }
@@ -69,29 +70,116 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         public enum PSDImportMode
         {
-            Photo = 0,
-            Clip = 1,
+            Unknown = 0,
+            Photoshop = 2,
+            ClipStudioPaint = 3,
         }
+
 
         private static void ResolveBlendTypeKeyWithImportMode(HighLevelParserContext ctx, List<AbstractLayerData> layerData)
         {
             switch (ctx.ImportMode)
             {
-                case PSDImportMode.Clip:
+                case PSDImportMode.ClipStudioPaint:
                     {
                         foreach (var layer in layerData)
                         {
                             layer.BlendTypeKey = PSDLayer.ResolveGlow(layer.BlendTypeKey, ctx.SourceLayerRecode[layer].LastOrDefault()?.AdditionalLayerInformation);
                             if (s_clipBlendModeDict.TryGetValue(layer.BlendTypeKey, out var actualModeKey))
-                                { layer.BlendTypeKey = actualModeKey; }
+                            { layer.BlendTypeKey = actualModeKey; }
                             if (layer is LayerFolderData layerFolderData)
-                                { ResolveBlendTypeKeyWithImportMode(ctx, layerFolderData.Layers); }
+                            { ResolveBlendTypeKeyWithImportMode(ctx, layerFolderData.Layers); }
                         }
                         break;
                     }
             }
         }
+        private static void ResolveClippingAndPassThrough(HighLevelParserContext ctx, List<AbstractLayerData> layerData)
+        {
+            Action defferApplyAction = () => { };
+            for (var i = 0; layerData.Count > i; i += 1)
+            {
+                var layer = layerData[i];
 
+                switch (ctx.ImportMode)
+                {
+                    case PSDImportMode.Photoshop:
+                        {
+                            // Photosohp の挙動に、色調補正系 つまり Grab系 が存在する通過レイヤーフォルダーに対する クリッピングを行うと、そのレイヤーフォルダーは通過ではなくる仕様の修正
+                            // TTT は 通過レイヤーフォルダーに Grab系が存在しても、クリッピングされたときに挙動を変えるみたいな奇妙なことをしないので、
+                            if (layer is LayerFolderData lf && lf.PassThrough)
+                            {
+                                var above = i + 1;
+                                var clippingLayer = layerData.Count > above ? layerData[above] : null;
+
+                                if (clippingLayer.Clipping)
+                                {
+                                    if (lf.Layers.Any(l => l is IGrabTag))
+                                    {
+                                        defferApplyAction += () => { lf.PassThrough = false; };
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case PSDImportMode.ClipStudioPaint:
+                        {
+                            // ClipStudioPaint で 灰色の表示になっているクリッピングが無効な状態を、TTT ではセーブデータレベルで取り消す。
+                            // TTT ではすべてのレイヤーがクリッピングの対象として可能な概念になっているから
+                            // Grab 系の中でも 色調補正系はクリッピングを反映しない状態になるし、 フォルダはまぁいい感じに適用するので。
+                            // 一番下のレイヤーはちょっと違うけど、念のため無効化。
+
+                            //ちなみに後でクリッピングを無効化するのは、クリッピング対象を探るときにすぐに無効化されてしまうとクリッピングが複数枚連なっていた場合に辿れなくなってしまうから。
+                            var clippingTargetIndex = FindClippingTarget(layerData, i);
+                            if (clippingTargetIndex != -1)
+                            {
+                                var clippingTarget = layerData[clippingTargetIndex];
+                                if (clippingTarget is IGrabTag)
+                                {
+                                    defferApplyAction += () => { layer.Clipping = false; };
+                                }
+                                else if (clippingTarget is LayerFolderData lf)
+                                {
+                                    if (lf.PassThrough)
+                                    {
+                                        defferApplyAction += () => { layer.Clipping = false; };
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                defferApplyAction += () => { layer.Clipping = false; };
+                            }
+                            break;
+                        }
+                }
+
+                if (layer is LayerFolderData layerFolderData) { ResolveClippingAndPassThrough(ctx, layerFolderData.Layers); }
+            }
+
+            defferApplyAction();
+
+            static int FindClippingTarget(List<AbstractLayerData> layerData, int entryIndex)
+            {
+                var clippingTarget = entryIndex - 1;
+                if (clippingTarget >= 0)
+                {
+                    if (layerData[clippingTarget].Clipping)
+                    {
+                        return FindClippingTarget(layerData, clippingTarget);
+                    }
+                    else
+                    {
+                        return clippingTarget;
+                    }
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
         static Dictionary<string, string> s_clipBlendModeDict = new()
         {
             {"Normal","Clip/Normal"},
@@ -199,12 +287,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 return abstractLayerData;
             }
 
-            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRectAreaSize() == 0)
-            {
-                var emptyData = new RasterLayerData();
+            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green) || record.RectTangle.CalculateRectAreaSize() == 0)
+            {//この判定だと...空のラスターレイヤーか、非対応なタイプのレイヤーなのかがわからない...どうすればいい...?
+                var emptyData = new EmptyOrUnsupported();
                 ctx.SourceLayerRecode[emptyData] = new() { record };
                 emptyData.CopyFromRecord(record, channelInfoAndImage);
+                emptyData.RasterTexture = ParseRasterImage(record, channelInfoAndImage);
                 return emptyData;
             }
 
@@ -318,7 +406,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)) { return null; }
-            if (record.RectTangle.CalculateRectAreaSize() == 0) { return null; }
 
             var importedRaster = new PSDImportedRasterImageData();
             importedRaster.RectTangle = record.RectTangle;

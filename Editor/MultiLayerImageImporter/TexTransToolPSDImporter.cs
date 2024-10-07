@@ -115,8 +115,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public enum PSDImportMode
         {
             Auto = -1,
-            Photoshop = 0,
-            ClipStudioPaint = 1,
+            Unknown = 0,
+            Photoshop = 2,
+            ClipStudioPaint = 3,
         }
 
     }

@@ -2,7 +2,7 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.MultiLayerImage.LayerData
 {
-    internal class SelectiveColorLayerData : AbstractLayerData
+    internal class SelectiveColorLayerData : AbstractLayerData , IGrabTag
     {
         public Vector4 RedsCMYK;
         public Vector4 YellowsCMYK;

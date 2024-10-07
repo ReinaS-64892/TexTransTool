@@ -122,7 +122,9 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             void PushToStack(LayerObject l, bool forcedNull = false)
-            { layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null)); }
+            {
+                layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null));
+            }
 
             foreach (var layer in layerObjects)
             {
