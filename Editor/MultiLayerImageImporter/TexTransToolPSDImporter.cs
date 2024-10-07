@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
+        public PSDImportMode ImportMode = PSDImportMode.Auto;
         public override void OnImportAsset(AssetImportContext ctx)
         {
             NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
@@ -32,7 +33,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             Profiler.EndSample();
             Profiler.BeginSample("LowLevel");
 
-            var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+            PSDHighLevelParser.PSDImportMode? importMode = ImportMode is PSDImportMode.Auto ? null : (PSDHighLevelParser.PSDImportMode)ImportMode;
+            var pSDData = PSDHighLevelParser.Parse(lowPSDData, importMode);
 
             Profiler.EndSample();
             Profiler.EndSample();
@@ -86,8 +88,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             finally
             {
                 EditorUtility.ClearProgressBar();
+                NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
             }
-            NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
         }
 
         internal TTTImportedImage CreatePSDImportedImage(ImportRasterImageData importRasterImage)
@@ -110,12 +112,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             }
         }
 
+        public enum PSDImportMode
+        {
+            Auto = -1,
+            Photoshop = 0,
+            ClipStudioPaint = 1,
+        }
+
     }
-
-
-
-
-
-
 
 }
