@@ -58,6 +58,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         private static void CollectAdditionalLayer(HighLevelParserContext context)
         {
+            if (context.CanvasTypeAdditionalLayerInfo is null) { return; }
             foreach (var al in context.CanvasTypeAdditionalLayerInfo)
             {
                 if (al is Lr32 lr)
@@ -112,7 +113,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                                 var above = i + 1;
                                 var clippingLayer = layerData.Count > above ? layerData[above] : null;
 
-                                if (clippingLayer.Clipping)
+                                if (clippingLayer is not null && clippingLayer.Clipping)
                                 {
                                     if (lf.Layers.Any(l => l is IGrabTag))
                                     {
