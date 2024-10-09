@@ -38,7 +38,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
-using VRC.Dynamics;
 using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool.Migration
