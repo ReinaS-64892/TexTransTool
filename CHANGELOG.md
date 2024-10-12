@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...HEAD)
 
+### Added
+
+- TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
+
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 
 ### Fixed

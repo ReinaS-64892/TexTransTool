@@ -13,7 +13,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public short Saturation;
         public short Lightness;
         public abstract bool IsOld { get; }
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, SubSpanStream stream)
         {
             var version = stream.ReadUInt16();
 
@@ -42,7 +42,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public override bool IsOld => false;
     }
-    [Serializable, AdditionalLayerInfoParser("hue")]
+    [Serializable, AdditionalLayerInfoParser("hue ")]
     internal class hueOld : hue
     {
         public override bool IsOld => true;

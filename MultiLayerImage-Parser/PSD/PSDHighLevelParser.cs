@@ -18,50 +18,169 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var psd = new PSDHighLevelData
             {
-                Width = (int)levelData.width,
-                Height = (int)levelData.height,
-                Depth = levelData.Depth,
-                channels = levelData.channels,
+                Width = (int)levelData.Width,
+                Height = (int)levelData.Height,
+                Depth = levelData.BitDepth,
+                channels = levelData.Channels,
                 RootLayers = new List<AbstractLayerData>()
             };
 
-            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.Clip : PSDImportMode.Photo;
+            var ctx = new HighLevelParserContext();
 
-            var imageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData);
-            var imageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords);
+            ctx.RootLayers = psd.RootLayers;
 
-            ParseAsLayers(psd.RootLayers, imageRecordQueue, imageDataQueue);
+            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.ClipStudioPaint : PSDImportMode.Photoshop;
+            ctx.ImportMode = importMode.Value;
 
-            ResolveBlendTypeKeyImportMode(psd.RootLayers, importMode.Value);
+            ctx.ImageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
+            ctx.ImageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords ?? new());
+            ctx.CanvasTypeAdditionalLayerInfo = levelData.CanvasTypeAdditionalLayerInfo;
+
+            CollectAdditionalLayer(ctx);
+
+            ParseAsLayers(ctx);
+
+            ResolveBlendTypeKeyWithImportMode(ctx, ctx.RootLayers);
+            ResolveClippingAndPassThrough(ctx, ctx.RootLayers);
 
             return psd;
         }
 
-        public enum PSDImportMode
+        class HighLevelParserContext
         {
-            Photo = 0,
-            Clip = 1,
+            internal PSDImportMode ImportMode;
+            internal Queue<ChannelImageData> ImageDataQueue;
+            internal Queue<LayerRecord> ImageRecordQueue;
+            internal AdditionalLayerInfoBase[] CanvasTypeAdditionalLayerInfo;
+            internal List<AbstractLayerData> RootLayers;
+            internal Dictionary<AbstractLayerData, List<LayerRecord>> SourceLayerRecode = new();
         }
 
-        private static void ResolveBlendTypeKeyImportMode(List<AbstractLayerData> layers, PSDImportMode importMode)
+        private static void CollectAdditionalLayer(HighLevelParserContext context)
         {
-            switch (importMode)
+            if (context.CanvasTypeAdditionalLayerInfo is null) { return; }
+            foreach (var al in context.CanvasTypeAdditionalLayerInfo)
             {
-                case PSDImportMode.Clip:
+                if (al is Lr32 lr)
+                {
+                    foreach (var l in lr.AdditionalLayerInformation.LayerRecords) context.ImageRecordQueue.Enqueue(l);
+                    foreach (var c in lr.AdditionalLayerInformation.ChannelImageData) context.ImageDataQueue.Enqueue(c);
+                }
+            }
+        }
+
+        public enum PSDImportMode
+        {
+            Unknown = 0,
+            Photoshop = 2,
+            ClipStudioPaint = 3,
+        }
+
+
+        private static void ResolveBlendTypeKeyWithImportMode(HighLevelParserContext ctx, List<AbstractLayerData> layerData)
+        {
+            switch (ctx.ImportMode)
+            {
+                case PSDImportMode.ClipStudioPaint:
                     {
-                        foreach (var layer in layers)
+                        foreach (var layer in layerData)
                         {
+                            layer.BlendTypeKey = PSDLayer.ResolveGlow(layer.BlendTypeKey, ctx.SourceLayerRecode[layer].LastOrDefault()?.AdditionalLayerInformation);
                             if (s_clipBlendModeDict.TryGetValue(layer.BlendTypeKey, out var actualModeKey))
-                            {
-                                layer.BlendTypeKey = actualModeKey;
-                            }
-                            if (layer is LayerFolderData layerFolderData) { ResolveBlendTypeKeyImportMode(layerFolderData.Layers, importMode); }
+                            { layer.BlendTypeKey = actualModeKey; }
+                            if (layer is LayerFolderData layerFolderData)
+                            { ResolveBlendTypeKeyWithImportMode(ctx, layerFolderData.Layers); }
                         }
                         break;
                     }
             }
         }
+        private static void ResolveClippingAndPassThrough(HighLevelParserContext ctx, List<AbstractLayerData> layerData)
+        {
+            Action defferApplyAction = () => { };
+            for (var i = 0; layerData.Count > i; i += 1)
+            {
+                var layer = layerData[i];
 
+                switch (ctx.ImportMode)
+                {
+                    case PSDImportMode.Photoshop:
+                        {
+                            // Photosohp の挙動に、色調補正系 つまり Grab系 が存在する通過レイヤーフォルダーに対する クリッピングを行うと、そのレイヤーフォルダーは通過ではなくる仕様の修正
+                            // TTT は 通過レイヤーフォルダーに Grab系が存在しても、クリッピングされたときに挙動を変えるみたいな奇妙なことをしないので、
+                            if (layer is LayerFolderData lf && lf.PassThrough)
+                            {
+                                var above = i + 1;
+                                var clippingLayer = layerData.Count > above ? layerData[above] : null;
+
+                                if (clippingLayer is not null && clippingLayer.Clipping)
+                                {
+                                    if (lf.Layers.Any(l => l is IGrabTag))
+                                    {
+                                        defferApplyAction += () => { lf.PassThrough = false; };
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case PSDImportMode.ClipStudioPaint:
+                        {
+                            // ClipStudioPaint で 灰色の表示になっているクリッピングが無効な状態を、TTT ではセーブデータレベルで取り消す。
+                            // TTT ではすべてのレイヤーがクリッピングの対象として可能な概念になっているから
+                            // Grab 系の中でも 色調補正系はクリッピングを反映しない状態になるし、 フォルダはまぁいい感じに適用するので。
+                            // 一番下のレイヤーはちょっと違うけど、念のため無効化。
+
+                            //ちなみに後でクリッピングを無効化するのは、クリッピング対象を探るときにすぐに無効化されてしまうとクリッピングが複数枚連なっていた場合に辿れなくなってしまうから。
+                            var clippingTargetIndex = FindClippingTarget(layerData, i);
+                            if (clippingTargetIndex != -1)
+                            {
+                                var clippingTarget = layerData[clippingTargetIndex];
+                                if (clippingTarget is IGrabTag)
+                                {
+                                    defferApplyAction += () => { layer.Clipping = false; };
+                                }
+                                else if (clippingTarget is LayerFolderData lf)
+                                {
+                                    if (lf.PassThrough)
+                                    {
+                                        defferApplyAction += () => { layer.Clipping = false; };
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                defferApplyAction += () => { layer.Clipping = false; };
+                            }
+                            break;
+                        }
+                }
+
+                if (layer is LayerFolderData layerFolderData) { ResolveClippingAndPassThrough(ctx, layerFolderData.Layers); }
+            }
+
+            defferApplyAction();
+
+            static int FindClippingTarget(List<AbstractLayerData> layerData, int entryIndex)
+            {
+                var clippingTarget = entryIndex - 1;
+                if (clippingTarget >= 0)
+                {
+                    if (layerData[clippingTarget].Clipping)
+                    {
+                        return FindClippingTarget(layerData, clippingTarget);
+                    }
+                    else
+                    {
+                        return clippingTarget;
+                    }
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+        }
         static Dictionary<string, string> s_clipBlendModeDict = new()
         {
             {"Normal","Clip/Normal"},
@@ -94,45 +213,46 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {"ColorDodgeGlow","Clip/ColorDodgeGlow"},
         };
 
-        private static void ParseAsLayers(List<AbstractLayerData> rootLayers, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
+        private static void ParseAsLayers(HighLevelParserContext ctx)
         {
-            while (imageRecordQueue.Count != 0)
+            while (ctx.ImageRecordQueue.Count != 0)
             {
-                var record = imageRecordQueue.Dequeue();
+                var record = ctx.ImageRecordQueue.Dequeue();
 
                 var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
                 if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInfo.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    rootLayers.Add(ParseLayerFolder(record, imageRecordQueue, imageDataQueue));
+                    ctx.RootLayers.Add(ParseLayerFolder(ctx, record));
                 }
                 else
                 {
-                    rootLayers.Add(ParseRasterLayer(record, imageDataQueue));
+                    ctx.RootLayers.Add(ParseRasterLayer(ctx, record));
                 }
 
             }
         }
 
-        private static LayerFolderData ParseLayerFolder(LayerRecord record, Queue<LayerRecord> imageRecordQueue, Queue<ChannelImageData> imageDataQueue)
+        private static LayerFolderData ParseLayerFolder(HighLevelParserContext ctx, LayerRecord record)
         {
             var layerFolder = new LayerFolderData();
             layerFolder.Layers = new List<AbstractLayerData>();
+            ctx.SourceLayerRecode[layerFolder] = new() { record };
 
-            _ = DeuceChannelInfoAndImage(record, imageDataQueue);
+            _ = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
-            while (imageRecordQueue.Count != 0)
+            while (ctx.ImageRecordQueue.Count != 0)
             {
-                var PeekRecord = imageRecordQueue.Peek();
+                var PeekRecord = ctx.ImageRecordQueue.Peek();
 
                 var debugName = PeekRecord.LayerName;
 
                 var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
 
                 if (PeekSectionDividerSetting == null)
-                { layerFolder.Layers.Add(ParseRasterLayer(imageRecordQueue.Dequeue(), imageDataQueue)); }
+                { layerFolder.Layers.Add(ParseRasterLayer(ctx, ctx.ImageRecordQueue.Dequeue())); }
                 else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
-                    layerFolder.Layers.Add(ParseLayerFolder(imageRecordQueue.Dequeue(), imageRecordQueue, imageDataQueue));
+                    layerFolder.Layers.Add(ParseLayerFolder(ctx, ctx.ImageRecordQueue.Dequeue()));
                 }
                 else if (PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.OpenFolder
                 || PeekSectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.ClosedFolder)
@@ -145,8 +265,9 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
 
             }
-            var EndFolderRecord = imageRecordQueue.Dequeue();
-            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, imageDataQueue);
+            var EndFolderRecord = ctx.ImageRecordQueue.Dequeue();
+            ctx.SourceLayerRecode[layerFolder].Add(EndFolderRecord);
+            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, ctx.ImageDataQueue);
             layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
 
             var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
@@ -157,16 +278,27 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             return layerFolder;
         }
-        private static AbstractLayerData ParseRasterLayer(LayerRecord record, Queue<ChannelImageData> imageDataQueue)
+        private static AbstractLayerData ParseRasterLayer(HighLevelParserContext ctx, LayerRecord record)
         {
-            var channelInfoAndImage = DeuceChannelInfoAndImage(record, imageDataQueue);
+            var channelInfoAndImage = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
-            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData)) { return abstractLayerData; }
+            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData))
+            {
+                ctx.SourceLayerRecode[abstractLayerData] = new() { record };
+                return abstractLayerData;
+            }
 
-            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)
-            || record.RectTangle.CalculateRawCompressLength() == 0) { var emptyData = new RasterLayerData(); emptyData.CopyFromRecord(record, channelInfoAndImage); return emptyData; }
+            if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue) || !channelInfoAndImage.ContainsKey(ChannelIDEnum.Green) || record.RectTangle.CalculateRectAreaSize() == 0)
+            {//この判定だと...空のラスターレイヤーか、非対応なタイプのレイヤーなのかがわからない...どうすればいい...?
+                var emptyData = new EmptyOrUnsupported();
+                ctx.SourceLayerRecode[emptyData] = new() { record };
+                emptyData.CopyFromRecord(record, channelInfoAndImage);
+                emptyData.RasterTexture = ParseRasterImage(record, channelInfoAndImage);
+                return emptyData;
+            }
 
             var rasterLayer = new RasterLayerData();
+            ctx.SourceLayerRecode[rasterLayer] = new() { record };
             rasterLayer.CopyFromRecord(record, channelInfoAndImage);
 
             rasterLayer.RasterTexture = ParseRasterImage(record, channelInfoAndImage);
@@ -235,7 +367,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             hueData.CopyFromRecord(record, channelInfoAndImage);
 
-            hueData.Hue = hue.Hue / (float)(hue.IsOld ? 100 : 180);
+            hueData.Hue = hue.Hue / (float)(hue.IsOld is false ? 180f : 100f);
             hueData.Saturation = hue.Saturation / 100f;
             hueData.Lightness = hue.Lightness / 100f;
 
@@ -275,7 +407,6 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Blue)) { return null; }
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Green)) { return null; }
-            if (record.RectTangle.CalculateRawCompressLength() == 0) { return null; }
 
             var importedRaster = new PSDImportedRasterImageData();
             importedRaster.RectTangle = record.RectTangle;

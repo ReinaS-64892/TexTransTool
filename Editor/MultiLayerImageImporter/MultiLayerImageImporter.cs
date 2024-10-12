@@ -148,7 +148,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)
         {
-            if (rasterLayer.RasterTexture == null) { Debug.Log(rasterLayer.LayerName + " is Not RasterLayer"); UnityEngine.Object.DestroyImmediate(newLayer); return; }//ラスターレイヤーじゃないものはインポートできない。
+            if (rasterLayer.RasterTexture == null) { newLayer.name += " is Unsupported Layer"; return; }//データがないならインポートできない扱いをしておく。
+            if (rasterLayer is EmptyOrUnsupported) { newLayer.name += " is empty or unsupported layer"; }//空のラスターレイヤーか非対応なものかの判別はつかないから仕方がない。
+
             var rasterLayerComponent = newLayer.AddComponent<RasterImportedLayer>();
             CopyFromData(rasterLayerComponent, rasterLayer);
 
@@ -270,9 +272,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 // image.name = name;
 
-                image.PreviewTexture.name = image.name + "_Preview";
                 _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
-                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                try
+                {
+                    image.PreviewTexture.name = image.name + "_Preview";
+                    _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                }
+                catch (Exception e) { Debug.LogException(e); }
             }
         }
     }

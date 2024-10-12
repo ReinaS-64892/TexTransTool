@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
@@ -88,10 +89,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSource)
         {
-            var dataSpan = imageData.GetImageData(importSource, RasterImageData.RectTangle);
-            var data = new NativeArray<byte>(dataSpan.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            dataSpan.CopyTo(data.AsSpan());
-            return data;
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
+            var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
+
+            var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            imageData.GetImageData(importSource, RasterImageData.RectTangle, writeArray);
+            return writeArray;
         }
 
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
@@ -106,14 +109,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var texWidth = RasterImageData.RectTangle.GetWidth();
             var texHeight = RasterImageData.RectTangle.GetHeight();
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-            var texR = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var format = BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
+
+            var texR = new Texture2D(texWidth, texHeight, format, false);
             texR.filterMode = FilterMode.Point;
-            var texG = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texG = new Texture2D(texWidth, texHeight, format, false);
             texG.filterMode = FilterMode.Point;
-            var texB = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texB = new Texture2D(texWidth, texHeight, format, false);
             texB.filterMode = FilterMode.Point;
-            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
+            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, format, false) : null;
             if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
             if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
@@ -151,6 +157,37 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (containsAlpha) { UnityEngine.Object.DestroyImmediate(texA); }
 
             // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
+        }
+
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth)
+        {
+            return BitDepthToTextureFormat(bitDepth, 1);
+        }
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth, int channelCount)
+        {
+            switch (bitDepth, channelCount)
+            {
+                case (1, 1):
+                case (8, 1):
+                    { return TextureFormat.R8; }
+                case (8, 3):
+                    { return TextureFormat.RGB24; }
+                case (8, 4):
+                    { return TextureFormat.RGBA32; }
+                case (16, 1):
+                    { return TextureFormat.R16; }
+                case (16, 3):
+                    { return TextureFormat.RGB48; }
+                case (16, 4):
+                    { return TextureFormat.RGBA64; }
+
+                case (32, 1):
+                    { return TextureFormat.RFloat; }
+                case (32, 4):
+                    { return TextureFormat.RGBAFloat; }
+            }
+
+            throw new ArgumentOutOfRangeException();
         }
 
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)

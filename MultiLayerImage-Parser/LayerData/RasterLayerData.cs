@@ -7,4 +7,6 @@ namespace net.rs64.MultiLayerImage.LayerData
     {
         public ImportRasterImageData RasterTexture;
     }
+
+    internal class EmptyOrUnsupported : RasterLayerData { }
 }

@@ -16,7 +16,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public Vector4 NeutralsCMYK;
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
         {
             Debug.Assert(stream.ReadInt16() == 1);
 
