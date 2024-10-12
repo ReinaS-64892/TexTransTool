@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore.MipMap;
 using net.rs64.TexTransUnityCore.Utils;
 using UnityEngine;
@@ -9,7 +8,7 @@ using Color = net.rs64.TexTransCore.Color;
 
 namespace net.rs64.TexTransUnityCore
 {
-    internal class TTUnityCoreEngine : ITTEngine
+    internal class TTUnityCoreEngine : ITTEngine, ITexTransToolEngine
     {
         TTCoreTypeUtil.DelegateWithLoadTexture _loadTexture;
         public TTUnityCoreEngine(TTCoreTypeUtil.DelegateWithLoadTexture loadTexture)
@@ -39,26 +38,24 @@ namespace net.rs64.TexTransUnityCore
             _loadTexture(diskTexture, writeTarget);
         }
 
-
-
         public void CopyAlpha(ITTRenderTexture source, ITTRenderTexture target)
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            BlendTexture.TextureBlend.AlphaCopy(source.ToUnity(), target.ToUnity());
+            TexTransUnityCore.TextureBlend.AlphaCopy(source.ToUnity(), target.ToUnity());
         }
         public void FillAlpha(ITTRenderTexture renderTexture, float alpha)
         {
-            BlendTexture.TextureBlend.AlphaFill(renderTexture.ToUnity(), alpha);
+            TexTransUnityCore.TextureBlend.AlphaFill(renderTexture.ToUnity(), alpha);
         }
         public void MulAlpha(ITTRenderTexture renderTexture, float value)
         {
-            BlendTexture.TextureBlend.MultipleRenderTexture(renderTexture.ToUnity(), new(1, 1, 1, value));
+            TexTransUnityCore.TextureBlend.ColorMultiply(renderTexture.ToUnity(), new(1, 1, 1, value));
         }
 
         public void MulAlpha(ITTRenderTexture dist, ITTRenderTexture add)
         {
             if (dist.Width != add.Width || dist.Hight != add.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            BlendTexture.TextureBlend.MaskDrawRenderTexture(dist.ToUnity(), add.ToUnity());
+            TexTransUnityCore.TextureBlend.AlphaMultiplyWithTexture(dist.ToUnity(), add.ToUnity());
         }
 
 
@@ -93,6 +90,20 @@ namespace net.rs64.TexTransUnityCore
             dist.ToUnity().BlendBlit(add.ToUnity(), blendKey.ToUnity());
         }
 
+
+        public void GrabBlending(ITTRenderTexture grabTexture, TTGrabBlending grabCompute)
+        {
+            TexTransUnityCore.GrabBlending.GrabBlendingExecuters[grabCompute.GetType()].GrabExecute(this, grabTexture.ToUnity(), grabCompute);
+        }
+
+
+
+        public static bool IsLinerRenderTexture = false;//基本的にガンマだ
+        public ITTBlendKey QueryBlendKey(string keyName) { return TexTransUnityCore.TextureBlend.BlendObjects[keyName]; }
+        public ITTComputeKey QueryComputeKey(string ComputeKeyName) { return TexTransUnityCore.GrabBlending.GrabBlendObjects[ComputeKeyName]; }
+
+
+        public bool RenderTextureColorSpaceIsLinear { get => IsLinerRenderTexture; }
     }
 
 
@@ -101,7 +112,7 @@ namespace net.rs64.TexTransUnityCore
         internal RenderTexture RenderTexture;
         public UnityRenderTexture(int width, int height, bool mipMap, bool isDepthAndStencil)
         {
-            RenderTexture = TTRt.G(width, height, true, isDepthAndStencil, mipMap, true);
+            RenderTexture = TTRt.Get(width, height, isDepthAndStencil, mipMap);
         }
         public bool IsDepthAndStencil => RenderTexture.depth != 0;
 
@@ -113,7 +124,7 @@ namespace net.rs64.TexTransUnityCore
 
         public string Name { get => RenderTexture.name; set => RenderTexture.name = value; }
 
-        public void Dispose() { TTRt.R(RenderTexture); }
+        public void Dispose() { TTRt.Rel(RenderTexture); }
     }
 
     internal class UnityDiskTexture : ITTDiskTexture
@@ -134,25 +145,21 @@ namespace net.rs64.TexTransUnityCore
         public void Dispose() { }
     }
 
-    internal class TTTBlendTypeKey : ITTBlendKey
-    {
-        public string BlendTypeKey;
-
-        public TTTBlendTypeKey(string blendTypeKey) { BlendTypeKey = blendTypeKey; }
-    }
-
     internal static class TTCoreTypeUtil
     {
         public delegate void DelegateWithLoadTexture(ITTDiskTexture diskTexture, ITTRenderTexture writeTarget);
 
         public static UnityEngine.Color ToUnity(this Color color) { return new(color.R, color.G, color.B, color.A); }
+        public static Color ToTTCore(this UnityEngine.Color color) { return new(color.r, color.g, color.b, color.a); }
         public static UnityEngine.Color ToUnity(this ColorWOAlpha color, float alpha = 1f) { return new(color.R, color.G, color.B, alpha); }
         public static UnityEngine.Vector2 ToUnity(this TexTransCore.Vector2 vec) { return new(vec.X, vec.Y); }
         public static UnityEngine.Vector3 ToUnity(this TexTransCore.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
         public static UnityEngine.Vector4 ToUnity(this TexTransCore.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
+        public static TexTransCore.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
 
         public static RenderTexture ToUnity(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
         public static Texture2D ToUnity(this ITTDiskTexture diskTexture) { return ((UnityDiskTexture)diskTexture).Texture; }
-        public static string ToUnity(this ITTBlendKey key) { return ((TTTBlendTypeKey)key).BlendTypeKey; }
+        public static TTBlendUnityObject ToUnity(this ITTBlendKey key) { return (TTBlendUnityObject)key; }
+        public static TTBlendUnityObject ToTTUnityEngin(this string key) { return TextureBlend.BlendObjects[key]; }
     }
 }

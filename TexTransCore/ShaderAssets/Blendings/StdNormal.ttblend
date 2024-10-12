@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Normal"
+#pragma KeyName_jp "通常"
+
+#define Normal 1
+#include "./BlendColor.hlsl"

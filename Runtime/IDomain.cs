@@ -6,8 +6,8 @@ using net.rs64.TexTransUnityCore.Island;
 using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
-using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 using net.rs64.TexTransCore;
+using static net.rs64.TexTransUnityCore.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {

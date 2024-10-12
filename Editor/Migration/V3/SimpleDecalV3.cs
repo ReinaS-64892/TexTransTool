@@ -1,5 +1,4 @@
 using System;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
 using UnityEditor;

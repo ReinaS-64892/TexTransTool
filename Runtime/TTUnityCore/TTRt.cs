@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using net.rs64.TexTransUnityCore.Utils;
 using PlasticPipe.PlasticProtocol.Messages;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransUnityCore
 {
@@ -58,12 +59,14 @@ namespace net.rs64.TexTransUnityCore
 
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
+                var readWrite = TTUnityCoreEngine.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
+                var format = RenderTextureFormat.ARGB32;
+
                 RenderTexture = new RenderTexture(
                     renderTextureDescriptor.Width,
                     renderTextureDescriptor.Height,
                     renderTextureDescriptor.UseDepthAndStencil ? 32 : 0,
-                    RenderTextureDefaultFormat
-                    );
+                    format, readWrite);
 
                 RenderTexture.enableRandomWrite = true;
                 RenderTexture.useMipMap = renderTextureDescriptor.UseMipMap;
@@ -133,8 +136,6 @@ namespace net.rs64.TexTransUnityCore
                 }
             }
         }
-
-        public static RenderTextureFormat RenderTextureDefaultFormat = RenderTextureFormat.ARGB32;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture G(int size) => G(size, size);

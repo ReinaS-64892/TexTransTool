@@ -5,9 +5,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore.Utils;
-using net.rs64.TexTransTool.TextureStack;
 using UnityEditor;
 using UnityEngine;
 

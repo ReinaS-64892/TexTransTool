@@ -1,0 +1,6 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "NotBlend"
+#pragma KeyName_jp "合成なし"
+
+float4 ColorBlend(float4 BaseColor, float4 AddColor) { return AddColor; }

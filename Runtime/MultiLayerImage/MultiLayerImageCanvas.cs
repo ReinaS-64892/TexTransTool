@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 using Color = UnityEngine.Color;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
+using net.rs64.TexTransCore;
+using static net.rs64.TexTransUnityCore.TextureBlend;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -54,17 +54,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var texTransUnityCoreEngine = new TTUnityCoreEngine(textureManager.LoadTexture);
             var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext(texTransUnityCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
-            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas(canvasWidth, canvasHeigh, GetRootLayerObjects(textureManager));
+            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas(canvasWidth, canvasHeigh, GetRootLayerObjects(texTransUnityCoreEngine, textureManager));
             Profiler.EndSample();
 
             return canvasCtx.EvaluateCanvas(canvas).ToUnity();
         }
 
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject> GetRootLayerObjects(ITextureManager textureManager)
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject> GetRootLayerObjects(ITexTransToolEngine engin, ITextureManager textureManager)
         {
             var layers = GetChileLayers();
             var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject>(layers.Capacity);
-            foreach (var l in layers) { list.Add(l.GetLayerObject(textureManager)); }
+            foreach (var l in layers) { list.Add(l.GetLayerObject(engin,textureManager)); }
             return list;
         }
 

@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Divide"
+#pragma KeyName_jp "除算"
+
+#define Divide 1
+#include "./BlendColor.hlsl"

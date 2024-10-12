@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "ColorBurn"
+#pragma KeyName_jp "焼きこみカラー"
+
+#define ColorBurn 1
+#include "./BlendColor.hlsl"

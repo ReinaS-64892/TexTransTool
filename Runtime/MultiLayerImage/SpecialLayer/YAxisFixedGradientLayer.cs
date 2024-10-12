@@ -1,6 +1,6 @@
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
+using net.rs64.TexTransUnityCore;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
@@ -11,8 +11,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Gradient Gradient = new();
         public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
         {
-            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.YAxisFixedGradientShader);
+            var mat = MatTemp.GetTempMatShader(YAxisFixedGradientShader);
             Graphics.Blit(GradientTempTexture.Get(Gradient, 1), renderTexture, mat);
         }
+
+
+        [TexTransInitialize]
+        public static void Init() { YAxisFixedGradientShader = Shader.Find(Y_AXIS_FIXED_GRADIENT); }
+        public const string Y_AXIS_FIXED_GRADIENT = "Hidden/YAxisFixedGradient";
+        public static Shader YAxisFixedGradientShader;
     }
 }

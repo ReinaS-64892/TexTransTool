@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore.MipMap;
-using net.rs64.TexTransUnityCore.Unsafe;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -126,7 +121,7 @@ namespace net.rs64.TexTransUnityCore.Utils
         {
             var rt = TTRt.G(1);
             rt.name = $"ColorTex4RT-{rt.width}x{rt.height}";
-            TextureBlend.ColorBlit(rt, color);
+            TextureBlend.FillColor(rt, color);
             return rt;
         }
         public static Texture2D CreateFillTexture(int size, Color fillColor)

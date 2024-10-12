@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "HardLight"
+#pragma KeyName_jp "ハードライト"
+
+#define HardLight 1
+#include "./BlendColor.hlsl"

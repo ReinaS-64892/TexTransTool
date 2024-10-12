@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Saturation"
+#pragma KeyName_jp "彩度"
+
+#define Saturation 1
+#include "./BlendColor.hlsl"

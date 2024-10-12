@@ -19,10 +19,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
 
-        internal override LayerObject GetLayerObject(ITextureManager textureManager)
+        internal override LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager)
         {
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-            return new TTTAbstractImageWarper(Visible, GetAlphaMask(textureManager), alphaOperator, Clipping, new TTTBlendTypeKey(BlendTypeKey), this, textureManager);
+            return new TTTAbstractImageWarper(Visible, GetAlphaMask(textureManager), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), this, textureManager);
         }
 
         class TTTAbstractImageWarper : ImageLayer

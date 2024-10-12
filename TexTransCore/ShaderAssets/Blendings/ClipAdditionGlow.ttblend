@@ -1,0 +1,8 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Clip/AdditionGlow"
+#pragma KeyName_jp "クリスタ/加算(発光)"
+
+#define AdditionGlow 1
+#define Clip 1
+#include "./BlendColor.hlsl"

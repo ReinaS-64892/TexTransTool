@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Addition"
+#pragma KeyName_jp "加算-覆い焼き(リニア)"
+
+#define Addition 1
+#include "./BlendColor.hlsl"

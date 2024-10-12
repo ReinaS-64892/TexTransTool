@@ -5,12 +5,10 @@ using net.rs64.TexTransUnityCore.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-using UnityEditor;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using System;
@@ -201,7 +199,7 @@ namespace net.rs64.TexTransUnityCore
 
                 if (depthInvert.HasValue)
                 {
-                    depthRt = TTRt.G(targetTexture.width, targetTexture.height, true, true, rtFormat: RenderTextureFormat.RFloat);
+                    depthRt = new RenderTexture(targetTexture.width, targetTexture.height, 32, RenderTextureFormat.RFloat);// TODO : I should create TTDepthRt.Get()
                     depthRt.name = $"TransTexture-depthTempRt-{depthRt.width}x{depthRt.height}";
 
                     s_transMat.EnableKeyword(depthInvert.Value ? "InvertDepth" : "DepthDecal");
@@ -249,7 +247,7 @@ namespace net.rs64.TexTransUnityCore
             {
                 sourceTexture.wrapMode = preWarp;
                 UnityEngine.Object.DestroyImmediate(mesh);
-                if (depthRt != null) { TTRt.R(depthRt); }
+                if (depthRt != null) { UnityEngine.Object.DestroyImmediate(depthRt); }
             }
         }
         public static void ForTrans<T>(

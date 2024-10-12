@@ -9,16 +9,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public abstract class AbstractGrabLayer : AbstractLayer
     {
         public abstract void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture);
-        internal override LayerObject GetLayerObject(ITextureManager textureManager)
+        internal override LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager)
         {
-            return new TTTAbstractGrabLayerWarper(Visible, GetAlphaMask(textureManager), Clipping, new TTTBlendTypeKey(BlendTypeKey), this, textureManager);
+            return new TTTAbstractGrabLayerWarper(Visible, GetAlphaMask(textureManager), Clipping, BlendTypeKey.ToTTUnityEngin(), this, textureManager);
         }
 
         class TTTAbstractGrabLayerWarper : GrabLayer
         {
             private AbstractGrabLayer _grabLayer;
             private ITextureManager _textureManager;
-            private string _blendTypeKey;
+            private TTBlendUnityObject _blendTypeKey;
 
             public TTTAbstractGrabLayerWarper(bool visible, AlphaMask alphaMask, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractGrabLayer grabLayer, ITextureManager textureManager) : base(visible, alphaMask, preBlendToLayerBelow)
             {
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     evaluateContext.AlphaMask.Masking(engine, tempTarget);
 
                     engine.FillAlpha(grabTexture, 1f);
-                    engine.TextureBlend(grabTexture, tempTarget, new TTTBlendTypeKey(_blendTypeKey));
+                    engine.TextureBlend(grabTexture, tempTarget, _blendTypeKey);
                     engine.CopyAlpha(alphaBackup, grabTexture);
                 }
             }

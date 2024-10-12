@@ -6,9 +6,7 @@ using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore;
-using UnityEngine.Pool;
 using UnityEngine.Profiling;
 using net.rs64.TexTransUnityCore.Utils;
 using Unity.Collections;
@@ -91,22 +89,16 @@ namespace net.rs64.TexTransTool.Decal
                 var decalSourceSize = texManager.GetOriginalTextureSize(sourceDecalTexture);
                 mulDecalTexture = TTRt.G(decalSourceSize, decalSourceSize);
                 mulDecalTexture.name = $"{sourceDecalTexture.name}:GetMultipleDecalTextureWithNotNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
+                domain.GetTextureManager().WriteOriginalTexture(sourceDecalTexture, mulDecalTexture);
             }
             else
             {
                 mulDecalTexture = TTRt.G(32, 32);
                 mulDecalTexture.name = $"GetMultipleDecalTextureWithNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
             }
-            mulDecalTexture.Clear();
-            if (sourceDecalTexture != null)
-            {
-                using (texManager.GetOriginTempRtU(out var tempRt, sourceDecalTexture))
-                    TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
-            }
-            else
-            {
-                TextureBlend.ColorBlit(mulDecalTexture, color);
-            }
+            if (sourceDecalTexture != null) { TextureBlend.ColorMultiply(mulDecalTexture, color); }
+            else { TextureBlend.FillColor(mulDecalTexture, color); }
+
             return mulDecalTexture;
         }
         [ExpandTexture2D] public Texture2D DecalTexture;

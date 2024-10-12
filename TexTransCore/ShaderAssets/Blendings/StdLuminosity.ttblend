@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Luminosity"
+#pragma KeyName_jp "輝度"
+
+#define Luminosity 1
+#include "./BlendColor.hlsl"

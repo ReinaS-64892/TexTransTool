@@ -1,0 +1,8 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Clip/Normal"
+#pragma KeyName_jp "クリスタ/通常"
+
+#define Normal 1
+#define Clip 1
+#include "./BlendColor.hlsl"

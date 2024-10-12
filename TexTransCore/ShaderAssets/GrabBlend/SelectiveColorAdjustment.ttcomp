@@ -1,0 +1,155 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType GrabBlend
+#pragma ColorSpace Gamma
+
+float4 RedsCMYK;
+float4 YellowsCMYK;
+float4 GreensCMYK;
+float4 CyansCMYK;
+float4 BluesCMYK;
+float4 MagentasCMYK;
+float4 WhitesCMYK;
+float4 NeutralsCMYK;
+float4 BlacksCMYK;
+
+float IsAbsolute;
+
+RWTexture2D<float4> Tex;
+
+float Max3(float3 src) { return max(max(src.r, src.g), src.b); }
+float Min3(float3 src) { return min(min(src.r, src.g), src.b); }
+float Med3(float3 src) { return min(max(src.r, src.g), src.b); } // 中央の値を選ぶ
+
+// Thanks for @bug@fosstodon.org !!!
+// https://blog.pkh.me/p/22-understanding-selective-coloring-in-adobe-photoshop.html
+
+bool IsSelectColorClassification(float3 src, int selectColor) // T
+{
+    switch (selectColor)
+    {
+    case 0:
+    {
+        return src.r == Max3(src);
+    } // Reds
+    case 1:
+    {
+        return src.b == Min3(src);
+    } // Yellows
+    case 2:
+    {
+        return src.g == Max3(src);
+    } // Greens
+    case 3:
+    {
+        return src.r == Min3(src);
+    } // Cyans
+    case 4:
+    {
+        return src.b == Max3(src);
+    } // Blues
+    case 5:
+    {
+        return src.g == Min3(src);
+    } // Magentas
+
+    case 6:
+    {
+        return src.r > 0.5 && src.g > 0.5 && src.b > 0.5;
+    } // Whites
+    case 7:
+    {
+        return !(src.r <= 0.0 && src.g <= 0.0 && src.b <= 0.0) && !(src.r >= 1.0 && src.g >= 1.0 && src.b >= 1.0);
+    } // Neutrals
+    case 8:
+    {
+        return src.r < 0.5 && src.g < 0.5 && src.b < 0.5;
+    } // Blacks
+    }
+}
+
+float ColorScale(float3 src, int selectColor) // Ω
+{
+    switch (selectColor)
+    {
+    case 0: // Reds
+    case 2: // Greens
+    case 4: // Blues
+    {
+        return Max3(src) - Med3(src);
+    }
+
+    case 1: // Yellows
+    case 3: // Cyans
+    case 5: // Magentas
+    {
+        return Med3(src) - Min3(src);
+    }
+
+    case 6:
+    {
+        return (Min3(src) - 0.5) * 2;
+    } // Whites
+
+    case 7:
+    {
+        return 1 - (abs(Max3(src) - 0.5) + abs(Min3(src) - 0.5));
+    } // Neutrals
+
+    case 8:
+    {
+        return (0.5 - Max3(src)) * 2;
+    } // Blacks
+    }
+}
+
+float ModeFactor(float v, bool isAbsolute) // m
+{
+    if (isAbsolute)
+    {
+        return 1;
+    } // Absolute
+    else
+    {
+        return 1 - v;
+    } // Relative
+}
+
+float AdjustmentFunction(float v, float a, float aK, float m, float omega) // φ
+{
+    return clamp(((-1 - a) * aK - a) * m, -v, 1 - v) * omega;
+}
+
+float3 SelectiveColor(float3 src, int selectColor, float4 cmyk, bool isAbsolute) // selectColor == C
+{
+    bool gamma = IsSelectColorClassification(src, selectColor);
+    float omega = ColorScale(src, selectColor);
+
+    float Red = lerp(0, AdjustmentFunction(src.r, cmyk.r, cmyk.a, ModeFactor(src.r, isAbsolute), omega), gamma);
+    float Green = lerp(0, AdjustmentFunction(src.g, cmyk.g, cmyk.a, ModeFactor(src.g, isAbsolute), omega), gamma);
+    float Blue = lerp(0, AdjustmentFunction(src.b, cmyk.b, cmyk.a, ModeFactor(src.b, isAbsolute), omega), gamma);
+
+    return float3(Red, Green, Blue);
+}
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+
+    float3 result = float3(0, 0, 0);
+
+    bool isAbsolute = IsAbsolute > 0.5;
+
+    result += SelectiveColor(col.rgb, 0, RedsCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 1, YellowsCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 2, GreensCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 3, CyansCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 4, BluesCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 5, MagentasCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 6, WhitesCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 7, NeutralsCMYK, isAbsolute);
+    result += SelectiveColor(col.rgb, 8, BlacksCMYK, isAbsolute);
+
+    col.rgb += result;
+
+    Tex[id.xy] = col;
+}

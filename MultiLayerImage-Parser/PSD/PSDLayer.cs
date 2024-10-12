@@ -4,13 +4,12 @@ using System.Linq;
 using System.Collections.Generic;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using net.rs64.TexTransUnityCore.BlendTexture;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
 
 
-    internal enum PSDBlendMode
+    internal enum PSDBlendMode //TTTの物と揃っている
     {
         PassThrough,
         Normal,
@@ -52,7 +51,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             abstractLayer.Visible = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible) is false;
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
-            abstractLayer.BlendTypeKey = ConvertBlendType(BlendModeKeyToEnum(layerRecord.BlendModeKey)).ToString();
+            abstractLayer.BlendTypeKey = BlendModeKeyToEnum(layerRecord.BlendModeKey).ToString();
             abstractLayer.LayerMask = PSDHighLevelParser.ParseLayerMask(layerRecord, channelImageData);
 
         }
@@ -144,66 +143,5 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
         }
 
-        public static TTTBlendTypeKeyEnum ConvertBlendType(PSDBlendMode pSDBlendMode)
-        {
-            switch (pSDBlendMode)
-            {
-                default:
-                // case PSDBlendMode.PassThrough:
-                //     return TTTBlendTypeKeyEnum;
-                case PSDBlendMode.Normal:
-                    return TTTBlendTypeKeyEnum.Normal;
-                case PSDBlendMode.Dissolve:
-                    return TTTBlendTypeKeyEnum.Dissolve;
-                case PSDBlendMode.Darken:
-                    return TTTBlendTypeKeyEnum.DarkenOnly;
-                case PSDBlendMode.Multiply:
-                    return TTTBlendTypeKeyEnum.Mul;
-                case PSDBlendMode.ColorBurn:
-                    return TTTBlendTypeKeyEnum.ColorBurn;
-                case PSDBlendMode.LinearBurn:
-                    return TTTBlendTypeKeyEnum.LinearBurn;
-                case PSDBlendMode.DarkerColor:
-                    return TTTBlendTypeKeyEnum.DarkenColorOnly;
-                case PSDBlendMode.Lighten:
-                    return TTTBlendTypeKeyEnum.LightenOnly;
-                case PSDBlendMode.Screen:
-                    return TTTBlendTypeKeyEnum.Screen;
-                case PSDBlendMode.ColorDodge:
-                    return TTTBlendTypeKeyEnum.ColorDodge;
-                case PSDBlendMode.LinearDodge:
-                    return TTTBlendTypeKeyEnum.Addition;
-                case PSDBlendMode.LighterColor:
-                    return TTTBlendTypeKeyEnum.LightenColorOnly;
-                case PSDBlendMode.Overlay:
-                    return TTTBlendTypeKeyEnum.Overlay;
-                case PSDBlendMode.SoftLight:
-                    return TTTBlendTypeKeyEnum.SoftLight;
-                case PSDBlendMode.HardLight:
-                    return TTTBlendTypeKeyEnum.HardLight;
-                case PSDBlendMode.VividLight:
-                    return TTTBlendTypeKeyEnum.VividLight;
-                case PSDBlendMode.LinearLight:
-                    return TTTBlendTypeKeyEnum.LinearLight;
-                case PSDBlendMode.PinLight:
-                    return TTTBlendTypeKeyEnum.PinLight;
-                case PSDBlendMode.HardMix:
-                    return TTTBlendTypeKeyEnum.HardMix;
-                case PSDBlendMode.Difference:
-                    return TTTBlendTypeKeyEnum.Difference;
-                case PSDBlendMode.Exclusion:
-                    return TTTBlendTypeKeyEnum.Exclusion;
-                case PSDBlendMode.Divide:
-                    return TTTBlendTypeKeyEnum.Divide;
-                case PSDBlendMode.Hue:
-                    return TTTBlendTypeKeyEnum.Hue;
-                case PSDBlendMode.Saturation:
-                    return TTTBlendTypeKeyEnum.Saturation;
-                case PSDBlendMode.Color:
-                    return TTTBlendTypeKeyEnum.Color;
-                case PSDBlendMode.Luminosity:
-                    return TTTBlendTypeKeyEnum.Luminosity;
-            }
-        }
     }
 }
