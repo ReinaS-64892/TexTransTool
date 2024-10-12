@@ -9,9 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - MultiLayerImageCanvas の処理時に必要な VRAM 使用量が大幅に削減されました (#672)
-- TTT PSD Importer の PSD の出力元ソフトウェアの判定をオーバーライドできる、 ImportMode 設定が追加されました (#)
-- TTT PSD Importer の PSD の出力元ソフトウェアに応じて PassThrough や Clipping が調整されるようになりました (#)
-- 16Bit 32Bit の PSD をインポートできるようになりました (#)
+- TTT PSD Importer の PSD の出力元ソフトウェアの判定をオーバーライドできる、 ImportMode 設定が追加されました (#675)
+- TTT PSD Importer の PSD の出力元ソフトウェアに応じて PassThrough や Clipping が調整されるようになりました (#675)
+- 16Bit 32Bit の PSD をインポートとビルドができるようになりました (#675)
 
 ### Fixed
 
