@@ -25,6 +25,7 @@ namespace net.rs64.TexTransTool.Editor
             if (s_blendTypeKeyContents == null || s_nowLangCode != TTTConfig.Language)
             {
                 if (TextureBlend.BlendObjects == null) { return; }//次フレームを待つ
+                s_nowLangCode = TTTConfig.Language;
                 var langCode = TTTConfig.Language.ToString().ToLower();
 
                 var stdKeys = new string[]{
