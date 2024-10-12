@@ -74,8 +74,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 var layerAndMaskInfoStream = spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength);
                 psd.LayerInfo = LayerInformationParser.PaseLayerInfo(psd.IsPSB, ref layerAndMaskInfoStream);
-                psd.GlobalLayerMaskInfo = GlobalLayerMaskInformationParser.PaseGlobalLayerMaskInformation(ref layerAndMaskInfoStream);
-                psd.CanvasTypeAdditionalLayerInfo = AdditionalLayerInfo.AdditionalLayerInformationParser.PaseAdditionalLayerInfos(psd.IsPSB, layerAndMaskInfoStream, true);
+                if ((layerAndMaskInfoStream.Length - layerAndMaskInfoStream.Position) > 0) { psd.GlobalLayerMaskInfo = GlobalLayerMaskInformationParser.PaseGlobalLayerMaskInformation(ref layerAndMaskInfoStream); }
+                if ((layerAndMaskInfoStream.Length - layerAndMaskInfoStream.Position) > 0) { psd.CanvasTypeAdditionalLayerInfo = AdditionalLayerInfo.AdditionalLayerInformationParser.PaseAdditionalLayerInfos(psd.IsPSB, layerAndMaskInfoStream, true); }
             }
 
 

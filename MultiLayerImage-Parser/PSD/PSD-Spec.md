@@ -181,6 +181,8 @@ PSD の一番重要な レイヤー情報やそのレイヤーが持つピクセ
 |Variable = [後述参照](#globallayermaskinfo)|GlobalLayerMaskInfo: [後述参照](#globallayermaskinfo)|
 |Variable = Unknown|CanvasType-AdditionalLayerInformationArray: レイヤー追加情報がキャンバスに対して付与されることがあるようです...は???  恐らく LayerAndMaskInformationLength が尽きるまで並んでいる。[後述参照](#additionallayerinformation)|
 
+このセクションには LayerInfo だけが含まれている場合もあるので、長さが尽きたら GlobalLayerMaskInfo や CanvasType-AdditionalLayerInformationArray を読み始めてしまわないように注意！
+
 ### LayerInfo
 
 |Byte|Description|
