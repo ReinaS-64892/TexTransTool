@@ -9,7 +9,6 @@ using Unity.Jobs;
 using Unity.Burst;
 using net.rs64.TexTransUnityCore;
 using System.Linq;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransUnityCore.Utils;
 

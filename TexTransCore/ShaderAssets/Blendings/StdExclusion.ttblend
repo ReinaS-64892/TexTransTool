@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Exclusion"
+#pragma KeyName_jp "除外"
+
+#define Exclusion 1
+#include "./BlendColor.hlsl"

@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Color"
+#pragma KeyName_jp "カラー"
+
+#define Color 1
+#include "./BlendColor.hlsl"

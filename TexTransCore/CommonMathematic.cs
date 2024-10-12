@@ -10,6 +10,7 @@ namespace net.rs64.TexTransCore
         public float X;
         [FieldOffset(4)]
         public float Y;
+        public float[] ToArray() { return new float[] { X, Y }; }
     }
     [StructLayout(LayoutKind.Explicit)]
     public struct Vector3
@@ -20,6 +21,7 @@ namespace net.rs64.TexTransCore
         public float Y;
         [FieldOffset(8)]
         public float Z;
+        public float[] ToArray() { return new float[] { X, Y, Z }; }
     }
     [StructLayout(LayoutKind.Explicit)]
     public struct Vector4
@@ -40,6 +42,7 @@ namespace net.rs64.TexTransCore
             Z = z;
             W = w;
         }
+        public float[] ToArray() { return new float[] { X, Y, Z, W }; }
     }
     [StructLayout(LayoutKind.Explicit)]
     public struct ColorWOAlpha
@@ -50,7 +53,11 @@ namespace net.rs64.TexTransCore
         public float G;
         [FieldOffset(8)]
         public float B;
+        public float[] ToArray() { return new float[] { R, G, B }; }
     }
+    /// <summary>
+    /// ガンマ色空間の色を表現する
+    /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     public struct Color
     {
@@ -72,5 +79,20 @@ namespace net.rs64.TexTransCore
         }
 
         public static Color Zero => new Color(0, 0, 0, 0);
+
+        public float[] ToArray() { return new float[] { R, G, B, A }; }
+    }
+
+
+    [System.AttributeUsage(System.AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    sealed class Range : System.Attribute
+    {
+        public float Min;
+        public float Max;
+        public Range(float min, float max)
+        {
+            Min = min;
+            Max = max;
+        }
     }
 }

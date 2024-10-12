@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "ColorDodge"
+#pragma KeyName_jp "覆い焼カラー"
+
+#define ColorDodge 1
+#include "./BlendColor.hlsl"

@@ -1,0 +1,8 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Clip/Overlay"
+#pragma KeyName_jp "クリスタ/オーバーレイ"
+
+#define Overlay 1
+#define Clip 1
+#include "./BlendColor.hlsl"

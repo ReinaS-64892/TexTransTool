@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "ColorDodgeGlow"
+#pragma KeyName_jp "覆い焼き発光"
+
+#define ColorDodgeGlow 1
+#include "./BlendColor.hlsl"

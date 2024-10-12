@@ -1,0 +1,8 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Clip/Difference"
+#pragma KeyName_jp "クリスタ/差の絶対値"
+
+#define Difference 1
+#define Clip 1
+#include "./BlendColor.hlsl"

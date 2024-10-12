@@ -10,10 +10,18 @@ namespace net.rs64.TexTransCore
     public interface ITTEngine
     {
         /// <summary>
-        /// フォーマットなどはエンジン側が決める話ですが、 RGBA の 4チャンネルあることを前提とします。
-        /// 内容は必ず すべてのチャンネルが 0 で初期化されている。
+        /// フォーマットなどはエンジン側が決める話です。
+        /// 内容は必ず すべてのチャンネルが 0 で初期化されている。アルファも 0 。
+        /// 基本的に RGBA の 4チャンネルで Gamma がデフォだけど、エンジン側がいい感じにすることを前提としてリニアにもできるようにしたいね！
         /// </summary>
         ITTRenderTexture CreateRenderTexture(int width, int height, bool mipMap = false, bool depthAndStencil = false);
+
+        /// <summary>
+        /// TransTexture などで深度情報として扱うようなものだが、今のところ未実装だ。
+        /// フォーマットなどの指定はエンジン側が決める話。
+        /// 基本的にはリニア確定で一チャンネルのデータを想定してる。
+        /// </summary>
+        // ITTDepthRenderTexture CreateDepthRenderTexture(int width, int height);
 
         /// <summary>
         /// DiskTexture からロードして writeTarget に向けてソースデータを書き込む。
@@ -34,9 +42,8 @@ namespace net.rs64.TexTransCore
 
         /// <summary>
         /// その RenderTexture を Clear する、特定の色で。 Depth や Stencil などもクリアされます。
+        /// カラーはガンマ色空間を想定
         /// </summary>
-        /// <param name="renderTexture"></param>
-        /// <param name="fillColor"></param>
         void ClearRenderTexture(ITTRenderTexture renderTexture, Color fillColor);
 
         void FillAlpha(ITTRenderTexture renderTexture, float alpha);
@@ -74,13 +81,18 @@ namespace net.rs64.TexTransCore
         /// </summary>
         void GenerateMipMap(ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey = null);
 
-
         /// <summary>
         /// キーオブジェクトを基に dist を下のレイヤー add を上のレイヤーとして色合成する。
         /// 最終結果は dist に書き込まれる。
         /// サイズが必ず同一である必要がある。
         /// </summary>
         void TextureBlend(ITTRenderTexture dist, ITTRenderTexture add, ITTBlendKey blendKey);
+
+        /// <summary>
+        /// GrabTexture の内容を基にいい感じに色調調整などを行う。
+        /// 内容の調整は、 GrabCompute 側に仕込まれている。
+        /// </summary>
+        void GrabBlending(ITTRenderTexture grabTexture, TTGrabBlending grabCompute);
 
         // /// <summary>
         // /// ITTTransData を基に変形する。
@@ -89,6 +101,25 @@ namespace net.rs64.TexTransCore
         // /// </summary>
         // void TransTexture(ITTTexture transSource, ITTRenderTexture writeTarget, ITTTransData transData)
 
+    }
+    /// <summary>
+    /// こっちの空間からは基本的にたたいてはならない！
+    /// 向こう側で、取り回し上あった方がかなり便利な関数や、正しく定義することを強制するためのインターフェース
+    /// </summary>
+    public interface ITexTransToolEngine : ITTEngine
+    {
+        /// <summary>
+        /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
+        /// キーに合うものがなかった場合の取り回しは...場合によって変える方がいいね、例外はいてもいいし、デフォルトにフォールバックしてもいい。動作しないものにしてもよいね
+        /// </summary>
+        ITTBlendKey QueryBlendKey(string blendKeyName);
+        ITTComputeKey QueryComputeKey(string ComputeKeyName);
+
+
+        /// <summary>
+        ///  レンダーテクスチャーの色空間。基本はガンマであってほしいがどちらかであることを正しく実装するべきで、それも変えれるようにあるべきだが、これはこのコンテキストが始まる時点で定義するべきであるな。
+        /// </summary>
+        bool RenderTextureColorSpaceIsLinear { get; }
     }
 
     public static class EnginUtil

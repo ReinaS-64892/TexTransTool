@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Mul"
+#pragma KeyName_jp "乗算"
+
+#define Mul 1
+#include "./BlendColor.hlsl"

@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
 using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.BlendTexture;
-using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
@@ -22,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [SerializeReference] public ILayerMask LayerMask = new LayerMask();
 
-        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject GetLayerObject(ITextureManager textureManager);
+        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager);
         internal virtual TexTransCore.MultiLayerImageCanvas.AlphaMask GetAlphaMask(ITextureManager textureManager)
         { return new LayerAlphaMod(textureManager, Opacity, LayerMask); }
         class LayerAlphaMod : TexTransCore.MultiLayerImageCanvas.AlphaMask
@@ -44,7 +40,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                     using (TTRt.U(out var rt, maskTarget.Width, maskTarget.Hight))
                     {
                         _layerMask.WriteMaskTexture(rt, _textureManager);
-                        TextureBlend.MaskDrawRenderTexture(maskTarget.ToUnity(), rt);
+                        TextureBlend.AlphaMultiplyWithTexture(maskTarget.ToUnity(), rt);
                     }
             }
         }

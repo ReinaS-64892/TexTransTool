@@ -7,9 +7,8 @@ using net.rs64.TexTransUnityCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Pool;
-using static net.rs64.TexTransUnityCore.BlendTexture.TextureBlend;
 using Object = UnityEngine.Object;
+using static net.rs64.TexTransUnityCore.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {

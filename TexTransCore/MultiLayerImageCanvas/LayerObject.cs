@@ -11,7 +11,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         public bool PreBlendToLayerBelow;
         public AlphaMask AlphaMask;
 
-        public LayerObject(bool visible, bool preBlendToLayerBelow, AlphaMask alphaMask)
+        public LayerObject(bool visible, AlphaMask alphaMask, bool preBlendToLayerBelow)
         {
             Visible = visible;
             PreBlendToLayerBelow = preBlendToLayerBelow;

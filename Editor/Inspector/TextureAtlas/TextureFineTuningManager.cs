@@ -1,16 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
-using net.rs64.TexTransUnityCore.Utils;
 using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
+using static net.rs64.TexTransUnityCore.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -372,7 +369,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _textureManager = textureManager;
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair { }
+        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair { }
         public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
         public ITextureManager GetTextureManager() { return _textureManager; }
         public bool IsPreview() { return true; }

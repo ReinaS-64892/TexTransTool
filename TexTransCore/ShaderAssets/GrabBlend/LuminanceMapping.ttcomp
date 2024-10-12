@@ -1,0 +1,20 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType GrabBlend
+#pragma ColorSpace Gamma
+
+#include "../Blendings/SetSL.hlsl"
+
+Texture2D Gradient;
+SamplerState samplerGradient;
+
+RWTexture2D<float4> Tex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+
+    float lum = GetLum(col.rgb);
+    col = Gradient.SampleLevel(samplerGradient, float2(lum, 0.5) , 0 );
+
+    Tex[id.xy] = col;
+}

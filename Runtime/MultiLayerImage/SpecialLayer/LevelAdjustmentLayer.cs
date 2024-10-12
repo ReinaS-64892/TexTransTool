@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using net.rs64.TexTransUnityCore;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
@@ -13,35 +14,40 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Level Red;
         public Level Green;
         public Level Blue;
-
+        internal override LayerObject GetLayerObject(TexTransCore.ITexTransToolEngine engine, ITextureManager textureManager)
+        {
+            var level = new LevelAdjustment(engine.QueryComputeKey(nameof(LevelAdjustment)), RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData());
+            return new GrabBlendingAsLayer(Visible, GetAlphaMask(textureManager), Clipping, engine.QueryBlendKey(BlendTypeKey), level);
+        }
         public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
         {
-            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LevelAdjustmentShader);
-            using (TTRt.U(out var tempRt, grabSource.descriptor))
-            {
+            throw new NotSupportedException();
+            // var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LevelAdjustmentShader);
+            // using (TTRt.U(out var tempRt, grabSource.descriptor))
+            // {
 
-                mat.EnableKeyword("RGB");
-                RGB.SetMaterialProperty(mat);
-                Graphics.Blit(grabSource, tempRt, mat);
-                mat.DisableKeyword("RGB");
+            //     mat.EnableKeyword("RGB");
+            //     RGB.SetMaterialProperty(mat);
+            //     Graphics.Blit(grabSource, tempRt, mat);
+            //     mat.DisableKeyword("RGB");
 
-                // Graphics.CopyTexture(tempRt, WriteTarget);
+            //     // Graphics.CopyTexture(tempRt, WriteTarget);
 
-                mat.EnableKeyword("Red");
-                Red.SetMaterialProperty(mat);
-                Graphics.Blit(tempRt, writeTarget, mat);
-                mat.DisableKeyword("Red");
+            //     mat.EnableKeyword("Red");
+            //     Red.SetMaterialProperty(mat);
+            //     Graphics.Blit(tempRt, writeTarget, mat);
+            //     mat.DisableKeyword("Red");
 
-                mat.EnableKeyword("Green");
-                Green.SetMaterialProperty(mat);
-                Graphics.Blit(writeTarget, tempRt, mat);
-                mat.DisableKeyword("Green");
+            //     mat.EnableKeyword("Green");
+            //     Green.SetMaterialProperty(mat);
+            //     Graphics.Blit(writeTarget, tempRt, mat);
+            //     mat.DisableKeyword("Green");
 
-                mat.EnableKeyword("Blue");
-                Blue.SetMaterialProperty(mat);
-                Graphics.Blit(tempRt, writeTarget, mat);
-                mat.DisableKeyword("Blue");
-            }
+            //     mat.EnableKeyword("Blue");
+            //     Blue.SetMaterialProperty(mat);
+            //     Graphics.Blit(tempRt, writeTarget, mat);
+            //     mat.DisableKeyword("Blue");
+            // }
         }
 
         [Serializable]
@@ -62,6 +68,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 material.SetFloat("_Gamma", Gamma);
                 material.SetFloat("_OutputFloor", OutputFloor);
                 material.SetFloat("_OutputCeiling", OutputCeiling);
+            }
+
+            public LevelData ToTTCoreLevelData()
+            {
+                var levelData = new LevelData();
+                levelData.InputFloor = InputFloor;
+                levelData.InputCeiling = InputCeiling;
+                levelData.Gamma = Gamma;
+                levelData.OutputFloor = OutputFloor;
+                levelData.OutputCeiling = OutputCeiling;
+                return levelData;
             }
         }
     }

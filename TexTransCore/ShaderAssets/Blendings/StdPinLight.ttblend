@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "PinLight"
+#pragma KeyName_jp "ピンライト"
+
+#define PinLight 1
+#include "./BlendColor.hlsl"

@@ -1,0 +1,36 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType GrabBlend
+#pragma ColorSpace Gamma
+
+#include "../Blendings/SetSL.hlsl"
+#include "../Blendings/HSL.hlsl"
+
+float4 Color;
+RWTexture2D<float4> Tex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+
+    float3 hsl = float3(0, 0, 0);
+    float3 targetHSL = RGBtoHSL(Color.rgb);
+
+    hsl.r = targetHSL.r;
+    hsl.g = targetHSL.g;
+
+    float lum = GetLum(col.rgb);
+    float lightness = targetHSL.b * 2.0 - 1.0;
+    if (lightness > 0.0)
+    {
+        lum = (lum * (1.0 - lightness)) + (1.0 - (1.0 - lightness));
+    }
+    else
+    {
+        lum = lum * (lightness + 1.0);
+    }
+    hsl.z = lum;
+
+    col.rgb = HSLtoRGB(hsl);
+
+    Tex[id.xy] = col;
+}

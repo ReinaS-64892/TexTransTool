@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "DarkenColorOnly"
+#pragma KeyName_jp "カラー比較(暗)"
+
+#define DarkenColorOnly 1
+#include "./BlendColor.hlsl"

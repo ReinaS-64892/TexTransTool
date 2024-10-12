@@ -1,5 +1,4 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransUnityCore.BlendTexture;
 using net.rs64.TexTransUnityCore;
 using Unity.Collections;
 using Unity.Jobs;
@@ -66,7 +65,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), format, false);
             texR.filterMode = FilterMode.Point;
 
-            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
+            TextureBlend.FillColor(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
 
             if (!isZeroSize)
             {

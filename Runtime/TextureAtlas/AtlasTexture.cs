@@ -15,7 +15,6 @@ using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
 using net.rs64.TexTransUnityCore.MipMap;
 using Unity.Mathematics;
-using net.rs64.TexTransUnityCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -317,7 +316,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var propName in containsProperty)
             {
                 var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
-                TextureBlend.ColorBlit(targetRT, atlasSetting.BackGroundColor);
+                TextureBlend.FillColor(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)

@@ -1,0 +1,7 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Hue"
+#pragma KeyName_jp "色相"
+
+#define Hue 1
+#include "./BlendColor.hlsl"
