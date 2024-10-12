@@ -12,11 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTT PSD Importer の PSD の出力元ソフトウェアの判定をオーバーライドできる、 ImportMode 設定が追加されました (#675)
 - TTT PSD Importer の PSD の出力元ソフトウェアに応じて PassThrough や Clipping が調整されるようになりました (#675)
 - 16Bit 32Bit の PSD をインポートとビルドができるようになりました (#675)
-- 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#)
+- 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#676)
 
 ### Fixed
 
-- PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#)
+- PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
 
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 
