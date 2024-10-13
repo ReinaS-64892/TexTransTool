@@ -28,7 +28,7 @@ RWTexture2D<float4> Tex;
     if (Saturation >= 0.0)
     {
         // 合計が1を超えない場合 Saturationの値が反転して出てくる-合計が1を超えた瞬間色の saturation がそのまま出てくる
-        //Saturationが値大きくなってくるとがたつくような見た目になるのはここが原因だが、これが参考とされる実装ゆえこれが正しい。 (ref clip&ps)
+        //Saturationが値大きくなってくるとがたつくような見た目になるのはここが原因だが、これが参考とされる実装ゆえこれが正しい。 (ref ps)
         float moveVal = (saturation + Saturation) >= 1.0 ? saturation : 1.000001 - Saturation;
         moveVal = 1.0 / moveVal - 1.0;
         col.rgb = saturate(col.rgb + ((col.rgb - lightness) * moveVal));
