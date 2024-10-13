@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Codice.ThemeImages;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
