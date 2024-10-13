@@ -1,0 +1,104 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType GrabBlend
+#pragma ColorSpace Gamma
+
+#include "../Blendings/HSV.hlsl"
+
+float Hue;
+float Saturation;
+float Value;
+RWTexture2D<float4> Tex;
+
+// クリスタの 色相・彩度・明度を再現する代物。
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+    float3 hsvCol = RGBtoHSV(col.rgb);
+
+    float hMax = 196608;
+    float sMax = 65536;
+    float vMax = 255;
+
+    float h = hsvCol.r * hMax;
+    float s = hsvCol.g * sMax;
+    float v = hsvCol.b * vMax;
+
+    float hf = (Hue * 0.5) * hMax; // 一周しないように半分にする
+    float sf = Saturation * sMax;
+    float vf = Value * vMax;
+
+    float h1 = h + hf;
+    h1 = hMax * frac(h1 / hMax);
+
+    float v1 = 0;
+    float s1 = 0;
+    if (vf > 0)
+    {
+        v1 = v + (((vMax - v) * (vf / vMax)));
+        v1 = clamp(v1, 0, vMax);
+
+        s1 = s - ((s * (vf / vMax)));
+        s1 = clamp(s1, 0, sMax);
+    }
+    else if (vf < 0)
+    {
+        v1 = v - ((v * (-vf / vMax)));
+        v1 = clamp(v1, 0, vMax);
+
+        s1 = s;
+    }
+    else
+    {
+        v1 = v;
+        s1 = s;
+    }
+
+    float v2 = 0;
+    float s2 = 0;
+    if (sf != 0 && s > 0 && v > 0)
+    {
+        if (sf > 0)
+        {
+            float sat = ((sMax - s1) * (sf / sMax));
+            float val_c = (v1 * (sat / sMax));
+
+            v2 = v1 + val_c;
+
+            v2 = clamp(v2, 0, vMax);
+
+            if (v2 == vMax)
+            {
+                s2 = s1 + ((sat * (vMax - v1)) / val_c);
+            }
+            else
+            {
+                s2 = s1 + sat;
+            }
+            s2 = clamp(s2, 0, sMax);
+        }
+        else if (sf < 0)
+        {
+            s2 = s1 - (s1 * (-sf / sMax));
+            s2 = clamp(s2, 0, sMax);
+
+            v2 = v1 - (v1 * ((s1 - s2) / sMax));
+            v2 = clamp(v2, 0, vMax);
+        }
+        else
+        {
+            v2 = v1;
+            s2 = s1;
+        }
+    }
+    else
+    {
+        v2 = v1;
+        s2 = s1;
+    }
+
+    hsvCol.r = h1 / hMax;
+    hsvCol.g = s2 / sMax;
+    hsvCol.b = v2 / vMax;
+    col.rgb = HSVtoRGB(hsvCol);
+    Tex[id.xy] = col;
+}
