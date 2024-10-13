@@ -30,7 +30,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             Saturation = stream.ReadInt16();
             Lightness = stream.ReadInt16();
 
-            //レンジとかなんたらはよくわからないので見なかったことにします。
+            //レンジとかなんたらは、現状対応する実装がないので読み取らない。
         }
     }
     /*
