@@ -15,7 +15,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         Normal,
         Dissolve,
         Darken,
-        Multiply,
+        Mul,
         ColorBurn,
         LinearBurn,
         DarkerColor,
@@ -91,7 +91,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 case "dark":
                     return PSDBlendMode.Darken;
                 case "mul ":
-                    return PSDBlendMode.Multiply;
+                    return PSDBlendMode.Mul;
                 case "idiv":
                     return PSDBlendMode.ColorBurn;
                 case "lbrn":
