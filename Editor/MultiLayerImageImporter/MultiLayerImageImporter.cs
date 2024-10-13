@@ -61,89 +61,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateLayerFolder(newLayer, layerFolder);
                             break;
                         }
-                    case HSLAdjustmentLayerData hSVAdjustmentLayerData:
+                    default:
                         {
-                            CreateHSLAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
+                            if (SpecialLayerDataImporterUtil.SpecialLayerDataImporters.ContainsKey(layer.GetType()))
+                                SpecialLayerDataImporterUtil.SpecialLayerDataImporters[layer.GetType()].CreateSpecial(CopyFromData, newLayer, layer);
                             break;
                         }
-                    case SolidColorLayerData solidColorLayerData:
-                        {
-                            CreateSolidColorLayer(newLayer, solidColorLayerData);
-                            break;
-                        }
-                    case LevelAdjustmentLayerData levelAdjustmentLayerData:
-                        {
-                            CreateLevelLayer(newLayer, levelAdjustmentLayerData);
-                            break;
-                        }
-                    case SelectiveColorLayerData selectiveColorLayerData:
-                        {
-                            CreateSelectiveColorLayer(newLayer, selectiveColorLayerData);
-                            break;
-                        }
-
                 }
             }
 
-        }
-
-        private void CreateSelectiveColorLayer(GameObject newLayer, SelectiveColorLayerData selectiveColorLayerData)
-        {
-            var selectiveColoringAdjustmentLayer = newLayer.AddComponent<SelectiveColoringAdjustmentLayer>();
-            CopyFromData(selectiveColoringAdjustmentLayer, selectiveColorLayerData);
-
-            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK.ToUnity();
-            selectiveColoringAdjustmentLayer.IsAbsolute = selectiveColorLayerData.IsAbsolute;
-        }
-
-        private void CreateSolidColorLayer(GameObject newLayer, SolidColorLayerData solidColorLayerData)
-        {
-            var SolidColorLayerComponent = newLayer.AddComponent<SolidColorLayer>();
-            CopyFromData(SolidColorLayerComponent, solidColorLayerData);
-
-            SolidColorLayerComponent.Color = solidColorLayerData.Color.ToUnity();
-        }
-
-        private void CreateHSLAdjustmentLayer(GameObject newLayer, HSLAdjustmentLayerData hSVAdjustmentLayerData)
-        {
-            var HSVAdjustmentLayerComponent = newLayer.AddComponent<HSLAdjustmentLayer>();
-            CopyFromData(HSVAdjustmentLayerComponent, hSVAdjustmentLayerData);
-
-            HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
-            HSVAdjustmentLayerComponent.Saturation = hSVAdjustmentLayerData.Saturation;
-            HSVAdjustmentLayerComponent.Lightness = hSVAdjustmentLayerData.Lightness;
-        }
-
-        private void CreateLevelLayer(GameObject newLayer, LevelAdjustmentLayerData levelAdjustmentLayerData)
-        {
-            var HSVAdjustmentLayerComponent = newLayer.AddComponent<LevelAdjustmentLayer>();
-            CopyFromData(HSVAdjustmentLayerComponent, levelAdjustmentLayerData);
-
-            HSVAdjustmentLayerComponent.RGB = Convert(levelAdjustmentLayerData.RGB);
-            HSVAdjustmentLayerComponent.Red = Convert(levelAdjustmentLayerData.Red);
-            HSVAdjustmentLayerComponent.Green = Convert(levelAdjustmentLayerData.Green);
-            HSVAdjustmentLayerComponent.Blue = Convert(levelAdjustmentLayerData.Blue);
-
-            static LevelAdjustmentLayer.Level Convert(LevelAdjustmentLayerData.LevelData levelData)
-            {
-                var level = new LevelAdjustmentLayer.Level();
-
-                level.InputFloor = levelData.InputFloor;
-                level.InputCeiling = levelData.InputCeiling;
-                level.Gamma = levelData.Gamma;
-                level.OutputFloor = levelData.OutputFloor;
-                level.OutputCeiling = levelData.OutputCeiling;
-
-                return level;
-            }
         }
 
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)

@@ -25,7 +25,7 @@ namespace net.rs64.TexTransUnityCore.Utils
                 });
         }
 
-        public static IEnumerable<Type> GetInterfaceImplementTypes<T>(Type[] ignoreType)
+        public static IEnumerable<Type> GetInterfaceImplementTypes<T>(params Type[] ignoreType)
         {
             if (ignoreType == null) { ignoreType = new[] { typeof(object) }; }
             return AppDomain.CurrentDomain.GetAssemblies()

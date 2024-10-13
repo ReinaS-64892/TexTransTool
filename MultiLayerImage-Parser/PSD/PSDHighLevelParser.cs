@@ -46,7 +46,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             return psd;
         }
 
-        class HighLevelParserContext
+        internal class HighLevelParserContext
         {
             internal PSDImportMode ImportMode;
             internal Queue<ChannelImageData> ImageDataQueue;
@@ -282,7 +282,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         {
             var channelInfoAndImage = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
-            if (TryParseSpecialLayer(record, channelInfoAndImage, out var abstractLayerData))
+            if (TryParseSpecialLayer(ctx, record, channelInfoAndImage, out var abstractLayerData))
             {
                 ctx.SourceLayerRecode[abstractLayerData] = new() { record };
                 return abstractLayerData;
@@ -305,103 +305,16 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
             return rasterLayer;
         }
-        internal static bool TryParseSpecialLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage, out AbstractLayerData abstractLayerData)
+        internal static bool TryParseSpecialLayer(HighLevelParserContext ctx, LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage, out AbstractLayerData abstractLayerData)
         {
             var addLayerInfoTypes = record.AdditionalLayerInformation.Select(i => i.GetType()).ToHashSet();
-            var spPair = SpecialParserDict.FirstOrDefault(i => addLayerInfoTypes.Contains(i.Key));
+            var spPair = SpecialLayerParserUtil.SpecialLayerParser.FirstOrDefault(i => addLayerInfoTypes.Contains(i.Key));
 
             if (spPair.Key == null || spPair.Value == null) { abstractLayerData = null; return false; }
 
-            abstractLayerData = spPair.Value.Invoke(record, channelInfoAndImage);
+            abstractLayerData = spPair.Value.Perse(ctx, record, channelInfoAndImage);
             return true;
         }
-        internal delegate AbstractLayerData SpecialLayerParser(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage);
-        internal static Dictionary<Type, SpecialLayerParser> SpecialParserDict = new()
-        {
-            {typeof(AdditionalLayerInfo.hue2),SpecialHueLayer},
-            {typeof(AdditionalLayerInfo.hueOld),SpecialHueLayer},
-            {typeof(AdditionalLayerInfo.SoCo), SpecialSolidColorLayer},
-            {typeof(AdditionalLayerInfo.levl), SpecialLevelLayer},
-            {typeof(AdditionalLayerInfo.selc), SpecialSelectiveColorLayer},
-        };
-
-        private static AbstractLayerData SpecialSelectiveColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
-        {
-            var selectiveColorData = new SelectiveColorLayerData();
-            var selc = record.AdditionalLayerInformation.First(i => i is selc) as selc;
-
-            selectiveColorData.CopyFromRecord(record, channelInfoAndImage);
-
-            selectiveColorData.RedsCMYK = selc.RedsCMYK;
-            selectiveColorData.YellowsCMYK = selc.YellowsCMYK;
-            selectiveColorData.GreensCMYK = selc.GreensCMYK;
-            selectiveColorData.CyansCMYK = selc.CyansCMYK;
-            selectiveColorData.BluesCMYK = selc.BluesCMYK;
-            selectiveColorData.MagentasCMYK = selc.MagentasCMYK;
-            selectiveColorData.WhitesCMYK = selc.WhitesCMYK;
-            selectiveColorData.NeutralsCMYK = selc.NeutralsCMYK;
-            selectiveColorData.BlacksCMYK = selc.BlacksCMYK;
-
-            selectiveColorData.IsAbsolute = selc.IsAbsolute;
-
-            return selectiveColorData;
-        }
-
-        private static AbstractLayerData SpecialSolidColorLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
-        {
-            var solidColorData = new SolidColorLayerData();
-            var soCo = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.SoCo) as AdditionalLayerInfo.SoCo;
-
-            solidColorData.CopyFromRecord(record, channelInfoAndImage);
-            solidColorData.Color = soCo.Color;
-
-            return solidColorData;
-        }
-
-        internal static AbstractLayerData SpecialHueLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
-        {
-            var hueData = new HSLAdjustmentLayerData();
-            var hue = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.hue) as AdditionalLayerInfo.hue;
-
-            if (hue.Colorization) { Debug.Log($"Colorization of {record.LayerName} is no supported"); }
-
-            hueData.CopyFromRecord(record, channelInfoAndImage);
-
-            hueData.Hue = hue.Hue / (float)(hue.IsOld is false ? 180f : 100f);
-            hueData.Saturation = hue.Saturation / 100f;
-            hueData.Lightness = hue.Lightness / 100f;
-
-            return hueData;
-        }
-
-        internal static AbstractLayerData SpecialLevelLayer(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
-        {
-            var levelData = new LevelAdjustmentLayerData();
-            var levl = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.levl) as AdditionalLayerInfo.levl;
-
-            levelData.CopyFromRecord(record, channelInfoAndImage);
-
-            levelData.RGB = Convert(levl.RGB);
-            levelData.Red = Convert(levl.Red);
-            levelData.Green = Convert(levl.Green);
-            levelData.Blue = Convert(levl.Blue);
-
-            return levelData;
-
-            static LevelAdjustmentLayerData.LevelData Convert(levl.LevelData levelData)
-            {
-                var data = new LevelAdjustmentLayerData.LevelData();
-
-                data.InputFloor = levelData.InputFloor / 255f;
-                data.InputCeiling = levelData.InputCeiling / 255f;
-                data.OutputFloor = levelData.OutputFloor / 255f;
-                data.OutputCeiling = levelData.OutputCeiling / 255f;
-                data.Gamma = levelData.Gamma * 0.01f;
-
-                return data;
-            }
-        }
-
         private static ImportRasterImageData ParseRasterImage(LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             if (!channelInfoAndImage.ContainsKey(ChannelIDEnum.Red)) { return null; }

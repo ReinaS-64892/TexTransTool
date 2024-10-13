@@ -59,7 +59,7 @@ RWTexture2D<float4> Tex;
     {
         if (sf > 0)
         {
-            float sat = ((sMax - s) * (sf / sMax));
+            float sat = ((sMax - s1) * (sf / sMax));
             float val_c = (v1 * (sat / sMax));
 
             v2 = v1 + val_c;
