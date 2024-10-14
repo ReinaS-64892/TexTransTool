@@ -23,6 +23,8 @@ namespace net.rs64.TexTransTool
             var pragmas = lines.Where(l => l.StartsWith("#pragma"));
             var pragmaKV = pragmas.Select(l => l.Split(" ")).Where(s => s.Length >= 3).ToDictionary(s => TTBlendUnityObjectImporter.RemoveControls(s[1]), s => TTBlendUnityObjectImporter.RemoveControls(s[2]));
 
+            TTBlendUnityObjectImporter.CheckUnityCGinc(lines);
+
             TTComputeUnityObject obj;
             switch (pragmaKV["TTComputeType"])
             {
