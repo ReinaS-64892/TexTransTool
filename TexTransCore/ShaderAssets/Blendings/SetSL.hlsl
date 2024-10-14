@@ -1,4 +1,7 @@
-//#pragma HLSL_Version 2018
+// #pragma HLSL_Version 2018
+
+#ifndef SETSL_H
+#define SETSL_H
 
 float GetLum(float3 rgbCol)
 {
@@ -8,17 +11,17 @@ float GetLum(float3 rgbCol)
 float3 ClipColor(float3 rgbCol)
 {
     float l = GetLum(rgbCol);
-    float n = min(rgbCol.r,min(rgbCol.g,rgbCol.b));
-    float x = max(rgbCol.r,max(rgbCol.g,rgbCol.b));
+    float n = min(rgbCol.r, min(rgbCol.g, rgbCol.b));
+    float x = max(rgbCol.r, max(rgbCol.g, rgbCol.b));
 
-    if(n < 0.0)
+    if (n < 0.0)
     {
         rgbCol.r = l + (((rgbCol.r - l) * l) / (l - n));
         rgbCol.g = l + (((rgbCol.g - l) * l) / (l - n));
         rgbCol.b = l + (((rgbCol.b - l) * l) / (l - n));
     }
 
-    if(x > 1.0)
+    if (x > 1.0)
     {
         rgbCol.r = l + (((rgbCol.r - l) * (1 - l)) / (x - l));
         rgbCol.g = l + (((rgbCol.g - l) * (1 - l)) / (x - l));
@@ -28,7 +31,7 @@ float3 ClipColor(float3 rgbCol)
     return rgbCol;
 }
 
-float3 SetLum(float3 rgbCol,float l)
+float3 SetLum(float3 rgbCol, float l)
 {
     float d = l - GetLum(rgbCol);
 
@@ -39,34 +42,34 @@ float3 SetLum(float3 rgbCol,float l)
     return ClipColor(rgbCol);
 }
 
-
-float GetSat(float3 rgbCol)//双円錐モデル
+float GetSat(float3 rgbCol) // 双円錐モデル
 {
-    return max(max(rgbCol.r,rgbCol.g),rgbCol.b) -  min(min(rgbCol.r,rgbCol.g),rgbCol.b) ;
+    return max(max(rgbCol.r, rgbCol.g), rgbCol.b) - min(min(rgbCol.r, rgbCol.g), rgbCol.b);
 }
 
-float SetSatChannel(float col,float maxVal,float minVal,float medVal,float sat,float notSat)
+float SetSatChannel(float col, float maxVal, float minVal, float medVal, float sat, float notSat)
 {
     float thisMax = col == maxVal;
     float thisMin = col == minVal;
     float thisMed = col == medVal;
-    float avoidNan = notSat > 0.5 ? 2.4414e-4 : 0 ;
+    float avoidNan = notSat > 0.5 ? 2.4414e-4 : 0;
 
     float med = (((col - minVal) * sat) / (maxVal - minVal + avoidNan)) * thisMed;
-    return ((sat * thisMax) + med) *( 1 - notSat );
+    return ((sat * thisMax) + med) * (1 - notSat);
 }
 
-float3 SetSat(float3 rgbCol,float s)
+float3 SetSat(float3 rgbCol, float s)
 {
-    float maxVal = max(max(rgbCol.r,rgbCol.g),rgbCol.b);
-    float minVal = min(min(rgbCol.r,rgbCol.g),rgbCol.b);
-    float medVal = min(max(rgbCol.r,rgbCol.g),rgbCol.b);
+    float maxVal = max(max(rgbCol.r, rgbCol.g), rgbCol.b);
+    float minVal = min(min(rgbCol.r, rgbCol.g), rgbCol.b);
+    float medVal = min(max(rgbCol.r, rgbCol.g), rgbCol.b);
 
     float notSat = maxVal == minVal;
 
-    rgbCol.r = SetSatChannel(rgbCol.r , maxVal, minVal, medVal, s ,notSat);
-    rgbCol.g = SetSatChannel(rgbCol.g , maxVal, minVal, medVal, s ,notSat);
-    rgbCol.b = SetSatChannel(rgbCol.b , maxVal, minVal, medVal, s ,notSat);
+    rgbCol.r = SetSatChannel(rgbCol.r, maxVal, minVal, medVal, s, notSat);
+    rgbCol.g = SetSatChannel(rgbCol.g, maxVal, minVal, medVal, s, notSat);
+    rgbCol.b = SetSatChannel(rgbCol.b, maxVal, minVal, medVal, s, notSat);
 
     return rgbCol;
 }
+#endif

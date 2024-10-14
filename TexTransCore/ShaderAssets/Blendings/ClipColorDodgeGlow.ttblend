@@ -3,6 +3,18 @@
 #pragma Key "Clip/ColorDodgeGlow"
 #pragma KeyName_jp "クリスタ/覆い焼き発光"
 
-#define ColorDodgeGlow 1
-#define Clip 1
 #include "./BlendColor.hlsl"
+
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = ColorDodgeGlowComposite(BaseColor.rgb, AddColor);
+  return float4(BlendColor, ClipAlphaBlending(BaseColor, AddColor, BlendColor).a);
+}

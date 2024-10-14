@@ -1,4 +1,7 @@
-//#pragma HLSL_Version 2018
+// #pragma HLSL_Version 2018
+
+#ifndef HSL_H
+#define HSL_H
 
 // 円柱形 Hue Saturation Lightness
 float3 RGBtoHSL(float3 rgb)
@@ -53,25 +56,26 @@ float3 HSLtoRGB(float3 hsl)
     switch (floor(hue / 60))
     {
     default:
-    case 0://0-60
+    case 0: // 0-60
         rgb = float3(c, x, 0);
         break;
-    case 1://60-120
+    case 1: // 60-120
         rgb = float3(x, c, 0);
         break;
-    case 2://120-180
+    case 2: // 120-180
         rgb = float3(0, c, x);
         break;
-    case 3://180-240
+    case 3: // 180-240
         rgb = float3(0, x, c);
         break;
-    case 4://240-300
+    case 4: // 240-300
         rgb = float3(x, 0, c);
         break;
-    case 5://300-360
+    case 5: // 300-360
         rgb = float3(c, 0, x);
         break;
     }
     rgb += m;
     return rgb;
 }
+#endif

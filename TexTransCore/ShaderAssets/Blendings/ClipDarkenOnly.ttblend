@@ -3,6 +3,17 @@
 #pragma Key "Clip/DarkenOnly"
 #pragma KeyName_jp "クリスタ/比較(暗)"
 
-#define DarkenOnly 1
-#define Clip 1
 #include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = DarkenOnlyComposite(BaseColor.rgb, AddColor.rgb);
+  return ClipAlphaBlending(BaseColor, AddColor, BlendColor);
+}
