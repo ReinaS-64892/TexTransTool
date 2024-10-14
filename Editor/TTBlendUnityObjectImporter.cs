@@ -23,6 +23,8 @@ namespace net.rs64.TexTransTool
             var pragmas = lines.Where(l => l.StartsWith("#pragma"));
             var pragmaKV = pragmas.Select(l => l.Split(" ")).Where(s => s.Length >= 3).ToDictionary(s => RemoveControls(s[1]), s => RemoveControls(s[2]));
 
+            CheckUnityCGinc(lines);
+
             var obj = ScriptableObject.CreateInstance<TTBlendUnityObject>();
             obj.BlendTypeKey = pragmaKV["Key"];
             obj.BlendTypeKey = obj.BlendTypeKey.Substring(1, obj.BlendTypeKey.Length - 2);
@@ -52,6 +54,12 @@ namespace net.rs64.TexTransTool
             ctx.SetMainObject(obj);
 
             // Debug.Log(shaderCode);
+        }
+
+        public static void CheckUnityCGinc(string[] lines)
+        {
+            if (lines.Where(l => l.StartsWith("#include")).Select(l => l.Split(" ")).Where(s => s.Length >= 2).Any(s => RemoveControls(s[1]) == "\"UnityCG.cginc\""))
+            { throw new InvalidDataException(" UnityCG.cginc は使用してはいけませんん！"); }
         }
 
         public static string RemoveControls(string str)
