@@ -34,9 +34,9 @@ RWTexture2D<float4> DistTex;
 }
 ";
 
+        public const string ShaderNameDefine = "Shader \"";
         public const string ShaderDefine =
-@"
-Shader ""Hidden/BlendTexture""
+@"""
 {
     Properties
     {
