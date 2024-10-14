@@ -1,5 +1,8 @@
 //#pragma HLSL_Version 2018
 
+#ifndef HSV_H
+#define HSV_H
+
 // RGBtoHSV and HSVtoRGB origin of https://qiita.com/Maron_Vtuber/items/7e8e5f55dfbdf4b5da9e
 // Hue Saturation Value
 float3 RGBtoHSV(float3 rgb)
@@ -82,3 +85,4 @@ float3 HSVtoRGB(float3 hsv)
 	rgb.b = b;
 	return rgb;
 }
+#endif

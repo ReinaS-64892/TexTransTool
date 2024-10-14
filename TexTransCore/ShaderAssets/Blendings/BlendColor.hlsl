@@ -1,92 +1,124 @@
-//#pragma HLSL_Version 2018
+// #pragma HLSL_Version 2018
+
+#ifndef BLENDCOLOR_H
+#define BLENDCOLOR_H
 
 #include "./SetSL.hlsl"
 #include "./AlphaBlending.hlsl"
 
-float4 ColorBlend(float4 BaseColor, float4 AddColor) {
-
-  if(BaseColor.a <= 0.0){return AddColor;}
-  if(AddColor.a <= 0.0){return BaseColor;}
-
-  float3 Bcol = BaseColor.rgb;
-  float3 Acol = AddColor.rgb;
-
-  float aAlpha = AddColor.a;
-  float bAlpha = BaseColor.a;
-
-  float3 Addc = Bcol + Acol;
-  float3 Mulc = Bcol * Acol;
+float3 NormalComposite(float3 Bcol, float3 Acol) { return Acol; }
+float3 MulComposite(float3 Bcol, float3 Acol) { return Bcol * Acol; }
+float3 ScreenComposite(float3 Bcol, float3 Acol)
+{
   float3 OneCol = float3(1, 1, 1);
-  float3 Scrc = OneCol - (OneCol - Bcol) * (OneCol - Acol);
-
+  return OneCol - (OneCol - Bcol) * (OneCol - Acol);
+}
+float3 OverlayComposite(float3 Bcol, float3 Acol)
+{
+  float3 Mulc = MulComposite(Bcol, Acol);
+  float3 Scrc = ScreenComposite(Bcol, Acol);
+  return lerp(Mulc * 2, Scrc * 2 - 1, 1 - step(Bcol, 0.5));
+}
+float3 HardLightComposite(float3 Bcol, float3 Acol)
+{
+  float3 Mulc = MulComposite(Bcol, Acol);
+  float3 Scrc = ScreenComposite(Bcol, Acol);
+  return lerp(Mulc * 2, Scrc * 2 - 1, 1 - step(Acol, 0.5));
+}
+float3 SoftLightComposite(float3 Bcol, float3 Acol)
+{
+  return Acol > 0.5 ? Bcol + (2 * Acol - 1) * (sqrt(Bcol) - Bcol) : Bcol - (1 - 2 * Acol) * Bcol * (1 - Bcol);
+}
+float3 ColorDodgeComposite(float3 Bcol, float3 Acol)
+{
+  return Acol == 1 ? Acol : min(Bcol / (1.0 - Acol), 1.0);
+}
+float3 ColorBurnComposite(float3 Bcol, float3 Acol)
+{
+  return Acol == 0 ? Acol : max(1.0 - (1.0 - Bcol) / Acol, 0.0);
+}
+float3 LinearBurnComposite(float3 Bcol, float3 Acol)
+{
+  return Bcol + Acol - 1;
+}
+float3 VividLightComposite(float3 Bcol, float3 Acol)
+{
+  return Acol > 0.5 ? Bcol / (1 - 2 * (Acol - 0.5)) : 1 - (1 - Bcol) / (2 * Acol);
+}
+float3 LinearLightComposite(float3 Bcol, float3 Acol)
+{
+  return saturate(Bcol + 2.0 * Acol - 1.0);
+}
+float3 DivideComposite(float3 Bcol, float3 Acol)
+{
+  return Acol == 0 ? 1 : Bcol / Acol;
+}
+float3 AdditionComposite(float3 Bcol, float3 Acol)
+{
+  return saturate(Bcol + Acol);
+}
+float3 SubtractComposite(float3 Bcol, float3 Acol)
+{
+  return Bcol - Acol;
+}
+float3 DifferenceComposite(float3 Bcol, float3 Acol)
+{
+  return abs(Bcol - Acol);
+}
+float3 DarkenOnlyComposite(float3 Bcol, float3 Acol)
+{
+  return min(Bcol, Acol);
+}
+float3 LightenOnlyComposite(float3 Bcol, float3 Acol)
+{
+  return max(Bcol, Acol);
+}
+float3 HueComposite(float3 Bcol, float3 Acol)
+{
+  return SetLum(SetSat(Acol, GetSat(Bcol)), GetLum(Bcol));
+}
+float3 SaturationComposite(float3 Bcol, float3 Acol)
+{
+  return SetLum(SetSat(Bcol, GetSat(Acol)), GetLum(Bcol));
+}
+float3 ColorComposite(float3 Bcol, float3 Acol)
+{
+  return SetLum(Acol, GetLum(Bcol));
+}
+float3 LuminosityComposite(float3 Bcol, float3 Acol)
+{
+  return SetLum(Bcol, GetLum(Acol));
+}
+float3 ExclusionComposite(float3 Bcol, float3 Acol)
+{
+  return Bcol + Acol - 2 * Bcol * Acol;
+}
+float3 DarkenColorOnlyComposite(float3 Bcol, float3 Acol)
+{
   float Bsum = Bcol.r + Bcol.g + Bcol.b;
   float Asum = Acol.r + Acol.g + Acol.b;
-
-  float3 burn =  Acol == 0 ? Acol : max( 1.0 - (1.0 - Bcol) / Acol , 0.0);
-  float3 dodge = Acol == 1 ? Acol : min( Bcol / (1.0 - Acol) , 1.0);
-
-  float3 BlendColor = float3(0, 0, 0);
-#if Normal
-  BlendColor = Acol;
-#elif Mul
-  BlendColor = Mulc;
-#elif Screen
-  BlendColor = Scrc;
-#elif Overlay
-  BlendColor = lerp(Mulc * 2, Scrc * 2 - 1, 1 - step(Bcol, 0.5)); // B >  0.5
-#elif HardLight
-  BlendColor = lerp(Mulc * 2, Scrc * 2 - 1, 1 - step(Acol, 0.5));
-#elif SoftLight
-  BlendColor = Acol > 0.5 ? Bcol +(2 * Acol - 1) * (sqrt(Bcol) - Bcol) : Bcol - (1 - 2 * Acol) * Bcol * (1 - Bcol);
-#elif ColorDodge
-  BlendColor = dodge;
-#elif ColorBurn
-  BlendColor = burn;
-#elif LinearBurn
-  BlendColor = Addc - 1;
-#elif VividLight
-  BlendColor = Acol > 0.5 ? Bcol / ( 1 - 2 * (Acol - 0.5)) : 1 - (1 - Bcol) / (2 * Acol);
-#elif LinearLight
-  BlendColor = saturate(Bcol + 2.0 * Acol - 1.0);
-  // BlendColor = saturate(Acol > 0.5 ? Bcol + 2 * (Acol - 0.5) : Bcol + 2.0 * Acol - 1.0);
-#elif Divide
-  BlendColor = Acol == 0 ? 1 : Bcol / Acol;
-#elif Addition
-  BlendColor = saturate(Addc);
-#elif Subtract
-  BlendColor = Bcol - Acol;
-#elif Difference
-  BlendColor = abs(Bcol - Acol);
-#elif DarkenOnly
-  BlendColor = min(Bcol, Acol);
-#elif LightenOnly
-  BlendColor = max(Bcol, Acol);
-#elif Hue
-  BlendColor = SetLum(SetSat(Acol,GetSat(Bcol)),GetLum(Bcol));
-#elif Saturation
-  BlendColor = SetLum(SetSat(Bcol,GetSat(Acol)),GetLum(Bcol));
-#elif Color
-  BlendColor = SetLum(Acol,GetLum(Bcol));
-#elif Luminosity
-  BlendColor = SetLum(Bcol,GetLum(Acol));
-#elif Exclusion
-  BlendColor = Bcol + Acol - 2 * Bcol * Acol;
-#elif DarkenColorOnly
-  BlendColor =  Bsum > Asum ?  Acol : Bcol;
-#elif LightenColorOnly
-  BlendColor = Bsum > Asum ? Bcol : Acol;
-#elif PinLight
-  BlendColor = Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
-#elif HardMix
-  BlendColor = ( Acol + Bcol ) > 1.0 ;
-#elif AdditionGlow
-  BlendColor = Bcol + Acol;
-#elif ColorDodgeGlow
-  BlendColor = Bcol / (1.0 -  Acol * aAlpha);
-#if Clip
-  return float4( BlendColor , AlphaBlending(BaseColor,AddColor,BlendColor).a);
-#endif
-#endif
-
-  return AlphaBlending(BaseColor,AddColor,BlendColor);
+  return Bsum > Asum ? Acol : Bcol;
 }
+float3 LightenColorOnlyComposite(float3 Bcol, float3 Acol)
+{
+  float Bsum = Bcol.r + Bcol.g + Bcol.b;
+  float Asum = Acol.r + Acol.g + Acol.b;
+  return Bsum > Asum ? Bcol : Acol;
+}
+float3 PinLightComposite(float3 Bcol, float3 Acol)
+{
+  return Acol > 0.5 ? max(Bcol, 2.0 * Acol - 1.0) : min(Bcol, 2.0 * Acol);
+}
+float3 HardMixComposite(float3 Bcol, float3 Acol)
+{
+  return (Acol + Bcol) > 1.0;
+}
+float3 AdditionGlowComposite(float3 Bcol, float3 Acol)
+{
+  return Bcol + Acol;
+}
+float3 ColorDodgeGlowComposite(float3 Bcol, float4 Acolor)
+{
+  return Bcol / (1.0 - Acolor.rgb * Acolor.a);
+}
+#endif

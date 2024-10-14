@@ -3,5 +3,17 @@
 #pragma Key "Saturation"
 #pragma KeyName_jp "彩度"
 
-#define Saturation 1
 #include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = SaturationComposite(BaseColor.rgb, AddColor.rgb);
+  return AlphaBlending(BaseColor, AddColor, BlendColor);
+}
