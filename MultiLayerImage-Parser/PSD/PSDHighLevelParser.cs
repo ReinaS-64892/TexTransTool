@@ -278,9 +278,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
             var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
-            var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey);
-            layerFolder.BlendTypeKey = BlendModeKeyEnum.ToString();
+            var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey ?? EndFolderRecord.BlendModeKey);
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
+            BlendModeKeyEnum = BlendModeKeyEnum is PSDBlendMode.PassThrough ? PSDBlendMode.Normal : BlendModeKeyEnum;
+            layerFolder.BlendTypeKey = BlendModeKeyEnum.ToString();
 
 
             return layerFolder;
