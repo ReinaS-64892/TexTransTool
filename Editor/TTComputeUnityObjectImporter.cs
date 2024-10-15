@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
             var srcText = File.ReadAllText(ctx.assetPath);
             var lines = srcText.Split("\n");
             var pragmas = lines.Where(l => l.StartsWith("#pragma"));
-            var pragmaKV = pragmas.Select(l => l.Split(" ")).Where(s => s.Length >= 3).ToDictionary(s => TTBlendUnityObjectImporter.RemoveControls(s[1]), s => TTBlendUnityObjectImporter.RemoveControls(s[2]));
+            var pragmaKV = pragmas.Select(l => l.Split(" ")).Where(s => s.Length >= 2).ToDictionary(s => TTBlendUnityObjectImporter.RemoveControls(s[1]), s => s.Length > 2 ? TTBlendUnityObjectImporter.RemoveControls(s[2]) : null);
 
             TTBlendUnityObjectImporter.CheckUnityCGinc(lines);
 
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool
                             var csa = ShaderUtil.CreateComputeShaderAsset(ctx, shaderCodeWithConsiderAlpha);
 
                             ctx.AddObjectToAsset("ComputeShaderWithoutConsiderAlpha", cs);
-                            ctx.AddObjectToAsset("ComputeShaderWithConsiderAlpha", cs);
+                            ctx.AddObjectToAsset("ComputeShaderWithConsiderAlpha", csa);
 
                             if (obj is TTComputeDownScalingUnityObject ds2) { ds2.WithConsiderShader = csa; }
                             if (obj is TTComputeUpScalingUnityObject us2) { us2.WithConsiderShader = csa; }

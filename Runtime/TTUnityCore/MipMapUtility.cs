@@ -99,7 +99,7 @@ namespace net.rs64.TexTransUnityCore.MipMap
         static bool Average(RenderTexture renderTexture, bool ignoreAlpha = false)
         {
             var cs = ignoreAlpha is false ? AverageComputeShader.WithConsiderShader : AverageComputeShader.Compute;
-            var kernelID = cs.FindKernel("Average");
+            var kernelID = cs.FindKernel("CSMain");
 
             var width = renderTexture.width;
             var height = renderTexture.height;
