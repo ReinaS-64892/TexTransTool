@@ -238,7 +238,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             layerFolder.Layers = new List<AbstractLayerData>();
             ctx.SourceLayerRecode[layerFolder] = new() { record };
 
-            _ = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
+            var startChannelInfoAndImage = DeuceChannelInfoAndImage(record, ctx.ImageDataQueue);
 
             while (ctx.ImageRecordQueue.Count != 0)
             {
@@ -265,15 +265,23 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
 
             }
-            var EndFolderRecord = ctx.ImageRecordQueue.Dequeue();
-            ctx.SourceLayerRecode[layerFolder].Add(EndFolderRecord);
-            var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, ctx.ImageDataQueue);
-            layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
+            if (ctx.ImageRecordQueue.TryDequeue(out var EndFolderRecord) is false)//治安の悪いPSDに対する回避
+            {
+                EndFolderRecord = record;
+                layerFolder.CopyFromRecord(EndFolderRecord, startChannelInfoAndImage);
+            }
+            else
+            {
+                ctx.SourceLayerRecode[layerFolder].Add(EndFolderRecord);
+                var endChannelInfoAndImage = DeuceChannelInfoAndImage(EndFolderRecord, ctx.ImageDataQueue);
+                layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
+            }
 
             var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
-            var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey);
-            layerFolder.BlendTypeKey = BlendModeKeyEnum.ToString();
+            var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey ?? EndFolderRecord.BlendModeKey);
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
+            BlendModeKeyEnum = BlendModeKeyEnum is PSDBlendMode.PassThrough ? PSDBlendMode.Normal : BlendModeKeyEnum;
+            layerFolder.BlendTypeKey = BlendModeKeyEnum.ToString();
 
 
             return layerFolder;
