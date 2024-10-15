@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal static class TTRt
     {
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransUnityCore
 
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
-                var readWrite = TTUnityCoreEngine.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
+                var readWrite = TTCoreEngineForUnity.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
                 var format = RenderTextureFormat.ARGB32;
 
                 RenderTexture = new RenderTexture(

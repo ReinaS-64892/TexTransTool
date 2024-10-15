@@ -13,7 +13,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             Layers = layers;
         }
 
-        public override void GetImage(ITTEngine engine, ITTRenderTexture writeTarget)
+        public override void GetImage(ITexTransCoreEngine engine, ITTRenderTexture writeTarget)
         {
             new CanvasContext(engine).EvaluateForFlattened(writeTarget, null, CanvasContext.ToBelowFlattened(Layers));
         }

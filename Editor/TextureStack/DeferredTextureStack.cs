@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Linq;
 using UnityEditor;
-using net.rs64.TexTransUnityCore;
-using static net.rs64.TexTransUnityCore.TextureBlend;
+using net.rs64.TexTransCoreEngineForUnity;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {

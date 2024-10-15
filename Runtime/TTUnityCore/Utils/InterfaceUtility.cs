@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-namespace net.rs64.TexTransUnityCore.Utils
+namespace net.rs64.TexTransCoreEngineForUnity.Utils
 {
 
     internal static class InterfaceUtility

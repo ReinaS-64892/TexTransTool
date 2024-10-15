@@ -1,6 +1,6 @@
 using System;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using UnityEngine;
 using Vector4 = UnityEngine.Vector4;
 namespace net.rs64.TexTransTool.MultiLayerImage

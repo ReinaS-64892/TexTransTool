@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreForUnity
 {
     internal struct RTActiveSaver : IDisposable
     {

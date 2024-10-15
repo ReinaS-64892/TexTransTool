@@ -12,7 +12,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             RasterTexture = texture;
         }
 
-        public override void GetImage(ITTEngine engine, ITTRenderTexture renderTexture)
+        public override void GetImage(ITexTransCoreEngine engine, ITTRenderTexture renderTexture)
         {
             switch (RasterTexture)
             {

@@ -5,7 +5,7 @@ using System.Linq;
 using net.rs64.TexTransTool.Utils;
 using System.Collections.Generic;
 using System.Text;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.Editor
 {

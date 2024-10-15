@@ -7,7 +7,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public class AsyncTexture2D
     {

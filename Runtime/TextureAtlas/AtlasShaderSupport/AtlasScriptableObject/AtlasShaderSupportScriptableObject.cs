@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using UnityEngine;
 using UnityEngine.Rendering;
 

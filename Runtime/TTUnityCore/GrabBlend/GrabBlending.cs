@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal static class GrabBlending
     {
@@ -30,6 +30,6 @@ namespace net.rs64.TexTransUnityCore
     {
         Type ExecutionTarget { get; }
 
-        void GrabExecute(TTUnityCoreEngine engin, RenderTexture rt, TTGrabBlending grabBlending);
+        void GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending);
     }
 }

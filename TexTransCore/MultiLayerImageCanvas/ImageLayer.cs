@@ -16,7 +16,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         /// さぁ何かを書きこむのだ！
         /// 一枚のラスター画像を生成するのだ！
         /// </summary>
-        public abstract void GetImage(ITTEngine engine, ITTRenderTexture writeTarget);
+        public abstract void GetImage(ITexTransCoreEngine engine, ITTRenderTexture writeTarget);
 
     }
 

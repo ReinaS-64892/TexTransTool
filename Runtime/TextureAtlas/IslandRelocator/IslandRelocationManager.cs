@@ -1,7 +1,7 @@
 
 using System;
 using System.Linq;
-using net.rs64.TexTransUnityCore.Island;
+using net.rs64.TexTransCoreForUnity.Island;
 using UnityEngine;
 using UnityEngine.Profiling;
 

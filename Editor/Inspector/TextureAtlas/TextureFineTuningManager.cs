@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
-using static net.rs64.TexTransUnityCore.TextureBlend;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {

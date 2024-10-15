@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal readonly struct TextureWrap
     {

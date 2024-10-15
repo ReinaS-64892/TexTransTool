@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace net.rs64.TexTransUnityCore.Decal
+namespace net.rs64.TexTransCoreEngineForUnity.Decal
 {
     public class MeshData : IDisposable
     {

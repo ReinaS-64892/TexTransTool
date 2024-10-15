@@ -3,11 +3,11 @@ using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal readonly struct NativeArrayMap<T> : IDisposable
     where T : struct

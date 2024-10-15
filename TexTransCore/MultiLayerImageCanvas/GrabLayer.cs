@@ -13,6 +13,6 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         /// PassThoughtもできるし一度画像をコピーし色調補正でもかけた後に合成するもできる。
         /// ただそのために、 評価するためのコンテキストが渡ってくるよ...使わないのもできる。
         /// </summary>
-        public abstract void GrabImage(ITTEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture);
+        public abstract void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture);
     }
 }

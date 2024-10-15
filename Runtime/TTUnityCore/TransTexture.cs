@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -13,7 +13,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using System;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal static class TransTexture
     {

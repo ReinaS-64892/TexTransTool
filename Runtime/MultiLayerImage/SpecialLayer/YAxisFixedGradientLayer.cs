@@ -1,6 +1,6 @@
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]

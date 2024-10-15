@@ -7,7 +7,7 @@ namespace net.rs64.TexTransCore
     この... TexTransTool の Core となる TexTransCore は 公開されていても、内部 API です！
     */
 
-    public interface ITTEngine
+    public interface ITexTransCoreEngine
     {
         /// <summary>
         /// フォーマットなどはエンジン側が決める話です。
@@ -106,7 +106,7 @@ namespace net.rs64.TexTransCore
     /// こっちの空間からは基本的にたたいてはならない！
     /// 向こう側で、取り回し上あった方がかなり便利な関数や、正しく定義することを強制するためのインターフェース
     /// </summary>
-    public interface ITexTransToolEngine : ITTEngine
+    public interface ITexTransToolEngine : ITexTransCoreEngine
     {
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
@@ -124,19 +124,19 @@ namespace net.rs64.TexTransCore
 
     public static class EnginUtil
     {
-        public static ITTRenderTexture LoadTextureWidthFullScale(this ITTEngine engine, ITTDiskTexture diskTexture)
+        public static ITTRenderTexture LoadTextureWidthFullScale(this ITexTransCoreEngine engine, ITTDiskTexture diskTexture)
         {
             var fullSizeRt = engine.CreateRenderTexture(diskTexture.Width, diskTexture.Hight, diskTexture.MipMap, false);
             engine.LoadTexture(diskTexture, fullSizeRt);
             return fullSizeRt;
         }
-        public static void LoadTextureWidthAnySize(this ITTEngine engine, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
+        public static void LoadTextureWidthAnySize(this ITexTransCoreEngine engine, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
         {
             using (var sourceSize = LoadTextureWidthFullScale(engine, diskTexture))
                 engine.CopyRenderTextureMaybeReScale(sourceSize, renderTexture, downScalingKey, upScalingKey);
         }
 
-        public static void CopyRenderTextureMaybeReScale(this ITTEngine engine, ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
+        public static void CopyRenderTextureMaybeReScale(this ITexTransCoreEngine engine, ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
         {
             if (source.Width == target.Width && source.Hight == target.Hight) { engine.CopyRenderTexture(source, target); return; }
             if (source.Width > target.Width && source.Hight > target.Hight) { engine.DownScale(source, target, downScalingKey); return; }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public static class TexTransCoreRuntime
     {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public class TTBlendUnityObject : ScriptableObject, ITTBlendKey
     {

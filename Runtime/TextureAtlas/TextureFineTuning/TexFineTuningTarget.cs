@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreForUnity.Utils;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning

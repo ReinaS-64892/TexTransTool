@@ -1,5 +1,5 @@
 using System;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -8,7 +8,7 @@ using UnityEngine;
 using static Unity.Mathematics.math;
 using ReadOnlyAttribute = Unity.Collections.ReadOnlyAttribute;
 
-namespace net.rs64.TexTransUnityCore.MipMap
+namespace net.rs64.TexTransCoreEngineForUnity.MipMap
 {
     internal static class MipMapUtility
     {

@@ -1,5 +1,5 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            TexTransUnityCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+            TexTransCoreForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
 
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
             var sourceTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());

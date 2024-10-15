@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using static net.rs64.TexTransUnityCore.TextureBlend;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {

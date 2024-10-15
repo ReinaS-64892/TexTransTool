@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
-using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEditor;
 using UnityEngine;
 

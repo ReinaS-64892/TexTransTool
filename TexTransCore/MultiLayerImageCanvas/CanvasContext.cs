@@ -8,9 +8,9 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public struct CanvasContext
     {
-        private ITTEngine _engine;
+        private ITexTransCoreEngine _engine;
 
-        public CanvasContext(ITTEngine engine)
+        public CanvasContext(ITexTransCoreEngine engine)
         {
             _engine = engine;
         }
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             BlendForAlphaOperation(_engine, canvasTexture, layerRt, alphaOperation, blendKey);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BlendForAlphaOperation(ITTEngine engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
+        public static void BlendForAlphaOperation(ITexTransCoreEngine engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
         {
             switch (alphaOperation)
             {
@@ -190,7 +190,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EvaluateContext NestContext(ITTEngine engine, int width, int height, EvaluateContext? sourceContext, AlphaMask addAlphaMask, List<LayerObject>? addPreBlends)
+        public static EvaluateContext NestContext(ITexTransCoreEngine engine, int width, int height, EvaluateContext? sourceContext, AlphaMask addAlphaMask, List<LayerObject>? addPreBlends)
         {
             var newMask = engine.CreateRenderTexture(width, height);
             engine.FillAlpha(newMask, 1);

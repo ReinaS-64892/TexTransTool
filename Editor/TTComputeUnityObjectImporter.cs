@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using net.rs64.MultiLayerImage.LayerData;
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;

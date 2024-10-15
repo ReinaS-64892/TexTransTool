@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
-using net.rs64.TexTransUnityCore.Island;
+using net.rs64.TexTransCoreForUnity.Island;
 using Unity.Collections;
 using System.Collections;
 using Unity.Jobs;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using net.rs64.TexTransTool.Utils;
 using System.Linq;
 

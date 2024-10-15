@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
 
-            TexTransUnityCore.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
+            TexTransCoreForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
 
             Profiler.EndSample();
             Profiler.BeginSample("RLE");

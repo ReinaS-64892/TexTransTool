@@ -1,6 +1,6 @@
 
 using nadena.dev.ndmf.preview;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Editor;
 using UnityEngine;
 

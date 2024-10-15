@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.Migration.V3
 
             if (simpleDecal.IslandCulling) { MigrateIslandCullingToIslandSelector(simpleDecal); }
 
-            if (simpleDecal.PolygonCulling != TexTransUnityCore.Decal.PolygonCulling.Vertex) { simpleDecal.PolygonOutOfCulling = false; }
+            if (simpleDecal.PolygonCulling != TexTransCoreEngineForUnity.Decal.PolygonCulling.Vertex) { simpleDecal.PolygonOutOfCulling = false; }
 
             EditorUtility.SetDirty(simpleDecal);
             MigrationUtility.SetSaveDataVersion(simpleDecal, 4);

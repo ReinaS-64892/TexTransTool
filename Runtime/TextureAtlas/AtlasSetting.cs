@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.IslandFineTuner;
-using net.rs64.TexTransUnityCore.MipMap;
+using net.rs64.TexTransCoreForUnity.MipMap;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {

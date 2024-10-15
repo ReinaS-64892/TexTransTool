@@ -4,13 +4,13 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using Unity.Collections;
 using UnityEngine;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public class SelectiveColorAdjustmentExecuter : IGrabBlendingExecuter
     {
         public Type ExecutionTarget => typeof(SelectiveColorAdjustment);
 
-        void IGrabBlendingExecuter.GrabExecute(TTUnityCoreEngine engin, RenderTexture rt, TTGrabBlending grabBlending)
+        void IGrabBlendingExecuter.GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending)
         {
             var gbUnity = (TTGrabBlendingUnityObject)grabBlending.ComputeKey;
             var cs = gbUnity.Compute;

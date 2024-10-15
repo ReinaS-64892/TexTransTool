@@ -11,7 +11,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             _blendTypeKey = blendTypeKey;
         }
 
-        public override void GrabImage(ITTEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
+        public override void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
         {
             using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
             using (var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))

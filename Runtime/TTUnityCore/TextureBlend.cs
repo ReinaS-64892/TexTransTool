@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransUnityCore
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     [Obsolete("Replaced with BlendTypeKey", true)]
     internal enum BlendType
@@ -286,7 +286,7 @@ namespace net.rs64.TexTransUnityCore
             RenderTexture = rt;
             IsLinear = isLinear;
 
-            if (TTUnityCoreEngine.IsLinerRenderTexture != IsLinear)
+            if (TTCoreEngineForUnity.IsLinerRenderTexture != IsLinear)
             {
                 if (IsLinear) { TextureBlend.ToLinear(RenderTexture); }//もともとガンマ空間で、ブレンドがリニアでやりたいとき用
                 else { TextureBlend.ToGamma(RenderTexture); }//もともとリニア空間で、ブレンドがガンマで
@@ -295,7 +295,7 @@ namespace net.rs64.TexTransUnityCore
         public void Dispose()
         {
 
-            if (TTUnityCoreEngine.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
+            if (TTCoreEngineForUnity.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
             {
                 if (IsLinear) { TextureBlend.ToGamma(RenderTexture); }//それぞれ元に戻す
                 else { TextureBlend.ToLinear(RenderTexture); }
