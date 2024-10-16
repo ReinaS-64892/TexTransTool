@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Island;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
+using net.rs64.TexTransCore;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool
 {
@@ -126,6 +127,12 @@ namespace net.rs64.TexTransTool
         }
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
+
+
+        public static void LoadTexture(this IOriginTexture origin, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture)
+        {
+            origin.WriteOriginalTexture(diskTexture.ToUnity(), renderTexture.ToUnity());
+        }
 
     }
 

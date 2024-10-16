@@ -1,4 +1,5 @@
-using net.rs64.TexTransCore.BlendTexture;
+
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -12,7 +13,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var col = Color;
             col.a = 1f;
-            TextureBlend.ColorBlit(renderTexture, col);
+            TextureBlend.FillColor(renderTexture, col);
         }
     }
 }

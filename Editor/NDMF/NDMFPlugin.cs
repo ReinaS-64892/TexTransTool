@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using nadena.dev.ndmf.preview;
 using System;
 using System.Linq;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.NDMF.AAO;
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]

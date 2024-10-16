@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using net.rs64.TexTransTool.TextureStack;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransCoreEngineForUnity.Island;
 
 namespace net.rs64.TexTransTool
 {

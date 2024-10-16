@@ -1,0 +1,12 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType Operator
+
+float Alpha;
+RWTexture2D<float4> Tex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+    col.a = Alpha;
+    Tex[id.xy] = col;
+}

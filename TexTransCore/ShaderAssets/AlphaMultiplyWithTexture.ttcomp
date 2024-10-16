@@ -1,0 +1,12 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType Operator
+
+RWTexture2D<float4> SourceTex;
+RWTexture2D<float4> TargetTex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = TargetTex[id.xy];
+    col.a *= SourceTex[id.xy].a;
+    TargetTex[id.xy] = col;
+}

@@ -5,7 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...HEAD)
+
+### Added
+
+- TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
+- BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
+
+## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
+
+### Fixed
+
+- VRChatSDK が存在しない環境でコンパイルエラーが発生する問題を修正 (#674)
+
+## [v0.8.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.7.7...v0.8.0) - 2024-09-30
 
 ### Added
 
@@ -50,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- lilToon の \[Optional\] 系を誤って 通常のlilToonの対応で認識してしまい、例外が発生する問題を修正 (#520)
+- lilToon の [Optional] 系を誤って 通常のlilToonの対応で認識してしまい、例外が発生する問題を修正 (#520)
 - SubMesh よりも多くの MaterialSlot がある場合 AtlasTexture のメッシュノーマライズで、誤ったサブメッシュで複製される問題を修正 (#521)
 - AtlasTexture の IslandFineTuning が Null な場合や IslandSelector が Null の場合に例外が発生する問題を修正 (#530)
 - SimpleDecal でリアルタイムプレビュー中に IslandSelector を割り当てた時に IslandSelector の調整でプレビューが更新されない問題を修正 (#525)

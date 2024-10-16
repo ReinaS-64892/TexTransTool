@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCoreEngineForUnity.Decal;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity.Island;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.IslandSelector;
 using System.Linq;
 using UnityEngine.Profiling;

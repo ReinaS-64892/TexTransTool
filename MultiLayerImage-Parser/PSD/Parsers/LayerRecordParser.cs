@@ -35,7 +35,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public LayerMaskAdjustmentLayerData LayerMaskAdjustmentLayerData;
             public LayerBlendingRangesData LayerBlendingRangesData;
             public string LayerName;
-            [UnityEngine.SerializeReference] public AdditionalLayerInfo.AdditionalLayerInfoBase[] AdditionalLayerInformation;
+            public AdditionalLayerInfo.AdditionalLayerInfoBase[] AdditionalLayerInformation;
         }
         [Serializable]
         internal class RectTangle
@@ -45,7 +45,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public int Bottom;
             public int Right;
 
-            public int CalculateRawCompressLength()
+            public int CalculateRectAreaSize()
             {
                 int height = GetHeight();
                 int width = GetWidth();
@@ -68,7 +68,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
 
 
-        public static LayerRecord PaseLayerRecord(ref SubSpanStream stream)
+        public static LayerRecord PaseLayerRecord(bool isPSB, ref SubSpanStream stream)
         {
             var layerRecord = new LayerRecord
             {
@@ -88,7 +88,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 var channelInfo = new ChannelInformation()
                 {
                     ChannelIDRawShort = stream.ReadInt16(),
-                    CorrespondingChannelDataLength = stream.ReadInt32()
+                    CorrespondingChannelDataLength = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64()
                 };
                 channelInfo.ChannelID = (ChannelInformation.ChannelIDEnum)channelInfo.ChannelIDRawShort;
                 channelInformationList.Add(channelInfo);
@@ -102,77 +102,70 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             layerRecord.Clipping = stream.ReadByte();
             layerRecord.LayerFlag = (LayerRecord.LayerFlagEnum)stream.ReadByte();
 
-            stream.ReadByte();
+            stream.ReadByte();//Filler
 
             layerRecord.ExtraDataFieldLength = stream.ReadUInt32();
 
-            var firstPos = stream.Position;
+            var extraDataStream = stream.ReadSubStream((int)layerRecord.ExtraDataFieldLength);
 
-            var layerMaskAdjustmentLayerData = new LayerMaskAdjustmentLayerData
-            {
-                DataSize = stream.ReadUInt32()
-            };
+            var layerMaskAdjustmentLayerData = layerRecord.LayerMaskAdjustmentLayerData =
+                new LayerMaskAdjustmentLayerData { DataSize = extraDataStream.ReadUInt32() };
 
             if (layerMaskAdjustmentLayerData.DataSize != 0)
             {
+                var lmStream = extraDataStream.ReadSubStream((int)layerMaskAdjustmentLayerData.DataSize);
+
                 layerMaskAdjustmentLayerData.RectTangle = new RectTangle()
                 {
-                    Top = stream.ReadInt32(),
-                    Left = stream.ReadInt32(),
-                    Bottom = stream.ReadInt32(),
-                    Right = stream.ReadInt32(),
+                    Top = lmStream.ReadInt32(),
+                    Left = lmStream.ReadInt32(),
+                    Bottom = lmStream.ReadInt32(),
+                    Right = lmStream.ReadInt32(),
                 };
 
-                layerMaskAdjustmentLayerData.DefaultColor = stream.ReadByte();
-                layerMaskAdjustmentLayerData.Flag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
+                layerMaskAdjustmentLayerData.DefaultColor = lmStream.ReadByte();
+                layerMaskAdjustmentLayerData.Flag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)lmStream.ReadByte();
                 if (layerMaskAdjustmentLayerData.Flag.HasFlag(LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag.UserOrVectorMasksHave))
                 {
-                    layerMaskAdjustmentLayerData.MaskParameters = (LayerMaskAdjustmentLayerData.MaskParametersBitFlags)stream.ReadByte();
+                    layerMaskAdjustmentLayerData.MaskParameters = (LayerMaskAdjustmentLayerData.MaskParametersBitFlags)lmStream.ReadByte();
                     var maskParm = layerMaskAdjustmentLayerData.MaskParameters.Value;
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserDensity))
-                    {
-                        layerMaskAdjustmentLayerData.UserMaskDensity = stream.ReadByte();
-                    }
+                        layerMaskAdjustmentLayerData.UserMaskDensity = lmStream.ReadByte();
+
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.UserFeather))
-                    {
-                        layerMaskAdjustmentLayerData.UserMaskFeather = stream.ReadDouble();
-                    }
+                        layerMaskAdjustmentLayerData.UserMaskFeather = lmStream.ReadDouble();
+
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorDensity))
-                    {
-                        layerMaskAdjustmentLayerData.VectorMaskDensity = stream.ReadByte();
-                    }
+                        layerMaskAdjustmentLayerData.VectorMaskDensity = lmStream.ReadByte();
+
                     if (maskParm.HasFlag(LayerMaskAdjustmentLayerData.MaskParametersBitFlags.VectorFeather))
-                    {
-                        layerMaskAdjustmentLayerData.VectorMaskFeather = stream.ReadDouble();
-                    }
+                        layerMaskAdjustmentLayerData.VectorMaskFeather = lmStream.ReadDouble();
+
                 }
 
-                if (layerMaskAdjustmentLayerData.DataSize == 20) { stream.ReadSubStream(2); }
+                if (layerMaskAdjustmentLayerData.DataSize == 20) { /*lmStream.ReadSubStream(); // 上段のストリームが何とかしてるのでこのストリームを最後まで読む必要はなくスキップ*/ }
                 else
                 {
-                    layerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)stream.ReadByte();
-                    layerMaskAdjustmentLayerData.RealUserMaskBackground = stream.ReadByte();
-                    layerMaskAdjustmentLayerData.EnclosingLayerMask = new RectTangle()
+                    layerMaskAdjustmentLayerData.RealFlag = (LayerMaskAdjustmentLayerData.MaskOrAdjustmentFlag)lmStream.ReadByte();
+                    layerMaskAdjustmentLayerData.RealUserMaskBackground = lmStream.ReadByte();
+                    layerMaskAdjustmentLayerData.RealRectTangleLayerMask = new RectTangle()
                     {
-                        Top = stream.ReadInt32(),
-                        Left = stream.ReadInt32(),
-                        Bottom = stream.ReadInt32(),
-                        Right = stream.ReadInt32(),
+                        Top = lmStream.ReadInt32(),
+                        Left = lmStream.ReadInt32(),
+                        Bottom = lmStream.ReadInt32(),
+                        Right = lmStream.ReadInt32(),
                     };
                 }
-
             }
 
-            layerRecord.LayerMaskAdjustmentLayerData = layerMaskAdjustmentLayerData;
 
-            var layerBlendingRangesData = new LayerBlendingRangesData
-            {
-                Length = stream.ReadUInt32()
-            };
+            var layerBlendingRangesData = layerRecord.LayerBlendingRangesData =
+                new LayerBlendingRangesData { Length = extraDataStream.ReadUInt32() };
+
             if (layerBlendingRangesData.Length != 0)
             {
                 var sourSourceAndDestinationRangeList = new List<LayerBlendingRangesData.SourceAndDestinationRange>();
-                var sSADRStream = stream.ReadSubStream((int)layerBlendingRangesData.Length);
+                var sSADRStream = extraDataStream.ReadSubStream((int)layerBlendingRangesData.Length);
                 while (sSADRStream.Position < sSADRStream.Length)
                 {
                     sourSourceAndDestinationRangeList.Add(new LayerBlendingRangesData.SourceAndDestinationRange()
@@ -187,17 +180,13 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
                 layerBlendingRangesData.SourceAndDestinationRanges = sourSourceAndDestinationRangeList.ToArray();
             }
-            layerRecord.LayerBlendingRangesData = layerBlendingRangesData;
 
 
-            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(ref stream);
+            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(ref extraDataStream);
+            layerRecord.AdditionalLayerInformation = AdditionalLayerInformationParser.PaseAdditionalLayerInfos(isPSB, extraDataStream);
 
-            var AdditionalLayerInformationSpan = stream.ReadSubStream((int)(layerRecord.ExtraDataFieldLength - (stream.Position - firstPos)));
-
-            layerRecord.AdditionalLayerInformation = AdditionalLayerInformationParser.PaseAdditionalLayerInfos(AdditionalLayerInformationSpan);
-
-            var unicodeLayerName = layerRecord.AdditionalLayerInformation.FirstOrDefault(I => I is luni) as luni;
-            if (unicodeLayerName != null) { layerRecord.LayerName = unicodeLayerName.LayerName; }
+            var unicodeLayerName = layerRecord.AdditionalLayerInformation.OfType<luni>().FirstOrDefault();
+            if (unicodeLayerName is not null) { layerRecord.LayerName = unicodeLayerName.LayerName; }
 
             return layerRecord;
         }
@@ -237,7 +226,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             // 2byte Padding Or...
             public MaskOrAdjustmentFlag? RealFlag;
             public byte? RealUserMaskBackground;
-            public RectTangle EnclosingLayerMask;
+            public RectTangle RealRectTangleLayerMask;
         }
         [Serializable]
         internal class LayerBlendingRangesData

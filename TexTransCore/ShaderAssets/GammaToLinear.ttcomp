@@ -1,0 +1,11 @@
+#pragma HLSL_Version 2018
+#pragma TTComputeType Operator
+
+RWTexture2D<float4> Tex;
+
+#include "./GammaLinear.hlsl"
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    Tex[id.xy] = GammaToLinearSpaceExact(Tex[id.xy]);
+}

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using Unity.Collections;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {

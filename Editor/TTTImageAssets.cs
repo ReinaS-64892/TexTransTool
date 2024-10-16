@@ -1,5 +1,5 @@
 using System;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEditor;
 using UnityEngine;
 

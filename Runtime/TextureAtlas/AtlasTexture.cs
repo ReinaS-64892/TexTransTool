@@ -2,20 +2,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Island;
-using Island = net.rs64.TexTransCore.Island.Island;
-using static net.rs64.TexTransCore.TransTexture;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Island;
+using Island = net.rs64.TexTransCoreEngineForUnity.Island.Island;
+using static net.rs64.TexTransCoreEngineForUnity.TransTexture;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
 using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.MipMap;
+using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
-using net.rs64.TexTransCore.BlendTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -317,7 +316,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var propName in containsProperty)
             {
                 var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
-                TextureBlend.ColorBlit(targetRT, atlasSetting.BackGroundColor);
+                TextureBlend.FillColor(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)

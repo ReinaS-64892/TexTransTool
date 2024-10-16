@@ -13,38 +13,40 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             var structure = new DescriptorStructure();
 
 
-            var classIDNameByteLength = stream.ReadInt32() * 2;
-            structure.NameFromClassID = stream.ReadSubStream(classIDNameByteLength).Span.ParseBigUTF16();
+            var classIDNameByteLength = stream.ReadUInt32() * 2;
+            structure.NameFromClassID = stream.ReadSubStream((int)classIDNameByteLength).Span.ParseBigUTF16();
 
-            var classIDLength = stream.ReadInt32();
-            structure.NameFromClassID = stream.ReadSubStream(classIDLength == 0 ? 4 : classIDLength).Span.ParseASCII();
+            var classIDLength = stream.ReadUInt32();
+            structure.ClassID = stream.ReadSubStream((int)(classIDLength == 0 ? 4 : classIDLength)).Span.ParseASCII();
 
-            structure.DescriptorCount = stream.ReadInt32();
-            structure.Structures = new(structure.DescriptorCount);
+            structure.DescriptorCount = stream.ReadUInt32();
+            structure.Structures = new((int)structure.DescriptorCount);
 
             for (var i = 0; structure.DescriptorCount > i; i += 1)
             {
-                var keyLength = stream.ReadInt32();
-                var keyStr = stream.ReadSubStream(keyLength == 0 ? 4 : keyLength).Span.ParseASCII();
+                var keyLength = stream.ReadUInt32();
+                var keyStr = stream.ReadSubStream((int)(keyLength == 0 ? 4 : keyLength)).Span.ParseASCII();
                 var osTypeKey = stream.ReadSubStream(4).Span.ParseASCII();
 
                 object structureValue;
                 switch (osTypeKey)
                 {
-
+                    case "obj ":
+                        { throw new NotImplementedException(); }
                     case "Objc":
                         {
                             structureValue = ParseDescriptorStructure(ref stream);
                             break;
                         }
+                    case "VlLs":
+                        { throw new NotImplementedException(); }
+
                     case "doub":
                         {
                             structureValue = stream.ReadDouble();
                             break;
                         }
 
-                    case "obj ":
-                    case "VlLs":
                     case "UntF":
                     case "TEXT":
                     case "enum":
@@ -57,7 +59,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
                     case "alis":
                     case "tdta":
                     default:
-                        { structureValue = null; break; }//未対応
+                        { throw new NotImplementedException(); }
                 }
 
                 structure.Structures.Add(keyStr, structureValue);
@@ -70,7 +72,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         {
             public string NameFromClassID;
             public string ClassID;
-            public int DescriptorCount;
+            public uint DescriptorCount;
             public Dictionary<string, object> Structures;
         }
 

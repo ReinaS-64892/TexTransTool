@@ -1,7 +1,8 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -9,6 +10,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Vector4 = UnityEngine.Vector4;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -24,16 +26,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
 
-            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
+            TexTransCoreEngineForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
 
             Profiler.EndSample();
             Profiler.BeginSample("RLE");
 
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle));
-            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSource, RasterImageData.RectTangle));
-            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSource, RasterImageData.RectTangle));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
+            getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, importSource));
+            getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, importSource));
+            getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, importSource));
+            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, importSource)); }
 
             var sourceTexSize = new int2(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight());
             var image = WeightTask(getImageTask).Result;
@@ -85,26 +87,39 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             });
         }
 
+        internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSource)
+        {
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
+            var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
+
+            var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            imageData.GetImageData(importSource, RasterImageData.RectTangle, writeArray);
+            return writeArray;
+        }
+
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             // var timer = System.Diagnostics.Stopwatch.StartNew();
             var containsAlpha = RasterImageData.A.Length != 0;
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => RasterImageData.R.GetImageData(importSource, RasterImageData.RectTangle));
-            getImageTask[1] = Task.Run(() => RasterImageData.G.GetImageData(importSource, RasterImageData.RectTangle));
-            getImageTask[2] = Task.Run(() => RasterImageData.B.GetImageData(importSource, RasterImageData.RectTangle));
-            if (containsAlpha) { getImageTask[3] = Task.Run(() => RasterImageData.A.GetImageData(importSource, RasterImageData.RectTangle)); }
+            getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, importSource));
+            getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, importSource));
+            getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, importSource));
+            if (containsAlpha) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, importSource)); }
 
             var texWidth = RasterImageData.RectTangle.GetWidth();
             var texHeight = RasterImageData.RectTangle.GetHeight();
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-            var texR = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var format = BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
+
+            var texR = new Texture2D(texWidth, texHeight, format, false);
             texR.filterMode = FilterMode.Point;
-            var texG = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texG = new Texture2D(texWidth, texHeight, format, false);
             texG.filterMode = FilterMode.Point;
-            var texB = new Texture2D(texWidth, texHeight, TextureFormat.R8, false);
+            var texB = new Texture2D(texWidth, texHeight, format, false);
             texB.filterMode = FilterMode.Point;
-            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, TextureFormat.R8, false) : null;
+            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, format, false) : null;
             if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
             if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
@@ -142,6 +157,37 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (containsAlpha) { UnityEngine.Object.DestroyImmediate(texA); }
 
             // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
+        }
+
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth)
+        {
+            return BitDepthToTextureFormat(bitDepth, 1);
+        }
+        internal static TextureFormat BitDepthToTextureFormat(int bitDepth, int channelCount)
+        {
+            switch (bitDepth, channelCount)
+            {
+                case (1, 1):
+                case (8, 1):
+                    { return TextureFormat.R8; }
+                case (8, 3):
+                    { return TextureFormat.RGB24; }
+                case (8, 4):
+                    { return TextureFormat.RGBA32; }
+                case (16, 1):
+                    { return TextureFormat.R16; }
+                case (16, 3):
+                    { return TextureFormat.RGB48; }
+                case (16, 4):
+                    { return TextureFormat.RGBA64; }
+
+                case (32, 1):
+                    { return TextureFormat.RFloat; }
+                case (32, 4):
+                    { return TextureFormat.RGBAFloat; }
+            }
+
+            throw new ArgumentOutOfRangeException();
         }
 
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)

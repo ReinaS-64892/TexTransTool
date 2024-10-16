@@ -1,7 +1,7 @@
 using UnityEngine;
 using net.rs64.TexTransTool;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransCoreEngineForUnity.Island;
 using Unity.Collections;
 using System.Collections;
 using System;

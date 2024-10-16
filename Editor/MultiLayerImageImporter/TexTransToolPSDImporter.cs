@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using net.rs64.MultiLayerImage.LayerData;
 using net.rs64.MultiLayerImage.Parser.PSD;
 using Unity.Collections;
@@ -9,9 +10,10 @@ using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    [ScriptedImporter(1, new string[] { }, new string[] { "psd" }, AllowCaching = true)]
+    [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
+        public PSDImportMode ImportMode = PSDImportMode.Auto;
         public override void OnImportAsset(AssetImportContext ctx)
         {
             NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
@@ -31,7 +33,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             Profiler.EndSample();
             Profiler.BeginSample("LowLevel");
 
-            var pSDData = PSDHighLevelParser.Parse(lowPSDData);
+            PSDHighLevelParser.PSDImportMode? importMode = ImportMode is PSDImportMode.Auto ? null : (PSDHighLevelParser.PSDImportMode)ImportMode;
+            var pSDData = PSDHighLevelParser.Parse(lowPSDData, importMode);
 
             Profiler.EndSample();
             Profiler.EndSample();
@@ -50,8 +53,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ctx.SetMainObject(rootCanvas);
 
                 var canvasDescription = ScriptableObject.CreateInstance<PSDImportedCanvasDescription>();
-                canvasDescription.Width = pSDData.Size.x;
-                canvasDescription.Height = pSDData.Size.y;
+                canvasDescription.Width = pSDData.Width;
+                canvasDescription.Height = pSDData.Height;
+                canvasDescription.BitDepth = pSDData.Depth;
                 canvasDescription.name = "CanvasDescription";
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
@@ -65,8 +69,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0f);
                 Profiler.BeginSample("CreatePreviews");
-
-                mliImporter.CreatePreview();
+                try
+                {
+                    mliImporter.CreatePreview();
+                }
+                catch (Exception e) { Debug.LogException(e); }
 
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);
@@ -81,8 +88,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             finally
             {
                 EditorUtility.ClearProgressBar();
+                NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
             }
-            NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
         }
 
         internal TTTImportedImage CreatePSDImportedImage(ImportRasterImageData importRasterImage)
@@ -105,12 +112,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             }
         }
 
+        public enum PSDImportMode
+        {
+            Auto = -1,
+            Unknown = 0,
+            Photoshop = 2,
+            ClipStudioPaint = 3,
+        }
+
     }
-
-
-
-
-
-
 
 }

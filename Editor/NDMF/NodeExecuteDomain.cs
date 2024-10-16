@@ -4,10 +4,8 @@ using System.IO;
 using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Utils;
-using net.rs64.TexTransTool.TextureStack;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEditor;
 using UnityEngine;
 

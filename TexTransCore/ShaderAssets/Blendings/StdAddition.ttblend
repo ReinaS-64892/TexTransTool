@@ -1,0 +1,19 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "Addition"
+#pragma KeyName_jp "加算-覆い焼き(リニア)"
+
+#include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = AdditionComposite(BaseColor.rgb, AddColor.rgb);
+  return AlphaBlending(BaseColor, AddColor, BlendColor);
+}

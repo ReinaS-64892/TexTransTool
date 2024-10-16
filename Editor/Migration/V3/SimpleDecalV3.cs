@@ -1,5 +1,4 @@
 using System;
-using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
 using UnityEditor;
@@ -18,7 +17,7 @@ namespace net.rs64.TexTransTool.Migration.V3
 
             if (simpleDecal.IslandCulling) { MigrateIslandCullingToIslandSelector(simpleDecal); }
 
-            if (simpleDecal.PolygonCulling != TexTransCore.Decal.PolygonCulling.Vertex) { simpleDecal.PolygonOutOfCulling = false; }
+            if (simpleDecal.PolygonCulling != TexTransCoreEngineForUnity.Decal.PolygonCulling.Vertex) { simpleDecal.PolygonOutOfCulling = false; }
 
             EditorUtility.SetDirty(simpleDecal);
             MigrationUtility.SetSaveDataVersion(simpleDecal, 4);

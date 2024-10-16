@@ -1,0 +1,19 @@
+#pragma HLSL_Version 2018
+#pragma ColorSpace Gamma
+#pragma Key "LinearLight"
+#pragma KeyName_jp "リニアライト"
+
+#include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = LinearLightComposite(BaseColor.rgb, AddColor.rgb);
+  return AlphaBlending(BaseColor, AddColor, BlendColor);
+}

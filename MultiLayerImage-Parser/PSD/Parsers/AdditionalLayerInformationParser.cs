@@ -8,10 +8,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
     internal static class AdditionalLayerInformationParser
     {
-        public static Dictionary<string, Type> AdditionalLayerInfoParsersTypes;
-        public static Dictionary<string, Type> GetAdditionalLayerInfoParsersTypes()
+        static Dictionary<string, (Type, bool)> s_additionalLayerInfoParsersTypes;
+        public static Dictionary<string, (Type, bool)> AdditionalLayerInfoParsersTypes
         {
-            var dict = new Dictionary<string, Type>();
+            get { s_additionalLayerInfoParsersTypes ??= GetAdditionalLayerInfoParsersTypes(); return s_additionalLayerInfoParsersTypes; }
+        }
+        static Dictionary<string, (Type, bool)> GetAdditionalLayerInfoParsersTypes()
+        {
+            var dict = new Dictionary<string, (Type, bool)>();
 
             foreach (var addLYType in AppDomain.CurrentDomain.GetAssemblies()
                  .SelectMany(I => I.GetTypes())
@@ -22,38 +26,45 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
                 var customAttribute = addLYType.GetCustomAttribute<AdditionalLayerInfoParserAttribute>();
                 if (!dict.ContainsKey(customAttribute.Code))
                 {
-                    dict.Add(customAttribute.Code, addLYType);
+                    dict.Add(customAttribute.Code, (addLYType, customAttribute.MayULongLength));
                 }
             }
 
             return dict;
         }
-        public static AdditionalLayerInfoBase[] PaseAdditionalLayerInfos(SubSpanStream stream)
+        public static AdditionalLayerInfoBase[] PaseAdditionalLayerInfos(bool isPSB, SubSpanStream stream, bool roundTo4 = false)
         {
             var addLayerInfoList = new List<AdditionalLayerInfoBase>();
-            if (AdditionalLayerInfoParsersTypes == null) AdditionalLayerInfoParsersTypes = GetAdditionalLayerInfoParsersTypes();
-            var addLayerInfoParsers = AdditionalLayerInfoParsersTypes;
             while (stream.Position < stream.Length)
             {
                 if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { break; }
                 var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
-                uint length = stream.ReadUInt32();
 
-                if (addLayerInfoParsers.ContainsKey(keyCode))
+                AdditionalLayerInfoBase info;
+                if (AdditionalLayerInfoParsersTypes.ContainsKey(keyCode))
                 {
-                    var parser = Activator.CreateInstance(addLayerInfoParsers[keyCode]) as AdditionalLayerInfoBase;
-                    parser.Length = length;
-                    parser.ParseAddLY(stream.ReadSubStream((int)length));
+                    var TypeAndMayLong = AdditionalLayerInfoParsersTypes[keyCode];
+                    var parser = info = Activator.CreateInstance(TypeAndMayLong.Item1) as AdditionalLayerInfoBase;
+                    parser.Length = isPSB is false ? stream.ReadUInt32() : TypeAndMayLong.Item2 ? stream.ReadUInt64() : stream.ReadUInt32();
+                    parser.ParseAddLY(isPSB, stream.ReadSubStream((int)parser.Length));
                     addLayerInfoList.Add(parser);
                 }
                 else
                 {
                     var fallBack = new FallBackAdditionalLayerInfoParser();
+                    info = fallBack;
                     fallBack.KeyCode = keyCode;
-                    fallBack.Length = length;
-                    fallBack.ParseAddLY(stream.ReadSubStream((int)length));
+                    fallBack.Length = stream.ReadUInt32();
+                    fallBack.ParseAddLY(isPSB, stream.ReadSubStream((int)fallBack.Length));
                     addLayerInfoList.Add(fallBack);
+                }
 
+                if (roundTo4)
+                {
+                    if ((info.Length % 4) != 0)
+                    {
+                        stream.ReadSubStream((int)(4 - (info.Length % 4)));
+                    }
                 }
             }
             return addLayerInfoList.ToArray();

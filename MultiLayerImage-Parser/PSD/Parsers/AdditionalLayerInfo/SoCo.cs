@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
@@ -7,8 +7,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     [Serializable, AdditionalLayerInfoParser("SoCo")]
     internal class SoCo : AdditionalLayerInfoBase
     {
-        public Color Color;
-        public override void ParseAddLY(SubSpanStream stream)
+        public ColorWOAlpha Color;
+        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
         {
             var version = stream.ReadUInt32();
 
@@ -21,14 +21,14 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             {
                 var colorStructure = (DescriptorStructureParser.DescriptorStructure)descriptor.Structures["Clr "];
 
-                Color.r = (float)((double)colorStructure.Structures["Rd  "] / (double)byte.MaxValue);
-                Color.g = (float)((double)colorStructure.Structures["Grn "] / (double)byte.MaxValue);
-                Color.b = (float)((double)colorStructure.Structures["Bl  "] / (double)byte.MaxValue);
-                Color.a = 1;//PSDのソリッドカラーにはアルファの値は含まれていないが、TTTのソリッドカラーは持っているため、適当な値を入れておく。
+                Color.R = (float)((double)colorStructure.Structures["Rd  "] / (double)byte.MaxValue);
+                Color.G = (float)((double)colorStructure.Structures["Grn "] / (double)byte.MaxValue);
+                Color.B = (float)((double)colorStructure.Structures["Bl  "] / (double)byte.MaxValue);
             }
             catch
             {
-                Debug.LogError("Unknown SoCo data format.");
+                // どうすんのこれ...? いつかログ用の関数作らないとね...
+                // Debug.LogError("Unknown SoCo data format.");
             }
 
         }

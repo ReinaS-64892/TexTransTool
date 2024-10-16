@@ -1,11 +1,11 @@
 using net.rs64.MultiLayerImage.Parser.PSD;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
+using net.rs64.MultiLayerImage.Parser;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal class PSDImportedRasterMaskImage : TTTImportedImage
@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            TexTransCore.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+            TexTransCoreEngineForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
 
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
             var sourceTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
@@ -30,7 +30,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("RLE");
 
-            var data = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle);
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
+            var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, data);
 
             Profiler.EndSample();
             Profiler.BeginSample("OffsetMoveAlphaJobSetUp");
@@ -56,15 +58,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
             if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MergeColorAndOffsetShader); }
             var mat = PSDImportedRasterImage.s_tempMat;
-            var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), TextureFormat.R8, false);
+
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
+            var format = PSDImportedRasterImage.BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
+
+            var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), format, false);
             texR.filterMode = FilterMode.Point;
 
-            TextureBlend.ColorBlit(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
+            TextureBlend.FillColor(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
 
             if (!isZeroSize)
             {
-                using (var data = MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle))
+                using (var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
                 {
+                    MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, data);
                     texR.LoadRawTextureData(data); texR.Apply();
                 }
 
@@ -79,11 +86,5 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             UnityEngine.Object.DestroyImmediate(texR);
         }
-
-        internal static NativeArray<byte> LoadPSDMaskImageData(PSDImportedRasterMaskImageData maskImageData, byte[] importSource)
-        {
-            return ChannelImageDataParser.ChannelImageData.HeightInvert(maskImageData.MaskImage.GetImageData(importSource, maskImageData.RectTangle), maskImageData.RectTangle.GetWidth(), maskImageData.RectTangle.GetHeight());
-        }
-
     }
 }

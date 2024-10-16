@@ -1,6 +1,5 @@
 using System;
 using net.rs64.MultiLayerImage.LayerData;
-using UnityEngine;
 using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
 

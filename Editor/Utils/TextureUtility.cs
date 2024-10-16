@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEditor;
 using UnityEngine;
 

@@ -4,10 +4,10 @@ using System;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Linq;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore.MipMap;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity.MipMap;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine.Serialization;
 namespace net.rs64.TexTransTool
 {

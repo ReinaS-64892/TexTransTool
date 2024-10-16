@@ -7,12 +7,10 @@ using UnityEditor;
 using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
 using Unity.Collections;
-using net.rs64.TexTransCore.MipMap;
-using Unity.Jobs;
+using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
-using Unity.Burst;
 using UnityEngine.Profiling;
-using Unity.Collections.LowLevel.Unsafe;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -63,94 +61,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                             CreateLayerFolder(newLayer, layerFolder);
                             break;
                         }
-                    case HSLAdjustmentLayerData hSVAdjustmentLayerData:
+                    default:
                         {
-                            CreateHSLAdjustmentLayer(newLayer, hSVAdjustmentLayerData);
+                            if (SpecialLayerDataImporterUtil.SpecialLayerDataImporters.ContainsKey(layer.GetType()))
+                                SpecialLayerDataImporterUtil.SpecialLayerDataImporters[layer.GetType()].CreateSpecial(CopyFromData, newLayer, layer);
                             break;
                         }
-                    case SolidColorLayerData solidColorLayerData:
-                        {
-                            CreateSolidColorLayer(newLayer, solidColorLayerData);
-                            break;
-                        }
-                    case LevelAdjustmentLayerData levelAdjustmentLayerData:
-                        {
-                            CreateLevelLayer(newLayer, levelAdjustmentLayerData);
-                            break;
-                        }
-                    case SelectiveColorLayerData selectiveColorLayerData:
-                        {
-                            CreateSelectiveColorLayer(newLayer, selectiveColorLayerData);
-                            break;
-                        }
-
                 }
             }
 
         }
 
-        private void CreateSelectiveColorLayer(GameObject newLayer, SelectiveColorLayerData selectiveColorLayerData)
-        {
-            var selectiveColoringAdjustmentLayer = newLayer.AddComponent<SelectiveColoringAdjustmentLayer>();
-            CopyFromData(selectiveColoringAdjustmentLayer, selectiveColorLayerData);
-
-            selectiveColoringAdjustmentLayer.RedsCMYK = selectiveColorLayerData.RedsCMYK;
-            selectiveColoringAdjustmentLayer.YellowsCMYK = selectiveColorLayerData.YellowsCMYK;
-            selectiveColoringAdjustmentLayer.GreensCMYK = selectiveColorLayerData.GreensCMYK;
-            selectiveColoringAdjustmentLayer.CyansCMYK = selectiveColorLayerData.CyansCMYK;
-            selectiveColoringAdjustmentLayer.BluesCMYK = selectiveColorLayerData.BluesCMYK;
-            selectiveColoringAdjustmentLayer.MagentasCMYK = selectiveColorLayerData.MagentasCMYK;
-            selectiveColoringAdjustmentLayer.WhitesCMYK = selectiveColorLayerData.WhitesCMYK;
-            selectiveColoringAdjustmentLayer.NeutralsCMYK = selectiveColorLayerData.NeutralsCMYK;
-            selectiveColoringAdjustmentLayer.BlacksCMYK = selectiveColorLayerData.BlacksCMYK;
-            selectiveColoringAdjustmentLayer.IsAbsolute = selectiveColorLayerData.IsAbsolute;
-        }
-
-        private void CreateSolidColorLayer(GameObject newLayer, SolidColorLayerData solidColorLayerData)
-        {
-            var SolidColorLayerComponent = newLayer.AddComponent<SolidColorLayer>();
-            CopyFromData(SolidColorLayerComponent, solidColorLayerData);
-
-            SolidColorLayerComponent.Color = solidColorLayerData.Color;
-        }
-
-        private void CreateHSLAdjustmentLayer(GameObject newLayer, HSLAdjustmentLayerData hSVAdjustmentLayerData)
-        {
-            var HSVAdjustmentLayerComponent = newLayer.AddComponent<HSLAdjustmentLayer>();
-            CopyFromData(HSVAdjustmentLayerComponent, hSVAdjustmentLayerData);
-
-            HSVAdjustmentLayerComponent.Hue = hSVAdjustmentLayerData.Hue;
-            HSVAdjustmentLayerComponent.Saturation = hSVAdjustmentLayerData.Saturation;
-            HSVAdjustmentLayerComponent.Lightness = hSVAdjustmentLayerData.Lightness;
-        }
-
-        private void CreateLevelLayer(GameObject newLayer, LevelAdjustmentLayerData levelAdjustmentLayerData)
-        {
-            var HSVAdjustmentLayerComponent = newLayer.AddComponent<LevelAdjustmentLayer>();
-            CopyFromData(HSVAdjustmentLayerComponent, levelAdjustmentLayerData);
-
-            HSVAdjustmentLayerComponent.RGB = Convert(levelAdjustmentLayerData.RGB);
-            HSVAdjustmentLayerComponent.Red = Convert(levelAdjustmentLayerData.Red);
-            HSVAdjustmentLayerComponent.Green = Convert(levelAdjustmentLayerData.Green);
-            HSVAdjustmentLayerComponent.Blue = Convert(levelAdjustmentLayerData.Blue);
-
-            static LevelAdjustmentLayer.Level Convert(LevelAdjustmentLayerData.LevelData levelData)
-            {
-                var level = new LevelAdjustmentLayer.Level();
-
-                level.InputFloor = levelData.InputFloor;
-                level.InputCeiling = levelData.InputCeiling;
-                level.Gamma = levelData.Gamma;
-                level.OutputFloor = levelData.OutputFloor;
-                level.OutputCeiling = levelData.OutputCeiling;
-
-                return level;
-            }
-        }
-
         private void CreateRasterLayer(GameObject newLayer, RasterLayerData rasterLayer)
         {
-            if (rasterLayer.RasterTexture == null) { Debug.Log(rasterLayer.LayerName + " is Not RasterLayer"); UnityEngine.Object.DestroyImmediate(newLayer); return; }//ラスターレイヤーじゃないものはインポートできない。
+            if (rasterLayer.RasterTexture == null) { newLayer.name += " is Unsupported Layer"; return; }//データがないならインポートできない扱いをしておく。
+            if (rasterLayer is EmptyOrUnsupported) { newLayer.name += " is empty or unsupported layer"; }//空のラスターレイヤーか非対応なものかの判別はつかないから仕方がない。
+
             var rasterLayerComponent = newLayer.AddComponent<RasterImportedLayer>();
             CopyFromData(rasterLayerComponent, rasterLayer);
 
@@ -272,9 +198,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 // image.name = name;
 
-                image.PreviewTexture.name = image.name + "_Preview";
                 _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
-                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                try
+                {
+                    image.PreviewTexture.name = image.name + "_Preview";
+                    _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
+                }
+                catch (Exception e) { Debug.LogException(e); }
             }
         }
     }

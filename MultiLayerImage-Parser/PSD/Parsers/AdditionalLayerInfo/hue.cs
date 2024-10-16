@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using System.Diagnostics;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
@@ -13,7 +13,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public short Saturation;
         public short Lightness;
         public abstract bool IsOld { get; }
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, SubSpanStream stream)
         {
             var version = stream.ReadUInt16();
 
@@ -30,7 +30,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             Saturation = stream.ReadInt16();
             Lightness = stream.ReadInt16();
 
-            //レンジとかなんたらはよくわからないので見なかったことにします。
+            //レンジとかなんたらは、現状対応する実装がないので読み取らない。
         }
     }
     /*
@@ -42,7 +42,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public override bool IsOld => false;
     }
-    [Serializable, AdditionalLayerInfoParser("hue")]
+    [Serializable, AdditionalLayerInfoParser("hue ")]
     internal class hueOld : hue
     {
         public override bool IsOld => true;

@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEditor;
-using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor

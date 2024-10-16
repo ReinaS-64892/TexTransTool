@@ -7,7 +7,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public string LayerName;
 
-        public override void ParseAddLY(SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
         {
             var byteLength = stream.ReadUInt32() * 2;
             LayerName = stream.ReadSubStream((int)byteLength).Span.ParseBigUTF16();

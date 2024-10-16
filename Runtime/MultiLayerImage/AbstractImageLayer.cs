@@ -1,5 +1,7 @@
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
@@ -16,22 +18,29 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public abstract class AbstractImageLayer : AbstractLayer
     {
         public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
-        internal override void EvaluateTexture(CanvasContext canvasContext)
+
+        internal override LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager)
         {
-            if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(Clipping, false); return; }
-
-            var canvasSize = canvasContext.CanvasSize;
-            var rTex = TTRt.G(canvasSize, canvasSize, true);
-            rTex.name = $"AbstractImageLayer.EvaluateTextureTempRt-{rTex.width}x{rTex.height}";
-
-
-            GetImage(rTex, canvasContext.TextureManager);
-
-            var mask = GetLayerAlphaMod(canvasContext);
-            canvasContext.LayerCanvas.AddLayer(new(rTex, BlendTypeKey), mask, Clipping);
-
+            var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            return new TTTAbstractImageWarper(Visible, GetAlphaMask(textureManager), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), this, textureManager);
         }
 
+        class TTTAbstractImageWarper : ImageLayer
+        {
+            private AbstractImageLayer _imageLayer;
+            private ITextureManager _textureManager;
+
+            public TTTAbstractImageWarper(bool visible, AlphaMask alphaMask, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractImageLayer imageLayer, ITextureManager textureManager) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
+            {
+                _imageLayer = imageLayer;
+                _textureManager = textureManager;
+            }
+
+            public override void GetImage(ITexTransCoreEngine engine, ITTRenderTexture writeTarget)
+            {
+                _imageLayer.GetImage(writeTarget.ToUnity(), _textureManager);
+            }
+        }
 
     }
 }

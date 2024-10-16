@@ -2,7 +2,7 @@ using System;
 
 namespace net.rs64.MultiLayerImage.LayerData
 {
-    internal class LevelAdjustmentLayerData : AbstractLayerData
+    internal class LevelAdjustmentLayerData : AbstractLayerData , IGrabTag
     {
         public LevelData RGB;
         public LevelData Red;

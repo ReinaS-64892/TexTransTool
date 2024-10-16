@@ -1,16 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
-using net.rs64.TexTransCore.Decal;
+using net.rs64.TexTransCoreEngineForUnity.Decal;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore;
-using UnityEngine.Pool;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Collections;
 using net.rs64.TexTransTool.MultiLayerImage;
 
@@ -91,22 +89,16 @@ namespace net.rs64.TexTransTool.Decal
                 var decalSourceSize = texManager.GetOriginalTextureSize(sourceDecalTexture);
                 mulDecalTexture = TTRt.G(decalSourceSize, decalSourceSize);
                 mulDecalTexture.name = $"{sourceDecalTexture.name}:GetMultipleDecalTextureWithNotNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
+                domain.GetTextureManager().WriteOriginalTexture(sourceDecalTexture, mulDecalTexture);
             }
             else
             {
                 mulDecalTexture = TTRt.G(32, 32);
                 mulDecalTexture.name = $"GetMultipleDecalTextureWithNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
             }
-            mulDecalTexture.Clear();
-            if (sourceDecalTexture != null)
-            {
-                using (texManager.GetOriginTempRtU(out var tempRt, sourceDecalTexture))
-                    TextureBlend.MultipleRenderTexture(mulDecalTexture, tempRt, color);
-            }
-            else
-            {
-                TextureBlend.ColorBlit(mulDecalTexture, color);
-            }
+            if (sourceDecalTexture != null) { TextureBlend.ColorMultiply(mulDecalTexture, color); }
+            else { TextureBlend.FillColor(mulDecalTexture, color); }
+
             return mulDecalTexture;
         }
         [ExpandTexture2D] public Texture2D DecalTexture;
@@ -123,7 +115,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 Profiler.BeginSample("Rendering MultiLayerImageCanvas");
                 OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
-                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048);
+                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTextureManager(), 2048, 2048);
                 Profiler.EndSample();
             }
 

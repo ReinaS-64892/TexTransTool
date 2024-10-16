@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
