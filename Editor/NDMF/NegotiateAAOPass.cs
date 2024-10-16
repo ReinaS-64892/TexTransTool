@@ -6,6 +6,7 @@ using Anatawa12.AvatarOptimizer.API;
 using nadena.dev.ndmf;
 using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
@@ -13,25 +14,47 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.NDMF.AAO
 {
-    internal class ProvideMeshRemovalToIsland : TTTPass<ProvideMeshRemovalToIsland>
+    internal class NegotiateAAOPass : TTTPass<NegotiateAAOPass>
     {
         protected override void Execute(BuildContext context)
         {
-            if (TTTContext(context).PhaseAtList[TexTransPhase.Optimizing].Any() is false) { return; }
+            var tttCtx = TTTContext(context);
+            var tttComponents = tttCtx.PhaseAtList.SelectMany(i => i.Value);
+            if (tttComponents.Any() is false) { return; }
 
-            var renderers = context.AvatarRootObject.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            var meshRemovals = renderers.ToDictionary(r => r, r => MeshRemovalProvider.GetForRenderer(r));
+            var uvEditTarget = tttComponents.Where(i => i is AtlasTexture)//後々 UV いじる系でありどの UV をいじるかを示す形が必要になる。今は AtlasTexture しかないから問題ないけど
+                .SelectMany(i => i.ModificationTargetRenderers(tttCtx.Domain.EnumerateRenderer(), tttCtx.Domain.OriginEqual)).OfType<SkinnedMeshRenderer>().Distinct();
 
-
-            foreach (var mKr in meshRemovals)
+            List<Vector4> uvBuf = null;
+            foreach (var smr in uvEditTarget)
             {
-                var renderer = mKr.Key;
-                var removalProvider = mKr.Value;
+                if (UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
+                    UVEvacuation(uvBuf, smr);
 
-                if (removalProvider is null) { continue; }
-
-                ProvideToIsland(renderer, removalProvider);
+                var removalProvider = MeshRemovalProvider.GetForRenderer(smr);
+                if (removalProvider is not null)
+                    using (removalProvider)
+                        ProvideToIsland(smr, removalProvider);
             }
+        }
+
+        private static void UVEvacuation(List<Vector4> uvBuf, SkinnedMeshRenderer smr)
+        {
+            var mesh = smr.sharedMesh = UnityEngine.Object.Instantiate(smr.sharedMesh);
+
+            var evacuationIndex = 7;
+            while (evacuationIndex >= 0 && mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(4 + evacuationIndex))) { evacuationIndex -= 1; }
+
+            if (evacuationIndex == -1)
+            {
+                TTTLog.Warning("UVEvacuationFailed", smr);
+                return;
+            }
+
+            uvBuf ??= new();
+            mesh.GetUVs(0, uvBuf);
+            mesh.SetUVs(evacuationIndex, uvBuf);
+            UVUsageCompabilityAPI.RegisterTexCoordEvacuation(smr, 0, evacuationIndex);
         }
 
         private static void ProvideToIsland(SkinnedMeshRenderer renderer, MeshRemovalProvider removalProvider)
@@ -95,8 +118,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
                 reTri.AddRange(replaced);
             }
 
-            var vanishPoint = vanishVertex.First().TexCoord0;
-            foreach (var vert in vanishVertex) { vert.TexCoord0 = vanishPoint; }
+            foreach (var vert in vanishVertex) { vert.TexCoord0 = new Vector2(-1, -1); }
 
             var usedHash = new HashSet<Vertex>(removalsDict.SelectMany(i => i.Value.Triangles));
             vertex.RemoveAll(i => usedHash.Contains(i) is false);

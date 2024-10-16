@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
 #if CONTAINS_AAO
-            .Run(AtlasRemappingUVUsageTransmitter.Instance).Then
+            .Run(NegotiateAAOPass.Instance).Then
 #endif
 
             .Run(BeforeUVModificationPass.Instance).Then
@@ -51,9 +51,6 @@ namespace net.rs64.TexTransTool.NDMF
 
             .Run(ReFindRenderersPass.Instance).Then
 
-#if CONTAINS_AAO
-            .Run(ProvideMeshRemovalToIsland.Instance).Then
-#endif
             .Run(OptimizingPass.Instance).Then
             .Run(TTTSessionEndPass.Instance)
             .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
