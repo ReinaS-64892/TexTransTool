@@ -7,10 +7,10 @@ using UnityEditor;
 using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
 using Unity.Collections;
-using net.rs64.TexTransUnityCore.MipMap;
+using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {

@@ -26,7 +26,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         /// <summary>
         /// maskTarget の alpha 以外をいじってはならない。
         /// </summary>
-        public abstract void Masking(ITTEngine engine, ITTRenderTexture maskTarget);
+        public abstract void Masking(ITexTransCoreEngine engine, ITTRenderTexture maskTarget);
     }
 
 
@@ -40,6 +40,6 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             MaskTexture = maskTexture;
         }
-        public override void Masking(ITTEngine engine, ITTRenderTexture maskTarget) { engine.MulAlpha(maskTarget, MaskTexture); }
+        public override void Masking(ITexTransCoreEngine engine, ITTRenderTexture maskTarget) { engine.MulAlpha(maskTarget, MaskTexture); }
     }
 }

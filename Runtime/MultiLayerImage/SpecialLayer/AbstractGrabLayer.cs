@@ -1,6 +1,6 @@
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreForUnity;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 _blendTypeKey = blendTypeKey.ToUnity();
             }
 
-            public override void GrabImage(ITTEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
+            public override void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
             {
                 using (var tempDist = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
                 using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))

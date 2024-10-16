@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransUnityCore;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using Color = UnityEngine.Color;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
-using static net.rs64.TexTransUnityCore.TextureBlend;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasWidth, int canvasHeigh)
         {
-            var texTransUnityCoreEngine = new TTUnityCoreEngine(textureManager.LoadTexture);
+            var texTransUnityCoreEngine = new TTCoreEngineForUnity(textureManager.LoadTexture);
             var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext(texTransUnityCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
             var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas(canvasWidth, canvasHeigh, GetRootLayerObjects(texTransUnityCoreEngine, textureManager));

@@ -13,7 +13,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             Layers = layers;
         }
 
-        public override void GrabImage(ITTEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
+        public override void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
         {
             using (var nEvalCtx = EvaluateContext.NestContext(engine, grabTexture.Width, grabTexture.Hight, evaluateContext, AlphaMask, null))
             {

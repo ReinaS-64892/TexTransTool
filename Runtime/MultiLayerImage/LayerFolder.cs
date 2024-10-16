@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
 

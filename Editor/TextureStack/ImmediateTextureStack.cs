@@ -1,8 +1,8 @@
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEditor;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.TextureStack
 {

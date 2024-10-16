@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEditor;
 using UnityEngine;
 using static net.rs64.TexTransTool.TTTConfig;

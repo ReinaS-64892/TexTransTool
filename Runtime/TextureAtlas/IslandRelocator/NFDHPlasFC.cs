@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransUnityCore.Island;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreForUnity.Island;
+using net.rs64.TexTransCoreForUnity.Utils;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Profiling;

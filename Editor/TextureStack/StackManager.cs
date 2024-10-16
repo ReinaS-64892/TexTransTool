@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static net.rs64.TexTransUnityCore.TextureBlend;
+using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.TextureStack
 {

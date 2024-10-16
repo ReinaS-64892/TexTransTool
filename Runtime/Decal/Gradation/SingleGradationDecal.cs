@@ -4,13 +4,13 @@ using net.rs64.TexTransTool.IslandSelector;
 using System;
 using JetBrains.Annotations;
 using Unity.Collections;
-using net.rs64.TexTransUnityCore.Decal;
+using net.rs64.TexTransCoreEngineForUnity.Decal;
 using Unity.Jobs;
 using Unity.Burst;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransUnityCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {

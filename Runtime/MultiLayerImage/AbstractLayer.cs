@@ -1,5 +1,5 @@
 using System;
-using net.rs64.TexTransUnityCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore;
@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 _opacity = opacity;
                 _layerMask = layerMask;
             }
-            public override void Masking(ITTEngine engine, ITTRenderTexture maskTarget)
+            public override void Masking(ITexTransCoreEngine engine, ITTRenderTexture maskTarget)
             {
                 engine.MulAlpha(maskTarget, _opacity);
 
