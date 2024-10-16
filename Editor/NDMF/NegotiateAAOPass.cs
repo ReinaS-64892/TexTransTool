@@ -67,8 +67,6 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var vertex = MeshInfoUtility.ReadVertex(mesh, out var meshDesc);
             var removalsDict = new Dictionary<int, (List<Vertex> Triangles, List<Vertex> VanishTriangles)>();
 
-
-            using (removalProvider)
             using (var uv = new NativeArray<Vector2>(mesh.vertexCount, Allocator.Temp))
             {
                 using (var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh))
