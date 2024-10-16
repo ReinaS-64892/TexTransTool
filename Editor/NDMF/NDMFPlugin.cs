@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
 #if CONTAINS_AAO
-            .Run(AtlasRemappingUVUsageTransmitter.Instance).Then
+            .Run(NegotiateAAOPass.Instance).Then
 #endif
 
             .Run(BeforeUVModificationPass.Instance).Then
@@ -50,9 +50,6 @@ namespace net.rs64.TexTransTool.NDMF
 
             .Run(ReFindRenderersPass.Instance).Then
 
-#if CONTAINS_AAO
-            .Run(ProvideMeshRemovalToIsland.Instance).Then
-#endif
             .Run(OptimizingPass.Instance).Then
             .Run(TTTSessionEndPass.Instance)
             .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
