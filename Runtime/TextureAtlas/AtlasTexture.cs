@@ -751,6 +751,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var shaderSupport = new AtlasShaderSupportUtils();
             Profiler.EndSample();
 
+            var usState = new Dictionary<Mesh, ReceiversUVState>();
+
             //Mesh Change
             foreach (var renderer in nowRenderers)
             {
@@ -762,7 +764,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 try
                 {
                     var reMappingCallTargets = renderer.GetComponents<IAtlasReMappingReceiver>();
-                    foreach (var target in reMappingCallTargets.Where(i => i != null)) { target.ReMappingReceive(atlasMeshHolder.NormalizedMesh, atlasMeshHolder.AtlasMesh); }
+                    foreach (var target in reMappingCallTargets.Where(i => i != null))
+                    {
+                        if (usState.ContainsKey(atlasMeshHolder.NormalizedMesh) is false)
+                        {
+                            usState[atlasMeshHolder.NormalizedMesh] = new()
+                            {
+                                WriteIsAtlasTexture = AtlasSetting.WriteOriginalUV,
+                                AlreadyOriginWriteable = AtlasSetting.WriteOriginalUV ? AtlasSetting.OriginalUVWriteTargetChannel : null,
+                            };
+                        }
+                        target.ReMappingReceive(usState[atlasMeshHolder.NormalizedMesh], atlasMeshHolder.NormalizedMesh, atlasMeshHolder.AtlasMesh);
+                    }
                 }
                 catch (Exception e) { TTTRuntimeLog.Exception(e); }
 
