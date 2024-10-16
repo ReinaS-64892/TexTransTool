@@ -27,6 +27,9 @@ namespace net.rs64.TexTransTool.NDMF
 
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
+#if CONTAINS_AAO
+            .Run(AtlasRemappingUVUsageTransmitter.Instance).Then
+#endif
 
             .Run(BeforeUVModificationPass.Instance).Then
             .Run(TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning.Instance).Then
