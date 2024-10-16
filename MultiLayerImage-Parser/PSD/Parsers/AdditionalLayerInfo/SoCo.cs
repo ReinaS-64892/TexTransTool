@@ -8,7 +8,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     internal class SoCo : AdditionalLayerInfoBase
     {
         public ColorWOAlpha Color;
-        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,BinarySectionStream stream)
         {
             var version = stream.ReadUInt32();
 

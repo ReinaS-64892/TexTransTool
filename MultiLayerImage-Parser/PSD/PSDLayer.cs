@@ -7,15 +7,13 @@ using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD
 {
-
-
-    internal enum PSDBlendMode //TTTの物と揃っている
+    internal enum PSDBlendMode
     {
         PassThrough,
         Normal,
         Dissolve,
         Darken,
-        Mul,
+        Multiply,
         ColorBurn,
         LinearBurn,
         DarkerColor,
@@ -46,12 +44,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
         public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord, Dictionary<ChannelIDEnum, ChannelImageData> channelImageData)
         {
-            abstractLayer.LayerName = layerRecord.LayerName;
+            abstractLayer.LayerName = layerRecord.AdditionalLayerInformation.OfType<AdditionalLayerInfo.luni>().FirstOrDefault().LayerName ?? layerRecord.LayerName;
             abstractLayer.TransparencyProtected = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.TransparencyProtected);
             abstractLayer.Visible = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible) is false;
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
             abstractLayer.Clipping = layerRecord.Clipping != 0;
-            abstractLayer.BlendTypeKey = BlendModeKeyToEnum(layerRecord.BlendModeKey).ToString();
+            abstractLayer.BlendTypeKey = ConvertTTTBlendTypeKey(BlendModeKeyToEnum(layerRecord.BlendModeKey));
             abstractLayer.LayerMask = PSDHighLevelParser.ParseLayerMask(layerRecord, channelImageData);
 
         }
@@ -91,7 +89,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 case "dark":
                     return PSDBlendMode.Darken;
                 case "mul ":
-                    return PSDBlendMode.Mul;
+                    return PSDBlendMode.Multiply;
                 case "idiv":
                     return PSDBlendMode.ColorBurn;
                 case "lbrn":
@@ -143,5 +141,64 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
         }
 
+        public static string ConvertTTTBlendTypeKey(PSDBlendMode pSDBlendMode)
+        {
+            switch (pSDBlendMode)
+            {
+                default:
+                case PSDBlendMode.Normal:
+                    return "Normal";
+                case PSDBlendMode.Dissolve:
+                    return "Dissolve";
+                case PSDBlendMode.Darken:
+                    return "DarkenOnly";
+                case PSDBlendMode.Multiply:
+                    return "Mul";
+                case PSDBlendMode.ColorBurn:
+                    return "ColorBurn";
+                case PSDBlendMode.LinearBurn:
+                    return "LinearBurn";
+                case PSDBlendMode.DarkerColor:
+                    return "DarkenColorOnly";
+                case PSDBlendMode.Lighten:
+                    return "LightenOnly";
+                case PSDBlendMode.Screen:
+                    return "Screen";
+                case PSDBlendMode.ColorDodge:
+                    return "ColorDodge";
+                case PSDBlendMode.LinearDodge:
+                    return "Addition";
+                case PSDBlendMode.LighterColor:
+                    return "LightenColorOnly";
+                case PSDBlendMode.Overlay:
+                    return "Overlay";
+                case PSDBlendMode.SoftLight:
+                    return "SoftLight";
+                case PSDBlendMode.HardLight:
+                    return "HardLight";
+                case PSDBlendMode.VividLight:
+                    return "VividLight";
+                case PSDBlendMode.LinearLight:
+                    return "LinearLight";
+                case PSDBlendMode.PinLight:
+                    return "PinLight";
+                case PSDBlendMode.HardMix:
+                    return "HardMix";
+                case PSDBlendMode.Difference:
+                    return "Difference";
+                case PSDBlendMode.Exclusion:
+                    return "Exclusion";
+                case PSDBlendMode.Divide:
+                    return "Divide";
+                case PSDBlendMode.Hue:
+                    return "Hue";
+                case PSDBlendMode.Saturation:
+                    return "Saturation";
+                case PSDBlendMode.Color:
+                    return "Color";
+                case PSDBlendMode.Luminosity:
+                    return "Luminosity";
+            }
+        }
     }
 }

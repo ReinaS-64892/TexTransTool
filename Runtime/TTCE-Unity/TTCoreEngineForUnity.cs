@@ -152,14 +152,17 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static UnityEngine.Color ToUnity(this Color color) { return new(color.R, color.G, color.B, color.A); }
         public static Color ToTTCore(this UnityEngine.Color color) { return new(color.r, color.g, color.b, color.a); }
         public static UnityEngine.Color ToUnity(this ColorWOAlpha color, float alpha = 1f) { return new(color.R, color.G, color.B, alpha); }
-        public static UnityEngine.Vector2 ToUnity(this TexTransCore.Vector2 vec) { return new(vec.X, vec.Y); }
-        public static UnityEngine.Vector3 ToUnity(this TexTransCore.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
-        public static UnityEngine.Vector4 ToUnity(this TexTransCore.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
-        public static TexTransCore.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
+        public static UnityEngine.Vector2 ToUnity(this System.Numerics.Vector2 vec) { return new(vec.X, vec.Y); }
+        public static UnityEngine.Vector3 ToUnity(this System.Numerics.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
+        public static UnityEngine.Vector4 ToUnity(this System.Numerics.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
+        public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
 
         public static RenderTexture ToUnity(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
         public static Texture2D ToUnity(this ITTDiskTexture diskTexture) { return ((UnityDiskTexture)diskTexture).Texture; }
         public static TTBlendUnityObject ToUnity(this ITTBlendKey key) { return (TTBlendUnityObject)key; }
         public static TTBlendUnityObject ToTTUnityEngin(this string key) { return TextureBlend.BlendObjects[key]; }
+        public static float[] ToArray(this System.Numerics.Vector4 vec) { return new[] { vec.X, vec.Y, vec.Z, vec.W }; }
+        public static float[] ToArray(this System.Numerics.Vector3 vec) { return new[] { vec.X, vec.Y, vec.Z }; }
+
     }
 }

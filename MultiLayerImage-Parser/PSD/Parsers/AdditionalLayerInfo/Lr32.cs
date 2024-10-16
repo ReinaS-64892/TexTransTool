@@ -8,13 +8,12 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     internal class Lr32 : AdditionalLayerInfoBase
     {
         public LayerInformationParser.LayerInfo AdditionalLayerInformation;
-        public override void ParseAddLY(bool isPSB, SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, BinarySectionStream stream)
         {
             var layerInfo = AdditionalLayerInformation = new LayerInformationParser.LayerInfo();
-            layerInfo.LayersInfoSectionLength = Length;
-            if (layerInfo.LayersInfoSectionLength == 0) { return; }
+            layerInfo.LayersInfoSection = stream.PeekToAddress(Address.Length);
+            if (layerInfo.LayersInfoSection.Length == 0) { return; }
             LayerInformationParser.ParseLayerRecordAndChannelImage(isPSB, layerInfo, stream);
-
         }
     }
 }

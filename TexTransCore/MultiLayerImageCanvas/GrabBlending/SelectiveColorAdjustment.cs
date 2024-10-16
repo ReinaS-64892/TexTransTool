@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Numerics;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {

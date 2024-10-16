@@ -13,7 +13,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         [Serializable]
         internal class LayerInfo
         {
-            public ulong LayersInfoSectionLength;
+            public BinaryAddress LayersInfoSection;
             public int LayerCount;
             public int LayerCountAbsValue;
 
@@ -21,19 +21,20 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public List<ChannelImageData> ChannelImageData;
 
         }
-        public static LayerInfo PaseLayerInfo(bool isPSB, ref SubSpanStream stream)
+        public static LayerInfo PaseLayerInfo(bool isPSB, BinarySectionStream stream)
         {
             var layerInfo = new LayerInfo();
-            layerInfo.LayersInfoSectionLength = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64();
+            var layersInfoSectionLength = isPSB is false ? stream.ReadUInt32() : stream.ReadUInt64();
+            layerInfo.LayersInfoSection = stream.PeekToAddress((long)layersInfoSectionLength);
 
-            if (layerInfo.LayersInfoSectionLength == 0) { return layerInfo; }
+            if (layerInfo.LayersInfoSection.Length == 0) { return layerInfo; }
 
-            ParseLayerRecordAndChannelImage(isPSB, layerInfo, stream.ReadSubStream((int)layerInfo.LayersInfoSectionLength));
+            ParseLayerRecordAndChannelImage(isPSB, layerInfo, stream.ReadSubSection(layerInfo.LayersInfoSection.Length));
 
             return layerInfo;
         }
 
-        public static void ParseLayerRecordAndChannelImage(bool isPSB, LayerInfo layerInfo, SubSpanStream layerInfoStream)
+        public static void ParseLayerRecordAndChannelImage(bool isPSB, LayerInfo layerInfo, BinarySectionStream layerInfoStream)
         {
             layerInfo.LayerCount = layerInfoStream.ReadInt16();
             layerInfo.LayerCountAbsValue = Math.Abs(layerInfo.LayerCount);
@@ -41,7 +42,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             var LayerRecordList = new List<LayerRecord>();
             for (int i = 0; layerInfo.LayerCountAbsValue > i; i += 1)
             {
-                LayerRecordList.Add(PaseLayerRecord(isPSB, ref layerInfoStream));
+                LayerRecordList.Add(PaseLayerRecord(isPSB, layerInfoStream));
             }
             layerInfo.LayerRecords = LayerRecordList;
 
@@ -50,7 +51,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 for (int Ci = 0; layerInfo.LayerRecords[i].ChannelInformationArray.Length > Ci; Ci += 1)
                 {
-                    channelImageData.Add(PaseChannelImageData(ref layerInfoStream, layerInfo.LayerRecords[i], Ci));
+                    channelImageData.Add(PaseChannelImageData(layerInfoStream, layerInfo.LayerRecords[i], Ci));
                 }
             }
             layerInfo.ChannelImageData = channelImageData;
