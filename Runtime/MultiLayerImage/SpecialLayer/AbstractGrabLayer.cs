@@ -1,6 +1,6 @@
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransCoreForUnity;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 

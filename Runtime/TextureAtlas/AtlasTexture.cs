@@ -2,18 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using net.rs64.TexTransCoreForUnity;
-using net.rs64.TexTransCoreForUnity.Island;
-using Island = net.rs64.TexTransCoreForUnity.Island.Island;
-using static net.rs64.TexTransCoreForUnity.TransTexture;
-using net.rs64.TexTransCoreForUnity.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Island;
+using Island = net.rs64.TexTransCoreEngineForUnity.Island.Island;
+using static net.rs64.TexTransCoreEngineForUnity.TransTexture;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
 using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCoreForUnity.MipMap;
+using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
 
 namespace net.rs64.TexTransTool.TextureAtlas

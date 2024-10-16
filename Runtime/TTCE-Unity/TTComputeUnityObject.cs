@@ -1,7 +1,7 @@
 using UnityEngine;
 using net.rs64.TexTransCore;
 
-namespace net.rs64.TexTransCoreForUnity
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public abstract class TTComputeUnityObject : ScriptableObject , ITTComputeKey
     {

@@ -1,4 +1,4 @@
-namespace net.rs64.TexTransCoreForUnity
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public class TTComputeOperator : TTComputeUnityObject
     {

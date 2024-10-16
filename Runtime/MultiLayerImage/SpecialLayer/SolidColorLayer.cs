@@ -1,5 +1,5 @@
 
-using net.rs64.TexTransCoreForUnity;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {

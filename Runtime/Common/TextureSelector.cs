@@ -3,7 +3,7 @@ using System;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCoreForUnity.Utils;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 namespace net.rs64.TexTransTool
 {
     [Serializable]

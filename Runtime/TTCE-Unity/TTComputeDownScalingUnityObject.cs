@@ -1,7 +1,7 @@
 using net.rs64.TexTransCore;
 using UnityEngine;
 
-namespace net.rs64.TexTransCoreForUnity
+namespace net.rs64.TexTransCoreEngineForUnity
 {
     public class TTComputeDownScalingUnityObject : TTComputeUnityObject, ITTDownScalingKey
     {
