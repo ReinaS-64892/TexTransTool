@@ -8,7 +8,7 @@
         "net.rs64.tex-trans-tool.inspector",
         "nadena.dev.ndmf",
         "nadena.dev.ndmf.runtime",
-        "nadena.dev.ndmf.reactive-query.core"
+        "com.anatawa12.avatar-optimizer.api.editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -26,6 +26,11 @@
             "name": "nadena.dev.ndmf",
             "expression": "1.5.0",
             "define": "CONTAINS_NDMF"
+        },
+        {
+            "name": "com.anatawa12.avatar-optimizer",
+            "expression": "1.8.0-beta.2",
+            "define": "CONTAINS_AAO"
         }
     ],
     "noEngineReferences": false
