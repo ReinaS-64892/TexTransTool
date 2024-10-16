@@ -17,7 +17,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public Vector4 NeutralsCMYK;
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
-        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,BinarySectionStream stream)
         {
             Debug.Assert(stream.ReadInt16() == 1);
 
@@ -35,7 +35,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             NeutralsCMYK = ParseSelectiveColorRecord(ref stream);
             BlacksCMYK = ParseSelectiveColorRecord(ref stream);
 
-            static Vector4 ParseSelectiveColorRecord(ref SubSpanStream subSpanStream)
+            static Vector4 ParseSelectiveColorRecord(ref BinarySectionStream subSpanStream)
             {
                 return new Vector4(ParseAsFloat(subSpanStream.ReadInt16()), ParseAsFloat(subSpanStream.ReadInt16()), ParseAsFloat(subSpanStream.ReadInt16()), ParseAsFloat(subSpanStream.ReadInt16()));
                 static float ParseAsFloat(short v) => v * 0.01f;

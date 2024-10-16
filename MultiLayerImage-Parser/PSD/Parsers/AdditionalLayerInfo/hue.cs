@@ -13,7 +13,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public short Saturation;
         public short Lightness;
         public abstract bool IsOld { get; }
-        public override void ParseAddLY(bool isPSB, SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, BinarySectionStream stream)
         {
             var version = stream.ReadUInt16();
 

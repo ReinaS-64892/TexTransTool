@@ -10,16 +10,16 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
         public LevelData Red;
         public LevelData Green;
         public LevelData Blue;
-        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB, BinarySectionStream stream)
         {
             Debug.Assert(stream.ReadInt16() == 2);
 
-            RGB = ParseLevelData(ref stream);
-            Red = ParseLevelData(ref stream);
-            Green = ParseLevelData(ref stream);
-            Blue = ParseLevelData(ref stream);
+            RGB = ParseLevelData(stream);
+            Red = ParseLevelData(stream);
+            Green = ParseLevelData(stream);
+            Blue = ParseLevelData(stream);
 
-            static LevelData ParseLevelData(ref SubSpanStream subSpanStream)
+            static LevelData ParseLevelData(BinarySectionStream subSpanStream)
             {
                 var data = new LevelData();
 

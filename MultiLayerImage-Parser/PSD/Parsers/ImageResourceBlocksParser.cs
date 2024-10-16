@@ -13,16 +13,15 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             public ushort UniqueIdentifier;
             public string PascalStringName;
             public uint ActualDataSizeFollows;
-            public uint ActualDataSizeFollowsPlusPadding;
-            public long ActualDataStartIndex;
+            public BinaryAddress ActualDataSizeFollowsAddress;
         }
-        public static List<ImageResourceBlock> PaseImageResourceBlocks(SubSpanStream stream)
+        public static List<ImageResourceBlock> PaseImageResourceBlocks(BinarySectionStream stream)
         {
             var imageResourceBlockList = new List<ImageResourceBlock>();
 
             while (stream.Position < stream.Length)
             {
-                if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { throw new Exception(); }
+                if (stream.Signature(PSDLowLevelParser.OctBIMSignature) is false) { throw new Exception(); }
                 var nowIRB = new ImageResourceBlock();
 
                 nowIRB.UniqueIdentifier = stream.ReadUInt16();
@@ -35,7 +34,10 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 }
                 else
                 {
-                    nowIRB.PascalStringName = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(strLength).Span);
+                    Span<byte> pascalStrBuf = stackalloc byte[strLength];
+                    stream.ReadToSpan(pascalStrBuf);
+                    nowIRB.PascalStringName = Encoding.GetEncoding("shift-jis").GetString(pascalStrBuf);
+
                     if (strLength % 2 == 0) { stream.ReadByte(); }
                     else { /* null文字は偶数の時にしか存在しないらしい...??????????*/  }
                 }
@@ -43,8 +45,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 nowIRB.ActualDataSizeFollows = stream.ReadUInt32();
                 //ここなぜか 2の倍数にパディング入れないといけないの謎
                 var actualLength = nowIRB.ActualDataSizeFollows % 2 == 0 ? nowIRB.ActualDataSizeFollows : nowIRB.ActualDataSizeFollows + 1;
-                nowIRB.ActualDataSizeFollowsPlusPadding = actualLength;
-                nowIRB.ActualDataStartIndex = stream.ReadSubStream((int)actualLength).FirstToPosition;
+                nowIRB.ActualDataSizeFollowsAddress = stream.ReadToAddress(actualLength);
 
                 imageResourceBlockList.Add(nowIRB);
             }

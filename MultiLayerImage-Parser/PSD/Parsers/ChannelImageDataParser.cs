@@ -46,36 +46,35 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
             //PSDのどこからどこまでの範囲にあるかを指す
-            public int StartIndex;
-            public int Length;
+            public BinaryAddress ImageDataAddress;
 
-            public void GetImageData(ReadOnlySpan<byte> psdBytes, RectTangle rect, Span<byte> writeSpan)
+            public void GetImageData(byte[] psdBytes, RectTangle rect, Span<byte> imageSourceBuf, Span<byte> writeSpan)
             {
-                var isPSB = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(4, 2)) == 2;
-                var bitDepth = BinaryPrimitives.ReadInt16BigEndian(psdBytes.Slice(22, 2));
+                var isPSB = BinaryPrimitives.ReadInt16BigEndian(psdBytes.AsSpan(4, 2)) == 2;
+                var bitDepth = BinaryPrimitives.ReadInt16BigEndian(psdBytes.AsSpan(22, 2));
                 if (writeSpan.Length != GetImageByteCount(rect, bitDepth)) { throw new ArgumentException(); }
+                if (imageSourceBuf.Length != ImageDataAddress.Length) { throw new ArgumentException(); }
 
-
-                var imageSourceData = psdBytes.Slice(StartIndex, Length);
+                psdBytes.LongCopyTo(ImageDataAddress.StartAddress, imageSourceBuf);
 
                 if (isPSB is false)
                 {
                     switch (bitDepth)
                     {
-                        case 1: { Decompress1Bit(imageSourceData, rect, writeSpan); return; }
-                        case 8: { Decompress8Bit(imageSourceData, rect, writeSpan); return; }
-                        case 16: { Decompress16Bit(imageSourceData, rect, writeSpan); return; }
-                        case 32: { Decompress32Bit(imageSourceData, rect, writeSpan); return; }
+                        case 1: { Decompress1Bit(imageSourceBuf, rect, writeSpan); return; }
+                        case 8: { Decompress8Bit(imageSourceBuf, rect, writeSpan); return; }
+                        case 16: { Decompress16Bit(imageSourceBuf, rect, writeSpan); return; }
+                        case 32: { Decompress32Bit(imageSourceBuf, rect, writeSpan); return; }
                     }
                 }
                 else
                 {
                     switch (bitDepth)
                     {
-                        case 1: { Decompress1BitWithPSB(imageSourceData, rect, writeSpan); return; }
-                        case 8: { Decompress8BitWithPSB(imageSourceData, rect, writeSpan); return; }
-                        case 16: { Decompress16BitWithPSB(imageSourceData, rect, writeSpan); return; }
-                        case 32: { Decompress32BitWithPSB(imageSourceData, rect, writeSpan); return; }
+                        case 1: { Decompress1BitWithPSB(imageSourceBuf, rect, writeSpan); return; }
+                        case 8: { Decompress8BitWithPSB(imageSourceBuf, rect, writeSpan); return; }
+                        case 16: { Decompress16BitWithPSB(imageSourceBuf, rect, writeSpan); return; }
+                        case 32: { Decompress32BitWithPSB(imageSourceBuf, rect, writeSpan); return; }
                     }
                 }
             }
@@ -325,7 +324,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         }
 
 
-        public static ChannelImageData PaseChannelImageData(ref SubSpanStream stream, LayerRecord refLayerRecord, int channelInformationIndex)
+        public static ChannelImageData PaseChannelImageData(BinarySectionStream stream, LayerRecord refLayerRecord, int channelInformationIndex)
         {
             var channelImageData = new ChannelImageData();
 
@@ -333,11 +332,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             channelImageData.Compression = (ChannelImageData.CompressionEnum)channelImageData.CompressionRawUshort;
 
             var imageLength = refLayerRecord.ChannelInformationArray[channelInformationIndex].CorrespondingChannelDataLength - 2;
-
-            var imageData = stream.ReadSubStream((int)imageLength);
-            channelImageData.StartIndex = (int)imageData.FirstToPosition;
-            channelImageData.Length = imageData.Length;
-
+            channelImageData.ImageDataAddress = stream.ReadToAddress((long)imageLength);
             return channelImageData;
         }
 
