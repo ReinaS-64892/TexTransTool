@@ -95,7 +95,8 @@ namespace net.rs64.TexTransTool.NDMF.AAO
                 reTri.AddRange(replaced);
             }
 
-            foreach (var vert in vanishVertex) { vert.TexCoord0 = new Vector2(-1, -1); }
+            var vanishPoint = vanishVertex.First().TexCoord0;
+            foreach (var vert in vanishVertex) { vert.TexCoord0 = vanishPoint; }
 
             var usedHash = new HashSet<Vertex>(removalsDict.SelectMany(i => i.Value.Triangles));
             vertex.RemoveAll(i => usedHash.Contains(i) is false);
