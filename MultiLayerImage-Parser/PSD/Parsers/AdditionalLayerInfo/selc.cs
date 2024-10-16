@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using net.rs64.TexTransCore;
 
 namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
