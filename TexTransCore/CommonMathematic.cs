@@ -4,47 +4,6 @@ using System.Runtime.InteropServices;
 namespace net.rs64.TexTransCore
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct Vector2
-    {
-        [FieldOffset(0)]
-        public float X;
-        [FieldOffset(4)]
-        public float Y;
-        public float[] ToArray() { return new float[] { X, Y }; }
-    }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct Vector3
-    {
-        [FieldOffset(0)]
-        public float X;
-        [FieldOffset(4)]
-        public float Y;
-        [FieldOffset(8)]
-        public float Z;
-        public float[] ToArray() { return new float[] { X, Y, Z }; }
-    }
-    [StructLayout(LayoutKind.Explicit)]
-    public struct Vector4
-    {
-        [FieldOffset(0)]
-        public float X;
-        [FieldOffset(4)]
-        public float Y;
-        [FieldOffset(8)]
-        public float Z;
-        [FieldOffset(12)]
-        public float W;
-
-        public Vector4(float x, float y, float z, float w)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-            W = w;
-        }
-        public float[] ToArray() { return new float[] { X, Y, Z, W }; }
-    }
-    [StructLayout(LayoutKind.Explicit)]
     public struct ColorWOAlpha
     {
         [FieldOffset(0)]

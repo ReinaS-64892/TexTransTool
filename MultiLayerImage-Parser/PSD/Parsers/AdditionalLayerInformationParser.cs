@@ -32,21 +32,25 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 
             return dict;
         }
-        public static AdditionalLayerInfoBase[] PaseAdditionalLayerInfos(bool isPSB, SubSpanStream stream, bool roundTo4 = false)
+        public static AdditionalLayerInfoBase[] PaseAdditionalLayerInfos(bool isPSB, BinarySectionStream stream, bool roundTo4 = false)
         {
             var addLayerInfoList = new List<AdditionalLayerInfoBase>();
             while (stream.Position < stream.Length)
             {
-                if (!ParserUtility.Signature(ref stream, PSDLowLevelParser.OctBIMSignature)) { break; }
-                var keyCode = stream.ReadSubStream(4).Span.ParseUTF8();
+                if (stream.Signature(PSDLowLevelParser.OctBIMSignature) is false) { break; }
+
+                Span<byte> keyBuf = stackalloc byte[4];
+                stream.ReadToSpan(keyBuf);
+                var keyCode = keyBuf.ParseASCII();
 
                 AdditionalLayerInfoBase info;
                 if (AdditionalLayerInfoParsersTypes.ContainsKey(keyCode))
                 {
                     var TypeAndMayLong = AdditionalLayerInfoParsersTypes[keyCode];
                     var parser = info = Activator.CreateInstance(TypeAndMayLong.Item1) as AdditionalLayerInfoBase;
-                    parser.Length = isPSB is false ? stream.ReadUInt32() : TypeAndMayLong.Item2 ? stream.ReadUInt64() : stream.ReadUInt32();
-                    parser.ParseAddLY(isPSB, stream.ReadSubStream((int)parser.Length));
+                    var length = isPSB is false ? stream.ReadUInt32() : TypeAndMayLong.Item2 ? stream.ReadUInt64() : stream.ReadUInt32();
+                    parser.Address = stream.PeekToAddress((long)length);
+                    parser.ParseAddLY(isPSB, stream.ReadSubSection(parser.Address.Length));
                     addLayerInfoList.Add(parser);
                 }
                 else
@@ -54,16 +58,17 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
                     var fallBack = new FallBackAdditionalLayerInfoParser();
                     info = fallBack;
                     fallBack.KeyCode = keyCode;
-                    fallBack.Length = stream.ReadUInt32();
-                    fallBack.ParseAddLY(isPSB, stream.ReadSubStream((int)fallBack.Length));
+                    var length = stream.ReadUInt32();
+                    fallBack.Address = stream.PeekToAddress(length);
+                    fallBack.ParseAddLY(isPSB, stream.ReadSubSection(fallBack.Address.Length));
                     addLayerInfoList.Add(fallBack);
                 }
 
                 if (roundTo4)
                 {
-                    if ((info.Length % 4) != 0)
+                    if ((info.Address.Length % 4) != 0)
                     {
-                        stream.ReadSubStream((int)(4 - (info.Length % 4)));
+                        stream.ReadSubSection((int)(4 - (info.Address.Length % 4)));
                     }
                 }
             }

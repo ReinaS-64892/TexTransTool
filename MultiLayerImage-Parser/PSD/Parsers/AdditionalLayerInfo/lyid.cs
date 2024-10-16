@@ -7,7 +7,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
     {
         public int LayerID;
 
-        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,BinarySectionStream stream)
         {
             LayerID = stream.ReadInt32();
         }

@@ -8,16 +8,19 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
 {
     internal static class DescriptorStructureParser
     {
-        public static DescriptorStructure ParseDescriptorStructure(ref SubSpanStream stream)
+        public static DescriptorStructure ParseDescriptorStructure(ref BinarySectionStream stream)
         {
             var structure = new DescriptorStructure();
 
-
             var classIDNameByteLength = stream.ReadUInt32() * 2;
-            structure.NameFromClassID = stream.ReadSubStream((int)classIDNameByteLength).Span.ParseBigUTF16();
+            var cIDNameBuf = new byte[classIDNameByteLength].AsSpan();
+            stream.ReadToSpan(cIDNameBuf);
+            structure.NameFromClassID = cIDNameBuf.ParseBigUTF16();
 
             var classIDLength = stream.ReadUInt32();
-            structure.ClassID = stream.ReadSubStream((int)(classIDLength == 0 ? 4 : classIDLength)).Span.ParseASCII();
+            var cIDBuf = new byte[classIDLength == 0 ? 4 : classIDLength].AsSpan();
+            stream.ReadToSpan(cIDBuf);
+            structure.ClassID = cIDBuf.ParseASCII();
 
             structure.DescriptorCount = stream.ReadUInt32();
             structure.Structures = new((int)structure.DescriptorCount);
@@ -25,8 +28,13 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             for (var i = 0; structure.DescriptorCount > i; i += 1)
             {
                 var keyLength = stream.ReadUInt32();
-                var keyStr = stream.ReadSubStream((int)(keyLength == 0 ? 4 : keyLength)).Span.ParseASCII();
-                var osTypeKey = stream.ReadSubStream(4).Span.ParseASCII();
+                var keyStrBuf = new byte[keyLength == 0 ? 4 : keyLength].AsSpan();
+                stream.ReadToSpan(keyStrBuf);
+                var keyStr = keyStrBuf.ParseASCII();
+
+                Span<byte> keyBuf = stackalloc byte[4];
+                stream.ReadToSpan(keyBuf);
+                var osTypeKey = keyBuf.ParseASCII();
 
                 object structureValue;
                 switch (osTypeKey)

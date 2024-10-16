@@ -16,26 +16,21 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
     {
         public static readonly byte[] OctBPSSignature = new byte[] { 0x38, 0x42, 0x50, 0x53 };
         public static readonly byte[] OctBIMSignature = new byte[] { 0x38, 0x42, 0x49, 0x4D };
+        public static readonly byte[] ZeroPadding = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static PSDLowLevelData Parse(string path)
         {
-            using (var fileStream = File.OpenRead(path))
-            {
-                var nativePSDData = new byte[fileStream.Length];
-                fileStream.Read(nativePSDData);
-                return Parse(nativePSDData);
-            }
+            return Parse(File.ReadAllBytes(path));
         }
-        public static PSDLowLevelData Parse(Span<byte> psdByte)
+        public static PSDLowLevelData Parse(byte[] psdByte)
         {
             var psd = new PSDLowLevelData();
 
             // Signature ...
 
-            var spanStream = new SubSpanStream(psdByte);
+            var bsStream = new BinarySectionStream(psdByte);
 
-            if (!spanStream.ReadSubStream(4).Span.SequenceEqual(OctBPSSignature)) { throw new System.Exception(); }
-            //if (!spanStream.ReadSubStream(2).Span.SequenceEqual(new byte[] { 0x00, 0x01 })) { throw new System.Exception(); }
-            psd.Version = spanStream.ReadUInt16();
+            if (bsStream.Signature(OctBPSSignature) is false) { throw new System.Exception(); }
+            psd.Version = bsStream.ReadUInt16();
             switch (psd.Version)
             {
                 case 1: { psd.IsPSB = false; break; }
@@ -44,50 +39,55 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 default: throw new System.Exception("Unsupported Version PSD or PSB");
             }
 
-            if (!spanStream.ReadSubStream(6).Span.SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })) { throw new System.Exception(); }
+            if (bsStream.Signature(ZeroPadding) is false) { throw new System.Exception(); }
 
             // File Header Section
 
-            psd.Channels = spanStream.ReadUInt16();
-            psd.Height = spanStream.ReadUInt32();
-            psd.Width = spanStream.ReadUInt32();
-            psd.BitDepth = spanStream.ReadUInt16();
-            psd.ColorMode = (PSDLowLevelData.ColorModeEnum)spanStream.ReadUInt16();
+            psd.Channels = bsStream.ReadUInt16();
+            psd.Height = bsStream.ReadUInt32();
+            psd.Width = bsStream.ReadUInt32();
+            psd.BitDepth = bsStream.ReadUInt16();
+            psd.ColorMode = (PSDLowLevelData.ColorModeEnum)bsStream.ReadUInt16();
 
             // Color Mode Data Section
 
-            psd.ColorModeDataSectionLength = spanStream.ReadUInt32();
-            psd.ColorDataStartIndex = spanStream.ReadSubStream((int)psd.ColorModeDataSectionLength).FirstToPosition;
+            var colorModeDataSectionLength = bsStream.ReadUInt32();
+            psd.ColorDataSection = bsStream.ReadToAddress(colorModeDataSectionLength);
 
             // Image Resources Section
 
-            psd.ImageResourcesSectionLength = spanStream.ReadUInt32();
-            if (psd.ImageResourcesSectionLength > 0)
+            var imageResourcesSectionLength = bsStream.ReadUInt32();
+            psd.ImageResourcesSection = bsStream.PeekToAddress(imageResourcesSectionLength);
+            if (psd.ImageResourcesSection.Length > 0)
             {
-                psd.ImageResources = PaseImageResourceBlocks(spanStream.ReadSubStream((int)psd.ImageResourcesSectionLength));
+                psd.ImageResources = PaseImageResourceBlocks(bsStream.ReadSubSection(psd.ImageResourcesSection.Length));
             }
 
 
             // LayerAndMaskInformationSection
-            psd.LayerAndMaskInformationSectionLength = psd.IsPSB is false ? spanStream.ReadUInt32() : spanStream.ReadUInt64();
-            if (psd.LayerAndMaskInformationSectionLength > 0)
+            var layerAndMaskInformationSectionLength = psd.IsPSB is false ? bsStream.ReadUInt32() : bsStream.ReadUInt64();
+            psd.LayerAndMaskInformationSection = bsStream.PeekToAddress((long)layerAndMaskInformationSectionLength);
+            if (psd.LayerAndMaskInformationSection.Length > 0)
             {
-                var layerAndMaskInfoStream = spanStream.ReadSubStream((int)psd.LayerAndMaskInformationSectionLength);
-                psd.LayerInfo = LayerInformationParser.PaseLayerInfo(psd.IsPSB, ref layerAndMaskInfoStream);
-                if ((layerAndMaskInfoStream.Length - layerAndMaskInfoStream.Position) > 0) { psd.GlobalLayerMaskInfo = GlobalLayerMaskInformationParser.PaseGlobalLayerMaskInformation(ref layerAndMaskInfoStream); }
+                var layerAndMaskInfoStream = bsStream.ReadSubSection(psd.LayerAndMaskInformationSection.Length);
+                psd.LayerInfo = LayerInformationParser.PaseLayerInfo(psd.IsPSB, layerAndMaskInfoStream);
+                if ((layerAndMaskInfoStream.Length - layerAndMaskInfoStream.Position) > 0) { psd.GlobalLayerMaskInfo = GlobalLayerMaskInformationParser.PaseGlobalLayerMaskInformation(layerAndMaskInfoStream); }
                 if ((layerAndMaskInfoStream.Length - layerAndMaskInfoStream.Position) > 0) { psd.CanvasTypeAdditionalLayerInfo = AdditionalLayerInfo.AdditionalLayerInformationParser.PaseAdditionalLayerInfos(psd.IsPSB, layerAndMaskInfoStream, true); }
             }
 
 
             // Image　Data　Section
-            psd.ImageDataCompression = spanStream.ReadUInt16();
-            psd.ImageDataStartIndex = spanStream.Position;
+            psd.RawImageDataCompression = bsStream.ReadUInt16();
+            psd.ImageDataCompression = (ChannelImageDataParser.ChannelImageData.CompressionEnum)psd.RawImageDataCompression;
+            psd.ImageDataBinaryAddress = bsStream.ReadToAddress(bsStream.Length - bsStream.Position);
 
             return psd;
         }
-        public static void LoadImageData(Span<byte> psdByte, PSDLowLevelData data, Span<byte> write)
+        public static void LoadImageData(byte[] psdByte, PSDLowLevelData data, Span<byte> write)
         {
-            var imageDataSlice = psdByte.Slice((int)data.ImageDataStartIndex, (int)(psdByte.Length - data.ImageDataStartIndex));
+            var buffer = new byte[data.ImageDataBinaryAddress.Length];
+            psdByte.CopyTo(buffer, data.ImageDataBinaryAddress.StartAddress);
+            var imageDataSlice = buffer.AsSpan();
             if ((ChannelImageDataParser.ChannelImageData.GetImageByteCount((int)data.Width, (int)data.Height, data.BitDepth) * data.Channels) != write.Length) { throw new ArgumentException(); }
             if (data.IsPSB is false)
                 switch (data.BitDepth, data.Channels, (ChannelImageDataParser.ChannelImageData.CompressionEnum)data.ImageDataCompression)
@@ -306,26 +306,25 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
             // Color Mode Data Section
-
-            public uint ColorModeDataSectionLength;
-            public long ColorDataStartIndex;
+            public BinaryAddress ColorDataSection;
 
             // Image Resources Section
 
-            public uint ImageResourcesSectionLength;
+            public BinaryAddress ImageResourcesSection;
             public List<ImageResourceBlock> ImageResources;
 
             // LayerAndMaskInformationSection
 
-            public ulong LayerAndMaskInformationSectionLength;
+            public BinaryAddress LayerAndMaskInformationSection;
 
             public LayerInfo LayerInfo;
             public GlobalLayerMaskInfo GlobalLayerMaskInfo;
             public AdditionalLayerInfo.AdditionalLayerInfoBase[] CanvasTypeAdditionalLayerInfo;
 
             //ImageDataSection
-            public ushort ImageDataCompression;
-            public long ImageDataStartIndex;
+            public ushort RawImageDataCompression;
+            public ChannelImageDataParser.ChannelImageData.CompressionEnum ImageDataCompression;
+            public BinaryAddress ImageDataBinaryAddress;
         }
     }
 }

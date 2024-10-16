@@ -93,14 +93,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
 
             var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            imageData.GetImageData(importSource, RasterImageData.RectTangle, writeArray);
+            using (var buffer = new NativeArray<byte>((int)imageData.ImageDataAddress.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+                imageData.GetImageData(importSource, RasterImageData.RectTangle, buffer, writeArray);
             return writeArray;
         }
 
         internal override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             // var timer = System.Diagnostics.Stopwatch.StartNew();
-            var containsAlpha = RasterImageData.A.Length != 0;
+            var containsAlpha = RasterImageData.A.ImageDataAddress.Length != 0;
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
             getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, importSource));
             getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, importSource));

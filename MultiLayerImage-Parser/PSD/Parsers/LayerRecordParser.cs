@@ -31,7 +31,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 NotDocPixelData = 16,
             }
 
-            public uint ExtraDataFieldLength;
+            public BinaryAddress ExtraDataField;
             public LayerMaskAdjustmentLayerData LayerMaskAdjustmentLayerData;
             public LayerBlendingRangesData LayerBlendingRangesData;
             public string LayerName;
@@ -68,7 +68,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
 
 
-        public static LayerRecord PaseLayerRecord(bool isPSB, ref SubSpanStream stream)
+        public static LayerRecord PaseLayerRecord(bool isPSB, BinarySectionStream stream)
         {
             var layerRecord = new LayerRecord
             {
@@ -95,25 +95,29 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
             layerRecord.ChannelInformationArray = channelInformationList.ToArray();
 
-            if (!stream.ReadSubStream(4).Span.SequenceEqual(PSDLowLevelParser.OctBIMSignature)) { return layerRecord; }//throw new Exception(); }
+            if (stream.Signature(PSDLowLevelParser.OctBIMSignature) is false) { return layerRecord; }//throw new Exception(); }
 
-            layerRecord.BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
+            Span<byte> blKeySpan = stackalloc byte[4];
+            stream.ReadToSpan(blKeySpan);
+            layerRecord.BlendModeKey = blKeySpan.ParseASCII();
+
             layerRecord.Opacity = stream.ReadByte();
             layerRecord.Clipping = stream.ReadByte();
             layerRecord.LayerFlag = (LayerRecord.LayerFlagEnum)stream.ReadByte();
 
             stream.ReadByte();//Filler
 
-            layerRecord.ExtraDataFieldLength = stream.ReadUInt32();
+            var extraDataFieldLength = stream.ReadUInt32();
+            layerRecord.ExtraDataField = stream.PeekToAddress(extraDataFieldLength);
 
-            var extraDataStream = stream.ReadSubStream((int)layerRecord.ExtraDataFieldLength);
+            var extraDataStream = stream.ReadSubSection(layerRecord.ExtraDataField.Length);
 
             var layerMaskAdjustmentLayerData = layerRecord.LayerMaskAdjustmentLayerData =
                 new LayerMaskAdjustmentLayerData { DataSize = extraDataStream.ReadUInt32() };
 
             if (layerMaskAdjustmentLayerData.DataSize != 0)
             {
-                var lmStream = extraDataStream.ReadSubStream((int)layerMaskAdjustmentLayerData.DataSize);
+                var lmStream = extraDataStream.ReadSubSection(layerMaskAdjustmentLayerData.DataSize);
 
                 layerMaskAdjustmentLayerData.RectTangle = new RectTangle()
                 {
@@ -165,7 +169,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             if (layerBlendingRangesData.Length != 0)
             {
                 var sourSourceAndDestinationRangeList = new List<LayerBlendingRangesData.SourceAndDestinationRange>();
-                var sSADRStream = extraDataStream.ReadSubStream((int)layerBlendingRangesData.Length);
+                var sSADRStream = extraDataStream.ReadSubSection(layerBlendingRangesData.Length);
                 while (sSADRStream.Position < sSADRStream.Length)
                 {
                     sourSourceAndDestinationRangeList.Add(new LayerBlendingRangesData.SourceAndDestinationRange()
@@ -182,11 +186,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
 
-            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(ref extraDataStream);
+            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(extraDataStream);
             layerRecord.AdditionalLayerInformation = AdditionalLayerInformationParser.PaseAdditionalLayerInfos(isPSB, extraDataStream);
-
-            var unicodeLayerName = layerRecord.AdditionalLayerInformation.OfType<luni>().FirstOrDefault();
-            if (unicodeLayerName is not null) { layerRecord.LayerName = unicodeLayerName.LayerName; }
 
             return layerRecord;
         }

@@ -4,14 +4,15 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 {
     internal static class GlobalLayerMaskInformationParser
     {
-        public static GlobalLayerMaskInfo PaseGlobalLayerMaskInformation(ref SubSpanStream stream)
+        public static GlobalLayerMaskInfo PaseGlobalLayerMaskInformation(BinarySectionStream stream)
         {
             var globalLayerMaskInfo = new GlobalLayerMaskInfo();
-            globalLayerMaskInfo.GlobalLayerMaskInfoLength = stream.ReadUInt32();
+            var length = stream.ReadUInt32();
+            globalLayerMaskInfo.GlobalLayerMaskInfoAddress = stream.PeekToAddress(length);
 
-            if (globalLayerMaskInfo.GlobalLayerMaskInfoLength == 0) { return globalLayerMaskInfo; }
+            if (globalLayerMaskInfo.GlobalLayerMaskInfoAddress.Length == 0) { return globalLayerMaskInfo; }
 
-            var globalLayerInfoStream = stream.ReadSubStream((int)globalLayerMaskInfo.GlobalLayerMaskInfoLength);
+            var globalLayerInfoStream = stream.ReadSubSection(globalLayerMaskInfo.GlobalLayerMaskInfoAddress.Length);
 
             globalLayerMaskInfo.OverlayColorSpace = globalLayerInfoStream.ReadUInt16();
 
@@ -30,7 +31,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
         [Serializable]
         public class GlobalLayerMaskInfo
         {
-            public uint GlobalLayerMaskInfoLength;
+            public BinaryAddress GlobalLayerMaskInfoAddress;
 
             public ushort OverlayColorSpace;
 

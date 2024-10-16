@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,121 +10,148 @@ using Unity.Collections;
 
 namespace net.rs64.MultiLayerImage.Parser
 {
-    internal ref struct SubSpanStream
+    internal class BinarySectionStream
     {
-        public Span<byte> Span;
-        private int _position;
-        private long _firstToPosition;
-        public int Position
+        private byte[] _array;
+        private long _start;
+        private long _length;
+        private long _position;
+
+        public long Position
         {
             get => _position;
             set
             {
-                if (Span.Length > value)
+                if (_length >= value)
                 {
                     _position = value;
                 }
-                else
-                {
-                    _position = Length;
-                }
+                else { throw new ArgumentOutOfRangeException(); }
             }
         }
-        public int Length => Span.Length;
+        public long Length => _length;
 
-        public long FirstToPosition => _firstToPosition;
+        long ArrayPosition => _start + _position;
 
-        public SubSpanStream(Span<byte> bytes, long firstToPosition = 0)
+        public BinarySectionStream(byte[] array)
         {
-            Span = bytes;
+            _array = array;
+            _start = 0;
             _position = 0;
-            _firstToPosition = firstToPosition;
+            _length = array.LongLength;
         }
-        public SubSpanStream ReadSubStream(int length)
+        private BinarySectionStream(byte[] array, long start, long length)
         {
-            var ftOffset = _firstToPosition + _position;
-            var subSpan = Span.Slice(Position, length);
-            Position += length;
-            return new SubSpanStream(subSpan, ftOffset);
+            _array = array;
+            _start = start;
+            _length = length;
         }
-
+        private bool CheckSectionRange(long absPos)//ダメな範囲だったら False を返すから注意ね
+        {
+            var relPos = absPos - _start;
+            if (relPos < 0 || relPos > _length) { return true; }
+            return false;
+        }
+        public BinarySectionStream ReadSubSection(long length)
+        {
+            var subSectionStart = ArrayPosition;
+            if (CheckSectionRange(subSectionStart) || CheckSectionRange(subSectionStart + length)) { throw new ArgumentOutOfRangeException(); }
+            Position += length;
+            return new BinarySectionStream(_array, subSectionStart, length);
+        }
+        public BinaryAddress ReadToAddress(long length)
+        {
+            var ba = PeekToAddress(length);
+            Position += length;
+            return ba;
+        }
+        public BinaryAddress PeekToAddress(long length)
+        {
+            return new() { StartAddress = ArrayPosition, Length = length };
+        }
         public byte ReadByte()
         {
-            var beforePos = Position;
+            var beforePos = ArrayPosition;
             Position += 1;
-            return Span[beforePos];
+            return _array[beforePos];
         }
         public sbyte ReadsByte()
         {
-            var beforePos = Position;
+            var beforePos = ArrayPosition;
             Position += 1;
-            return (sbyte)Span[beforePos];
+            return (sbyte)_array[beforePos];
         }
-        public ushort ReadUInt16(bool isBigEndianSource = true)
+        public void ReadToSpan(Span<byte> write)
         {
-            var beforePos = Position;
-            Position += 2;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt16BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadUInt16LittleEndian(Span.Slice(beforePos)); }
+            _array.LongCopyTo(ArrayPosition, write);
+            Position += write.Length;
         }
-        public short ReadInt16(bool isBigEndianSource = true)
+        public ushort ReadUInt16(bool isBigEndian = true)
         {
-            var beforePos = Position;
-            Position += 2;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadInt16BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadInt16LittleEndian(Span.Slice(beforePos)); }
+            Span<byte> span = stackalloc byte[2]; ReadToSpan(span);
+            if (isBigEndian) { return BinaryPrimitives.ReadUInt16BigEndian(span); }
+            else { return BinaryPrimitives.ReadUInt16LittleEndian(span); }
         }
-        public uint ReadUInt32(bool isBigEndianSource = true)
+        public short ReadInt16(bool isBigEndian = true)
         {
-            var beforePos = Position;
-            Position += 4;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt32BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadUInt32LittleEndian(Span.Slice(beforePos)); }
+            Span<byte> span = stackalloc byte[2]; ReadToSpan(span);
+            if (isBigEndian) { return BinaryPrimitives.ReadInt16BigEndian(span); }
+            else { return BinaryPrimitives.ReadInt16LittleEndian(span); }
         }
-        public int ReadInt32(bool isBigEndianSource = true)
+        public uint ReadUInt32(bool isBigEndian = true)
         {
-            var beforePos = Position;
-            Position += 4;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadInt32BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadInt32LittleEndian(Span.Slice(beforePos)); }
+            Span<byte> span = stackalloc byte[4]; ReadToSpan(span);
+            if (isBigEndian) { return BinaryPrimitives.ReadUInt32BigEndian(span); }
+            else { return BinaryPrimitives.ReadUInt32LittleEndian(span); }
         }
-        public ulong ReadUInt64(bool isBigEndianSource = true)
+        public int ReadInt32(bool isBigEndian = true)
         {
-            var beforePos = Position;
-            Position += 8;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadUInt64BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadUInt64LittleEndian(Span.Slice(beforePos)); }
+            Span<byte> span = stackalloc byte[4]; ReadToSpan(span);
+            if (isBigEndian) { return BinaryPrimitives.ReadInt32BigEndian(span); }
+            else { return BinaryPrimitives.ReadInt32LittleEndian(span); }
+        }
+        public ulong ReadUInt64(bool isBigEndian = true)
+        {
+            Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
+            if (isBigEndian) { return BinaryPrimitives.ReadUInt64BigEndian(span); }
+            else { return BinaryPrimitives.ReadUInt64LittleEndian(span); }
         }
         public long ReadInt64(bool isBigEndianSource = true)
         {
-            var beforePos = Position;
-            Position += 8;
-            if (isBigEndianSource) { return BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos)); }
-            else { return BinaryPrimitives.ReadInt64LittleEndian(Span.Slice(beforePos)); }
+            Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
+            if (isBigEndianSource) { return BinaryPrimitives.ReadInt64BigEndian(span); }
+            else { return BinaryPrimitives.ReadInt64LittleEndian(span); }
         }
         public double ReadDouble(bool isBigEndianSource = true)
         {
-            var beforePos = Position;
-            Position += 8;
-            if (isBigEndianSource) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(Span.Slice(beforePos))); }
-            else { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(Span.Slice(beforePos))); }
+            Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
+            if (isBigEndianSource) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(span)); }
+            else { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(span)); }
         }
     }
-
-
+    [Serializable]
+    public struct BinaryAddress
+    {
+        public long StartAddress;
+        public long Length;
+    }
     internal static class ParserUtility
     {
-        public static bool Signature(ref SubSpanStream stream, byte[] signature)
+        public static bool Signature(this BinarySectionStream stream, byte[] signature)
         {
-            return stream.ReadSubStream(signature.Length).Span.SequenceEqual(signature);
+            Span<byte> data = stackalloc byte[signature.Length];
+            stream.ReadToSpan(data);
+            return data.SequenceEqual(signature);
         }
 
-        public static string ReadPascalStringForPadding4Byte(ref SubSpanStream stream)
+        public static string ReadPascalStringForPadding4Byte(BinarySectionStream stream)
         {
             var stringLength = stream.ReadByte();
             if (stringLength != 0)
             {
-                var str = Encoding.GetEncoding("shift-jis").GetString(stream.ReadSubStream(stringLength).Span);
+                Span<byte> strBuf = stackalloc byte[stringLength];
+                stream.ReadToSpan(strBuf);
+                var str = Encoding.GetEncoding("shift-jis").GetString(strBuf);
                 var readLength = stringLength + 1;
                 if ((readLength % 4) != 0)
                 {
@@ -189,5 +217,13 @@ namespace net.rs64.MultiLayerImage.Parser
                 to[i] = from[i];
             }
         }
+        public static void LongCopyTo<T>(this T[] from, long start, Span<T> to) where T : struct
+        {
+            for (var i = 0; to.Length > i; i += 1)
+            {
+                to[i] = from[start + i];
+            }
+        }
+
     }
 }

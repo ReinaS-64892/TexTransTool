@@ -18,15 +18,18 @@ namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
             BoundingSectionDivider = 3,
         }
 
-        public override void ParseAddLY(bool isPSB,SubSpanStream stream)
+        public override void ParseAddLY(bool isPSB,BinarySectionStream stream)
         {
             SelectionDividerType = (lsct.SelectionDividerTypeEnum)stream.ReadUInt32();
-            if (Length >= 12)
+            if (Address.Length >= 12)
             {
-                stream.ReadSubStream(4);
-                BlendModeKey = stream.ReadSubStream(4).Span.ParseUTF8();
+                stream.ReadSubSection(4);
+
+                Span<byte> keyBuf = stackalloc byte[4];
+                stream.ReadToSpan(keyBuf);
+                BlendModeKey = keyBuf.ParseASCII();
             }
-            if (Length >= 16)
+            if (Address.Length >= 16)
             {
                 SubType = stream.ReadUInt32();
             }
