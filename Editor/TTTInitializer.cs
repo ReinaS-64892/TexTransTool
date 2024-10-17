@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEditor;
@@ -38,17 +40,35 @@ namespace net.rs64.TexTransTool.Utils
 
         internal class AssetImportListener : AssetPostprocessor
         {
+
             static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
             {
+                var callTargetType = new HashSet<Type>();
                 foreach (var path in importedAssets)
                 {
                     var type = AssetDatabase.GetMainAssetTypeAtPath(path);
                     if (type is null) { continue; }
-                    if (TexTransCoreRuntime.NewAssetListen.TryGetValue(type, out var action)) { action.Invoke(); }
+                    if (TexTransCoreRuntime.AssetModificationListen.ContainsKey(type)) callTargetType.Add(type);
                 }
+                foreach (var type in callTargetType)
+                    TexTransCoreRuntime.AssetModificationListen[type].Invoke();
             }
 
 
+        }
+        internal class DeleteAssetsHook : AssetModificationProcessor
+        {
+#pragma warning disable IDE0051
+            static AssetDeleteResult OnWillDeleteAsset(string assetPath, RemoveAssetOptions options)
+            {
+                var type = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
+                if (type is null) { return AssetDeleteResult.DidNotDelete; }
+                if (TexTransCoreRuntime.AssetModificationListen.ContainsKey(type))
+                    TexTransCoreRuntime.NextUpdateCall += () => TexTransCoreRuntime.AssetModificationListen[type].Invoke();
+
+                return AssetDeleteResult.DidNotDelete;
+            }
+#pragma warning restore IDE0051
         }
     }
 }

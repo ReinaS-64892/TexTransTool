@@ -9,10 +9,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
     public static class TexTransCoreRuntime
     {
         public static Action Update = () => { NextUpdateCall?.Invoke(); NextUpdateCall = null; };
-        public static Action NextUpdateCall;
+        public static event Action NextUpdateCall;
         public static Func<string, Type, UnityEngine.Object> LoadAsset;
         public static Func<Type, IEnumerable<UnityEngine.Object>> LoadAssetsAtType;
-        public static Dictionary<Type, Action> NewAssetListen = new();
+        public static Dictionary<Type, Action> AssetModificationListen = new();
 
     }
 

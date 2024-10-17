@@ -83,11 +83,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static void BlendShadersInit()
         {
             InitImpl();
-            TexTransCoreRuntime.NewAssetListen[typeof(TTBlendUnityObject)] = InitImpl;
+            TexTransCoreRuntime.AssetModificationListen[typeof(TTBlendUnityObject)] = InitImpl;
 
             static void InitImpl()
             {
                 BlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendUnityObject)).Cast<TTBlendUnityObject>().ToDictionary(i => i.BlendTypeKey, i => i);
+
+                InitBlendShadersCallBack?.Invoke();
             }
 
             AlphaCopyCS = TexTransCoreRuntime.LoadAsset(AlphaCopy_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
@@ -99,6 +101,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
             GammaToLinearCS = TexTransCoreRuntime.LoadAsset(GammaToLinear_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
             LinearToGammaCS = TexTransCoreRuntime.LoadAsset(LinearToGamma_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
         }
+
+        public static event Action InitBlendShadersCallBack;
         public const string BL_KEY_DEFAULT = "Normal";
 
         public static TTComputeOperator AlphaCopyCS;
