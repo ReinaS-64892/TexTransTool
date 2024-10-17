@@ -6,6 +6,7 @@ using Anatawa12.AvatarOptimizer.API;
 using nadena.dev.ndmf;
 using net.rs64.TexTransCoreEngineForUnity.Island;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
@@ -13,25 +14,57 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.NDMF.AAO
 {
-    internal class ProvideMeshRemovalToIsland : TTTPass<ProvideMeshRemovalToIsland>
+    internal class NegotiateAAOPass : TTTPass<NegotiateAAOPass>
     {
         protected override void Execute(BuildContext context)
         {
-            if (TTTContext(context).PhaseAtList[TexTransPhase.Optimizing].Any() is false) { return; }
+            var tttCtx = TTTContext(context);
+            var tttComponents = tttCtx.PhaseAtList.SelectMany(i => i.Value);
+            if (tttComponents.Any() is false) { return; }
 
-            var renderers = context.AvatarRootObject.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            var meshRemovals = renderers.ToDictionary(r => r, r => MeshRemovalProvider.GetForRenderer(r));
+            var config = context.AvatarRootObject.GetComponent<NegotiateAAOConfig>();
+            var removalToIslandDisabling = config?.AAORemovalToIslandDisabling ?? true;
+            var uvEvacuationAndRegisterToAAO = config?.UVEvacuationAndRegisterToAAO ?? true;
+            var overrideEvacuationIndex = (config?.OverrideEvacuationUVChannel ?? false) ? config?.OverrideEvacuationUVChannelIndex : null;
 
+            var uvEditTarget = tttComponents.Where(i => i is AtlasTexture)//後々 UV いじる系でありどの UV をいじるかを示す形が必要になる。今は AtlasTexture しかないから問題ないけど
+                .SelectMany(i => i.ModificationTargetRenderers(tttCtx.Domain.EnumerateRenderer(), tttCtx.Domain.OriginEqual)).OfType<SkinnedMeshRenderer>().Distinct();
 
-            foreach (var mKr in meshRemovals)
+            List<Vector4> uvBuf = null;
+            foreach (var smr in uvEditTarget)
             {
-                var renderer = mKr.Key;
-                var removalProvider = mKr.Value;
+                if (uvEvacuationAndRegisterToAAO && UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
+                    UVEvacuation(uvBuf, smr, overrideEvacuationIndex);
 
-                if (removalProvider is null) { continue; }
-
-                ProvideToIsland(renderer, removalProvider);
+                if (removalToIslandDisabling is false) { continue; }
+                var removalProvider = MeshRemovalProvider.GetForRenderer(smr);
+                if (removalProvider is not null)
+                    using (removalProvider)
+                        ProvideToIsland(smr, removalProvider);
             }
+        }
+
+        private static void UVEvacuation(List<Vector4> uvBuf, SkinnedMeshRenderer smr, int? overrideEvacuationIndex)
+        {
+            var mesh = smr.sharedMesh = UnityEngine.Object.Instantiate(smr.sharedMesh);
+
+            var evacuationIndex = 7;
+            if (overrideEvacuationIndex is null)
+            {
+                while (evacuationIndex >= 0 && mesh.HasUV(evacuationIndex)) { evacuationIndex -= 1; }
+
+                if (evacuationIndex == -1)
+                {
+                    TTTLog.Warning("NegotiateAAO:warn:UVEvacuationFailed", smr);
+                    return;
+                }
+            }
+            else { evacuationIndex = overrideEvacuationIndex.Value; }
+
+            uvBuf ??= new();
+            mesh.GetUVs(0, uvBuf);
+            mesh.SetUVs(evacuationIndex, uvBuf);
+            UVUsageCompabilityAPI.RegisterTexCoordEvacuation(smr, 0, evacuationIndex);
         }
 
         private static void ProvideToIsland(SkinnedMeshRenderer renderer, MeshRemovalProvider removalProvider)
@@ -44,8 +77,6 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var vertex = MeshInfoUtility.ReadVertex(mesh, out var meshDesc);
             var removalsDict = new Dictionary<int, (List<Vertex> Triangles, List<Vertex> VanishTriangles)>();
 
-
-            using (removalProvider)
             using (var uv = new NativeArray<Vector2>(mesh.vertexCount, Allocator.Temp))
             {
                 using (var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh))
