@@ -130,5 +130,15 @@ namespace net.rs64.TexTransTool.Editor
 
             EditorGUI.EndProperty();
         }
+
+        [InitializeOnLoadMethod]
+        static void RegisterCallBack()
+        {
+            TextureBlend.InitBlendShadersCallBack += () =>
+            {
+                s_blendTypeKeyContents = null;
+                s_blendTypeKeys = null;
+            };
+        }
     }
 }

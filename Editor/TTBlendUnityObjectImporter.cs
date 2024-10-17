@@ -43,8 +43,9 @@ namespace net.rs64.TexTransTool
             }
 
             var shaderCode = string.Join("\n", lines.Where(l => l.StartsWith("#pragma") is false));
+            var shaderName = "Hidden/" + obj.BlendTypeKey;
             var csCode = TTBlendUnityObject.KernelDefine + shaderCode + TTBlendUnityObject.ComputeShaderTemplate;
-            var scCode = TTBlendUnityObject.ShaderNameDefine + obj.BlendTypeKey + TTBlendUnityObject.ShaderDefine + shaderCode + (obj.IsLinerRequired ? TTBlendUnityObject.ShaderTemplateWithLinear : TTBlendUnityObject.ShaderTemplate);
+            var scCode = TTBlendUnityObject.ShaderNameDefine + shaderName + TTBlendUnityObject.ShaderDefine + shaderCode + (obj.IsLinerRequired ? TTBlendUnityObject.ShaderTemplateWithLinear : TTBlendUnityObject.ShaderTemplate);
 
             var cs = obj.Compute = ShaderUtil.CreateComputeShaderAsset(ctx, csCode);
             var sc = obj.Shader = ShaderUtil.CreateShaderAsset(ctx, scCode, true);

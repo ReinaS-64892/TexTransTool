@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public static void Initialize()
         {
             SupporterInit();
-            TexTransCoreRuntime.NewAssetListen[typeof(AtlasShaderSupportScriptableObject)] = SupporterInit;
+            TexTransCoreRuntime.AssetModificationListen[typeof(AtlasShaderSupportScriptableObject)] = SupporterInit;
 
             static void SupporterInit()
             {
