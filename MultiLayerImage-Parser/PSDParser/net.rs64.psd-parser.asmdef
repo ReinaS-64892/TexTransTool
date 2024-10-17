@@ -1,7 +1,10 @@
 {
-    "name": "net.rs64.multi-layer-image-parser",
+    "name": "net.rs64.psd-parser",
     "rootNamespace": "",
-    "references": [        "net.rs64.tex-trans-core"    ],
+    "references": [
+        "net.rs64.multi-layer-image-data",
+        "net.rs64.psd-parser.low-level"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,0 +1,17 @@
+{
+    "name": "net.rs64.psd-parser.high-level",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.psd-parser.low-level",
+        "net.rs64.multi-layer-image-data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

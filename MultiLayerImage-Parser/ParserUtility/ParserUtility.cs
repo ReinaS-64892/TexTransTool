@@ -10,7 +10,7 @@ using Unity.Collections;
 
 namespace net.rs64.MultiLayerImage.Parser
 {
-    internal class BinarySectionStream
+    public class BinarySectionStream
     {
         private byte[] _array;
         private long _start;
