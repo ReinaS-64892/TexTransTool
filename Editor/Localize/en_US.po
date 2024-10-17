@@ -70,6 +70,12 @@ msgstr "IslandPadding is zero and PixelNormalize is used. \nPlease note that som
 msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
 msgstr "increment IslandPadding or place disabled PixelNormalize."
 
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV"
+msgstr "The original UV write target channel is there already has UV."
+
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV:description"
+msgstr "If this is intentionally or not a problem, ignore this warning."
+
 msgid "AtlasTexture:info:RelocateResult"
 msgstr "Atlas Relocate Result\nTop free space: {0}\nPriority shrink: {1}x \nOverall shrink: {2}x \nTotal relocate count: {3} \nTime taken relocate: {4}ms"
 
@@ -560,3 +566,11 @@ msgstr "Target not set!"
 
 msgid "MultiLayerImageCanvas:info:TargetNotFound"
 msgstr "Target not found!"
+
+# NegotiateAAO
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed"
+msgstr "Failed to evacuate UV as all UV channels are used!"
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
+msgstr "If there is no problem, ignore this warning."

@@ -51,11 +51,11 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var evacuationIndex = 7;
             if (overrideEvacuationIndex is null)
             {
-                while (evacuationIndex >= 0 && mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(4 + evacuationIndex))) { evacuationIndex -= 1; }
+                while (evacuationIndex >= 0 && mesh.HasUV(evacuationIndex)) { evacuationIndex -= 1; }
 
                 if (evacuationIndex == -1)
                 {
-                    TTTLog.Warning("UVEvacuationFailed", smr);
+                    TTTLog.Warning("NegotiateAAO:warn:UVEvacuationFailed", smr);
                     return;
                 }
             }

@@ -70,6 +70,12 @@ msgstr "アイランドパディングがゼロでピクセルノーマライズ
 msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
 msgstr "アイランドパディングを増やすか、ピクセルノーマライズを無効化してください。"
 
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV"
+msgstr "元のUVを書き込む対象のUVチャンネルに、すでに何らかのUVが存在します!"
+
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV:description"
+msgstr "意図して行っている場合や問題がない場合は無視してください。"
+
 msgid "AtlasTexture:info:RelocateResult"
 msgstr "アトラス再配置結果\n上部の空き領域: {0}\n優先度に応じた縮小: {1}倍 \n全体的な縮小: {2}倍 \n累計再配置計算回数: {3}回 \n再配置実行時間: {4}ms"
 
@@ -559,3 +565,11 @@ msgstr "適用対象が設定されていません！"
 
 msgid "MultiLayerImageCanvas:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
+
+# NegotiateAAO
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed"
+msgstr "UVチャンネルがすべて埋まっているため UV の退避に失敗しました！"
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
+msgstr "問題がない場合はこの警告は無視してください。"

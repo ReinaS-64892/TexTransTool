@@ -298,7 +298,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     newMesh.SetUVs(0, movedUV);
                 }
-                if (atlasSetting.WriteOriginalUV) { newMesh.SetUVs(math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7), meshData.VertexUV); }
+                if (atlasSetting.WriteOriginalUV)
+                {
+                    var writeTarget = math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7);
+                    if (newMesh.HasUV(writeTarget)) { TTTRuntimeLog.Info("AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV", writeTarget, newMesh); }
+                    newMesh.SetUVs(writeTarget, meshData.VertexUV);
+                }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshHolder(distMesh, UnityEngine.Object.Instantiate(nmMesh), newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }
