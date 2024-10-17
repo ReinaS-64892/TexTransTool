@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -77,6 +78,12 @@ namespace net.rs64.TexTransCore.Utils
             uvOutput?.Clear(); uvOutput ??= new();
             mesh.GetUVs(channel, uvOutput);
             return uvOutput;
+        }
+
+        public static bool HasUV(this Mesh mesh, int channel = 0)
+        {
+            if (channel < 0 || channel > 7) { throw new IndexOutOfRangeException(); }
+            return mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(channel + 4));
         }
     }
 }
