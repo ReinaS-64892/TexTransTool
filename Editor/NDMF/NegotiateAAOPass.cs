@@ -22,15 +22,21 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var tttComponents = tttCtx.PhaseAtList.SelectMany(i => i.Value);
             if (tttComponents.Any() is false) { return; }
 
+            var config = context.AvatarRootObject.GetComponent<NegotiateAAOConfig>();
+            var removalToIslandDisabling = config?.AAORemovalToIslandDisabling ?? true;
+            var uvEvacuationAndRegisterToAAO = config?.UVEvacuationAndRegisterToAAO ?? true;
+            var overrideEvacuationIndex = (config?.OverrideEvacuationUVChannel ?? false) ? config?.OverrideEvacuationUVChannelIndex : null;
+
             var uvEditTarget = tttComponents.Where(i => i is AtlasTexture)//後々 UV いじる系でありどの UV をいじるかを示す形が必要になる。今は AtlasTexture しかないから問題ないけど
                 .SelectMany(i => i.ModificationTargetRenderers(tttCtx.Domain.EnumerateRenderer(), tttCtx.Domain.OriginEqual)).OfType<SkinnedMeshRenderer>().Distinct();
 
             List<Vector4> uvBuf = null;
             foreach (var smr in uvEditTarget)
             {
-                if (UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
-                    UVEvacuation(uvBuf, smr);
+                if (uvEvacuationAndRegisterToAAO && UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
+                    UVEvacuation(uvBuf, smr, overrideEvacuationIndex);
 
+                if (removalToIslandDisabling is false) { continue; }
                 var removalProvider = MeshRemovalProvider.GetForRenderer(smr);
                 if (removalProvider is not null)
                     using (removalProvider)
@@ -38,18 +44,22 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             }
         }
 
-        private static void UVEvacuation(List<Vector4> uvBuf, SkinnedMeshRenderer smr)
+        private static void UVEvacuation(List<Vector4> uvBuf, SkinnedMeshRenderer smr, int? overrideEvacuationIndex)
         {
             var mesh = smr.sharedMesh = UnityEngine.Object.Instantiate(smr.sharedMesh);
 
             var evacuationIndex = 7;
-            while (evacuationIndex >= 0 && mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(4 + evacuationIndex))) { evacuationIndex -= 1; }
-
-            if (evacuationIndex == -1)
+            if (overrideEvacuationIndex is null)
             {
-                TTTLog.Warning("UVEvacuationFailed", smr);
-                return;
+                while (evacuationIndex >= 0 && mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(4 + evacuationIndex))) { evacuationIndex -= 1; }
+
+                if (evacuationIndex == -1)
+                {
+                    TTTLog.Warning("UVEvacuationFailed", smr);
+                    return;
+                }
             }
+            else { evacuationIndex = overrideEvacuationIndex.Value; }
 
             uvBuf ??= new();
             mesh.GetUVs(0, uvBuf);
