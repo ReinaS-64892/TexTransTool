@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public TextureSelector TextureSelector;
 
-        [SerializeField, HideInInspector] internal TTTImportedCanvasDescription tttImportedCanvasDescription;
+        [SerializeField, HideInInspector] public TTTImportedCanvasDescription tttImportedCanvasDescription;
 
         internal override void Apply([NotNull] IDomain domain)
         {

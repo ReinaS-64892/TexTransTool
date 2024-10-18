@@ -122,6 +122,12 @@ namespace net.rs64.TexTransTool.Migration
                 toggleKV.Value.RegisterValueChangedCallback(mv => Scene[path] = mv.newValue);
                 sceneTargetSelectorToggle.hierarchy.Add(toggleKV.Value);
             }
+
+
+            var MigratePSDImporterRegistering = new Button();
+            MigratePSDImporterRegistering.text = "PSD Importer のマイグレーション(再設定)をする";
+            MigratePSDImporterRegistering.clicked += ReflectCallPSDMigration;
+            rootScrollContainer.hierarchy.Add(MigratePSDImporterRegistering);
         }
 
         void CreateGUI()
@@ -144,5 +150,18 @@ namespace net.rs64.TexTransTool.Migration
 
             this.Close();
         }
+
+        internal static void ReflectCallPSDMigration()
+        {
+            try
+            {
+                var PSDImporterMigrationType = Type.GetType("net.rs64.TexTransTool.MultiLayerImage.Importer.PSDImporterMigration,net.rs64.ttt-psd-importer.editor", true, false);
+                var migrationMethod = PSDImporterMigrationType.GetMethod("PSDImporterReSetting", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.InvokeMethod);
+
+                migrationMethod.Invoke(null, null);
+            }
+            catch (Exception ex) { Debug.LogException(ex); }
+        }
     }
 }
+

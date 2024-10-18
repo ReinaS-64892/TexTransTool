@@ -135,7 +135,7 @@ namespace net.rs64.MultiLayerImage.Parser
         public long StartAddress;
         public long Length;
     }
-    internal static class ParserUtility
+    public static class ParserUtility
     {
         public static bool Signature(this BinarySectionStream stream, byte[] signature)
         {

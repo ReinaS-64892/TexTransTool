@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
-    internal class JobResult<T>
+    public class JobResult<T>
     {
         T _result;
         JobHandle _jobHandle;
