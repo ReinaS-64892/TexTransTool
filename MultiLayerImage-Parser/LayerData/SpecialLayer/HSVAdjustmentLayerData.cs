@@ -1,7 +1,7 @@
 
 namespace net.rs64.MultiLayerImage.LayerData
 {
-    internal class HSVAdjustmentLayerData : AbstractLayerData , IGrabTag
+    public class HSVAdjustmentLayerData : AbstractLayerData , IGrabTag
     {
         //All -1 ~ 1
         public float Hue;

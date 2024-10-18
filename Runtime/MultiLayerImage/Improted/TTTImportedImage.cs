@@ -12,9 +12,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Texture2D PreviewTexture;
 
         // R8 or RGBA32 Non MipMap
-        internal abstract JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null);
-        internal abstract void LoadImage(byte[] importSource, RenderTexture writeTarget);
-        internal abstract Vector2Int Pivot { get; }
+        internal protected abstract JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null);
+        internal protected abstract void LoadImage(byte[] importSource, RenderTexture writeTarget);
+        internal protected abstract Vector2Int Pivot { get; }
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(TTTImportedImage))]

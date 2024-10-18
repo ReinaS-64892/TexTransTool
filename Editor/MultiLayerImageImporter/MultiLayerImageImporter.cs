@@ -14,7 +14,7 @@ using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
-    internal class MultiLayerImageImporter
+    public class MultiLayerImageImporter
     {
         MultiLayerImageCanvas _multiLayerImageCanvas;
         TTTImportedCanvasDescription _tttImportedCanvasDescription;
@@ -25,10 +25,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         Dictionary<TTTImportedImage, string> _layerAtPath = new();
         string _path = "";
 
-        internal delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
-        internal delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] sourceBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
+        public delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
+        public delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] sourceBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
 
-        internal MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] sourceBytes, CreateImportedImage imageImporter)
+        public MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] sourceBytes, CreateImportedImage imageImporter)
         {
             _multiLayerImageCanvas = multiLayerImageCanvas;
             _ctx = assetImportContext;
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         }
 
-        internal void AddLayers(List<AbstractLayerData> abstractLayers) { AddLayers(abstractLayers, null); }
+        public void AddLayers(List<AbstractLayerData> abstractLayers) { AddLayers(abstractLayers, null); }
         private void AddLayers(List<AbstractLayerData> abstractLayers, Transform parent = null)
         {
             parent ??= _multiLayerImageCanvas.transform;

@@ -1,0 +1,16 @@
+{
+    "name": "net.rs64.psd-parser.low-level",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.parser-utility"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

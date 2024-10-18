@@ -6,7 +6,7 @@
         "net.rs64.tt-unity-core",
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.tt-unity-core.unsafe",
-        "net.rs64.multi-layer-image-parser",
+        "net.rs64.multi-layer-image-data",
         "nadena.dev.ndmf",
         "Unity.Collections",
         "Unity.Mathematics",

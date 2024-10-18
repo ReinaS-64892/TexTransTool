@@ -1,15 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using net.rs64.MultiLayerImage.LayerData;
-using net.rs64.MultiLayerImage.Parser.PSD;
 using net.rs64.TexTransCoreEngineForUnity;
-using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool
 {

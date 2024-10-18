@@ -7,7 +7,7 @@
 
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf")]
 
-[assembly: InternalsVisibleTo("net.rs64.multi-layer-image-parser")]
+[assembly: InternalsVisibleTo("net.rs64.ttt-psd-importer.runtime")]
 
 [assembly: InternalsVisibleTo("net.rs64.ttt-clip-importer.editor")]
 [assembly: InternalsVisibleTo("net.rs64.ttt-destructive-texture-utilities.editor")]
