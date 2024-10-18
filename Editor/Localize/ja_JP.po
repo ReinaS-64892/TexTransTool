@@ -443,11 +443,11 @@ msgstr "ポリゴンカリング"
 msgid "SimpleDecal:prop:PolygonCulling:tooltip"
 msgstr "ポリゴンのカリングをどの基準で行うかの設定"
 
-msgid "SimpleDecal:prop:SideCulling"
-msgstr "サイドカリング"
+msgid "SimpleDecal:prop:BackCulling"
+msgstr "背面カリング"
 
-msgid "SimpleDecal:prop:SideCulling:tooltip"
-msgstr "ポリゴンがデカールから見て裏面のポリゴンにデカールを貼らない設定"
+msgid "SimpleDecal:prop:BackCulling:tooltip"
+msgstr "ポリゴンがデカールから見て背面のポリゴンにデカールを貼らない設定"
 
 msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
 msgstr "アイランド選択"
