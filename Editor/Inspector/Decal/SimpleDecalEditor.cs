@@ -36,8 +36,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sPolygonCulling = thisSObject.FindProperty("PolygonOutOfCulling");
             EditorGUILayout.PropertyField(sPolygonCulling, "SimpleDecal:prop:PolygonCulling".Glc());
 
-            var sSideCulling = thisSObject.FindProperty("SideCulling");
-            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:SideCulling".Glc());
+            var sSideCulling = thisSObject.FindProperty("BackCulling");
+            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:BackCulling".Glc());
 
 
             EditorGUI.indentLevel -= 1;

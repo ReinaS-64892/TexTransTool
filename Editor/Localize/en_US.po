@@ -444,10 +444,10 @@ msgstr "PolygonCulling"
 msgid "SimpleDecal:prop:PolygonCulling:tooltip"
 msgstr "Setting the criteria for polygon culling."
 
-msgid "SimpleDecal:prop:SideCulling"
-msgstr "SideCulling"
+msgid "SimpleDecal:prop:BackCulling"
+msgstr "BackCulling"
 
-msgid "SimpleDecal:prop:SideCulling:tooltip"
+msgid "SimpleDecal:prop:BackCulling:tooltip"
 msgstr "Setting to cull back side polygon when view from the decal."
 
 msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"

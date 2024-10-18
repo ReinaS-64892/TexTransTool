@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Decal
         public float Padding = 5;
         public bool HighQualityPadding = false;
         public bool FixedAspect = true;
-        [FormerlySerializedAs("SideChek")] public bool SideCulling = true;
+        [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
         public bool PolygonOutOfCulling = true;
 
         public AbstractIslandSelector IslandSelector;
@@ -183,7 +183,7 @@ namespace net.rs64.TexTransTool.Decal
                 TriangleFilterUtility.FarStruct.GetJobChain(1, true),
                 TriangleFilterUtility.NearStruct.GetJobChain(0, true)
             };
-            if (SideCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
+            if (BackCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
             if (PolygonOutOfCulling) filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(0, 1, true));
 
             return filters.ToArray();
