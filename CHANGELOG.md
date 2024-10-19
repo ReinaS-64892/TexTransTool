@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...HEAD)
 
+### Fixed
+
+- narazaka/FloorAdjuster よりも後に TTT を実行してしまい、 Decalなどがずれてしまう問題を 先に動作させることで修正 (#693)
+
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 
 ### Fixed
