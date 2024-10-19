@@ -6,6 +6,7 @@ using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransTool.Build;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,10 +33,10 @@ namespace net.rs64.TexTransTool.NDMF
         public bool UsedLookAt { get; private set; } = false;
 
 
-        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext, IObjectRegistry objectRegistry)
+        public NodeExecuteDomain(Dictionary<Renderer, Renderer> o2pDict, ComputeContext computeContext, IObjectRegistry objectRegistry)
         {
-            _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
-            _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
+            _proxy2OriginRendererDict = o2pDict.ToDictionary(i => i.Value, i => i.Key);
+            _proxyDomainRenderers = o2pDict.Values.ToList();
             _textureManager = new TextureManager(true);
             _textureStacks = new();
             _ctx = computeContext;
@@ -109,26 +110,24 @@ namespace net.rs64.TexTransTool.NDMF
             return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
         }
 
-        public void TransferAsset(UnityEngine.Object asset)
-        {
-            _transferredObject.Add(asset);
-        }
+        public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
 
 
         public void DomainFinish()
         {
+            MargeStack();
+            _textureManager.DestroyDeferred();
+            _textureManager.CompressDeferred();
+        }
 
-
+        private void MargeStack()
+        {
             foreach (var mergeResult in _textureStacks.StackDict)
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
                 SetTexture(mergeResult.Key, mergeResult.Value);
                 _neededReleaseTempRt.Add(mergeResult.Value);
             }
-
-            _textureManager.DestroyDeferred();
-            _textureManager.CompressDeferred();
-
 
             void SetTexture(Texture firstTexture, Texture mergeTexture)
             {
@@ -159,6 +158,59 @@ namespace net.rs64.TexTransTool.NDMF
             }
 
             _rendererApplyRecaller[original].Invoke(proxy);
+        }
+
+
+
+        internal NodeSubDomain GetSubDomain(Renderer[] subDomainRenderers)
+        {
+            return new NodeSubDomain(this, subDomainRenderers);
+        }
+        internal class NodeSubDomain : TexTransTool.AbstractSubDomain<NodeExecuteDomain>
+        {
+            public NodeSubDomain(NodeExecuteDomain rootDomain, IEnumerable<Renderer> subDomainsRenderer) : base(rootDomain, subDomainsRenderer)
+            {
+            }
+
+            public override void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) { _rootDomain.AddTextureStack(dist, setTex); }
+
+            public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
+            {
+                foreach (var dr in _subDomainsRenderer)
+                {
+                    _rootDomain.RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
+                    RendererUtility.SwapMaterials(dr, mapping);
+                }
+                if (one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
+                this.transferAssets(mapping.Values);
+                _rootDomain.UsedMaterialReplace = true;
+            }
+
+            public override void SetMesh(Renderer renderer, Mesh mesh)
+            {
+                _rootDomain.RegisterRecall(renderer, i => i.SetMesh(mesh));
+                renderer.SetMesh(mesh);
+                _rootDomain.UsedSetMesh = true;
+            }
+
+            public override void MergeStack()
+            {
+                foreach (var mergeResult in _rootDomain._textureStacks.StackDict)
+                {
+                    if (mergeResult.Key == null || mergeResult.Value == null) continue;
+                    SetTexture(mergeResult.Key, mergeResult.Value);
+                    _rootDomain._neededReleaseTempRt.Add(mergeResult.Value);
+                }
+
+                void SetTexture(Texture firstTexture, Texture mergeTexture)
+                {
+                    var mats = RendererUtility.GetFilteredMaterials(_subDomainsRenderer);
+                    ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, firstTexture, mergeTexture));
+                    RegisterReplace(firstTexture, mergeTexture);
+                }
+            }
+
+
         }
     }
 

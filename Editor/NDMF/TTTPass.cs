@@ -23,46 +23,11 @@ namespace net.rs64.TexTransTool.NDMF
             throw new TTTNotExecutable();
         }
     }
-    internal class TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning : Pass<TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning>
-    {
-        protected override void Execute(BuildContext context)
-        {
-            var warningTarget = context.AvatarRootObject.GetComponentsInChildren<TexTransBehavior>()
-               .Where(ttb =>
-               {
-                   var parent = ttb.transform.parent;
-                   if (parent == null) { return false; }
-                   return parent.GetComponentsInParent<TexTransBehavior>().Any(pttb =>
-                          {
-                              switch (pttb)
-                              {
-                                  case PhaseDefinition:
-                                  case TexTransGroup:
-                                  case PreviewGroup:
-                                      return false;
-                                  default:
-                                      return true;
-                              }
-                          });
-               }).ToArray();
-
-            if (warningTarget.Any() is false) { return; }
-
-            TTTLog.Warning("Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning", warningTarget);
-        }
-    }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>
     {
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.BeforeUVModification);
-        }
-    }
-    internal class MidwayMergeStackPass : TTTPass<MidwayMergeStackPass>
-    {
-        protected override void Execute(BuildContext context)
-        {
-            TTTContext(context).MidwayMergeStack();
         }
     }
     internal class UVModificationPass : TTTPass<UVModificationPass>
@@ -84,13 +49,6 @@ namespace net.rs64.TexTransTool.NDMF
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.UnDefined);
-        }
-    }
-    internal class BeforeOptimizingMergeStackPass : TTTPass<BeforeOptimizingMergeStackPass>
-    {
-        protected override void Execute(BuildContext context)
-        {
-            TTTContext(context).MidwayMergeStack();
         }
     }
     internal class ReFindRenderersPass : TTTPass<ReFindRenderersPass>
