@@ -7,6 +7,8 @@
 
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.ndmf")]
 
+[assembly: InternalsVisibleTo("net.rs64.ttt-world-extension")]
+
 [assembly: InternalsVisibleTo("net.rs64.multi-layer-image-parser")]
 [assembly: InternalsVisibleTo("net.rs64.tex-trans-tool.editor.ndmf-not-exist-waring")]
 

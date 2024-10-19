@@ -131,18 +131,19 @@ namespace net.rs64.TexTransTool.Build
 
         public delegate Component[] GetComponentsInChildren(Type type, GameObject gameObject, bool includeInactive);
         public delegate Component GetComponent(Type type, GameObject gameObject);
-        public static List<Domain2Behavior> FindAtPhase(GameObject avatarGameObject, GetComponent getComponent = null, GetComponentsInChildren getComponentsInChildren = null)
+        public static List<Domain2Behavior> FindAtPhase(GameObject rootDomainObject, GetComponent getComponent = null, GetComponentsInChildren getComponentsInChildren = null)
         {
             getComponent ??= (t, g) => g.GetComponent(t);
             getComponentsInChildren ??= (t, g, i) => g.GetComponentsInChildren(t, i);
             var rootTree = new RootBehaviorTree();
-            FindDomainsTexTransBehavior(rootTree.Behaviors, rootTree.ChildeTrees, avatarGameObject.transform);
+            FindDomainsTexTransBehavior(rootTree.Behaviors, rootTree.ChildeTrees, rootDomainObject.transform);
 
             var domainTreeList = new List<DomainTree>();
-            foreach (var sudDomain in getComponentsInChildren(typeof(DomainDefinition), avatarGameObject, true).OfType<DomainDefinition>())
+            var rootDefine = getComponent(typeof(DomainDefinition), rootDomainObject);
+            foreach (var sudDomain in getComponentsInChildren(typeof(DomainDefinition), rootDomainObject, true).OfType<DomainDefinition>().Where(d => d != rootDefine))
             {
                 var point = sudDomain.transform.parent;
-                while (getComponent(typeof(DomainDefinition), point.gameObject) == null && point.gameObject != avatarGameObject)
+                while (getComponent(typeof(DomainDefinition), point.gameObject) == null && point.gameObject != rootDomainObject)
                 {
                     point = point.parent;
                 }
@@ -161,7 +162,7 @@ namespace net.rs64.TexTransTool.Build
 
                 var depth = 0;
                 var wt = sd;
-                while (wt.ParentDomain != avatarGameObject)
+                while (wt.ParentDomain != rootDomainObject)
                 {
                     wt = domainTreeList.Find(i => i.DomainPoint.gameObject == wt.ParentDomain.gameObject);
                     depth += 1;
@@ -191,7 +192,7 @@ namespace net.rs64.TexTransTool.Build
             return domainList;
         }
 
-        private static void RegisterDomain2Behavior(Domain2Behavior d2b, List<BehaviorTree> behaviorTrees, List<TexTransBehavior> behaviors)
+        internal static void RegisterDomain2Behavior(Domain2Behavior d2b, List<BehaviorTree> behaviorTrees, List<TexTransBehavior> behaviors)
         {
             foreach (var ct in behaviorTrees)
             {
@@ -235,7 +236,7 @@ namespace net.rs64.TexTransTool.Build
             return state;
         }
 
-        class DomainTree
+        internal class DomainTree
         {
             public GameObject ParentDomain = null;
             public DomainDefinition DomainPoint = null;
@@ -243,21 +244,21 @@ namespace net.rs64.TexTransTool.Build
 
             public int Depth = 0;
         }
-        class RootBehaviorTree
+        internal class RootBehaviorTree
         {
             public List<TexTransBehavior> Behaviors = new();
             public List<BehaviorTree> ChildeTrees = new();
         }
-        class BehaviorTree
+        internal class BehaviorTree
         {
             public TexTransGroup TreePoint = null;
             public List<TexTransBehavior> Behaviors = new();
         }
-        static void FindDomainsTexTransBehavior(List<TexTransBehavior> behaviors, List<BehaviorTree> chilesTree, Transform entryPoint, GetComponent getComponent = null)
+        internal static void FindDomainsTexTransBehavior(List<TexTransBehavior> behaviors, List<BehaviorTree> chilesTree, Transform entryPoint, GetComponent getComponent = null)
         {
             getComponent ??= (t, g) => g.GetComponent(t);
             var chilesCount = entryPoint.childCount;
-            for (var i = chilesCount - 1; 0 <= i; i -= 1)
+            for (var i = 0; chilesCount > i; i += 1)
             {
                 var c = entryPoint.GetChild(i);
                 var ttc = c.GetComponent<TexTransMonoBase>();
@@ -286,7 +287,7 @@ namespace net.rs64.TexTransTool.Build
         {
             getComponent ??= (t, g) => g.GetComponent(t);
             var chilesCount = entryPoint.childCount;
-            for (var i = chilesCount - 1; 0 <= i; i -= 1)
+            for (var i = 0; chilesCount > i; i += 1)
             {
                 var c = entryPoint.GetChild(i);
                 var ttc = getComponent(typeof(TexTransMonoBase), c.gameObject);
