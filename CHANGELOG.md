@@ -11,10 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
 - BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
+- テクスチャやマテリアルの範囲を切り分けることができる DomainDefinition が追加されました (#626)
+- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
 
 ### Changed
 
 - SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
+- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
+- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
+- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
 
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 
