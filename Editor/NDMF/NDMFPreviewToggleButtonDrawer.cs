@@ -14,11 +14,12 @@ namespace net.rs64.TexTransTool.NDMF
             PreviewButtonDrawUtil.ExternalPreviewDrawer = DrawNDMFPreviewToggleButton;
         }
 
-        static void DrawNDMFPreviewToggleButton(TexTransBehavior texTransBehavior)
+        static void DrawNDMFPreviewToggleButton(TexTransMonoBase texTransMonoBase)
         {
-            if (texTransBehavior.GetType() == typeof(TexTransGroup) || texTransBehavior.GetType() == typeof(PreviewGroup)) { return; }
+            if (texTransMonoBase.GetType() == typeof(TexTransGroup) || texTransMonoBase.GetType() == typeof(PreviewGroup)) { return; }
 
-            var phase = texTransBehavior is not PhaseDefinition pd ? texTransBehavior.PhaseDefine : pd.TexTransPhase;
+            TexTransPhase? phase = texTransMonoBase is not PhaseDefinition pd ? texTransMonoBase is TexTransBehavior ttb ? ttb.PhaseDefine : null : pd.TexTransPhase;
+
             TogglablePreviewNode previewNode;
             switch (phase)
             {
@@ -26,9 +27,11 @@ namespace net.rs64.TexTransTool.NDMF
                 case TexTransPhase.BeforeUVModification:
                     { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.BeforeUVModification]; break; }
                 case TexTransPhase.UVModification:
-                case TexTransPhase.AfterUVModification:
-                case TexTransPhase.UnDefined:
                     { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.UVModification]; break; }
+                case TexTransPhase.AfterUVModification:
+                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.AfterUVModification]; break; }
+                case TexTransPhase.UnDefined:
+                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.UnDefined]; break; }
                 case TexTransPhase.Optimizing:
                     { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.Optimizing]; break; }
             }

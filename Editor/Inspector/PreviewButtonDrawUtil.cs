@@ -6,8 +6,8 @@ namespace net.rs64.TexTransTool.Editor
 {
     internal static class PreviewButtonDrawUtil
     {
-        internal static Action<TexTransBehavior> ExternalPreviewDrawer = null;
-        public static void Draw(TexTransBehavior target)
+        internal static Action<TexTransMonoBase> ExternalPreviewDrawer = null;
+        public static void Draw(TexTransMonoBase target)
         {
             if (target == null) { return; }
 

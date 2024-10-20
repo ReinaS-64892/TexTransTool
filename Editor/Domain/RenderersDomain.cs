@@ -49,9 +49,8 @@ namespace net.rs64.TexTransTool
             _textureStacks.AddTextureStack(dist as Texture2D, setTex);
         }
 
-        private void AddPropertyModification(Object component, string property, Object value)
+        private static void AddPropertyModification(Object component, string property, Object value)
         {
-            if (!Previewing) return;
             AnimationMode.AddPropertyModification(
                 EditorCurveBinding.PPtrCurve("", component.GetType(), property),
                 new PropertyModification
@@ -63,53 +62,52 @@ namespace net.rs64.TexTransTool
                 true);
         }
 
-        private void SetSerializedProperty(SerializedProperty property, Object value)
+        public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
-            AddPropertyModification(property.serializedObject.targetObject, property.propertyPath,
-                property.objectReferenceValue);
-            property.objectReferenceValue = value;
-        }
+            foreach (var renderer in _renderers) { ReplaceMaterial(renderer, mapping, Previewing); }
 
-        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
-        {
-            foreach (var replacement in mapping.Values)
-                TransferAsset(replacement);
-
-            foreach (var renderer in _renderers)
-            {
-                if (renderer == null) { continue; }
-                if (!renderer.sharedMaterials.Any()) { continue; }
-                using (var serialized = new SerializedObject(renderer))
-                {
-                    foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                        if (property.objectReferenceValue is Material material &&
-                            mapping.TryGetValue(material, out var replacement))
-                            SetSerializedProperty(property, replacement);
-
-                    serialized.ApplyModifiedPropertiesWithoutUndo();
-                }
-            }
-
-            if (one2one)
-            { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
+            if (one2one) { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
             this.transferAssets(mapping.Values);
         }
 
-        public virtual void SetMesh(Renderer renderer, Mesh mesh)
+        internal static void ReplaceMaterial(Renderer renderer, Dictionary<Material, Material> mapping, bool previewing = false)
+        {
+            if (renderer == null) { return; }
+            if (!renderer.sharedMaterials.Any()) { return; }
+            using (var serialized = new SerializedObject(renderer))
+            {
+                foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
+                    if (property.objectReferenceValue is Material material && mapping.TryGetValue(material, out var replacement))
+                    {
+                        if (previewing) AddPropertyModification(property.serializedObject.targetObject, property.propertyPath, property.objectReferenceValue);
+                        property.objectReferenceValue = replacement;
+                    }
+
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        public void SetMesh(Renderer renderer, Mesh mesh)
+        {
+            var preMesh = ReplaceMesh(renderer, mesh, Previewing);
+            RegisterReplace(preMesh, mesh);
+        }
+
+        private static Mesh ReplaceMesh(Renderer renderer, Mesh mesh, bool previewing = false)
         {
             var preMesh = renderer.GetMesh();
             switch (renderer)
             {
                 case SkinnedMeshRenderer skinnedRenderer:
                     {
-                        AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
+                        if (previewing) AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
                         skinnedRenderer.sharedMesh = mesh;
                         break;
                     }
                 case MeshRenderer meshRenderer:
                     {
                         var meshFilter = meshRenderer.GetComponent<MeshFilter>();
-                        AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
+                        if (previewing) AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
                         meshFilter.sharedMesh = mesh;
                         break;
                     }
@@ -117,9 +115,10 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            RegisterReplace(preMesh, mesh);
+            return preMesh;
         }
-        public virtual void SetTexture(Texture2D target, Texture2D setTex)
+
+        public void SetTexture(Texture2D target, Texture2D setTex)
         {
             var mats = RendererUtility.GetFilteredMaterials(_renderers);
             ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
@@ -153,7 +152,7 @@ namespace net.rs64.TexTransTool
             _textureManager.CompressDeferred();
         }
 
-        public virtual void MergeStack()
+        public void MergeStack()
         {
             var MergedStacks = _textureStacks.MergeStacks();
 
@@ -169,6 +168,82 @@ namespace net.rs64.TexTransTool
         public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
         public bool IsPreview() => Previewing;
         public ITextureManager GetTextureManager() => _textureManager;
+
+        public RenderersSubDomain GetSubDomain(List<Renderer> subDomainRenderers)
+        {
+            var subIDomain = new RenderersSubDomain(this, subDomainRenderers);
+            return subIDomain;
+        }
+
+        internal class RenderersSubDomain : AbstractSubDomain<RenderersDomain>
+        {
+            StackManager<ImmediateTextureStack> _textureStacks;
+            public RenderersSubDomain(RenderersDomain domain, IEnumerable<Renderer> subDomainRenderers) : base(domain, subDomainRenderers)
+            {
+                _textureStacks = new StackManager<ImmediateTextureStack>(domain.GetTextureManager());
+            }
+            public override void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex)
+            { _textureStacks.AddTextureStack(dist as Texture2D, setTex); }
+
+
+            public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
+            {
+                foreach (var r in _subDomainsRenderer)
+                    ReplaceMaterial(r, mapping, _rootDomain.Previewing);
+
+                if (one2one) { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
+                this.transferAssets(mapping.Values);
+            }
+            public override void SetMesh(Renderer renderer, Mesh mesh)
+            {
+                var preMesh = ReplaceMesh(renderer, mesh, _rootDomain.Previewing);
+                RegisterReplace(preMesh, mesh);
+            }
+
+            public override void MergeStack()
+            {
+                var MergedStacks = _textureStacks.MergeStacks();
+
+                foreach (var mergeResult in MergedStacks)
+                {
+                    if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
+                    SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
+                    TransferAsset(mergeResult.MergeTexture);
+                }
+                void SetTexture(Texture2D target, Texture2D setTex)
+                {
+                    var mats = RendererUtility.GetFilteredMaterials(_subDomainsRenderer);
+                    ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
+                    RegisterReplace(target, setTex);
+                }
+            }
+        }
+
+    }
+    internal abstract class AbstractSubDomain<RootDomain> : IDomain
+    where RootDomain : IDomain
+    {
+        protected RootDomain _rootDomain;
+        protected IEnumerable<Renderer> _subDomainsRenderer;
+
+        public AbstractSubDomain(RootDomain rootDomain, IEnumerable<Renderer> subDomainsRenderer)
+        {
+            _rootDomain = rootDomain;
+            _subDomainsRenderer = subDomainsRenderer;
+        }
+        public IEnumerable<Renderer> EnumerateRenderer() => _subDomainsRenderer;
+
+        public ITextureManager GetTextureManager() => _rootDomain.GetTextureManager();
+        public bool IsPreview() => _rootDomain.IsPreview();
+        public bool OriginEqual(Object l, Object r) => _rootDomain.OriginEqual(l, r);
+        public void RegisterReplace(Object oldObject, Object nowObject) => _rootDomain.RegisterReplace(oldObject, nowObject);
+        public void TransferAsset(Object asset) => _rootDomain.TransferAsset(asset);
+
+        public abstract void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;
+        public abstract void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
+
+        public abstract void SetMesh(Renderer renderer, Mesh mesh);
+        public abstract void MergeStack();
 
     }
 }

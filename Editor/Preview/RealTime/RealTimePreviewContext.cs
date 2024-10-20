@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
             _previewDomain = new RealTimePreviewDomain(previewRoot, RegisterDependency);
 
-            var texTransBehaviors = AvatarBuildUtils.PhaseDictFlatten(AvatarBuildUtils.FindAtPhase(previewRoot));
+            var texTransBehaviors = AvatarBuildUtils.PhaseDictFlatten(AvatarBuildUtils.FindAtPhase(previewRoot)).Where(AvatarBuildUtils.CheckIsActiveBehavior);
             var priority = 0;
             foreach (var ttb in texTransBehaviors)
             { if (ttb is TexTransRuntimeBehavior texTransRuntimeBehavior) { _PriorityMap[texTransRuntimeBehavior] = priority; priority += 1; } }

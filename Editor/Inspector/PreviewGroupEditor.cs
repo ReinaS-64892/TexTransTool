@@ -35,33 +35,33 @@ namespace net.rs64.TexTransTool.Editor
                 rootVE.styleSheets.Add(s_style);
 
                 var previewGroup = target as PreviewGroup;
-                var phase = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
+                var atPhase = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
 
                 var label = new Label(TexTransPhase.BeforeUVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                CreateGroupElements(rootVE, phase[TexTransPhase.BeforeUVModification], true);
+                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.BeforeUVModification]);
 
                 label = new Label(TexTransPhase.UVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                CreateGroupElements(rootVE, phase[TexTransPhase.UVModification], true);
+                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.UVModification]);
 
 
                 label = new Label(TexTransPhase.AfterUVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                CreateGroupElements(rootVE, phase[TexTransPhase.AfterUVModification], true);
+                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.AfterUVModification]);
 
                 label = new Label(TexTransPhase.UnDefined.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                CreateGroupElements(rootVE, phase[TexTransPhase.UnDefined], true);
+                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.UnDefined]);
 
                 label = new Label(TexTransPhase.Optimizing.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                CreateGroupElements(rootVE, phase[TexTransPhase.Optimizing], true);
+                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.Optimizing]);
             }
         }
 

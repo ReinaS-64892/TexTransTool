@@ -31,18 +31,11 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(NegotiateAAOPass.Instance).Then
 #endif
 
-            .Run(BeforeUVModificationPass.Instance).Then
-            .Run(TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning.Instance).Then
+            .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
 
-            .Run(MidwayMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification }))
-            .Then
-
-            .Run(UVModificationPass.Instance).Then
-            .Run(AfterUVModificationPass.Instance).Then
-            .Run(UnDefinedPass.Instance).Then
-            .Run(BeforeOptimizingMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }));
+            .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
+            .Run(AfterUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.AfterUVModification)).Then
+            .Run(UnDefinedPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UnDefined));
 
 
             InPhase(BuildPhase.Optimizing)
@@ -51,17 +44,15 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(ReFindRenderersPass.Instance).Then
 
             .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
-            .Then
+            .Run(TTTSessionEndPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.Optimizing)).Then
 
             .Run(TTTComponentPurgePass.Instance);
-
-
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
             { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
-            { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined",  true) },
+            { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-Phase", "UVModification",  true) },
+            { TexTransPhase.AfterUVModification,  TogglablePreviewNode.Create(() => "AfterUVModification-Phase", "AfterUVModification",  true) },
+            { TexTransPhase.UnDefined,  TogglablePreviewNode.Create(() => "UnDefined-Phase", "UnDefined",  true) },
             { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", false) },
         };
     }

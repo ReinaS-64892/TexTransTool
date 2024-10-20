@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Preview
             };
         }
 
-        public static bool IsPreviewing(TexTransBehavior transformer) => transformer == instance.previweing;
+        public static bool IsPreviewing(TexTransMonoBase transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
 
         private void DrawApplyAndRevert<T>(T target, Action<T> apply)
@@ -69,11 +69,11 @@ namespace net.rs64.TexTransTool.Preview
                 }
             }
         }
-        public void DrawApplyAndRevert(TexTransBehavior target)
+        public void DrawApplyAndRevert(TexTransMonoBase target)
         {
             DrawApplyAndRevert(target, TexTransBehaviorApply);
         }
-        public void ApplyTexTransBehavior(TexTransBehavior target)
+        public void ApplyTexTransBehavior(TexTransMonoBase target)
         {
             StartPreview(target, TexTransBehaviorApply);
         }
@@ -95,7 +95,7 @@ namespace net.rs64.TexTransTool.Preview
                 throw;
             }
         }
-        static void TexTransBehaviorApply(TexTransBehavior targetTTBehavior)
+        static void TexTransBehaviorApply(TexTransMonoBase targetTTBehavior)
         {
             AnimationMode.BeginSampling();
             try
@@ -113,7 +113,7 @@ namespace net.rs64.TexTransTool.Preview
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
                 //カスタムプレビューとエディターコールビヘイビアは違うから注意
-                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { targetTTBehavior.Apply(previewDomain); }
+                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomain); }
 
                 EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
                 previewDomain.EditFinish();
@@ -138,7 +138,7 @@ namespace net.rs64.TexTransTool.Preview
         {
             ExitPreview();
         }
-        public void DestroyObserve(TexTransBehavior texTransBehavior)
+        public void DestroyObserve(TexTransMonoBase texTransBehavior)
         {
             if (IsPreviewing(texTransBehavior)) { instance.ExitPreview(); }
         }
