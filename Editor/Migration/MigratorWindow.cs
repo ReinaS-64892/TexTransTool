@@ -155,7 +155,7 @@ namespace net.rs64.TexTransTool.Migration
         {
             try
             {
-                var PSDImporterMigrationType = Type.GetType("net.rs64.TexTransTool.MultiLayerImage.Importer.PSDImporterMigration,net.rs64.ttt-psd-importer.editor", true, false);
+                var PSDImporterMigrationType = Type.GetType("net.rs64.TexTransTool.PSDImporter.PSDImporterMigration,net.rs64.ttt-psd-importer.editor", true, false);
                 var migrationMethod = PSDImporterMigrationType.GetMethod("PSDImporterReSetting", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.InvokeMethod);
 
                 migrationMethod.Invoke(null, null);

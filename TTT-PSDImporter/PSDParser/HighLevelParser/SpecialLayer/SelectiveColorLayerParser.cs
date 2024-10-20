@@ -1,22 +1,22 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.MultiLayerImage.LayerData;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
+using static net.rs64.PSDParser.ChannelImageDataParser;
+using static net.rs64.PSDParser.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.PSDParser.LayerRecordParser;
 using System.Linq;
-using net.rs64.TexTransCore;
-using static net.rs64.MultiLayerImage.Parser.PSD.PSDHighLevelParser;
+using net.rs64.PSDParser.AdditionalLayerInfo;
+using static net.rs64.TexTransTool.PSDParser.PSDHighLevelParser;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.TexTransTool.PSDParser
 {
-    [SpecialInfoOf(typeof(AdditionalLayerInfo.selc))]
+    [SpecialInfoOf(typeof(selc))]
     internal class SelectiveColorLayerParser : ISpecialLayerParser
     {
         public AbstractLayerData Perse(HighLevelParserContext ctx, LayerRecord record, Dictionary<ChannelIDEnum, ChannelImageData> channelInfoAndImage)
         {
             var selectiveColorData = new SelectiveColorLayerData();
-            var selc = record.AdditionalLayerInformation.First(i => i is AdditionalLayerInfo.selc) as AdditionalLayerInfo.selc;
+            var selc = record.AdditionalLayerInformation.First(i => i is selc) as selc;
 
             selectiveColorData.CopyFromRecord(record, channelInfoAndImage);
 

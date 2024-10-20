@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.PSDParser;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.PSDParser;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -12,7 +14,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using Vector4 = UnityEngine.Vector4;
 
-namespace net.rs64.TexTransTool.MultiLayerImage
+namespace net.rs64.TexTransTool.PSDImporter
 {
     public class PSDImportedRasterImage : TTTImportedImage
     {

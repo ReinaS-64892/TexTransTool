@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.MultiLayerImage.LayerData;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
 using net.rs64.TexTransCore;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
-using LayerMask = net.rs64.MultiLayerImage.LayerData.LayerMaskData;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
-using static net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo.lsct;
-using net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo;
+using static net.rs64.PSDParser.ChannelImageDataParser;
+using static net.rs64.PSDParser.LayerRecordParser;
+using LayerMask = net.rs64.TexTransTool.MultiLayerImage.LayerData.LayerMaskData;
+using static net.rs64.PSDParser.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.PSDParser.AdditionalLayerInfo.lsct;
+using net.rs64.PSDParser.AdditionalLayerInfo;
+using net.rs64.PSDParser;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.TexTransTool.PSDParser
 {
     public static class PSDHighLevelParser
     {
@@ -219,8 +220,8 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             {
                 var record = ctx.ImageRecordQueue.Dequeue();
 
-                var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
-                if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == AdditionalLayerInfo.lsct.SelectionDividerTypeEnum.BoundingSectionDivider)
+                var sectionDividerSetting = record.AdditionalLayerInformation.FirstOrDefault(I => I is lsct) as lsct;
+                if (sectionDividerSetting != null && sectionDividerSetting.SelectionDividerType == SelectionDividerTypeEnum.BoundingSectionDivider)
                 {
                     ctx.RootLayers.Add(ParseLayerFolder(ctx, record));
                 }
@@ -246,7 +247,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
 
                 var debugName = PeekRecord.LayerName;
 
-                var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
+                var PeekSectionDividerSetting = PeekRecord.AdditionalLayerInformation.FirstOrDefault(I => I is lsct) as lsct;
 
                 if (PeekSectionDividerSetting == null)
                 { layerFolder.Layers.Add(ParseRasterLayer(ctx, ctx.ImageRecordQueue.Dequeue())); }
@@ -277,7 +278,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
                 layerFolder.CopyFromRecord(EndFolderRecord, endChannelInfoAndImage);
             }
 
-            var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is AdditionalLayerInfo.lsct) as AdditionalLayerInfo.lsct;
+            var lsct = EndFolderRecord.AdditionalLayerInformation.FirstOrDefault(I => I is lsct) as lsct;
             var BlendModeKeyEnum = PSDLayer.BlendModeKeyToEnum(lsct.BlendModeKey ?? EndFolderRecord.BlendModeKey);
             layerFolder.PassThrough = BlendModeKeyEnum == PSDBlendMode.PassThrough;
             layerFolder.BlendTypeKey = PSDLayer.ConvertTTTBlendTypeKey(BlendModeKeyEnum);//PassThroughの処理はこの関数内で行ってくれる

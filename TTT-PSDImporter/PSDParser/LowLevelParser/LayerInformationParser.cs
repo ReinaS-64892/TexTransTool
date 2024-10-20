@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using net.rs64.ParserUtility;
 using Unity.Collections;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
+using static net.rs64.PSDParser.ChannelImageDataParser;
+using static net.rs64.PSDParser.LayerRecordParser;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.PSDParser
 {
     public static class LayerInformationParser
     {

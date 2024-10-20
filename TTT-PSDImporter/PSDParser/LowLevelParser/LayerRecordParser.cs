@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
+using net.rs64.ParserUtility;
+using net.rs64.PSDParser.AdditionalLayerInfo;
+using static net.rs64.PSDParser.ChannelImageDataParser;
 
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.PSDParser
 {
     public static class LayerRecordParser
     {
@@ -186,7 +187,7 @@ namespace net.rs64.MultiLayerImage.Parser.PSD
             }
 
 
-            layerRecord.LayerName = ParserUtility.ReadPascalStringForPadding4Byte(extraDataStream);
+            layerRecord.LayerName = ParserUtil.ReadPascalStringForPadding4Byte(extraDataStream);
             layerRecord.AdditionalLayerInformation = AdditionalLayerInformationParser.PaseAdditionalLayerInfos(isPSB, extraDataStream);
 
             return layerRecord;

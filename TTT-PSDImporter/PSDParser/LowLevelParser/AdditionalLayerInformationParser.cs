@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using net.rs64.ParserUtility;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
+namespace net.rs64.PSDParser.AdditionalLayerInfo
 {
     internal static class AdditionalLayerInformationParser
     {

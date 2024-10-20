@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using net.rs64.ParserUtility;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.PSDParser
 {
     public static class PSDParserImageResourceBlocksParser
     {

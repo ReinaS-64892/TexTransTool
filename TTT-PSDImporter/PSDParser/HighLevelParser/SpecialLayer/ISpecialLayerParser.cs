@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using net.rs64.MultiLayerImage.LayerData;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser.ChannelInformation;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.PSDHighLevelParser;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
+using static net.rs64.PSDParser.ChannelImageDataParser;
+using static net.rs64.PSDParser.ChannelImageDataParser.ChannelInformation;
+using static net.rs64.PSDParser.LayerRecordParser;
+using static net.rs64.TexTransTool.PSDParser.PSDHighLevelParser;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.TexTransTool.PSDParser
 {
     internal interface ISpecialLayerParser
     {

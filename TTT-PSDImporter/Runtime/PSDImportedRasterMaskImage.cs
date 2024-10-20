@@ -1,12 +1,14 @@
-using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.PSDParser;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.PSDParser;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace net.rs64.TexTransTool.MultiLayerImage
+namespace net.rs64.TexTransTool.PSDImporter
 {
     public class PSDImportedRasterMaskImage : TTTImportedImage
     {

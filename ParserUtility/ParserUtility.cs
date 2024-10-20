@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using Unity.Collections;
 
-namespace net.rs64.MultiLayerImage.Parser
+namespace net.rs64.ParserUtility
 {
     public class BinarySectionStream
     {
@@ -30,8 +30,9 @@ namespace net.rs64.MultiLayerImage.Parser
             }
         }
         public long Length => _length;
-
         long ArrayPosition => _start + _position;
+
+        public bool BigEndian = true;
 
         public BinarySectionStream(byte[] array)
         {
@@ -86,46 +87,46 @@ namespace net.rs64.MultiLayerImage.Parser
             _array.LongCopyTo(ArrayPosition, write);
             Position += write.Length;
         }
-        public ushort ReadUInt16(bool isBigEndian = true)
+        public ushort ReadUInt16()
         {
             Span<byte> span = stackalloc byte[2]; ReadToSpan(span);
-            if (isBigEndian) { return BinaryPrimitives.ReadUInt16BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadUInt16BigEndian(span); }
             else { return BinaryPrimitives.ReadUInt16LittleEndian(span); }
         }
-        public short ReadInt16(bool isBigEndian = true)
+        public short ReadInt16()
         {
             Span<byte> span = stackalloc byte[2]; ReadToSpan(span);
-            if (isBigEndian) { return BinaryPrimitives.ReadInt16BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadInt16BigEndian(span); }
             else { return BinaryPrimitives.ReadInt16LittleEndian(span); }
         }
-        public uint ReadUInt32(bool isBigEndian = true)
+        public uint ReadUInt32()
         {
             Span<byte> span = stackalloc byte[4]; ReadToSpan(span);
-            if (isBigEndian) { return BinaryPrimitives.ReadUInt32BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadUInt32BigEndian(span); }
             else { return BinaryPrimitives.ReadUInt32LittleEndian(span); }
         }
-        public int ReadInt32(bool isBigEndian = true)
+        public int ReadInt32()
         {
             Span<byte> span = stackalloc byte[4]; ReadToSpan(span);
-            if (isBigEndian) { return BinaryPrimitives.ReadInt32BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadInt32BigEndian(span); }
             else { return BinaryPrimitives.ReadInt32LittleEndian(span); }
         }
-        public ulong ReadUInt64(bool isBigEndian = true)
+        public ulong ReadUInt64()
         {
             Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
-            if (isBigEndian) { return BinaryPrimitives.ReadUInt64BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadUInt64BigEndian(span); }
             else { return BinaryPrimitives.ReadUInt64LittleEndian(span); }
         }
-        public long ReadInt64(bool isBigEndianSource = true)
+        public long ReadInt64()
         {
             Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
-            if (isBigEndianSource) { return BinaryPrimitives.ReadInt64BigEndian(span); }
+            if (BigEndian) { return BinaryPrimitives.ReadInt64BigEndian(span); }
             else { return BinaryPrimitives.ReadInt64LittleEndian(span); }
         }
-        public double ReadDouble(bool isBigEndianSource = true)
+        public double ReadDouble()
         {
             Span<byte> span = stackalloc byte[8]; ReadToSpan(span);
-            if (isBigEndianSource) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(span)); }
+            if (BigEndian) { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(span)); }
             else { return BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(span)); }
         }
     }
@@ -135,7 +136,7 @@ namespace net.rs64.MultiLayerImage.Parser
         public long StartAddress;
         public long Length;
     }
-    public static class ParserUtility
+    public static class ParserUtil
     {
         public static bool Signature(this BinarySectionStream stream, byte[] signature)
         {
@@ -189,9 +190,6 @@ namespace net.rs64.MultiLayerImage.Parser
         {
             throw new NotImplementedException();
         }
-
-
-
 
 
 

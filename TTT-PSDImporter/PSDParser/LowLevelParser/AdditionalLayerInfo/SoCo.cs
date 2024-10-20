@@ -1,7 +1,8 @@
 using System;
 using System.Diagnostics;
+using net.rs64.ParserUtility;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
+namespace net.rs64.PSDParser.AdditionalLayerInfo
 {
 
     [Serializable, AdditionalLayerInfoParser("SoCo")]

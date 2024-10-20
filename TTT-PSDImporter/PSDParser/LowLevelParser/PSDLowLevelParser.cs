@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static net.rs64.MultiLayerImage.Parser.PSD.GlobalLayerMaskInformationParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerInformationParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.PSDParserImageResourceBlocksParser;
+using static net.rs64.PSDParser.GlobalLayerMaskInformationParser;
+using static net.rs64.PSDParser.LayerInformationParser;
+using static net.rs64.PSDParser.PSDParserImageResourceBlocksParser;
 using Unity.Collections;
+using net.rs64.ParserUtility;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.PSDParser
 {
 
     //https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/

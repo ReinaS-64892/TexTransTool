@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEditor.AssetImporters;
 
-namespace net.rs64.TexTransTool.MultiLayerImage.Importer
+namespace net.rs64.TexTransTool.PSDImporter
 {
     [CustomEditor(typeof(TexTransToolPSDImporter))]
     class TexTransToolPSDImporterEditor : ScriptedImporterEditor

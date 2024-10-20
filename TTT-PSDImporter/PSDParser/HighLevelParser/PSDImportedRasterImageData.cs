@@ -1,9 +1,9 @@
 using System;
-using net.rs64.MultiLayerImage.LayerData;
-using static net.rs64.MultiLayerImage.Parser.PSD.ChannelImageDataParser;
-using static net.rs64.MultiLayerImage.Parser.PSD.LayerRecordParser;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
+using static net.rs64.PSDParser.ChannelImageDataParser;
+using static net.rs64.PSDParser.LayerRecordParser;
 
-namespace net.rs64.MultiLayerImage.Parser.PSD
+namespace net.rs64.TexTransTool.PSDParser
 {
     [Serializable]
     public abstract class AbstractPSDImportedRasterImageData : ImportRasterImageData

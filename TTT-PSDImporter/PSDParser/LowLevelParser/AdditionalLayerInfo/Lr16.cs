@@ -1,5 +1,5 @@
 using System;
-namespace net.rs64.MultiLayerImage.Parser.PSD.AdditionalLayerInfo
+namespace net.rs64.PSDParser.AdditionalLayerInfo
 {
 
     [Serializable, AdditionalLayerInfoParser("Lr16")]

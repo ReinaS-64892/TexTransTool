@@ -1,14 +1,17 @@
 ﻿using System;
 using System.IO;
-using net.rs64.MultiLayerImage.LayerData;
-using net.rs64.MultiLayerImage.Parser.PSD;
+using net.rs64.TexTransTool.MultiLayerImage.LayerData;
+using net.rs64.PSDParser;
+using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.MultiLayerImage.Importer;
 using Unity.Collections;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Profiling;
+using net.rs64.TexTransTool.PSDParser;
 
-namespace net.rs64.TexTransTool.MultiLayerImage.Importer
+namespace net.rs64.TexTransTool.PSDImporter
 {
     [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
