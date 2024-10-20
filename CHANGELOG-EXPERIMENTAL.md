@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...HEAD)
 
 ### Added
 
@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
+
+## [v0.8.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...v0.8.2) - 2024-10-19
 
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 

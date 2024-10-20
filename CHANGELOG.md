@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...HEAD)
 
 ### Added
 
@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
 - TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
 - TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
+
+## [v0.8.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...v0.8.2) - 2024-10-19
+
+### Fixed
+
+- narazaka/FloorAdjuster よりも後に TTT を実行してしまい、 Decalなどがずれてしまう問題を 先に動作させることで修正 (#693)
 
 ## [v0.8.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.0...v0.8.1) - 2024-10-09
 
