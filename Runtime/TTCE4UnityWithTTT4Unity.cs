@@ -22,11 +22,15 @@ namespace net.rs64.TexTransTool
 
         public ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
-            var tex2D = renderTexture.CopyTexture2D();
-            var data = tex2D.GetPixelData<byte>(0);//後々ここら辺はコアに持っていく必要がある
-            var rt = UploadTexture(tex2D.width, tex2D.height, ToTTCTextureFormat(tex2D.format), false, data);
+            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height, renderTexture.useMipMap, renderTexture.depthStencilFormat != UnityEngine.Experimental.Rendering.GraphicsFormat.None);
+            Graphics.Blit(renderTexture, rt.Unwrap());
 
-            Texture2D.DestroyImmediate(tex2D);
+            /* バックエンドが Unity じゃなったらこんな感じにメインメモリに引き戻すことが必要になりそう。
+            // var tex2D = renderTexture.CopyTexture2D();
+            // var data = tex2D.GetPixelData<byte>(0);
+            // var rt = UploadTexture(tex2D.width, tex2D.height, ToTTCTextureFormat(tex2D.format), false, data);
+            // Texture2D.DestroyImmediate(tex2D);
+            */
             return rt;
         }
         public ITTRenderTexture UploadTexture(int width, int height, TexTransCoreTextureFormat format, bool isLinear, ReadOnlySpan<byte> bytes)
