@@ -4,20 +4,25 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class PassThoughtFolder : GrabLayer
+    public class PassThoughtFolder<TTCE> : GrabLayer<TTCE>
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
-        public List<LayerObject> Layers;
+        public List<LayerObject<TTCE>> Layers;
 
-        public PassThoughtFolder(bool visible, AlphaMask alphaModifier, bool preBlendToLayerBelow, List<LayerObject> layers) : base(visible, alphaModifier, preBlendToLayerBelow)
+        public PassThoughtFolder(bool visible, AlphaMask<TTCE> alphaModifier, bool preBlendToLayerBelow, List<LayerObject<TTCE>> layers) : base(visible, alphaModifier, preBlendToLayerBelow)
         {
             Layers = layers;
         }
 
-        public override void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
+        public override void GrabImage(TTCE engine, EvaluateContext<TTCE> evaluateContext, ITTRenderTexture grabTexture)
         {
-            using (var nEvalCtx = EvaluateContext.NestContext(engine, grabTexture.Width, grabTexture.Hight, evaluateContext, AlphaMask, null))
+            using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(engine, grabTexture.Width, grabTexture.Hight, evaluateContext, AlphaMask, null))
             {
-                new CanvasContext(engine).EvaluateForFlattened(grabTexture, evaluateContext, CanvasContext.ToBelowFlattened(Layers));
+                new CanvasContext<TTCE>(engine).EvaluateForFlattened(grabTexture, evaluateContext, CanvasContext<TTCE>.ToBelowFlattened(Layers));
             }
         }
     }

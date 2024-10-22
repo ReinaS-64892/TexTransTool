@@ -9,9 +9,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         public Type ExecutionTarget => typeof(Colorize);
 
-        void IGrabBlendingExecuter.GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending)
+        void IGrabBlendingExecuter.GrabExecute(TTCEForUnity engin, RenderTexture rt, TTGrabBlendingUnityObject gbUnity, ITTGrabBlending grabBlending)
         {
-            var gbUnity = (TTGrabBlendingUnityObject)grabBlending.ComputeKey;
             var cs = gbUnity.Compute;
             var colorize = (Colorize)grabBlending;
 
@@ -23,5 +22,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 cs.Dispatch(0, Mathf.Max(1, rt.width / 32), Mathf.Max(1, rt.height / 32), 1);
             }
         }
+
     }
 }

@@ -1,10 +1,10 @@
 #nullable enable
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class Colorize : TTGrabBlending
+    public class Colorize : ITTGrabBlending
     {
         public Color Color;
-        public Colorize(ITTComputeKey computeKey, Color color) : base(computeKey)
+        public Colorize(Color color)
         {
             Color = color;
         }

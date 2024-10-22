@@ -4,18 +4,23 @@ using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class LayerFolder : ImageLayer
+    public class LayerFolder<TexTransCoreEngine> : ImageLayer<TexTransCoreEngine>
+    where TexTransCoreEngine : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
-        public List<LayerObject> Layers;
+        public List<LayerObject<TexTransCoreEngine>> Layers;
 
-        public LayerFolder(bool visible, AlphaMask alphaModifier, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, List<LayerObject> layers) : base(visible, alphaModifier, alphaOperation, preBlendToLayerBelow, blendTypeKey)
+        public LayerFolder(bool visible, AlphaMask<TexTransCoreEngine> alphaModifier, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, List<LayerObject<TexTransCoreEngine>> layers) : base(visible, alphaModifier, alphaOperation, preBlendToLayerBelow, blendTypeKey)
         {
             Layers = layers;
         }
 
-        public override void GetImage(ITexTransCoreEngine engine, ITTRenderTexture writeTarget)
+        public override void GetImage(TexTransCoreEngine engine, ITTRenderTexture writeTarget)
         {
-            new CanvasContext(engine).EvaluateForFlattened(writeTarget, null, CanvasContext.ToBelowFlattened(Layers));
+            new CanvasContext<TexTransCoreEngine>(engine).EvaluateForFlattened(writeTarget, null, CanvasContext<TexTransCoreEngine>.ToBelowFlattened(Layers));
         }
     }
 }

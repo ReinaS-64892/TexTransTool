@@ -8,10 +8,10 @@ using Color = net.rs64.TexTransCore.Color;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
-    internal class TTCoreEngineForUnity : ITexTransCoreEngine, ITexTransToolEngine
+    internal class TTCEForUnity : ITexTransCoreEngine
     {
         TTCoreEnginTypeUtil.DelegateWithLoadTexture _loadTexture;
-        public TTCoreEngineForUnity(TTCoreEnginTypeUtil.DelegateWithLoadTexture loadTexture)
+        public TTCEForUnity(TTCoreEnginTypeUtil.DelegateWithLoadTexture loadTexture)
         {
             _loadTexture = loadTexture;
         }
@@ -22,13 +22,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public void ClearRenderTexture(ITTRenderTexture renderTexture, Color fillColor)
         {
-            ((UnityRenderTexture)renderTexture).RenderTexture.ClearWithColor(fillColor.ToUnity());
+            renderTexture.Unwrap().ClearWithColor(fillColor.ToUnity());
         }
 
         public void CopyRenderTexture(ITTRenderTexture source, ITTRenderTexture target)
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            Graphics.CopyTexture(source.ToUnity(), target.ToUnity());
+            Graphics.CopyTexture(source.Unwrap(), target.Unwrap());
         }
 
 
@@ -41,21 +41,21 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public void CopyAlpha(ITTRenderTexture source, ITTRenderTexture target)
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            TexTransCoreEngineForUnity.TextureBlend.AlphaCopy(source.ToUnity(), target.ToUnity());
+            rs64.TexTransCoreEngineForUnity.TextureBlend.AlphaCopy(source.Unwrap(), target.Unwrap());
         }
         public void FillAlpha(ITTRenderTexture renderTexture, float alpha)
         {
-            TexTransCoreEngineForUnity.TextureBlend.AlphaFill(renderTexture.ToUnity(), alpha);
+            rs64.TexTransCoreEngineForUnity.TextureBlend.AlphaFill(renderTexture.Unwrap(), alpha);
         }
         public void MulAlpha(ITTRenderTexture renderTexture, float value)
         {
-            TexTransCoreEngineForUnity.TextureBlend.ColorMultiply(renderTexture.ToUnity(), new(1, 1, 1, value));
+            rs64.TexTransCoreEngineForUnity.TextureBlend.ColorMultiply(renderTexture.Unwrap(), new(1, 1, 1, value));
         }
 
         public void MulAlpha(ITTRenderTexture dist, ITTRenderTexture add)
         {
             if (dist.Width != add.Width || dist.Hight != add.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            TexTransCoreEngineForUnity.TextureBlend.AlphaMultiplyWithTexture(dist.ToUnity(), add.ToUnity());
+            rs64.TexTransCoreEngineForUnity.TextureBlend.AlphaMultiplyWithTexture(dist.Unwrap(), add.Unwrap());
         }
 
 
@@ -65,14 +65,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
             if (source.Width == target.Width && source.Hight == target.Hight) { throw new ArgumentException("Texture size is equal!"); }
             if (downScalingKey is not null) { throw new NotImplementedException(); }
 
-            Graphics.Blit(source.ToUnity(), target.ToUnity());
+            Graphics.Blit(source.Unwrap(), target.Unwrap());
         }
         public void UpScale(ITTRenderTexture source, ITTRenderTexture target, ITTUpScalingKey? upScalingKey = null)
         {
             if (source.Width == target.Width && source.Hight == target.Hight) { throw new ArgumentException("Texture size is equal!"); }
             if (upScalingKey is not null) { throw new NotImplementedException(); }
 
-            Graphics.Blit(source.ToUnity(), target.ToUnity());
+            Graphics.Blit(source.Unwrap(), target.Unwrap());
         }
 
         public void GenerateMipMap(ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey = null)
@@ -80,27 +80,26 @@ namespace net.rs64.TexTransCoreEngineForUnity
             if (renderTexture.MipMap is false) { throw new ArgumentException("MipMap is false!"); }
             if (downScalingKey is not null) { throw new NotImplementedException(); }
 
-            MipMapUtility.GenerateMips(renderTexture.ToUnity(), DownScalingAlgorithm.Average);
+            MipMapUtility.GenerateMips(renderTexture.Unwrap(), DownScalingAlgorithm.Average);
         }
 
 
         public void TextureBlend(ITTRenderTexture dist, ITTRenderTexture add, ITTBlendKey blendKey)
         {
             if (dist.Width != add.Width || dist.Hight != add.Hight) { throw new ArgumentException("Texture size is not equal!"); }
-            dist.ToUnity().BlendBlit(add.ToUnity(), blendKey.ToUnity());
+            dist.Unwrap().BlendBlit(add.Unwrap(), blendKey.Unwrap());
         }
 
 
-        public void GrabBlending(ITTRenderTexture grabTexture, TTGrabBlending grabCompute)
+        public void GrabBlending(ITTRenderTexture grabTexture, ITTGrabBlending grabBlend)
         {
-            TexTransCoreEngineForUnity.GrabBlending.GrabBlendingExecuters[grabCompute.GetType()].GrabExecute(this, grabTexture.ToUnity(), grabCompute);
+            var gbType = grabBlend.GetType();
+            rs64.TexTransCoreEngineForUnity.GrabBlending.GrabBlendingExecuters[gbType].GrabExecute(this, grabTexture.Unwrap(), rs64.TexTransCoreEngineForUnity.GrabBlending.GrabBlendObjects[gbType.Name], grabBlend);
         }
 
 
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ
-        public ITTBlendKey QueryBlendKey(string keyName) { return TexTransCoreEngineForUnity.TextureBlend.BlendObjects[keyName]; }
-        public ITTComputeKey QueryComputeKey(string ComputeKeyName) { return TexTransCoreEngineForUnity.GrabBlending.GrabBlendObjects[ComputeKeyName]; }
 
 
         public bool RenderTextureColorSpaceIsLinear { get => IsLinerRenderTexture; }
@@ -157,10 +156,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static UnityEngine.Vector4 ToUnity(this System.Numerics.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
         public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
 
-        public static RenderTexture ToUnity(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
-        public static Texture2D ToUnity(this ITTDiskTexture diskTexture) { return ((UnityDiskTexture)diskTexture).Texture; }
-        public static TTBlendUnityObject ToUnity(this ITTBlendKey key) { return (TTBlendUnityObject)key; }
-        public static TTBlendUnityObject ToTTUnityEngin(this string key) { return TextureBlend.BlendObjects[key]; }
+        public static RenderTexture Unwrap(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
+        public static Texture2D Unwrap(this ITTDiskTexture diskTexture) { return ((UnityDiskTexture)diskTexture).Texture; }
+        public static TTBlendUnityObject Unwrap(this ITTBlendKey key) { return (TTBlendUnityObject)key; }
+        public static TTBlendUnityObject Wrapping(this string key) { return TextureBlend.BlendObjects[key]; }
         public static float[] ToArray(this System.Numerics.Vector4 vec) { return new[] { vec.X, vec.Y, vec.Z, vec.W }; }
         public static float[] ToArray(this System.Numerics.Vector3 vec) { return new[] { vec.X, vec.Y, vec.Z }; }
 

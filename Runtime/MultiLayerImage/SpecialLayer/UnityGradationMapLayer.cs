@@ -15,18 +15,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public Gradient Gradation = new();
 
-        internal override LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager)
+        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
         {
-            var lumMap = new LuminanceMapping(engine.QueryComputeKey("LuminanceMapping"), new UnityGradationWrapper(Gradation));
-            return new GrabBlendingAsLayer(Visible, GetAlphaMask(textureManager), Clipping, engine.QueryBlendKey(BlendTypeKey), lumMap);
-        }
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
-        {
-            throw new NotSupportedException();
-            // var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LuminanceMappingShader);
-            // mat.SetTexture("_MapTex", GradientTempTexture.Get(Gradation, 1));
-
-            // Graphics.Blit(grabSource, writeTarget, mat);
+            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new LuminanceMapping(new UnityGradationWrapper(Gradation)));
         }
     }
 

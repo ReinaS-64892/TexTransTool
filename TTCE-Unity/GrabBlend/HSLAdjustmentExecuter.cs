@@ -9,9 +9,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         public Type ExecutionTarget => typeof(HSLAdjustment);
 
-        void IGrabBlendingExecuter.GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending)
+        void IGrabBlendingExecuter.GrabExecute(TTCEForUnity engin, RenderTexture rt, TTGrabBlendingUnityObject gbUnity, ITTGrabBlending grabBlending)
         {
-            var gbUnity = (TTGrabBlendingUnityObject)grabBlending.ComputeKey;
             var cs = gbUnity.Compute;
             var hsl = (HSLAdjustment)grabBlending;
 

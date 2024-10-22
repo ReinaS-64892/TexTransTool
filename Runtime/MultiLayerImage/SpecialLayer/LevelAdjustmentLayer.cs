@@ -14,40 +14,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Level Red;
         public Level Green;
         public Level Blue;
-        internal override LayerObject GetLayerObject(TexTransCore.ITexTransToolEngine engine, ITextureManager textureManager)
+        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
         {
-            var level = new LevelAdjustment(engine.QueryComputeKey(nameof(LevelAdjustment)), RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData());
-            return new GrabBlendingAsLayer(Visible, GetAlphaMask(textureManager), Clipping, engine.QueryBlendKey(BlendTypeKey), level);
-        }
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
-        {
-            throw new NotSupportedException();
-            // var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LevelAdjustmentShader);
-            // using (TTRt.U(out var tempRt, grabSource.descriptor))
-            // {
-
-            //     mat.EnableKeyword("RGB");
-            //     RGB.SetMaterialProperty(mat);
-            //     Graphics.Blit(grabSource, tempRt, mat);
-            //     mat.DisableKeyword("RGB");
-
-            //     // Graphics.CopyTexture(tempRt, WriteTarget);
-
-            //     mat.EnableKeyword("Red");
-            //     Red.SetMaterialProperty(mat);
-            //     Graphics.Blit(tempRt, writeTarget, mat);
-            //     mat.DisableKeyword("Red");
-
-            //     mat.EnableKeyword("Green");
-            //     Green.SetMaterialProperty(mat);
-            //     Graphics.Blit(writeTarget, tempRt, mat);
-            //     mat.DisableKeyword("Green");
-
-            //     mat.EnableKeyword("Blue");
-            //     Blue.SetMaterialProperty(mat);
-            //     Graphics.Blit(tempRt, writeTarget, mat);
-            //     mat.DisableKeyword("Blue");
-            // }
+            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new LevelAdjustment(RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData()));
         }
 
         [Serializable]

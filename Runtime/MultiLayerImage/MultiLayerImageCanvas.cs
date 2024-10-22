@@ -43,28 +43,40 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
 
             Profiler.BeginSample("EvaluateCanvas");
-            var result = EvaluateCanvas(domain.GetTextureManager(), canvasWidth, canvasHeigh);
+            var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(domain.IsPreview(), domain.GetTextureManager());
+            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh).Unwrap();
             Profiler.EndSample();
 
             foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
         }
 
-        internal RenderTexture EvaluateCanvas(ITextureManager textureManager, int canvasWidth, int canvasHeigh)
+        internal ITTRenderTexture EvaluateCanvas<TTT4U>(TTT4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
+        where TTT4U : ITexTransToolForUnity
+        , ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureOperator
+        , ITexTransRenderTextureReScaler
+        , ITexTranBlending
         {
-            var texTransUnityCoreEngine = new TTCoreEngineForUnity(textureManager.LoadTexture);
-            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext(texTransUnityCoreEngine);
+            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTT4U>(texTransCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
-            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas(canvasWidth, canvasHeigh, GetRootLayerObjects(texTransUnityCoreEngine, textureManager));
+            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTT4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTT4U>(texTransCoreEngine));
             Profiler.EndSample();
 
-            return canvasCtx.EvaluateCanvas(canvas).ToUnity();
+            return canvasCtx.EvaluateCanvas(canvas);
         }
 
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject> GetRootLayerObjects(ITexTransToolEngine engin, ITextureManager textureManager)
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>> GetRootLayerObjects<TTT4U>(TTT4U engine)
+        where TTT4U : ITexTransToolForUnity
+        , ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureOperator
+        , ITexTransRenderTextureReScaler
+        , ITexTranBlending
         {
             var layers = GetChileLayers();
-            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject>(layers.Capacity);
-            foreach (var l in layers) { list.Add(l.GetLayerObject(engin,textureManager)); }
+            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>>(layers.Capacity);
+            foreach (var l in layers) { list.Add(l.GetLayerObject(engine)); }
             return list;
         }
 

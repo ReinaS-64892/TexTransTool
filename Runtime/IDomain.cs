@@ -131,7 +131,11 @@ namespace net.rs64.TexTransTool
 
         public static void LoadTexture(this IOriginTexture origin, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture)
         {
-            origin.WriteOriginalTexture(diskTexture.ToUnity(), renderTexture.ToUnity());
+            switch (diskTexture)
+            {
+                case UnityDiskTexture tex2DWrapper: { origin.WriteOriginalTexture(tex2DWrapper.Texture, renderTexture.Unwrap()); break; }
+                case TTCE4UnityWithTTT4Unity.UnityImportedDiskTexture importedWrapper: { origin.WriteOriginalTexture(importedWrapper.Texture, renderTexture.Unwrap()); break; }
+            }
         }
 
     }
