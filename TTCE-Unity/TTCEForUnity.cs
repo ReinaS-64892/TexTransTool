@@ -22,7 +22,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public void ClearRenderTexture(ITTRenderTexture renderTexture, Color fillColor)
         {
-            renderTexture.Unwrap().ClearWithColor(fillColor.ToUnity());
+            renderTexture.Unwrap().ClearWithColor(fillColor.ToUnity().linear);
         }
 
         public void CopyRenderTexture(ITTRenderTexture source, ITTRenderTexture target)
