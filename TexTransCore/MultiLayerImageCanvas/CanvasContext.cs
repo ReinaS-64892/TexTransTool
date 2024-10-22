@@ -6,16 +6,21 @@ using System.Runtime.CompilerServices;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public struct CanvasContext
+    public struct CanvasContext<TTCE>
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
-        private ITexTransCoreEngine _engine;
+        private TTCE _engine;
 
-        public CanvasContext(ITexTransCoreEngine engine)
+        public CanvasContext(TTCE engine)
         {
             _engine = engine;
         }
 
-        public ITTRenderTexture EvaluateCanvas(Canvas canvas)
+        public ITTRenderTexture EvaluateCanvas(Canvas<TTCE> canvas)
         {
             var canvasTexture = _engine.CreateRenderTexture(canvas.Width, canvas.Height);
 
@@ -25,7 +30,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         }
 
-        public readonly void EvaluateForFlattened(ITTRenderTexture canvasTex, EvaluateContext? evalCtx, IEnumerable<PreBlendPairedLayer> flattened)
+        public readonly void EvaluateForFlattened(ITTRenderTexture canvasTex, EvaluateContext<TTCE>? evalCtx, IEnumerable<PreBlendPairedLayer> flattened)
         {
             foreach (var pairedLayer in flattened)
             {
@@ -33,13 +38,13 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
                 switch (pairedLayer.AbstractLayer)
                 {
-                    case ImageLayer imageLayer:
+                    case ImageLayer<TTCE> imageLayer:
                         {
                             using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
                             {
                                 imageLayer.GetImage(_engine, layerRt);
 
-                                using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, pairedLayer.PreBlends))
+                                using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, pairedLayer.PreBlends))
                                 {
                                     nEvalCtx.AlphaMask.Masking(_engine, layerRt);
                                     if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
@@ -49,9 +54,9 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                             }
                             break;
                         }
-                    case GrabLayer grabLayer:
+                    case GrabLayer<TTCE> grabLayer:
                         {
-                            using (var nEvalCtx = EvaluateContext.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, pairedLayer.PreBlends))
+                            using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, pairedLayer.PreBlends))
                             {
                                 grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
                             }
@@ -63,14 +68,14 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void BlendForAlphaOperation(ITTRenderTexture canvasTexture, ImageLayer imageLayer, ITTRenderTexture layerRt)
+        public readonly void BlendForAlphaOperation(ITTRenderTexture canvasTexture, ImageLayer<TTCE> imageLayer, ITTRenderTexture layerRt)
         {
             var alphaOperation = imageLayer.AlphaOperation;
             var blendKey = imageLayer.BlendTypeKey;
             BlendForAlphaOperation(_engine, canvasTexture, layerRt, alphaOperation, blendKey);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BlendForAlphaOperation(ITexTransCoreEngine engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
+        public static void BlendForAlphaOperation(TTCE engine, ITTRenderTexture canvasTexture, ITTRenderTexture layerRt, AlphaOperation alphaOperation, ITTBlendKey blendKey)
         {
             switch (alphaOperation)
             {
@@ -115,12 +120,12 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             }
         }
 
-        public static List<PreBlendPairedLayer> ToBelowFlattened(IEnumerable<LayerObject> layerObjects)
+        public static List<PreBlendPairedLayer> ToBelowFlattened(IEnumerable<LayerObject<TTCE>> layerObjects)
         {
             var layerStack = new Stack<PreBlendPairedLayer>();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            void PushToStack(LayerObject l, bool forcedNull = false)
+            void PushToStack(LayerObject<TTCE> l, bool forcedNull = false)
             {
                 layerStack.Push(new PreBlendPairedLayer(l, forcedNull is false ? new() : null));
             }
@@ -149,10 +154,10 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public class PreBlendPairedLayer
         {
-            public LayerObject AbstractLayer;
-            public List<LayerObject>? PreBlends;//これが存在しないということは、それの上のレイヤーが先行合成ができないということ。
+            public LayerObject<TTCE> AbstractLayer;
+            public List<LayerObject<TTCE>>? PreBlends;//これが存在しないということは、それの上のレイヤーが先行合成ができないということ。
 
-            public PreBlendPairedLayer(LayerObject abstractLayer, List<LayerObject>? preBlends)
+            public PreBlendPairedLayer(LayerObject<TTCE> abstractLayer, List<LayerObject<TTCE>>? preBlends)
             {
                 AbstractLayer = abstractLayer;
                 PreBlends = preBlends;
@@ -163,26 +168,36 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     }
 
 
-    public class Canvas
+    public class Canvas<TTCE>
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
         public int Width;
         public int Height;
-        public List<LayerObject> RootLayers;
+        public List<LayerObject<TTCE>> RootLayers;
 
-        public Canvas(int width, int height, List<LayerObject> rootLayers)
+        public Canvas(int width, int height, List<LayerObject<TTCE>> rootLayers)
         {
             Width = width;
             Height = height;
             RootLayers = rootLayers;
         }
     }
-    public class EvaluateContext : IDisposable
+    public class EvaluateContext<TTCE> : IDisposable
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
         ITTRenderTexture _maskTexture;
-        TextureToMask _alphaMask;
-        List<LayerObject>? _preBlends;
+        TextureToMask<TTCE> _alphaMask;
+        List<LayerObject<TTCE>>? _preBlends;
 
-        public EvaluateContext(ITTRenderTexture nowAlphaMask, List<LayerObject>? preBlends)
+        public EvaluateContext(ITTRenderTexture nowAlphaMask, List<LayerObject<TTCE>>? preBlends)
         {
             _maskTexture = nowAlphaMask;
             _alphaMask = new(nowAlphaMask);
@@ -190,7 +205,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EvaluateContext NestContext(ITexTransCoreEngine engine, int width, int height, EvaluateContext? sourceContext, AlphaMask addAlphaMask, List<LayerObject>? addPreBlends)
+        public static EvaluateContext<TTCE> NestContext(TTCE engine, int width, int height, EvaluateContext<TTCE>? sourceContext, AlphaMask<TTCE> addAlphaMask, List<LayerObject<TTCE>>? addPreBlends)
         {
             var newMask = engine.CreateRenderTexture(width, height);
             engine.FillAlpha(newMask, 1);
@@ -198,15 +213,15 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             sourceContext?._alphaMask.Masking(engine, newMask);
             addAlphaMask.Masking(engine, newMask);
 
-            var margePreBlends = sourceContext?._preBlends is not null || addPreBlends is not null ? new List<LayerObject>() : null;
+            var margePreBlends = sourceContext?._preBlends is not null || addPreBlends is not null ? new List<LayerObject<TTCE>>() : null;
             if (sourceContext?._preBlends is not null && margePreBlends is not null) { margePreBlends.AddRange(sourceContext._preBlends); }
             if (addPreBlends is not null && margePreBlends is not null) { margePreBlends.AddRange(addPreBlends); }
 
             return new(newMask, margePreBlends);
         }
 
-        public AlphaMask AlphaMask => _alphaMask;
-        public IEnumerable<LayerObject>? PreBlends => _preBlends;
+        public AlphaMask<TTCE> AlphaMask => _alphaMask;
+        public IEnumerable<LayerObject<TTCE>>? PreBlends => _preBlends;
 
         public void Dispose()
         {

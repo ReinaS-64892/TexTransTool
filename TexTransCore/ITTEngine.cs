@@ -8,6 +8,16 @@ namespace net.rs64.TexTransCore
     */
 
     public interface ITexTransCoreEngine
+    : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
+    {
+
+    }
+
+    public interface ITexTransGetTexture
     {
         /// <summary>
         /// フォーマットなどはエンジン側が決める話です。
@@ -23,6 +33,9 @@ namespace net.rs64.TexTransCore
         /// </summary>
         // ITTDepthRenderTexture CreateDepthRenderTexture(int width, int height);
 
+    }
+    public interface ITexTransLoadTexture
+    {
         /// <summary>
         /// DiskTexture からロードして writeTarget に向けてソースデータを書き込む。
         /// diskTexture のサイズと同一でないといけない。
@@ -33,6 +46,10 @@ namespace net.rs64.TexTransCore
         // /// それが同じテクスチャーの改変版などだった場合に 解像度やMipMapなどの設定以外を継承するためにある。
         // /// </summary>
         // void InheritTextureSettings(ITTTexture source, ITTTexture target);
+    }
+
+    public interface ITexTransRenderTextureOperator
+    {
 
         /// <summary>
         /// RenderTexture をコピーする。ただし、リサイズなどは行われず、絶対に同じサイズ出ないといけない。
@@ -59,27 +76,31 @@ namespace net.rs64.TexTransCore
         /// 同じ大きさでないといけない。
         /// </summary>
         void MulAlpha(ITTRenderTexture dist, ITTRenderTexture add);
+    }
 
-
-
+    public interface ITexTransRenderTextureReScaler
+    {
         /// <summary>
         /// ダウンスケールを行う。同じ解像度ではダメ、あと大きいスケールにもできない。
         /// Keyがない場合は Engin が適当に決めてよい
         /// MipMapの再生成は行われない。
         /// </summary>
-        void DownScale(ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey = null);
+        void DownScale(ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey);
         /// <summary>
         /// アップスケールを行う。同じ解像度ではダメ、あと小さいスケールにもできない。
         /// Keyがない場合は Engin が適当に決めてよい
         /// MipMapの再生成は行われない。
         /// </summary>
-        void UpScale(ITTRenderTexture source, ITTRenderTexture target, ITTUpScalingKey? upScalingKey = null);
+        void UpScale(ITTRenderTexture source, ITTRenderTexture target, ITTUpScalingKey? upScalingKey);
 
         /// <summary>
         /// MipMapが存在しないといけない。
         /// Keyがない場合は Engin が適当に決めてよい
         /// </summary>
-        void GenerateMipMap(ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey = null);
+        void GenerateMipMap(ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey);
+    }
+    public interface ITexTranBlending
+    {
 
         /// <summary>
         /// キーオブジェクトを基に dist を下のレイヤー add を上のレイヤーとして色合成する。
@@ -92,51 +113,66 @@ namespace net.rs64.TexTransCore
         /// GrabTexture の内容を基にいい感じに色調調整などを行う。
         /// 内容の調整は、 GrabCompute 側に仕込まれている。
         /// </summary>
-        void GrabBlending(ITTRenderTexture grabTexture, TTGrabBlending grabCompute);
-
+        void GrabBlending(ITTRenderTexture grabTexture, ITTGrabBlending grabBlending);
+    }
+    public interface ITexTransTransTexture
+    {
         // /// <summary>
         // /// ITTTransData を基に変形する。
         // /// transSource は MipMap を保有していないといけないし、 writeTarget は DepthAndStencil を保有している必要がある。
         // /// writeTarget の MipMap の有無はどちらでもよいが、 MipMap の再生成は行われない。
         // /// </summary>
         // void TransTexture(ITTTexture transSource, ITTRenderTexture writeTarget, ITTTransData transData)
-
     }
-    /// <summary>
-    /// こっちの空間からは基本的にたたいてはならない！
-    /// 向こう側で、取り回し上あった方がかなり便利な関数や、正しく定義することを強制するためのインターフェース
-    /// </summary>
-    public interface ITexTransToolEngine : ITexTransCoreEngine
+
+    public interface ITTRenderTextureColorSpace
     {
-        /// <summary>
-        /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
-        /// キーに合うものがなかった場合の取り回しは...場合によって変える方がいいね、例外はいてもいいし、デフォルトにフォールバックしてもいい。動作しないものにしてもよいね
-        /// </summary>
-        ITTBlendKey QueryBlendKey(string blendKeyName);
-        ITTComputeKey QueryComputeKey(string ComputeKeyName);
-
-
+        TexTransCoreTextureFormat DefaultRenderTextureFormat { get; }
         /// <summary>
         ///  レンダーテクスチャーの色空間。基本はガンマであってほしいがどちらかであることを正しく実装するべきで、それも変えれるようにあるべきだが、これはこのコンテキストが始まる時点で定義するべきであるな。
         /// </summary>
         bool RenderTextureColorSpaceIsLinear { get; }
     }
-
+    public enum TexTransCoreTextureFormat
+    {
+        /// <summary>
+        /// いわゆる R8G8B8A8 それが UNROM か SRGB かは それが Linear かどうかによる
+        /// </summary>
+        RGBA_Byte,
+        /// <summary>
+        /// いわゆる R16G16B16A16_UINT
+        /// </summary>
+        RGBA_UShort,
+        /// <summary>
+        /// いわゆる R32G32B32A32_Float
+        /// </summary>
+        RGBA_Float,
+    }
     public static class EnginUtil
     {
-        public static ITTRenderTexture LoadTextureWidthFullScale(this ITexTransCoreEngine engine, ITTDiskTexture diskTexture)
+        // こういう細かい単位でどの機能が必要かの明示はあってもうれしいから この範囲ではGenericsを使っていこう
+
+        public static ITTRenderTexture LoadTextureWidthFullScale<TTCE>(this TTCE engine, ITTDiskTexture diskTexture)
+        where TTCE : ITexTransGetTexture, ITexTransLoadTexture
         {
             var fullSizeRt = engine.CreateRenderTexture(diskTexture.Width, diskTexture.Hight, diskTexture.MipMap, false);
             engine.LoadTexture(diskTexture, fullSizeRt);
             return fullSizeRt;
         }
-        public static void LoadTextureWidthAnySize(this ITexTransCoreEngine engine, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
+        public static void LoadTextureWidthAnySize<TTCE>(this TTCE engine, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey = null, ITTUpScalingKey? upScalingKey = null)
+        where TTCE : ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureReScaler
+        , ITexTransRenderTextureOperator
         {
             using (var sourceSize = LoadTextureWidthFullScale(engine, diskTexture))
                 engine.CopyRenderTextureMaybeReScale(sourceSize, renderTexture, downScalingKey, upScalingKey);
         }
 
-        public static void CopyRenderTextureMaybeReScale(this ITexTransCoreEngine engine, ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey, ITTUpScalingKey? upScalingKey)
+        public static void CopyRenderTextureMaybeReScale<TTCE>(this TTCE engine, ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey = null, ITTUpScalingKey? upScalingKey = null)
+        where TTCE : ITexTransGetTexture
+        , ITexTransRenderTextureReScaler
+        , ITexTransRenderTextureOperator
         {
             if (source.Width == target.Width && source.Hight == target.Hight) { engine.CopyRenderTexture(source, target); return; }
             if (source.Width > target.Width && source.Hight > target.Hight) { engine.DownScale(source, target, downScalingKey); return; }

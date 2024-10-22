@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class SelectiveColorAdjustment : TTGrabBlending
+    public class SelectiveColorAdjustment : ITTGrabBlending
     {
         public Vector4 RedsCMYK;
         public Vector4 YellowsCMYK;
@@ -16,7 +16,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         public Vector4 NeutralsCMYK;
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
-        public SelectiveColorAdjustment(ITTComputeKey computeKey, Vector4 red, Vector4 yellow, Vector4 green, Vector4 cyan, Vector4 blue, Vector4 magenta, Vector4 white, Vector4 neutral, Vector4 black, bool isAbsolute) : base(computeKey)
+        public SelectiveColorAdjustment(Vector4 red, Vector4 yellow, Vector4 green, Vector4 cyan, Vector4 blue, Vector4 magenta, Vector4 white, Vector4 neutral, Vector4 black, bool isAbsolute)
         {
             RedsCMYK = red;
             YellowsCMYK = yellow;

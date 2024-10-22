@@ -30,6 +30,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         Type ExecutionTarget { get; }
 
-        void GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending);
+        void GrabExecute(TTCEForUnity engin, RenderTexture rt, TTGrabBlendingUnityObject grabBlendingUnityObject, ITTGrabBlending grabBlending);
     }
 }

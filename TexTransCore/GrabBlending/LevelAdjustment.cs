@@ -3,13 +3,13 @@ using System;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class LevelAdjustment : TTGrabBlending
+    public class LevelAdjustment : ITTGrabBlending
     {
         public LevelData RGB;
         public LevelData R;
         public LevelData G;
         public LevelData B;
-        public LevelAdjustment(ITTComputeKey computeKey, LevelData rgb, LevelData r, LevelData g, LevelData b) : base(computeKey)
+        public LevelAdjustment(LevelData rgb, LevelData r, LevelData g, LevelData b) 
         {
             RGB = rgb;
             R = r;

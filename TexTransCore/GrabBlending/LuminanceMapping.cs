@@ -3,10 +3,10 @@ using System;
 
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class LuminanceMapping : TTGrabBlending
+    public class LuminanceMapping : ITTGrabBlending
     {
         public ILuminanceMappingGradient Gradient;
-        public LuminanceMapping(ITTComputeKey computeKey, ILuminanceMappingGradient gradient) : base(computeKey)
+        public LuminanceMapping(ILuminanceMappingGradient gradient)
         {
             Gradient = gradient;
         }

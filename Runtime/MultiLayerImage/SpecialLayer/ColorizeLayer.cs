@@ -11,18 +11,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT ColorizeLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         [ColorUsage(false)] public Color Color = Color.white;
-        internal override LayerObject GetLayerObject(TexTransCore.ITexTransToolEngine engine, ITextureManager textureManager)
-        {
-            var colorize = new Colorize(engine.QueryComputeKey(nameof(Colorize)), Color.ToTTCore());
-            return new GrabBlendingAsLayer(Visible, GetAlphaMask(textureManager), Clipping, engine.QueryBlendKey(BlendTypeKey), colorize);
-        }
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
-        {
-            throw new NotSupportedException();
-            // var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.ColorizeShader);
-            // mat.SetColor("_Color", Color);
 
-            // Graphics.Blit(grabSource, writeTarget, mat);
+        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
+        {
+            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new Colorize(Color.ToTTCore()));
         }
     }
 }

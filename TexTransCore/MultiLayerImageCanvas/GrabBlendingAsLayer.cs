@@ -1,17 +1,22 @@
 #nullable enable
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public class GrabBlendingAsLayer : GrabLayer
+    public class GrabBlendingAsLayer<TTCE> : GrabLayer<TTCE>
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
-        TTGrabBlending _grabBlendingObject;
+        ITTGrabBlending _grabBlendingObject;
         ITTBlendKey _blendTypeKey;
-        public GrabBlendingAsLayer(bool visible, AlphaMask alphaMask, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, TTGrabBlending grabBlending) : base(visible, alphaMask, preBlendToLayerBelow)
+        public GrabBlendingAsLayer(bool visible, AlphaMask<TTCE> alphaMask, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, ITTGrabBlending grabBlending) : base(visible, alphaMask, preBlendToLayerBelow)
         {
             _grabBlendingObject = grabBlending;
             _blendTypeKey = blendTypeKey;
         }
 
-        public override void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture)
+        public override void GrabImage(TTCE engine, EvaluateContext<TTCE> evaluateContext, ITTRenderTexture grabTexture)
         {
             using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
             using (var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))

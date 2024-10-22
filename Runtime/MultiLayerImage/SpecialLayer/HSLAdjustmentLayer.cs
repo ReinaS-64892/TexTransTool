@@ -13,20 +13,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Lightness;
-        internal override LayerObject GetLayerObject(TexTransCore.ITexTransToolEngine engine, ITextureManager textureManager)
+        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
         {
-            var hsl = new HSLAdjustment(engine.QueryComputeKey(nameof(HSLAdjustment)), Hue, Saturation, Lightness);
-            return new GrabBlendingAsLayer(Visible, GetAlphaMask(textureManager), Clipping, engine.QueryBlendKey(BlendTypeKey), hsl);
-        }
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
-        {
-            throw new NotSupportedException();
-            // var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.HSLAdjustmentShader);
-            // mat.SetFloat("_Hue", Hue);
-            // mat.SetFloat("_Saturation", Saturation);
-            // mat.SetFloat("_Lightness", Lightness);
-
-            // Graphics.Blit(grabSource, writeTarget, mat);
+            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new HSLAdjustment(Hue, Saturation, Lightness));
         }
     }
 }

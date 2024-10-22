@@ -290,7 +290,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             RenderTexture = rt;
             IsLinear = isLinear;
 
-            if (TTCoreEngineForUnity.IsLinerRenderTexture != IsLinear)
+            if (TTCEForUnity.IsLinerRenderTexture != IsLinear)
             {
                 if (IsLinear) { TextureBlend.ToLinear(RenderTexture); }//もともとガンマ空間で、ブレンドがリニアでやりたいとき用
                 else { TextureBlend.ToGamma(RenderTexture); }//もともとリニア空間で、ブレンドがガンマで
@@ -299,7 +299,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public void Dispose()
         {
 
-            if (TTCoreEngineForUnity.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
+            if (TTCEForUnity.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
             {
                 if (IsLinear) { TextureBlend.ToGamma(RenderTexture); }//それぞれ元に戻す
                 else { TextureBlend.ToLinear(RenderTexture); }

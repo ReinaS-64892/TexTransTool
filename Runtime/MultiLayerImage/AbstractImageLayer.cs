@@ -17,28 +17,39 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     /// </summary>
     public abstract class AbstractImageLayer : AbstractLayer
     {
-        public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
+        public abstract void GetImage<TexTransCoreEngine>(TexTransCoreEngine engine, ITTRenderTexture renderTexture)
+        where TexTransCoreEngine : ITexTransToolForUnity
+        , ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureOperator
+        , ITexTransRenderTextureReScaler
+        , ITexTranBlending;
 
-        internal override LayerObject GetLayerObject(ITexTransToolEngine engine, ITextureManager textureManager)
+        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
         {
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-            return new TTTAbstractImageWarper(Visible, GetAlphaMask(textureManager), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), this, textureManager);
+            return new TTTAbstractImageWarper<TTT4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), this);
         }
 
-        class TTTAbstractImageWarper : ImageLayer
+        class TTTAbstractImageWarper<TTT4U> : ImageLayer<TTT4U>
+        where TTT4U : ITexTransToolForUnity
+        , ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureOperator
+        , ITexTransRenderTextureReScaler
+        , ITexTranBlending
         {
             private AbstractImageLayer _imageLayer;
-            private ITextureManager _textureManager;
 
-            public TTTAbstractImageWarper(bool visible, AlphaMask alphaMask, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractImageLayer imageLayer, ITextureManager textureManager) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
+            public TTTAbstractImageWarper(bool visible, AlphaMask<TTT4U> alphaMask, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractImageLayer imageLayer) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
             {
                 _imageLayer = imageLayer;
-                _textureManager = textureManager;
             }
 
-            public override void GetImage(ITexTransCoreEngine engine, ITTRenderTexture writeTarget)
+
+            public override void GetImage(TTT4U engine, ITTRenderTexture writeTarget)
             {
-                _imageLayer.GetImage(writeTarget.ToUnity(), _textureManager);
+                _imageLayer.GetImage(engine, writeTarget);
             }
         }
 

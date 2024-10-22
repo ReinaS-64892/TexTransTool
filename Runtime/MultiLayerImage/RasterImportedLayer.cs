@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using net.rs64.TexTransTool;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -15,10 +16,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage ImportedImage;
 
-
-        public override void GetImage(RenderTexture renderTexture, IOriginTexture originTexture)
+        public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
         {
-            originTexture.WriteOriginalTexture(ImportedImage, renderTexture);
+            engine.LoadTexture(engine.Wrapping(ImportedImage), renderTexture);
         }
 
         internal override void LookAtCalling(ILookingObject lookingObject)
@@ -40,11 +40,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         }
 
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
-
-        void ILayerMask.WriteMaskTexture(RenderTexture renderTexture, IOriginTexture originTexture)
-        {
-            originTexture.WriteOriginalTexture(MaskTexture, renderTexture);
-        }
         public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
+        public void WriteMaskTexture<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
+        where TTT4U : ITexTransToolForUnity
+        , ITexTransGetTexture
+        , ITexTransLoadTexture
+        , ITexTransRenderTextureOperator
+        , ITexTransRenderTextureReScaler
+        {
+            engine.LoadTexture(engine.Wrapping(MaskTexture), renderTexture);
+        }
     }
 }

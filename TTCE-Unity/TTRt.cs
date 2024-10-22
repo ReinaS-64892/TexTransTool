@@ -58,7 +58,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
-                var readWrite = TTCoreEngineForUnity.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
+                var readWrite = TTCEForUnity.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
                 var format = RenderTextureFormat.ARGB32;
 
                 RenderTexture = new RenderTexture(

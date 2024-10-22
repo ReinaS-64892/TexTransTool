@@ -10,9 +10,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         public Type ExecutionTarget => typeof(LuminanceMapping);
 
-        void IGrabBlendingExecuter.GrabExecute(TTCoreEngineForUnity engin, RenderTexture rt, TTGrabBlending grabBlending)
+        void IGrabBlendingExecuter.GrabExecute(TTCEForUnity engin, RenderTexture rt, TTGrabBlendingUnityObject gbUnity, ITTGrabBlending grabBlending)
         {
-            var gbUnity = (TTGrabBlendingUnityObject)grabBlending.ComputeKey;
             var cs = gbUnity.Compute;
             var lumMap = (LuminanceMapping)grabBlending;
 
@@ -45,6 +44,5 @@ namespace net.rs64.TexTransCoreEngineForUnity
         }
 
     }
-
 
 }

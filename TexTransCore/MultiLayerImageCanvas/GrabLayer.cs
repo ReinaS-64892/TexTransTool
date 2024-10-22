@@ -1,9 +1,14 @@
 #nullable enable
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
-    public abstract class GrabLayer : LayerObject
+    public abstract class GrabLayer<TTCE> : LayerObject<TTCE>
+    where TTCE : ITexTransGetTexture
+    , ITexTransLoadTexture
+    , ITexTransRenderTextureOperator
+    , ITexTransRenderTextureReScaler
+    , ITexTranBlending
     {
-        public GrabLayer(bool visible, AlphaMask alphaMask, bool preBlendToLayerBelow) : base(visible, alphaMask, preBlendToLayerBelow)
+        public GrabLayer(bool visible, AlphaMask<TTCE> alphaMask, bool preBlendToLayerBelow) : base(visible, alphaMask, preBlendToLayerBelow)
         {
 
         }
@@ -13,6 +18,6 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         /// PassThoughtもできるし一度画像をコピーし色調補正でもかけた後に合成するもできる。
         /// ただそのために、 評価するためのコンテキストが渡ってくるよ...使わないのもできる。
         /// </summary>
-        public abstract void GrabImage(ITexTransCoreEngine engine, EvaluateContext evaluateContext, ITTRenderTexture grabTexture);
+        public abstract void GrabImage(TTCE engine, EvaluateContext<TTCE> evaluateContext, ITTRenderTexture grabTexture);
     }
 }

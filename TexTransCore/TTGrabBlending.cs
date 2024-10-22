@@ -1,14 +1,12 @@
 #nullable enable
 namespace net.rs64.TexTransCore
 {
-    public abstract class TTGrabBlending
+    /// <summary>
+    /// なぜ Key じゃないのかというと、特殊なパラメーターを持つから
+    /// </summary>
+    public interface ITTGrabBlending
     {
-        public ITTComputeKey ComputeKey;
 
-        protected TTGrabBlending(ITTComputeKey computeKey)
-        {
-            ComputeKey = computeKey;
-        }
     }
 
 
