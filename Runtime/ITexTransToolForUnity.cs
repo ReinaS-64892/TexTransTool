@@ -21,6 +21,7 @@ namespace net.rs64.TexTransTool
         /// 基本的にパフォーマンスはカスであること前提なので使わない方向性で進めたいね
         /// </summary>
         ITTRenderTexture UploadTexture(int width, int height, TexTransCoreTextureFormat format, bool isLinear, ReadOnlySpan<byte> bytes);
+        ITTRenderTexture UploadTexture(RenderTexture renderTexture);
     }
 
 }

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using JetBrains.Annotations;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using Unity.Collections;
 using UnityEngine;
@@ -19,6 +20,15 @@ namespace net.rs64.TexTransTool
         }
 
 
+        public ITTRenderTexture UploadTexture(RenderTexture renderTexture)
+        {
+            var tex2D = renderTexture.CopyTexture2D();
+            var data = tex2D.GetPixelData<byte>(0);//後々ここら辺はコアに持っていく必要がある
+            var rt = UploadTexture(tex2D.width, tex2D.height, ToTTCTextureFormat(tex2D.format), false, data);
+
+            Texture2D.DestroyImmediate(tex2D);
+            return rt;
+        }
         public ITTRenderTexture UploadTexture(int width, int height, TexTransCoreTextureFormat format, bool isLinear, ReadOnlySpan<byte> bytes)
         {
             var tex = new Texture2D(width, height, ToUnityTextureFormat(format), false, isLinear);

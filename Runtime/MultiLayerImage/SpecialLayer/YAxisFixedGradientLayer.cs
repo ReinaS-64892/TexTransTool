@@ -17,12 +17,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             using (TTRt.U(out var urt, renderTexture.Width, renderTexture.Hight))
             {
                 Graphics.Blit(GradientTempTexture.Get(Gradient, 1), urt, mat);
-                var tex2D = urt.CopyTexture2D();
-                var data = tex2D.GetPixelData<byte>(0);//後々ここら辺はコアに持っていく必要がある
-                using (var rt = engine.UploadTexture(tex2D.width, tex2D.height, TTCE4UnityWithTTT4Unity.ToTTCTextureFormat(tex2D.format), false, data))
-                    engine.CopyRenderTexture(rt, renderTexture);
 
-                DestroyImmediate(tex2D);
+                using (var rt = engine.UploadTexture(urt))
+                    engine.CopyRenderTexture(rt, renderTexture);
             }
         }
 
