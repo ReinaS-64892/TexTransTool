@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture の内部で使用している RenderTexture で、 Depth&Stencil の初期化忘れにより破綻したテクスチャーが生成される問題を修正 (#700)
 - AtlasTexture の lilToonShaderSupport が誤って lilToonLite を対応していると判定してしまい、対象範囲に存在した場合に例外が発生する問題を修正 (#701)
+- ParticleSystem が何かしらで対象に含まれてしまうと、 NDMF Preview が動作しなくなる問題を修正 (#702)
 
 ## [v0.8.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...v0.8.2) - 2024-10-19
 
