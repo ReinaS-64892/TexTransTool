@@ -316,7 +316,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
+                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true, true, true);
                 TextureBlend.ColorBlit(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
