@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.NDMF
 
 
 
-                var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true);
+                var domainRenderers = ctx.GetComponentsInChildren<Renderer>(domainRoot, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray();
                 var phaseDict = AvatarBuildUtils.FindAtPhase(TexTransBehaviors);//ここのなかで 無効化されたものはフィルタリングされる事がある
 
                 var (previewTargetBehavior, behaviorIndex) = GetFlattenBehaviorAndIndex(phaseDict);
