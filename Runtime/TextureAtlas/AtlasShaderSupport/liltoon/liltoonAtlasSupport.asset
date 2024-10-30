@@ -384,6 +384,7 @@ MonoBehaviour:
         - rid: 5350865774560935962
         - rid: 5350865774560935963
         - rid: 5998925668339154946
+        - rid: 8849144047066153524
     - rid: 5350865774560935962
       type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
@@ -868,3 +869,14 @@ MonoBehaviour:
         PropertyName: _UseParallax
         ComparerValue: 0
         Less: 0
+    - rid: 8849144047066153524
+      type: {class: NotComparer, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Comparer:
+          rid: 8849144047066153525
+    - rid: 8849144047066153525
+      type: {class: ContainsName, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Name: Lite
