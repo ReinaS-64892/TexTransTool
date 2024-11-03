@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 using static Unity.Mathematics.math;
 using ReadOnlyAttribute = Unity.Collections.ReadOnlyAttribute;
 
@@ -25,6 +26,9 @@ namespace net.rs64.TexTransCore.MipMap
         public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorithm algorism, bool ignoreAlpha = false)
         {
             if (!renderTexture.useMipMap || !renderTexture.enableRandomWrite) { return false; }
+            
+            Profiler.BeginSample("GenerateMips");
+            
             if (SystemInfo.supportsComputeShaders is false
             || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore
             || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3
@@ -36,6 +40,8 @@ namespace net.rs64.TexTransCore.MipMap
                 case DownScalingAlgorithm.Average: { result = Average(renderTexture, ignoreAlpha); break; }
                 default: { renderTexture.GenerateMips(); result = true; break; }
             }
+            
+            Profiler.EndSample();
 
             return result;
         }
