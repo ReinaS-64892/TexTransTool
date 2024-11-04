@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.3...HEAD)
 
+### Added
+
+- AtlasTexture のオリジナルテクスチャーのロードが並列で行われるようになり高速化されました (#707)
+- AtlasTexture でサブメッシュを超えて同一頂点を使用しているメッシュの正規化処理が高速化されました (#708)
+
 ## [v0.8.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...v0.8.3) - 2024-10-30
 
 ### Fixed
