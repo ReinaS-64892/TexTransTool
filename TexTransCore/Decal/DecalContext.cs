@@ -69,9 +69,11 @@ namespace net.rs64.TexTransCore.Decal
 
                 _trianglesFilter.SetSpace(_convertSpace);
 
-                for (int i = 0; i < meshData.Triangles.Length; i++)
+                var materials = targetRenderer.sharedMaterials;
+                var validSlotCount = Math.Min(materials.Length, meshData.Triangles.Length);
+                for (int i = 0; i < validSlotCount; i++)
                 {
-                    var targetMat = targetRenderer.sharedMaterials[i];
+                    var targetMat = materials[i];
 
                     if (targetMat == null) { continue; }
                     if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
