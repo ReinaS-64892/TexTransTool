@@ -61,52 +61,58 @@ namespace net.rs64.TexTransCore.Decal
             Profiler.BeginSample("GetUVs");
             var tUV = meshData.VertexUV;
             Profiler.EndSample();
-
-            Profiler.BeginSample("convertSpace.Input");
-            _convertSpace.Input(meshData);
-            Profiler.EndSample();
-
-            _trianglesFilter.SetSpace(_convertSpace);
-
-
-            for (int i = 0; i < meshData.Triangles.Length; i++)
+            try
             {
-                var targetMat = targetRenderer.sharedMaterials[i];
-
-                if (targetMat == null) { continue; }
-                if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
-                var targetTexture = targetMat.GetTexture(TargetPropertyName);
-                if (targetTexture == null) { continue; }
-
-                if (!NotContainsKeyAutoGenerate && !renderTextures.ContainsKey(targetMat)) { continue; }
-
-                Profiler.BeginSample("GetFilteredSubTriangle");
-                var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
+                Profiler.BeginSample("convertSpace.Input");
+                _convertSpace.Input(meshData);
                 Profiler.EndSample();
-                if (filteredTriangle.Length == 0) { continue; }
 
-                if (!renderTextures.ContainsKey(targetMat))
+                _trianglesFilter.SetSpace(_convertSpace);
+
+                var materials = targetRenderer.sharedMaterials;
+                var validSlotCount = Math.Min(materials.Length, meshData.Triangles.Length);
+                for (int i = 0; i < validSlotCount; i++)
                 {
-                    var newTempRt = renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
-                    newTempRt.name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.width}x{newTempRt.height}";
+                    var targetMat = materials[i];
+
+                    if (targetMat == null) { continue; }
+                    if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
+                    var targetTexture = targetMat.GetTexture(TargetPropertyName);
+                    if (targetTexture == null) { continue; }
+
+                    if (!NotContainsKeyAutoGenerate && !renderTextures.ContainsKey(targetMat)) { continue; }
+
+                    Profiler.BeginSample("GetFilteredSubTriangle");
+                    var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
+                    Profiler.EndSample();
+                    if (filteredTriangle.Length == 0) { continue; }
+
+                    if (!renderTextures.ContainsKey(targetMat))
+                    {
+                        var newTempRt = renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
+                        newTempRt.name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.width}x{newTempRt.height}";
+                    }
+
+                    var sUV = _convertSpace.OutPutUV();
+
+                    Profiler.BeginSample("TransTexture.ForTrans");
+                    TransTexture.ForTrans(
+                        renderTextures[targetMat],
+                        sourceTexture,
+                        new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
+                        DecalPadding,
+                        TextureWarp,
+                        HighQualityPadding,
+                        UseDepthOrInvert
+                    );
+                    Profiler.EndSample();
                 }
-
-                var sUV = _convertSpace.OutPutUV();
-
-                Profiler.BeginSample("TransTexture.ForTrans");
-                TransTexture.ForTrans(
-                    renderTextures[targetMat],
-                    sourceTexture,
-                    new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
-                    DecalPadding,
-                    TextureWarp,
-                    HighQualityPadding,
-                    UseDepthOrInvert
-                );
-                Profiler.EndSample();
             }
-            _trianglesFilter.Dispose();
-            _convertSpace.Dispose();
+            finally
+            {
+                _trianglesFilter.Dispose();
+                _convertSpace.Dispose();
+            }
         }
 
         internal void GenerateKey(Dictionary<Material, RenderTexture> writeable, IEnumerable<Material> targetMat)

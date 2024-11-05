@@ -45,11 +45,17 @@ namespace net.rs64.TexTransCore
                 {
                     FrameMemoEvents.OnClearMemo += () =>
                     {
-                        foreach (var entry in MemoData)
+                        try
                         {
-                            entry.Value.Item2();
+                            foreach (var entry in MemoData)
+                            {
+                                entry.Value.Item2();
+                            }
                         }
-                        MemoData.Clear();
+                        finally //うまく解放できなかった場合はリークさせます。ダブルフリーよりかは安全なので。
+                        {
+                            MemoData.Clear();
+                        }
                     };
                 }
 
