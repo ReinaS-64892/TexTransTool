@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Decal系 で マテリアルスロット数 が サブメッシュ数 よりも少ない場合に例外が発生する問題を修正 (#709)
+- Decal系で対象となるレンダラーに マテリアルスロット数 が サブメッシュ数 よりも少ないレンダラーが存在する場合に例外が発生する問題を修正 (#709)
 
 ## [v0.8.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...v0.8.3) - 2024-10-30
 
