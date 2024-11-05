@@ -5,7 +5,10 @@
 #include "../Blendings/SetSL.hlsl"
 #include "../Blendings/HSL.hlsl"
 
-float4 Color;
+cbuffer gv
+{
+    float4 Color;
+}
 RWTexture2D<float4> Tex;
 
 [numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)

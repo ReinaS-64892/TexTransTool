@@ -2,16 +2,17 @@
 #pragma TTComputeType GrabBlend
 #pragma ColorSpace Gamma
 
-float InputFloor;
-float InputCeiling;
-float Gamma;
-float OutputFloor;
-float OutputCeiling;
-
-float R;
-float G;
-float B;
-
+cbuffer gv
+{
+    float InputFloor;
+    float InputCeiling;
+    float Gamma;
+    float OutputFloor;
+    float OutputCeiling;
+    float R;
+    float G;
+    float B;
+}
 RWTexture2D<float4> Tex;
 
 float FncGamma(float input, float y)

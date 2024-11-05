@@ -4,9 +4,12 @@
 
 #include "../Blendings/HSV.hlsl"
 
-float Hue;
-float Saturation;
-float Value;
+cbuffer gv
+{
+    float Hue;
+    float Saturation;
+    float Value;
+}
 RWTexture2D<float4> Tex;
 
 // クリスタの 色相・彩度・明度を再現する代物。

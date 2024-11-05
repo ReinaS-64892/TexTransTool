@@ -6,8 +6,6 @@ namespace net.rs64.TexTransCore
     {
         int Width { get; }
         int Hight { get; }
-
-        bool MipMap { get; }
     }
 
 

@@ -2,18 +2,20 @@
 #pragma TTComputeType GrabBlend
 #pragma ColorSpace Gamma
 
-float4 RedsCMYK;
-float4 YellowsCMYK;
-float4 GreensCMYK;
-float4 CyansCMYK;
-float4 BluesCMYK;
-float4 MagentasCMYK;
-float4 WhitesCMYK;
-float4 NeutralsCMYK;
-float4 BlacksCMYK;
+cbuffer gv
+{
+    float4 RedsCMYK;
+    float4 YellowsCMYK;
+    float4 GreensCMYK;
+    float4 CyansCMYK;
+    float4 BluesCMYK;
+    float4 MagentasCMYK;
+    float4 WhitesCMYK;
+    float4 NeutralsCMYK;
+    float4 BlacksCMYK;
 
-float IsAbsolute;
-
+    float IsAbsolute;
+}
 RWTexture2D<float4> Tex;
 
 float Max3(float3 src) { return max(max(src.r, src.g), src.b); }
@@ -65,6 +67,7 @@ bool IsSelectColorClassification(float3 src, int selectColor) // T
         return src.r < 0.5 && src.g < 0.5 && src.b < 0.5;
     } // Blacks
     }
+    return false; // InvalidCase
 }
 
 float ColorScale(float3 src, int selectColor) // Ω
@@ -100,6 +103,7 @@ float ColorScale(float3 src, int selectColor) // Ω
         return (0.5 - Max3(src)) * 2;
     } // Blacks
     }
+    return 0; // InvalidCase
 }
 
 float ModeFactor(float v, bool isAbsolute) // m

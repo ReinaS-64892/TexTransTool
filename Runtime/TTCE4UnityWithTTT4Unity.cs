@@ -56,6 +56,7 @@ namespace net.rs64.TexTransTool
                 default: throw new ArgumentOutOfRangeException(format.ToString());
                 case TexTransCoreTextureFormat.RGBA_Byte: return TextureFormat.RGBA32;
                 case TexTransCoreTextureFormat.RGBA_UShort: return TextureFormat.RGBA64;
+                case TexTransCoreTextureFormat.RGBA_Half: return TextureFormat.RGBAHalf;
                 case TexTransCoreTextureFormat.RGBA_Float: return TextureFormat.RGBAFloat;
             }
         }
@@ -66,6 +67,7 @@ namespace net.rs64.TexTransTool
                 default: throw new ArgumentOutOfRangeException(format.ToString());
                 case TextureFormat.RGBA32: return TexTransCoreTextureFormat.RGBA_Byte;
                 case TextureFormat.RGBA64: return TexTransCoreTextureFormat.RGBA_UShort;
+                case TextureFormat.RGBAHalf: return TexTransCoreTextureFormat.RGBA_Half;
                 case TextureFormat.RGBAFloat: return TexTransCoreTextureFormat.RGBA_Float;
             }
         }

@@ -23,15 +23,10 @@ namespace net.rs64.TexTransCore
         /// フォーマットなどはエンジン側が決める話です。
         /// 内容は必ず すべてのチャンネルが 0 で初期化されている。アルファも 0 。
         /// 基本的に RGBA の 4チャンネルで Gamma がデフォだけど、エンジン側がいい感じにすることを前提としてリニアにもできるようにしたいね！
+        /// Depth や MipMap なんてなかった...いいね！
+        /// チャンネル数は基本的に RGBA を使用し、Depth用途などの場合に  R だけにするように、 RGBA の場合は適当な形式だが、 R の場合は高めのBit深度の物が割り当てられることがある。
         /// </summary>
-        ITTRenderTexture CreateRenderTexture(int width, int height, bool mipMap = false, bool depthAndStencil = false);
-
-        /// <summary>
-        /// TransTexture などで深度情報として扱うようなものだが、今のところ未実装だ。
-        /// フォーマットなどの指定はエンジン側が決める話。
-        /// 基本的にはリニア確定で一チャンネルのデータを想定してる。
-        /// </summary>
-        // ITTDepthRenderTexture CreateDepthRenderTexture(int width, int height);
+        ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA);
 
     }
     public interface ITexTransLoadTexture
@@ -46,6 +41,10 @@ namespace net.rs64.TexTransCore
         // /// それが同じテクスチャーの改変版などだった場合に 解像度やMipMapなどの設定以外を継承するためにある。
         // /// </summary>
         // void InheritTextureSettings(ITTTexture source, ITTTexture target);
+    }
+    public interface ITexTransGetComputeHandler
+    {
+        ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey);
     }
 
     public interface ITexTransRenderTextureOperator
@@ -133,29 +132,55 @@ namespace net.rs64.TexTransCore
         /// </summary>
         bool RenderTextureColorSpaceIsLinear { get; }
     }
+    public enum TexTransCoreTextureChannel
+    {
+        R = 1,
+        RG = 2,
+        // RGB = 3,//3チャンネルは wgpu にて扱えないから禁止
+        RGBA = 4,
+    }
     public enum TexTransCoreTextureFormat
     {
+        //基本的に float とかの類はマイナスが存在する前提
+
         /// <summary>
-        /// いわゆる R8G8B8A8 それが UNROM か SRGB かは それが Linear かどうかによる
+        /// 8bit_UNORM
         /// </summary>
-        RGBA_Byte,
+        Byte = 0,
         /// <summary>
-        /// いわゆる R16G16B16A16_UINT
+        /// 16bit_UNORM
         /// </summary>
-        RGBA_UShort,
+        UShort = 1,
         /// <summary>
-        /// いわゆる R32G32B32A32_Float
+        /// 16bit_Float
         /// </summary>
-        RGBA_Float,
+        Half = 2,
+        /// <summary>
+        /// 32bit_Float
+        /// </summary>
+        Float = 3,
     }
     public static class EnginUtil
     {
+        //基本的にこれに沿っていないといけない。
+        public static int GetPixelParByte(TexTransCoreTextureFormat textureFormat, TexTransCoreTextureChannel channel)
+        {
+            switch (textureFormat)
+            {
+                default:
+                case TexTransCoreTextureFormat.Byte: { return 1 * (int)channel; }
+                case TexTransCoreTextureFormat.UShort:
+                case TexTransCoreTextureFormat.Half: { return 2 * (int)channel; }
+                case TexTransCoreTextureFormat.Float: { return 4 * (int)channel; }
+            }
+        }
+
         // こういう細かい単位でどの機能が必要かの明示はあってもうれしいから この範囲ではGenericsを使っていこう
 
         public static ITTRenderTexture LoadTextureWidthFullScale<TTCE>(this TTCE engine, ITTDiskTexture diskTexture)
         where TTCE : ITexTransGetTexture, ITexTransLoadTexture
         {
-            var fullSizeRt = engine.CreateRenderTexture(diskTexture.Width, diskTexture.Hight, diskTexture.MipMap, false);
+            var fullSizeRt = engine.CreateRenderTexture(diskTexture.Width, diskTexture.Hight);
             engine.LoadTexture(diskTexture, fullSizeRt);
             return fullSizeRt;
         }
