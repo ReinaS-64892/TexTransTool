@@ -1,7 +1,18 @@
-#pragma HLSL_Version 2018
-#pragma ColorSpace Gamma
-#pragma Key "LinearBurn"
-#pragma KeyName_jp "焼きこみ(リニア)"
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key LinearBurn
+KeyName ja 焼きこみ
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 #include "./BlendColor.hlsl"
 float4 ColorBlend(float4 BaseColor, float4 AddColor)

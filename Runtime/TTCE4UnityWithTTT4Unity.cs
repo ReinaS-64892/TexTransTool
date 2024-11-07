@@ -11,10 +11,10 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal class TTCE4UnityWithTTT4Unity : TTCEForUnity, ITexTransToolForUnity
+    internal class TTCE4UnityWithTTT4Unity : TTCEUnity, ITexTransToolForUnity
     {
         private bool _isPreview;
-        public TTCE4UnityWithTTT4Unity(bool isPreview, IOriginTexture iOrigin) : base(iOrigin.LoadTexture)
+        public TTCE4UnityWithTTT4Unity(bool isPreview, IOriginTexture iOrigin) : base(iOrigin.LoadTexture, t => { var size = iOrigin.GetOriginalTextureSize(t); return (size, size); })
         {
             _isPreview = isPreview;
         }
@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool
 
         public ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
-            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height, renderTexture.useMipMap, renderTexture.depthStencilFormat != UnityEngine.Experimental.Rendering.GraphicsFormat.None);
+            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height);
             Graphics.Blit(renderTexture, rt.Unwrap());
 
             /* バックエンドが Unity じゃなったらこんな感じにメインメモリに引き戻すことが必要になりそう。
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool
                 tex.LoadRawTextureData(na);
                 tex.Apply();
 
-                var rt = CreateRenderTexture(width, height, false, false);
+                var rt = CreateRenderTexture(width, height);
 
                 Graphics.Blit(tex, rt.Unwrap());
                 return rt;
@@ -54,10 +54,10 @@ namespace net.rs64.TexTransTool
             switch (format)
             {
                 default: throw new ArgumentOutOfRangeException(format.ToString());
-                case TexTransCoreTextureFormat.RGBA_Byte: return TextureFormat.RGBA32;
-                case TexTransCoreTextureFormat.RGBA_UShort: return TextureFormat.RGBA64;
-                case TexTransCoreTextureFormat.RGBA_Half: return TextureFormat.RGBAHalf;
-                case TexTransCoreTextureFormat.RGBA_Float: return TextureFormat.RGBAFloat;
+                case TexTransCoreTextureFormat.Byte: return TextureFormat.RGBA32;
+                case TexTransCoreTextureFormat.UShort: return TextureFormat.RGBA64;
+                case TexTransCoreTextureFormat.Half: return TextureFormat.RGBAHalf;
+                case TexTransCoreTextureFormat.Float: return TextureFormat.RGBAFloat;
             }
         }
         internal static TexTransCoreTextureFormat ToTTCTextureFormat(TextureFormat format)
@@ -65,16 +65,16 @@ namespace net.rs64.TexTransTool
             switch (format)
             {
                 default: throw new ArgumentOutOfRangeException(format.ToString());
-                case TextureFormat.RGBA32: return TexTransCoreTextureFormat.RGBA_Byte;
-                case TextureFormat.RGBA64: return TexTransCoreTextureFormat.RGBA_UShort;
-                case TextureFormat.RGBAHalf: return TexTransCoreTextureFormat.RGBA_Half;
-                case TextureFormat.RGBAFloat: return TexTransCoreTextureFormat.RGBA_Float;
+                case TextureFormat.RGBA32: return TexTransCoreTextureFormat.Byte;
+                case TextureFormat.RGBA64: return TexTransCoreTextureFormat.UShort;
+                case TextureFormat.RGBAHalf: return TexTransCoreTextureFormat.Half;
+                case TextureFormat.RGBAFloat: return TexTransCoreTextureFormat.Float;
             }
         }
 
         public ITTDiskTexture Wrapping(Texture2D texture2D)
         {
-            return new UnityDiskTexture(texture2D);
+            return new UnityDiskTexture(texture2D, _preloadAndTextureSize(texture2D));
         }
 
         public ITTDiskTexture Wrapping(TTTImportedImage texture2D)

@@ -5,13 +5,12 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
-    public class TTBlendUnityObject : ScriptableObject, ITTBlendKey
+    public class TTBlendingComputeShader : TTComputeUnityObject, ITTBlendKey
     {
+        public override TTComputeType ComputeType => TTComputeType.Blending;
         public string BlendTypeKey;
 
         public bool IsLinerRequired;
-
-        public ComputeShader Compute;
         public Shader Shader;
 
         public List<Locale> Locales;
@@ -21,18 +20,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public string LangCode;
             public string DisplayName;
         }
-        public const string KernelDefine = "#pragma kernel CSMain\n";
-        public const string ComputeShaderTemplate =
-
-@"
-RWTexture2D<float4> AddTex;
-RWTexture2D<float4> DistTex;
-
-[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
-{
-    DistTex[id.xy] = ColorBlend( DistTex[id.xy] , AddTex[id.xy] );
-}
-";
 
         public const string ShaderNameDefine = "Shader \"";
         public const string ShaderDefine =

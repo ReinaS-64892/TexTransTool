@@ -2,11 +2,11 @@
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public abstract class GrabLayer<TTCE> : LayerObject<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public GrabLayer(bool visible, AlphaMask<TTCE> alphaMask, bool preBlendToLayerBelow) : base(visible, alphaMask, preBlendToLayerBelow)
         {

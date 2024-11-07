@@ -50,32 +50,32 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
         }
 
-        internal ITTRenderTexture EvaluateCanvas<TTT4U>(TTT4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        internal ITTRenderTexture EvaluateCanvas<TTCE4U>(TTCE4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
-            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTT4U>(texTransCoreEngine);
+            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTCE4U>(texTransCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
-            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTT4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTT4U>(texTransCoreEngine));
+            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTCE4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTCE4U>(texTransCoreEngine));
             Profiler.EndSample();
 
             return canvasCtx.EvaluateCanvas(canvas);
         }
 
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>> GetRootLayerObjects<TTT4U>(TTT4U engine)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>> GetRootLayerObjects<TTCE4U>(TTCE4U engine)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
             var layers = GetChileLayers();
-            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>>(layers.Capacity);
+            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>>(layers.Capacity);
             foreach (var l in layers) { list.Add(l.GetLayerObject(engine)); }
             return list;
         }

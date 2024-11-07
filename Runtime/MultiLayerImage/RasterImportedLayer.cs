@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
         {
-            engine.LoadTexture(engine.Wrapping(ImportedImage), renderTexture);
+            engine.LoadTexture(renderTexture, engine.Wrapping(ImportedImage));
         }
 
         internal override void LookAtCalling(ILookingObject lookingObject)
@@ -41,14 +41,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
         public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
-        public void WriteMaskTexture<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        public void WriteMaskTexture<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
-            engine.LoadTexture(engine.Wrapping(MaskTexture), renderTexture);
+            engine.LoadTexture(renderTexture, engine.Wrapping(MaskTexture));
         }
     }
 }

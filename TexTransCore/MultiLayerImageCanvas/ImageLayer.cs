@@ -2,11 +2,11 @@
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public abstract class ImageLayer<TTCE> : LayerObject<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public AlphaOperation AlphaOperation;
         public ITTBlendKey BlendTypeKey;

@@ -6,6 +6,8 @@ using UnityEngine;
 using System;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine.Profiling;
+using net.rs64.TexTransCore;
+using Color = UnityEngine.Color;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
@@ -77,54 +79,75 @@ namespace net.rs64.TexTransCoreEngineForUnity
     }
     internal static class TextureBlend
     {
-        public static Dictionary<string, TTBlendUnityObject> BlendObjects;
+        public static Dictionary<string, TTBlendingComputeShader> BlendObjects;
 
         [TexTransInitialize]
         public static void BlendShadersInit()
         {
             InitImpl();
-            TexTransCoreRuntime.AssetModificationListen[typeof(TTBlendUnityObject)] = InitImpl;
+            TexTransCoreRuntime.AssetModificationListen[typeof(TTBlendingComputeShader)] = InitImpl;
 
             static void InitImpl()
             {
-                BlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendUnityObject)).Cast<TTBlendUnityObject>().ToDictionary(i => i.BlendTypeKey, i => i);
-
+                BlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendingComputeShader)).Cast<TTBlendingComputeShader>().ToDictionary(i => i.BlendTypeKey, i => i);
                 InitBlendShadersCallBack?.Invoke();
             }
 
-            AlphaCopyCS = TexTransCoreRuntime.LoadAsset(AlphaCopy_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            AlphaMultiplyCS = TexTransCoreRuntime.LoadAsset(AlphaMultiply_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            AlphaMultiplyWithTextureCS = TexTransCoreRuntime.LoadAsset(AlphaMultiplyWithTexture_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            ColorMultiplyCS = TexTransCoreRuntime.LoadAsset(ColorMultiply_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            FillAlphaCS = TexTransCoreRuntime.LoadAsset(FillAlpha_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            FillColorCS = TexTransCoreRuntime.LoadAsset(FillColor_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            GammaToLinearCS = TexTransCoreRuntime.LoadAsset(GammaToLinear_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
-            LinearToGammaCS = TexTransCoreRuntime.LoadAsset(LinearToGamma_GUID, typeof(TTComputeOperator)) as TTComputeOperator;
+            AlphaCopyCS = TexTransCoreRuntime.LoadAsset(AlphaCopy_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            AlphaMultiplyCS = TexTransCoreRuntime.LoadAsset(AlphaMultiply_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            AlphaMultiplyWithTextureCS = TexTransCoreRuntime.LoadAsset(AlphaMultiplyWithTexture_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            ColorMultiplyCS = TexTransCoreRuntime.LoadAsset(ColorMultiply_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            AlphaFillCS = TexTransCoreRuntime.LoadAsset(AlphaFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            ColorFillCS = TexTransCoreRuntime.LoadAsset(ColorFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            GammaToLinearCS = TexTransCoreRuntime.LoadAsset(GammaToLinear_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            LinearToGammaCS = TexTransCoreRuntime.LoadAsset(LinearToGamma_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
         }
 
         public static event Action InitBlendShadersCallBack;
         public const string BL_KEY_DEFAULT = "Normal";
 
-        public static TTComputeOperator AlphaCopyCS;
+        public static TTGeneralComputeOperator AlphaCopyCS;
         public const string AlphaCopy_GUID = "2571b2e5ca219a24483f124443cfe576";
-        public static TTComputeOperator AlphaMultiplyCS;
+        public static TTGeneralComputeOperator AlphaMultiplyCS;
         public const string AlphaMultiply_GUID = "cb7ef584d6da2fd4aafb78060dcc6fcd";
-        public static TTComputeOperator AlphaMultiplyWithTextureCS;
+        public static TTGeneralComputeOperator AlphaMultiplyWithTextureCS;
         public const string AlphaMultiplyWithTexture_GUID = "1c0fcf97b19737949a3e31c87dd9dc8c";
-        public static TTComputeOperator ColorMultiplyCS;
+        public static TTGeneralComputeOperator ColorMultiplyCS;
         public const string ColorMultiply_GUID = "d212d4b1212893046a46d0f93379238f";
-        public static TTComputeOperator FillAlphaCS;
-        public const string FillAlpha_GUID = "179eb14ad0b403749b4beaac35ed4eb3";
-        public static TTComputeOperator FillColorCS;
-        public const string FillColor_GUID = "11de539c9c2863645af990b76a0aded8";
-        public static TTComputeOperator GammaToLinearCS;
+        public static TTGeneralComputeOperator AlphaFillCS;
+        public const string AlphaFill_GUID = "179eb14ad0b403749b4beaac35ed4eb3";
+        public static TTGeneralComputeOperator ColorFillCS;
+        public const string ColorFill_GUID = "11de539c9c2863645af990b76a0aded8";
+        public static TTGeneralComputeOperator GammaToLinearCS;
         public const string GammaToLinear_GUID = "a8e89c380f851544cac5644c50476b24";
-        public static TTComputeOperator LinearToGammaCS;
+        public static TTGeneralComputeOperator LinearToGammaCS;
         public const string LinearToGamma_GUID = "e7375a4fbbaae5949b896db160924d95";
+        public static TTGeneralComputeOperator BilinearReScalingCS;
+        public const string BilinearReScaling_GUID = "42d828359014f29419f9efaaec73fe84";
+
+        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey
+        {
+            public ITTComputeKey AlphaFill => AlphaFillCS;
+
+            public ITTComputeKey AlphaCopy => AlphaCopyCS;
+
+            public ITTComputeKey AlphaMultiply => AlphaMultiplyCS;
+
+            public ITTComputeKey AlphaMultiplyWithTexture => AlphaMultiplyWithTextureCS;
+
+            public ITTComputeKey ColorFill => ColorFillCS;
+
+            public ITTComputeKey ColorMultiply => ColorMultiplyCS;
+
+            public ITTComputeKey BilinearReScaling => BilinearReScalingCS;
+
+            public ITTComputeKey GammaToLinear => GammaToLinearCS;
+
+            public ITTComputeKey LinearToGamma => LinearToGammaCS;
+        }
 
 
-
-        public static void BlendBlit(this RenderTexture baseRenderTexture, RenderTexture addRenderTexture, TTBlendUnityObject blendUnityObject)
+        public static void BlendBlit(this RenderTexture baseRenderTexture, RenderTexture addRenderTexture, TTBlendingComputeShader blendUnityObject)
         {
             if (baseRenderTexture.width != addRenderTexture.width) { throw new ArgumentException(); }
             if (baseRenderTexture.height != addRenderTexture.height) { throw new ArgumentException(); }
@@ -244,14 +267,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public static void FillColor(RenderTexture rt, Color color)
         {
-            var cs = FillColorCS.Compute;
+            var cs = ColorFillCS.Compute;
             cs.SetFloats("Color", color.r, color.g, color.b, color.a);
             cs.SetTexture(0, "Tex", rt);
             cs.Dispatch(0, Mathf.Max(1, rt.width / 32), Mathf.Max(1, rt.height / 32), 1);
         }
         public static void AlphaFill(RenderTexture rt, float alpha)
         {
-            var cs = FillAlphaCS.Compute;
+            var cs = AlphaFillCS.Compute;
             cs.SetFloat("Alpha", alpha);
             cs.SetTexture(0, "Tex", rt);
             cs.Dispatch(0, Mathf.Max(1, rt.width / 32), Mathf.Max(1, rt.height / 32), 1);
@@ -280,6 +303,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             cs.SetTexture(0, "Tex", rt);
             cs.Dispatch(0, Mathf.Max(1, rt.width / 32), Mathf.Max(1, rt.height / 32), 1);
         }
+
     }
     public readonly struct UsingColoSpace : IDisposable
     {
@@ -290,7 +314,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             RenderTexture = rt;
             IsLinear = isLinear;
 
-            if (TTCEForUnity.IsLinerRenderTexture != IsLinear)
+            if (TTCEUnity.IsLinerRenderTexture != IsLinear)
             {
                 if (IsLinear) { TextureBlend.ToLinear(RenderTexture); }//もともとガンマ空間で、ブレンドがリニアでやりたいとき用
                 else { TextureBlend.ToGamma(RenderTexture); }//もともとリニア空間で、ブレンドがガンマで
@@ -299,7 +323,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public void Dispose()
         {
 
-            if (TTCEForUnity.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
+            if (TTCEUnity.IsLinerRenderTexture != IsLinear)//TTUnityCoreEngine.IsLinerRenderTexture が変わらないと思い込んでいる。
             {
                 if (IsLinear) { TextureBlend.ToGamma(RenderTexture); }//それぞれ元に戻す
                 else { TextureBlend.ToLinear(RenderTexture); }

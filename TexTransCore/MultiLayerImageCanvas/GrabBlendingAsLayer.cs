@@ -2,11 +2,11 @@
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public class GrabBlendingAsLayer<TTCE> : GrabLayer<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         ITTGrabBlending _grabBlendingObject;
         ITTBlendKey _blendTypeKey;
@@ -21,20 +21,20 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
             using (var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
             {
-                engine.CopyRenderTexture(grabTexture, tempTarget);
+                engine.CopyRenderTexture(tempTarget, grabTexture);
 
 
-                engine.FillAlpha(tempTarget, 1f);
-                engine.GrabBlending(tempTarget, _grabBlendingObject);
+                engine.AlphaFill(tempTarget, 1f);
+                _grabBlendingObject.GrabBlending(engine, tempTarget);
                 evaluateContext.AlphaMask.Masking(engine, tempTarget);
 
 
-                engine.CopyAlpha(grabTexture, alphaBackup);
+                engine.AlphaCopy(alphaBackup, grabTexture);
 
-                engine.FillAlpha(grabTexture, 1f);
-                engine.TextureBlend(grabTexture, tempTarget, _blendTypeKey);
+                engine.AlphaFill(grabTexture, 1f);
+                engine.Blending(grabTexture, tempTarget, _blendTypeKey);
 
-                engine.CopyAlpha(alphaBackup, grabTexture);
+                engine.AlphaCopy(grabTexture, alphaBackup);
             }
         }
     }

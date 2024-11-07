@@ -18,50 +18,57 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         [SerializeReference] public ILayerMask LayerMask = new LayerMask();
 
-        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending;
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler;
 
         internal virtual TexTransCore.MultiLayerImageCanvas.AlphaMask<TTCE4U> GetAlphaMask<TTCE4U>(TTCE4U engine)
         where TTCE4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         { return new LayerAlphaMod<TTCE4U>(engine, Opacity, LayerMask); }
 
-        class LayerAlphaMod<TTT4U> : TexTransCore.MultiLayerImageCanvas.AlphaMask<TTT4U>
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        class LayerAlphaMod<TTCE4U> : TexTransCore.MultiLayerImageCanvas.AlphaMask<TTCE4U>
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
-            private TTT4U _ttt4u;
+            private TTCE4U _ttt4u;
             float _opacity;
             ILayerMask _layerMask;
-            public LayerAlphaMod(TTT4U forUnity, float opacity, ILayerMask layerMask)
+            public LayerAlphaMod(TTCE4U forUnity, float opacity, ILayerMask layerMask)
             {
                 _ttt4u = forUnity;
                 _opacity = opacity;
                 _layerMask = layerMask;
             }
-            public override void Masking(TTT4U engine, ITTRenderTexture maskTarget)
+
+            public override void Dispose()
+            {
+                //Do nothing
+            }
+
+            public override void Masking(TTCE4U engine, ITTRenderTexture maskTarget)
             {
                 System.Diagnostics.Debug.Assert(_ttt4u.Equals(engine));
 
-                engine.MulAlpha(maskTarget, _opacity);
+                engine.AlphaMultiply(maskTarget, _opacity);
 
                 if (_layerMask.ContainedMask)
                     using (var rt = _ttt4u.CreateRenderTexture(maskTarget.Width, maskTarget.Hight))
                     {
                         _layerMask.WriteMaskTexture(_ttt4u, rt);
-                        _ttt4u.MulAlpha(maskTarget, rt);
+                        _ttt4u.AlphaMultiplyWithTexture(maskTarget, rt);
                     }
             }
         }
@@ -83,26 +90,28 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
 
-        public void WriteMaskTexture<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        public void WriteMaskTexture<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
-            engine.LoadTextureWidthAnySize(engine.Wrapping(MaskTexture), renderTexture);
+            engine.LoadTextureWidthAnySize(renderTexture, engine.Wrapping(MaskTexture));
         }
     }
 
     public interface ILayerMask
     {
         bool ContainedMask { get; }
-        void WriteMaskTexture<TTT4U>(TTT4U texTransCoreEngine, ITTRenderTexture renderTexture)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        void WriteMaskTexture<TTCE4U>(TTCE4U texTransCoreEngine, ITTRenderTexture renderTexture)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler;
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler;
 
         void LookAtCalling(ILookingObject lookingObject);
     }

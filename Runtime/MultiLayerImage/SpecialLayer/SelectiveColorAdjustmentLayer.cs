@@ -21,9 +21,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Vector4 NeutralsCMYK;
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
-        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engin)
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engin)
         {
-            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engin), Clipping, engin.QueryBlendKey(BlendTypeKey), new SelectiveColorAdjustment(RedsCMYK.ToTTCore(), YellowsCMYK.ToTTCore(), GreensCMYK.ToTTCore(), CyansCMYK.ToTTCore(), BluesCMYK.ToTTCore(), MagentasCMYK.ToTTCore(), WhitesCMYK.ToTTCore(), NeutralsCMYK.ToTTCore(), BlacksCMYK.ToTTCore(), IsAbsolute));
+            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engin), Clipping, engin.QueryBlendKey(BlendTypeKey), new SelectiveColorAdjustment(RedsCMYK.ToTTCore(), YellowsCMYK.ToTTCore(), GreensCMYK.ToTTCore(), CyansCMYK.ToTTCore(), BluesCMYK.ToTTCore(), MagentasCMYK.ToTTCore(), WhitesCMYK.ToTTCore(), NeutralsCMYK.ToTTCore(), BlacksCMYK.ToTTCore(), IsAbsolute));
         }
     }
 }

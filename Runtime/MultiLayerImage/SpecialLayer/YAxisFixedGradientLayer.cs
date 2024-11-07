@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT YAsixFixedGradientLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Gradient Gradient = new();
-        public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
+        public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {
             var mat = MatTemp.GetTempMatShader(YAxisFixedGradientShader);
             using (TTRt.U(out var urt, renderTexture.Width, renderTexture.Hight))

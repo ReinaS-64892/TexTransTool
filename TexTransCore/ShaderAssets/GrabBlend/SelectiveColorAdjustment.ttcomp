@@ -1,6 +1,15 @@
-#pragma HLSL_Version 2018
-#pragma TTComputeType GrabBlend
-#pragma ColorSpace Gamma
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 cbuffer gv
 {

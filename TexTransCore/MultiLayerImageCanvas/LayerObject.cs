@@ -5,12 +5,12 @@ using System.Collections.Generic;
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
 
-    public abstract class LayerObject<TTCE>
-    where TTCE : ITexTransGetTexture
+    public abstract class LayerObject<TTCE> : IDisposable
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public bool Visible;
         public bool PreBlendToLayerBelow;
@@ -22,30 +22,39 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             PreBlendToLayerBelow = preBlendToLayerBelow;
             AlphaMask = alphaMask;
         }
+
+        public virtual void Dispose()
+        {
+            AlphaMask.Dispose();
+        }
     }
     /// <summary>
     /// マスクと Opacity を実現する存在。階層化されることもあるし、直接適用されることもある。
     /// </summary>
-    public abstract class AlphaMask<TTCE>
-    where TTCE : ITexTransGetTexture
+    public abstract class AlphaMask<TTCE> : IDisposable
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
+
         /// <summary>
         /// maskTarget の alpha 以外をいじってはならない。
         /// </summary>
         public abstract void Masking(TTCE engine, ITTRenderTexture maskTarget);
+        public abstract void Dispose();
     }
 
 
 
 
     public class TextureToMask<TTCE> : AlphaMask<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         ITTRenderTexture MaskTexture;
 
@@ -53,6 +62,12 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             MaskTexture = maskTexture;
         }
-        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { engine.MulAlpha(maskTarget, MaskTexture); }
+
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { engine.AlphaMultiplyWithTexture(maskTarget, MaskTexture); }
+
+        public override void Dispose()
+        {
+            MaskTexture.Dispose();
+        }
     }
 }

@@ -1,0 +1,33 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    // サイズなので Index の最大値ではないこと
+    uint2 SourceTexSize;
+    uint2 TargetTexSize;
+}
+RWTexture2D<float4> SourceTex;
+RWTexture2D<float4> TargetTex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float2 normalizedPos = asfloat(id.x) / asfloat(TargetTexSize - uint2(1,1));
+
+    float2 sourceScalePos = normalizedPos * (SourceTexSize - uint2(1,1));
+    uint2 ceilPos = asuint(ceil(sourceScalePos));
+    uint2 floorPos = asuint(floor(sourceScalePos));
+
+    float4 upCol = lerp(SourceTex[uint2(floorPos.x, ceilPos.y)], SourceTex[uint2(ceilPos.x, ceilPos.y)], frac(sourceScalePos.x));
+    float4 downCol = lerp(SourceTex[uint2(floorPos.x, floorPos.y)], SourceTex[uint2(ceilPos.x, floorPos.y)], frac(sourceScalePos.x));
+
+    TargetTex[id.xy] = lerp(downCol, upCol, frac(sourceScalePos.y));
+}
