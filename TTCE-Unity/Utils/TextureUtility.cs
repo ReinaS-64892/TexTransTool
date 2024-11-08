@@ -1,4 +1,5 @@
 using System;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Collections;
 using UnityEngine;
@@ -52,6 +53,15 @@ namespace net.rs64.TexTransCoreEngineForUnity.Utils
 
 
             return texture;
+        }
+        public static void DownloadFromRenderTexture<T>(this RenderTexture rt, Span<T> dataSpan) where T : unmanaged
+        {
+            var (format, channel) = rt.graphicsFormat.ToTTCTextureFormat();
+            if (EnginUtil.GetPixelParByte(format, channel) * rt.width * rt.height != dataSpan.Length) { throw new ArgumentException(); }
+
+            var request = AsyncGPUReadback.Request(rt);
+            request.WaitForCompletion();
+            request.GetData<T>().AsSpan().CopyTo(dataSpan);
         }
 
         public static void Clear(this RenderTexture rt)
@@ -144,13 +154,20 @@ namespace net.rs64.TexTransCoreEngineForUnity.Utils
             return TTRt.G(renderTexture, true);
         }
 
-        internal static void CopyFilWrap(this Texture t, Texture s)
+        internal static void CopyFilWrap2D(this Texture2D tex, Texture2D copySource)
         {
-            t.filterMode = s.filterMode;
-            t.wrapMode = s.wrapMode;
-            t.wrapModeU = s.wrapModeU;
-            t.wrapModeV = s.wrapModeV;
-            t.wrapModeW = s.wrapModeW;
+            CopyFilWrap(tex,copySource);
+            tex.alphaIsTransparency = copySource.alphaIsTransparency;
+            tex.requestedMipmapLevel = copySource.requestedMipmapLevel;
+        }
+        internal static void CopyFilWrap(this Texture tex, Texture copySource)
+        {
+            tex.filterMode = copySource.filterMode;
+            tex.anisoLevel = copySource.anisoLevel;
+            tex.mipMapBias = copySource.mipMapBias;
+            tex.wrapModeU = copySource.wrapModeU;
+            tex.wrapModeV = copySource.wrapModeV;
+            tex.wrapMode = copySource.wrapMode;
         }
 
         public const string ST_APPLY_SHADER = "Hidden/TextureSTApply";

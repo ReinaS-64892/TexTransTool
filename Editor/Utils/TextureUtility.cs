@@ -58,14 +58,8 @@ namespace net.rs64.TexTransTool.Utils
                 newTex.Apply(true);
                 tex = newTex;
             }
-            tex.filterMode = copySource.filterMode;
-            tex.anisoLevel = copySource.anisoLevel;
-            tex.alphaIsTransparency = copySource.alphaIsTransparency;
-            tex.requestedMipmapLevel = copySource.requestedMipmapLevel;
-            tex.mipMapBias = copySource.mipMapBias;
-            tex.wrapModeU = copySource.wrapModeU;
-            tex.wrapModeV = copySource.wrapModeV;
-            tex.wrapMode = copySource.wrapMode;
+            tex.CopyFilWrap2D(copySource);
+
             if (copyCompress && (tex.format != copySource.format))
             {
                 var format = overrideFormat.HasValue ? overrideFormat.Value : copySource.format;

@@ -40,22 +40,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             public override void GrabImage(TTCE4U engine, EvaluateContext<TTCE4U> evaluateContext, ITTRenderTexture grabTexture)
             {
-                using (var tempDist = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                using (var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                {
-                    engine.CopyRenderTexture(grabTexture, tempDist);
-                    engine.AlphaCopy(alphaBackup, grabTexture);
+                using var tempDist = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
+                using var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
+                using var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
 
-                    engine.AlphaFill(tempDist, 1f);
+                engine.CopyRenderTexture(grabTexture, tempDist);
+                engine.AlphaCopy(alphaBackup, grabTexture);
 
-                    _grabLayer.GetImage(engine, tempDist, tempTarget);
-                    evaluateContext.AlphaMask.Masking(engine, tempTarget);
+                engine.AlphaFill(tempDist, 1f);
 
-                    engine.AlphaFill(grabTexture, 1f);
-                    engine.Blending(grabTexture, tempTarget, _blendTypeKey);
-                    engine.AlphaCopy(grabTexture, alphaBackup);
-                }
+                _grabLayer.GetImage(engine, tempDist, tempTarget);
+                evaluateContext.AlphaMask.Masking(engine, tempTarget);
+
+                engine.AlphaFill(grabTexture, 1f);
+                engine.Blending(grabTexture, tempTarget, _blendTypeKey);
+                engine.AlphaCopy(grabTexture, alphaBackup);
+
             }
         }
 

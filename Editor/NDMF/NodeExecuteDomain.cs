@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Build;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.NDMF
 {
@@ -26,6 +29,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
         private IObjectRegistry _objectRegistry;
+        private TTCE4UnityWithTTT4Unity _ttce4U;
 
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
@@ -38,7 +42,8 @@ namespace net.rs64.TexTransTool.NDMF
             _proxy2OriginRendererDict = o2pDict.ToDictionary(i => i.Value, i => i.Key);
             _proxyDomainRenderers = o2pDict.Values.ToList();
             _textureManager = new TextureManager(true);
-            _textureStacks = new();
+            _ttce4U = new TTCE4UnityWithTTT4Unity(true, _textureManager);
+            _textureStacks = new(_ttce4U);
             _ctx = computeContext;
             _objectRegistry = objectRegistry;
         }
@@ -55,12 +60,9 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true);
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        public void AddTextureStack(Texture dist, TexTransCore.ITTRenderTexture addTex, TexTransCore.ITTBlendKey blendKey)
         {
-            _textureStacks.AddTextureStack(dist, setTex);
-
-            if (setTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
-            { TTRt.R(rt); }
+            _textureStacks.AddTextureStack(dist, addTex, blendKey);
             UsedTextureStack = true;
         }
         public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
@@ -125,8 +127,8 @@ namespace net.rs64.TexTransTool.NDMF
             foreach (var mergeResult in _textureStacks.StackDict)
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                SetTexture(mergeResult.Key, mergeResult.Value);
-                _neededReleaseTempRt.Add(mergeResult.Value);
+                SetTexture(mergeResult.Key, mergeResult.Value.Unwrap());
+                _ttce4U.GammaToLinear(mergeResult.Value);
             }
 
             void SetTexture(Texture firstTexture, Texture mergeTexture)
@@ -142,6 +144,7 @@ namespace net.rs64.TexTransTool.NDMF
             foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj, true); }
             foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
             _transferredObject.Clear();
+            _textureStacks.Dispose();
 
             _ctx = null;
         }
@@ -166,13 +169,16 @@ namespace net.rs64.TexTransTool.NDMF
         {
             return new NodeSubDomain(this, subDomainRenderers);
         }
+
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
+
         internal class NodeSubDomain : TexTransTool.AbstractSubDomain<NodeExecuteDomain>
         {
             public NodeSubDomain(NodeExecuteDomain rootDomain, IEnumerable<Renderer> subDomainsRenderer) : base(rootDomain, subDomainsRenderer)
             {
             }
 
-            public override void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) { _rootDomain.AddTextureStack(dist, setTex); }
+            public override void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { _rootDomain.AddTextureStack(dist, new TextureBlend.BlendTexturePair(addTex.Unwrap(), blendKey.Unwrap().BlendTypeKey)); }
 
             public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
             {
@@ -198,8 +204,10 @@ namespace net.rs64.TexTransTool.NDMF
                 foreach (var mergeResult in _rootDomain._textureStacks.StackDict)
                 {
                     if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                    SetTexture(mergeResult.Key, mergeResult.Value);
-                    _rootDomain._neededReleaseTempRt.Add(mergeResult.Value);
+                    SetTexture(mergeResult.Key, mergeResult.Value.Unwrap());
+                    _rootDomain._neededReleaseTempRt.Add(mergeResult.Value.Unwrap());
+
+                    _rootDomain.GetTexTransCoreEngineForUnity().GammaToLinear(mergeResult.Value);
                 }
 
                 void SetTexture(Texture firstTexture, Texture mergeTexture)
@@ -243,22 +251,33 @@ namespace net.rs64.TexTransTool.NDMF
         }
     }
 
-    class NDMFPreviewStackManager
+    class NDMFPreviewStackManager : IDisposable
     {
-        Dictionary<Texture, RenderTexture> _stackDict = new();
-        public IReadOnlyDictionary<Texture, RenderTexture> StackDict => _stackDict;
+        ITexTransToolForUnity _ttce4u;
+        Dictionary<Texture, ITTRenderTexture> _stackDict = new();
+        public IReadOnlyDictionary<Texture, ITTRenderTexture> StackDict => _stackDict;
+        public NDMFPreviewStackManager(ITexTransToolForUnity ttce4u)
+        {
+            _ttce4u = ttce4u;
+        }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
             if (_stackDict.ContainsKey(dist) is false)
             {
-                var stackTexture = TTRt.G(dist.width, dist.height);
-                stackTexture.name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
-                stackTexture.CopyFilWrap(dist);
-                Graphics.Blit(dist, stackTexture);
+                var stackTexture = _ttce4u.CreateRenderTexture(dist.width, dist.height);
+                stackTexture.Name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
+                stackTexture.Unwrap().CopyFilWrap(dist);
+                Graphics.Blit(dist, stackTexture.Unwrap());
                 _stackDict.Add(dist, stackTexture);
             }
-            _stackDict[dist].BlendBlit(setTex);
+            _ttce4u.BlendingWithAnySize(_stackDict[dist], addTex, blendKey);
+        }
+
+        public void Dispose()
+        {
+            foreach (var rt in _stackDict) { rt.Value.Dispose(); }
+            _stackDict.Clear();
         }
     }
 }

@@ -44,11 +44,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
             if (_constantsBuffers.ContainsKey(id) is false)
             { _constantsBuffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Constant, 1, bytes.Length * UnsafeUtility.SizeOf<T>()); }
 
-            using (var na = new NativeArray<byte>(_constantsBuffers[id].stride, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
-            {
-                MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
-                _constantsBuffers[id].SetData(na);
-            }
+            using var na = new NativeArray<byte>(_constantsBuffers[id].stride, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+            MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
+            _constantsBuffers[id].SetData(na);
+
             _compute.SetConstantBuffer(id, _constantsBuffers[id], 0, _constantsBuffers[id].stride);
         }
 

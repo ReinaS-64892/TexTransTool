@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool
 {
     internal static class Localize
     {
-        const string JP_GUID = "42db3dbd5755c844984648836a49629f";
+        const string JA_GUID = "42db3dbd5755c844984648836a49629f";
         const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
         [TexTransInitialize]
         internal static void LocalizeInitializer()
@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
         }
         public static void LoadLocalize()
         {
-            LocalizationAssets[LanguageEnum.JP] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JP_GUID));
+            LocalizationAssets[LanguageEnum.JA] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JA_GUID));
             LocalizationAssets[LanguageEnum.EN] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
         }
         internal static readonly Dictionary<LanguageEnum, LocalizationAsset> LocalizationAssets = new();

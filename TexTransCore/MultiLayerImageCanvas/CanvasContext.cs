@@ -87,15 +87,15 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                     }
                 case AlphaOperation.Inherit:
                     {
-                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
-                        {
-                            engine.AlphaCopy(alphaTemp, canvasTexture);
-                            engine.AlphaFill(canvasTexture, 1f);//クリッピングの場合はこうしないと困るが、そうではない場合が必要になるなら、ここの case の数を増やす必要がある。
+                        using var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight);
 
-                            engine.Blending(canvasTexture, layerRt, blendKey);
+                        engine.AlphaCopy(alphaTemp, canvasTexture);
+                        engine.AlphaFill(canvasTexture, 1f);//クリッピングの場合はこうしないと困るが、そうではない場合が必要になるなら、ここの case の数を増やす必要がある。
 
-                            engine.AlphaCopy(canvasTexture, alphaTemp);
-                        }
+                        engine.Blending(canvasTexture, layerRt, blendKey);
+
+                        engine.AlphaCopy(canvasTexture, alphaTemp);
+
                         break;
                     }
                 case AlphaOperation.Layer:
@@ -108,16 +108,16 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                     }
                 case AlphaOperation.Intersect:
                     {
-                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
-                        {
-                            engine.AlphaCopy(alphaTemp, canvasTexture);
-                            engine.AlphaFill(canvasTexture, 1f);//これが必要かは考えるべき
+                        using var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight);
 
-                            engine.Blending(canvasTexture, layerRt, blendKey);
+                        engine.AlphaCopy(alphaTemp, canvasTexture);
+                        engine.AlphaFill(canvasTexture, 1f);//これが必要かは考えるべき
 
-                            engine.AlphaMultiplyWithTexture(alphaTemp, layerRt);
-                            engine.AlphaCopy(canvasTexture, alphaTemp);
-                        }
+                        engine.Blending(canvasTexture, layerRt, blendKey);
+
+                        engine.AlphaMultiplyWithTexture(alphaTemp, layerRt);
+                        engine.AlphaCopy(canvasTexture, alphaTemp);
+
                         break;
                     }
             }

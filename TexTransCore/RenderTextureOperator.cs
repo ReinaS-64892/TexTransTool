@@ -17,59 +17,56 @@ namespace net.rs64.TexTransCore
         {
             if (sourceTexture.Width == targetTexture.Width && sourceTexture.Hight == targetTexture.Hight) { throw new ArgumentException(); }
 
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.BilinearReScaling))
-            {
-                var sourceTexID = computeHandler.NameToID("SourceTex");
-                var targetTexID = computeHandler.NameToID("TargetTex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.BilinearReScaling);
 
-                Span<uint> gvBuf = stackalloc uint[4];
-                gvBuf[0] = (uint)sourceTexture.Width;//SourceTexSize.x
-                gvBuf[1] = (uint)sourceTexture.Hight;//SourceTexSize.y
-                gvBuf[2] = (uint)targetTexture.Width;//TargetTexSize.x
-                gvBuf[3] = (uint)targetTexture.Hight;//TargetTexSize.y
-                computeHandler.UploadCBuffer<uint>(gvBufId, gvBuf);
+            var sourceTexID = computeHandler.NameToID("SourceTex");
+            var targetTexID = computeHandler.NameToID("TargetTex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(sourceTexID, sourceTexture);
-                computeHandler.SetTexture(targetTexID, targetTexture);
+            Span<uint> gvBuf = stackalloc uint[4];
+            gvBuf[0] = (uint)sourceTexture.Width;//SourceTexSize.x
+            gvBuf[1] = (uint)sourceTexture.Hight;//SourceTexSize.y
+            gvBuf[2] = (uint)targetTexture.Width;//TargetTexSize.x
+            gvBuf[3] = (uint)targetTexture.Hight;//TargetTexSize.y
+            computeHandler.UploadCBuffer<uint>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(targetTexture);
-            }
+            computeHandler.SetTexture(sourceTexID, sourceTexture);
+            computeHandler.SetTexture(targetTexID, targetTexture);
+
+            computeHandler.DispatchWithTextureSize(targetTexture);
         }
 
         public static void AlphaFill<TTCE>(this TTCE engine, ITTRenderTexture renderTexture, float alpha)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaFill))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaFill);
 
-                Span<float> gvBuf = stackalloc float[1];
-                gvBuf[0] = alpha;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(texID, renderTexture);
+            Span<float> gvBuf = stackalloc float[1];
+            gvBuf[0] = alpha;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(renderTexture);
-            }
+            computeHandler.SetTexture(texID, renderTexture);
+
+            computeHandler.DispatchWithTextureSize(renderTexture);
         }
         public static void AlphaMultiply<TTCE>(this TTCE engine, ITTRenderTexture renderTexture, float value)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaMultiply))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaMultiply);
 
-                Span<float> gvBuf = stackalloc float[1];
-                gvBuf[0] = value;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(texID, renderTexture);
+            Span<float> gvBuf = stackalloc float[1];
+            gvBuf[0] = value;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(renderTexture);
-            }
+            computeHandler.SetTexture(texID, renderTexture);
+
+            computeHandler.DispatchWithTextureSize(renderTexture);
         }
         /// <summary>
         /// target.a = target.a * source.a
@@ -79,16 +76,15 @@ namespace net.rs64.TexTransCore
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException(); }
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaMultiplyWithTexture))
-            {
-                var sourceTexID = computeHandler.NameToID("SourceTex");
-                var targetTexID = computeHandler.NameToID("TargetTex");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaMultiplyWithTexture);
 
-                computeHandler.SetTexture(sourceTexID, source);
-                computeHandler.SetTexture(targetTexID, target);
+            var sourceTexID = computeHandler.NameToID("SourceTex");
+            var targetTexID = computeHandler.NameToID("TargetTex");
 
-                computeHandler.DispatchWithTextureSize(target);
-            }
+            computeHandler.SetTexture(sourceTexID, source);
+            computeHandler.SetTexture(targetTexID, target);
+
+            computeHandler.DispatchWithTextureSize(target);
         }
 
         /// <summary>
@@ -98,16 +94,15 @@ namespace net.rs64.TexTransCore
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException(); }
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaCopy))
-            {
-                var sourceTexID = computeHandler.NameToID("SourceTex");
-                var targetTexID = computeHandler.NameToID("TargetTex");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.AlphaCopy);
 
-                computeHandler.SetTexture(sourceTexID, source);
-                computeHandler.SetTexture(targetTexID, target);
+            var sourceTexID = computeHandler.NameToID("SourceTex");
+            var targetTexID = computeHandler.NameToID("TargetTex");
 
-                computeHandler.DispatchWithTextureSize(target);
-            }
+            computeHandler.SetTexture(sourceTexID, source);
+            computeHandler.SetTexture(targetTexID, target);
+
+            computeHandler.DispatchWithTextureSize(target);
         }
 
 
@@ -119,19 +114,18 @@ namespace net.rs64.TexTransCore
         public static void ColorFill<TTCE>(this TTCE engine, ITTRenderTexture target, Color color)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.ColorFill))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.ColorFill);
 
-                Span<Color> gvBuf = stackalloc Color[1];
-                gvBuf[0] = color;
-                computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(texID, target);
+            Span<Color> gvBuf = stackalloc Color[1];
+            gvBuf[0] = color;
+            computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(target);
-            }
+            computeHandler.SetTexture(texID, target);
+
+            computeHandler.DispatchWithTextureSize(target);
         }
         /// <summary>
         /// その色でレンダーテクスチャーを乗算します
@@ -139,19 +133,41 @@ namespace net.rs64.TexTransCore
         public static void ColorMultiply<TTCE>(this TTCE engine, ITTRenderTexture target, Color color)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.ColorMultiply))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.ColorMultiply);
 
-                Span<Color> gvBuf = stackalloc Color[1];
-                gvBuf[0] = color;
-                computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(texID, target);
+            Span<Color> gvBuf = stackalloc Color[1];
+            gvBuf[0] = color;
+            computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(target);
-            }
+            computeHandler.SetTexture(texID, target);
+
+            computeHandler.DispatchWithTextureSize(target);
+        }
+
+        public static void GammaToLinear<TTCE>(this TTCE engine, ITTRenderTexture target)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.GammaToLinear);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            computeHandler.SetTexture(texID, target);
+            computeHandler.DispatchWithTextureSize(target);
+        }
+        public static void LinearToGamma<TTCE>(this TTCE engine, ITTRenderTexture target)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.LinearToGamma);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            computeHandler.SetTexture(texID, target);
+            computeHandler.DispatchWithTextureSize(target);
         }
 
     }

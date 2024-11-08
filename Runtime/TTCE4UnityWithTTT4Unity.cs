@@ -8,6 +8,7 @@ using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool
 {
@@ -19,57 +20,44 @@ namespace net.rs64.TexTransTool
             _isPreview = isPreview;
         }
 
+        public void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
+        {
+            var tex = new Texture2D(uploadTarget.Width, uploadTarget.Hight, format.ToUnityTextureFormat(uploadTarget.ContainsChannel), false);
+
+            using var na = new NativeArray<T>(bytes.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            bytes.CopyTo(na);
+            tex.LoadRawTextureData(na);
+
+            tex.Apply();
+            Graphics.Blit(tex, uploadTarget.Unwrap());
+            UnityEngine.Object.DestroyImmediate(tex);
+        }
 
         public ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
             var rt = CreateRenderTexture(renderTexture.width, renderTexture.height);
             Graphics.Blit(renderTexture, rt.Unwrap());
-
-            /* バックエンドが Unity じゃなったらこんな感じにメインメモリに引き戻すことが必要になりそう。
-            // var tex2D = renderTexture.CopyTexture2D();
-            // var data = tex2D.GetPixelData<byte>(0);
-            // var rt = UploadTexture(tex2D.width, tex2D.height, ToTTCTextureFormat(tex2D.format), false, data);
-            // Texture2D.DestroyImmediate(tex2D);
-            */
             return rt;
         }
-        public ITTRenderTexture UploadTexture(int width, int height, TexTransCoreTextureFormat format, bool isLinear, ReadOnlySpan<byte> bytes)
+
+        public void DownloadTexture<T>(ITTRenderTexture renderTexture, TexTransCoreTextureFormat format, Span<T> dataDist) where T : unmanaged
         {
-            var tex = new Texture2D(width, height, ToUnityTextureFormat(format), false, isLinear);
-            using (var na = new NativeArray<byte>(bytes.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+            if (renderTexture.Unwrap().graphicsFormat == format.ToUnityGraphicsFormat(renderTexture.ContainsChannel))
             {
-                bytes.CopyTo(na);
-                tex.LoadRawTextureData(na);
-                tex.Apply();
-
-                var rt = CreateRenderTexture(width, height);
-
-                Graphics.Blit(tex, rt.Unwrap());
-                return rt;
+                renderTexture.Unwrap().DownloadFromRenderTexture(dataDist);
+            }
+            else
+            {
+                var cfRt = new RenderTexture(renderTexture.Width, renderTexture.Hight, 0, format.ToUnityGraphicsFormat(renderTexture.ContainsChannel));
+                Graphics.Blit(renderTexture.Unwrap(), cfRt);
+                cfRt.DownloadFromRenderTexture(dataDist);
             }
         }
 
-        internal static TextureFormat ToUnityTextureFormat(TexTransCoreTextureFormat format)
+
+        public ITTBlendKey QueryBlendKey(string blendKeyName)
         {
-            switch (format)
-            {
-                default: throw new ArgumentOutOfRangeException(format.ToString());
-                case TexTransCoreTextureFormat.Byte: return TextureFormat.RGBA32;
-                case TexTransCoreTextureFormat.UShort: return TextureFormat.RGBA64;
-                case TexTransCoreTextureFormat.Half: return TextureFormat.RGBAHalf;
-                case TexTransCoreTextureFormat.Float: return TextureFormat.RGBAFloat;
-            }
-        }
-        internal static TexTransCoreTextureFormat ToTTCTextureFormat(TextureFormat format)
-        {
-            switch (format)
-            {
-                default: throw new ArgumentOutOfRangeException(format.ToString());
-                case TextureFormat.RGBA32: return TexTransCoreTextureFormat.Byte;
-                case TextureFormat.RGBA64: return TexTransCoreTextureFormat.UShort;
-                case TextureFormat.RGBAHalf: return TexTransCoreTextureFormat.Half;
-                case TextureFormat.RGBAFloat: return TexTransCoreTextureFormat.Float;
-            }
+            return rs64.TexTransCoreEngineForUnity.TextureBlend.BlendObjects[blendKeyName];
         }
 
         public ITTDiskTexture Wrapping(Texture2D texture2D)
@@ -101,10 +89,6 @@ namespace net.rs64.TexTransTool
 
 
             public void Dispose() { }
-        }
-        ITTBlendKey ITexTransToolForUnity.QueryBlendKey(string blendKeyName)
-        {
-            return rs64.TexTransCoreEngineForUnity.TextureBlend.BlendObjects[blendKeyName];
         }
 
     }

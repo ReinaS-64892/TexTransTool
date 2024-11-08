@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -19,15 +18,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public int Height;
             public bool UseDepthAndStencil;
             public bool UseMipMap;
-            public TexTransCoreTextureChannel Channel;
 
-            public TTRenderTextureDescriptor(int width, int height, bool useDepthAndStencil, bool useMipMap, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
+            public TTRenderTextureDescriptor(int width, int height, bool useDepthAndStencil, bool useMipMap)
             {
                 Width = width;
                 Height = height;
                 UseDepthAndStencil = useDepthAndStencil;
                 UseMipMap = useMipMap;
-                Channel = channel;
             }
             public TTRenderTextureDescriptor(RenderTexture renderTexture)
             {
@@ -35,7 +32,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 Height = renderTexture.height;
                 UseDepthAndStencil = renderTexture.depth != 0;
                 UseMipMap = renderTexture.useMipMap;
-                Channel = renderTexture.format == RenderTextureFormat.ARGB32 ? TexTransCoreTextureChannel.RGBA : TexTransCoreTextureChannel.R;//TODO : 何とかする
             }
             public TTRenderTextureDescriptor(RenderTextureDescriptor descriptor)
             {
@@ -43,7 +39,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 Height = descriptor.height;
                 UseDepthAndStencil = descriptor.depthStencilFormat != UnityEngine.Experimental.Rendering.GraphicsFormat.None;
                 UseMipMap = descriptor.useMipMap;
-                Channel = descriptor.colorFormat == RenderTextureFormat.ARGB32 ? TexTransCoreTextureChannel.RGBA : TexTransCoreTextureChannel.R;//TODO : 何とかする
             }
             public bool Equals(TTRenderTextureDescriptor other)
             {
@@ -63,7 +58,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
-                var readWrite = TTCEUnity.IsLinerRenderTexture ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
+                var readWrite = false ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
                 var format = RenderTextureFormat.ARGB32;
 
                 RenderTexture = new RenderTexture(
@@ -112,7 +107,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void Rel_Impl(RenderTexture renderTexture)
         {
-            if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false) { throw new InvalidOperationException(); }
+            if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false)
+            {
+                TTRt2.Rel(renderTexture);
+#if TTT_DEBUG_TEMP_RT_TRACE
+                    Debug.Log(renderTexture.name + " Release is invalid class ");
+#endif
+                return;
+            }
             state.IsUsed = false;
         }
 
@@ -157,9 +159,9 @@ namespace net.rs64.TexTransCoreEngineForUnity
             return new(tmpRt);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RenderTexture Get(int width, int height, bool useDepthAndStencil = false, bool useMipMap = false, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
+        public static RenderTexture Get(int width, int height, bool useDepthAndStencil = false, bool useMipMap = false)
         {
-            var tmpRt = Get_Impl(new(width, height, useDepthAndStencil, useMipMap, channel));
+            var tmpRt = Get_Impl(new(width, height, useDepthAndStencil, useMipMap));
 
             s_tempSet.Add(tmpRt);
 

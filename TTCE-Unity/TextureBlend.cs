@@ -99,6 +99,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             ColorMultiplyCS = TexTransCoreRuntime.LoadAsset(ColorMultiply_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             AlphaFillCS = TexTransCoreRuntime.LoadAsset(AlphaFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             ColorFillCS = TexTransCoreRuntime.LoadAsset(ColorFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            BilinearReScalingCS = TexTransCoreRuntime.LoadAsset(BilinearReScaling_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             GammaToLinearCS = TexTransCoreRuntime.LoadAsset(GammaToLinear_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             LinearToGammaCS = TexTransCoreRuntime.LoadAsset(LinearToGamma_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
         }

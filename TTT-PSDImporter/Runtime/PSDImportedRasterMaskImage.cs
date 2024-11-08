@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.PSDImporter
@@ -65,7 +66,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
             var format = PSDImportedRasterImage.BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
 
-            var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), format, false);
+            var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
             texR.filterMode = FilterMode.Point;
 
             TextureBlend.FillColor(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));

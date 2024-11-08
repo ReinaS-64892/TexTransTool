@@ -8,6 +8,7 @@ using UnityEditor.UIElements;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -362,14 +363,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         IEnumerable<Renderer> _domainRenderers;
         HashSet<UnityEngine.Object> _transferredObject = new();
         protected readonly ITextureManager _textureManager;
+        private readonly TTCE4UnityWithTTT4Unity _ttce4U;
 
         public NotWorkDomain(IEnumerable<Renderer> renderers, TextureManager textureManager)
         {
             _domainRenderers = renderers;
             _textureManager = textureManager;
+            _ttce4U = new TTCE4UnityWithTTT4Unity(false, _textureManager);
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair { }
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }
         public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
         public ITextureManager GetTextureManager() { return _textureManager; }
         public bool IsPreview() { return true; }
@@ -379,6 +382,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
         public void Dispose() { foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); } }
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
+
     }
 
 

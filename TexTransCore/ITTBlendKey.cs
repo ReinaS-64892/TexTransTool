@@ -21,6 +21,16 @@ namespace net.rs64.TexTransCore
                 computeHandler.DispatchWithTextureSize(dist);
             }
         }
+
+        public static void BlendingWithAnySize<TTCE>(this TTCE engine, ITTRenderTexture dist, ITTRenderTexture add, ITTBlendKey blendKey)
+        where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            if (dist.Width == add.Width && dist.Hight == add.Hight) { engine.Blending(dist, add, blendKey); return; }
+
+            using var resizeTemp = engine.CreateRenderTexture(dist.Width, dist.Hight);
+            engine.BilinearReScaling(resizeTemp, add);
+            engine.Blending(dist, resizeTemp, blendKey);
+        }
     }
 
 }

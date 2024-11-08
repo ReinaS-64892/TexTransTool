@@ -19,45 +19,44 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture) where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(LevelAdjustment)]))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(LevelAdjustment)]);
 
-                computeHandler.SetTexture(texID, grabTexture);
-                Span<float> gvBuf = stackalloc float[8];
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-
-                RGB.WriteToConstantsBuffer(gvBuf);
-                gvBuf[5] = gvBuf[6] = gvBuf[7] = 1f;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
-
-                computeHandler.DispatchWithTextureSize(grabTexture);
+            computeHandler.SetTexture(texID, grabTexture);
+            Span<float> gvBuf = stackalloc float[8];
 
 
-                R.WriteToConstantsBuffer(gvBuf);
-                gvBuf[5] = 1f;
-                gvBuf[6] = gvBuf[7] = 0f;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            RGB.WriteToConstantsBuffer(gvBuf);
+            gvBuf[5] = gvBuf[6] = gvBuf[7] = 1f;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(grabTexture);
-
-
-                G.WriteToConstantsBuffer(gvBuf);
-                gvBuf[6] = 1f;
-                gvBuf[5] = gvBuf[7] = 0f;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
-
-                computeHandler.DispatchWithTextureSize(grabTexture);
+            computeHandler.DispatchWithTextureSize(grabTexture);
 
 
-                B.WriteToConstantsBuffer(gvBuf);
-                gvBuf[7] = 1f;
-                gvBuf[5] = gvBuf[6] = 0f;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            R.WriteToConstantsBuffer(gvBuf);
+            gvBuf[5] = 1f;
+            gvBuf[6] = gvBuf[7] = 0f;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(grabTexture);
-            }
+            computeHandler.DispatchWithTextureSize(grabTexture);
+
+
+            G.WriteToConstantsBuffer(gvBuf);
+            gvBuf[6] = 1f;
+            gvBuf[5] = gvBuf[7] = 0f;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+
+            computeHandler.DispatchWithTextureSize(grabTexture);
+
+
+            B.WriteToConstantsBuffer(gvBuf);
+            gvBuf[7] = 1f;
+            gvBuf[5] = gvBuf[6] = 0f;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+
+            computeHandler.DispatchWithTextureSize(grabTexture);
         }
     }
     [Serializable]

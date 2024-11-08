@@ -14,10 +14,10 @@ namespace net.rs64.TexTransTool
 
     internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject
     {
+        ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
-
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
         public IEnumerable<Renderer> EnumerateRenderer();
         ITextureManager GetTextureManager();
 
@@ -70,6 +70,19 @@ namespace net.rs64.TexTransTool
             foreach (var unityObject in unityObjects)
             {
                 domain.TransferAsset(unityObject);
+            }
+        }
+        public static void AddTextureStack<BlendTex>(this IDomain domain, Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        {
+            var ttce4u = domain.GetTexTransCoreEngineForUnity();
+            switch (setTex.Texture)
+            {
+                case Texture2D texture2D: { break; }
+                case RenderTexture renderTexture:
+                    {
+                        domain.AddTextureStack(dist, ttce4u.UploadTexture(renderTexture), ttce4u.QueryBlendKey(setTex.BlendTypeKey));
+                        break;
+                    }
             }
         }
 

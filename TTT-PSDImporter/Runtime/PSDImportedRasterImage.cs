@@ -11,6 +11,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using Vector4 = UnityEngine.Vector4;
 
@@ -116,13 +117,13 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             var format = BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
 
-            var texR = new Texture2D(texWidth, texHeight, format, false);
+            var texR = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
             texR.filterMode = FilterMode.Point;
-            var texG = new Texture2D(texWidth, texHeight, format, false);
+            var texG = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
             texG.filterMode = FilterMode.Point;
-            var texB = new Texture2D(texWidth, texHeight, format, false);
+            var texB = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
             texB.filterMode = FilterMode.Point;
-            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, format, false) : null;
+            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None) : null;
             if (containsAlpha) { texA.filterMode = FilterMode.Point; }
 
             if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
@@ -131,7 +132,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             s_tempMat.SetTexture("_BTex", texB);
             s_tempMat.SetTexture("_ATex", texA);
             s_tempMat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, texWidth / (float)CanvasDescription.Width, texHeight / (float)CanvasDescription.Height));
-            s_tempMat.EnableKeyword(SHADER_KEYWORD_SRGB);
+            // s_tempMat.EnableKeyword(SHADER_KEYWORD_SRGB);
 
             // timer.Stop(); Debug.Log(name + "+SetUp:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
             var image = WeightTask(getImageTask).Result;
@@ -148,7 +149,7 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             // timer.Stop(); Debug.Log("Blit:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
 
-            s_tempMat.DisableKeyword(SHADER_KEYWORD_SRGB);
+            // s_tempMat.DisableKeyword(SHADER_KEYWORD_SRGB);
             image[0].Dispose();
             image[1].Dispose();
             image[2].Dispose();

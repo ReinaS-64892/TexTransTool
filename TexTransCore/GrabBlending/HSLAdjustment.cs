@@ -18,21 +18,21 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture) where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using (var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(HSLAdjustment)]))
-            {
-                var texID = computeHandler.NameToID("Tex");
-                var gvBufId = computeHandler.NameToID("gv");
+            using var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(HSLAdjustment)]);
 
-                Span<float> gvBuf = stackalloc float[3];
-                gvBuf[0] = Hue;
-                gvBuf[1] = Saturation;
-                gvBuf[2] = Lightness;
-                computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
 
-                computeHandler.SetTexture(texID, grabTexture);
+            Span<float> gvBuf = stackalloc float[3];
+            gvBuf[0] = Hue;
+            gvBuf[1] = Saturation;
+            gvBuf[2] = Lightness;
+            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
 
-                computeHandler.DispatchWithTextureSize(grabTexture);
-            }
+            computeHandler.SetTexture(texID, grabTexture);
+
+            computeHandler.DispatchWithTextureSize(grabTexture);
+
         }
 
     }

@@ -44,10 +44,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(domain.IsPreview(), domain.GetTextureManager());
-            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh).Unwrap();
+            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
             Profiler.EndSample();
 
-            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
+            // TextureBlend.ToLinear(result);
+            var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
+
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
         }
 
         internal ITTRenderTexture EvaluateCanvas<TTCE4U>(TTCE4U texTransCoreEngine, int canvasWidth, int canvasHeigh)

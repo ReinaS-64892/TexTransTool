@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -89,6 +90,7 @@ namespace net.rs64.TexTransTool
             if (Previewing)
             {
                 Graphics.Blit(texture.PreviewTexture, writeTarget);
+                TextureBlend.ToGamma(writeTarget);
             }
             else
             {
