@@ -268,7 +268,16 @@ namespace net.rs64.TexTransTool.NDMF
                 var stackTexture = _ttce4u.CreateRenderTexture(dist.width, dist.height);
                 stackTexture.Name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
                 stackTexture.Unwrap().CopyFilWrap(dist);
-                Graphics.Blit(dist, stackTexture.Unwrap());
+                switch (dist)
+                {
+                    case Texture2D: { Graphics.Blit(dist, stackTexture.Unwrap()); break; }
+                    case RenderTexture:
+                        {
+                            Graphics.Blit(dist, stackTexture.Unwrap());
+                            _ttce4u.LinearToGamma(stackTexture);//　Preview の時に残したレンダーテクスチャはリニア空間で置いてあるから元に戻す。
+                            break;
+                        }
+                }
                 _stackDict.Add(dist, stackTexture);
             }
             _ttce4u.BlendingWithAnySize(_stackDict[dist], addTex, blendKey);

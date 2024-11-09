@@ -80,7 +80,9 @@ namespace net.rs64.TexTransTool
                 case Texture2D texture2D: { break; }
                 case RenderTexture renderTexture:
                     {
-                        domain.AddTextureStack(dist, ttce4u.UploadTexture(renderTexture), ttce4u.QueryBlendKey(setTex.BlendTypeKey));
+                        var rt = ttce4u.UploadTexture(renderTexture);
+                        ttce4u.LinearToGamma(rt);
+                        domain.AddTextureStack(dist, rt, ttce4u.QueryBlendKey(setTex.BlendTypeKey));
                         break;
                     }
             }

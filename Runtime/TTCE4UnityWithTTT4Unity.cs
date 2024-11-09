@@ -9,6 +9,7 @@ using net.rs64.TexTransTool.MultiLayerImage;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool
 {
