@@ -89,8 +89,8 @@ namespace net.rs64.TexTransTool.TextureStack
             var map = resultTex2D.GetRawTextureData<byte>().AsSpan().Slice(0, BaseTexture.width * BaseTexture.height * 4);
 
             TTCE4Unity.GammaToLinear(_renderTexture);
-            
-            TTCE4Unity.DownloadTexture(_renderTexture, TexTransCoreTextureFormat.Byte, map);
+
+            TTCE4Unity.DownloadTexture(map, TexTransCoreTextureFormat.Byte, _renderTexture);
 
             resultTex2D.CopyFilWrap2D(BaseTexture);
             TextureManager.DeferredInheritTextureCompress(BaseTexture, resultTex2D);

@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool
             return rt;
         }
 
-        public void DownloadTexture<T>(ITTRenderTexture renderTexture, TexTransCoreTextureFormat format, Span<T> dataDist) where T : unmanaged
+        public void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged
         {
             if (renderTexture.Unwrap().graphicsFormat == format.ToUnityGraphicsFormat(renderTexture.ContainsChannel))
             {
@@ -70,6 +70,8 @@ namespace net.rs64.TexTransTool
         {
             return new UnityImportedDiskTexture(texture2D, _isPreview);
         }
+
+
         internal class UnityImportedDiskTexture : ITTDiskTexture
         {
             internal TTTImportedImage Texture;

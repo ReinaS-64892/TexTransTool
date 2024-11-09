@@ -59,7 +59,7 @@ namespace net.rs64.TexTransCoreEngineForUnity.Utils
             var (format, channel) = rt.graphicsFormat.ToTTCTextureFormat();
             if (EnginUtil.GetPixelParByte(format, channel) * rt.width * rt.height != dataSpan.Length) { throw new ArgumentException(); }
 
-            var request = AsyncGPUReadback.Request(rt);
+            var request = AsyncGPUReadback.Request(rt,0);
             request.WaitForCompletion();
             request.GetData<T>().AsSpan().CopyTo(dataSpan);
         }

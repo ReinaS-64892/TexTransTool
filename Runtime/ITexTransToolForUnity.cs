@@ -21,10 +21,10 @@ namespace net.rs64.TexTransTool
         // デフォルト実装は極力使わないように、パフォーマンスがごみカスだし画質もカスなので...
         ITTDiskTexture Wrapping(Texture2D texture2D)
         {
-            var rt = TTRt2.Get(texture2D.width, texture2D.height);
-            Graphics.Blit(texture2D, rt);
-            var discTex = new DefaultImplementRenderTexturedDiskTexture(UploadTexture(rt));
-            TTRt2.Rel(rt);
+            var unityRt = TTRt2.Get(texture2D.width, texture2D.height);
+            Graphics.Blit(texture2D, unityRt);
+            var discTex = new RenderTextureAsDiskTexture(UploadTexture(unityRt));
+            TTRt2.Rel(unityRt);
             return discTex;
         }
         ITTDiskTexture Wrapping(TTTImportedImage texture2D) { return Wrapping(texture2D.PreviewTexture); }
@@ -47,14 +47,16 @@ namespace net.rs64.TexTransTool
             return rt;
         }
 
-        void DownloadTexture<T>(ITTRenderTexture renderTexture, TexTransCoreTextureFormat format, Span<T> dataDist) where T : unmanaged;
+        void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }
 
-    class DefaultImplementRenderTexturedDiskTexture : ITTDiskTexture
+    public class RenderTextureAsDiskTexture : ITTDiskTexture
     {
         private ITTRenderTexture _renderTexture;
 
-        public DefaultImplementRenderTexturedDiskTexture(ITTRenderTexture renderTexture)
+        public ITTRenderTexture TTRenderTexture => _renderTexture;
+
+        public RenderTextureAsDiskTexture(ITTRenderTexture renderTexture)
         {
             _renderTexture = renderTexture;
         }
