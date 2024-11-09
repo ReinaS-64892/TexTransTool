@@ -29,9 +29,7 @@ namespace net.rs64.TexTransTool
         }
         ITTDiskTexture Wrapping(TTTImportedImage texture2D) { return Wrapping(texture2D.PreviewTexture); }
 
-        /// <summary>
-        /// 基本的にパフォーマンスはカスであること前提なので使わない方向性で進めたいね
-        /// </summary>
+        /// 基本的にパフォーマンスは良くないからうまく使わないといけない
         void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
 
         ITTRenderTexture UploadTexture<T>(int width, int height, TexTransCoreTextureChannel channel, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
