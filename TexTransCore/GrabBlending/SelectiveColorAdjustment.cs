@@ -50,7 +50,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             WriteVector4(gvBuf.Slice(32, 4), BlacksCMYK);
             gvBuf[36] = IsAbsolute ? 1f : 0f;
 
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
             computeHandler.SetTexture(texID, grabTexture);
 
             computeHandler.DispatchWithTextureSize(grabTexture);

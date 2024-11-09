@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
 
             Profiler.BeginSample("EvaluateCanvas");
-            var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(domain.IsPreview(), domain.GetTextureManager());
+            var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
             var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
             Profiler.EndSample();
 

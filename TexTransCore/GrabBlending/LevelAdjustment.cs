@@ -30,7 +30,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
             RGB.WriteToConstantsBuffer(gvBuf);
             gvBuf[5] = gvBuf[6] = gvBuf[7] = 1f;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.DispatchWithTextureSize(grabTexture);
 
@@ -38,7 +38,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             R.WriteToConstantsBuffer(gvBuf);
             gvBuf[5] = 1f;
             gvBuf[6] = gvBuf[7] = 0f;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.DispatchWithTextureSize(grabTexture);
 
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             G.WriteToConstantsBuffer(gvBuf);
             gvBuf[6] = 1f;
             gvBuf[5] = gvBuf[7] = 0f;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.DispatchWithTextureSize(grabTexture);
 
@@ -54,7 +54,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             B.WriteToConstantsBuffer(gvBuf);
             gvBuf[7] = 1f;
             gvBuf[5] = gvBuf[6] = 0f;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.DispatchWithTextureSize(grabTexture);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
+using Unity.Collections;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool
@@ -31,10 +32,10 @@ namespace net.rs64.TexTransTool
         }
         ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
-            var texture2D = renderTexture.CopyTexture2D();
-            var rt = CreateRenderTexture(texture2D.width, texture2D.height, TexTransCoreTextureChannel.RGBA);
-            UploadTexture<byte>(rt, texture2D.GetRawTextureData<byte>().AsSpan(), TexTransCoreTextureFormat.Byte);
-            UnityEngine.Object.DestroyImmediate(texture2D);
+            using var na = new NativeArray<byte>(renderTexture.width * renderTexture.height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            renderTexture.DownloadFromRenderTexture(na.AsSpan());
+            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height, TexTransCoreTextureChannel.RGBA);
+            UploadTexture<byte>(rt, na.AsSpan(), TexTransCoreTextureFormat.Byte);
             return rt;
         }
 

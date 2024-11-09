@@ -19,7 +19,8 @@ namespace net.rs64.TexTransCore
         /// この ID は Binding Index である可能性もあるし、独自のハッシュ値のようなものである可能性がある。
         /// </summary>
         int NameToID(string name);
-        void UploadCBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
+        void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
+        void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
         void SetTexture(int id, ITTRenderTexture tex);
     }
 

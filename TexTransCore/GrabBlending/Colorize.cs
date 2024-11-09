@@ -20,7 +20,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
             Span<Color> gvBuf = stackalloc Color[1];
             gvBuf[0] = Color;
-            computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<Color>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, grabTexture);
 

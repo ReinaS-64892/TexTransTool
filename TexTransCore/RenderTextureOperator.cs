@@ -28,7 +28,7 @@ namespace net.rs64.TexTransCore
             gvBuf[1] = (uint)sourceTexture.Hight;//SourceTexSize.y
             gvBuf[2] = (uint)targetTexture.Width;//TargetTexSize.x
             gvBuf[3] = (uint)targetTexture.Hight;//TargetTexSize.y
-            computeHandler.UploadCBuffer<uint>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<uint>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(sourceTexID, sourceTexture);
             computeHandler.SetTexture(targetTexID, targetTexture);
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransCore
 
             Span<float> gvBuf = stackalloc float[1];
             gvBuf[0] = alpha;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, renderTexture);
 
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransCore
 
             Span<float> gvBuf = stackalloc float[1];
             gvBuf[0] = value;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, renderTexture);
 
@@ -121,7 +121,7 @@ namespace net.rs64.TexTransCore
 
             Span<Color> gvBuf = stackalloc Color[1];
             gvBuf[0] = color;
-            computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<Color>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, target);
 
@@ -140,7 +140,7 @@ namespace net.rs64.TexTransCore
 
             Span<Color> gvBuf = stackalloc Color[1];
             gvBuf[0] = color;
-            computeHandler.UploadCBuffer<Color>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<Color>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, target);
 

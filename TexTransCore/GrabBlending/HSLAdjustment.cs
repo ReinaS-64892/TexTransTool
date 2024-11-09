@@ -27,7 +27,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             gvBuf[0] = Hue;
             gvBuf[1] = Saturation;
             gvBuf[2] = Lightness;
-            computeHandler.UploadCBuffer<float>(gvBufId, gvBuf);
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, grabTexture);
 
