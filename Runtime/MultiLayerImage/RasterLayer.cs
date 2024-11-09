@@ -11,7 +11,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {
-            engine.LoadTexture(renderTexture, engine.Wrapping(RasterTexture));
+            using var ri = engine.Wrapping(RasterTexture);
+            engine.LoadTexture(renderTexture, ri);
         }
 
         internal override void LookAtCalling(ILookingObject lookingObject)

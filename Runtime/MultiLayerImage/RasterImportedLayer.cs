@@ -18,7 +18,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
         {
-            engine.LoadTexture(renderTexture, engine.Wrapping(ImportedImage));
+            using var ii = engine.Wrapping(ImportedImage);
+            engine.LoadTexture(renderTexture, ii);
         }
 
         internal override void LookAtCalling(ILookingObject lookingObject)
@@ -49,7 +50,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            engine.LoadTexture(renderTexture, engine.Wrapping(MaskTexture));
+            using var im = engine.Wrapping(MaskTexture);
+            engine.LoadTexture(renderTexture, im);
         }
     }
 }

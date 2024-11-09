@@ -98,7 +98,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            engine.LoadTextureWidthAnySize(renderTexture, engine.Wrapping(MaskTexture));
+            using var lm = engine.Wrapping(MaskTexture);
+            engine.LoadTextureWidthAnySize(renderTexture, lm);
         }
     }
 
