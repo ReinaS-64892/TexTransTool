@@ -14,10 +14,10 @@ namespace net.rs64.TexTransTool
 #pragma warning restore CS0414 , IDE0052
 
 
-        public PropertyName(string propertyName)
+        public PropertyName(string propertyName, bool useCustomProperty = false)
         {
             _propertyName = propertyName;
-            _useCustomProperty = false;
+            _useCustomProperty = useCustomProperty;
             _shaderName = "DefaultShader";
         }
         internal bool UseCustomProperty => _useCustomProperty;
