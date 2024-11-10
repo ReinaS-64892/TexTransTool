@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool
     {
         int GetOriginalTextureSize(Texture2D texture2D);
         void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
-        void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget);
+        void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget);
     }
     public interface IDeferTextureCompress
     {
@@ -149,7 +149,7 @@ namespace net.rs64.TexTransTool
             switch (diskTexture)
             {
                 case UnityDiskTexture tex2DWrapper: { origin.WriteOriginalTexture(tex2DWrapper.Texture, renderTexture.Unwrap()); break; }
-                case TTCE4UnityWithTTT4Unity.UnityImportedDiskTexture importedWrapper: { origin.WriteOriginalTexture(importedWrapper.Texture, renderTexture.Unwrap()); break; }
+                case TTCE4UnityWithTTT4Unity.UnityImportedDiskTexture importedWrapper: { origin.WriteOriginalTexture(importedWrapper.Texture, renderTexture); break; }
             }
         }
 

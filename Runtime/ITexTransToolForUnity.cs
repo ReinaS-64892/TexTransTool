@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public interface ITexTransToolForUnity : ITexTransCoreEngine
+    public interface ITexTransToolForUnity : ITexTransCoreEngine, ITexTransRenderTextureIO, ITexTransRenderTextureUploadToCreate
     {
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
@@ -30,15 +30,6 @@ namespace net.rs64.TexTransTool
         }
         ITTDiskTexture Wrapping(TTTImportedImage texture2D) { return Wrapping(texture2D.PreviewTexture); }
 
-        /// 基本的にパフォーマンスは良くないからうまく使わないといけない
-        void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
-
-        ITTRenderTexture UploadTexture<T>(int width, int height, TexTransCoreTextureChannel channel, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
-        {
-            var rt = CreateRenderTexture(width, height, channel);
-            UploadTexture(rt, bytes, format);
-            return rt;
-        }
         ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
             using var na = new NativeArray<byte>(renderTexture.width * renderTexture.height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -48,9 +39,24 @@ namespace net.rs64.TexTransTool
             return rt;
         }
 
+    }
+
+    public interface ITexTransRenderTextureIO
+    {
+        // 基本的にパフォーマンスは良くないからうまく使わないといけない
+        void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
         void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }
 
+    public interface ITexTransRenderTextureUploadToCreate : ITexTransRenderTextureIO, ITexTransCreateTexture
+    {
+        ITTRenderTexture UploadTexture<T>(int width, int height, TexTransCoreTextureChannel channel, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
+        {
+            var rt = CreateRenderTexture(width, height, channel);
+            UploadTexture(rt, bytes, format);
+            return rt;
+        }
+    }
     public class RenderTextureAsDiskTexture : ITTDiskTexture
     {
         private ITTRenderTexture _renderTexture;

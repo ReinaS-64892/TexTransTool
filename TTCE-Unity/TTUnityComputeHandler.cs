@@ -41,25 +41,34 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged
         {
-            UploadBufferImpl(id, bytes, true);
-        }
-        public void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged
-        {
-            UploadBufferImpl(id, bytes, false);
-        }
-
-        private void UploadBufferImpl<T>(int id, ReadOnlySpan<T> bytes, bool isConstants) where T : unmanaged
-        {
             if (_buffers.ContainsKey(id) is false)
-            { _buffers[id] = new GraphicsBuffer(isConstants ? GraphicsBuffer.Target.Constant : GraphicsBuffer.Target.Structured, 1, bytes.Length * UnsafeUtility.SizeOf<T>()); }
+            {
+                var length = bytes.Length * UnsafeUtility.SizeOf<T>();
+                if ((length % 4) is not 0) { length += 4 - length % 4; }
+                _buffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Constant, 1, length);
+            }
             using var na = new NativeArray<byte>(_buffers[id].stride, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
             _buffers[id].SetData(na);
 
-            if (isConstants) _compute.SetConstantBuffer(id, _buffers[id], 0, _buffers[id].stride);
-            else _compute.SetBuffer(0, id, _buffers[id]);
+            _compute.SetConstantBuffer(id, _buffers[id], 0, _buffers[id].stride);
         }
+        public void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged
+        {
+            if (_buffers.ContainsKey(id)) { _buffers[id].Dispose(); _buffers.Remove(id); }
+            var length = bytes.Length * UnsafeUtility.SizeOf<T>();
+            if ((length % 4) is not 0) { length += 4 - length % 4; }
+            _buffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length / 4, 4);
+            using var na = new NativeArray<byte>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+
+            MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
+            _buffers[id].SetData(na);
+
+            _compute.SetBuffer(0, id, _buffers[id]);
+        }
+
+
 
 
         public void Dispose()

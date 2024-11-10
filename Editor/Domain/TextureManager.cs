@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
@@ -16,10 +17,12 @@ namespace net.rs64.TexTransTool
         IDeferredDestroyTexture _deferDestroyTextureManager;
         IOriginTexture _originTexture;
         IDeferTextureCompress _textureCompressManager;
-        public TextureManager(bool previewing, bool? useCompress = null)
+        ITexTransToolForUnity _ttt4u;//TODO : これ何とかしないと
+        public TextureManager(bool previewing, bool? useCompress = null, ITexTransToolForUnity ttt4u = null)
         {
+            _ttt4u = ttt4u;
             _deferDestroyTextureManager = new DeferredDestroyer();
-            _originTexture = new GetOriginTexture(previewing, _deferDestroyTextureManager.DeferredDestroyOf);
+            _originTexture = new GetOriginTexture(previewing, _deferDestroyTextureManager.DeferredDestroyOf, _ttt4u);
             _textureCompressManager = useCompress ?? !previewing ? new TextureCompress() : null;
         }
         public TextureManager(IDeferredDestroyTexture deferDestroyTextureManager, IOriginTexture originTexture, IDeferTextureCompress textureCompressManager)
@@ -41,7 +44,16 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D) { return _originTexture.GetOriginalTextureSize(texture2D); }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture2D, writeTarget); }
-        public void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture, writeTarget); }
+        public void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture, writeTarget); }
+
+        internal void SetTTCE4U(ITexTransToolForUnity ttce4U)
+        {
+            _ttt4u = ttce4U;
+            if (_originTexture is GetOriginTexture got)
+            {
+                got._ttt4u = ttce4U;
+            }
+        }
     }
 
     internal class DeferredDestroyer : IDeferredDestroyTexture
@@ -66,36 +78,35 @@ namespace net.rs64.TexTransTool
 
     internal class GetOriginTexture : IOriginTexture
     {
+        internal ITexTransToolForUnity _ttt4u;
         private readonly bool Previewing;
         private readonly Action<Texture2D> DeferDestroyCall;
 
-        public GetOriginTexture(bool previewing, Action<Texture2D> deferDestroyCall)
+        public GetOriginTexture(bool previewing, Action<Texture2D> deferDestroyCall, ITexTransToolForUnity ttt4u)
         {
+            _ttt4u = ttt4u;
             Previewing = previewing;
             DeferDestroyCall = deferDestroyCall;
         }
 
         protected Dictionary<Texture2D, Texture2D> _originDict = new();
-        protected Dictionary<TTTImportedCanvasDescription, byte[]> _canvasSource = new();
-
-        public IReadOnlyDictionary<Texture2D, Texture2D> OriginDict => _originDict;
-        public IReadOnlyDictionary<TTTImportedCanvasDescription, byte[]> CanvasSource => _canvasSource;
+        protected Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource = new();
 
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
             Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
         }
-        public void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget)
+        public void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget)
         {
             if (Previewing)
             {
-                Graphics.Blit(texture.PreviewTexture, writeTarget);
-                TextureBlend.ToGamma(writeTarget);
+                Graphics.Blit(texture.PreviewTexture, writeTarget.Unwrap());
+                _ttt4u.LinearToGamma(writeTarget);
             }
             else
             {
-                if (!_canvasSource.ContainsKey(texture.CanvasDescription)) { _canvasSource[texture.CanvasDescription] = File.ReadAllBytes(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
-                texture.LoadImage(_canvasSource[texture.CanvasDescription], writeTarget);
+                if (!_canvasSource.ContainsKey(texture.CanvasDescription)) { _canvasSource[texture.CanvasDescription] = texture.CanvasDescription.LoadCanvasSource(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
+                texture.LoadImage(_canvasSource[texture.CanvasDescription], _ttt4u, writeTarget);
             }
         }
         public int GetOriginalTextureSize(Texture2D texture2D)

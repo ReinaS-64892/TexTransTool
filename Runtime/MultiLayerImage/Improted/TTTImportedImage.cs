@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using Unity.Collections;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -11,10 +12,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public TTTImportedCanvasDescription CanvasDescription;
         public Texture2D PreviewTexture;
 
-        // R8 or RGBA32 Non MipMap
-        internal protected abstract JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null);
-        internal protected abstract void LoadImage(byte[] importSource, RenderTexture writeTarget);
-        internal protected abstract Vector2Int Pivot { get; }
+        // ここでの writeTarget は CanvasSize と同じことが前提
+        public abstract void LoadImage<TTCE>(ITTImportedCanvasSource importSource, TTCE ttce, ITTRenderTexture writeTarget)
+        where TTCE : ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
+        , ITexTransCopyRenderTexture
+        , ITexTransCreateTexture
+        , ITexTransRenderTextureIO
+        , ITexTransRenderTextureUploadToCreate
+        ;
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(TTTImportedImage))]

@@ -55,6 +55,7 @@ namespace net.rs64.TexTransCore
     public interface ITexTransComputeKeyQuery
     {
         ITexTransStandardComputeKey StandardComputeKey { get; }
+        ITexTransComputeKeyDictionary<string> GenealCompute { get; }
         ITexTransComputeKeyDictionary<string> GrabBlend { get; }
         ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
     }
@@ -73,6 +74,8 @@ namespace net.rs64.TexTransCore
 
         ITTComputeKey GammaToLinear { get; }
         ITTComputeKey LinearToGamma { get; }
+
+        ITTComputeKey Swizzling { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey>
     {

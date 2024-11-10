@@ -59,6 +59,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
         ITexTransComputeKeyDictionary<ITTBlendKey>? _blendKey = null;
         public ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey => _blendKey ??= new BlendKeyUnWrapper();
 
+        ITexTransComputeKeyDictionary<string>? _genealCompute = null;
+        public ITexTransComputeKeyDictionary<string> GenealCompute => _genealCompute ??= new GenealComputeQuery();
 
         class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey>
         {
@@ -68,6 +70,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
         class GrabBlendQuery : ITexTransComputeKeyDictionary<string>
         {
             public ITTComputeKey this[string key] => GrabBlending.GrabBlendObjects[key];
+        }
+        class GenealComputeQuery : ITexTransComputeKeyDictionary<string>
+        {
+            public ITTComputeKey this[string key] => GrabBlending.GeneralComputeObjects[key];
         }
 
     }

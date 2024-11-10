@@ -1,7 +1,9 @@
 using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Threading.Tasks;
 using net.rs64.PSDParser;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.PSDParser;
@@ -21,9 +23,78 @@ namespace net.rs64.TexTransTool.PSDImporter
     {
         [SerializeField] public PSDImportedRasterImageData RasterImageData;
 
-        protected override Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
+        public override void LoadImage<TTCE>(ITTImportedCanvasSource importSource, TTCE ttce, ITTRenderTexture writeTarget)
+        {
+            var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-        protected override JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
+            var size = ((uint)RasterImageData.RectTangle.GetWidth(), (uint)RasterImageData.RectTangle.GetHeight());
+            var piv = ((uint)PivotT.x, (uint)PivotT.y);
+
+            if (size.Item1 is 0 || size.Item2 is 0) { return; }
+
+            if (psdCanvasDesc.BitDepth is 8 && psdCanvasDesc.IsPSB is false)
+            {
+                using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
+
+
+                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, (int)RasterImageData.R.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, (int)RasterImageData.G.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
+            }
+
+
+        }
+
+        public static void DecompressRLE8BitPSDWithTTCE((uint x, uint y) size, (uint x, uint y) pivot, ITTRenderTexture writeTarget, uint channel, ITTComputeHandler computeHandler, Span<byte> rleSource)
+        {
+            var gvID = computeHandler.NameToID("gv");
+
+            var spanBufferID = computeHandler.NameToID("SpanBuffer");
+            var rleBufferID = computeHandler.NameToID("RLEBuffer");
+            var texID = computeHandler.NameToID("Tex");
+
+            var heightDataLen = (int)(size.y * 2);
+
+            var hSpan = rleSource[..heightDataLen];
+            var dSpan = rleSource[heightDataLen..];
+
+            Span<uint> gvBuf = stackalloc uint[6];
+            gvBuf[0] = channel;
+            gvBuf[1] = 0; // p1
+
+            (gvBuf[2], gvBuf[3]) = size;
+            (gvBuf[4], gvBuf[5]) = pivot;
+
+            Span<uint> spanBuf = heightDataLen > 1024 ? stackalloc uint[heightDataLen] : new uint[heightDataLen];
+
+            uint offset = 0;
+            for (var y = 0; size.y > y; y += 1)
+            {
+                var i = y * 2;
+                var count = BinaryPrimitives.ReadUInt16BigEndian(hSpan.Slice(i, 2));
+
+                spanBuf[i] = offset;
+                spanBuf[i + 1] = count;
+
+                offset += count;
+            }
+
+            computeHandler.UploadConstantsBuffer<uint>(gvID, gvBuf);
+            computeHandler.UploadStorageBuffer<uint>(spanBufferID, spanBuf);
+            computeHandler.UploadStorageBuffer<byte>(rleBufferID, dSpan);
+
+            computeHandler.SetTexture(texID, writeTarget);
+
+            computeHandler.Dispatch(1, (size.y + 255) / 256, 1);
+        }
+
+
+        protected (int x, int y) PivotT => (RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
+        protected Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
+
+        protected JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
         {
             Profiler.BeginSample("Init");
             var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -101,7 +172,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             return writeArray;
         }
 
-        protected override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
+        protected void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             // var timer = System.Diagnostics.Stopwatch.StartNew();
             var containsAlpha = RasterImageData.A.ImageDataAddress.Length != 0;
@@ -203,6 +274,8 @@ namespace net.rs64.TexTransTool.PSDImporter
         {
             MergeColorAndOffsetShader = Shader.Find(MERGE_COLOR_AND_OFFSET_SHADER);
         }
+
+
         internal const string MERGE_COLOR_AND_OFFSET_SHADER = "Hidden/MergeColorAndOffset";
         internal static Shader MergeColorAndOffsetShader;
         internal static Material s_tempMat;

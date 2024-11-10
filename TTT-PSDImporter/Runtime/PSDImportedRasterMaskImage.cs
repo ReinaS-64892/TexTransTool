@@ -1,4 +1,6 @@
+using System;
 using net.rs64.PSDParser;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.PSDParser;
@@ -8,6 +10,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
+using static net.rs64.TexTransCore.RenderTextureOperator;
 
 namespace net.rs64.TexTransTool.PSDImporter
 {
@@ -15,9 +18,36 @@ namespace net.rs64.TexTransTool.PSDImporter
     {
         [SerializeField] public PSDImportedRasterMaskImageData MaskImageData;
 
-        protected override Vector2Int Pivot => new Vector2Int(MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
+        public override void LoadImage<TTCE>(ITTImportedCanvasSource importSource, TTCE ttce, ITTRenderTexture writeTarget)
+        {
+            var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-        protected override JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
+            var defaultValue = MaskImageData.DefaultValue / 255;
+            ttce.ColorFill(writeTarget, new(defaultValue, defaultValue, defaultValue, defaultValue));
+
+            var size = ((uint)MaskImageData.RectTangle.GetWidth(), (uint)MaskImageData.RectTangle.GetHeight());
+            var piv = ((uint)PivotT.x, (uint)PivotT.y);
+
+            if (size.Item1 is 0 || size.Item2 is 0) { return; }
+
+            if (psdCanvasDesc.BitDepth is 8 && psdCanvasDesc.IsPSB is false)
+            {
+                using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
+
+                PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, psdBinary.PSDByteArray.AsSpan((int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
+                ttce.Swizzling(writeTarget, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A);
+            }
+
+
+        }
+
+
+
+        protected (int x, int y) PivotT => (MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
+        protected Vector2Int Pivot => new Vector2Int(MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
+
+        protected JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -57,7 +87,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             Profiler.EndSample();
             return new(native2DArray, offsetJobHandle, () => { data.Dispose(); });
         }
-        protected override void LoadImage(byte[] importSource, RenderTexture WriteTarget)
+        protected void LoadImage(byte[] importSource, RenderTexture WriteTarget)
         {
             var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
             if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MergeColorAndOffsetShader); }

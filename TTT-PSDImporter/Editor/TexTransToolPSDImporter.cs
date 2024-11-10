@@ -59,6 +59,7 @@ namespace net.rs64.TexTransTool.PSDImporter
                 canvasDescription.Width = pSDData.Width;
                 canvasDescription.Height = pSDData.Height;
                 canvasDescription.BitDepth = pSDData.Depth;
+                canvasDescription.IsPSB = lowPSDData.IsPSB;
                 canvasDescription.name = "CanvasDescription";
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;

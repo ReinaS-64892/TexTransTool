@@ -10,5 +10,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public int Width;
         public int Height;
+
+        public abstract ITTImportedCanvasSource LoadCanvasSource(string path);
     }
+    public interface ITTImportedCanvasSource { }
 }

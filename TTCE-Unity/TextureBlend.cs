@@ -145,6 +145,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTComputeKey GammaToLinear => GammaToLinearCS;
 
             public ITTComputeKey LinearToGamma => LinearToGammaCS;
+
+            public ITTComputeKey Swizzling => GrabBlending.GeneralComputeObjects["Swizzling"];//TODO : なんとかして
         }
 
 

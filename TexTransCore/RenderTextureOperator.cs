@@ -153,7 +153,6 @@ namespace net.rs64.TexTransCore
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.GammaToLinear);
 
             var texID = computeHandler.NameToID("Tex");
-            var gvBufId = computeHandler.NameToID("gv");
 
             computeHandler.SetTexture(texID, target);
             computeHandler.DispatchWithTextureSize(target);
@@ -164,11 +163,35 @@ namespace net.rs64.TexTransCore
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.LinearToGamma);
 
             var texID = computeHandler.NameToID("Tex");
+
+            computeHandler.SetTexture(texID, target);
+            computeHandler.DispatchWithTextureSize(target);
+        }
+        public static void Swizzling<TTCE>(this TTCE engine, ITTRenderTexture target, SwizzlingChannel r = SwizzlingChannel.R, SwizzlingChannel g = SwizzlingChannel.G, SwizzlingChannel b = SwizzlingChannel.B, SwizzlingChannel a = SwizzlingChannel.A)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.Swizzling);
+
+            var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");
+
+            Span<SwizzlingChannel> gvBuf = stackalloc SwizzlingChannel[4];
+            gvBuf[0] = r;
+            gvBuf[1] = g;
+            gvBuf[2] = b;
+            gvBuf[3] = a;
+            computeHandler.UploadConstantsBuffer<SwizzlingChannel>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(texID, target);
             computeHandler.DispatchWithTextureSize(target);
         }
 
+        public enum SwizzlingChannel : uint
+        {
+            R = 0,
+            G = 1,
+            B = 2,
+            A = 3,
+        }
     }
 }
