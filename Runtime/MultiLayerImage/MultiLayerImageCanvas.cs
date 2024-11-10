@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TextureSelector.ModificationTargetRenderers(domainRenderers, replaceTracking);
+            return TextureSelector.ModificationTargetRenderers(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer), replaceTracking);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

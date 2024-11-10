@@ -53,6 +53,8 @@ namespace net.rs64.TexTransTool
         int GetOriginalTextureSize(Texture2D texture2D);
         void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
         void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget);
+
+        void PreloadOriginalTexture(Texture2D texture2D);
     }
     public interface IDeferTextureCompress
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
+using System.Threading.Tasks;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
@@ -45,6 +45,10 @@ namespace net.rs64.TexTransTool
         public int GetOriginalTextureSize(Texture2D texture2D) { return _originTexture.GetOriginalTextureSize(texture2D); }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture2D, writeTarget); }
         public void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture, writeTarget); }
+        public void PreloadOriginalTexture(Texture2D texture2D)
+        {
+            _originTexture.PreloadOriginalTexture(texture2D);
+        }
 
         internal void SetTTCE4U(ITexTransToolForUnity ttce4U)
         {
@@ -90,8 +94,21 @@ namespace net.rs64.TexTransTool
         }
 
         protected Dictionary<Texture2D, Texture2D> _originDict = new();
+
+        private Dictionary<Texture2D, Task<Func<Texture2D>>> _asyncOriginLoaders = new();
+        
         protected Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource = new();
 
+        
+        public void PreloadOriginalTexture(Texture2D texture2D)
+        {
+            if (_originDict.ContainsKey(texture2D) || _asyncOriginLoaders.ContainsKey(texture2D)) return;
+
+            var task = TextureUtility.AsyncGetUncompressed(texture2D);
+
+            _asyncOriginLoaders[texture2D] = task;
+        }
+        
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
             Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
@@ -109,6 +126,8 @@ namespace net.rs64.TexTransTool
                 texture.LoadImage(_canvasSource[texture.CanvasDescription], _ttt4u, writeTarget);
             }
         }
+
+
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
             return TexTransCoreEngineForUnity.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
@@ -123,6 +142,22 @@ namespace net.rs64.TexTransTool
             {
                 if (_originDict.ContainsKey(texture2D) && _originDict[texture2D] != null)
                 {
+                    return _originDict[texture2D];
+                }
+                else if (_asyncOriginLoaders.TryGetValue(texture2D, out var task))
+                {
+                    // 必要なテクスチャの読み込み終わってない間に他のテクスチャをApplyしましょう、と思いきや、それでは遅くなります。
+                    // おそらく、まだ必要じゃないテクスチャのアップロードを待つことで、今できるBlitが後回しになっているからだと思われます。
+                    // なので、テクスチャが初めて必要になったときにApplyする方針です。
+                    if (!task.Wait(60_000))
+                    {
+                        // なんか壊れたらEditorが固まらないための安全装置
+                        throw new TimeoutException("Async image loader timed out");
+                    }
+                    _originDict[texture2D] = task.Result();
+                    DeferDestroyCall?.Invoke(_originDict[texture2D]);
+                    _asyncOriginLoaders.Remove(texture2D);
+                    
                     return _originDict[texture2D];
                 }
                 else

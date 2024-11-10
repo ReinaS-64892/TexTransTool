@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.Decal
         private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
         {
             if (TargetMaterials.Any() is false) { return new(); }
-            return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
+            return RendererUtility.GetFilteredMaterials(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer)).Where(m => TargetMaterials.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 
         private void OnDrawGizmosSelected()

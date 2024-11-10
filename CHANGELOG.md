@@ -5,7 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...HEAD)
+
+## [v0.8.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.3...v0.8.4) - 2024-11-05
+
+### Added
+
+- AtlasTexture のオリジナルテクスチャーのロードが並列で行われるようになり高速化されました (#707)
+- AtlasTexture でサブメッシュを超えて同一頂点を使用しているメッシュの正規化処理が高速化されました (#708)
+
+### Fixed
+
+- Decal系で対象となるレンダラーに マテリアルスロット数 が サブメッシュ数 よりも少ないレンダラーが存在する場合に例外が発生する問題を修正 (#709)
+
+## [v0.8.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...v0.8.3) - 2024-10-30
+
+### Fixed
+
+- AtlasTexture の内部で使用している RenderTexture で、 Depth&Stencil の初期化忘れにより破綻したテクスチャーが生成される問題を修正 (#700)
+- AtlasTexture の lilToonShaderSupport が誤って lilToonLite を対応していると判定してしまい、対象範囲に存在した場合に例外が発生する問題を修正 (#701)
+- ParticleSystem が何かしらで対象に含まれてしまうと、 NDMF Preview が動作しなくなる問題を修正 (#702)
 
 ### Added
 

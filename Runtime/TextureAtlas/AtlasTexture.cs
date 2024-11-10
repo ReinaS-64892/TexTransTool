@@ -320,7 +320,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
+                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true, true, true);
                 TextureBlend.FillColor(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
@@ -521,6 +521,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(ITextureManager texManage, AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, out Dictionary<string, float> bakePropMaxValue)
         {
+            foreach (var textures in atlasContext.MaterialGroupToAtlasShaderTexDict.Values)
+            {
+                foreach (var atlasShaderTexture in textures.Values)
+                {
+                    if (atlasShaderTexture.Texture is Texture2D tex) texManage.PreloadOriginalTexture(tex);
+                }
+            }
+            
             bakePropMaxValue = null;
             var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
@@ -665,29 +673,49 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         private static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
         {
-            switch (atlasTex)
+            Profiler.BeginSample("GetOriginAtUseMip");
+            try
             {
-                default:
+                switch (atlasTex)
+                {
+                    default:
                     {
                         var originSize = atlasTex.width;
+                        Profiler.BeginSample("TTTRt.G");
                         var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        Profiler.EndSample();
                         rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
                         rt.CopyFilWrap(atlasTex);
                         rt.filterMode = FilterMode.Trilinear;
+                        Profiler.BeginSample("Graphics.Blit");
                         Graphics.Blit(atlasTex, rt);
+                        Profiler.EndSample();
                         return rt;
                     }
-                case Texture2D atlasTex2D:
+                    case Texture2D atlasTex2D:
                     {
+                        Profiler.BeginSample("GetOriginalTextureSize");
                         var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                        Profiler.EndSample();
+                        
+                        Profiler.BeginSample("TTTRt.G");
                         var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        Profiler.EndSample();
                         rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
                         rt.CopyFilWrap(atlasTex);
                         rt.filterMode = FilterMode.Trilinear;
+                        Profiler.BeginSample("Graphics.Blit");
                         texManage.WriteOriginalTexture(atlasTex2D, rt);
+                        Profiler.EndSample();
                         return rt;
                     }
 
+                }
+            }
+            finally
+            {
+                
+                Profiler.EndSample();
             }
         }
         private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)
