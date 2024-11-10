@@ -7,7 +7,9 @@ using nadena.dev.ndmf.preview;
 using System;
 using System.Linq;
 using net.rs64.TexTransCore;
+#if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
+#endif
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
