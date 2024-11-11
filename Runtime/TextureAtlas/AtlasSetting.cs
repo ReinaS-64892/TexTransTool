@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Color BackGroundColor = Color.white;
         [FormerlySerializedAs("DownScalingAlgorism")] public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
-        public List<TextureIndividualTuning> TextureIndividualFineTuning;
+        public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;

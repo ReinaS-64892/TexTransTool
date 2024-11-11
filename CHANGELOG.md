@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...HEAD)
 
+### Fixed
+
+- AtlasTexture の ForceSizePriority が縮小の必要がないケースにおいて縮小が強制的に行われなかった問題を修正 (#716)
+
 ## [v0.8.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.3...v0.8.4) - 2024-11-05
 
 ### Added
