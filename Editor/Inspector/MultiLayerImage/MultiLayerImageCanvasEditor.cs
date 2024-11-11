@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         public static void DrawPreviewMLIC(Rect previewArea, MultiLayerImageCanvas mlic)
         {
             var texManager = new TextureManager(true);
-            var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(true, texManager);
+            var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(texManager));
             var canvasResult = mlic.EvaluateCanvas(texTransUnityCoreEngine, 1024, 1024).Unwrap();
             texManager.DestroyDeferred();
 

@@ -15,10 +15,10 @@ namespace net.rs64.TexTransTool
 {
     internal class TTCE4UnityWithTTT4Unity : TTCEUnity, ITexTransToolForUnity
     {
-        private bool _isPreview;
-        public TTCE4UnityWithTTT4Unity(bool isPreview, IOriginTexture iOrigin) : base(iOrigin.LoadTexture, t => { var size = iOrigin.GetOriginalTextureSize(t); return (size, size); })
+        ITexTransUnityDiskUtil _diskUtil;
+        public TTCE4UnityWithTTT4Unity(ITexTransUnityDiskUtil diskUtil)
         {
-            _isPreview = isPreview;
+            _diskUtil = diskUtil;
         }
 
         public void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
@@ -63,36 +63,17 @@ namespace net.rs64.TexTransTool
 
         public ITTDiskTexture Wrapping(Texture2D texture2D)
         {
-            return new UnityDiskTexture(texture2D, _preloadAndTextureSize(texture2D));
+            return _diskUtil.Wrapping(texture2D);
         }
 
-        public ITTDiskTexture Wrapping(TTTImportedImage texture2D)
+        public ITTDiskTexture Wrapping(TTTImportedImage importImage)
         {
-            return new UnityImportedDiskTexture(texture2D, _isPreview);
+            return _diskUtil.Wrapping(importImage);
         }
 
-
-        internal class UnityImportedDiskTexture : ITTDiskTexture
+        public void LoadTexture(ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
         {
-            internal TTTImportedImage Texture;
-            private bool _isPreview;
-
-            public UnityImportedDiskTexture(TTTImportedImage texture, bool isPreview)
-            {
-                Texture = texture;
-                _isPreview = isPreview;
-            }
-            public int Width => _isPreview ? Texture.PreviewTexture.width : Texture.CanvasDescription.Width;
-
-            public int Hight => _isPreview ? Texture.PreviewTexture.height : Texture.CanvasDescription.Height;
-
-            public bool MipMap => false;
-
-            public string Name { get => Texture.name; set => Texture.name = value; }
-
-
-            public void Dispose() { }
+            _diskUtil.LoadTexture(this, writeTarget, diskTexture);
         }
-
     }
 }

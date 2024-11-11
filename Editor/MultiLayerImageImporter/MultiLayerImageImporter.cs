@@ -11,6 +11,9 @@ using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity.Unsafe;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -18,23 +21,22 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     {
         MultiLayerImageCanvas _multiLayerImageCanvas;
         TTTImportedCanvasDescription _tttImportedCanvasDescription;
+        ITTImportedCanvasSource _ttImportedCanvasSource;
         AssetImportContext _ctx;
         List<TTTImportedImage> _tttImportedImages = new();
         CreateImportedImage _imageImporter;
-        byte[] _sourceBytes;
         Dictionary<TTTImportedImage, string> _layerAtPath = new();
         string _path = "";
 
         public delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
-        public delegate Task<NativeArray<Color32>> GetPreviewImage(byte[] sourceBytes, TTTImportedImage importRasterImage);//つまり正方形にオフセットの入った後の画像を取得するやつ RGBA32
 
-        public MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, byte[] sourceBytes, CreateImportedImage imageImporter)
+        public MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, ITTImportedCanvasSource ttImportedCanvasSource, CreateImportedImage imageImporter)
         {
             _multiLayerImageCanvas = multiLayerImageCanvas;
             _ctx = assetImportContext;
             _imageImporter = imageImporter;
             _tttImportedCanvasDescription = tttImportedCanvasDescription;
-            _sourceBytes = sourceBytes;
+            _ttImportedCanvasSource = ttImportedCanvasSource;
 
         }
 
@@ -124,62 +126,67 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         internal void CreatePreview()
         {
-            // var canvasSize = new int2(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height);
+            var texFormat = _tttImportedCanvasDescription.ImportedImageFormat.ToUnityTextureFormat(TexTransCoreTextureChannel.RGBA);
+            var ppB = EnginUtil.GetPixelParByte(_tttImportedCanvasDescription.ImportedImageFormat, TexTransCoreTextureChannel.RGBA);
+            var length = _tttImportedCanvasDescription.Width * _tttImportedCanvasDescription.Height * ppB;
+            using var naBuf = new NativeArray<byte>(length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
-            // using (var fullNATex = new NativeArray<Color32>(canvasSize.x * canvasSize.y, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-            // {
-            //     foreach (var importedImage in _tttImportedImages)
-            //     {
-            //         Profiler.BeginSample("CreatePreview -" + importedImage.name);
-            //         Profiler.BeginSample("LoadImage");
+            var resizing = math.max(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height) > 1024;
 
-            //         var jobResult = importedImage.LoadImage(_sourceBytes, fullNATex);
-
-            //         Profiler.EndSample();
-            //         Texture2D tex2d;
-            //         if (math.max(canvasSize.x, canvasSize.y) <= 1024)
-            //         {
-            //             Profiler.BeginSample("CratePrevTex");
-
-            //             tex2d = new Texture2D(canvasSize.x, canvasSize.y, TextureFormat.RGBA32, false);
-            //             tex2d.alphaIsTransparency = true;
-
-            //             tex2d.LoadRawTextureData(jobResult.GetResult);
-            //             EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
-
-            //             Profiler.EndSample();
-            //         }
-            //         else
-            //         {
-            //             Profiler.BeginSample("CreateMipDispatch");
-
-            //             var mipMapCount = MipMapUtility.MipMapCountFrom(Mathf.Max(canvasSize.x, canvasSize.y), 1024);
-            //             _ = jobResult.GetResult;
-            //             var mipJobResult = MipMapUtility.GenerateAverageMips(fullNATex, canvasSize, mipMapCount);
-
-            //             Profiler.EndSample();
-            //             Profiler.BeginSample("CratePrevTex");
-
-            //             tex2d = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
-            //             tex2d.alphaIsTransparency = true;
-
-            //             tex2d.LoadRawTextureData(mipJobResult.GetResult[mipMapCount]);
-            //             EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
-            //             foreach (var n2da in mipJobResult.GetResult.Skip(1)) { n2da.Dispose(); }
-
-            //             Profiler.EndSample();
-            //         }
-            //         Profiler.BeginSample("SetTexDataAndCompress");
-
-            //         tex2d.Apply(true, true);
-            //         importedImage.PreviewTexture = tex2d;
-
-            //         Profiler.EndSample();
-            //         Profiler.EndSample();
-            //     }
+            var fullTexTemp = resizing ? new Texture2D(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height, texFormat, false) : null;
 
 
-            // }
+            foreach (var importedImage in _tttImportedImages)
+            {
+                Profiler.BeginSample("CreatePreview -" + importedImage.name);
+                UnsafeNativeArrayUtility.ClearMemory(naBuf);
+                Profiler.BeginSample("LoadImage");
+
+                importedImage.LoadImage(_ttImportedCanvasSource, naBuf);
+
+                Profiler.EndSample();
+                Texture2D tex2d;
+                if (resizing is false)
+                {
+                    Profiler.BeginSample("CratePrevTex");
+
+                    tex2d = new Texture2D(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height, texFormat, false);
+                    tex2d.alphaIsTransparency = true;
+
+                    tex2d.LoadRawTextureData(naBuf);
+                    EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
+
+                    Profiler.EndSample();
+                }
+                else
+                {
+                    Profiler.BeginSample("CreateAndResizing");
+                    fullTexTemp.GetRawTextureData<byte>().CopyFrom(naBuf);
+                    tex2d = new Texture2D(1024, 1024, texFormat, false);
+
+                    for (var y = 0; tex2d.height > y; y += 1)
+                    {
+                        for (var x = 0; tex2d.width > x; x += 1)
+                        {
+                            tex2d.SetPixel(x, y, fullTexTemp.GetPixelBilinear(x / (float)(tex2d.width - 1), y / (float)(tex2d.height - 1)));
+                        }
+                    }
+
+                    tex2d.alphaIsTransparency = true;
+                    EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
+
+                    Profiler.EndSample();
+                }
+                Profiler.BeginSample("SetTexDataAndCompress");
+
+                tex2d.Apply(true, true);
+                importedImage.PreviewTexture = tex2d;
+
+                Profiler.EndSample();
+                Profiler.EndSample();
+            }
+
+            if (fullTexTemp != null) UnityEngine.Object.DestroyImmediate(fullTexTemp);
         }
 
         public void SaveSubAsset()

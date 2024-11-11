@@ -30,7 +30,7 @@ namespace net.rs64.TexTransCore
         public static void DispatchWithTextureSize(this ITTComputeHandler computeHandler, ITTRenderTexture texture)
         {
             var (x, y, _) = computeHandler.WorkGroupSize;
-            computeHandler.Dispatch((uint)((texture.Width + (x - 1)) / x), (uint)((texture.Hight - (y - 1)) / y), 1);
+            computeHandler.Dispatch((uint)((texture.Width + (x - 1)) / x), (uint)((texture.Hight + (y - 1)) / y), 1);
         }
     }
 }

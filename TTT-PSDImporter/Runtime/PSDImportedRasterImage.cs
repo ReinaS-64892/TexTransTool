@@ -22,7 +22,6 @@ namespace net.rs64.TexTransTool.PSDImporter
     public class PSDImportedRasterImage : TTTImportedImage
     {
         [SerializeField] public PSDImportedRasterImageData RasterImageData;
-
         public override void LoadImage<TTCE>(ITTImportedCanvasSource importSource, TTCE ttce, ITTRenderTexture writeTarget)
         {
             var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
@@ -37,11 +36,14 @@ namespace net.rs64.TexTransTool.PSDImporter
             {
                 using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
 
-
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, (int)RasterImageData.R.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, (int)RasterImageData.G.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
+            }
+            else
+            {
+                base.LoadImage(importSource, ttce, writeTarget);
             }
 
 
@@ -89,77 +91,84 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             computeHandler.Dispatch(1, (size.y + 255) / 256, 1);
         }
-
-
-        protected (int x, int y) PivotT => (RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
-        protected Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
-
-        protected JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
+        public override void LoadImage(ITTImportedCanvasSource importSource, Span<byte> writeTarget)
         {
-            Profiler.BeginSample("Init");
-            var nativeArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
-
-            TexTransCoreEngineForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemory(nativeArray);
-
-            Profiler.EndSample();
-            Profiler.BeginSample("RLE");
+            var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
+            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, importSource));
-            getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, importSource));
-            getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, importSource));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, importSource)); }
-
-            var sourceTexSize = new int2(RasterImageData.RectTangle.GetWidth(), RasterImageData.RectTangle.GetHeight());
+            getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, psdBinary.PSDByteArray));
+            getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, psdBinary.PSDByteArray));
+            getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, psdBinary.PSDByteArray));
+            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, psdBinary.PSDByteArray)); }
             var image = WeightTask(getImageTask).Result;
-
-            Profiler.EndSample();
-            Profiler.BeginSample("OffsetJobSetUp");
-
-            JobHandle offsetJobHandle;
-
-            if (RasterImageData.A != null)
+            try
             {
-                var offset = new OffsetMoveAlphaJob()
+                var ppB = EnginUtil.GetPixelParByte(psdCanvasDesc.ImportedImageFormat, TexTransCoreTextureChannel.R);
+
+                var pivot = PivotT;
+                for (var y = 0; RasterImageData.RectTangle.GetHeight() > y; y += 1)
                 {
-                    Target = nativeArray,
-                    R = image[0],
-                    G = image[1],
-                    B = image[2],
-                    A = image[3],
-                    Offset = new int2(Pivot.x, Pivot.y),
-                    SourceSize = sourceTexSize,
-                    TargetSize = canvasSize,
-                };
-                offsetJobHandle = offset.Schedule(image[0].Length, 32);
+                    for (var x = 0; RasterImageData.RectTangle.GetWidth() > x; x += 1)
+                    {
+                        var flipY = RasterImageData.RectTangle.GetHeight() - 1 - y;
+
+                        var writeX = pivot.x + x;
+                        var writeY = pivot.y + flipY;
+
+                        if (writeX < 0 || writeX >= psdCanvasDesc.Width) { continue; }
+                        if (writeY < 0 || writeY >= psdCanvasDesc.Height) { continue; }
+
+                        var readIndex = (x + y * RasterImageData.RectTangle.GetWidth()) * ppB;
+                        var writeIndex = (writeX + writeY * psdCanvasDesc.Width) * ppB * 4;
+
+                        switch (ppB)
+                        {
+                            default:
+                            case 1:
+                                {
+                                    writeTarget[writeIndex + 0] = image[0][readIndex];
+                                    writeTarget[writeIndex + 1] = image[1][readIndex];
+                                    writeTarget[writeIndex + 2] = image[2][readIndex];
+                                    writeTarget[writeIndex + 3] = RasterImageData.A is not null ? image[3][readIndex] : byte.MaxValue;
+                                    break;
+                                }
+                            case 4:
+                            case 8:
+                                {
+                                    image[0].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 0 * ppB, ppB));
+                                    image[1].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 1 * ppB, ppB));
+                                    image[2].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 2 * ppB, ppB));
+                                    if (RasterImageData.A is not null)
+                                    {
+                                        image[3].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 3 * ppB, ppB));
+                                    }
+                                    else
+                                    {
+                                        var span = writeTarget.Slice(writeIndex + 3 * ppB, ppB);
+                                        if (ppB is 4) { BitConverter.TryWriteBytes(span, ushort.MaxValue); }
+                                        else { BitConverter.TryWriteBytes(span, 1f); }
+                                    }
+                                    break;
+                                }
+                        }
+
+
+                    }
+                }
             }
-            else
-            {
-                var offset = new OffsetMoveJob()
-                {
-                    Target = nativeArray,
-                    R = image[0],
-                    G = image[1],
-                    B = image[2],
-                    Offset = new int2(Pivot.x, Pivot.y),
-                    SourceSize = sourceTexSize,
-                    TargetSize = canvasSize,
-                };
-                offsetJobHandle = offset.Schedule(image[0].Length, 32);
-            }
-
-            Profiler.EndSample();
-
-
-            return new(nativeArray, offsetJobHandle, () =>
+            finally
             {
                 image[0].Dispose();
                 image[1].Dispose();
                 image[2].Dispose();
-                if (RasterImageData.A != null) { image[3].Dispose(); }
-            });
+                if (RasterImageData.A != null) image[3].Dispose();
+            }
         }
+
+
+        protected (int x, int y) PivotT => (RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
+        protected Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
 
         internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSource)
         {

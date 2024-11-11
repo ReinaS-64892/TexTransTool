@@ -369,7 +369,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             _domainRenderers = renderers;
             _textureManager = textureManager;
-            _ttce4U = new TTCE4UnityWithTTT4Unity(false, _textureManager);
+            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
         }
 
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }

@@ -17,12 +17,14 @@ namespace net.rs64.TexTransTool
         IDeferredDestroyTexture _deferDestroyTextureManager;
         IOriginTexture _originTexture;
         IDeferTextureCompress _textureCompressManager;
-        ITexTransToolForUnity _ttt4u;//TODO : これ何とかしないと
-        public TextureManager(bool previewing, bool? useCompress = null, ITexTransToolForUnity ttt4u = null)
+
+        public bool IsPreview { get; private set; }
+
+        public TextureManager(bool previewing, bool? useCompress = null)
         {
-            _ttt4u = ttt4u;
+            IsPreview = previewing;
             _deferDestroyTextureManager = new DeferredDestroyer();
-            _originTexture = new GetOriginTexture(previewing, _deferDestroyTextureManager.DeferredDestroyOf, _ttt4u);
+            _originTexture = new GetOriginTexture(previewing, _deferDestroyTextureManager.DeferredDestroyOf);
             _textureCompressManager = useCompress ?? !previewing ? new TextureCompress() : null;
         }
         public TextureManager(IDeferredDestroyTexture deferDestroyTextureManager, IOriginTexture originTexture, IDeferTextureCompress textureCompressManager)
@@ -44,20 +46,19 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D) { return _originTexture.GetOriginalTextureSize(texture2D); }
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture2D, writeTarget); }
-        public void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget) { _originTexture.WriteOriginalTexture(texture, writeTarget); }
+
         public void PreloadOriginalTexture(Texture2D texture2D)
         {
             _originTexture.PreloadOriginalTexture(texture2D);
         }
 
-        internal void SetTTCE4U(ITexTransToolForUnity ttce4U)
+        public (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture)
         {
-            _ttt4u = ttce4U;
-            if (_originTexture is GetOriginTexture got)
-            {
-                got._ttt4u = ttce4U;
-            }
+            var size = _originTexture.GetOriginalTextureSize(diskTexture);
+            return (size, size);
         }
+
+        public void LoadTexture(RenderTexture writeRt, Texture2D diskSource) { WriteOriginalTexture(diskSource, writeRt); }
     }
 
     internal class DeferredDestroyer : IDeferredDestroyTexture
@@ -82,24 +83,23 @@ namespace net.rs64.TexTransTool
 
     internal class GetOriginTexture : IOriginTexture
     {
-        internal ITexTransToolForUnity _ttt4u;
         private readonly bool Previewing;
         private readonly Action<Texture2D> DeferDestroyCall;
 
-        public GetOriginTexture(bool previewing, Action<Texture2D> deferDestroyCall, ITexTransToolForUnity ttt4u)
+        public GetOriginTexture(bool previewing, Action<Texture2D> deferDestroyCall)
         {
-            _ttt4u = ttt4u;
             Previewing = previewing;
             DeferDestroyCall = deferDestroyCall;
         }
 
         protected Dictionary<Texture2D, Texture2D> _originDict = new();
+        // protected Dictionary<Texture2D, (int x, int y)> _originSizeDict = new();
 
         private Dictionary<Texture2D, Task<Func<Texture2D>>> _asyncOriginLoaders = new();
-        
         protected Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource = new();
 
-        
+        public bool IsPreview => Previewing;
+
         public void PreloadOriginalTexture(Texture2D texture2D)
         {
             if (_originDict.ContainsKey(texture2D) || _asyncOriginLoaders.ContainsKey(texture2D)) return;
@@ -108,23 +108,10 @@ namespace net.rs64.TexTransTool
 
             _asyncOriginLoaders[texture2D] = task;
         }
-        
+
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
             Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
-        }
-        public void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget)
-        {
-            if (Previewing)
-            {
-                Graphics.Blit(texture.PreviewTexture, writeTarget.Unwrap());
-                _ttt4u.LinearToGamma(writeTarget);
-            }
-            else
-            {
-                if (!_canvasSource.ContainsKey(texture.CanvasDescription)) { _canvasSource[texture.CanvasDescription] = texture.CanvasDescription.LoadCanvasSource(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
-                texture.LoadImage(_canvasSource[texture.CanvasDescription], _ttt4u, writeTarget);
-            }
         }
 
 
@@ -157,7 +144,7 @@ namespace net.rs64.TexTransTool
                     _originDict[texture2D] = task.Result();
                     DeferDestroyCall?.Invoke(_originDict[texture2D]);
                     _asyncOriginLoaders.Remove(texture2D);
-                    
+
                     return _originDict[texture2D];
                 }
                 else
@@ -168,6 +155,17 @@ namespace net.rs64.TexTransTool
                     return originTex;
                 }
             }
+        }
+
+        public (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture)
+        {
+            var size = GetOriginalTextureSize(diskTexture);
+            return (size, size);
+        }
+
+        public void LoadTexture(RenderTexture writeRt, Texture2D diskSource)
+        {
+            throw new NotImplementedException();
         }
     }
     internal class TextureCompress : IDeferTextureCompress
@@ -253,6 +251,115 @@ namespace net.rs64.TexTransTool
             {
                 return (TextureFormat, TextureImporter.compressionQuality);
             }
+        }
+    }
+
+
+    public class UnityDiskUtil : ITexTransUnityDiskUtil
+    {
+        private readonly IOriginTexture _texManage;
+        private readonly Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource;
+
+        public UnityDiskUtil(IOriginTexture texManage)
+        {
+            _texManage = texManage;
+            _canvasSource = new();
+        }
+
+        public ITTDiskTexture Wrapping(Texture2D texture2D)
+        {
+            return new UnityDiskTexture(texture2D, _texManage.PreloadAndTextureSizeForTex2D(texture2D));
+        }
+
+        public ITTDiskTexture Wrapping(TTTImportedImage texture2D)
+        {
+            return new UnityImportedDiskTexture(texture2D, _texManage.IsPreview);
+        }
+
+        public void LoadTexture(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
+        {
+            switch (diskTexture)
+            {
+                case UnityDiskTexture tex2DWrapper:
+                    {
+                        _texManage.LoadTexture(writeTarget.Unwrap(), tex2DWrapper.Texture);
+                        ttce4u.LinearToGamma(writeTarget);
+                        break;
+                    }
+                case UnityImportedDiskTexture importedWrapper:
+                    {
+                        var texture = importedWrapper.Texture;
+                        if (_texManage.IsPreview)
+                        {
+                            Graphics.Blit(texture.PreviewTexture, writeTarget.Unwrap());
+                            ttce4u.LinearToGamma(writeTarget);
+                        }
+                        else
+                        {
+                            if (!_canvasSource.ContainsKey(texture.CanvasDescription)) { _canvasSource[texture.CanvasDescription] = texture.CanvasDescription.LoadCanvasSource(AssetDatabase.GetAssetPath(texture.CanvasDescription)); }
+                            texture.LoadImage(_canvasSource[texture.CanvasDescription], ttce4u, writeTarget);
+                        }
+                        break;
+                    }
+            }
+        }
+        public ITexTransLoadTexture GetLoader(ITexTransToolForUnity ttce4u) => new DiskLoaderFor(ttce4u, this);
+
+        internal class DiskLoaderFor : ITexTransLoadTexture
+        {
+            ITexTransToolForUnity _texTransToolForUnity;
+            UnityDiskUtil _texTransUnityDiskUtil;
+
+            public DiskLoaderFor(ITexTransToolForUnity texTransToolForUnity, UnityDiskUtil texTransUnityDiskUtil)
+            {
+                _texTransToolForUnity = texTransToolForUnity;
+                _texTransUnityDiskUtil = texTransUnityDiskUtil;
+            }
+
+            public void LoadTexture(ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
+            {
+                _texTransUnityDiskUtil.LoadTexture(_texTransToolForUnity, writeTarget, diskTexture);
+            }
+        }
+        internal class UnityDiskTexture : ITTDiskTexture
+        {
+            internal Texture2D Texture;
+            internal (int x, int y) LoadableTextureSize;
+            public UnityDiskTexture(Texture2D texture, (int x, int y) loadableTextureSize)
+            {
+                Texture = texture;
+                LoadableTextureSize = loadableTextureSize;
+            }
+            public int Width => LoadableTextureSize.x;
+
+            public int Hight => LoadableTextureSize.y;
+
+
+            public string Name { get => Texture.name; set => Texture.name = value; }
+
+            public void Dispose() { }
+        }
+
+        internal class UnityImportedDiskTexture : ITTDiskTexture
+        {
+            internal TTTImportedImage Texture;
+            private bool _isPreview;
+
+            public UnityImportedDiskTexture(TTTImportedImage texture, bool isPreview)
+            {
+                Texture = texture;
+                _isPreview = isPreview;
+            }
+            public int Width => _isPreview ? Texture.PreviewTexture.width : Texture.CanvasDescription.Width;
+
+            public int Hight => _isPreview ? Texture.PreviewTexture.height : Texture.CanvasDescription.Height;
+
+            public bool MipMap => false;
+
+            public string Name { get => Texture.name; set => Texture.name = value; }
+
+
+            public void Dispose() { }
         }
     }
 }

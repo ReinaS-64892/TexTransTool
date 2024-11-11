@@ -52,9 +52,12 @@ namespace net.rs64.TexTransTool
     {
         int GetOriginalTextureSize(Texture2D texture2D);
         void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
-        void WriteOriginalTexture(TTTImportedImage texture, ITTRenderTexture writeTarget);
-
         void PreloadOriginalTexture(Texture2D texture2D);
+
+
+        (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture);
+        void LoadTexture(RenderTexture writeRt, Texture2D diskSource);
+        bool IsPreview { get; }
     }
     public interface IDeferTextureCompress
     {
@@ -146,14 +149,6 @@ namespace net.rs64.TexTransTool
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
 
-        public static void LoadTexture(this IOriginTexture origin, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture)
-        {
-            switch (diskTexture)
-            {
-                case UnityDiskTexture tex2DWrapper: { origin.WriteOriginalTexture(tex2DWrapper.Texture, renderTexture.Unwrap()); break; }
-                case TTCE4UnityWithTTT4Unity.UnityImportedDiskTexture importedWrapper: { origin.WriteOriginalTexture(importedWrapper.Texture, renderTexture); break; }
-            }
-        }
 
     }
 

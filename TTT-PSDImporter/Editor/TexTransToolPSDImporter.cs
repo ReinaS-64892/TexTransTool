@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.PSDImporter
                 Profiler.EndSample();
                 Profiler.BeginSample("CreateLayers");
 
-                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, psdBytes, CreatePSDImportedImage);
+                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, new PSDImportedCanvasDescription.PSDBinaryHolder(psdBytes), CreatePSDImportedImage);
                 mliImporter.AddLayers(pSDData.RootLayers);
 
                 Profiler.EndSample();

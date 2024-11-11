@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _lookAtCallBack = lookAtCallBack;
             _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
-            _ttce4U = new TTCE4UnityWithTTT4Unity(true, _textureManager);
+            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
 
             _domainRenderers.Clear();
             _domainRenderers.UnionWith(_domainRoot.GetComponentsInChildren<Renderer>(true));

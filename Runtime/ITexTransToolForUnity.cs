@@ -40,6 +40,17 @@ namespace net.rs64.TexTransTool
         }
 
     }
+    public interface ITexTransUnityDiskUtil : ITexTransUnityDiskWrapper, ITexTransLoadTextureWithDiskUtil
+    { }
+    public interface ITexTransUnityDiskWrapper
+    {
+        ITTDiskTexture Wrapping(Texture2D texture2D);
+        ITTDiskTexture Wrapping(TTTImportedImage texture2D);
+    }
+    public interface ITexTransLoadTextureWithDiskUtil
+    {
+        void LoadTexture(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, ITTDiskTexture diskTexture);
+    }
 
     public interface ITexTransRenderTextureIO
     {
