@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             var originalRatioMedicatedReference = originalRectArray;
 
 
-            if (_islandRelocator.Relocation(workRect)) { relocateResult.IsRelocateSuccess = true; return workRect; }
+            if (!ForceSizePriority && _islandRelocator.Relocation(workRect)) { relocateResult.IsRelocateSuccess = true; return workRect; }
 
             if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
             {
