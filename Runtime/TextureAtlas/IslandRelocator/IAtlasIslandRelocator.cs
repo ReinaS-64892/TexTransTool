@@ -6,6 +6,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
         bool RectTangleMove { get; }
         float Padding { set; }
         bool Relocation(IslandRect[] atlasIslands);
+        int HeightDenominator { set; }
     }
 
 
