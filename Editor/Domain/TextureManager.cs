@@ -9,6 +9,7 @@ using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
+using net.rs64.TexTransTool.MultiLayerImage.Importer;
 
 namespace net.rs64.TexTransTool
 {
@@ -291,7 +292,7 @@ namespace net.rs64.TexTransTool
                         var texture = importedWrapper.Texture;
                         if (_texManage.IsPreview)
                         {
-                            Graphics.Blit(texture.PreviewTexture, writeTarget.Unwrap());
+                            Graphics.Blit(CanvasImportedImagePreviewManager.GetPreview(texture), writeTarget.Unwrap());
                             ttce4u.LinearToGamma(writeTarget);
                         }
                         else
@@ -343,16 +344,16 @@ namespace net.rs64.TexTransTool
         internal class UnityImportedDiskTexture : ITTDiskTexture
         {
             internal TTTImportedImage Texture;
-            private bool _isPreview;
+            private Texture2D _previewTex;
 
             public UnityImportedDiskTexture(TTTImportedImage texture, bool isPreview)
             {
                 Texture = texture;
-                _isPreview = isPreview;
+                _previewTex = isPreview ? CanvasImportedImagePreviewManager.GetPreview(texture) : null;
             }
-            public int Width => _isPreview ? Texture.PreviewTexture.width : Texture.CanvasDescription.Width;
+            public int Width => _previewTex?.width ?? Texture.CanvasDescription.Width;
 
-            public int Hight => _isPreview ? Texture.PreviewTexture.height : Texture.CanvasDescription.Height;
+            public int Hight => _previewTex?.height ?? Texture.CanvasDescription.Height;
 
             public bool MipMap => false;
 

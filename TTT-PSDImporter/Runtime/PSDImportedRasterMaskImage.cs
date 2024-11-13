@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool.PSDImporter
 
         }
 
-        public override void LoadImage(ITTImportedCanvasSource importSource, Span<byte> writeTarget)
+        protected override void LoadImage(ITTImportedCanvasSource importSource, Span<byte> writeTarget)
         {
             var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public interface ITexTransToolForUnity : ITexTransCoreEngine, ITexTransRenderTextureIO, ITexTransRenderTextureUploadToCreate
+    public interface ITexTransToolForUnity : ITexTransCoreEngine, ITexTransRenderTextureUploadToCreate
     {
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
@@ -28,7 +28,10 @@ namespace net.rs64.TexTransTool
             TTRt2.Rel(unityRt);
             return discTex;
         }
-        ITTDiskTexture Wrapping(TTTImportedImage texture2D) { return Wrapping(texture2D.PreviewTexture); }
+        ITTDiskTexture Wrapping(TTTImportedImage imported)
+        {
+            throw new NotImplementedException();
+        }
 
         ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
@@ -50,13 +53,6 @@ namespace net.rs64.TexTransTool
     public interface ITexTransLoadTextureWithDiskUtil
     {
         void LoadTexture(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, ITTDiskTexture diskTexture);
-    }
-
-    public interface ITexTransRenderTextureIO
-    {
-        // 基本的にパフォーマンスは良くないからうまく使わないといけない
-        void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
-        void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }
 
     public interface ITexTransRenderTextureUploadToCreate : ITexTransRenderTextureIO, ITexTransCreateTexture

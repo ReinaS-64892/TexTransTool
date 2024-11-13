@@ -10,6 +10,7 @@ namespace net.rs64.TexTransCore
     public interface ITexTransCoreEngine
     : ITexTransCreateTexture
     , ITexTransLoadTexture
+    , ITexTransRenderTextureIO
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
@@ -39,6 +40,12 @@ namespace net.rs64.TexTransCore
         // /// それが同じテクスチャーの改変版などだった場合に 解像度やMipMapなどの設定以外を継承するためにある。
         // /// </summary>
         // void InheritTextureSettings(ITTTexture source, ITTTexture target);
+    }
+    public interface ITexTransRenderTextureIO
+    {
+        // 基本的にパフォーマンスは良くないからうまく使わないといけない
+        void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
+        void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }
     public interface ITexTransCopyRenderTexture
     {

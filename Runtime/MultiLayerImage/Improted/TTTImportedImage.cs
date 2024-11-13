@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public abstract class TTTImportedImage : ScriptableObject
     {
         public TTTImportedCanvasDescription CanvasDescription;
-        public Texture2D PreviewTexture;
+        // public Texture2D PreviewTexture;
 
 
         // ここでの writeTarget は CanvasSize と同じことが前提
@@ -29,8 +29,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             LoadImage(importSource, na.AsSpan());
             ttce.UploadTexture<byte>(writeTarget, na.AsSpan(), CanvasDescription.ImportedImageFormat);
         }
-
-        public abstract void LoadImage(ITTImportedCanvasSource importSource, Span<byte> writeTarget);
+        //　最低限こっちの関数が動けばよいが、上の関数が高速に動かせるならそっちを実装したほうが良い。
+        // もし、上の関数が実装できるならこの関数は実装しなくてもよい
+        protected abstract void LoadImage(ITTImportedCanvasSource importSource, Span<byte> writeTarget);
+        //  { throw new NotImplementedException(); }
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(TTTImportedImage))]

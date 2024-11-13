@@ -124,95 +124,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             abstractLayer.LayerMask = MaskTexture(abstractLayerData.LayerMask, abstractLayerData.LayerName);
         }
 
-        internal void CreatePreview()
-        {
-            var texFormat = _tttImportedCanvasDescription.ImportedImageFormat.ToUnityTextureFormat(TexTransCoreTextureChannel.RGBA);
-            var ppB = EnginUtil.GetPixelParByte(_tttImportedCanvasDescription.ImportedImageFormat, TexTransCoreTextureChannel.RGBA);
-            var length = _tttImportedCanvasDescription.Width * _tttImportedCanvasDescription.Height * ppB;
-            using var naBuf = new NativeArray<byte>(length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-
-            var resizing = math.max(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height) > 1024;
-
-            var fullTexTemp = resizing ? new Texture2D(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height, texFormat, false) : null;
-
-
-            foreach (var importedImage in _tttImportedImages)
-            {
-                Profiler.BeginSample("CreatePreview -" + importedImage.name);
-                UnsafeNativeArrayUtility.ClearMemory(naBuf);
-                Profiler.BeginSample("LoadImage");
-
-                importedImage.LoadImage(_ttImportedCanvasSource, naBuf);
-
-                Profiler.EndSample();
-                Texture2D tex2d;
-                if (resizing is false)
-                {
-                    Profiler.BeginSample("CratePrevTex");
-
-                    tex2d = new Texture2D(_tttImportedCanvasDescription.Width, _tttImportedCanvasDescription.Height, texFormat, false);
-                    tex2d.alphaIsTransparency = true;
-
-                    tex2d.LoadRawTextureData(naBuf);
-                    EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
-
-                    Profiler.EndSample();
-                }
-                else
-                {
-                    Profiler.BeginSample("CreateAndResizing");
-                    fullTexTemp.GetRawTextureData<byte>().CopyFrom(naBuf);
-                    tex2d = new Texture2D(1024, 1024, texFormat, false);
-
-                    for (var y = 0; tex2d.height > y; y += 1)
-                    {
-                        for (var x = 0; tex2d.width > x; x += 1)
-                        {
-                            tex2d.SetPixel(x, y, fullTexTemp.GetPixelBilinear(x / (float)(tex2d.width - 1), y / (float)(tex2d.height - 1)));
-                        }
-                    }
-
-                    tex2d.alphaIsTransparency = true;
-                    EditorUtility.CompressTexture(tex2d, TextureFormat.BC7, 100);
-
-                    Profiler.EndSample();
-                }
-                Profiler.BeginSample("SetTexDataAndCompress");
-
-                tex2d.Apply(true, true);
-                importedImage.PreviewTexture = tex2d;
-
-                Profiler.EndSample();
-                Profiler.EndSample();
-            }
-
-            if (fullTexTemp != null) UnityEngine.Object.DestroyImmediate(fullTexTemp);
-        }
-
         public void SaveSubAsset()
         {
-            // var NameHash = new HashSet<string>() { "TTT-CanvasPreviewResult", "TTT-CanvasPreviewResult-Material" };
-            foreach (var image in _tttImportedImages.Reverse<TTTImportedImage>())
-            {
-                // var name = image.name;
-                // if (NameHash.Contains(name))
-                // {
-                //     var addCount = 1;
-                //     while (NameHash.Contains(name + "-" + addCount)) { addCount += 1; }
-                //     name = name + "-" + addCount;
-                // }
-                // NameHash.Add(name);
+            var guid = AssetDatabase.AssetPathToGUID(_ctx.assetPath);
+            if (string.IsNullOrWhiteSpace(guid) is false) CanvasImportedImagePreviewManager.InvalidatesCache(guid);
+            else CanvasImportedImagePreviewManager.InvalidatesCacheAll();
 
-                // image.name = name;
-
-                _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image);
-                try
-                {
-                    image.PreviewTexture.name = image.name + "_Preview";
-                    _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.PreviewTexture.name, image.PreviewTexture);
-                }
-                catch (Exception e) { Debug.LogException(e); }
-            }
+            foreach (var image in _tttImportedImages.Reverse<TTTImportedImage>()) { _ctx.AddObjectToAsset(_layerAtPath[image] + "/" + image.name, image); }
         }
     }
 }
