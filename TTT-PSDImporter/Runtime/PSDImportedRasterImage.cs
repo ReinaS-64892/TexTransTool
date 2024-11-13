@@ -39,7 +39,8 @@ namespace net.rs64.TexTransTool.PSDImporter
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, (int)RasterImageData.R.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, (int)RasterImageData.G.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
-                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
+                if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
+                else ttce.AlphaFill(writeTarget, 1f);
             }
             else
             {
@@ -100,7 +101,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, psdBinary.PSDByteArray));
             getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, psdBinary.PSDByteArray));
             getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, psdBinary.PSDByteArray));
-            if (RasterImageData.A != null) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, psdBinary.PSDByteArray)); }
+            if (RasterImageData.A.ImageDataAddress.Length != 0) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, psdBinary.PSDByteArray)); }
             var image = WeightTask(getImageTask).Result;
             try
             {
@@ -162,7 +163,7 @@ namespace net.rs64.TexTransTool.PSDImporter
                 image[0].Dispose();
                 image[1].Dispose();
                 image[2].Dispose();
-                if (RasterImageData.A != null) image[3].Dispose();
+                if (RasterImageData.A.ImageDataAddress.Length != 0) image[3].Dispose();
             }
         }
 
