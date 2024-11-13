@@ -52,6 +52,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             data[15] = col1;
 
             PlaceHolderOrErrorTexture.Apply(true, true);
+
+            AssemblyReloadEvents.beforeAssemblyReload += ReleaseTexture2D;
+        }
+        static void ReleaseTexture2D()
+        {
+            foreach (var tex in s_previewsDict.Values) { UnityEngine.Object.DestroyImmediate(tex); }
+            s_previewsDict.Clear();
+            s_guid2Images.Clear();
         }
 
         private static void CheckDirectory()
