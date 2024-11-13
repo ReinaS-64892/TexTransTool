@@ -99,7 +99,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             }
 
             var lastHeight = uvWidthBox.Last.Value.Ceil;
-            return lastHeight <= (1 - islandPadding * 0.5f) / heightDenominator;
+            return lastHeight <= (1f / heightDenominator - islandPadding * 0.5f);
 
             bool TrySetUVBoxList(Span<IslandRect> sortedIslands, int index)
             {
