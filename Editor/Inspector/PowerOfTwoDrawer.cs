@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool.Editor
     [CustomPropertyDrawer(typeof(PowerOfTwoAttribute))]
     internal class PowerOfTwoDrawer : PropertyDrawer
     {
+        static bool s_inputFieldMode = false;
         static GUIContent[] s_strings = new GUIContent[]
         {
             new ("32"),
@@ -33,13 +34,27 @@ namespace net.rs64.TexTransTool.Editor
         };
         public override void OnGUI(Rect rect, SerializedProperty serializedProperty, GUIContent label)
         {
+            rect.width -= 12f;
+            var toggleRect = rect;
+            toggleRect.x += toggleRect.width;
+            toggleRect.width = 12f;
+
             var propLabel = EditorGUI.BeginProperty(rect, label, serializedProperty);
-
-            var value = Array.IndexOf(s_ints, serializedProperty.intValue);
-            var modifiedValue = EditorGUI.Popup(rect, propLabel, value, s_strings);
-            if (value != modifiedValue && modifiedValue >= 0 && modifiedValue < s_ints.Length) { serializedProperty.intValue = s_ints[modifiedValue]; }
-
+            if (s_inputFieldMode is false)
+            {
+                serializedProperty.intValue = EditorGUI.IntPopup(rect, propLabel, serializedProperty.intValue, s_strings, s_ints);
+            }
+            else
+            {
+                serializedProperty.intValue = EditorGUI.IntField(rect, propLabel, serializedProperty.intValue);
+                if (Mathf.IsPowerOfTwo(serializedProperty.intValue) is false)
+                { serializedProperty.intValue = Mathf.NextPowerOfTwo(serializedProperty.intValue); }
+            }
             EditorGUI.EndProperty();
+            var indent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+            s_inputFieldMode = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, s_inputFieldMode);
+            EditorGUI.indentLevel = indent;
         }
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) { return base.GetPropertyHeight(property, label); }
     }

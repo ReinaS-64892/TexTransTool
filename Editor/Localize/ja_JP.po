@@ -315,6 +315,9 @@ msgstr "指定したテクスチャの色空間を指定する設定"
 msgid "TextureFineTuning:prop:Linear"
 msgstr "リニア"
 
+msgid "AtlasTexture:prop:HeightDenominator"
+msgstr "縦幅の除算    1 / "
+
 msgid "AtlasTexture:prop:IslandFineTuners"
 msgstr "アイランド詳細調整"
 
