@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...HEAD)
 
+### Added
+
+- 二のべき乗の数値を指定するプロパティで直接入力が行えるモードに切り替えるトグルを追加 (#718)
+
 ### Fixed
 
 - AtlasTexture の ForceSizePriority が縮小の必要がないケースにおいて縮小が強制的に行われなかった問題を修正 (#716)

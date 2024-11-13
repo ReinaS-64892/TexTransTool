@@ -209,6 +209,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var relocateManage = new IslandRelocationManager(relocator);
             relocateManage.Padding = atlasSetting.IslandPadding;
             relocateManage.ForceSizePriority = atlasSetting.ForceSizePriority;
+            relocateManage.HeightDenominator = atlasSetting.HeightDenominator;
 
             var timer = System.Diagnostics.Stopwatch.StartNew();
             var relocatedRect = relocateManage.RelocateLoop(rectArray, sizePriority, out var relocateResult);

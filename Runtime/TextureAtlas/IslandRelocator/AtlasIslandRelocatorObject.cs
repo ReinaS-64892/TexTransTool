@@ -20,6 +20,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
         protected float Padding { get; private set; }
         float IAtlasIslandRelocator.Padding { set => Padding = value; }
         public abstract bool Relocation(IslandRect[] atlasIslands);
+        protected int HeightDenominator { get; private set; }
+        int IAtlasIslandRelocator.HeightDenominator { set => HeightDenominator = value; }
     }
 
 
