@@ -85,6 +85,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.BC7, false, true);
                 previewTex.LoadRawTextureData(File.ReadAllBytes(createOutputPath));
                 previewTex.Apply(true, true);
+                previewTex.name = "ImportedPreview-" + importedImage.name;
                 s_previewsDict[importedImage] = previewTex;
                 if (s_guid2Images.ContainsKey(guid)) { s_guid2Images[guid].Add(importedImage); }
                 else { s_guid2Images[guid] = new() { importedImage }; }
@@ -135,6 +136,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 stream.Write(dataNa.AsSpan());
 
                 previewTex.Apply(true, true);
+                previewTex.name = "ImportedPreview-" + importedImage.name;
                 s_previewsDict[importedImage] = previewTex;
                 if (s_guid2Images.ContainsKey(guid)) { s_guid2Images[guid].Add(importedImage); }
                 else { s_guid2Images[guid] = new() { importedImage }; }
