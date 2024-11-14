@@ -1,3 +1,6 @@
+#if UNITY_EDITOR_WIN
+#define SYSTEM_DRAWING
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,25 +82,27 @@ namespace net.rs64.TexTransTool
         }
 
         protected Dictionary<Texture2D, Texture2D> _originDict = new();
-
+#if SYSTEM_DRAWING
         private Dictionary<Texture2D, Task<Func<Texture2D>>> _asyncOriginLoaders = new();
-        
+#endif
         protected Dictionary<TTTImportedCanvasDescription, byte[]> _canvasSource = new();
 
         public IReadOnlyDictionary<Texture2D, Texture2D> OriginDict => _originDict;
         public IReadOnlyDictionary<TTTImportedCanvasDescription, byte[]> CanvasSource => _canvasSource;
 
-        
+
         public void PreloadOriginalTexture(Texture2D texture2D)
         {
             if (Previewing) { return; }
+#if SYSTEM_DRAWING
             if (_originDict.ContainsKey(texture2D) || _asyncOriginLoaders.ContainsKey(texture2D)) return;
 
             var task = TextureUtility.AsyncGetUncompressed(texture2D);
 
             _asyncOriginLoaders[texture2D] = task;
+#endif
         }
-        
+
         public void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget)
         {
             Graphics.Blit(GetOriginalTexture(texture2D), writeTarget);
@@ -132,6 +137,7 @@ namespace net.rs64.TexTransTool
                 {
                     return _originDict[texture2D];
                 }
+#if SYSTEM_DRAWING
                 else if (_asyncOriginLoaders.TryGetValue(texture2D, out var task))
                 {
                     // 必要なテクスチャの読み込み終わってない間に他のテクスチャをApplyしましょう、と思いきや、それでは遅くなります。
@@ -145,9 +151,10 @@ namespace net.rs64.TexTransTool
                     _originDict[texture2D] = task.Result();
                     DeferDestroyCall?.Invoke(_originDict[texture2D]);
                     _asyncOriginLoaders.Remove(texture2D);
-                    
+
                     return _originDict[texture2D];
                 }
+#endif
                 else
                 {
                     var originTex = texture2D.TryGetUnCompress();
