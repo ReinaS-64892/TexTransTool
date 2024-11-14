@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.5...HEAD)
 
+### Fixed
+
+- AtlasTexture の オリジナルテクスチャーのロードだけが プレビューに誤って行われていた問題を修正 (#721)
+
 ## [v0.8.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...v0.8.5) - 2024-11-13
 
 ### Added

@@ -90,6 +90,7 @@ namespace net.rs64.TexTransTool
         
         public void PreloadOriginalTexture(Texture2D texture2D)
         {
+            if (Previewing) { return; }
             if (_originDict.ContainsKey(texture2D) || _asyncOriginLoaders.ContainsKey(texture2D)) return;
 
             var task = TextureUtility.AsyncGetUncompressed(texture2D);
