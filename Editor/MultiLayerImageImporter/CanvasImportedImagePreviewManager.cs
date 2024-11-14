@@ -110,7 +110,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 var createOutputPath = Path.Combine(CachePath, guid, fileID.ToString());
                 if (File.Exists(createOutputPath)) { File.Delete(createOutputPath); }
 
-                var destroyHash = new HashSet<Texture2D>();
 
                 // var length = extractRt.Width * extractRt.Hight * EnginUtil.GetPixelParByte(TexTransCoreTextureFormat.Byte, TexTransCoreTextureChannel.RGBA);
                 // var na = new NativeArray<byte>(length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -120,6 +119,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 EditorUtility.DisplayProgressBar("CreatePreviewImage", "LoadImage", 0.3f);
 
 
+                var destroyHash = new HashSet<Texture2D>();
                 var ttce4u = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
 
                 canvasSource ??= Memoize.Memo<(TTTImportedCanvasDescription, string), ITTImportedCanvasSource>((importedImage.CanvasDescription, guid), (t) => { return t.Item1.LoadCanvasSource(AssetDatabase.GUIDToAssetPath(t.Item2)); });
