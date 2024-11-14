@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture の オリジナルテクスチャーのロードだけが プレビューに誤って行われていた問題を修正 (#721)
+- AtlasTexture が System.Drawing (Windows GDI) が存在しない環境で例外が発生し動作しない問題を修正しました (#722)
 
 ## [v0.8.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...v0.8.5) - 2024-11-13
 

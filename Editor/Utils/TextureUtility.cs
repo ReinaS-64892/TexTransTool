@@ -1,8 +1,14 @@
+#if UNITY_EDITOR_WIN
+#define SYSTEM_DRAWING
+#endif
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
+#if SYSTEM_DRAWING
 using System.Drawing;
 using System.Drawing.Imaging;
+#endif
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,6 +22,7 @@ using Unity.Jobs;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Debug = UnityEngine.Debug;
 using Graphics = UnityEngine.Graphics;
 
 namespace net.rs64.TexTransTool.Utils
@@ -23,11 +30,12 @@ namespace net.rs64.TexTransTool.Utils
 
     internal static class TextureUtility
     {
+#if SYSTEM_DRAWING
         public static Task<Func<Texture2D>> AsyncGetUncompressed(Texture2D firstTexture)
         {
             Func<Texture2D> origTexReturn = () => firstTexture;
             Task<Func<Texture2D>> origTexTask = Task.FromResult(origTexReturn);
-            
+
             if (!AssetDatabase.Contains(firstTexture)) { return origTexTask; }
 
             var path = AssetDatabase.GetAssetPath(firstTexture);
@@ -37,13 +45,13 @@ namespace net.rs64.TexTransTool.Utils
             {
                 return origTexTask;
             }
-            
+
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null || importer.textureType != TextureImporterType.Default)
             {
                 return origTexTask;
             }
-            
+
             // Start async texture loading
             Profiler.BeginSample("CoGetUncompressed.Sync", firstTexture);
             Bitmap bitmap;
@@ -69,7 +77,7 @@ namespace net.rs64.TexTransTool.Utils
             // Run on C# thread pool, not Unity's main thread
             var syncContext = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(null);
-            
+
             var task = Task.Run(() =>
             {
                 RuntimeHelpers.GetHashCode(texture); // force texture to not be GC'd until this task completes
@@ -88,7 +96,7 @@ namespace net.rs64.TexTransTool.Utils
                             Scan0 = (IntPtr)rawTexData.GetUnsafePtr() + bitmap.Width * (bitmap.Height - 1) * 4,
                             PixelFormat = PixelFormat.Format32bppArgb
                         };
-                        
+
                         Profiler.BeginSample("TryGetUnCompress.LockBits", firstTexture);
                         var locked = bitmap.LockBits(
                             new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -126,23 +134,38 @@ namespace net.rs64.TexTransTool.Utils
                     return texture;
                 };
             });
-            
+
             SynchronizationContext.SetSynchronizationContext(syncContext);
 
             return result;
         }
+#endif
 
         public static bool TryGetUnCompress(Texture2D firstTexture, out Texture2D unCompress)
         {
+#if SYSTEM_DRAWING
             var task = AsyncGetUncompressed(firstTexture);
             if (!task.Wait(60_000))
             {
                 throw new TimeoutException("Texture loading timed out");
             }
-            
+
             unCompress = task.Result();
 
             return unCompress != firstTexture;
+#else
+            if (!AssetDatabase.Contains(firstTexture)) { unCompress = firstTexture; return false; }
+            var path = AssetDatabase.GetAssetPath(firstTexture);
+            if (Path.GetExtension(path) == ".png" || Path.GetExtension(path) == ".jpeg" || Path.GetExtension(path) == ".jpg")
+            {
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null || importer.textureType != TextureImporterType.Default) { unCompress = firstTexture; return false; }
+                unCompress = new Texture2D(2, 2);
+                unCompress.LoadImage(File.ReadAllBytes(path));
+                return true;
+            }
+            else { unCompress = firstTexture; return false; }
+#endif
         }
 
         public static Texture2D TryGetUnCompress(this Texture2D tex)
