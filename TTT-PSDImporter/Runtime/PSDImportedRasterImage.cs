@@ -24,6 +24,7 @@ namespace net.rs64.TexTransTool.PSDImporter
         [SerializeField] public PSDImportedRasterImageData RasterImageData;
         public override void LoadImage<TTCE>(ITTImportedCanvasSource importSource, TTCE ttce, ITTRenderTexture writeTarget)
         {
+            Profiler.BeginSample("PSDImportedRasterImage-LoadImage");
             var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
@@ -32,22 +33,31 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             if (size.Item1 is 0 || size.Item2 is 0) { return; }
 
-            if (psdCanvasDesc.BitDepth is 8 && psdCanvasDesc.IsPSB is false)
+            var isAll8BitRLE = RasterImageData.B.Compression == ChannelImageDataParser.ChannelImageData.CompressionEnum.RLECompressed
+                && RasterImageData.R.Compression == ChannelImageDataParser.ChannelImageData.CompressionEnum.RLECompressed
+                && RasterImageData.G.Compression == ChannelImageDataParser.ChannelImageData.CompressionEnum.RLECompressed
+                && (RasterImageData.A.ImageDataAddress.Length != 0 ? RasterImageData.A.Compression == ChannelImageDataParser.ChannelImageData.CompressionEnum.RLECompressed : true);
+
+            if (psdCanvasDesc.BitDepth is 8 && psdCanvasDesc.IsPSB is false && isAll8BitRLE)
             {
+                Profiler.BeginSample("RLE");
                 using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
 
+                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, (int)RasterImageData.R.ImageDataAddress.Length));
                 DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, (int)RasterImageData.G.ImageDataAddress.Length));
-                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
                 if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
                 else ttce.AlphaFill(writeTarget, 1f);
+                Profiler.EndSample();
             }
             else
             {
+                Profiler.BeginSample("BaseFallBack");
                 base.LoadImage(importSource, ttce, writeTarget);
+                Profiler.EndSample();
             }
 
-
+            Profiler.EndSample();
         }
 
         public static void DecompressRLE8BitPSDWithTTCE((uint x, uint y) size, (uint x, uint y) pivot, ITTRenderTexture writeTarget, uint channel, ITTComputeHandler computeHandler, Span<byte> rleSource)

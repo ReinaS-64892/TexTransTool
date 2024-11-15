@@ -16,12 +16,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage ImportedImage;
 
-        public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
+        public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {
-            using var ii = engine.Wrapping(ImportedImage);
-            engine.LoadTexture(renderTexture, ii);
+            using var ri = engine.Wrapping(ImportedImage);
+            engine.LoadTextureWidthAnySize(renderTexture, ri);
         }
 
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        {
+            var ri = engine.Wrapping(ImportedImage);
+            var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            return new RasterLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), ri);
+        }
         internal override void LookAtCalling(ILookingObject lookingObject)
         {
             base.LookAtCalling(lookingObject);
@@ -40,18 +46,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             MaskTexture = maskPNG;
         }
 
-        public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
+        public bool ContainedMask => LayerMaskDisabled is false && MaskTexture != null;
         public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
-        public void WriteMaskTexture<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
-        {
-            using var im = engine.Wrapping(MaskTexture);
-            engine.LoadTexture(renderTexture, im);
-        }
     }
 }

@@ -33,46 +33,24 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         , ITexTransCopyRenderTexture
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
-        { return new LayerAlphaMod<TTCE4U>(engine, Opacity, LayerMask); }
-
-        class LayerAlphaMod<TTCE4U> : TexTransCore.MultiLayerImageCanvas.AlphaMask<TTCE4U>
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
         {
-            private TTCE4U _ttt4u;
-            float _opacity;
-            ILayerMask _layerMask;
-            public LayerAlphaMod(TTCE4U forUnity, float opacity, ILayerMask layerMask)
+            switch (LayerMask)
             {
-                _ttt4u = forUnity;
-                _opacity = opacity;
-                _layerMask = layerMask;
-            }
-
-            public override void Dispose()
-            {
-                //Do nothing
-            }
-
-            public override void Masking(TTCE4U engine, ITTRenderTexture maskTarget)
-            {
-                System.Diagnostics.Debug.Assert(_ttt4u.Equals(engine));
-
-                engine.AlphaMultiply(maskTarget, _opacity);
-
-                if (_layerMask.ContainedMask)
-                    using (var rt = _ttt4u.CreateRenderTexture(maskTarget.Width, maskTarget.Hight))
+                default: { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
+                case TTTImportedLayerMask importedLayerMask:
                     {
-                        _layerMask.WriteMaskTexture(_ttt4u, rt);
-                        _ttt4u.AlphaMultiplyWithTexture(maskTarget, rt);
+                        if (importedLayerMask.ContainedMask is false) { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
+                        var importedDiskTex = engine.Wrapping(importedLayerMask.MaskTexture);
+                        return new TexTransCore.MultiLayerImageCanvas.DiskToMask<TTCE4U>(importedDiskTex, Opacity);
+                    }
+                case MultiLayerImage.LayerMask layerMask:
+                    {
+                        if (layerMask.ContainedMask is false) { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
+                        var importedDiskTex = engine.Wrapping(layerMask.MaskTexture);
+                        return new TexTransCore.MultiLayerImageCanvas.DiskToMask<TTCE4U>(importedDiskTex, Opacity);
                     }
             }
         }
-
         internal virtual void LookAtCalling(ILookingObject lookingObject)
         {
             lookingObject.LookAt(gameObject);
@@ -106,14 +84,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public interface ILayerMask
     {
         bool ContainedMask { get; }
-        void WriteMaskTexture<TTCE4U>(TTCE4U texTransCoreEngine, ITTRenderTexture renderTexture)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler;
-
         void LookAtCalling(ILookingObject lookingObject);
     }
 

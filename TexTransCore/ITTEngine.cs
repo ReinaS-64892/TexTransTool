@@ -205,8 +205,10 @@ namespace net.rs64.TexTransCore
         {
             using (var sourceSizeRt = LoadTextureWidthFullScale(engine, diskTexture))
                 if (renderTexture.Width != sourceSizeRt.Width || renderTexture.Hight != sourceSizeRt.Hight)
-                    engine.BilinearReScaling(sourceSizeRt, renderTexture);
-                else engine.CopyRenderTexture(renderTexture, sourceSizeRt);
+                {
+                    engine.BilinearReScaling(renderTexture, sourceSizeRt);
+                }
+                else { engine.CopyRenderTexture(renderTexture, sourceSizeRt); }
         }
 
     }

@@ -335,7 +335,6 @@ namespace net.rs64.TexTransTool
 
             public int Hight => LoadableTextureSize.y;
 
-
             public string Name { get => Texture.name; set => Texture.name = value; }
 
             public void Dispose() { }
@@ -344,18 +343,21 @@ namespace net.rs64.TexTransTool
         internal class UnityImportedDiskTexture : ITTDiskTexture
         {
             internal TTTImportedImage Texture;
-            private Texture2D _previewTex;
+            bool _isPreview;
+            private Texture2D? _previewTex
+            {
+                get { return _isPreview ? CanvasImportedImagePreviewManager.GetPreview(Texture) : null; }
+            }
 
             public UnityImportedDiskTexture(TTTImportedImage texture, bool isPreview)
             {
                 Texture = texture;
-                _previewTex = isPreview ? CanvasImportedImagePreviewManager.GetPreview(texture) : null;
+                _isPreview = isPreview;
+                if (_isPreview) { CanvasImportedImagePreviewManager.PreloadPreviewImage(texture); }
             }
             public int Width => _previewTex?.width ?? Texture.CanvasDescription.Width;
 
             public int Hight => _previewTex?.height ?? Texture.CanvasDescription.Height;
-
-            public bool MipMap => false;
 
             public string Name { get => Texture.name; set => Texture.name = value; }
 

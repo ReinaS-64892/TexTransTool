@@ -196,7 +196,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
     {
-        TextureToMask<TTCE> _alphaMask;
+        TextureOnlyToMask<TTCE> _alphaMask;
         List<LayerObject<TTCE>>? _preBlends;
 
         public EvaluateContext(ITTRenderTexture nowAlphaMask, List<LayerObject<TTCE>>? preBlends)

@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool
 {
     internal static class TTTLibrary
     {
-     public   const string PATH = "Library/net.rs64.tex-trans-tool";
+        public readonly static string PATH = Path.Combine("Library", "net.rs64.tex-trans-tool");
 
         public static void CheckTTTLibraryFolder()
         {

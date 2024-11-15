@@ -7,10 +7,10 @@
         "net.rs64.psd-parser.low-level",
         "net.rs64.psd-parser.high-level",
         "net.rs64.parser-utility",
-        "net.rs64.tt-unity-core.unsafe",
+        "net.rs64.ttce-unity.unsafe",
         "Unity.Burst",
         "Unity.Mathematics",
-        "net.rs64.tt-unity-core"
+        "net.rs64.ttce-unity"
     ],
     "includePlatforms": [
         "Editor"

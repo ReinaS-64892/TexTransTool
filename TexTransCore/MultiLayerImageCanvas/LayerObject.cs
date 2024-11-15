@@ -27,6 +27,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             AlphaMask.Dispose();
         }
+
     }
     /// <summary>
     /// マスクと Opacity を実現する存在。階層化されることもあるし、直接適用されることもある。
@@ -46,6 +47,53 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         public abstract void Dispose();
     }
 
+    public class NotMask<TTCE> : AlphaMask<TTCE>
+    where TTCE : ITexTransCreateTexture
+    , ITexTransLoadTexture
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
+    {
+        public NotMask() { }
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { }
+        public override void Dispose() { }
+    }
+
+    public class SolidToMask<TTCE> : AlphaMask<TTCE>
+    where TTCE : ITexTransCreateTexture
+    , ITexTransLoadTexture
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
+    {
+        float _maskValue;
+        public SolidToMask(float maskValue) { _maskValue = maskValue; }
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { engine.AlphaMultiply(maskTarget, _maskValue); }
+        public override void Dispose() { }
+    }
+
+
+
+    public class DiskToMask<TTCE> : AlphaMask<TTCE>
+    where TTCE : ITexTransCreateTexture
+    , ITexTransLoadTexture
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
+    {
+        float _maskValue;
+        ITTDiskTexture _maskTexture;
+
+        public DiskToMask(ITTDiskTexture maskTexture, float maskValue) { _maskTexture = maskTexture; _maskValue = maskValue; }
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget)
+        {
+            engine.AlphaMultiply(maskTarget, _maskValue);
+            using var maskTemp = engine.CreateRenderTexture(maskTarget.Width, maskTarget.Hight);
+            engine.LoadTextureWidthAnySize(maskTemp, _maskTexture);
+            engine.AlphaMultiplyWithTexture(maskTarget, maskTemp);
+        }
+        public override void Dispose() { _maskTexture.Dispose(); }
+    }
 
 
 
@@ -56,18 +104,28 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
     {
-        ITTRenderTexture MaskTexture;
+        float _maskValue;
+        ITTRenderTexture _maskTexture;
 
-        public TextureToMask(ITTRenderTexture maskTexture)
+        public TextureToMask(ITTRenderTexture maskTexture, float maskValue) { _maskTexture = maskTexture; _maskValue = maskValue; }
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget)
         {
-            MaskTexture = maskTexture;
+            engine.AlphaMultiply(maskTarget, _maskValue);
+            engine.AlphaMultiplyWithTexture(maskTarget, _maskTexture);
         }
+        public override void Dispose() { _maskTexture.Dispose(); }
+    }
+    public class TextureOnlyToMask<TTCE> : AlphaMask<TTCE>
+    where TTCE : ITexTransCreateTexture
+    , ITexTransLoadTexture
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
+    {
+        ITTRenderTexture _maskTexture;
 
-        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { engine.AlphaMultiplyWithTexture(maskTarget, MaskTexture); }
-
-        public override void Dispose()
-        {
-            MaskTexture.Dispose();
-        }
+        public TextureOnlyToMask(ITTRenderTexture maskTexture) { _maskTexture = maskTexture; }
+        public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { engine.AlphaMultiplyWithTexture(maskTarget, _maskTexture); }
+        public override void Dispose() { _maskTexture.Dispose(); }
     }
 }
