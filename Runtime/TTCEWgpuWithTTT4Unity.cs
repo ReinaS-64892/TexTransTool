@@ -195,6 +195,7 @@ namespace net.rs64.TexTransTool
 
 
 
+#if UNITY_EDITOR
     internal static class TTCEWgpuRustCoreDebugUnityProxy
     {
         static Queue<string> s_logQueue = new();
@@ -225,6 +226,7 @@ namespace net.rs64.TexTransTool
         }
 
     }
+#endif
 
 
 }

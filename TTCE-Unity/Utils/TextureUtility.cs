@@ -59,7 +59,7 @@ namespace net.rs64.TexTransCoreEngineForUnity.Utils
             var (format, channel) = rt.graphicsFormat.ToTTCTextureFormat();
             if (EnginUtil.GetPixelParByte(format, channel) * rt.width * rt.height != dataSpan.Length) { throw new ArgumentException(); }
 
-            var request = AsyncGPUReadback.Request(rt,0);
+            var request = AsyncGPUReadback.Request(rt, 0);
             request.WaitForCompletion();
             request.GetData<T>().AsSpan().CopyTo(dataSpan);
         }
@@ -156,8 +156,10 @@ namespace net.rs64.TexTransCoreEngineForUnity.Utils
 
         internal static void CopyFilWrap2D(this Texture2D tex, Texture2D copySource)
         {
-            CopyFilWrap(tex,copySource);
+            CopyFilWrap(tex, copySource);
+#if UNITY_EDITOR
             tex.alphaIsTransparency = copySource.alphaIsTransparency;
+#endif
             tex.requestedMipmapLevel = copySource.requestedMipmapLevel;
         }
         internal static void CopyFilWrap(this Texture tex, Texture copySource)
