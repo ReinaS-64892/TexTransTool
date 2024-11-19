@@ -346,7 +346,12 @@ namespace net.rs64.TexTransTool
             bool _isPreview;
             private Texture2D? _previewTex
             {
-                get { return _isPreview ? CanvasImportedImagePreviewManager.GetPreview(Texture) : null; }
+                get
+                {
+                    var tex = _isPreview ? CanvasImportedImagePreviewManager.GetPreview(Texture) : null;
+                    if (_isPreview && tex == null) { throw new Exception("what happened? preview texture has destroyed?!"); }
+                    return tex;
+                }
             }
 
             public UnityImportedDiskTexture(TTTImportedImage texture, bool isPreview)

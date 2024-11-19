@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.PSDParser
         {
             var hue = record.AdditionalLayerInformation.First(i => i is hue) as hue;
 
-            if (hue.Colorization) { Debug.Log($"Colorization of {record.LayerName} is no supported"); }
+            if (hue.Colorization) { TTDebug.Log($"Colorization of {record.LayerName} is no supported"); }
 
             if (ctx.ImportMode is not PSDImportMode.ClipStudioPaint)
             {

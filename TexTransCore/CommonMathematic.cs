@@ -40,6 +40,11 @@ namespace net.rs64.TexTransCore
         public static Color Zero => new Color(0, 0, 0, 0);
 
         public float[] ToArray() { return new float[] { R, G, B, A }; }
+
+        public override string ToString()
+        {
+            return base.ToString() + $"{R}-{G}-{B}-{A}";
+        }
     }
 
 

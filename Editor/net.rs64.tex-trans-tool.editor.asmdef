@@ -1,43 +1,43 @@
 {
-    "name": "net.rs64.tex-trans-tool.editor",
-    "rootNamespace": "",
-    "references": [
-        "net.rs64.tex-trans-core",
-        "net.rs64.tex-trans-tool.runtime",
-        "net.rs64.ttce-unity",
-        "net.rs64.ttce-unity.unsafe",
-        "net.rs64.ttce-wgpu",
-        "net.rs64.multi-layer-image-data",
-        "nadena.dev.ndmf",
-        "Unity.Collections",
-        "Unity.Mathematics",
-        "Unity.Burst"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": true,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "net.rs64.ttce-wgpu",
-            "expression": "",
-            "define": "CONTAINS_TTCE_WGPU"
-        },
-        {
-            "name": "com.vrchat.base",
-            "expression": "3.1.13",
-            "define": "VRC_BASE"
-        },
-        {
-            "name": "nadena.dev.ndmf",
-            "expression": "1.5.0",
-            "define": "CONTAINS_NDMF"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "net.rs64.tex-trans-tool.editor",
+  "rootNamespace": "",
+  "references": [
+    "net.rs64.tex-trans-core",
+    "net.rs64.tex-trans-tool.runtime",
+    "net.rs64.ttce-unity",
+    "net.rs64.ttce-unity.unsafe",
+    "net.rs64.ttce-wgpu",
+    "net.rs64.multi-layer-image-data",
+    "nadena.dev.ndmf",
+    "Unity.Collections",
+    "Unity.Mathematics",
+    "Unity.Burst"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "net.rs64.ttce-wgpu",
+      "expression": "[0.0.0]",
+      "define": "CONTAINS_TTCE_WGPU"
+    },
+    {
+      "name": "com.vrchat.base",
+      "expression": "3.1.13",
+      "define": "VRC_BASE"
+    },
+    {
+      "name": "nadena.dev.ndmf",
+      "expression": "1.5.0",
+      "define": "CONTAINS_NDMF"
+    }
+  ],
+  "noEngineReferences": false
 }

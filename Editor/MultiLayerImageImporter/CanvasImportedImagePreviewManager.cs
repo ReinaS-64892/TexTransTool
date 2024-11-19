@@ -66,9 +66,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 #if CONTAINS_TTCE_WGPU
             s_ttceWgpuDevice = new TTCEWgpuDevice();
             s_ttceWgpuDevice.SetDefaultTextureFormat(TexTransCoreTextureFormat.Byte);
-            s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice);
+            s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory());
 
-            EditorApplication.update += ForgetPreloadCollectOnes;
+            EditorApplication.update += ForgetPreloadCollectOnesAndReleaseMemory;
 #endif
             AssemblyReloadEvents.beforeAssemblyReload += ReleaseManager;
 
@@ -315,12 +315,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         }
 
 #if CONTAINS_TTCE_WGPU
-        public static void ForgetPreloadCollectOnes()
+        public static void ForgetPreloadCollectOnesAndReleaseMemory()
         {
             var image = s_previewsTask.Keys.FirstOrDefault();
             if (image is null) { return; }
             try { GetPreview(image); }
             finally { s_previewsTask.Remove(image); }
+            if (s_previewsDict.Remove(image, out var tex)) { UnityEngine.Object.DestroyImmediate(tex); }
         }
         public static void ForgetPreloadCollect()
         {

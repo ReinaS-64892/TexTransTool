@@ -24,6 +24,7 @@ namespace net.rs64.TexTransCore
         /// 基本的に RGBA の 4チャンネルで Gamma がデフォだけど、エンジン側がいい感じにすることを前提としてリニアにもできるようにしたいね！
         /// Depth や MipMap なんてなかった...いいね！
         /// チャンネル数は基本的に RGBA を使用し、Depth用途などの場合に  R だけにするように、 RGBA の場合は適当な形式だが、 R の場合は特別に高めのBit深度の物が割り当てられることがある。
+        /// 解像度は 必ず 64 * 64 かそれ以上である必要があり、 実用量が 256 byte で割り切れるような大きさでなければならない。
         /// </summary>
         ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA);
 
