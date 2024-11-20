@@ -99,7 +99,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
             ColorMultiplyCS = TexTransCoreRuntime.LoadAsset(ColorMultiply_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             AlphaFillCS = TexTransCoreRuntime.LoadAsset(AlphaFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             ColorFillCS = TexTransCoreRuntime.LoadAsset(ColorFill_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
-            BilinearReScalingCS = TexTransCoreRuntime.LoadAsset(BilinearReScaling_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            AverageSamplingCS = TexTransCoreRuntime.LoadAsset(AverageSampling_GUID, typeof(TTSamplerComputeShader)) as TTSamplerComputeShader;
+            BilinearSamplingCS = TexTransCoreRuntime.LoadAsset(BilinearSampling_GUID, typeof(TTSamplerComputeShader)) as TTSamplerComputeShader;
             GammaToLinearCS = TexTransCoreRuntime.LoadAsset(GammaToLinear_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
             LinearToGammaCS = TexTransCoreRuntime.LoadAsset(LinearToGamma_GUID, typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
         }
@@ -123,9 +124,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public const string GammaToLinear_GUID = "a8e89c380f851544cac5644c50476b24";
         public static TTGeneralComputeOperator LinearToGammaCS;
         public const string LinearToGamma_GUID = "e7375a4fbbaae5949b896db160924d95";
-        public static TTGeneralComputeOperator BilinearReScalingCS;
-        public const string BilinearReScaling_GUID = "42d828359014f29419f9efaaec73fe84";
-
+        public static TTSamplerComputeShader AverageSamplingCS;
+        public const string AverageSampling_GUID = "e35b864dfafa59441869069e789aa641";
+        public static TTSamplerComputeShader BilinearSamplingCS;
+        public const string BilinearSampling_GUID = "42d828359014f29419f9efaaec73fe84";
         public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey
         {
             public ITTComputeKey AlphaFill => AlphaFillCS;
@@ -140,13 +142,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
             public ITTComputeKey ColorMultiply => ColorMultiplyCS;
 
-            public ITTComputeKey BilinearReScaling => BilinearReScalingCS;
-
             public ITTComputeKey GammaToLinear => GammaToLinearCS;
 
             public ITTComputeKey LinearToGamma => LinearToGammaCS;
 
             public ITTComputeKey Swizzling => GrabBlending.GeneralComputeObjects["Swizzling"];//TODO : なんとかして
+
+            // public ITTSamplerKey DefaultSampler => BilinearSamplingCS;
+            public ITTSamplerKey DefaultSampler => AverageSamplingCS;
         }
 
 

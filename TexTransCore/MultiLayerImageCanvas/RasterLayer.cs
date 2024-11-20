@@ -25,7 +25,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                 case ITTRenderTexture rt:
                     {
                         if (rt.EqualSize(renderTexture)) engine.CopyRenderTexture(rt, renderTexture);
-                        else engine.BilinearReScaling(rt, renderTexture);
+                        else engine.DefaultResizing(rt, renderTexture);
                         break;
                     }
             }

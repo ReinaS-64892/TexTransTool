@@ -66,7 +66,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 #if CONTAINS_TTCE_WGPU
             s_ttceWgpuDevice = new TTCEWgpuDevice();
             s_ttceWgpuDevice.SetDefaultTextureFormat(TexTransCoreTextureFormat.Byte);
-            s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory());
+            s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
 
             EditorApplication.update += ForgetPreloadCollectOnesAndReleaseMemory;
 #endif
@@ -298,7 +298,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 ITTRenderTexture extractRt;
                 if (needResizing && resizedRt is not null)
                 {
-                    ttce4u.BilinearReScaling(resizedRt, loadRt);
+                    ttce4u.DefaultResizing(resizedRt, loadRt);
                     extractRt = resizedRt;
                 }
                 else { extractRt = loadRt; }

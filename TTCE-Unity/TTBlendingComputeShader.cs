@@ -5,12 +5,12 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
-    public class TTBlendingComputeShader : TTComputeUnityObject, ITTBlendKey
+    public class TTBlendingComputeShader : TTComputeUnityObject, ITTBlendKey, ITTComputeKey
     {
         public override TTComputeType ComputeType => TTComputeType.Blending;
         public string BlendTypeKey;
-
         public bool IsLinerRequired;
+        public ComputeShader Compute;
         public Shader Shader;
 
         public List<Locale> Locales;

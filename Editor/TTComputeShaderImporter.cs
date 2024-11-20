@@ -13,6 +13,20 @@ namespace net.rs64.TexTransTool
     [ScriptedImporter(1, new string[] { "ttcomp", "ttblend" }, new string[] { }, AllowCaching = true)]
     public class TTComputeShaderImporter : ScriptedImporter
     {
+
+        static string? _textureResizingTemplatePath;
+        static string TextureResizingTemplatePath
+        {
+            get
+            {
+                if (_textureResizingTemplatePath is null)
+                {
+                    var candidates = Directory.GetFiles("./", "TextureResizingTemplate.hlsl", SearchOption.AllDirectories);
+                    _textureResizingTemplatePath = candidates.First(s => s.Contains("TexTransCore"));
+                }
+                return _textureResizingTemplatePath;
+            }
+        }
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var srcText = File.ReadAllText(ctx.assetPath);
@@ -65,7 +79,7 @@ namespace net.rs64.TexTransTool
                         }
 
                         var shaderName = "Hidden/" + op.BlendTypeKey;
-                        var csCode = TTBlendingComputeShader.KernelDefine + srcText + TTComputeShaderUtility.BlendingShaderTemplate;
+                        var csCode = TTComputeUnityObject.KernelDefine + srcText + TTComputeShaderUtility.BlendingShaderTemplate;
                         var scCode = TTBlendingComputeShader.ShaderNameDefine + shaderName + TTBlendingComputeShader.ShaderDefine + srcText + (op.IsLinerRequired ? TTBlendingComputeShader.ShaderTemplateWithLinear : TTBlendingComputeShader.ShaderTemplate);
 
                         var cs = op.Compute = ShaderUtil.CreateComputeShaderAsset(ctx, csCode);
@@ -75,6 +89,21 @@ namespace net.rs64.TexTransTool
                         ctx.AddObjectToAsset("TTGrabBlendingComputeShader", op);
                         ctx.SetMainObject(op);
 
+                        break;
+                    }
+                case TTComputeType.Sampler:
+                    {
+                        var op = ScriptableObject.CreateInstance<TTSamplerComputeShader>();
+                        op.name = computeName;
+
+                        var template = File.ReadAllText(TextureResizingTemplatePath);
+
+                        var resizingCode = TTComputeUnityObject.KernelDefine + template.Replace("//$$$SAMPLER_CODE$$$", srcText);
+
+                        var cs = op.ResizingCompute = ShaderUtil.CreateComputeShaderAsset(ctx, resizingCode);
+                        ctx.AddObjectToAsset("ResizingCompute", cs);
+                        ctx.AddObjectToAsset("TTSamplerComputeShader", op);
+                        ctx.SetMainObject(op);
                         break;
                     }
             }

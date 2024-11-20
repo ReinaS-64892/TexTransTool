@@ -11,11 +11,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         public static Dictionary<string, TTGrabBlendingComputeShader> GrabBlendObjects;
         public static Dictionary<string, TTGeneralComputeOperator> GeneralComputeObjects;//TODO : 何とかする
+        public static Dictionary<string, TTSamplerComputeShader> SamplerComputeShaders;//TODO : 何とかする
         [TexTransInitialize]
         public static void GrabBlendingInit()
         {
             GrabBlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTGrabBlendingComputeShader)).Cast<TTGrabBlendingComputeShader>().ToDictionary(i => i.name, i => i);
             GeneralComputeObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTGeneralComputeOperator)).Cast<TTGeneralComputeOperator>().ToDictionary(i => i.name, i => i);
+            SamplerComputeShaders = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTSamplerComputeShader)).Cast<TTSamplerComputeShader>().ToDictionary(i => i.name, i => i);
         }
 
         //HSLAdjustment

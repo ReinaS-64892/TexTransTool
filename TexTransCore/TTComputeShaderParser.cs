@@ -90,5 +90,6 @@ RWTexture2D<float4> DistTex;
         General,
         GrabBlend,
         Blending,
+        Sampler,
     }
 }

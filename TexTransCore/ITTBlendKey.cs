@@ -28,7 +28,7 @@ namespace net.rs64.TexTransCore
             if (dist.Width == add.Width && dist.Hight == add.Hight) { engine.Blending(dist, add, blendKey); return; }
 
             using var resizeTemp = engine.CreateRenderTexture(dist.Width, dist.Hight);
-            engine.BilinearReScaling(resizeTemp, add);
+            engine.DefaultResizing(resizeTemp, add);
             engine.Blending(dist, resizeTemp, blendKey);
         }
     }

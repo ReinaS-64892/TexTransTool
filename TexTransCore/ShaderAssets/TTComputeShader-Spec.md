@@ -111,6 +111,7 @@ TTComputeType General
 - `General`
 - `GrabBlend`
 - `Blending`
+- `Sampler`
 
 ## ComputeShader の記述
 
@@ -244,3 +245,9 @@ float4 ColorBlend(float4 BaseColor, float4 AddColor)
     return BaseColor + AddColor;
 }
 ```
+
+## TT-Sampler
+
+`SamplerTemplate.hlsl` を include して `float4 TTSampling(float2 pos, float scaling)` を実装することで、ダインスケーリングやアップスケーリングのタイミングで使用させることができる。
+
+`SamplerTemplate.hlsl` には `BilinearSampling` が存在して、フォールバックとして使用できる。

@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool
 
     public class TTCEWgpuWithTTT4Unity : TTCEWgpuContextWithShaderDictionary, ITexTransToolForUnity
     {
-        public ITTBlendKey QueryBlendKey(string blendKeyName) => ShaderDictionary.QueryBlendKey(blendKeyName);
+        public ITTBlendKey QueryBlendKey(string blendKeyName) => ShaderDictionary.QueryBlendKey[blendKeyName];
         private readonly Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource = new();
 
         public void LoadTexture(ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)

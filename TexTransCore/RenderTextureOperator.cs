@@ -9,29 +9,34 @@ namespace net.rs64.TexTransCore
         // target , source の順にすること、
 
         /// <summary>
-        /// バイリニアで適当にリスケールする、いずれまともなものに置き換えるようにね、
-        /// あと同一解像度の場合は例外を投げるよ
+        /// Engine が提供するデフォルトのサンプラーを使ってリサイズする。
+        /// 同一解像度の場合は例外を投げる
         /// </summary>
-        public static void BilinearReScaling<TTCE>(this TTCE engine, ITTRenderTexture targetTexture, ITTRenderTexture sourceTexture)
+        public static void DefaultResizing<TTCE>(this TTCE engine, ITTRenderTexture targetTexture, ITTRenderTexture sourceTexture)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             if (sourceTexture.Width == targetTexture.Width && sourceTexture.Hight == targetTexture.Hight) { throw new ArgumentException(); }
 
-            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.BilinearReScaling);
+            using var computeHandler = engine.GetComputeHandler(engine.ResizingSamplerKey[engine.StandardComputeKey.DefaultSampler]);
 
-            var sourceTexID = computeHandler.NameToID("SourceTex");
             var targetTexID = computeHandler.NameToID("TargetTex");
-            var gvBufId = computeHandler.NameToID("gv");
+            var resizeTargetParmBufId = computeHandler.NameToID("ResizeTargetParm");
 
-            Span<uint> gvBuf = stackalloc uint[4];
-            gvBuf[0] = (uint)sourceTexture.Width;//SourceTexSize.x
-            gvBuf[1] = (uint)sourceTexture.Hight;//SourceTexSize.y
-            gvBuf[2] = (uint)targetTexture.Width;//TargetTexSize.x
-            gvBuf[3] = (uint)targetTexture.Hight;//TargetTexSize.y
-            computeHandler.UploadConstantsBuffer<uint>(gvBufId, gvBuf);
+            var readTexID = computeHandler.NameToID("ReadTex");
+            var readTextureParmBufId = computeHandler.NameToID("ReadTextureParm");
 
-            computeHandler.SetTexture(sourceTexID, sourceTexture);
+            Span<uint> resizeTargetBuf = stackalloc uint[4];
+            resizeTargetBuf[0] = (uint)targetTexture.Width;
+            resizeTargetBuf[1] = (uint)targetTexture.Hight;
+            Span<uint> readTextureBuf = stackalloc uint[4];
+            readTextureBuf[0] = (uint)sourceTexture.Width;
+            readTextureBuf[1] = (uint)sourceTexture.Hight;
+
+            computeHandler.UploadConstantsBuffer<uint>(resizeTargetParmBufId, resizeTargetBuf);
+            computeHandler.UploadConstantsBuffer<uint>(readTextureParmBufId, readTextureBuf);
+
             computeHandler.SetTexture(targetTexID, targetTexture);
+            computeHandler.SetTexture(readTexID, sourceTexture);
 
             computeHandler.DispatchWithTextureSize(targetTexture);
         }

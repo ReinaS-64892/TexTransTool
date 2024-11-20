@@ -30,7 +30,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey)
         {
-            return new TTUnityComputeHandler(((TTComputeUnityObject)computeKey).Compute);
+            switch (computeKey)
+            {
+                case TTGeneralComputeOperator generalComputeOperator: { return new TTUnityComputeHandler(generalComputeOperator.Compute); }
+                case TTBlendingComputeShader blendingComputeShader: { return new TTUnityComputeHandler(blendingComputeShader.Compute); }
+                case TTGrabBlendingComputeShader grabBlendingComputeShader: { return new TTUnityComputeHandler(grabBlendingComputeShader.Compute); }
+                case ComputeKeyHolder holder: { return new TTUnityComputeHandler(holder.ComputeShader); }
+            }
+            throw new ArgumentException();
         }
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ
@@ -48,6 +55,12 @@ namespace net.rs64.TexTransCoreEngineForUnity
         ITexTransComputeKeyDictionary<string>? _genealCompute = null;
         public ITexTransComputeKeyDictionary<string> GenealCompute => _genealCompute ??= new GenealComputeQuery();
 
+        IKeyValueStore<string, ITTSamplerKey>? _samplerKey = null;
+        public IKeyValueStore<string, ITTSamplerKey> SamplerKey => _samplerKey ??= new SamplerKeyQuery();
+
+        ITexTransComputeKeyDictionary<ITTSamplerKey>? _samplerToKey = null;
+        public ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey => _samplerToKey ?? new SamplerKeyToResizing();
+
         class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey>
         {
             public ITTComputeKey this[ITTBlendKey key] => key.Unwrap();
@@ -60,7 +73,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
         {
             public ITTComputeKey this[string key] => GrabBlending.GeneralComputeObjects[key];
         }
-
+        class SamplerKeyQuery : IKeyValueStore<string, ITTSamplerKey>
+        {
+            public ITTSamplerKey this[string key] => GrabBlending.SamplerComputeShaders[key];
+        }
+        class SamplerKeyToResizing : ITexTransComputeKeyDictionary<ITTSamplerKey>
+        {
+            public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetResizingComputeKey;
+        }
     }
 
 

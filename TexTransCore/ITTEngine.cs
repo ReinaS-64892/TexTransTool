@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 
 namespace net.rs64.TexTransCore
 {
@@ -66,6 +67,8 @@ namespace net.rs64.TexTransCore
         ITexTransComputeKeyDictionary<string> GenealCompute { get; }
         ITexTransComputeKeyDictionary<string> GrabBlend { get; }
         ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
+        IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; }
+        ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; }
     }
 
     public interface ITexTransStandardComputeKey
@@ -78,18 +81,15 @@ namespace net.rs64.TexTransCore
         ITTComputeKey ColorFill { get; }
         ITTComputeKey ColorMultiply { get; }
 
-        ITTComputeKey BilinearReScaling { get; }
-
         ITTComputeKey GammaToLinear { get; }
         ITTComputeKey LinearToGamma { get; }
 
         ITTComputeKey Swizzling { get; }
-    }
-    public interface ITexTransComputeKeyDictionary<TKey>
-    {
-        ITTComputeKey this[TKey key] { get; }
-    }
 
+        ITTSamplerKey DefaultSampler { get; }
+    }
+    public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
+    public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }
     // public interface ITexTransRenderTextureReScaler
     // {
     //     /// <summary>
@@ -207,7 +207,7 @@ namespace net.rs64.TexTransCore
             using (var sourceSizeRt = LoadTextureWidthFullScale(engine, diskTexture))
                 if (renderTexture.Width != sourceSizeRt.Width || renderTexture.Hight != sourceSizeRt.Hight)
                 {
-                    engine.BilinearReScaling(renderTexture, sourceSizeRt);
+                    engine.DefaultResizing(renderTexture, sourceSizeRt);
                 }
                 else { engine.CopyRenderTexture(renderTexture, sourceSizeRt); }
         }
