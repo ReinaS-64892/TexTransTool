@@ -198,5 +198,17 @@ namespace net.rs64.TexTransCore
             B = 2,
             A = 3,
         }
+
+        public static void ClopImage<T>(Span<T> dist, (int x, int y) distSize, Span<T> source, (int x, int y) sourceSize, int pixelParCount) where T : unmanaged
+        {
+            for (var y = 0; distSize.y > y; y += 1)
+                for (var x = 0; distSize.x > x; x += 1)
+                {
+                    var writePos = (x * pixelParCount) + (y * distSize.x * pixelParCount);
+                    var readPos = (x * pixelParCount) + (y * sourceSize.x * pixelParCount);
+
+                    for (var i = 0; pixelParCount > i; i += 1) { dist[writePos + i] = source[readPos + 1]; }
+                }
+        }
     }
 }
