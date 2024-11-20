@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public const string PREVIEW_CACHE_PATH = "LayerPreviewImageCache";
         public static readonly string CachePath = Path.Combine(TTTLibrary.PATH, PREVIEW_CACHE_PATH);
         [TexTransInitialize]
-        internal static void Init()
+        internal static void CanvasImportedImagePreviewInitialize()
         {
             CheckDirectory();
 
@@ -65,6 +65,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             PlaceHolderOrErrorTexture.filterMode = FilterMode.Point;
 
 #if CONTAINS_TTCE_WGPU
+            EditorApplication.update += ForgetPreloadCollectOnesAndReleaseMemory;
+#endif
+            AssemblyReloadEvents.beforeAssemblyReload += ReleaseManager;
+
+        }
+#if CONTAINS_TTCE_WGPU
+        static void InitDevice()
+        {
+            Profiler.BeginSample("Init TTCE-Wgpu Device");
             try
             {
                 s_ttceWgpuDevice = new TTCEWgpuDevice();
@@ -78,16 +87,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 s_shaderDictionary = null;
                 Debug.LogException(e);
             }
-            EditorApplication.update += ForgetPreloadCollectOnesAndReleaseMemory;
-#endif
-            AssemblyReloadEvents.beforeAssemblyReload += ReleaseManager;
-
+            Profiler.EndSample();
         }
+#endif
         static void ReleaseManager()
         {
 #if CONTAINS_TTCE_WGPU
             ForgetPreloadCollect();
             s_ttceWgpuDevice?.Dispose();
+            s_ttceWgpuDevice = null;
 #endif
             foreach (var tex in s_previewsDict.Values) { UnityEngine.Object.DestroyImmediate(tex); }
             s_previewsDict.Clear();
@@ -128,7 +136,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             {
                 CreatePreviewImageWithCache(importedImage);
 #if CONTAINS_TTCE_WGPU
-                if (s_ttceWgpuDevice is null) { return PlaceHolderOrErrorTexture; }
                 if (TryGetSyncCreated(importedImage, out var tex2)) { return tex2!; }// true だった場合は必ず値がある
                 else { return PlaceHolderOrErrorTexture; }//なんか失敗したらエラーのやつを返しとく
 #else
@@ -175,7 +182,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public static void PreloadPreviewImage(TTTImportedImage importedImage, ITTImportedCanvasSource? canvasSource = null)
         {
 #if CONTAINS_TTCE_WGPU
-            if (s_ttceWgpuDevice is null) { return; }
             if (s_previewsTask.TryGetValue(importedImage, out var _)) { return; }
 #endif
             if (s_previewsDict.TryGetValue(importedImage, out var _)) { return; }
@@ -191,6 +197,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         public static void CreatePreviewImageWithCache(TTTImportedImage importedImage, ITTImportedCanvasSource? canvasSource = null)
         {
 #if CONTAINS_TTCE_WGPU
+            if (s_ttceWgpuDevice is null) { InitDevice(); }
             if (s_ttceWgpuDevice is null) { return; }
 #endif
             if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(importedImage, out var guid, out long fileID) is false) { throw new NotImplementedException(); }
@@ -220,8 +227,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 var task = Task.Run(() =>
                 {
-                    if (s_ttceWgpuDevice is null) { return; }
-
                     using var ttceWgpu = s_ttceWgpuDevice.GetContext<TTCEWgpuWithTTT4Unity>();
                     ttceWgpu.ShaderDictionary = s_shaderDictionary;
                     var ttce4u = ttceWgpu;
