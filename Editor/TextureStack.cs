@@ -101,8 +101,7 @@ namespace net.rs64.TexTransTool.TextureStack
         }
         public void Dispose()
         {
-            Debug.Log("Dispose!");
-            _renderTexture.Dispose();
+            _renderTexture?.Dispose();
             _renderTexture = null;
         }
 
