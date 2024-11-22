@@ -68,17 +68,32 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             EditorApplication.update += ForgetPreloadCollectOnesAndReleaseMemory;
 #endif
             AssemblyReloadEvents.beforeAssemblyReload += ReleaseManager;
+            EditorApplication.playModeStateChanged += StateChangedEventLister;
 
         }
+        static void StateChangedEventLister(PlayModeStateChange playModeStateChange)
+        {
+            switch (playModeStateChange)
+            {
+                default: return;
+                case PlayModeStateChange.ExitingPlayMode:
+                    {
+                        ReleaseManager();
+                        break;
+                    }
+            }
+        }
 #if CONTAINS_TTCE_WGPU
+        static bool tryDeviceCreateLimiter = false;//セーフティ
         static void InitDevice()
         {
+            if (tryDeviceCreateLimiter) { return; }
             Profiler.BeginSample("Init TTCE-Wgpu Device");
             try
             {
                 s_ttceWgpuDevice = new TTCEWgpuDevice();
                 s_ttceWgpuDevice.SetDefaultTextureFormat(TexTransCoreTextureFormat.Byte);
-                s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
+                // s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
             }
             catch (Exception e)
             {
@@ -86,6 +101,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 s_ttceWgpuDevice = null;
                 s_shaderDictionary = null;
                 Debug.LogException(e);
+                tryDeviceCreateLimiter = true;
             }
             Profiler.EndSample();
         }
@@ -96,10 +112,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             ForgetPreloadCollect();
             s_ttceWgpuDevice?.Dispose();
             s_ttceWgpuDevice = null;
+            EditorApplication.update -= ForgetPreloadCollectOnesAndReleaseMemory;
 #endif
-            foreach (var tex in s_previewsDict.Values) { UnityEngine.Object.DestroyImmediate(tex); }
+            foreach (var tex in s_previewsDict.Values) { if (tex != null) { UnityEngine.Object.DestroyImmediate(tex); } }
             s_previewsDict.Clear();
             s_guid2Images.Clear();
+            if (PlaceHolderOrErrorTexture != null) { UnityEngine.Object.DestroyImmediate(PlaceHolderOrErrorTexture); }
+            PlaceHolderOrErrorTexture = null!;
+            AssemblyReloadEvents.beforeAssemblyReload -= ReleaseManager;
+            EditorApplication.playModeStateChanged -= StateChangedEventLister;
         }
 
         private static void CheckDirectory()
