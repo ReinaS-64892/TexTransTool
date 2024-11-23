@@ -10,6 +10,7 @@ using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool
 {
@@ -201,7 +202,9 @@ namespace net.rs64.TexTransTool
                 .Distinct()
                 .Select(t => (t, compressKV.FirstOrDefault(kv => originEqual(kv.Key, t))))
                 .Where(kvp => kvp.Item2.Key is not null && kvp.Item2.Value is not null)
-                .Select(kvp => (kvp.t, kvp.Item2.Value)).ToArray();
+                .Select(kvp => (kvp.t, kvp.Item2.Value))
+                .Where(kv => GraphicsFormatUtility.IsCompressedFormat(kv.t.format) is false)
+                .ToArray();
 
             foreach (var tex in targetTextures)
             {
