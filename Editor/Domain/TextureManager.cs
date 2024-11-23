@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool
 
         public void DeferredInheritTextureCompress(Texture2D source, Texture2D target) { _textureCompressManager?.DeferredInheritTextureCompress(source, target); }
         public void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target) { _textureCompressManager?.DeferredTextureCompress(compressFormat, target); }
-        public void CompressDeferred() { _textureCompressManager?.CompressDeferred(); }
+        public void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual) { _textureCompressManager?.CompressDeferred(renderers, originEqual); }
 
 
         public int GetOriginalTextureSize(Texture2D texture2D) { return _originTexture.GetOriginalTextureSize(texture2D); }
@@ -190,31 +190,38 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public virtual void CompressDeferred()
+        public virtual void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual)
         {
             if (_compressDict == null) { return; }
-            var compressTargets = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
+            var compressKV = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 
-            foreach (var texAndFormat in compressTargets)
+            var targetTextures = TexTransCore.Utils.RendererUtility.GetFilteredMaterials(renderers)
+                .SelectMany(m => TexTransCore.Utils.MaterialUtility.GetAllTexture2D(m).Select(i => i.Value))
+                .Where(t => t != null)
+                .Distinct()
+                .Select(t => (t, compressKV.FirstOrDefault(kv => originEqual(kv.Key, t))))
+                .Where(kvp => kvp.Item2.Key is null || kvp.Item2.Value is null)
+                .Select(kvp => (kvp.t, kvp.Item2.Value))
+                ;
+
+            foreach (var tex in targetTextures)
             {
-                var compressFormat = texAndFormat.Value.Get(texAndFormat.Key);
-                EditorUtility.CompressTexture(texAndFormat.Key, compressFormat.CompressFormat, compressFormat.Quality);
+                var compressFormat = tex.Value.Get(tex.t);
+                EditorUtility.CompressTexture(tex.t, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
-            foreach (var tex in compressTargets.Select(i => i.Key))
-            {
-                tex.Apply(false, true);
-            }
+            foreach (var tex in targetTextures) tex.t.Apply(false, true);
 
-            foreach (var tex in compressTargets.Select(i => i.Key))
+            foreach (var tex in targetTextures)
             {
-                var sTexture = new SerializedObject(tex);
+                var sTexture = new SerializedObject(tex.t);
 
                 var sStreamingMipmaps = sTexture.FindProperty("m_StreamingMipmaps");
                 sStreamingMipmaps.boolValue = true;
 
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
+
             _compressDict.Clear();
         }
 

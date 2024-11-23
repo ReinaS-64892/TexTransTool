@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
     {
         bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
     }
-    delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+    public delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
     internal interface IReplaceRegister
     {
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool
     {
         void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target);
         void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
-        void CompressDeferred();
+        void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual);
     }
 
     public interface ITTTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }

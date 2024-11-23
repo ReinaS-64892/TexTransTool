@@ -129,7 +129,7 @@ namespace net.rs64.TexTransTool.NDMF
             }
 
             _textureManager.DestroyDeferred();
-            _textureManager.CompressDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
 
 
             void SetTexture(Texture firstTexture, Texture mergeTexture)
