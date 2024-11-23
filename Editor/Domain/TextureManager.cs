@@ -200,9 +200,8 @@ namespace net.rs64.TexTransTool
                 .Where(t => t != null)
                 .Distinct()
                 .Select(t => (t, compressKV.FirstOrDefault(kv => originEqual(kv.Key, t))))
-                .Where(kvp => kvp.Item2.Key is null || kvp.Item2.Value is null)
-                .Select(kvp => (kvp.t, kvp.Item2.Value))
-                ;
+                .Where(kvp => kvp.Item2.Key is not null && kvp.Item2.Value is not null)
+                .Select(kvp => (kvp.t, kvp.Item2.Value)).ToArray();
 
             foreach (var tex in targetTextures)
             {
