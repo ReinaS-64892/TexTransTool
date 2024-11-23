@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...HEAD)
 
+### Added
+
+- ほかツールとの互換性向上のため、TTT が生成した Texture を基に置き換えが登録されたテクスチャーが存在した場合に圧縮が行われていなかったら TTT が持っている情報を基に圧縮を行うようになりました (#726)
+
 ## [v0.8.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.5...v0.8.6) - 2024-11-14
 
 ### Fixed

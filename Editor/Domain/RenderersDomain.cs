@@ -151,7 +151,7 @@ namespace net.rs64.TexTransTool
         {
             MergeStack();
             _textureManager.DestroyDeferred();
-            _textureManager.CompressDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
         }
 
         public virtual void MergeStack()
