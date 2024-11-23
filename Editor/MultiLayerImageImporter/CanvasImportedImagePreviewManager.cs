@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             {
                 s_ttceWgpuDevice = new TTCEWgpuDevice();
                 s_ttceWgpuDevice.SetDefaultTextureFormat(TexTransCoreTextureFormat.Byte);
-                // s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
+                s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
             }
             catch (Exception e)
             {
