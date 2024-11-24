@@ -353,7 +353,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
                             var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
-                            var transData = new TransData<Vector2>(triangles, subSetMovedUV[subSetIndex], originUV);
+                            var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
                             ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
 
                             triangles.Dispose();
@@ -908,7 +908,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
+                TransTexture.ForTrans(targetRT, sourceTex, new TransData(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
             }
         }
 

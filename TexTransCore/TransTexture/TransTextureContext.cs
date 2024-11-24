@@ -17,20 +17,20 @@ namespace net.rs64.TexTransCore.TransTexture
         ITTRenderTexture _distanceAndScaleMap, _transMap;
         (int x, int y) _sourceSize;
 
-        public float Padding { get; private set; }
+        public float MaxDistance { get; private set; }
 
 
-        public TransTextureContext(TTCE engine, (int x, int y) targetSize, (int x, int y) sourceSize, float padding)
+        public TransTextureContext(TTCE engine, (int x, int y) targetSize, (int x, int y) sourceSize, float maxDistance)
         {
             _engine = engine;
             _distanceAndScaleMap = _engine.CreateRenderTexture(targetSize.x, targetSize.y, TexTransCoreTextureChannel.RG);
             _transMap = _engine.CreateRenderTexture(targetSize.x, targetSize.y, TexTransCoreTextureChannel.RG);
             _sourceSize = sourceSize;
-            Padding = padding;
+            MaxDistance = maxDistance;
 
             _computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.TransMapping);
 
-            _engine.FillRG(_distanceAndScaleMap, new(Padding, 0));
+            _engine.FillRG(_distanceAndScaleMap, new(MaxDistance, 0));
 
             _gvBufId = _computeHandler.NameToID("gv");
 
@@ -44,7 +44,7 @@ namespace net.rs64.TexTransCore.TransTexture
             BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), _distanceAndScaleMap.Hight);
             BitConverter.TryWriteBytes(gvBuf.Slice(8, 4), _sourceSize.x);
             BitConverter.TryWriteBytes(gvBuf.Slice(12, 4), _sourceSize.y);
-            BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), Padding);
+            BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), MaxDistance);
             gvBuf[20..].Fill(0);
             _computeHandler.UploadConstantsBuffer<byte>(_gvBufId, gvBuf);
 
@@ -76,11 +76,11 @@ namespace net.rs64.TexTransCore.TransTexture
             var targetDistanceMapID = sampleCompute.NameToID("TargetDistanceMap");
 
 
-            sampleCompute.SetTexture(readTexID, source);
             Span<uint> readTextureBuf = stackalloc uint[4];
             readTextureBuf[0] = (uint)source.Width;
             readTextureBuf[1] = (uint)source.Hight;
             sampleCompute.UploadConstantsBuffer<uint>(readTextureParmBufId, readTextureBuf);
+            sampleCompute.SetTexture(readTexID, source);
 
             sampleCompute.SetTexture(transMapID, _transMap);
             sampleCompute.SetTexture(distanceAndScalingID, _distanceAndScaleMap);
@@ -108,22 +108,19 @@ namespace net.rs64.TexTransCore.TransTexture
     {
         public ITTRenderTexture Texture;
         public ITTRenderTexture DistanceMap;
-        public TTRenderTexWithDistance(ITTRenderTexture tex, ITexTransCreateTexture ttce)
+        public TTRenderTexWithDistance(ITexTransCreateTexture ttce, (int x, int y) size)
         {
-            Texture = tex;
-            DistanceMap = ttce.CreateRenderTexture(Texture.Width, Texture.Hight, TexTransCoreTextureChannel.R);
-        }
-        public TTRenderTexWithDistance(ITTRenderTexture tex, ITTRenderTexture distance)
-        {
-            Texture = tex;
-            DistanceMap = distance;
-            if (Texture.EqualSize(DistanceMap) is false) { throw new ArgumentException(); }
+            Texture = ttce.CreateRenderTexture(size.x, size.y);
+            DistanceMap = ttce.CreateRenderTexture(size.x, size.y, TexTransCoreTextureChannel.R);
+
         }
         public void InitializeDistanceMap<TTCE>(TTCE ttce, float maxDistance)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         { ttce.FillR(DistanceMap, maxDistance); }
         public void Dispose()
         {
+            Texture?.Dispose();
+            Texture = null!;
             DistanceMap?.Dispose();
             DistanceMap = null!;
         }

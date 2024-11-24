@@ -10,6 +10,7 @@ using net.rs64.TexTransCoreEngineForUnity;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.TransTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -39,12 +40,13 @@ namespace net.rs64.TexTransTool.Decal
 
             if (TargetMaterials.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotSet"); return; }
             var nowTargetMat = GetTargetMaterials(domain.OriginEqual, domain.EnumerateRenderer());
+            var ttce = domain.GetTexTransCoreEngineForUnity();
 
-            var gradTex = GradientTempTexture.Get(Gradient, Alpha);
+            using var gradDiskTex = ttce.Wrapping(GradientTempTexture.Get(Gradient, Alpha));
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
             var filter = new IslandSelectFilter(IslandSelector);
 
-            var decalContext = new DecalContext<SingleGradientSpace, IslandSelectFilter, Vector2>(space, filter);
+            var decalContext = new DecalContext<SingleGradientSpace, IslandSelectFilter>(ttce, space, filter);
             decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.TextureWarp = GradientClamp ? TextureWrap.NotWrap : TextureWrap.Stretch;
             decalContext.NotContainsKeyAutoGenerate = false;
@@ -52,10 +54,12 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.HighQualityPadding = HighQualityPadding;
 
 
-            var writeable = new Dictionary<Material, RenderTexture>();
+            var writeable = new Dictionary<Material, TTRenderTexWithDistance>();
             decalContext.GenerateKey(writeable, nowTargetMat);
+            var blKey = ttce.QueryBlendKey(BlendTypeKey);
 
             if (writeable.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotFound"); return; }
+            using var gradTex = ttce.LoadTextureWidthFullScale(gradDiskTex);
 
             foreach (var renderer in domain.EnumerateRenderer())
             {
@@ -64,7 +68,9 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.WriteDecalTexture(writeable, renderer, gradTex);
             }
 
-            foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(m2rt.Value, BlendTypeKey)); }
+            foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key.GetTexture(TargetPropertyName), m2rt.Value.Texture, blKey); }
+
+            foreach (var w in writeable) { w.Value.Dispose(); }
         }
 
         private HashSet<Material> GetTargetMaterials(OriginEqual originEqual, IEnumerable<Renderer> domainRenderers)
@@ -90,7 +96,7 @@ namespace net.rs64.TexTransTool.Decal
         }
     }
 
-    internal class SingleGradientSpace : IConvertSpace<Vector2>
+    internal class SingleGradientSpace : IConvertSpace
     {
         Matrix4x4 _world2LocalMatrix;
         MeshData _meshData;

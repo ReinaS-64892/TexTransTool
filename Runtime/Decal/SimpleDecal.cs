@@ -9,6 +9,8 @@ using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine.Profiling;
 using Unity.Collections;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransCore.TransTexture;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -21,7 +23,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool MultiRendererMode = false;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
 
-        public Color Color = Color.white;
+        public UnityEngine.Color Color = UnityEngine.Color.white;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
@@ -68,72 +70,66 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(decalCompiledTextures.Keys);
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
 
+            var blKey = domain.GetTexTransCoreEngineForUnity().QueryBlendKey(BlendTypeKey);
+
             foreach (var matAndTex in decalCompiledTextures)
             {
-                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), new TextureBlend.BlendTexturePair(matAndTex.Value, BlendTypeKey));
+                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), matAndTex.Value.Texture, blKey);
             }
 
             if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
-        }
-
-        internal static RenderTexture GetMultipleDecalTexture(IDomain domain, Texture2D sourceDecalTexture, Color color)
-        {
-            RenderTexture mulDecalTexture;
-            var texManager = domain.GetTextureManager();
-            domain.LookAt(sourceDecalTexture);
-
-            if (sourceDecalTexture != null)
-            {
-                var decalSourceSize = texManager.GetOriginalTextureSize(sourceDecalTexture);
-                mulDecalTexture = TTRt.G(decalSourceSize, decalSourceSize);
-                mulDecalTexture.name = $"{sourceDecalTexture.name}:GetMultipleDecalTextureWithNotNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
-                domain.GetTextureManager().WriteOriginalTexture(sourceDecalTexture, mulDecalTexture);
-            }
-            else
-            {
-                mulDecalTexture = TTRt.G(32, 32);
-                mulDecalTexture.name = $"GetMultipleDecalTextureWithNullSourceDecalTexture-{mulDecalTexture.width}x{mulDecalTexture.height}";
-            }
-            if (sourceDecalTexture != null) { TextureBlend.ColorMultiply(mulDecalTexture, color); }
-            else { TextureBlend.FillColor(mulDecalTexture, color); }
-
-            return mulDecalTexture;
+            foreach (var t in decalCompiledTextures.Values) { t.Dispose(); }
         }
         [ExpandTexture2D] public Texture2D DecalTexture;
-        internal Dictionary<Material, RenderTexture> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
+        internal Dictionary<Material, TTRenderTexWithDistance> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
         {
-            RenderTexture mulDecalTexture;
-            if (OverrideDecalTextureWithMultiLayerImageCanvas == null)
+            var ttce = domain.GetTexTransCoreEngineForUnity();
+            ITTRenderTexture mulDecalTexture = null;
+            try
             {
-                Profiler.BeginSample("GetMultipleDecalTexture");
-                mulDecalTexture = GetMultipleDecalTexture(domain, DecalTexture, Color);
-                Profiler.EndSample();
-            }
-            else
-            {
-                Profiler.BeginSample("Rendering MultiLayerImageCanvas");
-                OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
-                mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTexTransCoreEngineForUnity(), 2048, 2048).Unwrap();
-                Profiler.EndSample();
-            }
+                if (OverrideDecalTextureWithMultiLayerImageCanvas == null)
+                {
+                    Profiler.BeginSample("GetMultipleDecalTexture");
+                    if (DecalTexture != null)
+                    {
+                        domain.LookAt(DecalTexture);
+                        var decalTexDisk = ttce.Wrapping(DecalTexture);
+                        mulDecalTexture = ttce.LoadTextureWidthFullScale(decalTexDisk);
+                        ttce.ColorMultiply(mulDecalTexture, Color.ToTTCore());
+                    }
+                    else
+                    {
+                        mulDecalTexture = ttce.CreateRenderTexture(64, 64);
+                        ttce.ColorFill(mulDecalTexture, Color.ToTTCore());
+                    }
+                    Profiler.EndSample();
+                }
+                else
+                {
+                    Profiler.BeginSample("Rendering MultiLayerImageCanvas");
+                    OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
+                    mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTexTransCoreEngineForUnity(), 2048, 2048);
+                    Profiler.EndSample();
+                }
 
-            var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>, Vector3>(GetSpaceConverter(), GetTriangleFilter());
-            decalContext.TargetPropertyName = TargetPropertyName;
-            decalContext.TextureWarp = TextureWrap.NotWrap;
-            decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = HighQualityPadding;
-            decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+                var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>>(ttce, GetSpaceConverter(), GetTriangleFilter());
+                decalContext.TargetPropertyName = TargetPropertyName;
+                decalContext.TextureWarp = TextureWrap.NotWrap;
+                decalContext.DecalPadding = Padding;
+                decalContext.HighQualityPadding = HighQualityPadding;
+                decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
 
-            var decalCompiledRenderTextures = new Dictionary<Material, RenderTexture>();
-            domain.LookAt(targetRenderers);
-            foreach (var renderer in targetRenderers)
-            {
-                Profiler.BeginSample("CreateDecalTexture");
-                decalContext.WriteDecalTexture(decalCompiledRenderTextures, renderer, mulDecalTexture);
-                Profiler.EndSample();
+                var decalCompiledRenderTextures = new Dictionary<Material, TTRenderTexWithDistance>();
+                domain.LookAt(targetRenderers);
+                foreach (var renderer in targetRenderers)
+                {
+                    Profiler.BeginSample("CreateDecalTexture");
+                    decalContext.WriteDecalTexture(decalCompiledRenderTextures, renderer, mulDecalTexture);
+                    Profiler.EndSample();
+                }
+                return decalCompiledRenderTextures;
             }
-            TTRt.R(mulDecalTexture);
-            return decalCompiledRenderTextures;
+            finally { mulDecalTexture?.Dispose(); }
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
@@ -188,7 +184,7 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.black;
+            Gizmos.color = UnityEngine.Color.black;
             var matrix = transform.localToWorldMatrix;
 
             Gizmos.matrix = matrix;

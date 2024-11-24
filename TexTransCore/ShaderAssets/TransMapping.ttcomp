@@ -31,9 +31,9 @@ float TriangleArea(float2 tri[3])
 }
 float3 Barycentric(float2 tri[3], float2 p)
 {
-    float u = cross(float3(tri[1] - tri[0], 0), float3(p - tri[0], 0)).z;
-    float v = cross(float3(tri[2] - tri[1], 0), float3(p - tri[1], 0)).z;
-    float w = cross(float3(tri[0] - tri[2], 0), float3(p - tri[2], 0)).z;
+    float u = cross(float3(tri[2] - tri[1], 0), float3(p - tri[1], 0)).z;
+    float v = cross(float3(tri[0] - tri[2], 0), float3(p - tri[2], 0)).z;
+    float w = cross(float3(tri[1] - tri[0], 0), float3(p - tri[0], 0)).z;
     float a = TriangleArea(tri);
     return float3(u, v, w) / a;
 }
@@ -47,15 +47,11 @@ float2 CalculatePositionFromBarycentric(float2 tri[3], float3 bc)
 }
 float2 Line2Near(float2 v1, float2 v2, float2 p)
 {
-    // float2 vLine = v2 - v1;
-    // float vLength = length(vLine);
-    // float2 vLineNormalized = normalize(vLine);
-    // float onLineLength = clamp(dot(vLineNormalized, p - v1), 0, vLength);
-    // return v1 + (vLineNormalized * onLineLength);
-
     float2 vLine = v2 - v1;
-    float onLineLength = saturate(dot(vLine, p - v1));
-    return v1 + (vLine * onLineLength);
+    float vLength = length(vLine);
+    float2 vLineNormalized = normalize(vLine);
+    float onLineLength = clamp(dot(vLineNormalized, p - v1), 0, vLength);
+    return v1 + (vLineNormalized * onLineLength);
 }
 float Distance(float2 tri[3], float2 p)
 {
@@ -63,10 +59,9 @@ float Distance(float2 tri[3], float2 p)
     float2 np1 = Line2Near(tri[1], tri[2], p) - p;
     float2 np2 = Line2Near(tri[2], tri[0], p) - p;
 
-    float npl0 = abs(np0.x * np0.y);
-    float npl1 = abs(np1.x * np1.y);
-    float npl2 = abs(np2.x * np2.y);
-
+    float npl0 = np0.x * np0.x + np0.y * np0.y;
+    float npl1 = np1.x * np1.x + np1.y * np1.y;
+    float npl2 = np2.x * np2.x + np2.y * np2.y;
     return sqrt(min(min(npl0, npl1), npl2));
 }
 
@@ -76,7 +71,7 @@ float InsideBarycentric(float3 bc)
     v += bc.x >= 0 ? 1 : -1;
     v += bc.y >= 0 ? 1 : -1;
     v += bc.z >= 0 ? 1 : -1;
-    return saturate(abs(v) - 2);
+    return ceil(saturate(abs(v) - 2.5));
 }
 float4 MinMax(float2 tri[3])
 {
@@ -89,7 +84,7 @@ float4 MinMax(float2 tri[3])
 {
     uint thisID = id.y;
     uint idMax = 256;
-    uint polygonIndex = id.x;
+    uint polygonIndex = id.x * 3;
 
     float2 fromPolygonWithNormalizeScale[3];
     float2 fromPolygon[3];

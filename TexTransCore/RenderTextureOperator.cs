@@ -200,7 +200,7 @@ namespace net.rs64.TexTransCore
             A = 3,
         }
 
-        public static void FillR<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        public static void FillR<TTCE>(this TTCE engine, ITTRenderTexture t, float v)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillR);
@@ -215,7 +215,7 @@ namespace net.rs64.TexTransCore
 
             computeHandler.DispatchWithTextureSize(t);
         }
-        public static void FillRG<TTCE>(this TTCE engine,ITTRenderTexture t, Vector2 v)
+        public static void FillRG<TTCE>(this TTCE engine, ITTRenderTexture t, Vector2 v)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillRG);
@@ -231,7 +231,7 @@ namespace net.rs64.TexTransCore
 
             computeHandler.DispatchWithTextureSize(t);
         }
-        public static void FillROnly<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        public static void FillROnly<TTCE>(this TTCE engine, ITTRenderTexture t, float v)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillROnly);
@@ -246,7 +246,7 @@ namespace net.rs64.TexTransCore
 
             computeHandler.DispatchWithTextureSize(t);
         }
-        public static void FillGOnly<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        public static void FillGOnly<TTCE>(this TTCE engine, ITTRenderTexture t, float v)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillGOnly);
@@ -273,5 +273,7 @@ namespace net.rs64.TexTransCore
                     for (var i = 0; pixelParCount > i; i += 1) { dist[writePos + i] = source[readPos + 1]; }
                 }
         }
+
+        public static (int x, int y) Size(this ITTRenderTexture renderTexture) { return (renderTexture.Width, renderTexture.Hight); }
     }
 }

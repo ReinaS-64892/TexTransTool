@@ -172,7 +172,7 @@ namespace net.rs64.TexTransTool.Utils
 
         internal static NativeArray<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, MeshData meshData, Vector3 offset, out JobHandle jobHandle)
         {
-            var array = new NativeArray<Vector3>(meshData.Vertices.Length, Allocator.TempJob);
+            var array = new NativeArray<Vector3>(meshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             jobHandle = new ConvertVerticesJob()
             {
@@ -186,7 +186,18 @@ namespace net.rs64.TexTransTool.Utils
 
             return array;
         }
+        internal static NativeArray<Vector2> ConvertVerticesToUV(NativeArray<Vector3> vertices, ref JobHandle jobHandle)
+        {
+            var array = new NativeArray<Vector2>(vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
+            jobHandle = new ConvertToUV()
+            {
+                InputVertices = vertices,
+                OutputUV = array,
+            }.Schedule(array.Length, 64, jobHandle);
+
+            return array;
+        }
         [BurstCompile]
         private struct ConvertVerticesJob : IJobParallelFor
         {
@@ -198,6 +209,17 @@ namespace net.rs64.TexTransTool.Utils
             public void Execute(int index)
             {
                 OutputVertices[index] = Matrix.MultiplyPoint3x4(InputVertices[index]) + Offset;
+            }
+        }
+        [BurstCompile]
+        private struct ConvertToUV : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<Vector3> InputVertices;
+            [WriteOnly] public NativeArray<Vector2> OutputUV;
+
+            public void Execute(int index)
+            {
+                OutputUV[index] = InputVertices[index];
             }
         }
 

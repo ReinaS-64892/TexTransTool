@@ -21,22 +21,22 @@ namespace net.rs64.TexTransTool
 {
     internal static class TransTexture
     {
-        public struct TransData<UVDimension> where UVDimension : struct
+        public struct TransData
         {
             public NativeArray<TriangleIndex> TrianglesToIndex;
             public NativeArray<Vector2> TargetUV;
-            public NativeArray<UVDimension> SourceUV;
+            public NativeArray<Vector2> SourceUV;
 
             public TransData(
                 IEnumerable<TriangleIndex> trianglesToIndex,
                 IEnumerable<Vector2> targetUV,
-                IEnumerable<UVDimension> sourceUV
+                IEnumerable<Vector2> sourceUV
             )
             {
                 // TODO - このコンストラクタを呼び出してるところをNativeArrayに切り替える
                 TrianglesToIndex = new NativeArray<TriangleIndex>(trianglesToIndex.ToArray(), Allocator.TempJob);
                 TargetUV = new NativeArray<Vector2>(targetUV.ToArray(), Allocator.TempJob);
-                SourceUV = new NativeArray<UVDimension>(sourceUV.ToArray(), Allocator.TempJob);
+                SourceUV = new NativeArray<Vector2>(sourceUV.ToArray(), Allocator.TempJob);
 
                 var self = this;
                 TexTransCoreRuntime.NextUpdateCall += () =>
@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool
                 };
             }
 
-            public TransData(NativeArray<TriangleIndex> trianglesToIndex, NativeArray<Vector2> targetUV, NativeArray<UVDimension> sourceUV)
+            public TransData(NativeArray<TriangleIndex> trianglesToIndex, NativeArray<Vector2> targetUV, NativeArray<Vector2> sourceUV)
             {
                 TrianglesToIndex = trianglesToIndex;
                 TargetUV = targetUV;
@@ -62,16 +62,16 @@ namespace net.rs64.TexTransTool
                 mda_mesh.SetVertexBufferParams(
                     TargetUV.Length,
                     new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
-                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, UnsafeUtility.SizeOf<UVDimension>() / 4, stream: 1)
+                    new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, UnsafeUtility.SizeOf<Vector2>() / 4, stream: 1)
                 );
                 mda_mesh.SetIndexBufferParams(TrianglesToIndex.Length * 3, IndexFormat.UInt32);
 
                 var pos_array = mda_mesh.GetVertexData<Vector3>(0);
-                var uv_array = mda_mesh.GetVertexData<UVDimension>(1);
+                var uv_array = mda_mesh.GetVertexData<Vector2>(1);
                 var dst_triangles = mda_mesh.GetIndexData<int>();
 
                 var job1 = new CopyPos { Source = TargetUV, Destination = pos_array }.Schedule(TargetUV.Length, 64);
-                var job2 = new CopyJob<UVDimension> { Source = SourceUV, Destination = uv_array }.Schedule(SourceUV.Length, 64, job1);
+                var job2 = new CopyJob<Vector2> { Source = SourceUV, Destination = uv_array }.Schedule(SourceUV.Length, 64, job1);
                 var job3 = new UnpackTriangleJob { Source = TrianglesToIndex, Destination = dst_triangles }.Schedule(dst_triangles.Length, 64, job2);
 
                 var mesh = new Mesh();
@@ -85,6 +85,38 @@ namespace net.rs64.TexTransTool
 
                 return mesh;
             }
+        }
+
+        public static NativeArray<Vector4> PackingTriangles(TransData transData, Allocator allocator)
+        {
+            var triIndex = transData.TrianglesToIndex;
+            var f = transData.SourceUV;
+            var t = transData.TargetUV;
+            var na = new NativeArray<Vector4>(triIndex.Length * 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var sp = na.AsSpan();
+            for (var i = 0; triIndex.Length > i; i += 1)
+            {
+                var tri = triIndex[i];
+                var i1 = i * 3;
+                var i2 = i1 + 1;
+                var i3 = i1 + 2;
+
+                sp[i1].x = f[tri[0]].x;
+                sp[i1].y = f[tri[0]].y;
+                sp[i1].z = t[tri[0]].x;
+                sp[i1].w = t[tri[0]].y;
+
+                sp[i2].x = f[tri[1]].x;
+                sp[i2].y = f[tri[1]].y;
+                sp[i2].z = t[tri[1]].x;
+                sp[i2].w = t[tri[1]].y;
+
+                sp[i3].x = f[tri[2]].x;
+                sp[i3].y = f[tri[2]].y;
+                sp[i3].z = t[tri[2]].x;
+                sp[i3].w = t[tri[2]].y;
+            }
+            return na;
         }
 
         [UsedImplicitly]
@@ -148,16 +180,16 @@ namespace net.rs64.TexTransTool
 
         static Material s_transMat;
         static Material s_depthMat;
-        public static void ForTrans<UVDimension>(
+        public static void ForTrans(
             RenderTexture targetTexture,
             Texture sourceTexture,
-            TransData<UVDimension> transUVData,
+            TransData transUVData,
             float? padding = null,
             TextureWrap? argTexWrap = null,
             bool highQualityPadding = false,
             bool? depthInvert = null,
             bool NotTileNormalize = false
-            ) where UVDimension : struct
+            )
         {
             Profiler.BeginSample("GenerateTransMesh");
             var mesh = transUVData.GenerateTransMesh();
@@ -254,13 +286,13 @@ namespace net.rs64.TexTransTool
                 if (depthRt != null) { UnityEngine.Object.DestroyImmediate(depthRt); }
             }
         }
-        public static void ForTrans<T>(
+        public static void ForTrans(
             RenderTexture targetTexture,
             Texture sourceTexture,
-            IEnumerable<TransData<T>> transUVDataEnumerable,
+            IEnumerable<TransData> transUVDataEnumerable,
             float? padding = null,
             TextureWrap? warpRange = null
-            ) where T : struct
+            )
         {
             foreach (var transUVData in transUVDataEnumerable)
             {

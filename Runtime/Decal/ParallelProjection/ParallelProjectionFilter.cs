@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public void SetSpace(ParallelProjectionSpace space)
         {
+            Dispose();
             _parallelProjectionSpace = space;
 
             var smCount = _parallelProjectionSpace.MeshData.TriangleIndex.Length;
@@ -65,9 +66,10 @@ namespace net.rs64.TexTransTool.Decal
         }
         public void Dispose()
         {
-            foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
+            _parallelProjectionSpace = null;
+            if (_filteredBit is not null) foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
             _filteredBit = null;
-            foreach (var na in _filteredTriangles) { na.Dispose(); }
+            if (_filteredTriangles is not null) foreach (var na in _filteredTriangles) { na.Dispose(); }
             _filteredTriangles = null;
         }
     }

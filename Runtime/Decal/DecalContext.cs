@@ -6,25 +6,26 @@ using Unity.Collections;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore.TransTexture;
+using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal interface IConvertSpace<UVDimension> : IDisposable
-      where UVDimension : struct
+    internal interface IConvertSpace : IDisposable
     {
         void Input(MeshData meshData);//この MeshData の解放責任は受け取らない
-        NativeArray<UVDimension> OutPutUV();
+        NativeArray<Vector2> OutPutUV();
     }
     internal interface ITrianglesFilter<SpaceConverter> : IDisposable
     {
         void SetSpace(SpaceConverter space);
         NativeArray<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex);
     }
-    internal class DecalContext<ConvertSpace, TrianglesFilter, UVDimension>
-    where ConvertSpace : IConvertSpace<UVDimension>
+    internal class DecalContext<ConvertSpace, TrianglesFilter>
+    where ConvertSpace : IConvertSpace
     where TrianglesFilter : ITrianglesFilter<ConvertSpace>
-    where UVDimension : struct
     {
+        ITexTransToolForUnity _ttce4u;
         ConvertSpace _convertSpace;
         TrianglesFilter _trianglesFilter;
 
@@ -37,13 +38,14 @@ namespace net.rs64.TexTransTool.Decal
 
         public bool NotContainsKeyAutoGenerate { get; set; } = true;
 
-        public DecalContext(ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
+        public DecalContext(ITexTransToolForUnity ttce4u, ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
         {
+            _ttce4u = ttce4u;
             _convertSpace = convertSpace;
             _trianglesFilter = trianglesFilter;
         }
 
-        internal void WriteDecalTexture(Dictionary<Material, RenderTexture> renderTextures, Renderer targetRenderer, Texture sourceTexture)
+        internal void WriteDecalTexture(Dictionary<Material, TTRenderTexWithDistance> renderTextures, Renderer targetRenderer, ITTRenderTexture sourceTexture)
         {
             if (renderTextures == null) { throw new ArgumentNullException(nameof(renderTextures)); }
             if (targetRenderer is not SkinnedMeshRenderer && targetRenderer is not MeshRenderer) { return; }
@@ -84,22 +86,22 @@ namespace net.rs64.TexTransTool.Decal
 
                     if (!renderTextures.ContainsKey(targetMat))
                     {
-                        var newTempRt = renderTextures[targetMat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
-                        newTempRt.name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.width}x{newTempRt.height}";
+                        var newTempRt = renderTextures[targetMat] = new(_ttce4u, (targetTexture.width, targetTexture.height));
+                        newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                        newTempRt.InitializeDistanceMap(_ttce4u, DecalPadding);
                     }
 
                     var sUV = _convertSpace.OutPutUV();
 
                     Profiler.BeginSample("TransTexture.ForTrans");
-                    TransTexture.ForTrans(
-                        renderTextures[targetMat],
-                        sourceTexture,
-                        new TransTexture.TransData<UVDimension>(filteredTriangle, tUV, sUV),
-                        DecalPadding,
-                        TextureWarp,
-                        HighQualityPadding,
-                        UseDepthOrInvert
-                    );
+                    using var transTextureCtx = new TransTextureContext<ITexTransToolForUnity>(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
+
+                    var transMap = new TransTexture.TransData(filteredTriangle, tUV, sUV);
+                    using var packed = TransTexture.PackingTriangles(transMap, Allocator.Temp);
+
+                    transTextureCtx.WriteMapping(MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packed.AsSpan()));
+
+                    transTextureCtx.TransWrite(renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
                     Profiler.EndSample();
                 }
             }
@@ -110,7 +112,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        internal void GenerateKey(Dictionary<Material, RenderTexture> writeable, IEnumerable<Material> targetMat)
+        internal void GenerateKey(Dictionary<Material, TTRenderTexWithDistance> writeable, IEnumerable<Material> targetMat)
         {
             foreach (var mat in targetMat)
             {
@@ -120,8 +122,8 @@ namespace net.rs64.TexTransTool.Decal
                 var targetTexture = mat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
 
-                var rt = writeable[mat] = TTRt.G(targetTexture.width, targetTexture.height, true, true);
-                rt.name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.width}x{rt.height}";
+                var rt = writeable[mat] = new(_ttce4u, (targetTexture.width, targetTexture.height));
+                rt.Texture.Name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.Texture.Width}x{rt.Texture.Hight}";
             }
         }
     }
