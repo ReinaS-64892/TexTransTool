@@ -69,6 +69,7 @@ namespace net.rs64.TexTransCore
         ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
         IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; }
         ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; }
+        ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; }
     }
 
     public interface ITexTransStandardComputeKey
@@ -87,64 +88,16 @@ namespace net.rs64.TexTransCore
         ITTComputeKey Swizzling { get; }
 
         ITTSamplerKey DefaultSampler { get; }
+
+        ITTComputeKey FillR { get; }
+        ITTComputeKey FillRG { get; }
+        ITTComputeKey FillROnly { get; }
+        ITTComputeKey FillGOnly { get; }
+
+        ITTComputeKey TransMapping { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
     public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }
-    // public interface ITexTransRenderTextureReScaler
-    // {
-    //     /// <summary>
-    //     /// ダウンスケールを行う。同じ解像度ではダメ、あと大きいスケールにもできない。
-    //     /// Keyがない場合は Engin が適当に決めてよい
-    //     /// MipMapの再生成は行われない。
-    //     /// </summary>
-    //     void DownScale(ITTRenderTexture source, ITTRenderTexture target, ITTDownScalingKey? downScalingKey);
-    //     /// <summary>
-    //     /// アップスケールを行う。同じ解像度ではダメ、あと小さいスケールにもできない。
-    //     /// Keyがない場合は Engin が適当に決めてよい
-    //     /// MipMapの再生成は行われない。
-    //     /// </summary>
-    //     void UpScale(ITTRenderTexture source, ITTRenderTexture target, ITTUpScalingKey? upScalingKey);
-
-    //     /// <summary>
-    //     /// MipMapが存在しないといけない。
-    //     /// Keyがない場合は Engin が適当に決めてよい
-    //     /// </summary>
-    //     // void GenerateMipMap(ITTRenderTexture renderTexture, ITTDownScalingKey? downScalingKey);
-    // }
-    // public interface ITexTranBlending
-    // {
-
-    //     /// <summary>
-    //     /// キーオブジェクトを基に dist を下のレイヤー add を上のレイヤーとして色合成する。
-    //     /// 最終結果は dist に書き込まれる。
-    //     /// サイズが必ず同一である必要がある。
-    //     /// </summary>
-    //     void TextureBlend(ITTRenderTexture dist, ITTRenderTexture add, ITTBlendKey blendKey);
-
-    //     /// <summary>
-    //     /// GrabTexture の内容を基にいい感じに色調調整などを行う。
-    //     /// 内容の調整は、 GrabCompute 側に仕込まれている。
-    //     /// </summary>
-    //     void GrabBlending(ITTRenderTexture grabTexture, ITTGrabBlending grabBlending);
-    // }
-    // public interface ITexTransTransTexture
-    // {
-    //     // /// <summary>
-    //     // /// ITTTransData を基に変形する。
-    //     // /// transSource は MipMap を保有していないといけないし、 writeTarget は DepthAndStencil を保有している必要がある。
-    //     // /// writeTarget の MipMap の有無はどちらでもよいが、 MipMap の再生成は行われない。
-    //     // /// </summary>
-    //     // void TransTexture(ITTTexture transSource, ITTRenderTexture writeTarget, ITTTransData transData)
-    // }
-
-    // public interface ITTRenderTextureColorSpace
-    // {
-    //     TexTransCoreTextureFormat DefaultRenderTextureFormat { get; }
-    //     /// <summary>
-    //     ///  レンダーテクスチャーの色空間。基本はガンマであってほしいがどちらかであることを正しく実装するべきで、それも変えれるようにあるべきだが、これはこのコンテキストが始まる時点で定義するべきであるな。
-    //     /// </summary>
-    //     bool RenderTextureColorSpaceIsLinear { get; }
-    // }
     public enum TexTransCoreTextureChannel
     {
         R = 1,

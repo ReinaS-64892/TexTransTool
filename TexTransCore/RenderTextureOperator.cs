@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Numerics;
 
 namespace net.rs64.TexTransCore
 {
@@ -197,6 +198,68 @@ namespace net.rs64.TexTransCore
             G = 1,
             B = 2,
             A = 3,
+        }
+
+        public static void FillR<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillR);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            Span<float> gvBuf = stackalloc float[4];
+            gvBuf[0] = v;
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
+            computeHandler.SetTexture(texID, t);
+
+            computeHandler.DispatchWithTextureSize(t);
+        }
+        public static void FillRG<TTCE>(this TTCE engine,ITTRenderTexture t, Vector2 v)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillRG);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            Span<float> gvBuf = stackalloc float[4];
+            gvBuf[0] = v.X;
+            gvBuf[1] = v.Y;
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
+            computeHandler.SetTexture(texID, t);
+
+            computeHandler.DispatchWithTextureSize(t);
+        }
+        public static void FillROnly<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillROnly);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            Span<float> gvBuf = stackalloc float[4];
+            gvBuf[0] = v;
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
+            computeHandler.SetTexture(texID, t);
+
+            computeHandler.DispatchWithTextureSize(t);
+        }
+        public static void FillGOnly<TTCE>(this TTCE engine,ITTRenderTexture t, float v)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.FillGOnly);
+
+            var texID = computeHandler.NameToID("Tex");
+            var gvBufId = computeHandler.NameToID("gv");
+
+            Span<float> gvBuf = stackalloc float[4];
+            gvBuf[0] = v;
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
+            computeHandler.SetTexture(texID, t);
+
+            computeHandler.DispatchWithTextureSize(t);
         }
 
         public static void ClopImage<T>(Span<T> dist, (int x, int y) distSize, Span<T> source, (int x, int y) sourceSize, int pixelParCount) where T : unmanaged

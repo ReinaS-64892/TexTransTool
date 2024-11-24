@@ -9,6 +9,7 @@ namespace net.rs64.TexTransCore
         TexTransCoreTextureChannel ContainsChannel { get; }
     }
 
+
     public static class TTRenderTextureUtility
     {
         public static bool EqualSize(this ITTTexture l, ITTTexture r)
