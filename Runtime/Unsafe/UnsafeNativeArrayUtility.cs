@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Unsafe
+namespace net.rs64.TexTransTool.Unsafe
 {
     internal static class UnsafeNativeArrayUtility
     {

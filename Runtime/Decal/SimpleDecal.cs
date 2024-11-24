@@ -1,14 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
-using net.rs64.TexTransCoreEngineForUnity.Decal;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
 using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Collections;
 using net.rs64.TexTransTool.MultiLayerImage;
 

@@ -7,8 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine.Profiling;
 using Unity.Jobs;
+using net.rs64.TexTransCore;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     internal class ParallelProjectionFilter : ITrianglesFilter<ParallelProjectionSpace>
     {
@@ -56,7 +57,7 @@ namespace net.rs64.TexTransCoreEngineForUnity.Decal
             }
 
             var filtered = new NativeArray<TriangleIndex>(writePos, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            net.rs64.TexTransCoreEngineForUnity.Unsafe.UnsafeNativeArrayUtility.MemCpy(filteredTriFullArray, filtered, writePos);
+            Unsafe.UnsafeNativeArrayUtility.MemCpy(filteredTriFullArray, filtered, writePos);
             filteredTriFullArray.Dispose();
 
             Profiler.EndSample();

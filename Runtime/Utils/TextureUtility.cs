@@ -1,5 +1,6 @@
 using System;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Collections;
 using UnityEngine;
@@ -8,7 +9,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using Color = UnityEngine.Color;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Utils
+namespace net.rs64.TexTransTool.Utils
 {
     internal static class TextureUtility
     {

@@ -3,10 +3,6 @@ using UnityEngine;
 using System.Linq;
 using System;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using Island = net.rs64.TexTransCoreEngineForUnity.Island.Island;
-using static net.rs64.TexTransCoreEngineForUnity.TransTexture;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
@@ -15,6 +11,10 @@ using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
+using static net.rs64.TexTransTool.TransTexture;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {

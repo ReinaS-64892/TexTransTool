@@ -4,13 +4,12 @@ using net.rs64.TexTransTool.IslandSelector;
 using System;
 using JetBrains.Annotations;
 using Unity.Collections;
-using net.rs64.TexTransCoreEngineForUnity.Decal;
 using Unity.Jobs;
 using Unity.Burst;
 using net.rs64.TexTransCoreEngineForUnity;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -76,7 +75,7 @@ namespace net.rs64.TexTransTool.Decal
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.black;
+            Gizmos.color = UnityEngine.Color.black;
             Gizmos.matrix = transform.localToWorldMatrix;
 
             Gizmos.DrawLine(Vector3.zero, Vector3.up);

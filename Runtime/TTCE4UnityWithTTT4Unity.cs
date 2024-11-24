@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using JetBrains.Annotations;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool
 {

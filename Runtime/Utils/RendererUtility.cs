@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Utils
+namespace net.rs64.TexTransTool.Utils
 {
     internal static class RendererUtility
     {

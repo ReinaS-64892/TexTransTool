@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Anatawa12.AvatarOptimizer.API;
 using nadena.dev.ndmf;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.UVIsland;
 using Unity.Collections;
 using UnityEngine;
 

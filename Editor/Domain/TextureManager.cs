@@ -105,7 +105,7 @@ namespace net.rs64.TexTransTool
         {
             if (_originDict.ContainsKey(texture2D) || _asyncOriginLoaders.ContainsKey(texture2D)) return;
 
-            var task = TextureUtility.AsyncGetUncompressed(texture2D);
+            var task = EditorTextureUtility.AsyncGetUncompressed(texture2D);
 
             _asyncOriginLoaders[texture2D] = task;
         }
@@ -118,7 +118,7 @@ namespace net.rs64.TexTransTool
 
         public int GetOriginalTextureSize(Texture2D texture2D)
         {
-            return TexTransCoreEngineForUnity.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
+            return TexTransTool.Utils.TextureUtility.NormalizePowerOfTwo(GetOriginalTexture(texture2D).width);
         }
         public Texture2D GetOriginalTexture(Texture2D texture2D)
         {
@@ -339,7 +339,7 @@ namespace net.rs64.TexTransTool
 
             public void Dispose() { }
         }
-
+#nullable enable
         internal class UnityImportedDiskTexture : ITTDiskTexture
         {
             internal TTTImportedImage Texture;

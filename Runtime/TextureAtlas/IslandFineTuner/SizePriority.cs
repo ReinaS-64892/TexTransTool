@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using net.rs64.TexTransCoreEngineForUnity.Island;
 using net.rs64.TexTransTool.IslandSelector;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
 {

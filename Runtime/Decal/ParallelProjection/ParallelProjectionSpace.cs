@@ -3,9 +3,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransTool.Utils;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public class ParallelProjectionSpace : IConvertSpace<Vector3>
     {

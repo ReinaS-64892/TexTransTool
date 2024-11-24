@@ -1,9 +1,5 @@
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
-using UnityEngine;
-using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {

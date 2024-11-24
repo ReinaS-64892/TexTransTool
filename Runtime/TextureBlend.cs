@@ -1,10 +1,7 @@
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCore;
 using Color = UnityEngine.Color;
@@ -128,30 +125,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public const string AverageSampling_GUID = "e35b864dfafa59441869069e789aa641";
         public static TTSamplerComputeShader BilinearSamplingCS;
         public const string BilinearSampling_GUID = "42d828359014f29419f9efaaec73fe84";
-        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey
-        {
-            public ITTComputeKey AlphaFill => AlphaFillCS;
-
-            public ITTComputeKey AlphaCopy => AlphaCopyCS;
-
-            public ITTComputeKey AlphaMultiply => AlphaMultiplyCS;
-
-            public ITTComputeKey AlphaMultiplyWithTexture => AlphaMultiplyWithTextureCS;
-
-            public ITTComputeKey ColorFill => ColorFillCS;
-
-            public ITTComputeKey ColorMultiply => ColorMultiplyCS;
-
-            public ITTComputeKey GammaToLinear => GammaToLinearCS;
-
-            public ITTComputeKey LinearToGamma => LinearToGammaCS;
-
-            public ITTComputeKey Swizzling => GrabBlending.GeneralComputeObjects["Swizzling"];//TODO : なんとかして
-
-            // public ITTSamplerKey DefaultSampler => BilinearSamplingCS;
-            public ITTSamplerKey DefaultSampler => AverageSamplingCS;
-        }
-
+    
 
         public static void BlendBlit(this RenderTexture baseRenderTexture, RenderTexture addRenderTexture, TTBlendingComputeShader blendUnityObject)
         {

@@ -4,16 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using UnityEditor;
-using System.Threading.Tasks;
 using UnityEditor.AssetImporters;
-using Unity.Collections;
-using net.rs64.TexTransCoreEngineForUnity.MipMap;
-using Unity.Mathematics;
-using UnityEngine.Profiling;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCoreEngineForUnity.Unsafe;
-using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 {
@@ -21,7 +12,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
     {
         MultiLayerImageCanvas _multiLayerImageCanvas;
         TTTImportedCanvasDescription _tttImportedCanvasDescription;
-        ITTImportedCanvasSource _ttImportedCanvasSource;
         AssetImportContext _ctx;
         List<TTTImportedImage> _tttImportedImages = new();
         CreateImportedImage _imageImporter;
@@ -30,13 +20,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
         public delegate TTTImportedImage CreateImportedImage(ImportRasterImageData importRasterImage);
 
-        public MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, ITTImportedCanvasSource ttImportedCanvasSource, CreateImportedImage imageImporter)
+        public MultiLayerImageImporter(MultiLayerImageCanvas multiLayerImageCanvas, TTTImportedCanvasDescription tttImportedCanvasDescription, AssetImportContext assetImportContext, CreateImportedImage imageImporter)
         {
             _multiLayerImageCanvas = multiLayerImageCanvas;
             _ctx = assetImportContext;
             _imageImporter = imageImporter;
             _tttImportedCanvasDescription = tttImportedCanvasDescription;
-            _ttImportedCanvasSource = ttImportedCanvasSource;
 
         }
 

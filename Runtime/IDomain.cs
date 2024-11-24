@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
-using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using net.rs64.TexTransCore;
-using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {

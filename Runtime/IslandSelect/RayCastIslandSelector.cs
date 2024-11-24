@@ -1,12 +1,11 @@
 using UnityEngine;
-using System.Collections.Generic;
-using net.rs64.TexTransCoreEngineForUnity.Island;
 using Unity.Collections;
 using System.Collections;
 using Unity.Jobs;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using System.Linq;
+using net.rs64.TexTransTool.UVIsland;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Decal
+namespace net.rs64.TexTransTool.Decal
 {
     public class MeshData : IDisposable
     {
@@ -271,9 +271,9 @@ namespace net.rs64.TexTransCoreEngineForUnity.Decal
                 TriangleIndexBuffer[index] = triIndex;
 
                 var triangle = new Triangle();
-                triangle.zero = PositionBuffer[triIndex.zero];
-                triangle.one = PositionBuffer[triIndex.one];
-                triangle.two = PositionBuffer[triIndex.two];
+                triangle.zero = PositionBuffer[triIndex.zero].ToTTCore();
+                triangle.one = PositionBuffer[triIndex.one].ToTTCore();
+                triangle.two = PositionBuffer[triIndex.two].ToTTCore();
                 TrianglePosBuffer[index] = triangle;
             }
         }

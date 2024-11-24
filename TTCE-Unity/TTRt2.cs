@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCoreEngineForUnity.MipMap;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
-using Color = net.rs64.TexTransCore.Color;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {
@@ -110,7 +107,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
         }
 
 
-
+        static void Clear(this RenderTexture rt)
+        {
+            using (new RTActiveSaver())
+            {
+                RenderTexture.active = rt;
+                GL.Clear(true, true, UnityEngine.Color.clear);
+            }
+        }
 
 
         private struct TTRenderTextureDescriptor : IEquatable<TTRenderTextureDescriptor>

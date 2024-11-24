@@ -1,13 +1,12 @@
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Jobs;
 using Unity.Collections;
 using net.rs64.TexTransCoreEngineForUnity;
-using System.Collections.Generic;
 using Unity.Burst;
-using System.Runtime.InteropServices;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Island
+namespace net.rs64.TexTransTool.UVIsland
 {
     [BurstCompile]
     internal struct RayCastJob : IJobParallelFor
@@ -24,16 +23,16 @@ namespace net.rs64.TexTransCoreEngineForUnity.Island
         public void Execute(int index)
         {
             var tri = triangles[index];
-            tri.zero = rayMatrix.MultiplyPoint3x4(tri.zero);
-            tri.one = rayMatrix.MultiplyPoint3x4(tri.one);
-            tri.two = rayMatrix.MultiplyPoint3x4(tri.two);
-            var CrossT = tri.Cross(Vector3.zero);
+            tri.zero = rayMatrix.MultiplyPoint3x4(tri.zero.ToUnity()).ToTTCore();
+            tri.one = rayMatrix.MultiplyPoint3x4(tri.one.ToUnity()).ToTTCore();
+            tri.two = rayMatrix.MultiplyPoint3x4(tri.two.ToUnity()).ToTTCore();
+            var CrossT = tri.Cross(new(0, 0, 0)).ToUnity();
 
             var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
             if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { return; }
             var IsIn = VectorUtility.IsInCal(CrossT.x, CrossT.y, CrossT.z);
             HitResult[index] = IsIn;
-            Distance[index] = tri.FromBCS(TBC).z;
+            Distance[index] = tri.FromBCS(TBC.ToTTCore()).Z;
 
         }
 
@@ -45,7 +44,8 @@ namespace net.rs64.TexTransCoreEngineForUnity.Island
     {
         [ReadOnly]
         public Matrix4x4 rayMatrix;
-        [ReadOnly][DeallocateOnJobCompletion]
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
         public NativeArray<TriangleIndex> Triangles;
         [ReadOnly]
         public NativeArray<Vector3> Position;
@@ -58,16 +58,16 @@ namespace net.rs64.TexTransCoreEngineForUnity.Island
         {
             var trIndex = Triangles[index];
             var tri = new Triangle();
-            tri.zero = rayMatrix.MultiplyPoint3x4(Position[trIndex.zero]);
-            tri.one = rayMatrix.MultiplyPoint3x4(Position[trIndex.one]);
-            tri.two = rayMatrix.MultiplyPoint3x4(Position[trIndex.two]);
-            var CrossT = tri.Cross(Vector3.zero);
+            tri.zero = rayMatrix.MultiplyPoint3x4(Position[trIndex.zero]).ToTTCore();
+            tri.one = rayMatrix.MultiplyPoint3x4(Position[trIndex.one]).ToTTCore();
+            tri.two = rayMatrix.MultiplyPoint3x4(Position[trIndex.two]).ToTTCore();
+            var CrossT = tri.Cross(new(0, 0, 0)).ToUnity();
 
             var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
             if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { return; }
             var IsIn = VectorUtility.IsInCal(CrossT.x, CrossT.y, CrossT.z);
             HitResult[index] = IsIn;
-            Distance[index] = tri.FromBCS(TBC).z;
+            Distance[index] = tri.FromBCS(TBC.ToTTCore()).Z;
 
         }
 

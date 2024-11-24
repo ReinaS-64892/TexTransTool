@@ -6,11 +6,9 @@ using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
-using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.NDMF

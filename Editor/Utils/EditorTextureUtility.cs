@@ -1,6 +1,4 @@
 using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,10 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -21,7 +17,7 @@ using Graphics = UnityEngine.Graphics;
 namespace net.rs64.TexTransTool.Utils
 {
 
-    internal static class TextureUtility
+    internal static class EditorTextureUtility
     {
         public static Task<Func<Texture2D>> AsyncGetUncompressed(Texture2D firstTexture)
         {

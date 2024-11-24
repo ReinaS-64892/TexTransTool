@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -12,8 +11,13 @@ using Unity.Jobs;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using System;
+using net.rs64.TexTransTool;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
+using System.Runtime.InteropServices;
+using net.rs64.TexTransCoreEngineForUnity;
 
-namespace net.rs64.TexTransCoreEngineForUnity
+namespace net.rs64.TexTransTool
 {
     internal static class TransTexture
     {
@@ -278,11 +282,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 {
                     if (posDict.ContainsKey(vertices[i]))
                     {
-                        posDict[vertices[i]].Add(new Triangle(tri, vertices));
+                        posDict[vertices[i]].Add(new Triangle(tri, MemoryMarshal.Cast<Vector3, System.Numerics.Vector3>(vertices.AsSpan())));
                     }
                     else
                     {
-                        posDict.Add(vertices[i], new List<Triangle>() { new Triangle(tri, vertices) });
+                        posDict.Add(vertices[i], new List<Triangle>() { new Triangle(tri, MemoryMarshal.Cast<Vector3, System.Numerics.Vector3>(vertices.AsSpan())) });
                     }
                 }
             }
@@ -308,7 +312,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 tasks.Add(posAndTri.Key, Task.Run<Vector3>(LocalRagNormalCal).ConfigureAwait(false));
                 Vector3 LocalRagNormalCal()
                 {
-                    return RagNormalCal(posAndTri.Key, posAndTri.Value);
+                    return RagNormalCal(posAndTri.Key.ToTTCore(), posAndTri.Value);
                 }
             }
             foreach (var task in tasks)
@@ -319,18 +323,18 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         static Vector3 RadToVector3(float rad) => new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0);
 
-        static Vector3 RagNormalCal(Vector3 pos, List<Triangle> triangle)
+        static Vector3 RagNormalCal(System.Numerics.Vector3 pos, List<Triangle> triangle)
         {
 
-            var vecTriList = new List<(Vector3 VecZero, Vector3 VecOne)>();
+            var vecTriList = new List<(System.Numerics.Vector3 VecZero, System.Numerics.Vector3 VecOne)>();
             foreach (var tri in triangle)
             {
                 var trList = tri.ToList();
                 trList.Remove(pos);
                 trList[0] = trList[0] - pos;
                 trList[1] = trList[1] - pos;
-                if (Mathf.Abs(Vector3.Cross(trList[0], trList[1]).z) < float.Epsilon) { continue; }
-                if (Vector3.Cross(trList[0], trList[1]).z > 0)
+                if (Mathf.Abs(System.Numerics.Vector3.Cross(trList[0], trList[1]).Z) < float.Epsilon) { continue; }
+                if (System.Numerics.Vector3.Cross(trList[0], trList[1]).Z > 0)
                 {
                     vecTriList.Add((trList[0], trList[1]));
                 }
@@ -343,8 +347,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
             var ragTriList = new List<(float TriRadZero, float TriRadOne)>();
             foreach (var tri in vecTriList)
             {
-                var ragZero = Mathf.Atan2(tri.VecZero.y, tri.VecZero.x);
-                var ragOne = Mathf.Atan2(tri.VecOne.y, tri.VecOne.x);
+                var ragZero = Mathf.Atan2(tri.VecZero.Y, tri.VecZero.X);
+                var ragOne = Mathf.Atan2(tri.VecOne.Y, tri.VecOne.X);
 
                 if (!(ragZero > 0 && ragOne < 0)) { ragTriList.Add((ragZero, ragOne)); continue; }
 

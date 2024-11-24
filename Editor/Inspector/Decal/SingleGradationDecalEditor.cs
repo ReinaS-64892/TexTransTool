@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
 using System.Collections.Generic;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using System.Linq;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {

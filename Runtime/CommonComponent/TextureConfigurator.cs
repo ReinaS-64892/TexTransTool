@@ -1,10 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System;
 using JetBrains.Annotations;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using net.rs64.TexTransCoreEngineForUnity;

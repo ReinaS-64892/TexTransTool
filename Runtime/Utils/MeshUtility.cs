@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Utils
+namespace net.rs64.TexTransTool.Utils
 {
     internal static class MeshUtility
     {

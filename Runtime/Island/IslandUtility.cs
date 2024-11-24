@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Decal;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Pool;
 using UnityEngine.Profiling;
 using Unity.Collections;
 using System.Linq;
+using net.rs64.TexTransCore;
+using Color = UnityEngine.Color;
+using net.rs64.TexTransTool.Decal;
 
-namespace net.rs64.TexTransCoreEngineForUnity.Island
+namespace net.rs64.TexTransTool.UVIsland
 {
     internal static class IslandUtility
     {

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransCoreEngineForUnity
 {

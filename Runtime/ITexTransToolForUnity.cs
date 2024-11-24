@@ -1,10 +1,9 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
 using UnityEngine;
 

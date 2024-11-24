@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCoreEngineForUnity;
 
-namespace net.rs64.TexTransCoreEngineForUnity
+namespace net.rs64.TexTransTool
 {
     internal static class FrameMemoEvents
     {

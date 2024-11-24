@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime

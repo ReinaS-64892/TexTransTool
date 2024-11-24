@@ -134,7 +134,7 @@ namespace net.rs64.TexTransTool.PSDImporter
         {
             Profiler.BeginSample("Init");
             var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            TexTransCoreEngineForUnity.Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
+            Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
 
             var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
             var sourceTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
