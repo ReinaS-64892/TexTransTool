@@ -15,6 +15,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
         [PowerOfTwo] public int AtlasTextureSize = 2048;
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
+        [PowerOfTwo] public int HeightDenominator = 1;
 
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool ForceSizePriority = false;

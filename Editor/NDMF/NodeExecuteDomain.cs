@@ -117,7 +117,7 @@ namespace net.rs64.TexTransTool.NDMF
         {
             MargeStack();
             _textureManager.DestroyDeferred();
-            _textureManager.CompressDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
         }
 
         private void MargeStack()
@@ -128,6 +128,10 @@ namespace net.rs64.TexTransTool.NDMF
                 SetTexture(mergeResult.Key, mergeResult.Value.Unwrap());
                 _ttce4U.GammaToLinear(mergeResult.Value);
             }
+
+            _textureManager.DestroyDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
+
 
             void SetTexture(Texture firstTexture, Texture mergeTexture)
             {

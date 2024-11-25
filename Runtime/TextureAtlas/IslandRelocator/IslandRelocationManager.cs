@@ -16,12 +16,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             get => _padding;
             set { _islandRelocator.Padding = _padding = value; }
         }
+        int _heightDenominator;
+        public int HeightDenominator
+        {
+            get => _heightDenominator;
+            set { _islandRelocator.HeightDenominator = _heightDenominator = value; }
+        }
         public bool ForceSizePriority { private get; set; }
         public IslandRelocationManager(IAtlasIslandRelocator islandRelocator)
         {
             _islandRelocator = islandRelocator;
             Padding = 0;
             ForceSizePriority = false;
+            HeightDenominator = 1;
         }
 
 

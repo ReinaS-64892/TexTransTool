@@ -320,6 +320,9 @@ msgstr "Settings that specify the color space of specific texture."
 msgid "TextureFineTuning:prop:Linear"
 msgstr "Linear"
 
+msgid "AtlasTexture:prop:HeightDenominator"
+msgstr "HeightDivision    1 / "
+
 msgid "AtlasTexture:prop:IslandFineTuners"
 msgstr "IslandFineTuners"
 

@@ -78,6 +78,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sTextureScaleOffsetReset = sAtlasSettings.FindPropertyRelative("TextureScaleOffsetReset");
             var sBakedPropertyWriteMaxValue = sAtlasSettings.FindPropertyRelative("BakedPropertyWriteMaxValue");
             var sUnsetTextures = sAtlasSettings.FindPropertyRelative("UnsetTextures");
+            var sHeightDenominator = sAtlasSettings.FindPropertyRelative("HeightDenominator");
 
             var sLimitCandidateMaterials = sIncludeDisabledRenderer.serializedObject.FindProperty("LimitCandidateMaterials");
 
@@ -110,6 +111,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (s_ExperimentalFutureOption)
             {
                 EditorGUI.indentLevel += 1;
+                EditorGUILayout.PropertyField(sHeightDenominator, "AtlasTexture:prop:HeightDenominator".Glc());
                 EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".Glc());
                 EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".Glc());
                 EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".Glc());

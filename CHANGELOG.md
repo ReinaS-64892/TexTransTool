@@ -5,7 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...HEAD)
+
+## [v0.8.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...v0.8.7) - 2024-11-23
+
+### Added
+
+- ほかツールとの互換性向上のため、TTT が生成した Texture を基に置き換えが登録されたテクスチャーが存在した場合に圧縮が行われていなかったら TTT が持っている情報を基に圧縮を行うようになりました (#726)
+
+## [v0.8.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.5...v0.8.6) - 2024-11-14
+
+### Fixed
+
+- AtlasTexture の オリジナルテクスチャーのロードだけが プレビューに誤って行われていた問題を修正 (#721)
+- AtlasTexture が System.Drawing (Windows GDI) が存在しない環境で例外が発生し動作しない問題を修正しました (#722)
+
+## [v0.8.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...v0.8.5) - 2024-11-13
+
+### Added
+
+- 二のべき乗の数値を指定するプロパティで直接入力が行えるモードに切り替えるトグルを追加 (#718)
 
 ### Fixed
 
