@@ -14,7 +14,7 @@ namespace net.rs64.TexTransCore.TransTexture
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.TransMapping);
+            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
             var transMapID = computeHandler.NameToID("TransMap");
