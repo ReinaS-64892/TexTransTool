@@ -23,11 +23,11 @@ float3 checkNaN(float3 val, float3 replace)
     }
     if (IsNaNWithWGSLSafe(val.g))
     {
-        val.r = replace.g;
+        val.g = replace.g;
     }
     if (IsNaNWithWGSLSafe(val.b))
     {
-        val.r = replace.b;
+        val.b = replace.b;
     }
     return val;
 }
