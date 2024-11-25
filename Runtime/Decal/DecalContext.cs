@@ -86,22 +86,21 @@ namespace net.rs64.TexTransTool.Decal
 
                     if (!renderTextures.ContainsKey(targetMat))
                     {
-                        var newTempRt = renderTextures[targetMat] = new(_ttce4u, (targetTexture.width, targetTexture.height));
+                        var newTempRt = renderTextures[targetMat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
                         newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
-                        newTempRt.InitializeDistanceMap(_ttce4u, DecalPadding);
                     }
 
                     var sUV = _convertSpace.OutPutUV();
 
                     Profiler.BeginSample("TransTexture.ForTrans");
-                    using var transTextureCtx = new TransTextureContext<ITexTransToolForUnity>(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
+                    using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
 
                     var transMap = new TransTexture.TransData(filteredTriangle, tUV, sUV);
                     using var packed = TransTexture.PackingTriangles(transMap, Allocator.Temp);
 
-                    transTextureCtx.WriteMapping(MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packed.AsSpan()));
+                    _ttce4u.WriteMapping(transMappingHolder, MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packed.AsSpan()));
+                    _ttce4u.TransWrite(transMappingHolder, renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
 
-                    transTextureCtx.TransWrite(renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
                     Profiler.EndSample();
                 }
             }
@@ -122,7 +121,7 @@ namespace net.rs64.TexTransTool.Decal
                 var targetTexture = mat.GetTexture(TargetPropertyName);
                 if (targetTexture == null) { continue; }
 
-                var rt = writeable[mat] = new(_ttce4u, (targetTexture.width, targetTexture.height));
+                var rt = writeable[mat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
                 rt.Texture.Name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.Texture.Width}x{rt.Texture.Hight}";
             }
         }

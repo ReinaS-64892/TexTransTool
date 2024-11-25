@@ -13,14 +13,14 @@ cbuffer gv
 {
     uint2 TransTargetMapSize;
     uint2 TransSourceMapSize;
-    float Padding;
+    float MaxDistance;
     float alimentPadding1;
     float alimentPadding2;
     float alimentPadding3;
 }
 
 RWTexture2D<float2> TransMap;
-RWTexture2D<float2> DistanceAndScaling; // Padding の値を先に書き込んで初期化しておく必要がある。
+RWTexture2D<float2> DistanceAndScaling; // MaxDistance の値を先に書き込んで初期化しておく必要がある。
 
 StructuredBuffer<float4> Polygons; // 頂点が、三つずつ並んでいて from が xy 、 to が zw にパッキングされている想定。 0~1 の正規化された空間を想定。
 
@@ -77,13 +77,14 @@ float4 MinMax(float2 tri[3])
 {
     float2 minVal = min(min(tri[0], tri[1]), tri[2]);
     float2 maxVal = max(max(tri[0], tri[1]), tri[2]);
-    return float4(minVal - Padding, maxVal + Padding);
+    return float4(minVal - MaxDistance, maxVal + MaxDistance);
 }
-
-[numthreads(1, 256, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+#define PARALLEL_COUNT 256
+// #define PARALLEL_COUNT 1
+[numthreads(1, PARALLEL_COUNT, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint thisID = id.y;
-    uint idMax = 256;
+    uint idMax = PARALLEL_COUNT;
     uint polygonIndex = id.x * 3;
 
     float2 fromPolygonWithNormalizeScale[3];
@@ -113,9 +114,9 @@ float4 MinMax(float2 tri[3])
             float2 pos = float2(x + 0.5, y + 0.5);
             int2 posIndex = int2(x, y);
 
-            float fromArea = TriangleArea(fromPolygon);
-            float toArea = TriangleArea(toPolygon);
-            float scaling = fromArea / toArea;
+            float fromArea = TriangleArea(fromPolygon) / 2;
+            float toArea = TriangleArea(toPolygon) / 2;
+            float scaling = abs(fromArea / toArea);
 
             float3 toBC = Barycentric(toPolygon, pos);
             float distance = Distance(toPolygon, pos);
@@ -126,7 +127,9 @@ float4 MinMax(float2 tri[3])
 
             float2 transSourcePos = CalculatePositionFromBarycentric(fromPolygonWithNormalizeScale, toBC);
 
-            if (DistanceAndScaling[posIndex].x > distance)
+            bool isWrite = DistanceAndScaling[posIndex].x > distance && MaxDistance > distance;
+
+            if (isWrite)
             {
                 DistanceAndScaling[posIndex] = float2(distance, scaling);
                 TransMap[posIndex] = transSourcePos;

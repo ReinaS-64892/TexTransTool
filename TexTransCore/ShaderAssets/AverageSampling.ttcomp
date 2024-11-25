@@ -37,10 +37,8 @@ float3 checkNaN(float3 val, float3 replace)
 
 float4 TTSampling(float2 pos, float scaling)
 {
-    if (scaling <= 1)
-    {
-        return BilinearSampling(pos);
-    }
+    scaling = max(scaling , 1);
+
     float2 targetSizePos = pos * float2(RTexWidth, RTexHeight);
 
     float2 sampleBoxMin = targetSizePos - (scaling * 0.5).xx;
@@ -51,9 +49,9 @@ float4 TTSampling(float2 pos, float scaling)
     int2 sampleRangeMin = (int2)floor(sampleBoxMin);
     int2 sampleRangeMax = (int2)ceil(sampleBoxMax);
 
-    float alphaEstimationTotal = sampleBoxSize.x * sampleBoxSize.y;
 
     float alpha = 0.0;
+    float area = 0.0;
     float3 wCol = float3(0.0, 0.0, 0.0);
     float3 col = float3(0.0, 0.0, 0.0);
 
@@ -77,18 +75,21 @@ float4 TTSampling(float2 pos, float scaling)
             float sampledArea = sampledBoxSize.x * sampledBoxSize.y;
 
             float4 loadCol = ClampWithLoad(int2(x, y));
+
             alpha += loadCol.a * sampledArea;
-            wCol += (loadCol.rgb * loadCol.aaa) * sampledArea.xxx;
-            col += loadCol.rgb * sampledArea.xxx;
+            wCol += (loadCol.rgb * loadCol.aaa) * sampledArea;
+            col += loadCol.rgb * sampledArea;
+
+            area += sampledArea;
         }
     }
 
-    float3 averagedCol = checkNaN(wCol / alpha, col / alphaEstimationTotal);
+    float3 averagedCol = checkNaN(wCol / alpha, col / area);
     // float3 averagedCol = checkNaN(wCol / alpha, col / alpha);
     // float3 averagedCol =  wCol / alpha;
     // float3 averagedCol =  col / alpha;
     // float3 averagedCol =  col / alphaEstimationTotal;
-    float1 averagedAlpha = alpha / alphaEstimationTotal;
+    float1 averagedAlpha = alpha / area;
 
     return float4(averagedCol, averagedAlpha);
 }
