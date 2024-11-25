@@ -37,7 +37,7 @@ float3 checkNaN(float3 val, float3 replace)
 
 float4 TTSampling(float2 pos, float scaling)
 {
-    scaling = max(scaling , 1);
+    if(scaling <= 1){ return BilinearSampling(pos); }
 
     float2 targetSizePos = pos * float2(RTexWidth, RTexHeight);
 
