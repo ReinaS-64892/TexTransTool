@@ -116,7 +116,7 @@ float4 MinMax(float2 tri[3])
 
             float fromArea = TriangleArea(fromPolygon) / 2;
             float toArea = TriangleArea(toPolygon) / 2;
-            float scaling = abs(fromArea / toArea);
+            float scaling = clamp( abs(fromArea / toArea),0 ,64);// safety
 
             float3 toBC = Barycentric(toPolygon, pos);
             float distance = Distance(toPolygon, pos);
