@@ -18,8 +18,6 @@ namespace net.rs64.TexTransTool.PSDImporter
         public PSDImportMode ImportMode = PSDImportMode.Auto;
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
-
             EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.0f);
 
             Profiler.BeginSample("ParsePSD");
@@ -82,7 +80,6 @@ namespace net.rs64.TexTransTool.PSDImporter
             finally
             {
                 EditorUtility.ClearProgressBar();
-                NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
             }
         }
 
