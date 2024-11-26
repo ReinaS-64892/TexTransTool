@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...HEAD)
 
+### Added
+
+- SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
+
 ## [v0.8.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...v0.8.7) - 2024-11-23
 
 ### Added
