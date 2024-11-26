@@ -109,6 +109,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         static void ReleaseManager()
         {
 #if CONTAINS_TTCE_WGPU
+            tryDeviceCreateLimiter = false;
             ForgetPreloadCollect();
             s_ttceWgpuDevice?.Dispose();
             s_ttceWgpuDevice = null;
@@ -420,8 +421,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         [MenuItem(MenuPath)]
         static void Reinitialize()
         {
-            CanvasImportedImagePreviewInitialize();
             ReleaseManager();
+            CanvasImportedImagePreviewInitialize();
         }
     }
 }
