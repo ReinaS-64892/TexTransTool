@@ -92,14 +92,20 @@ namespace net.rs64.TexTransTool.Decal
 
                     var sUV = _convertSpace.OutPutUV();
 
-                    Profiler.BeginSample("TransTexture.ForTrans");
+                    Profiler.BeginSample("TransTexture");
                     using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
 
+                    Profiler.BeginSample("PackingTriangles");
                     var transMap = new TransTexture.TransData(filteredTriangle, tUV, sUV);
                     using var packed = TransTexture.PackingTriangles(transMap, Allocator.Temp);
+                    Profiler.EndSample();
 
+                    Profiler.BeginSample("WriteMapping");
                     _ttce4u.WriteMapping(transMappingHolder, MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packed.AsSpan()));
+                    Profiler.EndSample();
+                    Profiler.BeginSample("TransWrite");
                     _ttce4u.TransWrite(transMappingHolder, renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
+                    Profiler.EndSample();
 
                     Profiler.EndSample();
                 }
