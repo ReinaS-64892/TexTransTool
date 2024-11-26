@@ -1,0 +1,107 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    uint TargetChannel; // R = 0 G = 1 B = 2 A = 3
+    uint p1;
+    uint2 SourceTextureSize;
+
+    uint2 WriteOffset;
+}
+
+StructuredBuffer<uint2> SpanBuffer; // Offset&Count
+StructuredBuffer<uint> RLEBuffer;   // RLEBuf
+RWTexture2D<float4> Tex;
+
+uint GetRLEBufWithByteSizeIndex(uint byteSizeIndex)
+{
+    uint uintSizeIndex = byteSizeIndex / 4;
+    uint byteOffset = ( (byteSizeIndex % 4)) * 8;
+
+    return (RLEBuffer[uintSizeIndex] >> byteOffset) & 0x000000ff;
+}
+void WriteTex(uint y, uint x, uint byte)
+{
+    float value = byte / 255.0;
+    uint2 pos = uint2(WriteOffset.x + x, WriteOffset.y + ((SourceTextureSize.y - 1) - y));
+
+    float4 col = Tex[pos];
+    switch (TargetChannel)
+    {
+    case 0:
+    {
+        col.r = value;
+        break;
+    }
+    case 1:
+    {
+        col.g = value;
+        break;
+    }
+    case 2:
+    {
+        col.b = value;
+        break;
+    }
+    case 3:
+    {
+        col.a = value;
+        break;
+    }
+    }
+    Tex[pos] = col;
+}
+
+[numthreads(1, 256, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.y >= SourceTextureSize.y)
+    {
+        return;
+    }
+
+    uint Offset = SpanBuffer[id.y].x;
+    uint Count = SpanBuffer[id.y].y;
+
+    uint readPos = 0;
+    uint writePos = 0;
+
+    for (; Count > readPos;)
+    {
+        int runLength = GetRLEBufWithByteSizeIndex(Offset + readPos);
+        readPos += 1;
+
+        if (runLength < 128) // マイナスになる bit は それを超えた時だからね
+        {
+            uint count = runLength + 1;
+
+            for (uint i = 0; count > i; i += 1)
+            {
+                WriteTex(id.y, writePos, GetRLEBufWithByteSizeIndex(Offset + readPos));
+                readPos += 1;
+                writePos += 1;
+            }
+        }
+        else
+        {
+            uint count = (128 - ( runLength - 128)) + 1;// sbyte ではないから気を付けて取り出す。
+            uint value = GetRLEBufWithByteSizeIndex(Offset + readPos);
+            readPos += 1;
+
+            for (uint i = 0; count > i; i += 1)
+            {
+                WriteTex(id.y, writePos, value);
+                writePos += 1;
+            }
+        }
+    }
+
+}

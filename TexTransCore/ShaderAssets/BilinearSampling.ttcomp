@@ -1,0 +1,16 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Sampler
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+#include "./SamplerTemplate.hlsl"
+
+float4 TTSampling(float2 pos, float scaling)
+{
+    return BilinearSampling(pos);
+}

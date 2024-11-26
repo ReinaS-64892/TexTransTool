@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 

@@ -1,6 +1,17 @@
-#pragma HLSL_Version 2018
-#pragma TTComputeType GrabBlend
-#pragma ColorSpace Gamma
+/*
+BEGIN_ _TT_COMPUTE_SHADER_HEADER
+
+// 後で何とかしないといけないから無効化中
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END_ _TT_COMPUTE_SHADER_HEADER
+*/
 
 #include "../Blendings/SetSL.hlsl"
 

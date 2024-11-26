@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransTool.MultiLayerImage.Importer;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(RasterLayer))]
@@ -30,9 +31,9 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var thisTarget = target as RasterImportedLayer;
             if (targets.Length != 1) { return; }
-            if (thisTarget.ImportedImage != null && thisTarget.ImportedImage.PreviewTexture != null)
+            if (thisTarget.ImportedImage != null && CanvasImportedImagePreviewManager.GetPreview(thisTarget.ImportedImage) != null)
             {
-                EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), thisTarget.ImportedImage.PreviewTexture, ScaleMode.ScaleToFit);
+                EditorGUI.DrawTextureTransparent(EditorGUILayout.GetControlRect(GUILayout.Height(400)), CanvasImportedImagePreviewManager.GetPreview(thisTarget.ImportedImage), ScaleMode.ScaleToFit);
             }
         }
 

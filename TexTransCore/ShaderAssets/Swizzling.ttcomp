@@ -1,0 +1,52 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    uint4 SwizzlingParmeator; // R = 0 G = 1 B = 2 A = 3
+}
+RWTexture2D<float4> Tex;
+
+float Select(uint c, float4 o)
+{
+    switch (c)
+    {
+    case 0:
+    {
+        return o.r;
+    }
+    case 1:
+    {
+        return o.g;
+    }
+    case 2:
+    {
+        return o.b;
+    }
+    case 3:
+    {
+        return o.a;
+    }
+    default:
+        return 0.0;
+    }
+}
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 origin = Tex[id.xy];
+    float4 result = origin;
+    result.r = Select(SwizzlingParmeator.x, origin);
+    result.g = Select(SwizzlingParmeator.y, origin);
+    result.b = Select(SwizzlingParmeator.z, origin);
+    result.a = Select(SwizzlingParmeator.w, origin);
+    Tex[id.xy] = result;
+}

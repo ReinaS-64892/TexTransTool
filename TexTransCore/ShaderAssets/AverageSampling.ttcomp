@@ -1,0 +1,95 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Sampler
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+#include "./SamplerTemplate.hlsl"
+
+bool IsNaNWithWGSLSafe(float v)
+{
+    float minFloat = 1.175494351e-38;
+    return max(v, minFloat) != v;
+}
+float3 checkNaN(float3 val, float3 replace)
+{
+    if (IsNaNWithWGSLSafe(val.r))
+    {
+        val.r = replace.r;
+    }
+    if (IsNaNWithWGSLSafe(val.g))
+    {
+        val.g = replace.g;
+    }
+    if (IsNaNWithWGSLSafe(val.b))
+    {
+        val.b = replace.b;
+    }
+    return val;
+}
+
+// 0~1 までの正規化された値が pos としてわたってくる
+// scaling の値は   SourceSize / TargetSize で算出されるような形 半分にする場合は 2048 / 1024 のような形になり 2 が割り当てられる。
+
+float4 TTSampling(float2 pos, float scaling)
+{
+    if(scaling <= 1){ return BilinearSampling(pos); }
+
+    float2 targetSizePos = pos * float2(RTexWidth, RTexHeight);
+
+    float2 sampleBoxMin = targetSizePos - (scaling * 0.5).xx;
+    float2 sampleBoxMax = targetSizePos + (scaling * 0.5).xx;
+
+    float2 sampleBoxSize = sampleBoxMax - sampleBoxMin;
+
+    int2 sampleRangeMin = (int2)floor(sampleBoxMin);
+    int2 sampleRangeMax = (int2)ceil(sampleBoxMax);
+
+
+    float alpha = 0.0;
+    float area = 0.0;
+    float3 wCol = float3(0.0, 0.0, 0.0);
+    float3 col = float3(0.0, 0.0, 0.0);
+
+    for (int y = sampleRangeMin.y; sampleRangeMax.y > y; y += 1)
+    {
+        for (int x = sampleRangeMin.x; sampleRangeMax.x > x; x += 1)
+        {
+            float2 colBoxMin = float2(x, y);
+            float2 colBoxMax = float2(x + 1.0, y + 1.0);
+
+            float2 sampledBoxMin = max(sampleRangeMin, colBoxMin);
+            float2 sampledBoxMax = min(sampleRangeMax, colBoxMax);
+
+            float2 sampledBoxSize = sampledBoxMax - sampledBoxMin;
+
+            if (sampledBoxSize.x < 0 || sampledBoxSize.y < 0) // 完全に範囲外だったとき用
+            {
+                continue;
+            }
+
+            float sampledArea = sampledBoxSize.x * sampledBoxSize.y;
+
+            float4 loadCol = ClampWithLoad(int2(x, y));
+
+            alpha += loadCol.a * sampledArea;
+            wCol += (loadCol.rgb * loadCol.aaa) * sampledArea;
+            col += loadCol.rgb * sampledArea;
+
+            area += sampledArea;
+        }
+    }
+
+    float3 averagedCol = checkNaN(wCol / alpha, col / area);
+    // float3 averagedCol = checkNaN(wCol / alpha, col / alpha);
+    // float3 averagedCol =  wCol / alpha;
+    // float3 averagedCol =  col / alpha;
+    // float3 averagedCol =  col / alphaEstimationTotal;
+    float1 averagedAlpha = alpha / area;
+
+    return float4(averagedCol, averagedAlpha);
+}

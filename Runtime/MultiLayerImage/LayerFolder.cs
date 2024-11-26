@@ -14,20 +14,20 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT LayerFolder";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public bool PassThrough;
-        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
             var layers = GetChileLayers();
-            var chiles = new List<LayerObject<TTT4U>>(layers.Capacity);
+            var chiles = new List<LayerObject<TTCE4U>>(layers.Capacity);
             foreach (var l in layers) { chiles.Add(l.GetLayerObject(engine)); }
 
             if (PassThrough)
             {
-                return new PassThoughtFolder<TTT4U>(Visible, GetAlphaMask(engine), Clipping, chiles);
+                return new PassThoughtFolder<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, chiles);
             }
             else
             {
                 var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-                return new LayerFolder<TTT4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), chiles);
+                return new LayerFolder<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), chiles);
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

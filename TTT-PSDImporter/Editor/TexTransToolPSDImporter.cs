@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using net.rs64.TexTransTool.MultiLayerImage.LayerData;
 using net.rs64.PSDParser;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -19,8 +18,6 @@ namespace net.rs64.TexTransTool.PSDImporter
         public PSDImportMode ImportMode = PSDImportMode.Auto;
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
-
             EditorUtility.DisplayProgressBar("Parse PSD", "ReadBytes", 0.0f);
 
             Profiler.BeginSample("ParsePSD");
@@ -59,6 +56,7 @@ namespace net.rs64.TexTransTool.PSDImporter
                 canvasDescription.Width = pSDData.Width;
                 canvasDescription.Height = pSDData.Height;
                 canvasDescription.BitDepth = pSDData.Depth;
+                canvasDescription.IsPSB = lowPSDData.IsPSB;
                 canvasDescription.name = "CanvasDescription";
                 ctx.AddObjectToAsset(canvasDescription.name, canvasDescription);
                 multiLayerImageCanvas.tttImportedCanvasDescription = canvasDescription;
@@ -66,17 +64,8 @@ namespace net.rs64.TexTransTool.PSDImporter
                 Profiler.EndSample();
                 Profiler.BeginSample("CreateLayers");
 
-                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, psdBytes, CreatePSDImportedImage);
+                var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, CreatePSDImportedImage);
                 mliImporter.AddLayers(pSDData.RootLayers);
-
-                Profiler.EndSample();
-                EditorUtility.DisplayProgressBar("Import Canvas", "CreatePreview", 0f);
-                Profiler.BeginSample("CreatePreviews");
-                try
-                {
-                    mliImporter.CreatePreview();
-                }
-                catch (Exception e) { Debug.LogException(e); }
 
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);
@@ -91,7 +80,6 @@ namespace net.rs64.TexTransTool.PSDImporter
             finally
             {
                 EditorUtility.ClearProgressBar();
-                NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
             }
         }
 

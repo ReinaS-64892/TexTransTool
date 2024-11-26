@@ -1,4 +1,5 @@
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -9,9 +10,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Texture2D RasterTexture;
 
-        public override void GetImage<TTT4U>(TTT4U engine, ITTRenderTexture renderTexture)
+        public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {
-            engine.LoadTexture(engine.Wrapping(RasterTexture), renderTexture);
+            using var ri = engine.Wrapping(RasterTexture);
+            engine.LoadTextureWidthAnySize(renderTexture, ri);
+        }
+
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        {
+            var ri = engine.Wrapping(RasterTexture);
+            var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            return new RasterLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), ri);
         }
 
         internal override void LookAtCalling(ILookingObject lookingObject)

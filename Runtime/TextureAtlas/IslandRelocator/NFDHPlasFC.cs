@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.UVIsland;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -16,14 +16,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 
         public float _padding;
 
+        public int HeightDenominator { set => _heightDenominator = value; }
+        public int _heightDenominator;
+
         public bool Relocation(IslandRect[] atlasIslands)
         {
             Profiler.BeginSample("NFDHPlasFC");
-            var res = IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, _padding);
+            var res = IslandPoolNextFitDecreasingHeightPlusFloorCeiling(atlasIslands, _heightDenominator, _padding);
             Profiler.EndSample();
             return res;
         }
-        public static bool IslandPoolNextFitDecreasingHeightPlusFloorCeiling(IslandRect[] islands, float islandPadding = 0.01f)
+        public static bool IslandPoolNextFitDecreasingHeightPlusFloorCeiling(IslandRect[] islands, int heightDenominator, float islandPadding = 0.01f)
         {
             if (islands.Length == 0) { return false; }
 
@@ -43,7 +46,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
                 Profiler.EndSample();
 
                 Profiler.BeginSample("TryNFDHPlasFC");
-                if (TryNFDHPlasFC(sortedIASpan, islandPadding))
+                if (TryNFDHPlasFC(sortedIASpan, heightDenominator, islandPadding))
                 {
                     Profiler.EndSample();
                     for (var i = 0; sortedIASpan.Length > i; i += 1) { islands[idKey[i]] = sortedIASpan[i]; }
@@ -73,7 +76,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             return false;
         }
 
-        static bool TryNFDHPlasFC(Span<IslandRect> sortedIslands, float islandPadding = 0.01f)
+        static bool TryNFDHPlasFC(Span<IslandRect> sortedIslands, int heightDenominator, float islandPadding = 0.01f)
         {
             var uvWidthBox = new LinkedList<UVWidthBox<IslandRect>>();
 
@@ -96,7 +99,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             }
 
             var lastHeight = uvWidthBox.Last.Value.Ceil;
-            return lastHeight <= (1 - islandPadding * 0.5f);
+            return lastHeight <= (1f / heightDenominator - islandPadding * 0.5f);
 
             bool TrySetUVBoxList(Span<IslandRect> sortedIslands, int index)
             {

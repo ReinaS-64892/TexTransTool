@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool
 {

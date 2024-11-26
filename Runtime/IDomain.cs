@@ -2,22 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
-using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using net.rs64.TexTransCore;
-using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
 
     internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject
     {
+        ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;// TempRenderTexture 想定
-
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
         public IEnumerable<Renderer> EnumerateRenderer();
         ITextureManager GetTextureManager();
 
@@ -31,7 +28,7 @@ namespace net.rs64.TexTransTool
     {
         bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
     }
-    delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+    public delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
     internal interface IReplaceRegister
     {
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
@@ -52,13 +49,18 @@ namespace net.rs64.TexTransTool
     {
         int GetOriginalTextureSize(Texture2D texture2D);
         void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
-        void WriteOriginalTexture(TTTImportedImage texture, RenderTexture writeTarget);
+        void PreloadOriginalTexture(Texture2D texture2D);
+
+
+        (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture);
+        void LoadTexture(RenderTexture writeRt, Texture2D diskSource);
+        bool IsPreview { get; }
     }
     public interface IDeferTextureCompress
     {
         void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target);
         void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
-        void CompressDeferred();
+        void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual);
     }
 
     public interface ITTTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
@@ -70,6 +72,21 @@ namespace net.rs64.TexTransTool
             foreach (var unityObject in unityObjects)
             {
                 domain.TransferAsset(unityObject);
+            }
+        }
+        public static void AddTextureStack<BlendTex>(this IDomain domain, Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        {
+            var ttce4u = domain.GetTexTransCoreEngineForUnity();
+            switch (setTex.Texture)
+            {
+                case Texture2D texture2D: { break; }
+                case RenderTexture renderTexture:
+                    {
+                        var rt = ttce4u.UploadTexture(renderTexture);
+                        ttce4u.LinearToGamma(rt);
+                        domain.AddTextureStack(dist, rt, ttce4u.QueryBlendKey(setTex.BlendTypeKey));
+                        break;
+                    }
             }
         }
 
@@ -129,14 +146,6 @@ namespace net.rs64.TexTransTool
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
 
-        public static void LoadTexture(this IOriginTexture origin, ITTDiskTexture diskTexture, ITTRenderTexture renderTexture)
-        {
-            switch (diskTexture)
-            {
-                case UnityDiskTexture tex2DWrapper: { origin.WriteOriginalTexture(tex2DWrapper.Texture, renderTexture.Unwrap()); break; }
-                case TTCE4UnityWithTTT4Unity.UnityImportedDiskTexture importedWrapper: { origin.WriteOriginalTexture(importedWrapper.Texture, renderTexture.Unwrap()); break; }
-            }
-        }
 
     }
 

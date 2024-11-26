@@ -1,17 +1,27 @@
-#pragma HLSL_Version 2018
-#pragma TTComputeType GrabBlend
-#pragma ColorSpace Gamma
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
 
-float InputFloor;
-float InputCeiling;
-float Gamma;
-float OutputFloor;
-float OutputCeiling;
+Language HLSL
+LanguageVersion 2018
 
-float R;
-float G;
-float B;
+TTComputeType GrabBlend
 
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float InputFloor;
+    float InputCeiling;
+    float Gamma;
+    float OutputFloor;
+    float OutputCeiling;
+    float R;
+    float G;
+    float B;
+}
 RWTexture2D<float4> Tex;
 
 float FncGamma(float input, float y)

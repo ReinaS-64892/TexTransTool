@@ -1,11 +1,23 @@
-#pragma HLSL_Version 2018
-#pragma TTComputeType GrabBlend
-#pragma ColorSpace Gamma
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 #include "../Blendings/SetSL.hlsl"
 #include "../Blendings/HSL.hlsl"
 
-float4 Color;
+cbuffer gv
+{
+    float4 Color;
+}
 RWTexture2D<float4> Tex;
 
 [numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)

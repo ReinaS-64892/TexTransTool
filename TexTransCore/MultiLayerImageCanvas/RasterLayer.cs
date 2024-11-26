@@ -4,11 +4,11 @@ using System;
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public class RasterLayer<TTCE> : ImageLayer<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public ITTTexture RasterTexture;
 
@@ -21,9 +21,20 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             switch (RasterTexture)
             {
-                case ITTDiskTexture diskTexture: { engine.LoadTextureWidthAnySize(diskTexture, renderTexture); break; }
-                case ITTRenderTexture rt: { engine.CopyRenderTextureMaybeReScale(rt, renderTexture); break; }
+                case ITTDiskTexture diskTexture: { engine.LoadTextureWidthAnySize(renderTexture, diskTexture); break; }
+                case ITTRenderTexture rt:
+                    {
+                        if (rt.EqualSize(renderTexture)) engine.CopyRenderTexture(rt, renderTexture);
+                        else engine.DefaultResizing(rt, renderTexture);
+                        break;
+                    }
             }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            RasterTexture.Dispose();
         }
     }
 }

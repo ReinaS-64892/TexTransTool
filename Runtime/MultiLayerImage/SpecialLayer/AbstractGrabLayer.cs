@@ -9,51 +9,53 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
     public abstract class AbstractGrabLayer : AbstractLayer
     {
-        public virtual void GetImage<TTCE>(TTCE engine, ITTRenderTexture grabSource, ITTRenderTexture writeTarget)
-        where TTCE : ITexTransGetTexture, ITexTranBlending
+        public virtual void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture grabSource, ITTRenderTexture writeTarget)
+        where TTCE4U : ITexTransCreateTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
             throw new NotImplementedException();
         }
-        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
-            return new TTTAbstractGrabLayerWarper<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), this);
+            return new TTTAbstractGrabLayerWarper<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), this);
         }
 
-        class TTTAbstractGrabLayerWarper<TTT4U> : GrabLayer<TTT4U>
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        class TTTAbstractGrabLayerWarper<TTCE4U> : GrabLayer<TTCE4U>
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
             private AbstractGrabLayer _grabLayer;
             private ITTBlendKey _blendTypeKey;
 
-            public TTTAbstractGrabLayerWarper(bool visible, AlphaMask<TTT4U> alphaMask, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractGrabLayer grabLayer) : base(visible, alphaMask, preBlendToLayerBelow)
+            public TTTAbstractGrabLayerWarper(bool visible, AlphaMask<TTCE4U> alphaMask, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractGrabLayer grabLayer) : base(visible, alphaMask, preBlendToLayerBelow)
             {
                 _grabLayer = grabLayer;
                 _blendTypeKey = blendTypeKey;
             }
 
-            public override void GrabImage(TTT4U engine, EvaluateContext<TTT4U> evaluateContext, ITTRenderTexture grabTexture)
+            public override void GrabImage(TTCE4U engine, EvaluateContext<TTCE4U> evaluateContext, ITTRenderTexture grabTexture)
             {
-                using (var tempDist = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                using (var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                using (var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight))
-                {
-                    engine.CopyRenderTexture(grabTexture, tempDist);
-                    engine.CopyAlpha(grabTexture, alphaBackup);
+                using var tempDist = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
+                using var tempTarget = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
+                using var alphaBackup = engine.CreateRenderTexture(grabTexture.Width, grabTexture.Hight);
 
-                    engine.FillAlpha(tempDist, 1f);
+                engine.CopyRenderTexture(grabTexture, tempDist);
+                engine.AlphaCopy(alphaBackup, grabTexture);
 
-                    _grabLayer.GetImage(engine, tempDist, tempTarget);
-                    evaluateContext.AlphaMask.Masking(engine, tempTarget);
+                engine.AlphaFill(tempDist, 1f);
 
-                    engine.FillAlpha(grabTexture, 1f);
-                    engine.TextureBlend(grabTexture, tempTarget, _blendTypeKey);
-                    engine.CopyAlpha(alphaBackup, grabTexture);
-                }
+                _grabLayer.GetImage(engine, tempDist, tempTarget);
+                evaluateContext.AlphaMask.Masking(engine, tempTarget);
+
+                engine.AlphaFill(grabTexture, 1f);
+                engine.Blending(grabTexture, tempTarget, _blendTypeKey);
+                engine.AlphaCopy(grabTexture, alphaBackup);
+
             }
         }
 

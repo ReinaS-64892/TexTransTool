@@ -7,11 +7,11 @@ using System.Runtime.CompilerServices;
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public struct CanvasContext<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         private TTCE _engine;
 
@@ -82,39 +82,42 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                 default:
                 case AlphaOperation.Normal:
                     {
-                        engine.TextureBlend(canvasTexture, layerRt, blendKey);
+                        engine.Blending(canvasTexture, layerRt, blendKey);
                         break;
                     }
                 case AlphaOperation.Inherit:
                     {
-                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
-                        {
-                            engine.CopyAlpha(canvasTexture, alphaTemp);
-                            engine.FillAlpha(canvasTexture, 1f);//クリッピングの場合はこうしないと困るが、そうではない場合が必要になるなら、ここの case の数を増やす必要がある。
-                            engine.TextureBlend(canvasTexture, layerRt, blendKey);
-                            engine.CopyAlpha(alphaTemp, canvasTexture);
-                        }
+                        using var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight);
+
+                        engine.AlphaCopy(alphaTemp, canvasTexture);
+                        engine.AlphaFill(canvasTexture, 1f);//クリッピングの場合はこうしないと困るが、そうではない場合が必要になるなら、ここの case の数を増やす必要がある。
+
+                        engine.Blending(canvasTexture, layerRt, blendKey);
+
+                        engine.AlphaCopy(canvasTexture, alphaTemp);
+
                         break;
                     }
                 case AlphaOperation.Layer:
                     {
-                        engine.FillAlpha(canvasTexture, 1f);//これが必要かは考えるべき
-                        engine.TextureBlend(canvasTexture, layerRt, blendKey);
-                        engine.CopyAlpha(layerRt, canvasTexture);
+                        engine.AlphaFill(canvasTexture, 1f);//これが必要かは考えるべき
+                        engine.Blending(canvasTexture, layerRt, blendKey);
+                        engine.AlphaCopy(canvasTexture, layerRt);
 
                         break;
                     }
                 case AlphaOperation.Intersect:
                     {
-                        using (var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight))
-                        {
-                            engine.CopyAlpha(canvasTexture, alphaTemp);
-                            engine.FillAlpha(canvasTexture, 1f);//これが必要かは考えるべき
-                            engine.TextureBlend(canvasTexture, layerRt, blendKey);
+                        using var alphaTemp = engine.CreateRenderTexture(canvasTexture.Width, canvasTexture.Hight);
 
-                            engine.MulAlpha(alphaTemp, layerRt);
-                            engine.CopyAlpha(alphaTemp, canvasTexture);
-                        }
+                        engine.AlphaCopy(alphaTemp, canvasTexture);
+                        engine.AlphaFill(canvasTexture, 1f);//これが必要かは考えるべき
+
+                        engine.Blending(canvasTexture, layerRt, blendKey);
+
+                        engine.AlphaMultiplyWithTexture(alphaTemp, layerRt);
+                        engine.AlphaCopy(canvasTexture, alphaTemp);
+
                         break;
                     }
             }
@@ -169,11 +172,11 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
 
     public class Canvas<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public int Width;
         public int Height;
@@ -187,19 +190,17 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         }
     }
     public class EvaluateContext<TTCE> : IDisposable
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
-        ITTRenderTexture _maskTexture;
-        TextureToMask<TTCE> _alphaMask;
+        TextureOnlyToMask<TTCE> _alphaMask;
         List<LayerObject<TTCE>>? _preBlends;
 
         public EvaluateContext(ITTRenderTexture nowAlphaMask, List<LayerObject<TTCE>>? preBlends)
         {
-            _maskTexture = nowAlphaMask;
             _alphaMask = new(nowAlphaMask);
             _preBlends = preBlends;
         }
@@ -208,7 +209,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         public static EvaluateContext<TTCE> NestContext(TTCE engine, int width, int height, EvaluateContext<TTCE>? sourceContext, AlphaMask<TTCE> addAlphaMask, List<LayerObject<TTCE>>? addPreBlends)
         {
             var newMask = engine.CreateRenderTexture(width, height);
-            engine.FillAlpha(newMask, 1);
+            engine.AlphaFill(newMask, 1);
 
             sourceContext?._alphaMask.Masking(engine, newMask);
             addAlphaMask.Masking(engine, newMask);
@@ -225,7 +226,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 
         public void Dispose()
         {
-            _maskTexture.Dispose();
+            _alphaMask.Dispose();
         }
     }
 }

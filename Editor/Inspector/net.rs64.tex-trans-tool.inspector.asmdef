@@ -2,7 +2,7 @@
     "name": "net.rs64.tex-trans-tool.inspector",
     "rootNamespace": "",
     "references": [
-        "net.rs64.tt-unity-core",
+        "net.rs64.ttce-unity",
         "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.editor",
         "net.rs64.tex-trans-tool.runtime"

@@ -1,7 +1,18 @@
-#pragma HLSL_Version 2018
-#pragma ColorSpace Gamma
-#pragma Key "Clip/Hue"
-#pragma KeyName_jp "クリスタ/色相"
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key Clip/Hue
+KeyName ja クリスタ/色相
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 #include "./BlendColor.hlsl"
 float4 ColorBlend(float4 BaseColor, float4 AddColor)

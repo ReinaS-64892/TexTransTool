@@ -2,14 +2,15 @@
     "name": "net.rs64.ttt-psd-importer.runtime",
     "rootNamespace": "",
     "references": [
+        "net.rs64.tex-trans-core",
         "net.rs64.tex-trans-tool.runtime",
         "net.rs64.psd-parser.low-level",
         "net.rs64.psd-parser.high-level",
         "net.rs64.parser-utility",
-        "net.rs64.tt-unity-core.unsafe",
+        "net.rs64.tex-trans-tool.unsafe",
         "Unity.Burst",
         "Unity.Mathematics",
-        "net.rs64.tt-unity-core"
+        "net.rs64.ttce-unity"
     ],
     "includePlatforms": [
         "Editor"

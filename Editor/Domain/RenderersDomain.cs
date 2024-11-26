@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
@@ -27,7 +26,8 @@ namespace net.rs64.TexTransTool
 
         [CanBeNull] protected readonly IAssetSaver _saver;
         protected readonly ITextureManager _textureManager;
-        protected readonly StackManager<ImmediateTextureStack> _textureStacks;
+        protected readonly ImmediateStackManager _textureStacks;
+        protected readonly ITexTransToolForUnity _ttce4U;
 
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
@@ -41,12 +41,15 @@ namespace net.rs64.TexTransTool
             Previewing = previewing;
             _saver = assetSaver;
             _textureManager = textureManager;
-            _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
+            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));//TODO : コンストラクタの引数にとることができるようにする必要がある
+
+            _textureStacks = new ImmediateStackManager(_ttce4U, _textureManager);
         }
 
-        public virtual void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
+        public virtual void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
-            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
+            _textureStacks.AddTextureStack(dist as Texture2D, addTex, blendKey);
         }
 
         private static void AddPropertyModification(Object component, string property, Object value)
@@ -149,7 +152,7 @@ namespace net.rs64.TexTransTool
         {
             MergeStack();
             _textureManager.DestroyDeferred();
-            _textureManager.CompressDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
         }
 
         public void MergeStack()
@@ -175,15 +178,17 @@ namespace net.rs64.TexTransTool
             return subIDomain;
         }
 
+
+
         internal class RenderersSubDomain : AbstractSubDomain<RenderersDomain>
         {
-            StackManager<ImmediateTextureStack> _textureStacks;
+            ImmediateStackManager _textureStacks;
             public RenderersSubDomain(RenderersDomain domain, IEnumerable<Renderer> subDomainRenderers) : base(domain, subDomainRenderers)
             {
-                _textureStacks = new StackManager<ImmediateTextureStack>(domain.GetTextureManager());
+                _textureStacks = new ImmediateStackManager(domain.GetTexTransCoreEngineForUnity(), domain.GetTextureManager());
             }
-            public override void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex)
-            { _textureStacks.AddTextureStack(dist as Texture2D, setTex); }
+            public override void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
+            { _textureStacks.AddTextureStack(dist as Texture2D, addTex, blendKey); }
 
 
             public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
@@ -233,13 +238,15 @@ namespace net.rs64.TexTransTool
         }
         public IEnumerable<Renderer> EnumerateRenderer() => _subDomainsRenderer;
 
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _rootDomain.GetTexTransCoreEngineForUnity();
+
         public ITextureManager GetTextureManager() => _rootDomain.GetTextureManager();
         public bool IsPreview() => _rootDomain.IsPreview();
         public bool OriginEqual(Object l, Object r) => _rootDomain.OriginEqual(l, r);
         public void RegisterReplace(Object oldObject, Object nowObject) => _rootDomain.RegisterReplace(oldObject, nowObject);
         public void TransferAsset(Object asset) => _rootDomain.TransferAsset(asset);
 
-        public abstract void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair;
+        public abstract void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);
         public abstract void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
 
         public abstract void SetMesh(Renderer renderer, Mesh mesh);

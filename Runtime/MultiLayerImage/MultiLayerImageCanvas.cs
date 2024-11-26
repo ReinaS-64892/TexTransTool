@@ -1,16 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using Color = UnityEngine.Color;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
-using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -43,39 +38,42 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
 
             Profiler.BeginSample("EvaluateCanvas");
-            var texTransUnityCoreEngine = new TTCE4UnityWithTTT4Unity(domain.IsPreview(), domain.GetTextureManager());
-            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh).Unwrap();
+            var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
+            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
             Profiler.EndSample();
 
-            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, new BlendTexturePair(result, "NotBlend")); }
+            // TextureBlend.ToLinear(result);
+            var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
+
+            foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
         }
 
-        internal ITTRenderTexture EvaluateCanvas<TTT4U>(TTT4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        internal ITTRenderTexture EvaluateCanvas<TTCE4U>(TTCE4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
-            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTT4U>(texTransCoreEngine);
+            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTCE4U>(texTransCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
-            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTT4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTT4U>(texTransCoreEngine));
+            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTCE4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTCE4U>(texTransCoreEngine));
             Profiler.EndSample();
 
             return canvasCtx.EvaluateCanvas(canvas);
         }
 
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>> GetRootLayerObjects<TTT4U>(TTT4U engine)
-        where TTT4U : ITexTransToolForUnity
-        , ITexTransGetTexture
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>> GetRootLayerObjects<TTCE4U>(TTCE4U engine)
+        where TTCE4U : ITexTransToolForUnity
+        , ITexTransCreateTexture
         , ITexTransLoadTexture
-        , ITexTransRenderTextureOperator
-        , ITexTransRenderTextureReScaler
-        , ITexTranBlending
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
         {
             var layers = GetChileLayers();
-            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTT4U>>(layers.Capacity);
+            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>>(layers.Capacity);
             foreach (var l in layers) { list.Add(l.GetLayerObject(engine)); }
             return list;
         }
@@ -90,7 +88,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return TextureSelector.ModificationTargetRenderers(domainRenderers, replaceTracking);
+            return TextureSelector.ModificationTargetRenderers(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer), replaceTracking);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

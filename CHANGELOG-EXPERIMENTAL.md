@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...HEAD)
 
 ### Added
 
@@ -15,10 +15,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#676)
 - クリスタの `色相・彩度・明度` 色調調整レイヤーを再現する HSVAdjustmentLayer が追加されました(#678)
 - PSD の ImportMode が ClipStudioPaint に自動決定またはオーバライドされていた場合 HSLAdjustmentLayer が HSVAdjustmentLayer としてインポートされるようになりました (#678)
+- TTT PSD Importer はインポートのタイミングでプレビューを生成せず、必要になったタイミングで生成するようなりインポート自体の速度は大幅に高速化しました。(#727)
+- PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
+- TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)
 
 ### Fixed
 
 - PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
+
+## [v0.8.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...v0.8.7) - 2024-11-23
+
+## [v0.8.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.5...v0.8.6) - 2024-11-14
+
+## [v0.8.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.4...v0.8.5) - 2024-11-13
+
+### Added
+
+- AtlasTexture に 縦幅の除算 が追加されました (#718)
+
+### Fixed
+
+- AtlasTexture の TextureIndividualFineTuning が Component 生成時に初期化されていないという、潜在的な問題を修正 (#714)
+
+## [v0.8.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.3...v0.8.4) - 2024-11-05
+
+## [v0.8.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...v0.8.3) - 2024-10-30
 
 ## [v0.8.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...v0.8.2) - 2024-10-19
 

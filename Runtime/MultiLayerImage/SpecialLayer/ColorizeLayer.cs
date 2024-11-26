@@ -12,9 +12,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         [ColorUsage(false)] public Color Color = Color.white;
 
-        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
-            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new Colorize(Color.ToTTCore()));
+            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new Colorize(Color.ToTTCore()));
         }
     }
 }

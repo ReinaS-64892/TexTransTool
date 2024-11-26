@@ -13,9 +13,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Value;
-        internal override LayerObject<TTT4U> GetLayerObject<TTT4U>(TTT4U engine)
+        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
-            return new GrabBlendingAsLayer<TTT4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new HSVAdjustment(Hue, Saturation, Value));
+            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new HSVAdjustment(Hue, Saturation, Value));
         }
     }
 }

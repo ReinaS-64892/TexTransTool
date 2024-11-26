@@ -37,14 +37,14 @@ namespace net.rs64.TexTransTool
         public enum LanguageEnum
         {
             EN,
-            JP,
+            JA,
         }
         public static Action<LanguageEnum> OnSwitchLanguage;
 
         [MenuItem(LANGUAGE_MENU_PATH + "/EN")]
         public static void SwitchEN() => Language = LanguageEnum.EN;
-        [MenuItem(LANGUAGE_MENU_PATH + "/JP")]
-        public static void SwitchJP() => Language = LanguageEnum.JP;
+        [MenuItem(LANGUAGE_MENU_PATH + "/JA")]
+        public static void SwitchJP() => Language = LanguageEnum.JA;
 
         [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/ReloadLocalize")]
         public static void ReloadLocalize() => Localize.LoadLocalize();

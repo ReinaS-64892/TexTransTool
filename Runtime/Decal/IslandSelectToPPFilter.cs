@@ -1,17 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Decal;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCoreEngineForUnity.Island;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.IslandSelector;
-using System.Linq;
 using UnityEngine.Profiling;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 using System.Collections;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.Decal
 {

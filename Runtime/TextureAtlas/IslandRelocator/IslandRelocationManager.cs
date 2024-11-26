@@ -1,9 +1,8 @@
 
 using System;
 using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity.Island;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 {
@@ -17,12 +16,19 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             get => _padding;
             set { _islandRelocator.Padding = _padding = value; }
         }
+        int _heightDenominator;
+        public int HeightDenominator
+        {
+            get => _heightDenominator;
+            set { _islandRelocator.HeightDenominator = _heightDenominator = value; }
+        }
         public bool ForceSizePriority { private get; set; }
         public IslandRelocationManager(IAtlasIslandRelocator islandRelocator)
         {
             _islandRelocator = islandRelocator;
             Padding = 0;
             ForceSizePriority = false;
+            HeightDenominator = 1;
         }
 
 
@@ -33,7 +39,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
             var originalRatioMedicatedReference = originalRectArray;
 
 
-            if (_islandRelocator.Relocation(workRect)) { relocateResult.IsRelocateSuccess = true; return workRect; }
+            if (!ForceSizePriority && _islandRelocator.Relocation(workRect)) { relocateResult.IsRelocateSuccess = true; return workRect; }
 
             if (sizePriority.Any(f => !Mathf.Approximately(1, f)))
             {

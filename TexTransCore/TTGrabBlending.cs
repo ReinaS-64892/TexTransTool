@@ -6,7 +6,10 @@ namespace net.rs64.TexTransCore
     /// </summary>
     public interface ITTGrabBlending
     {
-
+        void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture)
+        where TTCE : ITexTransCreateTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler;
     }
 
 

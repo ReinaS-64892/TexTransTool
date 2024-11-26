@@ -1,8 +1,8 @@
 using NUnit.Framework;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Collections.Generic;
 using UnityEngine;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.TestCode
 {
@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.TestCode
 
             var targetRt = new UnityEngine.RenderTexture(512, 512, 0, UnityEngine.RenderTextureFormat.ARGB32);
 
-            var transData = new TransTexture.TransData<Vector2>(
+            var transData = new TransTexture.TransData(
                 new List<TriangleIndex>()
                 {
                     new TriangleIndex(0,1,2),

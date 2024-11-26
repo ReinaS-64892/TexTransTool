@@ -3,10 +3,6 @@ using UnityEngine;
 using System.Linq;
 using System;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.Island;
-using Island = net.rs64.TexTransCoreEngineForUnity.Island.Island;
-using static net.rs64.TexTransCoreEngineForUnity.TransTexture;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
@@ -15,6 +11,10 @@ using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
 using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
+using static net.rs64.TexTransTool.TransTexture;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -208,6 +208,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var relocateManage = new IslandRelocationManager(relocator);
             relocateManage.Padding = atlasSetting.IslandPadding;
             relocateManage.ForceSizePriority = atlasSetting.ForceSizePriority;
+            relocateManage.HeightDenominator = atlasSetting.HeightDenominator;
 
             var timer = System.Diagnostics.Stopwatch.StartNew();
             var relocatedRect = relocateManage.RelocateLoop(rectArray, sizePriority, out var relocateResult);
@@ -320,7 +321,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Profiler.BeginSample("Texture synthesis");
             foreach (var propName in containsProperty)
             {
-                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, false, true, true, true);
+                var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true, true, true);
                 TextureBlend.FillColor(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
@@ -353,7 +354,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
                             var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
-                            var transData = new TransData<Vector2>(triangles, subSetMovedUV[subSetIndex], originUV);
+                            var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
                             ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
 
                             triangles.Dispose();
@@ -521,6 +522,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         private static Dictionary<int, Dictionary<string, RenderTexture>> GetGroupedTextures(ITextureManager texManage, AtlasSetting atlasSetting, AtlasContext atlasContext, PropertyBakeSetting propertyBakeSetting, out HashSet<string> property, out Dictionary<string, float> bakePropMaxValue)
         {
+            foreach (var textures in atlasContext.MaterialGroupToAtlasShaderTexDict.Values)
+            {
+                foreach (var atlasShaderTexture in textures.Values)
+                {
+                    if (atlasShaderTexture.Texture is Texture2D tex) texManage.PreloadOriginalTexture(tex);
+                }
+            }
+            
             bakePropMaxValue = null;
             var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
@@ -665,29 +674,49 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         private static RenderTexture GetOriginAtUseMip(ITextureManager texManage, Texture atlasTex)
         {
-            switch (atlasTex)
+            Profiler.BeginSample("GetOriginAtUseMip");
+            try
             {
-                default:
+                switch (atlasTex)
+                {
+                    default:
                     {
                         var originSize = atlasTex.width;
+                        Profiler.BeginSample("TTTRt.G");
                         var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        Profiler.EndSample();
                         rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
                         rt.CopyFilWrap(atlasTex);
                         rt.filterMode = FilterMode.Trilinear;
+                        Profiler.BeginSample("Graphics.Blit");
                         Graphics.Blit(atlasTex, rt);
+                        Profiler.EndSample();
                         return rt;
                     }
-                case Texture2D atlasTex2D:
+                    case Texture2D atlasTex2D:
                     {
+                        Profiler.BeginSample("GetOriginalTextureSize");
                         var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                        Profiler.EndSample();
+                        
+                        Profiler.BeginSample("TTTRt.G");
                         var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                        Profiler.EndSample();
                         rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
                         rt.CopyFilWrap(atlasTex);
                         rt.filterMode = FilterMode.Trilinear;
+                        Profiler.BeginSample("Graphics.Blit");
                         texManage.WriteOriginalTexture(atlasTex2D, rt);
+                        Profiler.EndSample();
                         return rt;
                     }
 
+                }
+            }
+            finally
+            {
+                
+                Profiler.EndSample();
             }
         }
         private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)
@@ -880,7 +909,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
+                TransTexture.ForTrans(targetRT, sourceTex, new TransData(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
             }
         }
 

@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity.Island;
 using System;
-using net.rs64.TexTransCoreEngineForUnity.Decal;
 using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity.Utils;
 using System.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
+using net.rs64.TexTransTool.Decal;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -412,13 +411,16 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             Mesh NormalizedMesh(Mesh mesh, int expandSlot)
             {
+                Profiler.BeginSample("ReadVertex");
                 var vertex = MeshInfoUtility.ReadVertex(mesh, out var meshDesc);
-                var vertHash = new HashSet<Vertex>();
+                Profiler.EndSample();
 
-
+                Profiler.BeginSample("subMeshViArray");
                 var subMeshViArray = new int[expandSlot][];
                 for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(Math.Min(si, mesh.subMeshCount - 1)); }
+                Profiler.EndSample();
 
+                Profiler.BeginSample("subMeshOfVertex");
                 var subMeshOfVertex = new Vertex[expandSlot][];
                 for (var si = 0; subMeshViArray.Length > si; si += 1)
                 {
@@ -428,9 +430,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     {
                         subMeshVert[vi] = vertex[subMeshVi[vi]];
                     }
-
                 }
+                Profiler.EndSample();
 
+                Profiler.BeginSample("useVert");
                 var useVert = new HashSet<Vertex>();
                 for (var si = 0; subMeshOfVertex.Length > si; si += 1)
                 {
@@ -452,16 +455,28 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     vertex.AddRange(replaceDict.Values);
                 }
+                Profiler.EndSample();
 
+                Profiler.BeginSample("Instantiate");
                 var modifiedMesh = UnityEngine.Object.Instantiate(mesh);
+                Profiler.EndSample();
+                
                 MeshInfoUtility.WriteVertex(modifiedMesh, meshDesc, vertex);
 
+                Profiler.BeginSample("SetTriangles");
                 modifiedMesh.subMeshCount = subMeshOfVertex.Length;
-                for (var si = 0; subMeshOfVertex.Length > si; si += 1) { modifiedMesh.SetTriangles(subMeshOfVertex[si].Select(v => vertex.IndexOf(v)).ToArray(), si); }
+
+                Dictionary<Vertex, int> reverseVertexIndex = new(vertex.Count);
+                for (var vi = 0; vertex.Count > vi; vi += 1) { reverseVertexIndex[vertex[vi]] = vi; }
+                
+                for (var si = 0; subMeshOfVertex.Length > si; si += 1) { modifiedMesh.SetTriangles(subMeshOfVertex[si].Select(v => reverseVertexIndex[v]).ToArray(), si); }
+                Profiler.EndSample();
 
                 //念のために複製
+                Profiler.BeginSample("Instantiate.MoreCloned");
                 var moreCloned = UnityEngine.Object.Instantiate(modifiedMesh);
                 UnityEngine.Object.DestroyImmediate(modifiedMesh);
+                Profiler.EndSample();
                 return moreCloned;
             }
         }

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 namespace net.rs64.TexTransCore.MultiLayerImageCanvas
 {
     public class PassThoughtFolder<TTCE> : GrabLayer<TTCE>
-    where TTCE : ITexTransGetTexture
+    where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
-    , ITexTransRenderTextureOperator
-    , ITexTransRenderTextureReScaler
-    , ITexTranBlending
+    , ITexTransCopyRenderTexture
+    , ITexTransComputeKeyQuery
+    , ITexTransGetComputeHandler
     {
         public List<LayerObject<TTCE>> Layers;
 
@@ -24,6 +24,12 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             {
                 new CanvasContext<TTCE>(engine).EvaluateForFlattened(grabTexture, evaluateContext, CanvasContext<TTCE>.ToBelowFlattened(Layers));
             }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            foreach (var l in Layers) l.Dispose();
         }
     }
 }

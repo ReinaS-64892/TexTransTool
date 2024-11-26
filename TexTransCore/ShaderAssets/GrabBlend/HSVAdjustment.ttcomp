@@ -1,12 +1,24 @@
-#pragma HLSL_Version 2018
-#pragma TTComputeType GrabBlend
-#pragma ColorSpace Gamma
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 #include "../Blendings/HSV.hlsl"
 
-float Hue;
-float Saturation;
-float Value;
+cbuffer gv
+{
+    float Hue;
+    float Saturation;
+    float Value;
+}
 RWTexture2D<float4> Tex;
 
 // クリスタの 色相・彩度・明度を再現する代物。

@@ -11,7 +11,11 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             Gradient = gradient;
         }
 
-
+        public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture)
+        where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            throw new NotImplementedException();
+        }
     }
     public interface ILuminanceMappingGradient
     {

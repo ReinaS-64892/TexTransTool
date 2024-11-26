@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.NDMF
                     behaviors.RemoveAll(a => LookAtIsActive(a, ctx) is false);//ここで消すと同時に監視となる。
                     foreach (var b in behaviors) { ctx.Observe(b); }
                 }
-                var ofRenderers = domain2PhaseList.Select(i => i.Domain != null ? ctx.GetComponentsInChildren<Renderer>(i.Domain.gameObject, true) : ctx.GetComponentsInChildren<Renderer>(root, true)).ToArray();
+                var ofRenderers = domain2PhaseList.Select(i => i.Domain != null ? ctx.GetComponentsInChildren<Renderer>(i.Domain.gameObject, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray() : ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray()).ToArray();
                 var behaviorIndex = GetFlattenBehaviorAndIndex(domain2PhaseList);
 
                 var targetRendererGroup = GetTargetGrouping(behaviorIndex, ofRenderers);

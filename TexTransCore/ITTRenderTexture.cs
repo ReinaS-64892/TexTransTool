@@ -6,8 +6,17 @@ namespace net.rs64.TexTransCore
     /// </summary>
     public interface ITTRenderTexture : ITTTexture
     {
-        bool IsDepthAndStencil { get; }
+        TexTransCoreTextureChannel ContainsChannel { get; }
     }
 
 
+    public static class TTRenderTextureUtility
+    {
+        public static bool EqualSize(this ITTTexture l, ITTTexture r)
+        {
+            if (l.Width != r.Width) return false;
+            if (l.Hight != r.Hight) return false;
+            return true;
+        }
+    }
 }

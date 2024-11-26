@@ -1,6 +1,17 @@
-#pragma HLSL_Version 2018
-#pragma ColorSpace Gamma
-#pragma Key "NotBlend"
-#pragma KeyName_jp "合成なし"
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key NotBlend
+KeyName ja 合成なし
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
 
 float4 ColorBlend(float4 BaseColor, float4 AddColor) { return AddColor; }

@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity.Island;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
