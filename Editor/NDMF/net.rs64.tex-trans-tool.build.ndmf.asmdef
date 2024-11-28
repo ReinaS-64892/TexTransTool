@@ -26,6 +26,11 @@
             "name": "nadena.dev.ndmf",
             "expression": "1.5.0",
             "define": "CONTAINS_NDMF"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.6.0-a",
+            "define": "NDMF_1_6_0_OR_NEWER"
         }
     ],
     "noEngineReferences": false
