@@ -85,4 +85,18 @@ namespace net.rs64.TexTransTool
         }
     }
 
+
+    public static class TTT4UnityUtility
+    {
+        public static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U ttt4u, ITTRenderTexture rt, TexTransCoreTextureFormat format = TexTransCoreTextureFormat.Byte)
+        where TTT4U : ITexTransRenderTextureIO
+        {
+            var tex = new Texture2D(rt.Width, rt.Hight, format.ToUnityTextureFormat(rt.ContainsChannel), false);
+            var texPtr = tex.GetRawTextureData<byte>();
+            ttt4u.DownloadTexture<byte>(texPtr, format, rt);
+            tex.Apply();
+            return tex;
+        }
+    }
+
 }
