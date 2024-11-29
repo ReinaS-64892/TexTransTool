@@ -1,7 +1,6 @@
 using System;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;

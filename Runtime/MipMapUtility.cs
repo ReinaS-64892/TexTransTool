@@ -9,7 +9,7 @@ using UnityEngine.Profiling;
 using static Unity.Mathematics.math;
 using ReadOnlyAttribute = Unity.Collections.ReadOnlyAttribute;
 
-namespace net.rs64.TexTransCoreEngineForUnity.MipMap
+namespace net.rs64.TexTransTool
 {
     internal static class MipMapUtility
     {

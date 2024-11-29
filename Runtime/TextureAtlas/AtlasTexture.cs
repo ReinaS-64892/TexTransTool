@@ -9,7 +9,6 @@ using UnityEngine.Serialization;
 using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCoreEngineForUnity.MipMap;
 using Unity.Mathematics;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;

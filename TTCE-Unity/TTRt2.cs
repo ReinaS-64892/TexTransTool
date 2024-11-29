@@ -109,10 +109,15 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         static void Clear(this RenderTexture rt)
         {
-            using (new RTActiveSaver())
+            var prv = RenderTexture.active;
+            try
             {
                 RenderTexture.active = rt;
                 GL.Clear(true, true, UnityEngine.Color.clear);
+            }
+            finally
+            {
+                RenderTexture.active = prv;
             }
         }
 

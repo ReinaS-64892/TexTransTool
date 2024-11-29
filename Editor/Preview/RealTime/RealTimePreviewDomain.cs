@@ -4,7 +4,7 @@ using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransCoreEngineForUnity.TextureBlend;
+using static net.rs64.TexTransTool.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {

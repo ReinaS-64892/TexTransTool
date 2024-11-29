@@ -3,10 +3,10 @@ using System.Linq;
 using UnityEngine;
 using System;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore;
 using Color = UnityEngine.Color;
+using net.rs64.TexTransCoreEngineForUnity;
 
-namespace net.rs64.TexTransCoreEngineForUnity
+namespace net.rs64.TexTransTool
 {
     [Obsolete("Replaced with BlendTypeKey", true)]
     internal enum BlendType

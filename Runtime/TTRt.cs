@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
-namespace net.rs64.TexTransCoreEngineForUnity
+namespace net.rs64.TexTransTool
 {
     internal static class TTRt
     {
@@ -108,7 +109,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
         {
             if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false)
             {
-                TTRt2.Rel(renderTexture);
+                //何らかの場合でこっちに渡ってしまった場合のフォールバック
+                TexTransCoreEngineForUnity.TTRt2.Rel(renderTexture);
 #if TTT_DEBUG_TEMP_RT_TRACE
                     Debug.Log(renderTexture.name + " Release is invalid class ");
 #endif
