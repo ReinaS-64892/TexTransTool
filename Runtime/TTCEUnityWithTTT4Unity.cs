@@ -8,10 +8,10 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal class TTCE4UnityWithTTT4Unity : TTCEUnity, ITexTransToolForUnity
+    internal class TTCEUnityWithTTT4Unity : TTCEUnity, ITexTransToolForUnity
     {
         ITexTransUnityDiskUtil _diskUtil;
-        public TTCE4UnityWithTTT4Unity(ITexTransUnityDiskUtil diskUtil)
+        public TTCEUnityWithTTT4Unity(ITexTransUnityDiskUtil diskUtil)
         {
             _diskUtil = diskUtil;
         }

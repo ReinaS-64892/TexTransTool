@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
         private IObjectRegistry _objectRegistry;
-        private TTCE4UnityWithTTT4Unity _ttce4U;
+        private TTCEUnityWithTTT4Unity _ttce4U;
 
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.NDMF
             _proxy2OriginRendererDict = o2pDict.ToDictionary(i => i.Value, i => i.Key);
             _proxyDomainRenderers = o2pDict.Values.ToList();
             _textureManager = new TextureManager(true);
-            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
+            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
             _textureStacks = new(_ttce4U);
             _ctx = computeContext;
             _objectRegistry = objectRegistry;

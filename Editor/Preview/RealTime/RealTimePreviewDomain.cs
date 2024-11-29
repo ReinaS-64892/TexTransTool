@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _lookAtCallBack = lookAtCallBack;
             _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
-            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
+            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
 
             _domainRenderers.Clear();
             _domainRenderers.UnionWith(_domainRoot.GetComponentsInChildren<Renderer>(true));
@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public GameObject DomainRoot => _domainRoot;
         int _nowPriority;
         TexTransRuntimeBehavior _texTransRuntimeBehavior;
-        private TTCE4UnityWithTTT4Unity _ttce4U;
+        private TTCEUnityWithTTT4Unity _ttce4U;
 
         public void SetNowBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior, int priority)
         {

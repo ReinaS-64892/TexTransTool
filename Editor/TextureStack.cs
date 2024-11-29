@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool.TextureStack
         public readonly Texture2D BaseTexture;
 
         public readonly ITextureManager TextureManager;
-        public readonly ITexTransToolForUnity TTCE4Unity;
+        public readonly ITexTransToolForUnity TTCEWith4Unity;
 
         ITTRenderTexture _renderTexture;
         public ImmediateTextureStack(ITexTransToolForUnity ttce4u, Texture2D baseTexture, ITextureManager textureManager)
@@ -74,22 +74,22 @@ namespace net.rs64.TexTransTool.TextureStack
             _renderTexture = ttce4u.CreateRenderTexture(BaseTexture.width, BaseTexture.height);
             _renderTexture.Name = $"{BaseTexture.name}:ImmediateTextureStack-{BaseTexture.width}x{BaseTexture.height}";
 
-            TTCE4Unity = ttce4u;
+            TTCEWith4Unity = ttce4u;
 
             using var ttDiscTex = ttce4u.Wrapping(BaseTexture);
             ttce4u.LoadTextureWidthAnySize(_renderTexture, ttDiscTex);
         }
 
-        public void AddStack(ITTRenderTexture addTex, ITTBlendKey blendKey) { TTCE4Unity.BlendingWithAnySize(_renderTexture, addTex, blendKey); }
+        public void AddStack(ITTRenderTexture addTex, ITTBlendKey blendKey) { TTCEWith4Unity.BlendingWithAnySize(_renderTexture, addTex, blendKey); }
 
         public Texture2D MergeStack()
         {
             var resultTex2D = new Texture2D(BaseTexture.width, BaseTexture.height, TextureFormat.RGBA32, BaseTexture.mipmapCount > 1, true);
             var map = resultTex2D.GetRawTextureData<byte>().AsSpan().Slice(0, BaseTexture.width * BaseTexture.height * 4);
 
-            TTCE4Unity.GammaToLinear(_renderTexture);
+            TTCEWith4Unity.GammaToLinear(_renderTexture);
 
-            TTCE4Unity.DownloadTexture(map, TexTransCoreTextureFormat.Byte, _renderTexture);
+            TTCEWith4Unity.DownloadTexture(map, TexTransCoreTextureFormat.Byte, _renderTexture);
 
             resultTex2D.CopyFilWrap2D(BaseTexture);
             TextureManager.DeferredInheritTextureCompress(BaseTexture, resultTex2D);

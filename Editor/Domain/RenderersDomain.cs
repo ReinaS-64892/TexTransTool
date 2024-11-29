@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool
             Previewing = previewing;
             _saver = assetSaver;
             _textureManager = textureManager;
-            _ttce4U = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(_textureManager));//TODO : コンストラクタの引数にとることができるようにする必要がある
+            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));//TODO : コンストラクタの引数にとることができるようにする必要がある
 
             _textureStacks = new ImmediateStackManager(_ttce4U, _textureManager);
         }

@@ -287,7 +287,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 s_previewsTask[importedImage] = texFnTask;
 #else
                 var destroyHash = new HashSet<Texture2D>();
-                var ttce4u = new TTCE4UnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
+                var ttce4u = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
 
                 Profiler.BeginSample("CreatePreviewImage");
                 CreatePreviewImage(ttce4u, importedImage, canvasSource, dataNa);
