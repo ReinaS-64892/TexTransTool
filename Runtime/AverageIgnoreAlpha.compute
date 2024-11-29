@@ -1,0 +1,20 @@
+#pragma kernel CSMain
+
+RWTexture2D<float4> RTex;
+RWTexture2D<float4> WTex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = float4(0, 0, 0, 0);
+
+    int2 readPosOffset = id.xy * 2;
+    for (int y = 0; 2 > y; y += 1)
+    {
+        for (int x = 0; 2 > x; x += 1)
+        {
+            col += RTex[readPosOffset + int2(x, y)];
+        }
+    }
+
+    WTex[id.xy] = col / 4;
+}

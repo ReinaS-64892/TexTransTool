@@ -16,9 +16,11 @@ namespace net.rs64.TexTransCoreEngineForUnity.MipMap
         [TexTransInitialize]
         public static void Init()
         {
-            AverageComputeShader = TexTransCoreRuntime.LoadAsset("e35b864dfafa59441869069e789aa641", typeof(TTGeneralComputeOperator)) as TTGeneralComputeOperator;
+            AverageComputeShader = TexTransCoreRuntime.LoadAsset("24270f370ce324f40844eb0cc4511d2a", typeof(ComputeShader)) as ComputeShader;
+            AverageIgnoreAlphaComputeShader = TexTransCoreRuntime.LoadAsset("02d034f8ef4b20842b4238f631d78dd3", typeof(ComputeShader)) as ComputeShader;
         }
-        public static TTGeneralComputeOperator AverageComputeShader;
+        public static ComputeShader AverageComputeShader;
+        public static ComputeShader AverageIgnoreAlphaComputeShader;
         const string WTex = "WTex";
         const string RTex = "RTex";
         public static bool GenerateMips(RenderTexture renderTexture, DownScalingAlgorithm algorism, bool ignoreAlpha = false)
@@ -104,7 +106,7 @@ namespace net.rs64.TexTransCoreEngineForUnity.MipMap
 
         static bool Average(RenderTexture renderTexture, bool ignoreAlpha = false)
         {
-            var cs = AverageComputeShader.Compute;//ignoreAlpha is false ? AverageComputeShader.WithConsiderShader : AverageComputeShader.Compute;
+            var cs = ignoreAlpha is false ? AverageComputeShader : AverageIgnoreAlphaComputeShader;
             var kernelID = cs.FindKernel("CSMain");
 
             var width = renderTexture.width;
@@ -117,7 +119,7 @@ namespace net.rs64.TexTransCoreEngineForUnity.MipMap
 
                 cs.SetTexture(kernelID, RTex, renderTexture, mipIndex);
                 cs.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
-                cs.Dispatch(kernelID, Mathf.Max(1, width / 32), Mathf.Max(1, height / 32), 1);
+                cs.Dispatch(kernelID, (width + 31) / 32, (height + 31) / 32, 1);
             }
 
             return true;
