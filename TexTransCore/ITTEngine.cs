@@ -157,12 +157,15 @@ namespace net.rs64.TexTransCore
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            using (var sourceSizeRt = LoadTextureWidthFullScale(engine, diskTexture))
-                if (renderTexture.Width != sourceSizeRt.Width || renderTexture.Hight != sourceSizeRt.Hight)
-                {
-                    engine.DefaultResizing(renderTexture, sourceSizeRt);
-                }
-                else { engine.CopyRenderTexture(renderTexture, sourceSizeRt); }
+            if (diskTexture.EqualSize(renderTexture))
+            {
+                engine.LoadTexture(renderTexture, diskTexture);
+            }
+            else
+            {
+                using var sourceSizeRt = LoadTextureWidthFullScale(engine, diskTexture);
+                engine.DefaultResizing(renderTexture, sourceSizeRt);
+            }
         }
 
     }
