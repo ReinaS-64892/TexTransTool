@@ -38,7 +38,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");
 
-            Span<float> gvBuf = stackalloc float[37];
+            Span<float> gvBuf = stackalloc float[40];
             WriteVector4(gvBuf.Slice(0, 4), RedsCMYK);
             WriteVector4(gvBuf.Slice(4, 4), YellowsCMYK);
             WriteVector4(gvBuf.Slice(8, 4), GreensCMYK);
