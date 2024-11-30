@@ -4,8 +4,8 @@ cbuffer ResizeTargetParm
     // サイズなので Index の最大値ではないこと
     uint2 TargetTexSize;
 
-    float AlimentPadding1;
-    float AlimentPadding2;
+    float AlimentPadding1_RTP;
+    float AlimentPadding2_RTP;
 }
 
 RWTexture2D<float4> TargetTex;
