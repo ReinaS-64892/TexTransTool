@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool LayerMaskDisabled;
         public Texture2D MaskTexture;
 
-        public bool ContainedMask => !LayerMaskDisabled && MaskTexture != null;
+        public bool ContainedMask => LayerMaskDisabled is false && MaskTexture != null;
 
         public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
 
