@@ -34,37 +34,47 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             foreach (var pairedLayer in flattened)
             {
-                if (pairedLayer.AbstractLayer.Visible is false) { continue; }
-
-                switch (pairedLayer.AbstractLayer)
+                using var abstractLayer = pairedLayer.AbstractLayer;
+                var preBlends = pairedLayer.PreBlends;
+                try
                 {
-                    case ImageLayer<TTCE> imageLayer:
-                        {
-                            using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
-                            {
-                                imageLayer.GetImage(_engine, layerRt);
+                    if (abstractLayer.Visible is false) { continue; }
 
-                                using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, pairedLayer.PreBlends))
+                    switch (abstractLayer)
+                    {
+                        case ImageLayer<TTCE> imageLayer:
+                            {
+                                using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
                                 {
-                                    nEvalCtx.AlphaMask.Masking(_engine, layerRt);
-                                    if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
-                                        EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
-                                }
-                                BlendForAlphaOperation(canvasTex, imageLayer, layerRt);
-                            }
-                            break;
-                        }
-                    case GrabLayer<TTCE> grabLayer:
-                        {
-                            using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, pairedLayer.PreBlends))
-                            {
-                                grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
-                            }
-                            break;
-                        }
+                                    imageLayer.GetImage(_engine, layerRt);
 
+                                    using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, preBlends))
+                                    {
+                                        nEvalCtx.AlphaMask.Masking(_engine, layerRt);
+                                        if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
+                                            EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
+                                    }
+                                    BlendForAlphaOperation(canvasTex, imageLayer, layerRt);
+                                }
+                                break;
+                            }
+                        case GrabLayer<TTCE> grabLayer:
+                            {
+                                using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, preBlends))
+                                {
+                                    grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
+                                }
+                                break;
+                            }
+
+                    }
+                }
+                finally
+                {
+                    if (preBlends is not null) { foreach (var p in preBlends) { p?.Dispose(); } }
                 }
             }
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
