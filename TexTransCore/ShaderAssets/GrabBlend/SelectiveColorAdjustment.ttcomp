@@ -24,6 +24,10 @@ cbuffer gv
     float4 BlacksCMYK;
 
     float IsAbsolute;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+    float AlimentPadding3;
 }
 RWTexture2D<float4> Tex;
 

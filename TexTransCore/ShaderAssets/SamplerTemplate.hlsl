@@ -5,6 +5,9 @@ cbuffer ReadTextureParm
 {
     uint RTexWidth;
     uint RTexHeight;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
 }
 RWTexture2D<float4> ReadTex;
 

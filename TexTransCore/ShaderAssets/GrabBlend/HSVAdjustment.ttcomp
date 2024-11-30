@@ -18,6 +18,8 @@ cbuffer gv
     float Hue;
     float Saturation;
     float Value;
+    
+    float AlimentPadding1;
 }
 RWTexture2D<float4> Tex;
 

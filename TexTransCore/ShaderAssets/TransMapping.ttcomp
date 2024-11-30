@@ -14,9 +14,10 @@ cbuffer gv
     uint2 TransTargetMapSize;
     uint2 TransSourceMapSize;
     float MaxDistance;
-    float alimentPadding1;
-    float alimentPadding2;
-    float alimentPadding3;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+    float AlimentPadding3;
 }
 
 RWTexture2D<float2> TransMap;

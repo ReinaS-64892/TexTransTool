@@ -23,7 +23,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");
 
-            Span<float> gvBuf = stackalloc float[3];
+            Span<float> gvBuf = stackalloc float[4];
             gvBuf[0] = Hue;
             gvBuf[1] = Saturation;
             gvBuf[2] = Lightness;

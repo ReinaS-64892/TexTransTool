@@ -50,7 +50,7 @@ namespace net.rs64.TexTransCore
             var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");
 
-            Span<float> gvBuf = stackalloc float[1];
+            Span<float> gvBuf = stackalloc float[4];
             gvBuf[0] = alpha;
             computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
@@ -66,7 +66,7 @@ namespace net.rs64.TexTransCore
             var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");
 
-            Span<float> gvBuf = stackalloc float[1];
+            Span<float> gvBuf = stackalloc float[4];
             gvBuf[0] = value;
             computeHandler.UploadConstantsBuffer<float>(gvBufId, gvBuf);
 
