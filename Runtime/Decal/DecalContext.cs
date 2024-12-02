@@ -110,7 +110,6 @@ namespace net.rs64.TexTransTool.Decal
                     var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
                     if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan);
                     else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
-                    Debug.Log($"{filteredTriangle.Length} : {packedFromTriangle.Length} :  {fromTriSpan.Length} - {fromTriSpan.Length / 3} - {fromTriSpan.Length / 3 / 3}");
 
                     if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
                     else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
