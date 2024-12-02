@@ -9,21 +9,24 @@ namespace net.rs64.TexTransCore.TransTexture
     public static class TransMappingUtility
     {
         // Vector4 の Span を愚直に作ると事故るので気を付けて...
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector4> transSourcePolygons)
-        where TTCE : ITexTransCreateTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<Vector4> transFromPolygons)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using var computeHandler = engine.GetComputeHandler(engine.StandardComputeKey.TransMapping);
+            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
+
             var transMapID = computeHandler.NameToID("TransMap");
-            var distanceAndScalingID = computeHandler.NameToID("DistanceAndScaling");
-            var polygonBufferID = computeHandler.NameToID("Polygons");
+            var distanceMapID = computeHandler.NameToID("DistanceMap");
+            var scalingMapID = computeHandler.NameToID("ScalingMap");
+            var additionalDataMapID = computeHandler.NameToID("AdditionalDataMap");
+
+            var fromPolygonsID = computeHandler.NameToID("FromPolygons");
+            var toPolygonID = computeHandler.NameToID("ToPolygons");
 
             Span<byte> gvBuf = stackalloc byte[32];
-            BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.DistanceAndScaleMap.Width);
-            BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), transMappingHolder.DistanceAndScaleMap.Hight);
+            BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.TargetSize.x);
+            BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), transMappingHolder.TargetSize.y);
             BitConverter.TryWriteBytes(gvBuf.Slice(8, 4), transMappingHolder.SourceSize.x);
             BitConverter.TryWriteBytes(gvBuf.Slice(12, 4), transMappingHolder.SourceSize.y);
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), 0);
@@ -31,22 +34,61 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
-            computeHandler.SetTexture(distanceAndScalingID, transMappingHolder.DistanceAndScaleMap);
+            computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
+            computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
+            computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            var polygonCount = (uint)(transSourcePolygons.Length / 3);
-            computeHandler.UploadStorageBuffer<Vector4>(polygonBufferID, transSourcePolygons);
+            var polygonCount = (uint)(transFromPolygons.Length / 3);
+            computeHandler.UploadStorageBuffer<Vector4>(fromPolygonsID, transFromPolygons);
+            computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, transToPolygons);
+
             computeHandler.Dispatch(polygonCount, 1, 1);// MaxDistance を 0 にして三角形の内側を絶対に塗る。
 
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
             computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
             computeHandler.Dispatch(polygonCount, 1, 2); // 通常のパディング生成、z が 2 なのは並列による競合の緩和のため、完ぺきな解決手段があるなら欲しいものだ。
         }
+        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<Vector4> transFromPolygons)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingHighQuality);
+
+            var gvBufId = computeHandler.NameToID("gv");
+
+            var transMapID = computeHandler.NameToID("TransMap");
+            var distanceMapID = computeHandler.NameToID("DistanceMap");
+            var scalingMapID = computeHandler.NameToID("ScalingMap");
+            var additionalDataMapID = computeHandler.NameToID("AdditionalDataMap");
+
+            var fromPolygonsID = computeHandler.NameToID("FromPolygons");
+            var toPolygonID = computeHandler.NameToID("ToPolygons");
+
+            Span<byte> gvBuf = stackalloc byte[32];
+            BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.TargetSize.x);
+            BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), transMappingHolder.TargetSize.y);
+            BitConverter.TryWriteBytes(gvBuf.Slice(8, 4), transMappingHolder.SourceSize.x);
+            BitConverter.TryWriteBytes(gvBuf.Slice(12, 4), transMappingHolder.SourceSize.y);
+            BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
+            gvBuf[20..].Fill(0);
+            computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
+
+            computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
+            computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
+            computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
+            computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
+
+            computeHandler.UploadStorageBuffer<Vector4>(fromPolygonsID, transFromPolygons);
+            computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, transToPolygons);
+
+            var polygonCount = (uint)(transFromPolygons.Length / 3);
+            var (dX, dY, _) = computeHandler.WorkGroupSize;
+            computeHandler.Dispatch((uint)((transMappingHolder.TargetSize.x + (dX - 1)) / dX), (uint)((transMappingHolder.TargetSize.y + (dY - 1)) / dY), polygonCount);
+        }
         public static void TransWrite<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, TTRenderTexWithDistance dist, ITTRenderTexture source, ITTSamplerKey samplerKey)
-        where TTCE : ITexTransCreateTexture
-        , ITexTransComputeKeyQuery
+        where TTCE : ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            if (dist.Texture.EqualSize(transMappingHolder.DistanceAndScaleMap) is false || source.Width != transMappingHolder.SourceSize.x || source.Hight != transMappingHolder.SourceSize.y) { throw new ArgumentException(); }
+            if (dist.Texture.EqualSize(transMappingHolder.TransMap) is false || source.Width != transMappingHolder.SourceSize.x || source.Hight != transMappingHolder.SourceSize.y) { throw new ArgumentException(); }
 
             using var sampleCompute = engine.GetComputeHandler(engine.TransSamplerKey[samplerKey]);
 
@@ -54,7 +96,8 @@ namespace net.rs64.TexTransCore.TransTexture
             var readTextureParmBufId = sampleCompute.NameToID("ReadTextureParm");
 
             var transMapID = sampleCompute.NameToID("TransMap");
-            var distanceAndScalingID = sampleCompute.NameToID("DistanceAndScaling");
+            var distanceMapID = sampleCompute.NameToID("DistanceMap");
+            var scalingMapID = sampleCompute.NameToID("ScalingMap");
 
             var targetTexID = sampleCompute.NameToID("TargetTex");
             var targetDistanceMapID = sampleCompute.NameToID("TargetDistanceMap");
@@ -67,44 +110,84 @@ namespace net.rs64.TexTransCore.TransTexture
             sampleCompute.SetTexture(readTexID, source);
 
             sampleCompute.SetTexture(transMapID, transMappingHolder.TransMap);
-            sampleCompute.SetTexture(distanceAndScalingID, transMappingHolder.DistanceAndScaleMap);
+            sampleCompute.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
+            sampleCompute.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
 
             sampleCompute.SetTexture(targetTexID, dist.Texture);
             sampleCompute.SetTexture(targetDistanceMapID, dist.DistanceMap);
 
             sampleCompute.DispatchWithTextureSize(dist.Texture);
         }
+
+        public static void TransWarpModifierWithNone<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransWarpNone);
+
+            var gvBufId = computeHandler.NameToID("gv");
+            var transMapID = computeHandler.NameToID("TransMap");
+            var distanceMapID = computeHandler.NameToID("DistanceMap");
+
+            Span<float> buf = stackalloc float[4];
+            buf[0] = transMappingHolder.MaxDistance;
+            computeHandler.UploadConstantsBuffer<float>(gvBufId, buf);
+
+            computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
+            computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
+
+            computeHandler.DispatchWithTextureSize(transMappingHolder.TransMap);
+        }
+        public static void TransWarpModifierWithStretch<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        {
+            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransWarpNone);
+
+            var transMapID = computeHandler.NameToID("TransMap");
+            computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
+
+            computeHandler.DispatchWithTextureSize(transMappingHolder.TransMap);
+        }
     }
 
     public class TTTransMappingHolder : IDisposable
     {
-        public ITTRenderTexture DistanceAndScaleMap, TransMap;
+        public ITTRenderTexture TransMap;
+        public ITTRenderTexture DistanceMap, ScalingMap;
+        public ITTRenderTexture AdditionalDataMap;
         public readonly (int x, int y) TargetSize, SourceSize;
         public readonly float MaxDistance;
-        private TTTransMappingHolder(ITTRenderTexture distanceAndScaleMap, ITTRenderTexture transMap, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
+        private TTTransMappingHolder(ITTRenderTexture transMap, ITTRenderTexture distanceMap, ITTRenderTexture scalingMap, ITTRenderTexture additionalDataMap, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
         {
-            DistanceAndScaleMap = distanceAndScaleMap;
             TransMap = transMap;
-            MaxDistance = maxDistance;
+            DistanceMap = distanceMap;
+            ScalingMap = scalingMap;
+            AdditionalDataMap = additionalDataMap;
             TargetSize = targetsize;
             SourceSize = sourceSize;
+            MaxDistance = maxDistance;
         }
         public static TTTransMappingHolder Create<TTCE>(TTCE engine, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
         where TTCE : ITexTransCreateTexture
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
-            var distanceAndScaleMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.RG);
             var transMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.RG);
-            engine.FillRG(distanceAndScaleMap, new(maxDistance, 0));
-            return new(distanceAndScaleMap, transMap, targetsize, sourceSize, maxDistance);
+            var distanceMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.R);
+            var scalingMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.R);
+            var additionalDataMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.RG);
+            engine.FillR(distanceMap, maxDistance);
+            return new(transMap, distanceMap, scalingMap, additionalDataMap, targetsize, sourceSize, maxDistance);
         }
         public void Dispose()
         {
-            DistanceAndScaleMap?.Dispose();
-            DistanceAndScaleMap = null!;
             TransMap?.Dispose();
             TransMap = null!;
+            DistanceMap?.Dispose();
+            DistanceMap = null!;
+            ScalingMap?.Dispose();
+            ScalingMap = null!;
+            AdditionalDataMap?.Dispose();
+            AdditionalDataMap = null!;
         }
     }
 

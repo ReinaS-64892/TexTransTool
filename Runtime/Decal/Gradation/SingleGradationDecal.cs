@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.Decal
 
             var decalContext = new DecalContext<SingleGradientSpace, IslandSelectFilter>(ttce, space, filter);
             decalContext.TargetPropertyName = TargetPropertyName;
-            decalContext.TextureWarp = GradientClamp ? TextureWrap.NotWrap : TextureWrap.Stretch;
+            decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.NotContainsKeyAutoGenerate = false;
             decalContext.DecalPadding = Padding;
             decalContext.HighQualityPadding = HighQualityPadding;

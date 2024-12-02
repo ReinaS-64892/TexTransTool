@@ -64,6 +64,7 @@ namespace net.rs64.TexTransCore
     public interface ITexTransComputeKeyQuery
     {
         ITexTransStandardComputeKey StandardComputeKey { get; }
+        ITexTransTransTextureComputeKey TransTextureComputeKey { get; }
         ITexTransComputeKeyDictionary<string> GenealCompute { get; }
         ITexTransComputeKeyDictionary<string> GrabBlend { get; }
         ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
@@ -93,8 +94,14 @@ namespace net.rs64.TexTransCore
         ITTComputeKey FillRG { get; }
         ITTComputeKey FillROnly { get; }
         ITTComputeKey FillGOnly { get; }
-
+    }
+    public interface ITexTransTransTextureComputeKey
+    {
         ITTComputeKey TransMapping { get; }
+        ITTComputeKey TransMappingHighQuality { get; }
+
+        ITTComputeKey TransWarpNone { get; }
+        ITTComputeKey TransWarpStretch { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
     public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }

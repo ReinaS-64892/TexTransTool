@@ -21,7 +21,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             UStdHolder = new();
         }
 
-        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey
+        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey, ITexTransTransTextureComputeKey
         {
             public ITTComputeKey AlphaFill { get; private set; }
             public ITTComputeKey AlphaCopy { get; private set; }
@@ -35,10 +35,16 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTComputeKey FillRG { get; private set; }
             public ITTComputeKey FillROnly { get; private set; }
             public ITTComputeKey FillGOnly { get; private set; }
-            public ITTComputeKey TransMapping { get; private set; }
             public ITTComputeKey Swizzling { get; private set; }
 
             public ITTSamplerKey DefaultSampler { get; private set; }
+
+            public ITTComputeKey TransMapping { get; private set; }
+            public ITTComputeKey TransMappingHighQuality { get; private set; }
+
+            public ITTComputeKey TransWarpNone { get; private set; }
+            public ITTComputeKey TransWarpStretch { get; private set; }
+
 
             public UnityStandardComputeKeyHolder()
             {
@@ -54,9 +60,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 FillRG = GeneralComputeObjects[nameof(FillRG)];
                 FillROnly = GeneralComputeObjects[nameof(FillROnly)];
                 FillGOnly = GeneralComputeObjects[nameof(FillGOnly)];
-                TransMapping = GeneralComputeObjects[nameof(TransMapping)];
                 Swizzling = GeneralComputeObjects[nameof(Swizzling)];
+
                 DefaultSampler = SamplerComputeShaders["AverageSampling"];
+
+                TransMapping = GeneralComputeObjects[nameof(TransMapping)];
+                TransMappingHighQuality = GeneralComputeObjects[nameof(TransMappingHighQuality)];
+                TransWarpNone = GeneralComputeObjects[nameof(TransWarpNone)];
+                TransWarpStretch = GeneralComputeObjects[nameof(TransWarpStretch)];
             }
         }
 

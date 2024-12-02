@@ -1,0 +1,35 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float MaxDistance;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+    float AlimentPadding3;
+}
+
+RWTexture2D<float2> TransMap;
+RWTexture2D<float> DistanceMap;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint2 i = id.xy;
+    float2 transPos = TransMap[i];
+    float distance = DistanceMap[i];
+
+    float2 outOf2 = saturate(ceil(abs(transPos - float2(0.5,0.5)) * 2) - 1);
+    float outOf = max(outOf2.x,outOf2.y);
+
+    //ノイズが発生することがあるため若干大きくする
+    DistanceMap[i] = lerp( distance , MaxDistance + 0.01 , outOf);
+}
