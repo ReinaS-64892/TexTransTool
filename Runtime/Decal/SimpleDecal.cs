@@ -114,7 +114,7 @@ namespace net.rs64.TexTransTool.Decal
 
                 var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>>(ttce, GetSpaceConverter(), GetTriangleFilter());
                 decalContext.TargetPropertyName = TargetPropertyName;
-                decalContext.TextureWarp = TextureWrap.NotWrap;
+                decalContext.IsTextureStretch = false;
                 decalContext.DecalPadding = Padding;
                 decalContext.HighQualityPadding = HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;

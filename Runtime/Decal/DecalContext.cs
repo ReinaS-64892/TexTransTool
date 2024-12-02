@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
         public string TargetPropertyName { get; set; } = "_MainTex";
-        public TextureWrap? TextureWarp { get; set; } = null;
+        public bool IsTextureStretch { get; set; } = false;
         public float DecalPadding { get; set; } = 5f;
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
@@ -87,7 +87,8 @@ namespace net.rs64.TexTransTool.Decal
                     if (!renderTextures.ContainsKey(targetMat))
                     {
                         var newTempRt = renderTextures[targetMat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
-                        newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-TempRt-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                        newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                        newTempRt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                     }
 
                     var sUV = _convertSpace.OutPutUV();
@@ -96,14 +97,24 @@ namespace net.rs64.TexTransTool.Decal
                     using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
 
                     Profiler.BeginSample("PackingTriangles");
-                    var transMap = new TransTexture.TransData(filteredTriangle, tUV, sUV);
-                    using var packed = TransTexture.PackingTriangles(transMap, Allocator.Temp);
+                    Profiler.BeginSample("from");
+                    using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
+                    Profiler.EndSample();
+                    Profiler.BeginSample("to");
+                    using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
+                    Profiler.EndSample();
                     Profiler.EndSample();
 
-                    Profiler.BeginSample("WriteMapping");
-                    _ttce4u.WriteMapping(transMappingHolder, MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packed.AsSpan()));
-                    Profiler.EndSample();
-                    Profiler.BeginSample("TransWrite");
+                    Profiler.BeginSample("TransTexture");
+                    var fromTriSpan = MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packedFromTriangle);
+                    var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
+                    if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan);
+                    else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
+                    Debug.Log($"{filteredTriangle.Length} : {packedFromTriangle.Length} :  {fromTriSpan.Length} - {fromTriSpan.Length / 3} - {fromTriSpan.Length / 3 / 3}");
+
+                    if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
+                    else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
+
                     _ttce4u.TransWrite(transMappingHolder, renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
                     Profiler.EndSample();
 
@@ -129,6 +140,7 @@ namespace net.rs64.TexTransTool.Decal
 
                 var rt = writeable[mat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
                 rt.Texture.Name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.Texture.Width}x{rt.Texture.Hight}";
+                rt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{rt.Texture.Width}x{rt.Texture.Hight}";
             }
         }
     }

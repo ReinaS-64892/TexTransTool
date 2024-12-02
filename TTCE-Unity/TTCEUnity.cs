@@ -42,6 +42,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
 
         public ITexTransStandardComputeKey StandardComputeKey => ComputeObjectUtility.UStdHolder;
+        public ITexTransTransTextureComputeKey TransTextureComputeKey => ComputeObjectUtility.UStdHolder;
         public ITexTransComputeKeyDictionary<string> GrabBlend { get; } = new GrabBlendQuery();
         public ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; } = new BlendKeyUnWrapper();
         public ITexTransComputeKeyDictionary<string> GenealCompute { get; } = new GenealComputeQuery();

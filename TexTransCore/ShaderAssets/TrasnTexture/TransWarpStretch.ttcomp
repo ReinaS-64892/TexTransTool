@@ -1,0 +1,18 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+RWTexture2D<float2> TransMap;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint2 i = id.xy;
+    TransMap[i] = saturate(TransMap[i]);
+}

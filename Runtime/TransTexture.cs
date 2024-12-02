@@ -87,38 +87,84 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static NativeArray<Vector4> PackingTriangles(TransData transData, Allocator allocator)
+        public static NativeArray<Vector4> PackingTrianglesForFrom(Span<TriangleIndex> triangle, Span<Vector3> fromUV, Allocator allocator)
         {
-            var triIndex = transData.TrianglesToIndex;
-            var f = transData.SourceUV;
-            var t = transData.TargetUV;
-            var na = new NativeArray<Vector4>(triIndex.Length * 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var na = new NativeArray<Vector4>(triangle.Length * 3, allocator, NativeArrayOptions.UninitializedMemory);
             var sp = na.AsSpan();
-            for (var i = 0; triIndex.Length > i; i += 1)
+            for (var i = 0; triangle.Length > i; i += 1)
             {
-                var tri = triIndex[i];
+                var tri = triangle[i];
                 var i1 = i * 3;
                 var i2 = i1 + 1;
                 var i3 = i1 + 2;
 
-                sp[i1].x = f[tri[0]].x;
-                sp[i1].y = f[tri[0]].y;
-                sp[i1].z = t[tri[0]].x;
-                sp[i1].w = t[tri[0]].y;
+                sp[i1].x = fromUV[tri[0]].x;
+                sp[i1].y = fromUV[tri[0]].y;
+                sp[i1].z = fromUV[tri[0]].z;
+                sp[i1].w = 0f;
 
-                sp[i2].x = f[tri[1]].x;
-                sp[i2].y = f[tri[1]].y;
-                sp[i2].z = t[tri[1]].x;
-                sp[i2].w = t[tri[1]].y;
+                sp[i2].x = fromUV[tri[1]].x;
+                sp[i2].y = fromUV[tri[1]].y;
+                sp[i2].z = fromUV[tri[1]].z;
+                sp[i2].w = 0f;
 
-                sp[i3].x = f[tri[2]].x;
-                sp[i3].y = f[tri[2]].y;
-                sp[i3].z = t[tri[2]].x;
-                sp[i3].w = t[tri[2]].y;
+                sp[i3].x = fromUV[tri[2]].x;
+                sp[i3].y = fromUV[tri[2]].y;
+                sp[i3].z = fromUV[tri[2]].z;
+                sp[i3].w = 0f;
             }
             return na;
         }
+        public static NativeArray<Vector4> PackingTrianglesForFrom(Span<TriangleIndex> triangle, Span<Vector2> fromUV, Allocator allocator)
+        {
+            var na = new NativeArray<Vector4>(triangle.Length * 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var sp = na.AsSpan();
+            for (var i = 0; triangle.Length > i; i += 1)
+            {
+                var tri = triangle[i];
+                var i1 = i * 3;
+                var i2 = i1 + 1;
+                var i3 = i1 + 2;
 
+                sp[i1].x = fromUV[tri[0]].x;
+                sp[i1].y = fromUV[tri[0]].y;
+                sp[i1].z = 0f;
+                sp[i1].w = 0f;
+
+                sp[i2].x = fromUV[tri[1]].x;
+                sp[i2].y = fromUV[tri[1]].y;
+                sp[i2].z = 0f;
+                sp[i2].w = 0f;
+
+                sp[i3].x = fromUV[tri[2]].x;
+                sp[i3].y = fromUV[tri[2]].y;
+                sp[i3].z = 0f;
+                sp[i3].w = 0f;
+            }
+            return na;
+        }
+        public static NativeArray<Vector2> PackingTrianglesForTo(Span<TriangleIndex> triangle, Span<Vector2> toUV, Allocator allocator)
+        {
+            var na = new NativeArray<Vector2>(triangle.Length * 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var sp = na.AsSpan();
+            for (var i = 0; triangle.Length > i; i += 1)
+            {
+                var tri = triangle[i];
+                var i1 = i * 3;
+                var i2 = i1 + 1;
+                var i3 = i1 + 2;
+
+                sp[i1].x = toUV[tri[0]].x;
+                sp[i1].y = toUV[tri[0]].y;
+
+                sp[i2].x = toUV[tri[1]].x;
+                sp[i2].y = toUV[tri[1]].y;
+
+                sp[i3].x = toUV[tri[2]].x;
+                sp[i3].y = toUV[tri[2]].y;
+            }
+            return na;
+        }
         [UsedImplicitly]
         private static void BurstInstantiate()
         {
