@@ -15,6 +15,7 @@ namespace net.rs64.TexTransCore
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDrivingComputeStorageBuffer
     { }
 
     public interface ITexTransCreateTexture
@@ -61,6 +62,11 @@ namespace net.rs64.TexTransCore
     {
         ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey);
     }
+    public interface ITexTransDrivingComputeStorageBuffer
+    {
+        void MoveStorageBuffer(ITTComputeHandler toHandler, int toID, ITTComputeHandler fromHandler, int fromID);
+    }
+
     public interface ITexTransComputeKeyQuery
     {
         ITexTransStandardComputeKey StandardComputeKey { get; }

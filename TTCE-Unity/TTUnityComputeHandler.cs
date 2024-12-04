@@ -10,8 +10,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal class TTUnityComputeHandler : ITTComputeHandler
     {
-        ComputeShader _compute;
-        Dictionary<int, GraphicsBuffer> _buffers;
+        internal ComputeShader _compute;
+        internal Dictionary<int, GraphicsBuffer> _buffers;
         public TTUnityComputeHandler(ComputeShader compute)
         {
             _compute = compute;
@@ -65,6 +65,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
             MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
             _buffers[id].SetData(na);
 
+            _compute.SetBuffer(0, id, _buffers[id]);
+        }
+        public void AllocateStorageBuffer(int id, int bufferLen)
+        {
+            if (_buffers.ContainsKey(id)) { _buffers[id].Dispose(); _buffers.Remove(id); }
+            if ((bufferLen % 4) is not 0) { bufferLen += 4 - bufferLen % 4; }
+
+            _buffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Structured, bufferLen / 4, 4);
             _compute.SetBuffer(0, id, _buffers[id]);
         }
 

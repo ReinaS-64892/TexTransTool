@@ -21,6 +21,7 @@ namespace net.rs64.TexTransCore
         int NameToID(string name);
         void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
         void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
+        void AllocateStorageBuffer(int id,int bufferLen);
         void SetTexture(int id, ITTRenderTexture tex);
     }
 

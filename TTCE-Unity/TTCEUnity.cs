@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using net.rs64.TexTransCore;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -11,6 +12,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDrivingComputeStorageBuffer
     {
         public ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
@@ -36,6 +38,19 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 case ComputeKeyHolder holder: { return new TTUnityComputeHandler(holder.ComputeShader); }
             }
             throw new ArgumentException();
+        }
+
+        public void MoveStorageBuffer(ITTComputeHandler toHandler, int toID, ITTComputeHandler fromHandler, int fromID)
+        {
+            var toUnityCH = (TTUnityComputeHandler)toHandler;
+            var fromUnityCH = (TTUnityComputeHandler)fromHandler;
+            if (fromUnityCH._buffers.Remove(fromID, out var buffer))
+            {
+                if (toUnityCH._buffers.Remove(toID, out var beforeBuffer)) { beforeBuffer.Dispose(); }
+                toUnityCH._buffers[toID] = buffer;
+                toUnityCH._compute.SetBuffer(0, toID, toUnityCH._buffers[toID]);
+            }
+            else { throw new KeyNotFoundException(); }
         }
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ
