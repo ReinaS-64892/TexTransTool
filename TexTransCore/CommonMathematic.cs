@@ -1,32 +1,26 @@
 #nullable enable
+using System;
 using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransCore
 {
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct ColorWOAlpha
     {
-        [FieldOffset(0)]
         public float R;
-        [FieldOffset(4)]
         public float G;
-        [FieldOffset(8)]
         public float B;
         public float[] ToArray() { return new float[] { R, G, B }; }
     }
     /// <summary>
     /// ガンマ色空間の色を表現する
     /// </summary>
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct Color
     {
-        [FieldOffset(0)]
         public float R;
-        [FieldOffset(4)]
         public float G;
-        [FieldOffset(8)]
         public float B;
-        [FieldOffset(12)]
         public float A;
 
         public Color(float r, float g, float b, float a)
@@ -44,6 +38,41 @@ namespace net.rs64.TexTransCore
         public override string ToString()
         {
             return base.ToString() + $"{R}-{G}-{B}-{A}";
+        }
+    }
+    /// <summary>
+    /// System.Numeric の Vector4 は W が先頭にあるためそれを回避するための存在
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TTVector4
+    {
+        public float X;
+        public float Y;
+        public float Z;
+        public float W;
+        public TTVector4(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+        public override string ToString()
+        {
+            return $"{X}-{Y}-{Z}-{W}";
+        }
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z, W);
+        }
+        public override bool Equals(object obj)
+        {
+            var o = (TTVector4)obj;
+            if (X != o.X) { return false; }
+            if (Y != o.Y) { return false; }
+            if (Z != o.Z) { return false; }
+            if (W != o.W) { return false; }
+            return true;
         }
     }
 

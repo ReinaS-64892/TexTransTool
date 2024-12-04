@@ -40,7 +40,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTSamplerKey DefaultSampler { get; private set; }
 
             public ITTComputeKey TransMapping { get; private set; }
-            public ITTComputeKey TransMappingHighQuality { get; private set; }
 
             public ITTComputeKey TransWarpNone { get; private set; }
             public ITTComputeKey TransWarpStretch { get; private set; }
@@ -65,7 +64,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 DefaultSampler = SamplerComputeShaders["AverageSampling"];
 
                 TransMapping = GeneralComputeObjects[nameof(TransMapping)];
-                TransMappingHighQuality = GeneralComputeObjects[nameof(TransMappingHighQuality)];
                 TransWarpNone = GeneralComputeObjects[nameof(TransWarpNone)];
                 TransWarpStretch = GeneralComputeObjects[nameof(TransWarpStretch)];
             }
