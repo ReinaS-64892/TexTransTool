@@ -65,9 +65,13 @@ namespace net.rs64.TexTransCore
 
     public interface ITexTransDriveStorageBufferHolder
     {
-        ITTStorageBufferHolder CreateStorageBuffer(int length, bool downloadable = false);
-        ITTStorageBufferHolder UploadToCreateStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged;
-        void TakeToDownloadBuffer<T>(Span<T> dist, ITTStorageBufferHolder takeToFrom) where T : unmanaged;
+        ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false);
+        ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged;
+        /// <summary>
+        /// 一度ダウンロードしたら二度と使用できない。
+        /// 関数内で Dispose() が呼ばれる。
+        /// </summary>
+        void DownloadBuffer<T>(Span<T> dist, ITTStorageBuffer takeToFrom) where T : unmanaged;
     }
 
     public interface ITexTransComputeKeyQuery

@@ -107,11 +107,11 @@ namespace net.rs64.TexTransTool.Decal
                         using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
                         Profiler.EndSample();
 
-                        var fromPolygonStorage = default(ITTStorageBufferHolder);
                         Profiler.BeginSample("WriteMapping");
                         var fromTriSpan = MemoryMarshal.Cast<Vector4, TTVector4>(packedFromTriangle);
                         var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
-                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan, out fromPolygonStorage);
+                        using var fromPolygonStorage = _ttce4u.UploadStorageBuffer(fromTriSpan);
+                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromPolygonStorage);
                         else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
                         Profiler.EndSample();
 
@@ -121,10 +121,10 @@ namespace net.rs64.TexTransTool.Decal
                         Profiler.EndSample();
 
                         Profiler.BeginSample("WriteDepth");
-                        fromPolygonStorage ??= _ttce4u.UploadToCreateStorageBuffer(fromTriSpan);
                         try
                         {
-                            _ttce4u.DepthCulling(transMappingHolder, ref fromPolygonStorage, (uint)(fromTriSpan.Length / 3), UseDepthOrInvert.Value,0.0001f);
+                            var polygonCount = (uint)(fromTriSpan.Length / 3);
+                            _ttce4u.DepthCulling(transMappingHolder, fromPolygonStorage, polygonCount, UseDepthOrInvert.Value, 0.0001f);
                         }
                         finally { fromPolygonStorage.Dispose(); }
                         Profiler.EndSample();

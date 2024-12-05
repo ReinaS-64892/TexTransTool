@@ -5,7 +5,7 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class DepthUtility
     {
-        public static void DepthCulling<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ref ITTStorageBufferHolder polygons, uint polygonCount, bool depthInverse = false, float depthOffset = 0.01f)
+        public static void DepthCulling<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer polygons, uint polygonCount, bool depthInverse = false, float depthOffset = 0.01f)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             using var depthRendererHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.DepthRenderer);
@@ -26,8 +26,8 @@ namespace net.rs64.TexTransCore.TransTexture
             drGV[0] = (uint)transMappingHolder.SourceSize.x;
             drGV[1] = (uint)transMappingHolder.SourceSize.y;
             depthRendererHandler.UploadConstantsBuffer<uint>(drGvID, drGV);
-            depthRendererHandler.MoveBuffer(drPolygonID, polygons);
-            engine.AllocateStorageBuffer(depthRendererHandler, drDepthBufferID, transMappingHolder.SourceSize.x * transMappingHolder.SourceSize.y * 4);
+            depthRendererHandler.SetStorageBuffer(drPolygonID, polygons);
+            using var depthBuffer = engine.SetStorageBufferFromAllocate(depthRendererHandler, drDepthBufferID, transMappingHolder.SourceSize.x * transMappingHolder.SourceSize.y * 4);
 
             depthRendererHandler.Dispatch(polygonCount, 1, 1);
 
@@ -43,15 +43,13 @@ namespace net.rs64.TexTransCore.TransTexture
             BitConverter.TryWriteBytes(cdGV.Slice(28, 4), 0);
             cullingDepthHandler.UploadConstantsBuffer<byte>(cdGvID, cdGV);
 
-            cullingDepthHandler.MoveBuffer(cdDepthBufferID, depthRendererHandler.TakeBuffer(drDepthBufferID)!);
+            cullingDepthHandler.SetStorageBuffer(cdDepthBufferID, depthBuffer);
 
             cullingDepthHandler.SetTexture(cdTransMapID, transMappingHolder.TransMap);
             cullingDepthHandler.SetTexture(cdAdditionalDataMapID, transMappingHolder.AdditionalDataMap);
             cullingDepthHandler.SetTexture(cdDistanceMapID, transMappingHolder.DistanceMap);
 
             cullingDepthHandler.DispatchWithTextureSize(transMappingHolder.TransMap);
-
-            polygons = depthRendererHandler.TakeBuffer(drPolygonID)!;
         }
 
     }

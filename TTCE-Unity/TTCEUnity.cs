@@ -43,27 +43,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
             }
             throw new ArgumentException();
         }
-
-        public void MoveStorageBuffer(ITTComputeHandler toHandler, int toID, ITTComputeHandler fromHandler, int fromID)
-        {
-            var toUnityCH = (TTUnityComputeHandler)toHandler;
-            var fromUnityCH = (TTUnityComputeHandler)fromHandler;
-            if (fromUnityCH._storageBuffers.Remove(fromID, out var buffer))
-            {
-                if (toUnityCH._storageBuffers.Remove(toID, out var beforeBuffer)) { beforeBuffer.buf.Dispose(); }
-                toUnityCH._storageBuffers[toID] = buffer;
-                toUnityCH._compute.SetBuffer(0, toID, toUnityCH._storageBuffers[toID].buf);
-            }
-            else { throw new KeyNotFoundException(); }
-        }
-
-        public ITTStorageBufferHolder CreateStorageBuffer(int length, bool downloadable = false)
-        { return new TTUnityComputeHandler.TTUnityStorageBufferHolder(length, downloadable); }
-        public ITTStorageBufferHolder UploadToCreateStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged
+        public ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false)
+        { return new TTUnityComputeHandler.TTUnityStorageBuffer(length, downloadable); }
+        public ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged
         {
             var length = data.Length * UnsafeUtility.SizeOf<T>();
             var paddedLength = TTMath.NormalizeOf4Multiple(length);
-            var holder = new TTUnityComputeHandler.TTUnityStorageBufferHolder(paddedLength, downloadable);
+            var holder = new TTUnityComputeHandler.TTUnityStorageBuffer(paddedLength, downloadable);
             if (paddedLength == length)
             {
                 unsafe
@@ -86,9 +72,9 @@ namespace net.rs64.TexTransCoreEngineForUnity
             return holder;
         }
 
-        public void TakeToDownloadBuffer<T>(Span<T> dist, ITTStorageBufferHolder takeToFrom) where T : unmanaged
+        public void DownloadBuffer<T>(Span<T> dist, ITTStorageBuffer takeToFrom) where T : unmanaged
         {
-            var holder = (TTUnityComputeHandler.TTUnityStorageBufferHolder)takeToFrom;
+            var holder = (TTUnityComputeHandler.TTUnityStorageBuffer)takeToFrom;
 
             if (holder._buffer is null) { throw new NullReferenceException(); }
             if (holder._downloadable is false) { throw new InvalidOperationException(); }
@@ -115,6 +101,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 req.WaitForCompletion();
                 req.GetData<T>().AsSpan().Slice(0, Math.Min(bufLen, dist.Length)).CopyTo(dist);
             }
+
+            holder._buffer = null;
         }
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ

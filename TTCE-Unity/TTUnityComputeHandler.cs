@@ -13,12 +13,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
     {
         internal ComputeShader _compute;
         internal Dictionary<int, GraphicsBuffer> _constantsBuffers;
-        internal Dictionary<int, (GraphicsBuffer buf, bool downloadable)> _storageBuffers;
         public TTUnityComputeHandler(ComputeShader compute)
         {
             _compute = compute;
             _constantsBuffers = new();
-            _storageBuffers = new();
         }
         public (uint x, uint y, uint z) WorkGroupSize
         {
@@ -56,54 +54,30 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
             _compute.SetConstantBuffer(id, _constantsBuffers[id], 0, _constantsBuffers[id].stride);
         }
-        public void MoveBuffer(int id, ITTStorageBufferHolder bufferHolder)
+        public void SetStorageBuffer(int id, ITTStorageBuffer bufferHolder)
         {
-            var unitySBH = (TTUnityStorageBufferHolder)bufferHolder;
+            var unitySBH = (TTUnityStorageBuffer)bufferHolder;
             if (unitySBH._buffer is null) { throw new NullReferenceException(); }
-
-            if (_storageBuffers.Remove(id, out var bBuf)) { bBuf.buf.Dispose(); }
-
-            _storageBuffers[id] = (unitySBH._buffer, unitySBH._downloadable);
-            _compute.SetBuffer(0, id, _storageBuffers[id].buf);
-            unitySBH._buffer = null;
+            _compute.SetBuffer(0, id, unitySBH._buffer);
         }
-        public ITTStorageBufferHolder? TakeBuffer(int id)
-        {
-            if (_storageBuffers.Remove(id, out var buffer)) { return new TTUnityStorageBufferHolder(buffer.buf, buffer.downloadable); }
-            return null;
-        }
-
-
 
         public void Dispose()
         {
             foreach (var buf in _constantsBuffers.Values) { buf.Dispose(); }
             _constantsBuffers.Clear();
-            foreach (var buf in _storageBuffers.Values) { buf.buf.Dispose(); }
-            _storageBuffers.Clear();
         }
 
 #nullable enable
-        internal class TTUnityStorageBufferHolder : ITTStorageBufferHolder
+        internal class TTUnityStorageBuffer : ITTStorageBuffer
         {
             internal GraphicsBuffer? _buffer;
             public bool Owned => _buffer is not null;
             public string Name { get; set; } = "TTUnityStorageBufferHolder";
             internal bool _downloadable;
 
-            public TTUnityStorageBufferHolder(int length, bool downloadable)
+            public TTUnityStorageBuffer(int length, bool downloadable)
             {
                 _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TTMath.NormalizeOf4Multiple(length) / 4, 4);
-                _downloadable = downloadable;
-            }
-            public TTUnityStorageBufferHolder(GraphicsBuffer buffer, bool downloadable)
-            {
-                _buffer = buffer;
-                _downloadable = downloadable;
-            }
-            public TTUnityStorageBufferHolder(bool downloadable)
-            {
-                _buffer = null;
                 _downloadable = downloadable;
             }
             public void Dispose()
