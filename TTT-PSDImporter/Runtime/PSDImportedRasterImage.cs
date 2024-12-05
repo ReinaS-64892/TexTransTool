@@ -43,10 +43,10 @@ namespace net.rs64.TexTransTool.PSDImporter
                 Profiler.BeginSample("RLE");
                 using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
 
-                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, (int)RasterImageData.B.ImageDataAddress.Length));
-                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, (int)RasterImageData.R.ImageDataAddress.Length));
-                DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, (int)RasterImageData.G.ImageDataAddress.Length));
-                if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, (int)RasterImageData.A.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.B.ImageDataAddress.Length)));// コピーを避けるために 4の倍数に切り上げます、まぁ問題にはならないでしょうけど...ファイルの終端にぶち当たった場合は頭を抱え、コピーが走るようにします...
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.R.ImageDataAddress.Length)));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.G.ImageDataAddress.Length)));
+                if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.A.ImageDataAddress.Length)));
                 else ttce.AlphaFill(writeTarget, 1f);
                 Profiler.EndSample();
             }
@@ -60,7 +60,8 @@ namespace net.rs64.TexTransTool.PSDImporter
             Profiler.EndSample();
         }
 
-        public static void DecompressRLE8BitPSDWithTTCE((uint x, uint y) size, (uint x, uint y) pivot, ITTRenderTexture writeTarget, uint channel, ITTComputeHandler computeHandler, Span<byte> rleSource)
+        public static void DecompressRLE8BitPSDWithTTCE<TTCE>(TTCE engine, (uint x, uint y) size, (uint x, uint y) pivot, ITTRenderTexture writeTarget, uint channel, ITTComputeHandler computeHandler, Span<byte> rleSource)
+        where TTCE : ITexTransDriveStorageBufferHolder
         {
             var gvID = computeHandler.NameToID("gv");
 
@@ -95,8 +96,8 @@ namespace net.rs64.TexTransTool.PSDImporter
             }
 
             computeHandler.UploadConstantsBuffer<uint>(gvID, gvBuf);
-            computeHandler.UploadStorageBuffer<uint>(spanBufferID, spanBuf);
-            computeHandler.UploadStorageBuffer<byte>(rleBufferID, dSpan);
+            engine.UploadStorageBuffer(computeHandler, spanBufferID, spanBuf);
+            engine.UploadStorageBuffer(computeHandler, rleBufferID, dSpan);
 
             computeHandler.SetTexture(texID, writeTarget);
 

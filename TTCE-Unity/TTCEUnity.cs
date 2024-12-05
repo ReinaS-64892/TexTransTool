@@ -1,9 +1,13 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using Color = net.rs64.TexTransCore.Color;
 
 namespace net.rs64.TexTransCoreEngineForUnity
@@ -12,7 +16,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
-    , ITexTransDrivingComputeStorageBuffer
+    , ITexTransDriveStorageBufferHolder
     {
         public ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
@@ -44,13 +48,73 @@ namespace net.rs64.TexTransCoreEngineForUnity
         {
             var toUnityCH = (TTUnityComputeHandler)toHandler;
             var fromUnityCH = (TTUnityComputeHandler)fromHandler;
-            if (fromUnityCH._buffers.Remove(fromID, out var buffer))
+            if (fromUnityCH._storageBuffers.Remove(fromID, out var buffer))
             {
-                if (toUnityCH._buffers.Remove(toID, out var beforeBuffer)) { beforeBuffer.Dispose(); }
-                toUnityCH._buffers[toID] = buffer;
-                toUnityCH._compute.SetBuffer(0, toID, toUnityCH._buffers[toID]);
+                if (toUnityCH._storageBuffers.Remove(toID, out var beforeBuffer)) { beforeBuffer.buf.Dispose(); }
+                toUnityCH._storageBuffers[toID] = buffer;
+                toUnityCH._compute.SetBuffer(0, toID, toUnityCH._storageBuffers[toID].buf);
             }
             else { throw new KeyNotFoundException(); }
+        }
+
+        public ITTStorageBufferHolder CreateStorageBuffer(int length, bool downloadable = false)
+        { return new TTUnityComputeHandler.TTUnityStorageBufferHolder(length, downloadable); }
+        public ITTStorageBufferHolder UploadToCreateStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged
+        {
+            var length = data.Length * UnsafeUtility.SizeOf<T>();
+            var paddedLength = TTMath.NormalizeOf4Multiple(length);
+            var holder = new TTUnityComputeHandler.TTUnityStorageBufferHolder(paddedLength, downloadable);
+            if (paddedLength == length)
+            {
+                unsafe
+                {
+                    fixed (T* ptr = data)
+                    {
+                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
+                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                        holder._buffer!.SetData(na);
+                    }
+                }
+            }
+            {
+                using var na = new NativeArray<byte>(paddedLength, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                MemoryMarshal.Cast<T, byte>(data).CopyTo(na.AsSpan());
+                na.AsSpan()[paddedLength..].Fill(0);
+                holder._buffer!.SetData(na);
+            }
+
+            return holder;
+        }
+
+        public void TakeToDownloadBuffer<T>(Span<T> dist, ITTStorageBufferHolder takeToFrom) where T : unmanaged
+        {
+            var holder = (TTUnityComputeHandler.TTUnityStorageBufferHolder)takeToFrom;
+
+            if (holder._buffer is null) { throw new NullReferenceException(); }
+            if (holder._downloadable is false) { throw new InvalidOperationException(); }
+
+            var length = dist.Length * UnsafeUtility.SizeOf<T>();
+            var bufLen = holder._buffer.count * holder._buffer.stride;
+
+            if (length == bufLen)
+            {
+                unsafe
+                {
+                    fixed (T* ptr = dist)
+                    {
+                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
+                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                        var request = AsyncGPUReadback.RequestIntoNativeArray(ref na, holder._buffer);
+                        request.WaitForCompletion();
+                    }
+                }
+            }
+            else
+            {
+                var req = AsyncGPUReadback.Request(holder._buffer);
+                req.WaitForCompletion();
+                req.GetData<T>().AsSpan().Slice(0, Math.Min(bufLen, dist.Length)).CopyTo(dist);
+            }
         }
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ

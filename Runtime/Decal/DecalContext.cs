@@ -11,18 +11,20 @@ using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal interface IConvertSpace : IDisposable
+    internal interface ISpaceConverter : IDisposable
     {
         void Input(MeshData meshData);//この MeshData の解放責任は受け取らない
-        NativeArray<Vector2> OutPutUV();
+        NativeArray<Vector2> UVOut();
+        bool AllowDepth { get; }
+        NativeArray<Vector3> UVOutWithDepth();
     }
-    internal interface ITrianglesFilter<SpaceConverter> : IDisposable
+    internal interface ITrianglesFilter<TSpace> : IDisposable
     {
-        void SetSpace(SpaceConverter space);
+        void SetSpace(TSpace space);
         NativeArray<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex);
     }
     internal class DecalContext<ConvertSpace, TrianglesFilter>
-    where ConvertSpace : IConvertSpace
+    where ConvertSpace : ISpaceConverter
     where TrianglesFilter : ITrianglesFilter<ConvertSpace>
     {
         ITexTransToolForUnity _ttce4u;
@@ -90,31 +92,66 @@ namespace net.rs64.TexTransTool.Decal
                         newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                         newTempRt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                     }
-
-                    var sUV = _convertSpace.OutPutUV();
-
-                    Profiler.BeginSample("TransTexture");
-                    using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, renderTextures[targetMat].Texture.Size(), sourceTexture.Size(), DecalPadding);
-
-                    Profiler.BeginSample("PackingTriangles");
-                    Profiler.BeginSample("from");
-                    using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
-                    Profiler.EndSample();
-                    Profiler.BeginSample("to");
-                    using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
-                    Profiler.EndSample();
-                    Profiler.EndSample();
+                    var target = renderTextures[targetMat];
 
                     Profiler.BeginSample("TransTexture");
-                    var fromTriSpan = MemoryMarshal.Cast<Vector4, System.Numerics.Vector4>(packedFromTriangle);
-                    var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
-                    if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan);
-                    else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
 
-                    if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
-                    else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
+                    using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, target.Texture.Size(), sourceTexture.Size(), DecalPadding);
 
-                    _ttce4u.TransWrite(transMappingHolder, renderTextures[targetMat], sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
+                    if (UseDepthOrInvert.HasValue && _convertSpace.AllowDepth)
+                    {
+                        var sUV = _convertSpace.UVOutWithDepth();
+
+                        Profiler.BeginSample("PackingTriangles");
+                        using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
+                        using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
+                        Profiler.EndSample();
+
+                        var fromPolygonStorage = default(ITTStorageBufferHolder);
+                        Profiler.BeginSample("WriteMapping");
+                        var fromTriSpan = MemoryMarshal.Cast<Vector4, TTVector4>(packedFromTriangle);
+                        var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
+                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan, out fromPolygonStorage);
+                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
+                        Profiler.EndSample();
+
+                        Profiler.BeginSample("TransCulling");
+                        if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
+                        else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
+                        Profiler.EndSample();
+
+                        Profiler.BeginSample("WriteDepth");
+                        fromPolygonStorage ??= _ttce4u.UploadToCreateStorageBuffer(fromTriSpan);
+                        try
+                        {
+                            _ttce4u.DepthCulling(transMappingHolder, ref fromPolygonStorage, (uint)(fromTriSpan.Length / 3), UseDepthOrInvert.Value,0.0001f);
+                        }
+                        finally { fromPolygonStorage.Dispose(); }
+                        Profiler.EndSample();
+                    }
+                    else
+                    {
+                        var sUV = _convertSpace.UVOut();
+
+                        Profiler.BeginSample("PackingTriangles");
+                        using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
+                        using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
+                        Profiler.EndSample();
+
+                        Profiler.BeginSample("WriteMapping");
+                        var fromTriSpan = MemoryMarshal.Cast<Vector4, TTVector4>(packedFromTriangle);
+                        var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
+                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan);
+                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
+                        Profiler.EndSample();
+                        Profiler.BeginSample("TransCulling");
+                        if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
+                        else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
+                        Profiler.EndSample();
+                    }
+
+                    Profiler.BeginSample("TransWrite");
+                    _ttce4u.TransWrite(transMappingHolder, target, sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
                     Profiler.EndSample();
 
                     Profiler.EndSample();
@@ -125,6 +162,8 @@ namespace net.rs64.TexTransTool.Decal
                 _trianglesFilter.Dispose();
                 _convertSpace.Dispose();
             }
+
+
         }
 
         internal void GenerateKey(Dictionary<Material, TTRenderTexWithDistance> writeable, IEnumerable<Material> targetMat)

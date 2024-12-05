@@ -7,7 +7,7 @@ using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public class ParallelProjectionSpace : IConvertSpace
+    public class ParallelProjectionSpace : ISpaceConverter
     {
         internal Matrix4x4 ParallelProjectionMatrix;
 
@@ -17,6 +17,11 @@ namespace net.rs64.TexTransTool.Decal
         private NativeArray<Vector2> PPSVertWithUV;
         internal NativeArray<Vector3> GetPPSVert { get { _jobHandle.Complete(); return PPSVert; } }
         internal NativeArray<Vector2> GetUVVert { get { _jobHandle.Complete(); return PPSVertWithUV; } }
+        public NativeArray<Vector3> GetPPSVertNoJobComplete() => PPSVert;
+        public JobHandle GetPPSVertJobHandle() => _jobHandle;
+        public void UpdatePPSVertJobHandle(JobHandle jh) => _jobHandle = jh;
+
+        public bool AllowDepth => true;
 
         internal ParallelProjectionSpace(Matrix4x4 parallelProjectionMatrix)
         {
@@ -31,7 +36,8 @@ namespace net.rs64.TexTransTool.Decal
 
         }
 
-        public NativeArray<Vector2> OutPutUV() => GetUVVert;
+        public NativeArray<Vector2> UVOut() => GetUVVert;
+        public NativeArray<Vector3> UVOutWithDepth() => GetPPSVert;
 
         public void Dispose()
         {
@@ -43,6 +49,8 @@ namespace net.rs64.TexTransTool.Decal
             PPSVert = default;
             PPSVertWithUV = default;
         }
+
+
     }
 }
 

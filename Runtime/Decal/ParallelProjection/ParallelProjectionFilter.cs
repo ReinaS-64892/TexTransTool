@@ -29,8 +29,9 @@ namespace net.rs64.TexTransTool.Decal
             for (var i = 0; smCount > i; i += 1)
             {
                 var triNa = _parallelProjectionSpace.MeshData.TriangleIndex[i];
-                var ppsVert = _parallelProjectionSpace.GetPPSVert;
-                _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(triNa, ppsVert, Filters);
+                var ppsVert = _parallelProjectionSpace.GetPPSVertNoJobComplete();
+                var jobResult = _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(triNa, ppsVert, Filters, _parallelProjectionSpace.GetPPSVertJobHandle());
+                _parallelProjectionSpace.UpdatePPSVertJobHandle(jobResult.GetHandle);
             }
         }
 
@@ -67,7 +68,7 @@ namespace net.rs64.TexTransTool.Decal
         public void Dispose()
         {
             _parallelProjectionSpace = null;
-            if (_filteredBit is not null) foreach (var na in _filteredBit) { na.GetResult.Dispose(); }
+            if (_filteredBit is not null) foreach (var na in _filteredBit) { na?.GetResult.Dispose(); }
             _filteredBit = null;
             if (_filteredTriangles is not null) foreach (var na in _filteredTriangles) { na.Dispose(); }
             _filteredTriangles = null;

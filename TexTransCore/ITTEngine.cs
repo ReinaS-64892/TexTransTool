@@ -15,7 +15,7 @@ namespace net.rs64.TexTransCore
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
-    , ITexTransDrivingComputeStorageBuffer
+    , ITexTransDriveStorageBufferHolder
     { }
 
     public interface ITexTransCreateTexture
@@ -62,9 +62,12 @@ namespace net.rs64.TexTransCore
     {
         ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey);
     }
-    public interface ITexTransDrivingComputeStorageBuffer
+
+    public interface ITexTransDriveStorageBufferHolder
     {
-        void MoveStorageBuffer(ITTComputeHandler toHandler, int toID, ITTComputeHandler fromHandler, int fromID);
+        ITTStorageBufferHolder CreateStorageBuffer(int length, bool downloadable = false);
+        ITTStorageBufferHolder UploadToCreateStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged;
+        void TakeToDownloadBuffer<T>(Span<T> dist, ITTStorageBufferHolder takeToFrom) where T : unmanaged;
     }
 
     public interface ITexTransComputeKeyQuery
@@ -107,6 +110,9 @@ namespace net.rs64.TexTransCore
 
         ITTComputeKey TransWarpNone { get; }
         ITTComputeKey TransWarpStretch { get; }
+
+        ITTComputeKey DepthRenderer { get; }
+        ITTComputeKey CullingDepth { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
     public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }

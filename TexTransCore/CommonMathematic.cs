@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransCore
@@ -86,6 +87,15 @@ namespace net.rs64.TexTransCore
         {
             Min = min;
             Max = max;
+        }
+    }
+
+    public static class TTMath
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int NormalizeOf4Multiple(int v)
+        {
+            return v % 4 is not 0 ? v + (4 - v % 4) : v;
         }
     }
 }

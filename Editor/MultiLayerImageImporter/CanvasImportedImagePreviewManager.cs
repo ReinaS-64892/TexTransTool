@@ -330,6 +330,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         , ITexTransCreateTexture
         , ITexTransRenderTextureIO
         , ITexTransRenderTextureUploadToCreate
+        , ITexTransDriveStorageBufferHolder
         {
             var needResizing = Math.Max(importedImage.CanvasDescription.Width, importedImage.CanvasDescription.Height) > 1024;
             using var loadRt = ttce4u.CreateRenderTexture(importedImage.CanvasDescription.Width, importedImage.CanvasDescription.Height);

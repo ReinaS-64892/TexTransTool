@@ -10,9 +10,14 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class TransMappingUtility
     {
-        // Vector4 の Span を愚直に作ると事故るので気を付けて...
         public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
+        {
+            engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons, out var buf);
+            buf.Dispose();
+        }
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons, out ITTStorageBufferHolder transFromPolygonBuffer)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
@@ -41,19 +46,25 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
             var polygonCount = (uint)(transFromPolygons.Length / 3);
-            computeHandler.UploadStorageBuffer<TTVector4>(fromPolygonsID, transFromPolygons);
-            computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, transToPolygons);
+            engine.UploadStorageBuffer(computeHandler, fromPolygonsID, transFromPolygons);
+            engine.UploadStorageBuffer(computeHandler, toPolygonID, transToPolygons);
 
             computeHandler.Dispatch(polygonCount, 1, 1);// MaxDistance を 0 にして三角形の内側を絶対に塗る。
 
-            if (transMappingHolder.MaxDistance <= 0.0001) { return; }
+            if (transMappingHolder.MaxDistance <= 0.0001)
+            {
+                transFromPolygonBuffer = computeHandler.TakeBuffer(fromPolygonsID)!;
+                return;
+            }
 
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
             computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
             computeHandler.Dispatch(polygonCount, 1, 2); // 通常のパディング生成、z が 2 なのは並列による競合の緩和のため、完ぺきな解決手段があるなら欲しいものだ。
+
+            transFromPolygonBuffer = computeHandler.TakeBuffer(fromPolygonsID)!;
         }
         public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             if (transMappingHolder.MaxDistance <= 0.0001) { engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons); return; }
             using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
@@ -165,8 +176,8 @@ namespace net.rs64.TexTransCore.TransTexture
                 }
                 if (dispatchPolygonCount == 0) { break; }
 
-                computeHandler.UploadStorageBuffer<TTVector4>(fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
-                computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
+                engine.UploadStorageBuffer(computeHandler, fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
+                engine.UploadStorageBuffer(computeHandler, toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
 
                 computeHandler.Dispatch((uint)dispatchPolygonCount, 1, 1);
             }

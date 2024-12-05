@@ -20,8 +20,10 @@ namespace net.rs64.TexTransCore
         /// </summary>
         int NameToID(string name);
         void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
-        void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged;
-        void AllocateStorageBuffer(int id,int bufferLen);
+
+        void MoveBuffer(int id, ITTStorageBufferHolder bufferHolder);
+        ITTStorageBufferHolder? TakeBuffer(int id);
+
         void SetTexture(int id, ITTRenderTexture tex);
     }
 
@@ -32,6 +34,25 @@ namespace net.rs64.TexTransCore
         {
             var (x, y, _) = computeHandler.WorkGroupSize;
             computeHandler.Dispatch((uint)((texture.Width + (x - 1)) / x), (uint)((texture.Hight + (y - 1)) / y), 1);
+        }
+        public static void DispatchWithSize(this ITTComputeHandler computeHandler, (int x, int y) size)
+        {
+            var (x, y, _) = computeHandler.WorkGroupSize;
+            computeHandler.Dispatch((uint)((size.x + (x - 1)) / x), (uint)((size.y + (y - 1)) / y), 1);
+        }
+
+        public static void UploadStorageBuffer<TTCE, T>(this TTCE engine, ITTComputeHandler computeHandler, int id, Span<T> data, bool downloadable = false)
+        where TTCE : ITexTransDriveStorageBufferHolder
+        where T : unmanaged
+        {
+            using var storageHolder = engine.UploadToCreateStorageBuffer(data, downloadable);
+            computeHandler.MoveBuffer(id, storageHolder);
+        }
+        public static void AllocateStorageBuffer<TTCE>(this TTCE engine, ITTComputeHandler computeHandler, int id, int dataLength, bool downloadable = false)
+        where TTCE : ITexTransDriveStorageBufferHolder
+        {
+            using var storageHolder = engine.CreateStorageBuffer(dataLength, downloadable);
+            computeHandler.MoveBuffer(id, storageHolder);
         }
     }
 }
