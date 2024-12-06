@@ -1,0 +1,90 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    uint2 DepthMapSize;
+
+    uint CullingMode;
+    float MaxDistance;
+
+    float DepthOffset;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+    float AlimentPadding3;
+}
+
+RWStructuredBuffer<uint> DepthBuffer;
+
+RWTexture2D<float2> TransMap;
+RWTexture2D<float2> AdditionalDataMap;
+RWTexture2D<float> DistanceMap;
+
+float DepthSample(uint2 pos)
+{
+    uint index = (DepthMapSize.x * pos.y) + pos.x;
+    return DepthBuffer[index] / 4294967295.0;
+}
+float DepthSampleBilinear(float2 pos)
+{
+    float2 offsetPos = pos - float2(0.5,0.5);
+    uint2 ceilPos = ceil(offsetPos);
+    uint2 floorPos = floor(offsetPos);
+
+    float upCol = lerp(DepthSample(uint2(floorPos.x, ceilPos.y)), DepthSample(uint2(ceilPos.x, ceilPos.y)), frac(offsetPos.x));
+    float downCol = lerp(DepthSample(uint2(floorPos.x, floorPos.y)), DepthSample(uint2(ceilPos.x, floorPos.y)), frac(offsetPos.x));
+
+    return lerp(downCol, upCol, frac(offsetPos.y));
+}
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float2 transPos = TransMap[id.xy];
+    float transPosDepthF = 1 - AdditionalDataMap[id.xy].x;
+
+    float2 transPosMapScale = transPos * DepthMapSize;
+    // uint transPosDepth = 4294967295.0 - uint(transPosDepthF * 4294967295.0);
+
+
+    if (transPosDepthF < 0
+    || transPosDepthF > 1
+    || transPosMapScale.x < 0
+    || transPosMapScale.x >= float(DepthMapSize.x)
+    || transPosMapScale.y < 0
+    || transPosMapScale.y >= float(DepthMapSize.y) ) {
+        DistanceMap[id.xy] = MaxDistance + 0.01;
+        return;
+    }
+    // float depth = DepthBuffer[(DepthMapSize.x * uint(transPosMapScale.y)) + uint(transPosMapScale.x)] / 4294967295.0;
+    float depth = DepthSampleBilinear(transPosMapScale);
+    depth -= DepthOffset;
+
+    switch (CullingMode)
+    {
+        case 0:
+        {
+            if(transPosDepthF < depth)
+            {
+                DistanceMap[id.xy] = MaxDistance + 0.01;
+            }
+            break;
+        }
+        case 1:
+        {
+            if(transPosDepthF >= depth)
+            {
+                DistanceMap[id.xy] = MaxDistance + 0.01;
+            }
+            break;
+        }
+    }
+}

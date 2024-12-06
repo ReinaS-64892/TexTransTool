@@ -1,16 +1,23 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransCore.TransTexture
 {
     public static class TransMappingUtility
     {
-        // Vector4 の Span を愚直に作ると事故るので気を付けて...
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<Vector4> transFromPolygons)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
+        {
+            using var buf = engine.UploadStorageBuffer(transFromPolygons);
+            engine.WriteMapping(transMappingHolder, transToPolygons, buf);
+        }
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, ITTStorageBuffer transFromPolygonBuffer)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
@@ -38,20 +45,23 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
             computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            var polygonCount = (uint)(transFromPolygons.Length / 3);
-            computeHandler.UploadStorageBuffer<Vector4>(fromPolygonsID, transFromPolygons);
-            computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, transToPolygons);
+            var polygonCount = (uint)(transToPolygons.Length / 3);
+            computeHandler.SetStorageBuffer(fromPolygonsID, transFromPolygonBuffer);
+            using var transToPolygonStorage = engine.SetStorageBufferFromUpload(computeHandler, toPolygonID, transToPolygons);
 
             computeHandler.Dispatch(polygonCount, 1, 1);// MaxDistance を 0 にして三角形の内側を絶対に塗る。
+
+            if (transMappingHolder.MaxDistance <= 0.0001) { return; }
 
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
             computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
             computeHandler.Dispatch(polygonCount, 1, 2); // 通常のパディング生成、z が 2 なのは並列による競合の緩和のため、完ぺきな解決手段があるなら欲しいものだ。
         }
-        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<Vector4> transFromPolygons)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
-            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingHighQuality);
+            if (transMappingHolder.MaxDistance <= 0.0001) { engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons); return; }
+            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
 
@@ -77,12 +87,98 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
             computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            computeHandler.UploadStorageBuffer<Vector4>(fromPolygonsID, transFromPolygons);
-            computeHandler.UploadStorageBuffer<Vector2>(toPolygonID, transToPolygons);
+            var polygonCount = transFromPolygons.Length / 3;
 
-            var polygonCount = (uint)(transFromPolygons.Length / 3);
-            var (dX, dY, _) = computeHandler.WorkGroupSize;
-            computeHandler.Dispatch((uint)((transMappingHolder.TargetSize.x + (dX - 1)) / dX), (uint)((transMappingHolder.TargetSize.y + (dY - 1)) / dY), polygonCount);
+            var bufferF = new TTVector4[transFromPolygons.Length];
+            var bufferT = new Vector2[transToPolygons.Length];
+
+            var need = new BitArray(polygonCount, true);
+            var boxBuffer = new TTVector4[polygonCount];
+
+
+            var boxCache = new TTVector4[polygonCount];
+            var xP = 1f / transMappingHolder.TargetSize.x * transMappingHolder.MaxDistance;
+            var yP = 1f / transMappingHolder.TargetSize.y * transMappingHolder.MaxDistance;
+            for (var i = 0; need.Length > i; i += 1)
+            {
+                var rI = i * 3;
+                var tp = transToPolygons.Slice(rI, 3);
+
+                TTVector4 box = new TTVector4(tp[0].X, tp[0].Y, tp[0].X, tp[0].Y);
+                for (var t = 1; tp.Length > t; t += 1)
+                {
+                    box.X = Math.Min(box.X, tp[t].X);
+                    box.Y = Math.Min(box.Y, tp[t].Y);
+                    box.Z = Math.Max(box.Z, tp[t].X);
+                    box.W = Math.Max(box.W, tp[t].Y);
+                }
+                box.X -= xP;
+                box.Y -= yP;
+                box.Z += xP;
+                box.W += yP;
+                boxCache[i] = box;
+            }
+
+
+            while (true)
+            {
+                var dispatchPolygonCount = 0;
+                for (var i = 0; need.Length > i; i += 1)
+                {
+                    if (need[i] is false) { continue; }
+
+                    var rI = i * 3;
+                    var tp = transToPolygons.Slice(rI, 3);
+
+                    var box = boxCache[i];
+                    var boxHash = box.GetHashCode();
+                    var polyHash = HashCode.Combine(tp[0], tp[1], tp[2]);
+                    var conflict = false;
+                    for (var bi = 0; dispatchPolygonCount > bi; bi += 1)
+                    {
+                        conflict = BoxIntersect(boxBuffer[bi], box);
+                        if (conflict)
+                        {
+                            var bPoly = bufferT.AsSpan(bi * 3, 3);
+                            if (
+                                boxBuffer[bi].GetHashCode() == boxHash && boxBuffer[bi].Equals(box)
+                                 && polyHash == HashCode.Combine(bPoly[0], bPoly[1], bPoly[2])
+                                 && tp[0] == bPoly[0] && tp[1] == bPoly[1] && tp[2] == bPoly[2]
+                            )
+                            {
+                                need[i] = false;//完全一致しているポリゴンは見なかったことにします！
+                            }
+                            break;
+                        }
+                    }
+
+                    if (conflict) { continue; }
+
+                    var wI = dispatchPolygonCount * 3;
+
+                    var bf = bufferF.AsSpan(wI, 3);
+                    var bt = bufferT.AsSpan(wI, 3);
+
+                    var fp = transFromPolygons.Slice(rI, 3);
+
+                    fp.CopyTo(bf);
+                    tp.CopyTo(bt);
+
+                    boxBuffer[dispatchPolygonCount] = box;
+                    need[i] = false;
+                    dispatchPolygonCount += 1;
+                }
+                if (dispatchPolygonCount == 0) { break; }
+
+                using var fpBuf = engine.SetStorageBufferFromUpload(computeHandler, fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
+                using var tpBuf = engine.SetStorageBufferFromUpload(computeHandler, toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
+
+                computeHandler.Dispatch((uint)dispatchPolygonCount, 1, 1);
+            }
+        }
+        static bool BoxIntersect(TTVector4 a, TTVector4 b)
+        {
+            return (a.X <= b.Z && a.Z >= b.X) && (a.Y <= b.W && a.W >= b.Y);
         }
         public static void TransWrite<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, TTRenderTexWithDistance dist, ITTRenderTexture source, ITTSamplerKey samplerKey)
         where TTCE : ITexTransComputeKeyQuery

@@ -1,8 +1,13 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using Color = net.rs64.TexTransCore.Color;
 
 namespace net.rs64.TexTransCoreEngineForUnity
@@ -11,6 +16,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
@@ -36,6 +42,67 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 case ComputeKeyHolder holder: { return new TTUnityComputeHandler(holder.ComputeShader); }
             }
             throw new ArgumentException();
+        }
+        public ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false)
+        { return new TTUnityComputeHandler.TTUnityStorageBuffer(length, downloadable); }
+        public ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged
+        {
+            var length = data.Length * UnsafeUtility.SizeOf<T>();
+            var paddedLength = TTMath.NormalizeOf4Multiple(length);
+            var holder = new TTUnityComputeHandler.TTUnityStorageBuffer(paddedLength, downloadable);
+            if (paddedLength == length)
+            {
+                unsafe
+                {
+                    fixed (T* ptr = data)
+                    {
+                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
+                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                        holder._buffer!.SetData(na);
+                    }
+                }
+            }
+            {
+                using var na = new NativeArray<byte>(paddedLength, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                MemoryMarshal.Cast<T, byte>(data).CopyTo(na.AsSpan());
+                na.AsSpan()[paddedLength..].Fill(0);
+                holder._buffer!.SetData(na);
+            }
+
+            return holder;
+        }
+
+        public void DownloadBuffer<T>(Span<T> dist, ITTStorageBuffer takeToFrom) where T : unmanaged
+        {
+            var holder = (TTUnityComputeHandler.TTUnityStorageBuffer)takeToFrom;
+
+            if (holder._buffer is null) { throw new NullReferenceException(); }
+            if (holder._downloadable is false) { throw new InvalidOperationException(); }
+
+            var length = dist.Length * UnsafeUtility.SizeOf<T>();
+            var bufLen = holder._buffer.count * holder._buffer.stride;
+
+            if (length == bufLen)
+            {
+                unsafe
+                {
+                    fixed (T* ptr = dist)
+                    {
+                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
+                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                        var request = AsyncGPUReadback.RequestIntoNativeArray(ref na, holder._buffer);
+                        request.WaitForCompletion();
+                    }
+                }
+            }
+            else
+            {
+                var req = AsyncGPUReadback.Request(holder._buffer);
+                req.WaitForCompletion();
+                req.GetData<T>().AsSpan().Slice(0, Math.Min(bufLen, dist.Length)).CopyTo(dist);
+            }
+
+            holder._buffer = null;
         }
 
         public static bool IsLinerRenderTexture = false;//基本的にガンマだ

@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             {
                 using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
 
-                PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, psdBinary.PSDByteArray.AsSpan((int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
+                PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, psdBinary.PSDByteArray.AsSpan((int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
                 ttce.Swizzling(writeTarget, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A);
             }
 

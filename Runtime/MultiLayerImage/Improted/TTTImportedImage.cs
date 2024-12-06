@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         , ITexTransCreateTexture
         , ITexTransRenderTextureIO
         , ITexTransRenderTextureUploadToCreate
+        , ITexTransDriveStorageBufferHolder
         {
             var ppB = EnginUtil.GetPixelParByte(CanvasDescription.ImportedImageFormat, TexTransCoreTextureChannel.RGBA);
             var length = CanvasDescription.Width * CanvasDescription.Height * ppB;

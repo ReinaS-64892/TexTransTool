@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -10,12 +11,12 @@ namespace net.rs64.TexTransCoreEngineForUnity
 {
     internal class TTUnityComputeHandler : ITTComputeHandler
     {
-        ComputeShader _compute;
-        Dictionary<int, GraphicsBuffer> _buffers;
+        internal ComputeShader _compute;
+        internal Dictionary<int, GraphicsBuffer> _constantsBuffers;
         public TTUnityComputeHandler(ComputeShader compute)
         {
             _compute = compute;
-            _buffers = new();
+            _constantsBuffers = new();
         }
         public (uint x, uint y, uint z) WorkGroupSize
         {
@@ -41,40 +42,49 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged
         {
-            if (_buffers.ContainsKey(id) is false)
+            if (_constantsBuffers.ContainsKey(id) is false)
             {
-                var length = bytes.Length * UnsafeUtility.SizeOf<T>();
-                if ((length % 4) is not 0) { length += 4 - length % 4; }
-                _buffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Constant, 1, length);
+                var length = TTMath.NormalizeOf4Multiple(bytes.Length * UnsafeUtility.SizeOf<T>());
+                _constantsBuffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Constant, 1, length);
             }
-            using var na = new NativeArray<byte>(_buffers[id].stride, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            using var na = new NativeArray<byte>(_constantsBuffers[id].stride, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
-            _buffers[id].SetData(na);
+            _constantsBuffers[id].SetData(na);
 
-            _compute.SetConstantBuffer(id, _buffers[id], 0, _buffers[id].stride);
+            _compute.SetConstantBuffer(id, _constantsBuffers[id], 0, _constantsBuffers[id].stride);
         }
-        public void UploadStorageBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged
+        public void SetStorageBuffer(int id, ITTStorageBuffer bufferHolder)
         {
-            if (_buffers.ContainsKey(id)) { _buffers[id].Dispose(); _buffers.Remove(id); }
-            var length = bytes.Length * UnsafeUtility.SizeOf<T>();
-            if ((length % 4) is not 0) { length += 4 - length % 4; }
-            _buffers[id] = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length / 4, 4);
-            using var na = new NativeArray<byte>(length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-
-            MemoryMarshal.Cast<T, byte>(bytes).CopyTo(na.AsSpan());
-            _buffers[id].SetData(na);
-
-            _compute.SetBuffer(0, id, _buffers[id]);
+            var unitySBH = (TTUnityStorageBuffer)bufferHolder;
+            if (unitySBH._buffer is null) { throw new NullReferenceException(); }
+            _compute.SetBuffer(0, id, unitySBH._buffer);
         }
-
-
-
 
         public void Dispose()
         {
-            foreach (var buf in _buffers.Values) { buf.Dispose(); }
-            _buffers.Clear();
+            foreach (var buf in _constantsBuffers.Values) { buf.Dispose(); }
+            _constantsBuffers.Clear();
+        }
+
+#nullable enable
+        internal class TTUnityStorageBuffer : ITTStorageBuffer
+        {
+            internal GraphicsBuffer? _buffer;
+            public bool Owned => _buffer is not null;
+            public string Name { get; set; } = "TTUnityStorageBufferHolder";
+            internal bool _downloadable;
+
+            public TTUnityStorageBuffer(int length, bool downloadable)
+            {
+                _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TTMath.NormalizeOf4Multiple(length) / 4, 4);
+                _downloadable = downloadable;
+            }
+            public void Dispose()
+            {
+                _buffer?.Dispose();
+                _buffer = null;
+            }
         }
 
     }

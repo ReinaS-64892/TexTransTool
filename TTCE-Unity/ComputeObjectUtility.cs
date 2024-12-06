@@ -39,12 +39,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
             public ITTSamplerKey DefaultSampler { get; private set; }
 
+
             public ITTComputeKey TransMapping { get; private set; }
-            public ITTComputeKey TransMappingHighQuality { get; private set; }
 
             public ITTComputeKey TransWarpNone { get; private set; }
             public ITTComputeKey TransWarpStretch { get; private set; }
 
+            public ITTComputeKey DepthRenderer { get; private set; }
+            public ITTComputeKey CullingDepth { get; private set; }
 
             public UnityStandardComputeKeyHolder()
             {
@@ -65,9 +67,12 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 DefaultSampler = SamplerComputeShaders["AverageSampling"];
 
                 TransMapping = GeneralComputeObjects[nameof(TransMapping)];
-                TransMappingHighQuality = GeneralComputeObjects[nameof(TransMappingHighQuality)];
+
                 TransWarpNone = GeneralComputeObjects[nameof(TransWarpNone)];
                 TransWarpStretch = GeneralComputeObjects[nameof(TransWarpStretch)];
+
+                DepthRenderer = GeneralComputeObjects[nameof(DepthRenderer)];
+                CullingDepth = GeneralComputeObjects[nameof(CullingDepth)];
             }
         }
 

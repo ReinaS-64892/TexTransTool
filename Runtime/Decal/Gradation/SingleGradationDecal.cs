@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool.Decal
         }
     }
 
-    internal class SingleGradientSpace : IConvertSpace
+    internal class SingleGradientSpace : ISpaceConverter
     {
         Matrix4x4 _world2LocalMatrix;
         MeshData _meshData;
@@ -105,6 +105,8 @@ namespace net.rs64.TexTransTool.Decal
 
         internal MeshData MeshData => _meshData;
         internal JobResult<NativeArray<Vector2>> UV => _uv;
+
+        public bool AllowDepth => false;
 
         public SingleGradientSpace(Matrix4x4 w2l)
         {
@@ -124,7 +126,7 @@ namespace net.rs64.TexTransTool.Decal
             _uv = new(uvNa, convertJob.Schedule(uvNa.Length, 32));
         }
 
-        public NativeArray<Vector2> OutPutUV()
+        public NativeArray<Vector2> UVOut()
         {
             if (_uv == null) { return default; }
             return _uv.GetResult;
@@ -135,6 +137,8 @@ namespace net.rs64.TexTransTool.Decal
             _uv.GetResult.Dispose();
             _uv = null;
         }
+
+        public NativeArray<Vector3> UVOutWithDepth() { throw new NotSupportedException(); }
 
         [BurstCompile]
         struct ConvertJob : IJobParallelFor

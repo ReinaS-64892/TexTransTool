@@ -15,6 +15,7 @@ namespace net.rs64.TexTransCore
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     { }
 
     public interface ITexTransCreateTexture
@@ -61,6 +62,18 @@ namespace net.rs64.TexTransCore
     {
         ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey);
     }
+
+    public interface ITexTransDriveStorageBufferHolder
+    {
+        ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false);
+        ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged;
+        /// <summary>
+        /// 一度ダウンロードしたら二度と使用できない。
+        /// 関数内で Dispose() が呼ばれる。
+        /// </summary>
+        void DownloadBuffer<T>(Span<T> dist, ITTStorageBuffer takeToFrom) where T : unmanaged;
+    }
+
     public interface ITexTransComputeKeyQuery
     {
         ITexTransStandardComputeKey StandardComputeKey { get; }
@@ -98,10 +111,12 @@ namespace net.rs64.TexTransCore
     public interface ITexTransTransTextureComputeKey
     {
         ITTComputeKey TransMapping { get; }
-        ITTComputeKey TransMappingHighQuality { get; }
 
         ITTComputeKey TransWarpNone { get; }
         ITTComputeKey TransWarpStretch { get; }
+
+        ITTComputeKey DepthRenderer { get; }
+        ITTComputeKey CullingDepth { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
     public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }
