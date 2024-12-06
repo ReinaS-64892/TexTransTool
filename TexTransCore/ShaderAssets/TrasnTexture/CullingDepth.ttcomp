@@ -32,8 +32,7 @@ RWTexture2D<float> DistanceMap;
 float DepthSample(uint2 pos)
 {
     uint index = (DepthMapSize.x * pos.y) + pos.x;
-    double uintMaxD = double(4294967295u);
-    return float(double(DepthBuffer[index]) / uintMaxD);
+    return DepthBuffer[index] / 4294967295.0;
 }
 float DepthSampleBilinear(float2 pos)
 {
@@ -53,8 +52,7 @@ float DepthSampleBilinear(float2 pos)
     float transPosDepthF = 1 - AdditionalDataMap[id.xy].x;
 
     float2 transPosMapScale = transPos * DepthMapSize;
-    double uintMaxD = double(4294967295u);
-    // uint transPosDepth = 4294967295u - uint(double(transPosDepthF) * uintMaxD);
+    // uint transPosDepth = 4294967295.0 - uint(transPosDepthF * 4294967295.0);
 
 
     if (transPosDepthF < 0
@@ -66,7 +64,7 @@ float DepthSampleBilinear(float2 pos)
         DistanceMap[id.xy] = MaxDistance + 0.01;
         return;
     }
-    // float depth = float(double(DepthBuffer[(DepthMapSize.x * uint(transPosMapScale.y)) + uint(transPosMapScale.x)]) / uintMaxD);
+    // float depth = DepthBuffer[(DepthMapSize.x * uint(transPosMapScale.y)) + uint(transPosMapScale.x)] / 4294967295.0;
     float depth = DepthSampleBilinear(transPosMapScale);
     depth -= DepthOffset;
 

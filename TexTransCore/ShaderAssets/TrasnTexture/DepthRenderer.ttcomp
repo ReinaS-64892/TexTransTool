@@ -66,8 +66,7 @@ float4 MinMax(float2 tri[3])
             float depth = CalculatePositionFromBarycentric(depthPolygon, toBC).x;
             if (depth < 0 || depth > 1) { continue; }
 
-            double uintMaxD = double(4294967295u);
-            uint intDepth = 4294967295u - uint(double(depth) * uintMaxD);
+            uint intDepth = 4294967295.0 - uint(depth * 4294967295.0);
 
             uint index = (DepthMapSize.x * posIndex.y) + posIndex.x;
             InterlockedMax(DepthBuffer[index], intDepth);
