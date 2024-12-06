@@ -528,7 +528,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (atlasShaderTexture.Texture is Texture2D tex) texManage.PreloadOriginalTexture(tex);
                 }
             }
-            
+
             bakePropMaxValue = null;
             var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
@@ -679,42 +679,42 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 switch (atlasTex)
                 {
                     default:
-                    {
-                        var originSize = atlasTex.width;
-                        Profiler.BeginSample("TTTRt.G");
-                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                        Profiler.EndSample();
-                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                        rt.CopyFilWrap(atlasTex);
-                        rt.filterMode = FilterMode.Trilinear;
-                        Profiler.BeginSample("Graphics.Blit");
-                        Graphics.Blit(atlasTex, rt);
-                        Profiler.EndSample();
-                        return rt;
-                    }
+                        {
+                            var originSize = atlasTex.width;
+                            Profiler.BeginSample("TTTRt.G");
+                            var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                            Profiler.EndSample();
+                            rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                            rt.CopyFilWrap(atlasTex);
+                            rt.filterMode = FilterMode.Trilinear;
+                            Profiler.BeginSample("Graphics.Blit");
+                            Graphics.Blit(atlasTex, rt);
+                            Profiler.EndSample();
+                            return rt;
+                        }
                     case Texture2D atlasTex2D:
-                    {
-                        Profiler.BeginSample("GetOriginalTextureSize");
-                        var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
-                        Profiler.EndSample();
-                        
-                        Profiler.BeginSample("TTTRt.G");
-                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                        Profiler.EndSample();
-                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                        rt.CopyFilWrap(atlasTex);
-                        rt.filterMode = FilterMode.Trilinear;
-                        Profiler.BeginSample("Graphics.Blit");
-                        texManage.WriteOriginalTexture(atlasTex2D, rt);
-                        Profiler.EndSample();
-                        return rt;
-                    }
+                        {
+                            Profiler.BeginSample("GetOriginalTextureSize");
+                            var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                            Profiler.EndSample();
+
+                            Profiler.BeginSample("TTTRt.G");
+                            var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                            Profiler.EndSample();
+                            rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                            rt.CopyFilWrap(atlasTex);
+                            rt.filterMode = FilterMode.Trilinear;
+                            Profiler.BeginSample("Graphics.Blit");
+                            texManage.WriteOriginalTexture(atlasTex2D, rt);
+                            Profiler.EndSample();
+                            return rt;
+                        }
 
                 }
             }
             finally
             {
-                
+
                 Profiler.EndSample();
             }
         }
@@ -925,7 +925,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (option.ForceSetTexture is false && tex == null) { continue; }
                 if (tex is not Texture2D && tex is not RenderTexture && tex is not null) { continue; }
-                if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
+                if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false && TTRt2.IsTemp(rt) is false) { continue; }
 
                 if (option.UnsetTextures is not null && option.UnsetTextures.Contains(tex)) { continue; }
 
