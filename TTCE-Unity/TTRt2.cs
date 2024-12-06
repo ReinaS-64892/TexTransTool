@@ -56,6 +56,9 @@ namespace net.rs64.TexTransCoreEngineForUnity
             state.IsUsed = false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsTemp(RenderTexture rt) { return s_reverseTempRtState.ContainsKey(rt); }
+
         static void ReleaseUpdate()
         {
             s_releaseFrameCount += 1;
