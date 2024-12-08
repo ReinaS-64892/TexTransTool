@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Utils
 
             if (!AssetDatabase.Contains(firstTexture)) { return origTexTask; }
 
-            var path = AssetDatabase.GetAssetPath(firstTexture);
+            var path = @"\\?\" + Path.GetFullPath(AssetDatabase.GetAssetPath(firstTexture));
 
             if (!(Path.GetExtension(path) == ".png" || Path.GetExtension(path) == ".jpeg" ||
                   Path.GetExtension(path) == ".jpg"))
