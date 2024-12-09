@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Utils
 
             var path = @"\\?\" + Path.GetFullPath(AssetDatabase.GetAssetPath(firstTexture));
 
-            if (Path.GetExtension(path) is not ".png" or ".jpeg" or ".jpg")
+            if (Path.GetExtension(path) is not (".png" or ".jpeg" or ".jpg"))
             {
                 return origTexTask;
             }
