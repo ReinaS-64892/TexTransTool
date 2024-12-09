@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - ファイルパスが非常に長いテクスチャーのソース画像にアクセスしようとしたとき GDI+ からの例外が発生する問題を修正しました (#742)
+- AtlasTexture の lilToon 対応にて MatCap 関連が正しく処理できていなかった問題を修正 (#743)
 
 ## [v0.8.8](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...v0.8.8) - 2024-12-01
 
