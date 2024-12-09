@@ -754,7 +754,7 @@ MonoBehaviour:
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseMatCap2nd
+        PropertyName: _UseMatCap
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881830
@@ -768,7 +768,7 @@ MonoBehaviour:
       type: {class: IntPropertyValueGreater, ns: net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject,
         asm: net.rs64.tex-trans-tool.runtime}
       data:
-        PropertyName: _UseMatCap
+        PropertyName: _UseMatCap2nd
         ComparerValue: 0
         Less: 0
     - rid: 7150698705470881832
