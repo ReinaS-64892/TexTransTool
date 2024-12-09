@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.8...HEAD)
 
+### Fixed
+
+- ファイルパスが非常に長いテクスチャーのソース画像にアクセスしようとしたとき GDI+ からの例外が発生する問題を修正しました (#742)
+
 ## [v0.8.8](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...v0.8.8) - 2024-12-01
+
+### Added
+
+- NDMF v1.6.0 にて追加された AssetSaver API に対応 (#731)
 
 ## [v0.8.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...v0.8.7) - 2024-11-23
 
