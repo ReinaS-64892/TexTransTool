@@ -50,6 +50,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             var length = data.Length * UnsafeUtility.SizeOf<T>();
             var paddedLength = TTMath.NormalizeOf4Multiple(length);
             var holder = new TTUnityComputeHandler.TTUnityStorageBuffer(paddedLength, downloadable);
+#if UNITY_EDITOR
             if (paddedLength == length)
             {
                 unsafe
@@ -62,6 +63,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
                     }
                 }
             }
+            else
+#endif
             {
                 using var na = new NativeArray<byte>(paddedLength, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
                 MemoryMarshal.Cast<T, byte>(data).CopyTo(na.AsSpan());
@@ -82,6 +85,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             var length = dist.Length * UnsafeUtility.SizeOf<T>();
             var bufLen = holder._buffer.count * holder._buffer.stride;
 
+#if UNITY_EDITOR
             if (length == bufLen)
             {
                 unsafe
@@ -96,6 +100,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 }
             }
             else
+#endif
             {
                 var req = AsyncGPUReadback.Request(holder._buffer);
                 req.WaitForCompletion();
