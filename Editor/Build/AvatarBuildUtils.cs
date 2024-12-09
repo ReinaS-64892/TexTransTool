@@ -5,6 +5,7 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.Build
 {
@@ -31,6 +32,7 @@ namespace net.rs64.TexTransTool.Build
         public void ApplyFor(TexTransPhase texTransPhase)
         {
             if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), "", 0f);
+            Profiler.BeginSample("ApplyFor-" + texTransPhase);
             var count = 0;
             var timer = new System.Diagnostics.Stopwatch();
             foreach (var domains in _domain2Phase)
@@ -41,19 +43,32 @@ namespace net.rs64.TexTransTool.Build
                 {
                     if (tf.CheckIsActiveBehavior() is false) { continue; }
                     if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), $"{tf.name} - Apply", (float)count / behaviorCount);
+                    Profiler.BeginSample("Apply-" + tf.gameObject.name, tf);
 
                     timer.Restart();
                     ApplyImpl(tf, domain);
                     timer.Stop();
                     count += 1;
                     Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply : {timer.ElapsedMilliseconds}ms");
+                    Profiler.EndSample();
                 }
 
                 if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("MidwayMergeStack", "", 0.0f);
-                if (domain is RenderersDomain rd) { rd.MergeStack(); }
-                if (domain is RenderersDomain.RenderersSubDomain rsd) { rsd.MergeStack(); }
+                if (domain is RenderersDomain rd)
+                {
+                    Profiler.BeginSample("MidwayMergeStack");
+                    rd.MergeStack();
+                    Profiler.EndSample();
+                }
+                if (domain is RenderersDomain.RenderersSubDomain rsd)
+                {
+                    Profiler.BeginSample("MidwayMergeStack");
+                    rsd.MergeStack();
+                    Profiler.EndSample();
+                }
                 if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
             }
+            Profiler.EndSample();
             if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
         }
 

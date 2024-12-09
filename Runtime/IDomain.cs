@@ -5,6 +5,7 @@ using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
+using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool
 {
@@ -18,10 +19,22 @@ namespace net.rs64.TexTransTool
         public IEnumerable<Renderer> EnumerateRenderer();
         ITextureManager GetTextureManager();
 
+        void GetMutable(ref Material material)
+        {
+            if (IsTemporaryAsset(material)) { return; }
+            Profiler.BeginSample("GetMutable-with-Clone", material);
+            var origin = material;
+            material = UnityEngine.Object.Instantiate(material);
+            ReplaceMaterials(new() { { origin, material } }, true);
+            TransferAsset(material);
+            RegisterReplace(origin, material);
+            Profiler.EndSample();
+        }
         bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
     }
     internal interface IAssetSaver
     {
+        bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
         void TransferAsset(UnityEngine.Object asset);
     }
     internal interface IReplaceTracking
