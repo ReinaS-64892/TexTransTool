@@ -124,10 +124,14 @@ namespace net.rs64.TexTransTool
         public void SetTexture(Texture2D target, Texture2D setTex)
         {
             var mats = RendererUtility.GetFilteredMaterials(_renderers);
-            ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
-            RegisterReplace(target, setTex);
+            foreach (var m in mats)
+            {
+                var material = m;
+                (this as IDomain).GetMutable(ref material);
+                MaterialUtility.ReplaceTextureInPlace(material, target, setTex);
+            }
         }
-
+        public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
 
@@ -177,9 +181,6 @@ namespace net.rs64.TexTransTool
             var subIDomain = new RenderersSubDomain(this, subDomainRenderers);
             return subIDomain;
         }
-
-
-
         internal class RenderersSubDomain : AbstractSubDomain<RenderersDomain>
         {
             ImmediateStackManager _textureStacks;

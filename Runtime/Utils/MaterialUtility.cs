@@ -49,6 +49,20 @@ namespace net.rs64.TexTransTool.Utils
             }
             return outPut;
         }
+        public static void ReplaceTextureInPlace<Tex>(this Material mat, Tex target, Tex set)
+        where Tex : Texture
+        {
+            var textures = GetAllTexture(mat);
+            if (textures.ContainsValue(target) is false) { return; }
+
+            foreach (var kvp in textures)
+            {
+                if (kvp.Value == target)
+                {
+                    mat.SetTexture(kvp.Key, set);
+                }
+            }
+        }
         public static void SetTextures<Tex>(this Material targetMat, Dictionary<string, Tex> propAndTextures, Func<Texture, bool> setTargetComparer)
         where Tex : Texture
         {
