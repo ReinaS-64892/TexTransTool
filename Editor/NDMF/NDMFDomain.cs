@@ -1,5 +1,6 @@
 using nadena.dev.ndmf;
 using System;
+using UnityEditor;
 using Object = UnityEngine.Object;
 
 
@@ -7,7 +8,28 @@ namespace net.rs64.TexTransTool.NDMF
 {
     internal class NDMFDomain : AvatarDomain
     {
-        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, false, new AssetSaver(b.AssetContainer)) { }
+        private class NDMFAssetSaver : IAssetSaver
+        {
+            private readonly BuildContext _buildContext;
+            
+            public NDMFAssetSaver(BuildContext buildContext)
+            {
+                _buildContext = buildContext;
+            }
+            
+            public void TransferAsset(Object asset)
+            {
+                if (asset == null || AssetDatabase.Contains(asset)) return;
+                
+                #if NDMF_1_6_0_OR_NEWER
+                _buildContext.AssetSaver.SaveAsset(asset);
+                #else
+                AssetDatabase.AddObjectToAsset(asset, _buildContext.AssetContainer);
+                #endif
+            }
+        }
+        
+        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, false, new NDMFAssetSaver(b)) { }
 
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {

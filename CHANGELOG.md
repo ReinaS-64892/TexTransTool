@@ -5,7 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...HEAD)
+
+## [v0.8.9](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.8...v0.8.9) - 2024-12-09
+
+### Fixed
+
+- ファイルパスが非常に長いテクスチャーのソース画像にアクセスしようとしたとき GDI+ からの例外が発生する問題を修正しました (#742)
+- AtlasTexture の lilToon 対応にて MatCap 関連が正しく処理できていなかった問題を修正 (#743)
+
+## [v0.8.8](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.7...v0.8.8) - 2024-12-01
+
+### Added
+
+- NDMF v1.6.0 にて追加された AssetSaver API に対応 (#731)
 
 ### Added
 
@@ -44,6 +57,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Decal系で対象となるレンダラーに マテリアルスロット数 が サブメッシュ数 よりも少ないレンダラーが存在する場合に例外が発生する問題を修正 (#709)
+
+### Added
+
+- NDMF v1.6.0 にて追加された AssetSaver API に対応 (#731)
 
 ## [v0.8.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.2...v0.8.3) - 2024-10-30
 
