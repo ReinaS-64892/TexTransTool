@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
@@ -74,6 +75,17 @@ namespace net.rs64.TexTransTool.Decal
             {
                 _jobHandle.Complete();
                 return _combinedTriangleToSubmeshIndexAndOffset;
+            }
+        }
+
+        private CalculateAABB _calcAABB;
+        internal AABB? _axisAlignedBoundingBox;
+        internal AABB AxisAlignedBoundingBox
+        {
+            get
+            {
+                if (_axisAlignedBoundingBox is null) { _jobHandle.Complete(); _axisAlignedBoundingBox = _calcAABB.AABB; }
+                return _axisAlignedBoundingBox.Value;
             }
         }
 
@@ -167,6 +179,14 @@ namespace net.rs64.TexTransTool.Decal
                 jobHandle = JobHandle.CombineDependencies(jobHandle, copyHandle);
                 combinedOffset += indexCount / 3;
             }
+
+            _calcAABB = new CalculateAABB()
+            {
+                PositionBuffer = _vertices,
+                AABB = new AABB(),
+            };
+
+            jobHandle = _calcAABB.Schedule(jobHandle);
 
             _jobHandle = jobHandle;
             _destroyJobHandle = jobHandle;
@@ -289,7 +309,39 @@ namespace net.rs64.TexTransTool.Decal
                 PositionBuffer[index] = WorldSpaceTransform.MultiplyPoint3x4(PositionBuffer[index]);
             }
         }
+        [BurstCompile]
+        struct CalculateAABB : IJob
+        {
+            [ReadOnly] public NativeArray<Vector3> PositionBuffer;
+            public AABB AABB;
+            public void Execute()
+            {
+                if (PositionBuffer.Length > 0) { AABB.Max = AABB.Min = PositionBuffer[0]; }
+                for (var i = 0; PositionBuffer.Length > i; i += 1)
+                {
+                    AABB.Min.x = Mathf.Min(AABB.Min.x, PositionBuffer[i].x);
+                    AABB.Min.y = Mathf.Min(AABB.Min.x, PositionBuffer[i].y);
+                    AABB.Min.z = Mathf.Min(AABB.Min.x, PositionBuffer[i].z);
+                    AABB.Max.x = Mathf.Max(AABB.Max.x, PositionBuffer[i].x);
+                    AABB.Max.y = Mathf.Max(AABB.Max.x, PositionBuffer[i].y);
+                    AABB.Max.z = Mathf.Max(AABB.Max.x, PositionBuffer[i].z);
+                }
+            }
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct AABB
+        {
+            public Vector3 Min;
+            public Vector3 Max;
 
+            internal bool IsIntersect(AABB other)
+            {
+                var v = Min.x <= other.Max.x && Max.x >= other.Min.x;
+                v &= Min.y <= other.Max.y && Max.y >= other.Min.y;
+                v &= Min.z <= other.Max.z && Max.z >= other.Min.z;
+                return v;
+            }
+        }
         internal List<Vector3> VertexList => Vertices.Memo(arr => arr.ToList());
         internal List<Vector2> UVList => VertexUV.Memo(arr => arr.ToList());
         internal List<List<TriangleIndex>> TrianglesSubMeshList

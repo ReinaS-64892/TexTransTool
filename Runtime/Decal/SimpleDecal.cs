@@ -19,8 +19,8 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
+        public RendererSelectMode SelectMode;
         public List<Renderer> TargetRenderers = new List<Renderer> { null };
-        public bool MultiRendererMode = false;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
 
         public UnityEngine.Color Color = UnityEngine.Color.white;
@@ -37,6 +37,9 @@ namespace net.rs64.TexTransTool.Decal
         public bool DepthInvert;
         internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
 
+        #region V5SaveData
+        public bool MultiRendererMode = false;
+        #endregion V5SaveData
         #region V3SaveData
         [Obsolete("V3SaveData", true)][FormerlySerializedAs("PolygonCaling")][SerializeField] internal PolygonCulling PolygonCulling = PolygonCulling.Vertex;
         [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
@@ -74,14 +77,14 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var matAndTex in decalCompiledTextures)
             {
-                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), matAndTex.Value.Texture, blKey);
+                domain.AddTextureStack(matAndTex.Key, matAndTex.Value.Texture, blKey);
             }
 
             if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
             foreach (var t in decalCompiledTextures.Values) { t.Dispose(); }
         }
         [ExpandTexture2D] public Texture2D DecalTexture;
-        internal Dictionary<Material, TTRenderTexWithDistance> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
+        internal Dictionary<Texture, TTRenderTexWithDistance> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
         {
             var ttce = domain.GetTexTransCoreEngineForUnity();
             ITTRenderTexture mulDecalTexture = null;
@@ -119,7 +122,7 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.HighQualityPadding = HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
 
-                var decalCompiledRenderTextures = new Dictionary<Material, TTRenderTexWithDistance>();
+                var decalCompiledRenderTextures = new Dictionary<Texture, TTRenderTexWithDistance>();
                 domain.LookAt(targetRenderers);
                 foreach (var renderer in targetRenderers)
                 {

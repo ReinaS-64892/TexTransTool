@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.HighQualityPadding = HighQualityPadding;
 
 
-            var writeable = new Dictionary<Material, TTRenderTexWithDistance>();
+            var writeable = new Dictionary<Texture, TTRenderTexWithDistance>();
             decalContext.GenerateKey(writeable, nowTargetMat);
             var blKey = ttce.QueryBlendKey(BlendTypeKey);
 
@@ -68,8 +68,7 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.WriteDecalTexture(writeable, renderer, gradTex);
             }
 
-            foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key.GetTexture(TargetPropertyName), m2rt.Value.Texture, blKey); }
-
+            foreach (var m2rt in writeable) { domain.AddTextureStack(m2rt.Key, m2rt.Value.Texture, blKey); }
             foreach (var w in writeable) { w.Value.Dispose(); }
         }
 

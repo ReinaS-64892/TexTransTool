@@ -44,6 +44,15 @@ msgstr "(NDMF) Disable {0} Preview"
 msgid "Common:ndmf:EnableThisComponentPhasePreview"
 msgstr "(NDMF) Enable {0} Preview"
 
+msgid "Common:RendererSelectMode"
+msgstr "RendererSelectMode"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "Auto"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "Manual"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
