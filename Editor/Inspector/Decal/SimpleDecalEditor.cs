@@ -80,8 +80,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
+            var sSelectMode = thisSObject.FindProperty("SelectMode");
             var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
             var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
+            EditorGUILayout.PropertyField(sSelectMode, "Common:RendererSelectMode".Glc());
             TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
             EditorGUILayout.PropertyField(sMultiRendererMode, "CommonDecal:prop:MultiRendererMode".Glc());
 

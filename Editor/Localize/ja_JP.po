@@ -44,6 +44,15 @@ msgstr "(NDMF) {0} のプレビューを無効化する"
 msgid "Common:ndmf:EnableThisComponentPhasePreview"
 msgstr "(NDMF) {0} のプレビューを有効化する"
 
+msgid "Common:RendererSelectMode"
+msgstr "レンダラー選択モード"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "自動"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "手動"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
