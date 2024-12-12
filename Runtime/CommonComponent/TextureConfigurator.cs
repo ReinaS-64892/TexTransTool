@@ -92,13 +92,13 @@ namespace net.rs64.TexTransTool
                     newTexture2D = tmpRt.CopyTexture2D();
                 }
             }
-
+            newTexture2D.name = targetTex2D.name + "_Configured";
             newTexture2D.CopyFilWrap(targetTex2D);
-            domain.ReplaceMaterials(MaterialUtility.ReplaceTextureAll(materials, targetTex2D, newTexture2D));
+            domain.ReplaceTexture(targetTex2D, newTexture2D);
+            domain.TransferAsset(newTexture2D);
 
             if (OverrideCompression) { textureManager.DeferredTextureCompress(CompressionSetting, newTexture2D); }
             else { textureManager.DeferredInheritTextureCompress(targetTex2D, newTexture2D); }
-
         }
 
 
