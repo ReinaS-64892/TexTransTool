@@ -120,18 +120,6 @@ namespace net.rs64.TexTransTool
 
             return preMesh;
         }
-
-        public void SetTexture(Texture2D target, Texture2D setTex)
-        {
-            var mats = RendererUtility.GetFilteredMaterials(_renderers);
-            foreach (var m in mats)
-            {
-                var material = m;
-                (this as IDomain).GetMutable(ref material);
-                MaterialUtility.ReplaceTextureInPlace(material, target, setTex);
-                RegisterReplace(target,setTex);
-            }
-        }
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
@@ -167,7 +155,7 @@ namespace net.rs64.TexTransTool
             foreach (var mergeResult in MergedStacks)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
-                SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
+                this.ReplaceTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
                 TransferAsset(mergeResult.MergeTexture);
             }
         }
