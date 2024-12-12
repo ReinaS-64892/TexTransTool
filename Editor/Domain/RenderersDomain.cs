@@ -129,6 +129,7 @@ namespace net.rs64.TexTransTool
                 var material = m;
                 (this as IDomain).GetMutable(ref material);
                 MaterialUtility.ReplaceTextureInPlace(material, target, setTex);
+                RegisterReplace(target,setTex);
             }
         }
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
