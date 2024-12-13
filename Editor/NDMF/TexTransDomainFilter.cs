@@ -36,12 +36,9 @@ namespace net.rs64.TexTransTool.NDMF
             var avatarRoots = ctx.GetAvatarRoots();
             var allGroups = new List<RenderGroup>();
 
-            AvatarBuildUtils.GetComponent getComponent = (t, g) => ctx.GetComponent(g, t);
-            AvatarBuildUtils.GetComponentsInChildren getComponentsInChildren = (t, g, i) => ctx.GetComponentsInChildren(g, t, i);
-
             foreach (var root in avatarRoots)
             {
-                var domain2PhaseList = AvatarBuildUtils.FindAtPhase(root, getComponent, getComponentsInChildren);
+                var domain2PhaseList = AvatarBuildUtils.FindAtPhase(root, new NDMFGameObjectObservedWaker(ctx));
                 foreach (var d in domain2PhaseList)
                 {
                     var behaviors = d.Behaviour[PreviewTargetPhase];
@@ -186,6 +183,35 @@ namespace net.rs64.TexTransTool.NDMF
                 state &= tf.gameObject.activeSelf;
             }
             return state;
+        }
+
+
+        internal class NDMFGameObjectObservedWaker : AvatarBuildUtils.IGameObjectWakingTool
+        {
+            ComputeContext _context;
+            public NDMFGameObjectObservedWaker(ComputeContext context)
+            {
+                _context = context;
+            }
+            public GameObject GetChilde(GameObject gameObject, int index)
+            {
+                return _context.Observe(gameObject, (g) => g.transform.GetChild(index)?.gameObject);
+            }
+
+            public int GetChilesCount(GameObject gameObject)
+            {
+                return _context.Observe(gameObject, (g) => g.transform.childCount);
+            }
+
+            public C GetComponent<C>(GameObject gameObject) where C : Component
+            {
+                return _context.GetComponent<C>(gameObject);
+            }
+
+            public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
+            {
+                return _context.GetComponentsInChildren<C>(gameObject, includeInactive);
+            }
         }
     }
 }
