@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
@@ -78,13 +79,14 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        private CalculateAABB _calcAABB;
-        internal AABB? _axisAlignedBoundingBox;
-        internal AABB AxisAlignedBoundingBox
+        private NativeArray<TexTransUnityAABB> _calcAABBBuffer;
+        private JobHandle _calcAABBJobHandle;
+        internal TexTransUnityAABB? _axisAlignedBoundingBox;
+        internal TexTransUnityAABB AxisAlignedBoundingBox
         {
             get
             {
-                if (_axisAlignedBoundingBox is null) { _jobHandle.Complete(); _axisAlignedBoundingBox = _calcAABB.AABB; }
+                if (_axisAlignedBoundingBox is null) { _calcAABBJobHandle.Complete(); _axisAlignedBoundingBox = _calcAABBBuffer[0]; }
                 return _axisAlignedBoundingBox.Value;
             }
         }
@@ -133,6 +135,13 @@ namespace net.rs64.TexTransTool.Decal
                 WorldSpaceTransform = worldSpaceTransform
             }.Schedule(vertexCount, 64);
 
+            _calcAABBBuffer = new NativeArray<TexTransUnityAABB>(1, Allocator.TempJob);
+            _calcAABBJobHandle = new CalculateAABB()
+            {
+                PositionBuffer = _vertices,
+                AABB = _calcAABBBuffer,
+            }.Schedule(worldSpaceTransformJob);
+
             int totalTris = 0;
             for (int submesh = 0; submesh < subMeshCount; submesh++)
             {
@@ -180,16 +189,9 @@ namespace net.rs64.TexTransTool.Decal
                 combinedOffset += indexCount / 3;
             }
 
-            _calcAABB = new CalculateAABB()
-            {
-                PositionBuffer = _vertices,
-                AABB = new AABB(),
-            };
-
-            jobHandle = _calcAABB.Schedule(jobHandle);
 
             _jobHandle = jobHandle;
-            _destroyJobHandle = jobHandle;
+            _destroyJobHandle = JobHandle.CombineDependencies(jobHandle, _calcAABBJobHandle);
 
             meshDataArray.Dispose();
         }
@@ -313,33 +315,14 @@ namespace net.rs64.TexTransTool.Decal
         struct CalculateAABB : IJob
         {
             [ReadOnly] public NativeArray<Vector3> PositionBuffer;
-            public AABB AABB;
+            [WriteOnly] public NativeArray<TexTransUnityAABB> AABB;
             public void Execute()
             {
-                if (PositionBuffer.Length > 0) { AABB.Max = AABB.Min = PositionBuffer[0]; }
+                TexTransUnityAABB aabb = default;
+                if (PositionBuffer.Length > 0) { aabb = new(PositionBuffer[0]); }
                 for (var i = 0; PositionBuffer.Length > i; i += 1)
-                {
-                    AABB.Min.x = Mathf.Min(AABB.Min.x, PositionBuffer[i].x);
-                    AABB.Min.y = Mathf.Min(AABB.Min.x, PositionBuffer[i].y);
-                    AABB.Min.z = Mathf.Min(AABB.Min.x, PositionBuffer[i].z);
-                    AABB.Max.x = Mathf.Max(AABB.Max.x, PositionBuffer[i].x);
-                    AABB.Max.y = Mathf.Max(AABB.Max.x, PositionBuffer[i].y);
-                    AABB.Max.z = Mathf.Max(AABB.Max.x, PositionBuffer[i].z);
-                }
-            }
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct AABB
-        {
-            public Vector3 Min;
-            public Vector3 Max;
-
-            internal bool IsIntersect(AABB other)
-            {
-                var v = Min.x <= other.Max.x && Max.x >= other.Min.x;
-                v &= Min.y <= other.Max.y && Max.y >= other.Min.y;
-                v &= Min.z <= other.Max.z && Max.z >= other.Min.z;
-                return v;
+                { aabb.AddVertex(PositionBuffer[i]); }
+                AABB[0] = aabb;
             }
         }
         internal List<Vector3> VertexList => Vertices.Memo(arr => arr.ToList());
@@ -350,6 +333,31 @@ namespace net.rs64.TexTransTool.Decal
         public void AddJobDependency(JobHandle jobHandle)
         {
             _destroyJobHandle = JobHandle.CombineDependencies(_destroyJobHandle, jobHandle);
+        }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct TexTransUnityAABB
+    {
+        public Vector3 Min;
+        public Vector3 Max;
+
+        public TexTransUnityAABB(Vector3 init)
+        {
+            Max = Min = init;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsIntersect(TexTransUnityAABB other)
+        {
+            var v = Min.x <= other.Max.x && Max.x >= other.Min.x;
+            v &= Min.y <= other.Max.y && Max.y >= other.Min.y;
+            v &= Min.z <= other.Max.z && Max.z >= other.Min.z;
+            return v;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddVertex(Vector3 vector3)
+        {
+            Min = Vector3.Min(Min, vector3);
+            Max = Vector3.Max(Max, vector3);
         }
     }
 }

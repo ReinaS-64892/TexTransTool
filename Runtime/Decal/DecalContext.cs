@@ -47,8 +47,6 @@ namespace net.rs64.TexTransTool.Decal
             _trianglesFilter = trianglesFilter;
         }
 
-        internal static MeshData GetToMemorizedMeshData(Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
-
         internal void WriteDecalTexture<KeyTexture>(Dictionary<KeyTexture, TTRenderTexWithDistance> renderTextures, Renderer targetRenderer, ITTRenderTexture sourceTexture)
         where KeyTexture : Texture
         {
@@ -57,7 +55,7 @@ namespace net.rs64.TexTransTool.Decal
             if (targetRenderer.GetMesh() == null) { return; }
 
             Profiler.BeginSample("GetMeshData");
-            var meshData = GetToMemorizedMeshData(targetRenderer);
+            var meshData = targetRenderer.GetToMemorizedMeshData();
             Profiler.EndSample();
 
             Profiler.BeginSample("GetUVs");
@@ -192,5 +190,11 @@ namespace net.rs64.TexTransTool.Decal
         Vertex,
         Edge,
         EdgeAndCenterRay,
+    }
+
+    internal static class DecalContextUtility
+    {
+
+        internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
     }
 }
