@@ -138,7 +138,6 @@ namespace net.rs64.TexTransTool.Decal
         {
             var targetRenderers = GetTargetRenderers(domainRenderers, replaceTracking);
 
-            var modificationTarget = new HashSet<Texture>();
             foreach (var tr in targetRenderers)
             {
                 if (tr is not (SkinnedMeshRenderer or MeshRenderer)) { continue; }
@@ -148,10 +147,10 @@ namespace net.rs64.TexTransTool.Decal
                     if (mat == null) { continue; }
                     var targetTex = mat.HasProperty(TargetPropertyName) ? mat.GetTexture(TargetPropertyName) : null;
                     if (targetTex == null) { continue; }
-                    modificationTarget.Add(targetTex);
+                    yield return tr;
+                    break;
                 }
             }
-            return GetTextureReplacedRange(domainRenderers, modificationTarget);
         }
 
         private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
@@ -173,18 +172,6 @@ namespace net.rs64.TexTransTool.Decal
             }
 
             return targetRenderers;
-        }
-
-        public static IEnumerable<Renderer> GetTextureReplacedRange(IEnumerable<Renderer> domainRenderers, HashSet<Texture> modificationTarget)
-        {
-            var modificationMatHash = new HashSet<Material>();
-            foreach (var mat in RendererUtility.GetFilteredMaterials(domainRenderers))
-            {
-                foreach (var tex in mat.GetAllTexture2D().Values)
-                { if (modificationTarget.Contains(tex)) { modificationMatHash.Add(mat); break; } }
-            }
-
-            return domainRenderers.Where(dr => dr.sharedMaterials.Any(mat => modificationMatHash.Contains(mat)));
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {

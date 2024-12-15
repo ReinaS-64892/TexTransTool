@@ -88,10 +88,8 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var targetMat = GetTargetMaterials(replaceTracking, domainRenderers);
-            var texHash = targetMat.Select(m => m.HasProperty(TargetPropertyName) ? m.GetTexture(TargetPropertyName) : null).Where(t => t != null).ToHashSet();
-
-            return SimpleDecal.GetTextureReplacedRange(domainRenderers, texHash);
+            var targetMat = GetTargetMaterials(replaceTracking, domainRenderers).Where(m => m.HasProperty(TargetPropertyName) ? m.GetTexture(TargetPropertyName) != null : false).ToHashSet();
+            return domainRenderers.Where(i => i.sharedMaterials.Any(m => targetMat.Contains(m)));
         }
     }
 

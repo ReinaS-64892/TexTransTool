@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.Editor
             rootVE.styleSheets.Add(s_style);
 
             var groupBehaviors = new List<TexTransBehavior>();
-            AvatarBuildUtils.FindTreedBehavior(groupBehaviors, (target as PhaseDefinition).transform);
+            AvatarBuildUtils.FindTreedBehavior(groupBehaviors, (target as PhaseDefinition).gameObject);
             CreateGroupElements(rootVE, groupBehaviors);
 
             return rootVE;

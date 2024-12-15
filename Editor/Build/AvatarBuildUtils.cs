@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEngine.Profiling;
+using System.Runtime.CompilerServices;
 
 namespace net.rs64.TexTransTool.Build
 {
@@ -150,33 +151,36 @@ namespace net.rs64.TexTransTool.Build
             int GetChilesCount(GameObject gameObject);
             GameObject GetChilde(GameObject gameObject, int index);
         }
-        public class DefaultGameObjectWakingTool : IGameObjectWakingTool
+        public struct DefaultGameObjectWakingTool : IGameObjectWakingTool
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public GameObject GetChilde(GameObject gameObject, int index)
             {
                 return gameObject.transform.GetChild(index).gameObject;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public int GetChilesCount(GameObject gameObject)
             {
                 return gameObject.transform.childCount;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public C GetComponent<C>(GameObject gameObject) where C : Component
             {
                 return gameObject.GetComponent<C>();
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
             {
                 return gameObject.GetComponentsInChildren<C>(includeInactive);
             }
         }
-        public delegate Component[] GetComponentsInChildren(Type type, GameObject gameObject, bool includeInactive);
-        public delegate Component GetComponent(Type type, GameObject gameObject);
-        public static List<Domain2Behavior> FindAtPhase(GameObject rootDomainObject, IGameObjectWakingTool wakingTool = null)
+        public static List<Domain2Behavior> FindAtPhase(GameObject rootDomainObject) { return FindAtPhase(rootDomainObject, new DefaultGameObjectWakingTool()); }
+        public static List<Domain2Behavior> FindAtPhase<WakingTool>(GameObject rootDomainObject, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
         {
-            wakingTool ??= new DefaultGameObjectWakingTool();
             var rootTree = new RootBehaviorTree();
             FindDomainsTexTransBehavior(rootTree.Behaviors, rootTree.ChildeTrees, rootDomainObject.gameObject, wakingTool);
 
@@ -212,9 +216,7 @@ namespace net.rs64.TexTransTool.Build
 
                 sd.Depth = depth;
             }
-
             domainTreeList.Sort((l, r) => r.Depth - l.Depth);//深いほうが先に並ぶようにする
-
             var domainList = new List<Domain2Behavior>();
 
             foreach (var domainTree in domainTreeList)
@@ -226,7 +228,6 @@ namespace net.rs64.TexTransTool.Build
 
                 domainList.Add(d2b);
             }
-
             var rootDomain2Behavior = new Domain2Behavior();
             RegisterDomain2Behavior(rootDomain2Behavior, rootTree.ChildeTrees, rootTree.Behaviors);
             domainList.Add(rootDomain2Behavior);
@@ -296,9 +297,9 @@ namespace net.rs64.TexTransTool.Build
             public TexTransGroup TreePoint = null;
             public List<TexTransBehavior> Behaviors = new();
         }
-        internal static void FindDomainsTexTransBehavior(List<TexTransBehavior> behaviors, List<BehaviorTree> chilesTree, GameObject entryPoint, IGameObjectWakingTool wakingTool = null)
+        internal static void FindDomainsTexTransBehavior<WakingTool>(List<TexTransBehavior> behaviors, List<BehaviorTree> chilesTree, GameObject entryPoint, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
         {
-            wakingTool ??= new DefaultGameObjectWakingTool();
             var chilesCount = wakingTool.GetChilesCount(entryPoint.gameObject);
             for (var i = 0; chilesCount > i; i += 1)
             {
@@ -324,17 +325,17 @@ namespace net.rs64.TexTransTool.Build
                 FindDomainsTexTransBehavior(behaviors, chilesTree, c, wakingTool);
             }
         }
-
-        internal static void FindTreedBehavior(List<TexTransBehavior> behaviors, GameObject entryPoint, IGameObjectWakingTool wakingTool = null)
+        internal static void FindTreedBehavior(List<TexTransBehavior> behaviors, GameObject entryPoint) { FindTreedBehavior(behaviors, entryPoint, new DefaultGameObjectWakingTool()); }
+        internal static void FindTreedBehavior<WakingTool>(List<TexTransBehavior> behaviors, GameObject entryPoint, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
         {
-            wakingTool ??= new DefaultGameObjectWakingTool();
             var chilesCount = wakingTool.GetChilesCount(entryPoint.gameObject);
             for (var i = 0; chilesCount > i; i += 1)
             {
                 var c = wakingTool.GetChilde(entryPoint, i);
                 var ttc = wakingTool.GetComponent<TexTransMonoBase>(c);
                 if (ttc is DomainDefinition) { continue; }
-                if (ttc is TexTransBehavior ttb) { behaviors.Add(ttb); }
+                if (ttc is TexTransBehavior ttb) { behaviors.Add(ttb); continue; }
 
                 FindTreedBehavior(behaviors, c, wakingTool);
             }
@@ -363,11 +364,6 @@ namespace net.rs64.TexTransTool.Build
             foreach (var domain in domain2Behaviors)
                 foreach (var behavior in domain.Behaviour[TexTransPhase.Optimizing].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
 
-        }
-
-        internal static void FindTreedBehavior(object groupBhaviors, Transform transform)
-        {
-            throw new NotImplementedException();
         }
     }
 

@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
 
 
             var list = new List<TexTransBehavior>();
-            AvatarBuildUtils.FindTreedBehavior(list, texTransBehavior.transform);
+            AvatarBuildUtils.FindTreedBehavior(list, texTransBehavior.gameObject);
 
             if (texTransBehavior is PhaseDefinition)
             {
