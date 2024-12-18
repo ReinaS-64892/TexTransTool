@@ -7,6 +7,9 @@ using nadena.dev.ndmf.preview;
 using System;
 using System.Linq;
 using net.rs64.TexTransCore;
+#if CONTAINS_AAO
+using net.rs64.TexTransTool.NDMF.AAO;
+#endif
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -27,6 +30,9 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
+#if CONTAINS_AAO
+            .Run(NegotiateAAOPass.Instance).Then
+#endif
 
             .Run(BeforeUVModificationPass.Instance).Then
             .Run(TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning.Instance).Then

@@ -300,7 +300,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     newMesh.SetUVs(0, movedUV);
                 }
-                if (atlasSetting.WriteOriginalUV) { newMesh.SetUVs(math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7), meshData.VertexUV); }
+                if (atlasSetting.WriteOriginalUV)
+                {
+                    var writeTarget = math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7);
+                    if (newMesh.HasUV(writeTarget)) { TTTRuntimeLog.Info("AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV", writeTarget, newMesh); }
+                    newMesh.SetUVs(writeTarget, meshData.VertexUV);
+                }
 
                 compiledMeshes.Add(new AtlasData.AtlasMeshHolder(distMesh, UnityEngine.Object.Instantiate(nmMesh), newMesh, subSet.Select(i => i?.MaterialGroupID ?? -1).ToArray()));
             }
@@ -758,13 +763,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var matIDs = renderer.sharedMaterials.Select(i => Array.FindIndex(atlasData.MaterialID, mh => mh.Contains(i)));
                 var atlasMeshHolder = atlasData.Meshes.FindAll(I => I.DistMesh == mesh).Find(I => I.MatIDs.SequenceEqual(matIDs));
                 if (atlasMeshHolder.AtlasMesh == null) { continue; }
-
-                try
-                {
-                    var reMappingCallTargets = renderer.GetComponents<IAtlasReMappingReceiver>();
-                    foreach (var target in reMappingCallTargets.Where(i => i != null)) { target.ReMappingReceive(atlasMeshHolder.NormalizedMesh, atlasMeshHolder.AtlasMesh); }
-                }
-                catch (Exception e) { TTTRuntimeLog.Exception(e); }
 
                 var atlasMesh = atlasMeshHolder.AtlasMesh;
                 domain.SetMesh(renderer, atlasMesh);

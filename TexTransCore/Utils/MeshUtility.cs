@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -72,11 +73,17 @@ namespace net.rs64.TexTransCore.Utils
             return output;
         }
 
-        public static List<Vector2> GetUVList(this Mesh mesh, int subMesh = 0, List<Vector2> uvOutput = null)
+        public static List<Vector2> GetUVList(this Mesh mesh, int channel = 0, List<Vector2> uvOutput = null)
         {
             uvOutput?.Clear(); uvOutput ??= new();
-            mesh.GetUVs(subMesh, uvOutput);
+            mesh.GetUVs(channel, uvOutput);
             return uvOutput;
+        }
+
+        public static bool HasUV(this Mesh mesh, int channel = 0)
+        {
+            if (channel < 0 || channel > 7) { throw new IndexOutOfRangeException(); }
+            return mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(channel + 4));
         }
     }
 }

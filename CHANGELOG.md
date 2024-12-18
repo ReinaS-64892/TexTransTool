@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...HEAD)
 
+### Added
+
+- Cherry-Pick AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670 #749)
+- Cherry-Pick AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687 #749)
+
 ## [v0.8.9](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.8...v0.8.9) - 2024-12-09
 
 ### Fixed
