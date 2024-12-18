@@ -9,7 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
+- BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
+- テクスチャやマテリアルの範囲を切り分けることができる DomainDefinition が追加されました (#626)
+- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
+- AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670)
+- AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
+- SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
 - 一部の場合で Material が一時アセットだった場合に複製せずにテクスチャを置き換えるようになりました (#744)
+
+### Changed
+
+- SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
+- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
+- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
+- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
 
 ## [v0.8.9](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.8...v0.8.9) - 2024-12-09
 
@@ -23,10 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - NDMF v1.6.0 にて追加された AssetSaver API に対応 (#731)
-
-### Added
-
-- SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
 
 ## [v0.8.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.6...v0.8.7) - 2024-11-23
 
@@ -73,22 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の内部で使用している RenderTexture で、 Depth&Stencil の初期化忘れにより破綻したテクスチャーが生成される問題を修正 (#700)
 - AtlasTexture の lilToonShaderSupport が誤って lilToonLite を対応していると判定してしまい、対象範囲に存在した場合に例外が発生する問題を修正 (#701)
 - ParticleSystem が何かしらで対象に含まれてしまうと、 NDMF Preview が動作しなくなる問題を修正 (#702)
-
-### Added
-
-- TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
-- BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
-- テクスチャやマテリアルの範囲を切り分けることができる DomainDefinition が追加されました (#626)
-- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
-- AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670)
-- AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
-
-### Changed
-
-- SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
-- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
-- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
-- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
 
 ## [v0.8.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.1...v0.8.2) - 2024-10-19
 
