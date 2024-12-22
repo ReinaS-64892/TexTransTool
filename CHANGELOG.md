@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...HEAD)
 
+### Fixed
+
+- AAO の API を用いた処理の時に、頂点数が少なくなった場合、メッシュへの書き込みに失敗する問題を修正しました (#751)
+
 ## [v0.8.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...v0.8.10) - 2024-12-18
 
 ### Added
