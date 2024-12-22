@@ -462,7 +462,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var modifiedMesh = UnityEngine.Object.Instantiate(mesh);
                 Profiler.EndSample();
                 
-                MeshInfoUtility.WriteVertex(modifiedMesh, meshDesc, vertex);
+                MeshInfoUtility.ClearTriangleToWriteVertex(modifiedMesh, meshDesc, vertex);
 
                 Profiler.BeginSample("SetTriangles");
                 modifiedMesh.subMeshCount = subMeshOfVertex.Length;

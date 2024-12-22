@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var finalVertexes = vertex.Concat(vanishVertex).ToList();
 
             var editableMesh = UnityEngine.Object.Instantiate(mesh);
-            MeshInfoUtility.WriteVertex(editableMesh, meshDesc, finalVertexes);
+            MeshInfoUtility.ClearTriangleToWriteVertex(editableMesh, meshDesc, finalVertexes);
 
             for (var i = 0; editableMesh.subMeshCount > i; i += 1)
             {

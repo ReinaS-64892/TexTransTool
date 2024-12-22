@@ -212,25 +212,30 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
             }
         }
 
-        public static void WriteVertex(Mesh destMesh, MeshDesc meshAttribute, List<Vertex> Vertices)
+        public static void ClearTriangleToWriteVertex(Mesh destMesh, MeshDesc meshAttribute, List<Vertex> verticesList)
         {
+            Profiler.BeginSample("Clear triangle");
+            for (var i = 0; destMesh.subMeshCount > i; i += 1)
+                destMesh.SetTriangles(Array.Empty<int>(), i);
+            Profiler.EndSample();
+
             Profiler.BeginSample("Write to Mesh");
 
             Profiler.BeginSample("Vertices and Normals");
             // Basic Vertex Attributes: vertices, normals
             {
-                var vertices = new Vector3[Vertices.Count];
-                for (var i = 0; i < Vertices.Count; i++)
-                    vertices[i] = Vertices[i].Position;
+                var vertices = new Vector3[verticesList.Count];
+                for (var i = 0; i < verticesList.Count; i++)
+                    vertices[i] = verticesList[i].Position;
                 destMesh.vertices = vertices;
             }
 
             // tangents
             if (meshAttribute.HasNormals)
             {
-                var normals = new Vector3[Vertices.Count];
-                for (var i = 0; i < Vertices.Count; i++)
-                    normals[i] = Vertices[i].Normal;
+                var normals = new Vector3[verticesList.Count];
+                for (var i = 0; i < verticesList.Count; i++)
+                    normals[i] = verticesList[i].Normal;
                 destMesh.normals = normals;
             }
             Profiler.EndSample();
@@ -239,18 +244,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
             if (meshAttribute.HasTangent)
             {
                 Profiler.BeginSample("Tangents");
-                var tangents = new Vector4[Vertices.Count];
-                for (var i = 0; i < Vertices.Count; i++)
-                    tangents[i] = Vertices[i].Tangent;
+                var tangents = new Vector4[verticesList.Count];
+                for (var i = 0; i < verticesList.Count; i++)
+                    tangents[i] = verticesList[i].Tangent;
                 destMesh.tangents = tangents;
                 Profiler.EndSample();
             }
 
             // UVs
             {
-                var uv2 = new Vector2[Vertices.Count];
-                var uv3 = new Vector3[Vertices.Count];
-                var uv4 = new Vector4[Vertices.Count];
+                var uv2 = new Vector2[verticesList.Count];
+                var uv3 = new Vector3[verticesList.Count];
+                var uv4 = new Vector4[verticesList.Count];
                 for (var uvIndex = 0; uvIndex < 8; uvIndex++)
                 {
                     Profiler.BeginSample($"UV#{uvIndex}");
@@ -260,18 +265,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
                             // nothing to do
                             break;
                         case TexCoordStatus.Vector2:
-                            for (var i = 0; i < Vertices.Count; i++)
-                                uv2[i] = Vertices[i].GetTexCoord(uvIndex);
+                            for (var i = 0; i < verticesList.Count; i++)
+                                uv2[i] = verticesList[i].GetTexCoord(uvIndex);
                             destMesh.SetUVs(uvIndex, uv2);
                             break;
                         case TexCoordStatus.Vector3:
-                            for (var i = 0; i < Vertices.Count; i++)
-                                uv3[i] = Vertices[i].GetTexCoord(uvIndex);
+                            for (var i = 0; i < verticesList.Count; i++)
+                                uv3[i] = verticesList[i].GetTexCoord(uvIndex);
                             destMesh.SetUVs(uvIndex, uv3);
                             break;
                         case TexCoordStatus.Vector4:
-                            for (var i = 0; i < Vertices.Count; i++)
-                                uv4[i] = Vertices[i].GetTexCoord(uvIndex);
+                            for (var i = 0; i < verticesList.Count; i++)
+                                uv4[i] = verticesList[i].GetTexCoord(uvIndex);
                             destMesh.SetUVs(uvIndex, uv4);
                             break;
                         default:
@@ -285,9 +290,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
             if (meshAttribute.HasColor)
             {
                 Profiler.BeginSample($"Vertex Color");
-                var colors = new Color32[Vertices.Count];
-                for (var i = 0; i < Vertices.Count; i++)
-                    colors[i] = Vertices[i].Color;
+                var colors = new Color32[verticesList.Count];
+                for (var i = 0; i < verticesList.Count; i++)
+                    colors[i] = verticesList[i].Color;
                 destMesh.colors32 = colors;
                 Profiler.EndSample();
             }
@@ -297,22 +302,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
             destMesh.bindposes = meshAttribute.Bones.Select(x => x.Bindpose).ToArray();
 
             // BoneWeights
-            if (Vertices.Any(x => x.BoneWeights.Count != 0))
+            if (verticesList.Any(x => x.BoneWeights.Count != 0))
             {
                 Profiler.BeginSample("BoneWeights");
                 var boneIndices = new Dictionary<Bone, int>();
                 for (var i = 0; i < meshAttribute.Bones.Count; i++)
                     boneIndices.Add(meshAttribute.Bones[i], i);
 
-                var bonesPerVertex = new NativeArray<byte>(Vertices.Count, Allocator.Temp);
+                var bonesPerVertex = new NativeArray<byte>(verticesList.Count, Allocator.Temp);
                 var allBoneWeights =
-                    new NativeArray<BoneWeight1>(Vertices.Sum(x => x.BoneWeights.Count), Allocator.Temp);
+                    new NativeArray<BoneWeight1>(verticesList.Sum(x => x.BoneWeights.Count), Allocator.Temp);
                 var boneWeightsIndex = 0;
-                for (var i = 0; i < Vertices.Count; i++)
+                for (var i = 0; i < verticesList.Count; i++)
                 {
-                    bonesPerVertex[i] = (byte)Vertices[i].BoneWeights.Count;
-                    Vertices[i].BoneWeights.Sort((x, y) => -x.weight.CompareTo(y.weight));
-                    foreach (var (bone, weight) in Vertices[i].BoneWeights)
+                    bonesPerVertex[i] = (byte)verticesList[i].BoneWeights.Count;
+                    verticesList[i].BoneWeights.Sort((x, y) => -x.weight.CompareTo(y.weight));
+                    foreach (var (bone, weight) in verticesList[i].BoneWeights)
                         allBoneWeights[boneWeightsIndex++] = new BoneWeight1
                         { boneIndex = boneIndices[bone], weight = weight };
                 }
@@ -332,7 +337,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
                     var (shapeName, _) = meshAttribute.BlendShapes[i];
                     var weightsSet = new HashSet<float>();
 
-                    foreach (var vertex in Vertices)
+                    foreach (var vertex in verticesList)
                         if (vertex.BlendShapes.TryGetValue(shapeName, out var frames))
                             foreach (var frame in frames)
                                 weightsSet.Add(frame.Weight);
@@ -344,15 +349,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
                     var weights = weightsSet.ToArray();
                     Array.Sort(weights);
 
-                    var positions = new Vector3[Vertices.Count];
-                    var normals = new Vector3[Vertices.Count];
-                    var tangents = new Vector3[Vertices.Count];
+                    var positions = new Vector3[verticesList.Count];
+                    var normals = new Vector3[verticesList.Count];
+                    var tangents = new Vector3[verticesList.Count];
 
                     foreach (var weight in weights)
                     {
-                        for (var vertexI = 0; vertexI < Vertices.Count; vertexI++)
+                        for (var vertexI = 0; vertexI < verticesList.Count; vertexI++)
                         {
-                            var vertex = Vertices[vertexI];
+                            var vertex = verticesList[vertexI];
 
                             vertex.TryGetBlendShape(shapeName, weight,
                                 out var position, out var normal, out var tangent,
