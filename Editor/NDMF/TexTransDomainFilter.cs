@@ -77,14 +77,14 @@ namespace net.rs64.TexTransTool.NDMF
         class PassingData
         {
             public HashSet<TexTransBehavior> Behaviors;
-            public Renderer[][] domainOfRenderers;
-            public Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex;
+            public Renderer[][] DomainOfRenderers;
+            public Dictionary<TexTransBehavior, (int index, int domainIndex)> BehaviorIndex;
 
             public PassingData(HashSet<TexTransBehavior> value, Renderer[][] ofRenderers, Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex)
             {
-                this.Behaviors = value;
-                this.domainOfRenderers = ofRenderers;
-                this.behaviorIndex = behaviorIndex;
+                Behaviors = value;
+                DomainOfRenderers = ofRenderers;
+                BehaviorIndex = behaviorIndex;
             }
         }
         private Dictionary<TexTransBehavior, (int index, int domainIndex)> GetFlattenBehaviorAndIndex(List<Domain2Behavior> domain2Behaviors)
@@ -146,24 +146,6 @@ namespace net.rs64.TexTransTool.NDMF
             return targetRendererGroup;
         }
 
-        private static Dictionary<GameObject, List<TexTransBehavior>> GroupingByAvatar(ImmutableList<TexTransBehavior> ttBehaviors)
-        {
-            var avatarGrouping = new Dictionary<GameObject, List<TexTransBehavior>>();
-            foreach (var ttb in ttBehaviors)
-            {
-                if (ttb == null) { continue; }
-                var root = RuntimeUtil.FindAvatarInParents(ttb.transform);
-                if (root == null) { continue; }
-
-                var avatarRootGameObject = root.gameObject;
-
-                if (!avatarGrouping.ContainsKey(avatarRootGameObject)) { avatarGrouping[avatarRootGameObject] = new(); }
-                avatarGrouping[avatarRootGameObject].Add(ttb);
-            }
-
-            return avatarGrouping;
-        }
-
         public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
             var data = group.GetData<PassingData>();
@@ -174,16 +156,18 @@ namespace net.rs64.TexTransTool.NDMF
             var node = new TexTransPhaseNode();
             node.TargetPhase = PreviewTargetPhase;
             node.o2pDict = o2pDict;
-            node.ofRenderers = data.domainOfRenderers.Select(i => i.Where(r => o2pDict.ContainsKey(r)).Select(r => o2pDict[r]).ToArray()).ToArray();
-            node.behaviorIndex = data.behaviorIndex;
+            node.ofRenderers = data.DomainOfRenderers.Select(i => i.Where(r => o2pDict.ContainsKey(r)).Select(r => o2pDict[r]).ToArray()).ToArray();
+            node.behaviorIndex = data.BehaviorIndex;
+#if TTT_DISPLAY_RUNTIME_LOG
             var timer = System.Diagnostics.Stopwatch.StartNew();
+#endif
 
             Profiler.BeginSample("node.NodeExecuteAndInit");
             node.NodeExecuteAndInit(data.Behaviors, context);
             Profiler.EndSample();
 
-            timer.Stop();
 #if TTT_DISPLAY_RUNTIME_LOG
+            timer.Stop();
             Debug.Log($" time:{timer.ElapsedMilliseconds}ms - Instantiate: {string.Join("-", PreviewTargetPhase.ToString())}  \n  {string.Join("-", group.Renderers.Select(r => r.gameObject.name))} ");
 #endif
             return node;

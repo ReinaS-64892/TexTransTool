@@ -136,7 +136,12 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var targetRenderers = GetTargetRenderers(domainRenderers, replaceTracking);
+            IEnumerable<Renderer> targetRenderers;
+            switch (SelectMode)
+            {
+                default: case RendererSelectMode.Auto: { targetRenderers = domainRenderers; break; }
+                case RendererSelectMode.Manual: { targetRenderers = replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers); break; }
+            }
 
             foreach (var tr in targetRenderers)
             {
@@ -155,23 +160,11 @@ namespace net.rs64.TexTransTool.Decal
 
         private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            IEnumerable<Renderer> targetRenderers;
             switch (SelectMode)
             {
-                default:
-                case RendererSelectMode.Auto:
-                    {
-                        targetRenderers = GetIntersectRenderers(domainRenderers);
-                        break;
-                    }
-                case RendererSelectMode.Manual:
-                    {
-                        targetRenderers = replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers);
-                        break;
-                    }
+                default: case RendererSelectMode.Auto: { return GetIntersectRenderers(domainRenderers); }
+                case RendererSelectMode.Manual: { return replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers); }
             }
-
-            return targetRenderers;
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {
