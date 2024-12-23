@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool
 
                 cs.SetTexture(kernelID, RTex, renderTexture, mipIndex);
                 cs.SetTexture(kernelID, WTex, renderTexture, mipIndex + 1);
-                cs.Dispatch(kernelID, (width + 31) / 32, (height + 31) / 32, 1);
+                cs.Dispatch(kernelID, Math.Max(1, (width + 31) / 32), Math.Max(1, (height + 31) / 32), 1);
             }
 
             return true;
