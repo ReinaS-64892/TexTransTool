@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
 - SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
 - 一部の場合で Material が一時アセットだった場合に複製せずにテクスチャを置き換えるようになりました (#744)
+- SimpleDecal に Select Mode が追加され 既存の方法は Manual に そして新規に、範囲内であれば自動で選択される Auto が追加されました (#753)
+
+### Removed
+
+- SimpleDecal の MultiRendererMode は削除され、デフォルトで複数レンダラーを選択可能になりました (#753)
 
 ### Changed
 
