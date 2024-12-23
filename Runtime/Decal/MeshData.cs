@@ -97,6 +97,7 @@ namespace net.rs64.TexTransTool.Decal
             _destroyJobHandle.Complete();
             Vertices.Dispose();
             VertexUV.Dispose();
+            _calcAABBBuffer.Dispose();
             foreach (var triangle in _triangles)
             {
                 triangle.Dispose();
