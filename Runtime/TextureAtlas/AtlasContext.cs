@@ -98,7 +98,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var mkr in targetRenderers.GroupBy(r => r.GetMesh()))
             {
                 var nmMesh = normalizedMesh[mkr.Key];
-                var renderer = mkr.First(r => r.sharedMaterials.Length == nmMesh.subMeshCount);
+                var renderer = mkr.FirstOrDefault(r => r.sharedMaterials.Length == nmMesh.subMeshCount);//ノーマライズされた場合 subMeshCount が一番 slot の多いやつになるので、 slot が多いやつを持ってくる。
+                if (renderer == null) { throw new InvalidProgramException($"{nmMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
                 var bakedMesh = nmMesh;
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
@@ -462,7 +463,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var modifiedMesh = UnityEngine.Object.Instantiate(mesh);
                 Profiler.EndSample();
                 
-                MeshInfoUtility.WriteVertex(modifiedMesh, meshDesc, vertex);
+                MeshInfoUtility.ClearTriangleToWriteVertex(modifiedMesh, meshDesc, vertex);
 
                 Profiler.BeginSample("SetTriangles");
                 modifiedMesh.subMeshCount = subMeshOfVertex.Length;
