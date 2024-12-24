@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...HEAD)
 
+### Fixed
+
+- Mantis LOD Editor よりも後に実行される可能性があった問題を修正しました (#755)
+
 ## [v0.8.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...v0.8.10) - 2024-12-18
 
 ### Added
