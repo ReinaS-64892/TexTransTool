@@ -52,25 +52,36 @@ namespace net.rs64.TexTransTool
         internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
             var targetTex = GetTexture();
-            var targetTextures = RendererUtility.GetAllTexture<Texture>(domainRenderers).Where(m => replaceTracking(m, targetTex));
-            return FindModificationTargetRenderers(domainRenderers, targetTextures);
-        }
+            var domainMaterials = RendererUtility.GetFilteredMaterials(domainRenderers);
+            var targetTextures = domainMaterials.SelectMany(m => Memoize.Memo(m, MaterialUtility.GetAllTexture).Values).Where(t => replaceTracking(t, targetTex)).ToHashSet();
 
-        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, IEnumerable<Texture> targetTex)
-        {
-            if (targetTex.Any() is false) { return Array.Empty<Renderer>(); }
-            var targetTexHash = new HashSet<Texture>(targetTex);
-            var mats = RendererUtility.GetFilteredMaterials(domainRenderers);
-            var targetMatHash = new HashSet<Material>();
+            if (targetTextures.Any() is false) { yield break; }
 
-            foreach (var mat in mats)
+            var containedHash = new Dictionary<Material, bool>();
+            foreach (var r in domainRenderers)
             {
-                if (targetMatHash.Contains(mat)) { continue; }
-                var dict = mat.GetAllTexture<Texture>();
-                if (dict.Values.Any(t => targetTexHash.Contains(t))) { targetMatHash.Add(mat); }
+                var mats = r.sharedMaterials;
+                if (mats.Any(containedHash.GetValueOrDefault)) // キャッシュに true になるものがあったら、調査をすべてスキップしてあった事にする。
+                {
+                    yield return r;
+                    continue;
+                }
+
+                foreach (var m in mats)
+                {
+                    if (containedHash.ContainsKey(m)) { continue; }//このコードパスに来るってことは キャッシュにあるものが true であることはない。
+                    var dict = Memoize.Memo(m, MaterialUtility.GetAllTexture);
+                    if (dict.Values.Any(targetTextures.Contains))
+                    {
+                        containedHash.Add(m, true);
+                        yield return r;
+                        break;
+                    }
+                    else { containedHash.Add(m, false); }
+                }
             }
-            return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
         }
+
         internal void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(GetTexture()); }
     }
 }

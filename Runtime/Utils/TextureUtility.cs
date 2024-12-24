@@ -99,9 +99,6 @@ namespace net.rs64.TexTransTool.Utils
                 {
                     var mipRt = TTRt.G(source.width, source.height, false, false, true, true);
 
-                    mipRt.useMipMap = true;
-                    mipRt.autoGenerateMips = false;
-
                     Graphics.Blit(source, mipRt);
                     MipMapUtility.GenerateMips(mipRt, DownScalingAlgorithm.Average);
                     Graphics.Blit(mipRt, rt);

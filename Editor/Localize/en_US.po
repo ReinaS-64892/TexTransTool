@@ -44,6 +44,15 @@ msgstr "(NDMF) Disable {0} Preview"
 msgid "Common:ndmf:EnableThisComponentPhasePreview"
 msgstr "(NDMF) Enable {0} Preview"
 
+msgid "Common:RendererSelectMode"
+msgstr "RendererSelectMode"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "Auto"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "Manual"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
@@ -349,6 +358,12 @@ msgstr "PriorityValue"
 msgid "CommonDecal:label:RenderersSettings"
 msgstr "RenderersSettings"
 
+msgid "CommonDecal:prop:UseMaterialFiltering"
+msgstr "UseMaterialFiltering"
+
+msgid "CommonDecal:prop:IncludingDisableRenderers"
+msgstr "IncludingDisableRenderers"
+
 msgid "CommonDecal:prop:TargetRenderer"
 msgstr "TargetRenderer"
 
@@ -402,6 +417,12 @@ msgstr "Padding"
 
 msgid "CommonDecal:prop:Padding:tooltip"
 msgstr "Setting width for padding generate."
+
+msgid "CommonDecal:label:GradationSettings"
+msgstr "GradationSettings"
+
+msgid "CommonDecal:label:DecalSettings"
+msgstr "DecalSettings"
 
 #  SimpleDecal
 

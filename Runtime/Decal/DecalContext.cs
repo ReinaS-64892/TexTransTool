@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
 
-        public bool NotContainsKeyAutoGenerate { get; set; } = true;
+        public HashSet<Material> DrawMaskMaterials = null;
 
         public DecalContext(ITexTransToolForUnity ttce4u, ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
         {
@@ -47,14 +47,15 @@ namespace net.rs64.TexTransTool.Decal
             _trianglesFilter = trianglesFilter;
         }
 
-        internal void WriteDecalTexture(Dictionary<Material, TTRenderTexWithDistance> renderTextures, Renderer targetRenderer, ITTRenderTexture sourceTexture)
+        internal void WriteDecalTexture<KeyTexture>(Dictionary<KeyTexture, TTRenderTexWithDistance> renderTextures, Renderer targetRenderer, ITTRenderTexture sourceTexture)
+        where KeyTexture : Texture
         {
             if (renderTextures == null) { throw new ArgumentNullException(nameof(renderTextures)); }
-            if (targetRenderer is not SkinnedMeshRenderer && targetRenderer is not MeshRenderer) { return; }
+            if (targetRenderer is not (SkinnedMeshRenderer or MeshRenderer)) { return; }
             if (targetRenderer.GetMesh() == null) { return; }
 
             Profiler.BeginSample("GetMeshData");
-            var meshData = targetRenderer.Memo(MeshData.GetMeshData, i => i.Dispose());
+            var meshData = targetRenderer.GetToMemorizedMeshData();
             Profiler.EndSample();
 
             Profiler.BeginSample("GetUVs");
@@ -76,23 +77,23 @@ namespace net.rs64.TexTransTool.Decal
 
                     if (targetMat == null) { continue; }
                     if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
-                    var targetTexture = targetMat.GetTexture(TargetPropertyName);
+                    var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
                     if (targetTexture == null) { continue; }
 
-                    if (!NotContainsKeyAutoGenerate && !renderTextures.ContainsKey(targetMat)) { continue; }
+                    if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(targetMat) is false) { continue; }
 
                     Profiler.BeginSample("GetFilteredSubTriangle");
                     var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
                     Profiler.EndSample();
                     if (filteredTriangle.Length == 0) { continue; }
 
-                    if (!renderTextures.ContainsKey(targetMat))
+                    if (!renderTextures.ContainsKey(targetTexture))
                     {
-                        var newTempRt = renderTextures[targetMat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
+                        var newTempRt = renderTextures[targetTexture] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
                         newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                         newTempRt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                     }
-                    var target = renderTextures[targetMat];
+                    var target = renderTextures[targetTexture];
 
                     Profiler.BeginSample("TransTexture");
 
@@ -165,22 +166,6 @@ namespace net.rs64.TexTransTool.Decal
 
 
         }
-
-        internal void GenerateKey(Dictionary<Material, TTRenderTexWithDistance> writeable, IEnumerable<Material> targetMat)
-        {
-            foreach (var mat in targetMat)
-            {
-                if (mat == null) { continue; }
-                if (writeable.ContainsKey(mat)) { continue; }
-                if (!mat.HasProperty(TargetPropertyName)) { continue; }
-                var targetTexture = mat.GetTexture(TargetPropertyName);
-                if (targetTexture == null) { continue; }
-
-                var rt = writeable[mat] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
-                rt.Texture.Name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.Texture.Width}x{rt.Texture.Hight}";
-                rt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{rt.Texture.Width}x{rt.Texture.Hight}";
-            }
-        }
     }
 
     public enum PolygonCulling
@@ -188,5 +173,26 @@ namespace net.rs64.TexTransTool.Decal
         Vertex,
         Edge,
         EdgeAndCenterRay,
+    }
+
+    internal static class DecalContextUtility
+    {
+        internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
+        internal static IEnumerable<Renderer> FilterDecalTarget(IEnumerable<Renderer> targetRenderers, string targetPropertyName)
+        {
+            foreach (var tr in targetRenderers)
+            {
+                if (tr is not (SkinnedMeshRenderer or MeshRenderer)) { continue; }
+                if (tr.GetMesh() == null) { continue; }
+                foreach (var mat in tr.sharedMaterials)
+                {
+                    if (mat == null) { continue; }
+                    var targetTex = mat.HasProperty(targetPropertyName) ? mat.GetTexture(targetPropertyName) : null;
+                    if (targetTex == null) { continue; }
+                    yield return tr;
+                    break;
+                }
+            }
+        }
     }
 }

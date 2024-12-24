@@ -34,12 +34,16 @@ namespace net.rs64.TexTransTool.Editor
 
             var topLabel = label ?? "TargetPropertyName".Glc();
 
+            var preVal = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+
+            var indentWith = preVal * 18f;
+            position.x += indentWith;
+            position.width -= indentWith;
+
             var rect = position;
             var PropWith = rect.width / 4;
 
-
-            var preIndent = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
 
             if (sUseCustomProperty.boolValue)
             {
@@ -95,7 +99,7 @@ namespace net.rs64.TexTransTool.Editor
             sUseCustomProperty.boolValue = EditorGUI.ToggleLeft(rect, "UseCustomProperty".GetLocalize(), sUseCustomProperty.boolValue);
             EditorGUI.EndProperty();
 
-            EditorGUI.indentLevel = preIndent;
+            EditorGUI.indentLevel = preVal;
         }
     }
 }

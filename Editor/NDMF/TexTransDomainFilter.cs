@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.runtime;
@@ -33,21 +34,31 @@ namespace net.rs64.TexTransTool.NDMF
         }
         private ImmutableList<RenderGroup> QueryPreviewTarget(ComputeContext ctx)
         {
+            Profiler.BeginSample("TexTransDomainFilter.QueryPreviewTarget-" + PreviewTargetPhase.ToString());
+            Profiler.BeginSample("GetAvatarRoots");
             var avatarRoots = ctx.GetAvatarRoots();
+            Profiler.EndSample();
             var allGroups = new List<RenderGroup>();
-
-            AvatarBuildUtils.GetComponent getComponent = (t, g) => ctx.GetComponent(g, t);
-            AvatarBuildUtils.GetComponentsInChildren getComponentsInChildren = (t, g, i) => ctx.GetComponentsInChildren(g, t, i);
 
             foreach (var root in avatarRoots)
             {
-                var domain2PhaseList = AvatarBuildUtils.FindAtPhase(root, getComponent, getComponentsInChildren);
+                Profiler.BeginSample(root.name, root);
+                Profiler.BeginSample("FindAtPhase");
+
+                var domain2PhaseList = AvatarBuildUtils.FindAtPhase(root, new NDMFGameObjectObservedWaker(ctx));
+
+                Profiler.EndSample();
+                Profiler.BeginSample("domain2PhaseList");
+
                 foreach (var d in domain2PhaseList)
                 {
                     var behaviors = d.Behaviour[PreviewTargetPhase];
                     behaviors.RemoveAll(a => LookAtIsActive(a, ctx) is false);//ここで消すと同時に監視となる。
                     foreach (var b in behaviors) { ctx.Observe(b); }
                 }
+
+                Profiler.EndSample();
+                Profiler.BeginSample("Grouping");
                 var ofRenderers = domain2PhaseList.Select(i => i.Domain != null ? ctx.GetComponentsInChildren<Renderer>(i.Domain.gameObject, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray() : ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray()).ToArray();
                 var behaviorIndex = GetFlattenBehaviorAndIndex(domain2PhaseList);
 
@@ -55,21 +66,25 @@ namespace net.rs64.TexTransTool.NDMF
                 var renderersGroup2behavior = GetRendererGrouping(targetRendererGroup);
 
                 allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value, ofRenderers, behaviorIndex))));
+                Profiler.EndSample();
+
+                Profiler.EndSample();
             }
 
+            Profiler.EndSample();
             return allGroups.ToImmutableList();
         }
         class PassingData
         {
             public HashSet<TexTransBehavior> Behaviors;
-            public Renderer[][] domainOfRenderers;
-            public Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex;
+            public Renderer[][] DomainOfRenderers;
+            public Dictionary<TexTransBehavior, (int index, int domainIndex)> BehaviorIndex;
 
             public PassingData(HashSet<TexTransBehavior> value, Renderer[][] ofRenderers, Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex)
             {
-                this.Behaviors = value;
-                this.domainOfRenderers = ofRenderers;
-                this.behaviorIndex = behaviorIndex;
+                Behaviors = value;
+                DomainOfRenderers = ofRenderers;
+                BehaviorIndex = behaviorIndex;
             }
         }
         private Dictionary<TexTransBehavior, (int index, int domainIndex)> GetFlattenBehaviorAndIndex(List<Domain2Behavior> domain2Behaviors)
@@ -123,28 +138,12 @@ namespace net.rs64.TexTransTool.NDMF
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviorIndex)
             {
+                Profiler.BeginSample("Mod target",ttbKV.Key);
                 var modificationTargets = ttbKV.Key.ModificationTargetRenderers(ofRenderers[ttbKV.Value.domainIndex], (l, r) => l == r);
+                Profiler.EndSample();
                 targetRendererGroup.Add(ttbKV.Key, modificationTargets.ToHashSet());
             }
             return targetRendererGroup;
-        }
-
-        private static Dictionary<GameObject, List<TexTransBehavior>> GroupingByAvatar(ImmutableList<TexTransBehavior> ttBehaviors)
-        {
-            var avatarGrouping = new Dictionary<GameObject, List<TexTransBehavior>>();
-            foreach (var ttb in ttBehaviors)
-            {
-                if (ttb == null) { continue; }
-                var root = RuntimeUtil.FindAvatarInParents(ttb.transform);
-                if (root == null) { continue; }
-
-                var avatarRootGameObject = root.gameObject;
-
-                if (!avatarGrouping.ContainsKey(avatarRootGameObject)) { avatarGrouping[avatarRootGameObject] = new(); }
-                avatarGrouping[avatarRootGameObject].Add(ttb);
-            }
-
-            return avatarGrouping;
         }
 
         public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
@@ -157,16 +156,18 @@ namespace net.rs64.TexTransTool.NDMF
             var node = new TexTransPhaseNode();
             node.TargetPhase = PreviewTargetPhase;
             node.o2pDict = o2pDict;
-            node.ofRenderers = data.domainOfRenderers.Select(i => i.Where(r => o2pDict.ContainsKey(r)).Select(r => o2pDict[r]).ToArray()).ToArray();
-            node.behaviorIndex = data.behaviorIndex;
+            node.ofRenderers = data.DomainOfRenderers.Select(i => i.Where(r => o2pDict.ContainsKey(r)).Select(r => o2pDict[r]).ToArray()).ToArray();
+            node.behaviorIndex = data.BehaviorIndex;
+#if TTT_DISPLAY_RUNTIME_LOG
             var timer = System.Diagnostics.Stopwatch.StartNew();
+#endif
 
             Profiler.BeginSample("node.NodeExecuteAndInit");
             node.NodeExecuteAndInit(data.Behaviors, context);
             Profiler.EndSample();
 
-            timer.Stop();
 #if TTT_DISPLAY_RUNTIME_LOG
+            timer.Stop();
             Debug.Log($" time:{timer.ElapsedMilliseconds}ms - Instantiate: {string.Join("-", PreviewTargetPhase.ToString())}  \n  {string.Join("-", group.Renderers.Select(r => r.gameObject.name))} ");
 #endif
             return node;
@@ -186,6 +187,39 @@ namespace net.rs64.TexTransTool.NDMF
                 state &= tf.gameObject.activeSelf;
             }
             return state;
+        }
+
+
+        internal struct NDMFGameObjectObservedWaker : AvatarBuildUtils.IGameObjectWakingTool
+        {
+            ComputeContext _context;
+            public NDMFGameObjectObservedWaker(ComputeContext context)
+            {
+                _context = context;
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public GameObject GetChilde(GameObject gameObject, int index)
+            {
+                return _context.Observe(gameObject, (g) => g.transform.GetChild(index)?.gameObject);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int GetChilesCount(GameObject gameObject)
+            {
+                return _context.Observe(gameObject, (g) => g.transform.childCount);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public C GetComponent<C>(GameObject gameObject) where C : Component
+            {
+                return _context.GetComponent<C>(gameObject);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
+            {
+                return _context.GetComponentsInChildren<C>(gameObject, includeInactive);
+            }
         }
     }
 }

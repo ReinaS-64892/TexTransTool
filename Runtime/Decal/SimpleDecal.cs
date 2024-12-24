@@ -19,8 +19,9 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
-        public List<Renderer> TargetRenderers = new List<Renderer> { null };
-        public bool MultiRendererMode = false;
+        public DecalRendererSelector RendererSelector = new();
+
+        [ExpandTexture2D] public Texture2D DecalTexture;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
 
         public UnityEngine.Color Color = UnityEngine.Color.white;
@@ -35,8 +36,11 @@ namespace net.rs64.TexTransTool.Decal
         public MultiLayerImageCanvas OverrideDecalTextureWithMultiLayerImageCanvas;
         public bool UseDepth;
         public bool DepthInvert;
-        internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
 
+        #region V5SaveData
+        [Obsolete("V5SaveData", true)][SerializeField] internal List<Renderer> TargetRenderers = new List<Renderer> { null };
+        [Obsolete("V5SaveData", true)][SerializeField] internal bool MultiRendererMode = false;
+        #endregion V5SaveData
         #region V3SaveData
         [Obsolete("V3SaveData", true)][FormerlySerializedAs("PolygonCaling")][SerializeField] internal PolygonCulling PolygonCulling = PolygonCulling.Vertex;
         [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
@@ -58,13 +62,12 @@ namespace net.rs64.TexTransTool.Decal
         #endregion
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
-
+        internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
-            if (TargetRenderers.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
-            var targetRenderers = domain.GetDomainsRenderers(TargetRenderers);
-            var decalCompiledTextures = CompileDecal(targetRenderers, domain);
+            if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
+            var decalCompiledTextures = CompileDecal(domain);
 
             domain.LookAt(transform.GetParents().Append(transform));
             domain.LookAt(decalCompiledTextures.Keys);
@@ -74,14 +77,13 @@ namespace net.rs64.TexTransTool.Decal
 
             foreach (var matAndTex in decalCompiledTextures)
             {
-                domain.AddTextureStack(matAndTex.Key.GetTexture(TargetPropertyName), matAndTex.Value.Texture, blKey);
+                domain.AddTextureStack(matAndTex.Key, matAndTex.Value.Texture, blKey);
             }
 
             if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
             foreach (var t in decalCompiledTextures.Values) { t.Dispose(); }
         }
-        [ExpandTexture2D] public Texture2D DecalTexture;
-        internal Dictionary<Material, TTRenderTexWithDistance> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
+        internal Dictionary<Texture, TTRenderTexWithDistance> CompileDecal(IDomain domain)
         {
             var ttce = domain.GetTexTransCoreEngineForUnity();
             ITTRenderTexture mulDecalTexture = null;
@@ -112,14 +114,18 @@ namespace net.rs64.TexTransTool.Decal
                     Profiler.EndSample();
                 }
 
+                var domainRenderers = domain.EnumerateRenderer();
+                var targetRenderers = GetTargetRenderers(domainRenderers, domain.OriginEqual);
+
                 var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>>(ttce, GetSpaceConverter(), GetTriangleFilter());
                 decalContext.TargetPropertyName = TargetPropertyName;
                 decalContext.IsTextureStretch = false;
                 decalContext.DecalPadding = Padding;
                 decalContext.HighQualityPadding = HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+                decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
 
-                var decalCompiledRenderTextures = new Dictionary<Material, TTRenderTexWithDistance>();
+                var decalCompiledRenderTextures = new Dictionary<Texture, TTRenderTexWithDistance>();
                 domain.LookAt(targetRenderers);
                 foreach (var renderer in targetRenderers)
                 {
@@ -133,34 +139,27 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var targetRenderers = replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers);
-            var modificationTarget = new HashSet<Texture>();
-
-            foreach (var tr in targetRenderers)
-            {
-                if (tr is not SkinnedMeshRenderer && tr is not MeshRenderer) { continue; }
-                if (tr.GetMesh() == null) { continue; }
-                foreach (var mat in tr.sharedMaterials)
-                {
-                    if (mat == null) { continue; }
-                    var targetTex = mat.HasProperty(TargetPropertyName) ? mat.GetTexture(TargetPropertyName) : null;
-                    if (targetTex == null) { continue; }
-                    modificationTarget.Add(targetTex);
-                }
-            }
-            return GetTextureReplacedRange(domainRenderers, modificationTarget);
+            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _), TargetPropertyName);
         }
-
-        public static IEnumerable<Renderer> GetTextureReplacedRange(IEnumerable<Renderer> domainRenderers, HashSet<Texture> modificationTarget)
+        private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            var modificationMatHash = new HashSet<Material>();
-            foreach (var mat in RendererUtility.GetFilteredMaterials(domainRenderers))
-            {
-                foreach (var tex in mat.GetAllTexture2D().Values)
-                { if (modificationTarget.Contains(tex)) { modificationMatHash.Add(mat); break; } }
-            }
+            return GetIntersectRenderers(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _));
+        }
+        public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
+        {
+            var decalAABB = GetDecalAABB();
+            var intersected = new List<Renderer>();
 
-            return domainRenderers.Where(dr => dr.sharedMaterials.Any(mat => modificationMatHash.Contains(mat)));
+            foreach (var r in renderers)
+            {
+                if (r == null) { continue; }
+                if (r.GetMesh() == null) { continue; }
+                var md = r.GetToMemorizedMeshData();
+
+                var result = md.AxisAlignedBoundingBox.IsIntersect(decalAABB);
+                if (result) { intersected.Add(r); }
+            }
+            return intersected;
         }
 
         internal ParallelProjectionSpace GetSpaceConverter() { return new ParallelProjectionSpace(transform.worldToLocalMatrix); }
@@ -195,6 +194,34 @@ namespace net.rs64.TexTransTool.Decal
 
             DecalGizmoUtility.DrawGizmoQuad(DecalTexture, Color, matrix);
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
+        }
+        static readonly Vector3[] s_decalBoxVertexes = new Vector3[]{
+            new(-0.5f,-0.5f,0),
+            new(0.5f,-0.5f,0),
+            new(-0.5f,0.5f,0),
+            new(0.5f,0.5f,0),
+
+            new(-0.5f,-0.5f,1f),
+            new(0.5f,-0.5f,1f),
+            new(-0.5f,0.5f,1f),
+            new(0.5f,0.5f,1f),
+        };
+
+        internal TexTransUnityAABB GetDecalAABB()
+        {
+            var matrix = transform.localToWorldMatrix;
+            var box = new Vector3[s_decalBoxVertexes.Length];
+            for (var i = 0; box.Length > i; i += 1)
+            {
+                box[i] = matrix.MultiplyPoint3x4(s_decalBoxVertexes[i]);
+            }
+
+            var aabb = new TexTransUnityAABB(box[0]);
+            for (var i = 1; box.Length > i; i += 1)
+            {
+                aabb.AddVertex(box[i]);
+            }
+            return aabb;
         }
 
     }
