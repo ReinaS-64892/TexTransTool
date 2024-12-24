@@ -151,6 +151,19 @@ namespace net.rs64.TexTransTool
             bool Contains(Renderer dr) { return renderers.Any(sr => originEqual(dr, sr)); }
         }
 
+        public static IEnumerable<Renderer> RendererFilterForMaterial(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
+        {
+            if (material.Any() is false) { return Array.Empty<Renderer>(); }
+            var matHash = originEqual.GetDomainsMaterialsHashSet( domainRenderers, material);
+
+            return domainRenderers.Where(i => i.sharedMaterials.Any(m => matHash.Contains(m)));
+        }
+
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
+        {
+            return RendererUtility.GetFilteredMaterials(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer)).Where(m => material.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
+        }
+
         public static IEnumerable<Material> GetDomainMaterials(this IDomain domain, IEnumerable<Material> materials)
         {
             return RendererUtility.GetFilteredMaterials(domain.EnumerateRenderer()).Where(m => Contains(m));

@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Decal
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
 
-        public bool NotContainsKeyAutoGenerate { get; set; } = true;
+        public HashSet<Material> DrawMaskMaterials = null;
 
         public DecalContext(ITexTransToolForUnity ttce4u, ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
         {
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool.Decal
                     var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
                     if (targetTexture == null) { continue; }
 
-                    if (!NotContainsKeyAutoGenerate && !renderTextures.ContainsKey(targetTexture)) { continue; }
+                    if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(targetMat) is false) { continue; }
 
                     Profiler.BeginSample("GetFilteredSubTriangle");
                     var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
@@ -166,23 +166,6 @@ namespace net.rs64.TexTransTool.Decal
 
 
         }
-
-        internal void GenerateKey<KeyTexture>(Dictionary<KeyTexture, TTRenderTexWithDistance> writeable, IEnumerable<Material> targetMat)
-        where KeyTexture : Texture
-        {
-            foreach (var mat in targetMat)
-            {
-                if (mat == null) { continue; }
-                if (!mat.HasProperty(TargetPropertyName)) { continue; }
-                var targetTexture = mat.GetTexture(TargetPropertyName) as KeyTexture;
-                if (targetTexture == null) { continue; }
-                if (writeable.ContainsKey(targetTexture)) { continue; }
-
-                var rt = writeable[targetTexture] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
-                rt.Texture.Name = $"{targetTexture.name}-CreateGenerateKey-TempRt-{rt.Texture.Width}x{rt.Texture.Hight}";
-                rt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{rt.Texture.Width}x{rt.Texture.Hight}";
-            }
-        }
     }
 
     public enum PolygonCulling
@@ -194,7 +177,22 @@ namespace net.rs64.TexTransTool.Decal
 
     internal static class DecalContextUtility
     {
-
         internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
+        internal static IEnumerable<Renderer> FilterDecalTarget(IEnumerable<Renderer> targetRenderers, string targetPropertyName)
+        {
+            foreach (var tr in targetRenderers)
+            {
+                if (tr is not (SkinnedMeshRenderer or MeshRenderer)) { continue; }
+                if (tr.GetMesh() == null) { continue; }
+                foreach (var mat in tr.sharedMaterials)
+                {
+                    if (mat == null) { continue; }
+                    var targetTex = mat.HasProperty(targetPropertyName) ? mat.GetTexture(targetPropertyName) : null;
+                    if (targetTex == null) { continue; }
+                    yield return tr;
+                    break;
+                }
+            }
+        }
     }
 }

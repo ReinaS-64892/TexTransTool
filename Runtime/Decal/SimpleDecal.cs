@@ -19,8 +19,7 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
-        public RendererSelectMode SelectMode;
-        public List<Renderer> TargetRenderers = new List<Renderer> { null };
+        public DecalRendererSelector RendererSelector = new();
 
         [ExpandTexture2D] public Texture2D DecalTexture;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
@@ -39,7 +38,8 @@ namespace net.rs64.TexTransTool.Decal
         public bool DepthInvert;
 
         #region V5SaveData
-        public bool MultiRendererMode = false;
+        [Obsolete("V5SaveData", true)][SerializeField] internal List<Renderer> TargetRenderers = new List<Renderer> { null };
+        [Obsolete("V5SaveData", true)][SerializeField] internal bool MultiRendererMode = false;
         #endregion V5SaveData
         #region V3SaveData
         [Obsolete("V3SaveData", true)][FormerlySerializedAs("PolygonCaling")][SerializeField] internal PolygonCulling PolygonCulling = PolygonCulling.Vertex;
@@ -66,9 +66,8 @@ namespace net.rs64.TexTransTool.Decal
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
-            if (SelectMode is RendererSelectMode.Manual && TargetRenderers.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
-            var targetRenderers = GetTargetRenderers(domain.EnumerateRenderer(), domain.OriginEqual);
-            var decalCompiledTextures = CompileDecal(targetRenderers, domain);
+            if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
+            var decalCompiledTextures = CompileDecal(domain);
 
             domain.LookAt(transform.GetParents().Append(transform));
             domain.LookAt(decalCompiledTextures.Keys);
@@ -84,7 +83,7 @@ namespace net.rs64.TexTransTool.Decal
             if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
             foreach (var t in decalCompiledTextures.Values) { t.Dispose(); }
         }
-        internal Dictionary<Texture, TTRenderTexWithDistance> CompileDecal(IEnumerable<Renderer> targetRenderers, IDomain domain)
+        internal Dictionary<Texture, TTRenderTexWithDistance> CompileDecal(IDomain domain)
         {
             var ttce = domain.GetTexTransCoreEngineForUnity();
             ITTRenderTexture mulDecalTexture = null;
@@ -115,12 +114,16 @@ namespace net.rs64.TexTransTool.Decal
                     Profiler.EndSample();
                 }
 
+                var domainRenderers = domain.EnumerateRenderer();
+                var targetRenderers = GetTargetRenderers(domainRenderers, domain.OriginEqual);
+
                 var decalContext = new DecalContext<ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace>>(ttce, GetSpaceConverter(), GetTriangleFilter());
                 decalContext.TargetPropertyName = TargetPropertyName;
                 decalContext.IsTextureStretch = false;
                 decalContext.DecalPadding = Padding;
                 decalContext.HighQualityPadding = HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+                decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
 
                 var decalCompiledRenderTextures = new Dictionary<Texture, TTRenderTexWithDistance>();
                 domain.LookAt(targetRenderers);
@@ -136,35 +139,11 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            IEnumerable<Renderer> targetRenderers;
-            switch (SelectMode)
-            {
-                default: case RendererSelectMode.Auto: { targetRenderers = domainRenderers; break; }
-                case RendererSelectMode.Manual: { targetRenderers = replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers); break; }
-            }
-
-            foreach (var tr in targetRenderers)
-            {
-                if (tr is not (SkinnedMeshRenderer or MeshRenderer)) { continue; }
-                if (tr.GetMesh() == null) { continue; }
-                foreach (var mat in tr.sharedMaterials)
-                {
-                    if (mat == null) { continue; }
-                    var targetTex = mat.HasProperty(TargetPropertyName) ? mat.GetTexture(TargetPropertyName) : null;
-                    if (targetTex == null) { continue; }
-                    yield return tr;
-                    break;
-                }
-            }
+            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrPassThought(domainRenderers, replaceTracking, out var _), TargetPropertyName);
         }
-
         private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            switch (SelectMode)
-            {
-                default: case RendererSelectMode.Auto: { return GetIntersectRenderers(domainRenderers); }
-                case RendererSelectMode.Manual: { return replaceTracking.GetDomainsRenderers(domainRenderers, TargetRenderers); }
-            }
+            return GetIntersectRenderers(RendererSelector.GetSelectedOrPassThought(domainRenderers, replaceTracking, out var _));
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {
