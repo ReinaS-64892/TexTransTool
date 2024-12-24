@@ -18,6 +18,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTT PSD Importer はインポートのタイミングでプレビューを生成せず、必要になったタイミングで生成するようなりインポート自体の速度は大幅に高速化しました。(#727)
 - PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
 - TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)
+- SingleGradationDecal にも RendererSelectMode が追加され SimpleDecal のような レンダラーを手動で指定する事が可能になりました (#753)
+
+### Changed
+
+- SingleGradationDecal がデフォルト設定では 無効なレンダラーに対して描画しないようになりました (#753)
 
 ### Fixed
 
