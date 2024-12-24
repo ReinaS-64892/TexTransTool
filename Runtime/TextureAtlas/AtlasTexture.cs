@@ -968,7 +968,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal static bool AtlasAllowedRenderer(Renderer item, bool includeDisabledRenderer)
         {
-            if (includeDisabledRenderer is false) { if (item.gameObject.activeInHierarchy is false) { return false; } }
+            if (includeDisabledRenderer is false) { if (item.gameObject.activeInHierarchy is false || item.enabled is false) { return false; } }
             if (item.tag == "EditorOnly") return false;
             if (item.GetMesh() == null) return false;
             if (item.GetMesh().uv.Any() == false) return false;
