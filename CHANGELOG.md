@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
 - TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
 
+### Fixed
+
+- AtlasTexture が誤って Renderer.enabled が無効なレンダラーを IncludeDisableRenderer が無効な場合に含めてしまっていた問題を修正 (#756)
+
 ## [v0.8.11](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...v0.8.11) - 2024-12-24
 
 ### Fixed
