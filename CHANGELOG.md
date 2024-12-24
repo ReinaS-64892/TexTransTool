@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...HEAD)
 
 ### Added
 
@@ -24,6 +24,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
 - TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
 - TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
+
+## [v0.8.11](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...v0.8.11) - 2024-12-24
+
+### Fixed
+
+- Mantis LOD Editor よりも後に実行される可能性があった問題を修正しました (#755)
+
+## [v0.8.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.9...v0.8.10) - 2024-12-18
+
+### Added
+
+- Cherry-Pick AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670 #749)
+- Cherry-Pick AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687 #749)
 
 ## [v0.8.9](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.8...v0.8.9) - 2024-12-09
 

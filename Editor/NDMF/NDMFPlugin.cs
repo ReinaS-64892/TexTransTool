@@ -30,6 +30,7 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Transforming)
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
+            .BeforePlugin("MantisLODEditor.ndmf")
 #if CONTAINS_AAO
             .Run(NegotiateAAOPass.Instance).Then
 #endif
@@ -43,6 +44,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
+            .BeforePlugin("MantisLODEditor.ndmf")
 
             .Run(ReFindRenderersPass.Instance).Then
 

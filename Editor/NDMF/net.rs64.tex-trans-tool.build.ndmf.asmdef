@@ -30,7 +30,7 @@
         },
         {
             "name": "com.anatawa12.avatar-optimizer",
-            "expression": "1.8.0-beta.8",
+            "expression": "1.8.0",
             "define": "CONTAINS_AAO"
         },
         {
