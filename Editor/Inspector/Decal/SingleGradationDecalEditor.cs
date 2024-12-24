@@ -17,21 +17,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             TextureTransformerEditor.DrawerWarning(target.GetType().Name);
 
-            var sTargetMaterials = serializedObject.FindProperty("TargetMaterials");
-            if (_materialSelectionCandidates is not null)
-            {
-                foreach (var mat2mat in EnumPair(_materialSelectionCandidates))
-                {
-                    var rect = EditorGUILayout.GetControlRect();
-                    rect.width *= 0.5f;
-                    DrawAtMaterial(sTargetMaterials, mat2mat.Item1, rect);
-                    rect.x += rect.width;
-                    if (mat2mat.Item2 != null) { DrawAtMaterial(sTargetMaterials, mat2mat.Item2, rect); }
-                }
-            }
-            else { FinedMaterialSelectionCandidates(); }
+            EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(sTargetMaterials, "SingleGradationDecal:prop:SelectedMaterialView".Glc());
+            var sRendererSelector = serializedObject.FindProperty("RendererSelector");
+            EditorGUILayout.PropertyField(sRendererSelector);
+
+            EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("CommonDecal:label:GradationSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
 
             var tf = new SerializedObject((serializedObject.targetObject as SingleGradationDecal).transform);
             var sLocalScale = tf.FindProperty("m_LocalScale");
@@ -52,6 +46,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sGradientClamp = serializedObject.FindProperty("GradientClamp");
             EditorGUILayout.PropertyField(sGradientClamp, "SingleGradationDecal:prop:GradientClamp".Glc());
 
+            EditorGUI.indentLevel -= 1;
+            EditorGUILayout.LabelField("CommonDecal:label:DecalSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+
             var sIslandSelector = serializedObject.FindProperty("IslandSelector");
             EditorGUILayout.PropertyField(sIslandSelector, "SingleGradationDecal:prop:IslandSelector".Glc());
 
@@ -61,6 +59,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sTargetPropertyName = serializedObject.FindProperty("TargetPropertyName");
             EditorGUILayout.PropertyField(sTargetPropertyName, "SingleGradationDecal:prop:TargetPropertyName".Glc());
 
+            EditorGUI.indentLevel -= 1;
 
             DecalEditorUtil.DrawerAdvancedOption(serializedObject);
 
@@ -69,76 +68,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
             tf.ApplyModifiedProperties();
         }
 
-        private static IEnumerable<(T, T)> EnumPair<T>(IEnumerable<T> values)
-        {
-            T bv = default;
-            bool isBv = false;
-            foreach (var v in values)
-            {
-                if (isBv)
-                {
-                    yield return (bv, v);
-                    isBv = false;
-                }
-                else
-                {
-                    bv = v;
-                    isBv = true;
-                }
-            }
-            if (isBv) { yield return (bv, default); }
-        }
 
-        private void DrawAtMaterial(SerializedProperty sTargetMaterials, Material mat, Rect rect)
-        {
-            var fullWidth = rect.width;
-            var val = FindMaterial(sTargetMaterials, mat);
-            rect.width = rect.height;
-            var editVal = EditorGUI.Toggle(rect, val);
-            if (editVal != val) { EditMaterial(sTargetMaterials, mat, editVal); }
-            rect.x += rect.width;
-            var prevTex2D = AssetPreview.GetAssetPreview(mat);
-            if (prevTex2D != null) { EditorGUI.DrawTextureTransparent(rect, prevTex2D, ScaleMode.ScaleToFit); }
-            rect.x += rect.width;
-            rect.width = fullWidth - rect.width - rect.width;
-            EditorGUI.ObjectField(rect, mat, typeof(Material), false);
-        }
-
-        bool FindMaterial(SerializedProperty matList, Material material)
-        {
-            for (var i = 0; matList.arraySize > i; i += 1)
-            {
-                if (matList.GetArrayElementAtIndex(i).objectReferenceValue == material) { return true; }
-            }
-            return false;
-        }
-        void EditMaterial(SerializedProperty matList, Material material, bool val)
-        {
-            if (val)
-            {
-                var newIndex = matList.arraySize;
-                matList.arraySize += 1;
-                matList.GetArrayElementAtIndex(newIndex).objectReferenceValue = material;
-            }
-            else
-            {
-                for (var i = 0; matList.arraySize > i; i += 1)
-                { if (matList.GetArrayElementAtIndex(i).objectReferenceValue == material) { matList.DeleteArrayElementAtIndex(i); break; } }
-            }
-        }
-
-
-        List<Material> _materialSelectionCandidates;
-        void FinedMaterialSelectionCandidates()
-        {
-            _materialSelectionCandidates = null;
-            if (PreviewUtility.IsPreviewContains) { return; }
-
-            var ep = target as SingleGradationDecal;
-            var marker = DomainMarkerFinder.FindMarker(ep.gameObject);
-            if (marker == null) { return; }
-
-            _materialSelectionCandidates = RendererUtility.GetFilteredMaterials(marker.GetComponentsInChildren<Renderer>(true).Where(r => r is SkinnedMeshRenderer or MeshRenderer));
-        }
     }
 }

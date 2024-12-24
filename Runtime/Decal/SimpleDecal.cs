@@ -139,11 +139,11 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrPassThought(domainRenderers, replaceTracking, out var _), TargetPropertyName);
+            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _), TargetPropertyName);
         }
         private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return GetIntersectRenderers(RendererSelector.GetSelectedOrPassThought(domainRenderers, replaceTracking, out var _));
+            return GetIntersectRenderers(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _));
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {

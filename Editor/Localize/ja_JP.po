@@ -357,8 +357,14 @@ msgstr "優先度の値"
 msgid "CommonDecal:label:RenderersSettings"
 msgstr "レンダラー設定"
 
-msgstr "ターゲットレンダラー"
+msgid "CommonDecal:prop:UseMaterialFiltering"
+msgstr "マテリアルでフィルタリング"
+
+msgid "CommonDecal:prop:IncludingDisableRenderers"
+msgstr "適用時に非アクティブなレンダラーを含める"
+
 msgid "CommonDecal:prop:TargetRenderer"
+msgstr "ターゲットレンダラー"
 
 msgid "CommonDecal:prop:TargetRenderer:tooltip"
 msgstr "デカールが張られるレンダラーを設定する項目"
@@ -410,6 +416,12 @@ msgstr "パディング"
 
 msgid "CommonDecal:prop:Padding:tooltip"
 msgstr "パディングの生成する幅の設定"
+
+msgid "CommonDecal:label:GradationSettings"
+msgstr "グラデーション設定"
+
+msgid "CommonDecal:label:DecalSettings"
+msgstr "デカール設定"
 
 #  SimpleDecal
 

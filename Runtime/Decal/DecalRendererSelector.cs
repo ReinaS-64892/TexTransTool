@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool.Decal
         public RendererSelectMode Mode = RendererSelectMode.Auto;
 
         public bool UseMaterialFilteringForAutoSelect = false;
+        public bool IsAutoIncludingDisableRenderers = false;
         public List<Material> AutoSelectFilterMaterials = new();
 
         public List<Renderer> ManualSelections = new();
@@ -36,8 +37,22 @@ namespace net.rs64.TexTransTool.Decal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IEnumerable<Renderer> GetAutoMaterialFiltered(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
         {
-            return originEqual.RendererFilterForMaterial(domainRenderers, AutoSelectFilterMaterials);
+            return MaybeFilterDisableRenderers(originEqual.RendererFilterForMaterial(domainRenderers, AutoSelectFilterMaterials));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IEnumerable<Renderer> MaybeFilterDisableRenderers(IEnumerable<Renderer> r)
+        {
+            if (IsAutoIncludingDisableRenderers) return r;
+            return FilterDisableRenderers(r);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static IEnumerable<Renderer> FilterDisableRenderers(IEnumerable<Renderer> r)
+        {
+            return r.Where(i => i.gameObject.activeInHierarchy && i.enabled);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal HashSet<Material> GetAutoMaterialHashSet(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
         {
@@ -64,8 +79,7 @@ namespace net.rs64.TexTransTool.Decal
 
             }
         }
-
-        internal IEnumerable<Renderer> GetSelectedOrPassThought(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual, out bool isPassThought)
+        internal IEnumerable<Renderer> GetSelectedOrIncludingAll(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual, out bool isIncludingAll)
         {
             switch (Mode)
             {
@@ -74,15 +88,15 @@ namespace net.rs64.TexTransTool.Decal
                     {
                         if (UseMaterialFilteringForAutoSelect)
                         {
-                            isPassThought = false;
+                            isIncludingAll = false;
                             return GetAutoMaterialFiltered(domainRenderers, originEqual);
                         }
-                        isPassThought = true;
-                        return domainRenderers;
+                        isIncludingAll = true;
+                        return MaybeFilterDisableRenderers(domainRenderers);
                     }
                 case RendererSelectMode.Manual:
                     {
-                        isPassThought = false;
+                        isIncludingAll = false;
                         return GetManualRenderers(domainRenderers, originEqual);
                     }
             }

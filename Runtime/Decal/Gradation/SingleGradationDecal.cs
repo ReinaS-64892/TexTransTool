@@ -56,7 +56,7 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.HighQualityPadding = HighQualityPadding;
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
 
-            var targetRenderers = RendererSelector.GetSelectedOrPassThought(domainRenderers, domain.OriginEqual, out var _);
+            var targetRenderers = RendererSelector.GetSelectedOrIncludingAll(domainRenderers, domain.OriginEqual, out var _);
 
             var writeable = new Dictionary<Texture, TTRenderTexWithDistance>();
             var blKey = ttce.QueryBlendKey(BlendTypeKey);
@@ -85,7 +85,7 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
-            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrPassThought(domainRenderers, replaceTracking, out var _), TargetPropertyName);
+            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _), TargetPropertyName);
         }
     }
 
