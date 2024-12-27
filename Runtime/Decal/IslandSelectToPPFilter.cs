@@ -14,12 +14,14 @@ namespace net.rs64.TexTransTool.Decal
     {
         public JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] Filters;
         public IIslandSelector IslandSelector;
+        public OriginEqual OriginEqual;
 
 
-        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters)
+        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters, OriginEqual originEqual)
         {
             IslandSelector = islandSelector;
             Filters = filters;
+            OriginEqual = originEqual;
         }
 
         ParallelProjectionSpace _ppSpace;
@@ -38,7 +40,7 @@ namespace net.rs64.TexTransTool.Decal
             _filteredTriangles = new NativeArray<TriangleIndex>[smCount];
             for (var i = 0; smCount > i; i += 1)
             {
-                var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(IslandSelector, _ppSpace.MeshData, i);
+                var islandSelected = _islandSelectedTriangles[i] = IslandSelectExecute(IslandSelector, _ppSpace.MeshData, i, OriginEqual);
                 if (islandSelected.Length == 0) { continue; }
                 var ppsVert = _ppSpace.GetPPSVert;
                 _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(islandSelected, ppsVert, Filters);
@@ -53,7 +55,7 @@ namespace net.rs64.TexTransTool.Decal
             return filteredTriangle;
         }
 
-        internal static NativeArray<TriangleIndex> IslandSelectExecute(IIslandSelector islandSelector, MeshData meshData, int subMeshIndex)
+        internal static NativeArray<TriangleIndex> IslandSelectExecute(IIslandSelector islandSelector, MeshData meshData, int subMeshIndex, OriginEqual originEqual)
         {
             if (islandSelector == null) { return new NativeArray<TriangleIndex>(meshData.TriangleIndex[subMeshIndex], Allocator.TempJob); }
             Island[] islands = (subMeshIndex, meshData).Memo(GetIslands);
@@ -65,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             Profiler.BeginSample("IslandSelect");
-            var bitArray = islandSelector.IslandSelect(islands, islandDescription);
+            var bitArray = islandSelector.IslandSelect(new(islands, islandDescription, originEqual));
             Profiler.EndSample();
 
             Profiler.BeginSample("FilterTriangle");

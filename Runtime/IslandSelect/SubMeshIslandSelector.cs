@@ -12,13 +12,13 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         public int SelectSubMeshIndex = 0;
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
-            var bitArray = new BitArray(islands.Length);
+            var bitArray = new BitArray(ctx.Islands.Length);
 
-            for (var islandIndex = 0; islands.Length > islandIndex; islandIndex += 1)
+            for (var islandIndex = 0; ctx.Islands.Length > islandIndex; islandIndex += 1)
             {
-                bitArray[islandIndex] = islandDescription[islandIndex].MaterialSlot == SelectSubMeshIndex;
+                bitArray[islandIndex] = ctx.IslandDescription[islandIndex].MaterialSlot == SelectSubMeshIndex;
             }
 
             return bitArray;

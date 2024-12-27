@@ -81,6 +81,7 @@ namespace net.rs64.TexTransTool
 
     internal static class DomainUtility
     {
+        public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);
         public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
             foreach (var unityObject in unityObjects)
@@ -142,11 +143,13 @@ namespace net.rs64.TexTransTool
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IDomain domain, IEnumerable<Renderer> renderers)
         {
+            if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
             return domain.EnumerateRenderer().Where(Contains);
             bool Contains(Renderer dr) { return renderers.Any(sr => domain.OriginEqual(dr, sr)); }
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderer, IEnumerable<Renderer> renderers)
         {
+            if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
             return domainRenderer.Where(Contains);
             bool Contains(Renderer dr) { return renderers.Any(sr => originEqual(dr, sr)); }
         }
@@ -154,13 +157,14 @@ namespace net.rs64.TexTransTool
         public static IEnumerable<Renderer> RendererFilterForMaterial(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
-            var matHash = originEqual.GetDomainsMaterialsHashSet( domainRenderers, material);
+            var matHash = originEqual.GetDomainsMaterialsHashSet(domainRenderers, material);
 
             return domainRenderers.Where(i => i.sharedMaterials.Any(m => matHash.Contains(m)));
         }
 
         public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
         {
+            if (material.Any() is false) { return new(); }
             return RendererUtility.GetFilteredMaterials(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer)).Where(m => material.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
         }
 

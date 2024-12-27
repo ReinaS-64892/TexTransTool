@@ -263,33 +263,6 @@ namespace net.rs64.TexTransTool.UVIsland
                 }
             }
         }
-        public List<int> GetVertexIndex(List<int> output = null)
-        {
-            output?.Clear(); output ??= new();
-            foreach (var triangle in triangles)
-            {
-                output.AddRange(triangle);
-            }
-            return output;
-        }
-        public List<Vector2> GetVertexPos(IReadOnlyList<Vector2> sourceUV)
-        {
-            var vertIndexes = GetVertexIndex();
-            return vertIndexes.Select(i => sourceUV[i]).ToList();
-        }
-        public void BoxCalculation(IReadOnlyList<Vector2> sourceUV)
-        {
-            var vertPoss = GetVertexPos(sourceUV);
-            var Box = VectorUtility.BoxCal(vertPoss);
-            Pivot = Box.min;
-            Size = Box.max - Box.min;
-        }
-
-        public bool BoxInOut(Vector2 targetPos)
-        {
-            var relativeTargetPos = targetPos - Pivot;
-            return !((relativeTargetPos.x < 0 || relativeTargetPos.y < 0) || (relativeTargetPos.x > Size.x || relativeTargetPos.y > Size.y));
-        }
 
         public void Rotate90()
         {

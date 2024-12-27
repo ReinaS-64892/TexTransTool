@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         {
             if (IslandSelector == null) { return; }
 
-            var targetBit = IslandSelector.IslandSelect(islands, islandDescriptions);
+            var targetBit = IslandSelector.IslandSelect(new(islands, islandDescriptions, replaceTracking.OriginEqual));
 
             for (var i = 0; sizePriority.Length > i; i += 1)
             {

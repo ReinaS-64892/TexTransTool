@@ -18,10 +18,10 @@ namespace net.rs64.TexTransTool.IslandSelector
             return transform.GetChild(0).GetComponent<AbstractIslandSelector>();
         }
 
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             var islandSelector = GetIslandSelector();
-            return islandSelector != null ? islandSelector.IslandSelect(islands, islandDescription).Not() : new BitArray(islands.Length, true);
+            return islandSelector != null ? islandSelector.IslandSelect(ctx).Not() : new BitArray(ctx.Islands.Length, true);
         }
 
         internal override void OnDrawGizmosSelected() { GetIslandSelector()?.OnDrawGizmosSelected(); }

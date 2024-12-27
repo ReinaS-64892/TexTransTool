@@ -16,14 +16,8 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal abstract void LookAtCalling(ILookingObject looker);
 
 
-        internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
-        BitArray IIslandSelector.IslandSelect(Island[] islands, IslandDescription[] islandDescription) => IslandSelect(islands, islandDescription);
-        /*
-        頂点の持つ情報
-        レンダラー
-        レンダラーから見た時のスロット
-        マテリアルの参照を比較してはならない。
-        */
+        internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
+        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) => IslandSelect(ctx);
 
         internal abstract void OnDrawGizmosSelected();
 
@@ -38,7 +32,20 @@ namespace net.rs64.TexTransTool.IslandSelector
     }
     internal interface IIslandSelector
     {
-        internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
+        internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
+    }
+    internal class IslandSelectorContext
+    {
+        public Island[] Islands;
+        public IslandDescription[] IslandDescription;
+        public OriginEqual OriginEqual;
+
+        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, OriginEqual originEqual)
+        {
+            Islands = islands;
+            IslandDescription = islandDescription;
+            OriginEqual = originEqual;
+        }
     }
     internal readonly struct IslandDescription
     {

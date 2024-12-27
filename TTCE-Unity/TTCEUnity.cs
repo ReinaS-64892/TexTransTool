@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.TTMathUtil;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -162,6 +163,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static UnityEngine.Vector4 ToUnity(this System.Numerics.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
         public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
         public static System.Numerics.Vector3 ToTTCore(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
+        public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToTTCore(), Direction = ray.direction.ToTTCore() }; }
 
         public static RenderTexture Unwrap(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
         public static TTBlendingComputeShader Unwrap(this ITTBlendKey key) { return (TTBlendingComputeShader)key; }

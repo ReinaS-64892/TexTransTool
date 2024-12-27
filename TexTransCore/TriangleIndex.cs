@@ -132,25 +132,21 @@ namespace net.rs64.TexTransCore
             one = vector3s[TriIndex.one];
             two = vector3s[TriIndex.two];
         }
-        public Triangle(TriangleIndex TriIndex, List<Vector3> vector3s)
+
+        public Triangle(Vector3 vector31, Vector3 vector32, Vector3 vector33)
         {
-            zero = vector3s[TriIndex.zero];
-            one = vector3s[TriIndex.one];
-            two = vector3s[TriIndex.two];
+            zero = vector31;
+            one = vector32;
+            two = vector33;
         }
-        public Triangle(TriangleIndex TriIndex, Vector3[] vector3s)
+
+        public TTVector4 Cross(Vector3 TargetPoint)
         {
-            zero = vector3s[TriIndex.zero];
-            one = vector3s[TriIndex.one];
-            two = vector3s[TriIndex.two];
-        }
-        public Vector4 Cross(Vector3 TargetPoint)
-        {
-            var w = Vector3.Cross(two - one, TargetPoint - one).Z;
-            var u = Vector3.Cross(zero - two, TargetPoint - two).Z;
-            var v = Vector3.Cross(one - zero, TargetPoint - zero).Z;
-            var wuv = Vector3.Cross(one - zero, two - zero).Z;
-            return new Vector4(w, u, v, wuv);
+            var u = Vector3.Cross(two - one, TargetPoint - one).Z;
+            var v = Vector3.Cross(zero - two, TargetPoint - two).Z;
+            var w = Vector3.Cross(one - zero, TargetPoint - zero).Z;
+            var uvw = Vector3.Cross(one - zero, two - zero).Z;
+            return new TTVector4(u, v, w, uvw);
         }
 
         public Vector3 FromBCS(Vector3 SourceTBC)
@@ -189,6 +185,31 @@ namespace net.rs64.TexTransCore
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ToArray().GetEnumerator();
+        }
+
+
+        public Vector3 this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0: { return zero; }
+                    case 1: { return one; }
+                    case 2: { return two; }
+                    default: throw new IndexOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0: { zero = value; break; }
+                    case 1: { one = value; break; }
+                    case 2: { two = value; break; }
+                    default: throw new IndexOutOfRangeException();
+                }
+            }
         }
     }
 }

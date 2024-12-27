@@ -38,14 +38,15 @@ namespace net.rs64.TexTransTool.Decal
         {
             domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));
-            if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
+            var islandSelector = IslandSelector != null ? IslandSelector : null;
+            if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
             if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotSet"); return; }
             var ttce = domain.GetTexTransCoreEngineForUnity();
 
             using var gradDiskTex = ttce.Wrapping(GradientTempTexture.Get(Gradient, Alpha));
             var space = new SingleGradientSpace(transform.worldToLocalMatrix);
-            var filter = new IslandSelectFilter(IslandSelector);
+            var filter = new IslandSelectFilter(islandSelector, domain.OriginEqual);
 
 
             var domainRenderers = domain.EnumerateRenderer();
@@ -81,7 +82,7 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.matrix = transform.localToWorldMatrix;
 
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
-            IslandSelector?.OnDrawGizmosSelected();
+            if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
         {
@@ -149,10 +150,12 @@ namespace net.rs64.TexTransTool.Decal
         public IIslandSelector IslandSelector;
         MeshData _meshData;
         NativeArray<TriangleIndex>[] _islandSelectedTriangles;
+        OriginEqual OriginEqual;
 
-        public IslandSelectFilter(IIslandSelector islandSelector)
+        public IslandSelectFilter(IIslandSelector islandSelector, OriginEqual originEqual)
         {
             IslandSelector = islandSelector;
+            OriginEqual = originEqual;
         }
 
         public void SetSpace(SingleGradientSpace space)
@@ -165,7 +168,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (_meshData == null) { return default; }
             if (_islandSelectedTriangles[subMeshIndex].IsCreated) { return _islandSelectedTriangles[subMeshIndex]; }
-            var islandSelected = _islandSelectedTriangles[subMeshIndex] = IslandSelectToPPFilter.IslandSelectExecute(IslandSelector, _meshData, subMeshIndex);
+            var islandSelected = _islandSelectedTriangles[subMeshIndex] = IslandSelectToPPFilter.IslandSelectExecute(IslandSelector, _meshData, subMeshIndex, OriginEqual);
             return islandSelected;
         }
         public void Dispose()

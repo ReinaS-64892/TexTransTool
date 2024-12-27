@@ -17,15 +17,15 @@ namespace net.rs64.TexTransTool.IslandSelector
             looker.LookAt(transform.GetParents().Append(transform));
             looker.LookAt(this);
         }
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
-            var bitArray = new BitArray(islands.Length);
+            var bitArray = new BitArray(ctx.Islands.Length);
             var matrix = transform.worldToLocalMatrix;
 
-            for (var islandIndex = 0; islands.Length > islandIndex; islandIndex += 1)
+            for (var islandIndex = 0; ctx.Islands.Length > islandIndex; islandIndex += 1)
             {
-                var description = islandDescription[islandIndex];
-                var island = islands[islandIndex];
+                var description = ctx.IslandDescription[islandIndex];
+                var island = ctx.Islands[islandIndex];
 
                 bitArray[islandIndex] = IsAll ? All(island, description) : Some(island, description);
             }

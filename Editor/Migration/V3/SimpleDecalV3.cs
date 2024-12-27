@@ -29,27 +29,27 @@ namespace net.rs64.TexTransTool.Migration.V3
         {
             simpleDecal.IslandCulling = false;
 
-            RayCastIslandSelector islandSelector = GenerateIslandSelector(simpleDecal);
+            PinIslandSelector islandSelector = GenerateIslandSelector(simpleDecal);
 
             SetIslandSelectorTransform(simpleDecal, islandSelector);
 
         }
 
-        public static RayCastIslandSelector GenerateIslandSelector(SimpleDecal simpleDecal)
+        public static PinIslandSelector GenerateIslandSelector(SimpleDecal simpleDecal)
         {
-            var islandSelector = simpleDecal.IslandSelector as RayCastIslandSelector;
+            var islandSelector = simpleDecal.IslandSelector as PinIslandSelector;
 
             if (islandSelector == null)
             {
                 var go = new GameObject("RayCastIslandSelector");
                 go.transform.SetParent(simpleDecal.transform, false);
-                simpleDecal.IslandSelector = islandSelector = go.AddComponent<RayCastIslandSelector>();
+                simpleDecal.IslandSelector = islandSelector = go.AddComponent<PinIslandSelector>();
             }
 
             return islandSelector;
         }
 
-        public static void SetIslandSelectorTransform(SimpleDecal simpleDecal, RayCastIslandSelector islandSelector)
+        public static void SetIslandSelectorTransform(SimpleDecal simpleDecal, PinIslandSelector islandSelector)
         {
             Vector3 selectorOrigin = new Vector2(simpleDecal.IslandSelectorPos.x - 0.5f, simpleDecal.IslandSelectorPos.y - 0.5f);
 
