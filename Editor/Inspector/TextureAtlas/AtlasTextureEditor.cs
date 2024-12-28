@@ -32,8 +32,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             if (PreviewUtility.IsPreviewContains is false)
             {
-                if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
-                { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer, thisTarget.AtlasSetting.MergeMaterials ? thisTarget.AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake : false); }
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (_displayMaterial is not null)
+                    {
+                        var l = new[] { GUILayout.MaxWidth(64f), GUILayout.MinWidth(18f) };
+                        if (GUILayout.Button("AtlasTexture:button:SelectAll".GetLocalize(), l)) { SelectAll(sMatSelectors, _displayMaterial); }
+                        if (GUILayout.Button("AtlasTexture:button:Invert".GetLocalize(), l)) { SelectInvert(sMatSelectors, _displayMaterial); }
+                    }
+                    if (GUILayout.Button("AtlasTexture:button:RefreshMaterials".GetLocalize()) || _displayMaterial == null)
+                    { RefreshMaterials(thisTarget, thisTarget.LimitCandidateMaterials, thisTarget.AtlasSetting.IncludeDisabledRenderer, thisTarget.AtlasSetting.MergeMaterials ? thisTarget.AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake : false); }
+                }
                 if (_displayMaterial is not null) { MaterialSelectEditor(sMatSelectors, _displayMaterial); }
             }
 
@@ -121,10 +130,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
                 EditorGUILayout.PropertyField(sTextureScaleOffsetReset, "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset".Glc());
-                if(sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
-                {EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc());}
+                if (sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
+                { EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc()); }
 
-                EditorGUILayout.PropertyField(sUnsetTextures,"AtlasTexture:prop:ExperimentalFuture:UnsetTextures".Glc());
+                EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".Glc());
 
                 EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
                 if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".Glc()); }
@@ -360,6 +369,34 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             return -1;
         }
+        private static void SelectAll(SerializedProperty sMatSelectors, List<List<Material>> tempMaterialGroupAll)
+        {
+            var materials = tempMaterialGroupAll.SelectMany(i => i);
+            foreach (var m in materials)
+            {
+                if (FindMatSelector(sMatSelectors, m) is not null) { continue; }
+                var newIndex = sMatSelectors.arraySize;
+                sMatSelectors.arraySize += 1;
+                var newSelector = sMatSelectors.GetArrayElementAtIndex(newIndex);
+                newSelector.FindPropertyRelative("Material").objectReferenceValue = m;
+                newSelector.FindPropertyRelative("MaterialFineTuningValue").floatValue = 1;
+            }
+        }
+        private static void SelectInvert(SerializedProperty sMatSelectors, List<List<Material>> tempMaterialGroupAll)
+        {
+            var enables = tempMaterialGroupAll.SelectMany(i => i).Where(m => FindMatSelector(sMatSelectors, m) is null).ToArray();
+            sMatSelectors.arraySize = 0;
+            foreach (var m in enables)
+            {
+                var newIndex = sMatSelectors.arraySize;
+                sMatSelectors.arraySize += 1;
+                var newSelector = sMatSelectors.GetArrayElementAtIndex(newIndex);
+                newSelector.FindPropertyRelative("Material").objectReferenceValue = m;
+                newSelector.FindPropertyRelative("MaterialFineTuningValue").floatValue = 1;
+            }
+        }
+
+
         [InitializeOnLoadMethod]
         internal static void RegisterSummary()
         {

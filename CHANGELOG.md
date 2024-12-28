@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...HEAD)
 
+### Added
+
+- AtlasTexture のインスペクターにマテリアルを 全選択 と 反転 できるボタンが追加されました (#763)
+
 ### Fixed
 
 - AAO:Avatar Optimizer との API を用いた連携の時に、Meshの複製が Stack領域の不足が予期されるという例外が発生する問題を回避 (#761)
