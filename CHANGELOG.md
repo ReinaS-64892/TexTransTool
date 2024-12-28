@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...HEAD)
 
+### Fixed
+
+- AAO:Avatar Optimizer との API を用いた連携の時に、Meshの複製が Stack領域の不足が予期されるという例外が発生する問題を回避 (#761)
+- TTT NegotiateAAOConfig の AAO の削除する領域をアトラス化しないようにする機能の設定のフィールド名が誤っていた問題を修正 (#762)
+
 ## [v0.8.11](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...v0.8.11) - 2024-12-24
 
 ### Fixed
