@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             if (tttComponents.Any() is false) { return; }
 
             var config = context.AvatarRootObject.GetComponent<NegotiateAAOConfig>();
-            var removalToIslandDisabling = config?.AAORemovalToIslandDisabling ?? true;
+            var removalToIsland = config?.AAORemovalToIsland ?? true;
             var uvEvacuationAndRegisterToAAO = config?.UVEvacuationAndRegisterToAAO ?? true;
             var overrideEvacuationIndex = (config?.OverrideEvacuationUVChannel ?? false) ? config?.OverrideEvacuationUVChannelIndex : null;
 
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
                 if (uvEvacuationAndRegisterToAAO && UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
                     UVEvacuation(uvBuf, smr, overrideEvacuationIndex);
 
-                if (removalToIslandDisabling is false) { continue; }
+                if (removalToIsland is false) { continue; }
                 var removalProvider = MeshRemovalProvider.GetForRenderer(smr);
                 if (removalProvider is not null)
                     using (removalProvider)
