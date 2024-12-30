@@ -7,13 +7,13 @@ using System.Numerics;
 
 namespace net.rs64.TexTransCore
 {
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     [Serializable]
     public struct TriangleIndex : IEnumerable<int>, IEquatable<TriangleIndex>
     {
-        [FieldOffset(0)] public int zero;
-        [FieldOffset(4)] public int one;
-        [FieldOffset(8)] public int two;
+        public int zero;
+        public int one;
+        public int two;
 
         public TriangleIndex(int zero, int one, int two)
         {

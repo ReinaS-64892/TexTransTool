@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using UnityEngine;
 using System.Collections.Generic;
@@ -8,49 +9,28 @@ using Unity.Burst;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    public class ParallelProjectionSpace : ISpaceConverter
+    internal class ParallelProjectionSpaceConvertor : ISpaceConverter<ParallelProjectionSpace>
     {
-        internal Matrix4x4 ParallelProjectionMatrix;
+        Matrix4x4 _parallelProjectionMatrix;
+        static readonly Vector3 offset = new Vector3(0.5f, 0.5f, 0);
 
-        internal MeshData MeshData;
-        private JobHandle _jobHandle;
-        private NativeArray<Vector3> PPSVert;
-        private NativeArray<Vector2> PPSVertWithUV;
-        internal NativeArray<Vector3> GetPPSVert { get { _jobHandle.Complete(); return PPSVert; } }
-        internal NativeArray<Vector2> GetUVVert { get { _jobHandle.Complete(); return PPSVertWithUV; } }
-        public NativeArray<Vector3> GetPPSVertNoJobComplete() => PPSVert;
-        public JobHandle GetPPSVertJobHandle() => _jobHandle;
-        public void UpdatePPSVertJobHandle(JobHandle jh) => _jobHandle = jh;
+        internal ParallelProjectionSpaceConvertor(Matrix4x4 parallelProjectionMatrix) { _parallelProjectionMatrix = parallelProjectionMatrix; }
 
-        public bool AllowDepth => true;
-
-        internal ParallelProjectionSpace(Matrix4x4 parallelProjectionMatrix)
+        public ParallelProjectionSpace ConvertSpace(MeshData[] meshData)
         {
-            ParallelProjectionMatrix = parallelProjectionMatrix;
+            var handleArray = new JobHandle[meshData.Length];
+            var ppsUVArray = new NativeArray<Vector3>[meshData.Length];
 
+            for (var i = 0; meshData.Length > i; i += 1)
+            {
+                var md = meshData[i];
+                ppsUVArray[i] = ConvertVerticesInMatrix(_parallelProjectionMatrix, md, offset, out var jobHandle);
+                md.AddJobDependency(jobHandle);
+                handleArray[i] = jobHandle;
+            }
+
+            return new(meshData, ppsUVArray, handleArray);
         }
-        public void Input(MeshData meshData)
-        {
-            MeshData = meshData;
-            PPSVert = ConvertVerticesInMatrix(ParallelProjectionMatrix, meshData, new Vector3(0.5f, 0.5f, 0), out _jobHandle);
-            PPSVertWithUV = ConvertVerticesToUV(PPSVert, ref _jobHandle);
-
-        }
-
-        public NativeArray<Vector2> UVOut() => GetUVVert;
-        public NativeArray<Vector3> UVOutWithDepth() => GetPPSVert;
-
-        public void Dispose()
-        {
-            MeshData = null;
-            _jobHandle.Complete();
-            PPSVert.Dispose();
-            PPSVertWithUV.Dispose();
-            _jobHandle = default;
-            PPSVert = default;
-            PPSVertWithUV = default;
-        }
-
         internal static NativeArray<Vector3> ConvertVerticesInMatrix(Matrix4x4 matrix, MeshData meshData, Vector3 offset, out JobHandle jobHandle)
         {
             var array = new NativeArray<Vector3>(meshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -67,19 +47,6 @@ namespace net.rs64.TexTransTool.Decal
 
             return array;
         }
-        internal static NativeArray<Vector2> ConvertVerticesToUV(NativeArray<Vector3> vertices, ref JobHandle jobHandle)
-        {
-            var array = new NativeArray<Vector2>(vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-
-            jobHandle = new ConvertToUV()
-            {
-                InputVertices = vertices,
-                OutputUV = array,
-            }.Schedule(array.Length, 64, jobHandle);
-
-            return array;
-        }
-
         [BurstCompile]
         private struct ConvertVerticesJob : IJobParallelFor
         {
@@ -93,18 +60,36 @@ namespace net.rs64.TexTransTool.Decal
                 OutputVertices[index] = Matrix.MultiplyPoint3x4(InputVertices[index]) + Offset;
             }
         }
-        [BurstCompile]
-        private struct ConvertToUV : IJobParallelFor
-        {
-            [ReadOnly] public NativeArray<Vector3> InputVertices;
-            [WriteOnly] public NativeArray<Vector2> OutputUV;
+    }
+    internal class ParallelProjectionSpace : IDecalSpaceWith3D
+    {
+        // not owned
+        internal readonly MeshData[] _meshData;
 
-            public void Execute(int index)
-            {
-                OutputUV[index] = InputVertices[index];
-            }
+        // owned
+        internal NativeArray<Vector3>[] _ppsUVArray;
+        internal JobHandle[] _uvCalculateJobHandles;
+
+        public ParallelProjectionSpace(MeshData[] meshData, NativeArray<Vector3>[] ppsUVArray, JobHandle[] uvCalculateJobHandles)
+        {
+            _meshData = meshData;
+            _ppsUVArray = ppsUVArray;
+            _uvCalculateJobHandles = uvCalculateJobHandles;
         }
 
+        public NativeArray<Vector3>[] OutputUV()
+        {
+            foreach (var jh in _uvCalculateJobHandles) { jh.Complete(); }
+            return _ppsUVArray;
+        }
+        public void Dispose()
+        {
+            for (var i = 0; _uvCalculateJobHandles.Length > i; i += 1)
+            {
+                _uvCalculateJobHandles[i].Complete();
+                _ppsUVArray[i].Dispose();
+            }
+        }
 
     }
 }

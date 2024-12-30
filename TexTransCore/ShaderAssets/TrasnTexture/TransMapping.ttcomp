@@ -9,15 +9,18 @@ TTComputeType General
 END__TT_COMPUTE_SHADER_HEADER
 */
 
+#define PARALLEL_COUNT 256
+// #define PARALLEL_COUNT 1
+
 cbuffer gv
 {
     uint2 TransTargetMapSize;
     uint2 TransSourceMapSize;
     float MaxDistance;
+    uint DispatchIndexOffset;
 
     float AlimentPadding1;
     float AlimentPadding2;
-    float AlimentPadding3;
 }
 
 RWTexture2D<float2> TransMap;
@@ -37,13 +40,13 @@ float4 MinMax(float2 tri[3])
     float2 maxVal = max(max(tri[0], tri[1]), tri[2]);
     return float4(minVal - MaxDistance, maxVal + MaxDistance);
 }
-#define PARALLEL_COUNT 256
-// #define PARALLEL_COUNT 1
+
 [numthreads(1, PARALLEL_COUNT, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint thisID = id.y;
     uint idMax = PARALLEL_COUNT;
-    uint polygonIndex = id.x * 3;
+    uint polygonID = DispatchIndexOffset + id.x;
+    uint polygonIndex = polygonID * 3;
 
     float2 fromPolygonWithNormalizeScale[3];
     float2 fromPolygon[3];

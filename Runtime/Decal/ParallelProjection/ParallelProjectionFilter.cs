@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransCoreEngineForUnity;
@@ -11,68 +12,107 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal class ParallelProjectionFilter : ITrianglesFilter<ParallelProjectionSpace>
+    internal class ParallelProjectionFilter : ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>
     {
-        public JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] Filters;
-        ParallelProjectionSpace _parallelProjectionSpace;
-        private JobResult<NativeArray<bool>>[] _filteredBit;
-        private NativeArray<TriangleIndex>[] _filteredTriangles;
-
-        public void SetSpace(ParallelProjectionSpace space)
+        JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] _filters;
+        public ParallelProjectionFilter(JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters) { _filters = filters; }
+        public IFilteredTriangleHolder Filtering(ParallelProjectionSpace space)
         {
-            Dispose();
-            _parallelProjectionSpace = space;
-
-            var smCount = _parallelProjectionSpace.MeshData.TriangleIndex.Length;
-            _filteredBit = new JobResult<NativeArray<bool>>[smCount];
-            _filteredTriangles = new NativeArray<TriangleIndex>[smCount];
-            for (var i = 0; smCount > i; i += 1)
+            var filteredBitJobs = new JobResult<NativeArray<bool>>[space._meshData.Length][];
+            for (var i = 0; filteredBitJobs.Length > i; i += 1)
             {
-                var triNa = _parallelProjectionSpace.MeshData.TriangleIndex[i];
-                var ppsVert = _parallelProjectionSpace.GetPPSVertNoJobComplete();
-                var jobResult = _filteredBit[i] = TriangleFilterUtility.FilteringTriangle(triNa, ppsVert, Filters, _parallelProjectionSpace.GetPPSVertJobHandle());
-                _parallelProjectionSpace.UpdatePPSVertJobHandle(jobResult.GetHandle);
-            }
-        }
+                var md = space._meshData[i];
+                var ppsVertex = space._ppsUVArray[i];
+                var filteredBit = filteredBitJobs[i] = new JobResult<NativeArray<bool>>[md.SubMeshCount];
+                for (var s = 0; filteredBit.Length > s; s += 1)
+                {
+                    var triNa = md.TriangleIndex[s];
+                    var jobResult = filteredBit[s] = TriangleFilterUtility.FilteringTriangle(triNa, ppsVertex, _filters, space._uvCalculateJobHandles[i]);
 
-        public ParallelProjectionFilter(JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters) { Filters = filters; }
-        NativeArray<TriangleIndex> ITrianglesFilter<ParallelProjectionSpace>.GetFilteredSubTriangle(int subMeshIndex)
+                    space._uvCalculateJobHandles[i] = jobResult.GetHandle;
+                }
+            }
+            return new JobChainedFilteredTrianglesHolder(space._meshData, filteredBitJobs);
+        }
+    }
+
+    internal class JobChainedFilteredTrianglesHolder : IFilteredTriangleHolder
+    {
+        // not owned
+        MeshData[] _meshData;
+        // owned
+        JobResult<NativeArray<bool>>[][] _filteredBitJobResults;
+        NativeArray<TriangleIndex>[][]? _filteredTriangles;
+        public JobChainedFilteredTrianglesHolder(MeshData[] meshData, JobResult<NativeArray<bool>>[][] filteredBitJobs)
         {
-            if (_parallelProjectionSpace is null) { return default; }
-            if (_filteredTriangles[subMeshIndex].IsCreated) { return _filteredTriangles[subMeshIndex]; }
-            var filteredTriangle = _filteredTriangles[subMeshIndex] = FilteringExecute(_parallelProjectionSpace.MeshData.TriangleIndex[subMeshIndex], _filteredBit[subMeshIndex].GetResult);
-            return filteredTriangle;
+            _meshData = meshData;
+            _filteredBitJobResults = filteredBitJobs;
+        }
+        public NativeArray<TriangleIndex>[][] GetTriangles()
+        {
+            if (_filteredTriangles is null)
+            {
+                _filteredTriangles = new NativeArray<TriangleIndex>[_filteredBitJobResults.Length][];
+                for (var i = 0; _filteredBitJobResults.Length > i; i += 1)
+                {
+                    var md = _meshData[i];
+                    var bitJobResult = _filteredBitJobResults[i];
+
+                    var triangles = _filteredTriangles[i] = new NativeArray<TriangleIndex>[bitJobResult.Length];
+                    for (var s = 0; bitJobResult.Length > s; s += 1)
+                    {
+                        triangles[s] = FilteringExecute(md.TriangleIndex[s], bitJobResult[s].GetResult);
+                    }
+                }
+            }
+            return _filteredTriangles;
         }
         internal static NativeArray<TriangleIndex> FilteringExecute(NativeArray<TriangleIndex> triangles, NativeArray<bool> FilterBit)
         {
             Profiler.BeginSample("ParallelProjectionFilter.FilteringExecute");
-            var filteredTriFullArray = new NativeArray<TriangleIndex>(FilterBit.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            using var filteredTriFullArrayNa = new NativeArray<TriangleIndex>(FilterBit.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var filteredTriFullArray = filteredTriFullArrayNa.AsSpan();
 
-            var writePos = 0;
+            var writeCount = 0;
             for (var i = 0; FilterBit.Length > i; i += 1)
             {
-                if (!FilterBit[i])
+                if (FilterBit[i] is false)
                 {
-                    filteredTriFullArray[writePos] = triangles[i];
-                    writePos += 1;
+                    filteredTriFullArray[writeCount] = triangles[i];
+                    writeCount += 1;
                 }
             }
 
-            var filtered = new NativeArray<TriangleIndex>(writePos, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            Unsafe.UnsafeNativeArrayUtility.MemCpy(filteredTriFullArray, filtered, writePos);
-            filteredTriFullArray.Dispose();
+            var filtered = new NativeArray<TriangleIndex>(writeCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            Unsafe.UnsafeNativeArrayUtility.MemCpy(filtered, filteredTriFullArrayNa, writeCount);
 
             Profiler.EndSample();
             return filtered;
         }
         public void Dispose()
         {
-            _parallelProjectionSpace = null;
-            if (_filteredBit is not null) foreach (var na in _filteredBit) { na?.GetResult.Dispose(); }
-            _filteredBit = null;
-            if (_filteredTriangles is not null) foreach (var na in _filteredTriangles) { na.Dispose(); }
-            _filteredTriangles = null;
+            if (_filteredTriangles is not null)
+            {
+                for (var i = 0; _filteredTriangles.Length > i; i += 1)
+                {
+                    var st = _filteredTriangles[i];
+                    for (var s = 0; st.Length > s; s += 1)
+                    {
+                        st[s].Dispose();
+                    }
+                }
+            }
+            for (var i = 0; _filteredBitJobResults.Length > i; i += 1)
+            {
+                var sb = _filteredBitJobResults[i];
+                for (var s = 0; sb.Length > s; s += 1)
+                {
+                    sb[s].GetResult.Dispose();
+                }
+            }
+
         }
+
     }
 }
 

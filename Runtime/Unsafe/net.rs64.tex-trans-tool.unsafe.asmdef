@@ -1,7 +1,9 @@
 {
     "name": "net.rs64.tex-trans-tool.unsafe",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "net.rs64.tex-trans-core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

@@ -10,13 +10,14 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class TransMappingUtility
     {
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToPolygons, ReadOnlySpan<TTVector4> transFromPolygons)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
-            using var buf = engine.UploadStorageBuffer(transFromPolygons);
-            engine.WriteMapping(transMappingHolder, transToPolygons, buf);
+            using var fBuf = engine.UploadStorageBuffer(transFromPolygons);
+            using var tBuf = engine.UploadStorageBuffer(transToPolygons);
+            engine.WriteMapping(transMappingHolder, tBuf, fBuf, (uint)(transToPolygons.Length / 3));
         }
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, ITTStorageBuffer transFromPolygonBuffer)
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer transToPolygons, ITTStorageBuffer transFromPolygonBuffer, uint polygonCount)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
@@ -36,31 +37,54 @@ namespace net.rs64.TexTransCore.TransTexture
             BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), transMappingHolder.TargetSize.y);
             BitConverter.TryWriteBytes(gvBuf.Slice(8, 4), transMappingHolder.SourceSize.x);
             BitConverter.TryWriteBytes(gvBuf.Slice(12, 4), transMappingHolder.SourceSize.y);
-            BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), 0);
-            gvBuf[20..].Fill(0);
-            computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
+            BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), (float)0);
+            BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), (uint)0);
+            gvBuf[24..].Fill(0);
 
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
             computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
             computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            var polygonCount = (uint)(transToPolygons.Length / 3);
             computeHandler.SetStorageBuffer(fromPolygonsID, transFromPolygonBuffer);
-            using var transToPolygonStorage = engine.SetStorageBufferFromUpload(computeHandler, toPolygonID, transToPolygons);
+            computeHandler.SetStorageBuffer(toPolygonID, transToPolygons);
 
-            computeHandler.Dispatch(polygonCount, 1, 1);// MaxDistance を 0 にして三角形の内側を絶対に塗る。
+            // MaxDistance を 0 にして三角形の内側を絶対に塗る。
+            foreach (var (dispatchCount, indexOffset) in SliceDispatch(polygonCount, ushort.MaxValue))
+            {
+                BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), indexOffset);
+                computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
+                computeHandler.Dispatch(dispatchCount, 1, 1);
+            }
 
             if (transMappingHolder.MaxDistance <= 0.0001) { return; }
 
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
-            computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
-            computeHandler.Dispatch(polygonCount, 1, 2); // 通常のパディング生成、z が 2 なのは並列による競合の緩和のため、完ぺきな解決手段があるなら欲しいものだ。
+
+            foreach (var (dispatchCount, indexOffset) in SliceDispatch(polygonCount, ushort.MaxValue))
+            {
+                BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), indexOffset);
+                computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
+                computeHandler.Dispatch(dispatchCount, 1, 1);
+            }
         }
-        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, Span<Vector2> transToPolygons, Span<TTVector4> transFromPolygons)
+
+        internal static IEnumerable<(uint dispatchCount, uint offset)> SliceDispatch(uint polygonCount, uint dispatchMax)
+        {
+            for (uint offset = 0; polygonCount > offset; offset += dispatchMax)
+            {
+                yield return (Math.Min(polygonCount - offset, dispatchMax), offset);
+            }
+        }
+
+        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToPolygons, ReadOnlySpan<TTVector4> transFromPolygons)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
-            if (transMappingHolder.MaxDistance <= 0.0001) { engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons); return; }
+            if (transMappingHolder.MaxDistance <= 0.0001)
+            {
+                engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons);
+                return;
+            }
             using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
@@ -73,6 +97,8 @@ namespace net.rs64.TexTransCore.TransTexture
             var fromPolygonsID = computeHandler.NameToID("FromPolygons");
             var toPolygonID = computeHandler.NameToID("ToPolygons");
 
+            var offsetValuesID = computeHandler.NameToID("OffsetValues");
+
             Span<byte> gvBuf = stackalloc byte[32];
             BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.TargetSize.x);
             BitConverter.TryWriteBytes(gvBuf.Slice(4, 4), transMappingHolder.TargetSize.y);
@@ -80,14 +106,13 @@ namespace net.rs64.TexTransCore.TransTexture
             BitConverter.TryWriteBytes(gvBuf.Slice(12, 4), transMappingHolder.SourceSize.y);
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
             gvBuf[20..].Fill(0);
-            computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
 
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
             computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
             computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            var polygonCount = transFromPolygons.Length / 3;
+            var polygonCount = transToPolygons.Length / 3;
 
             var bufferF = new TTVector4[transFromPolygons.Length];
             var bufferT = new Vector2[transToPolygons.Length];
@@ -170,10 +195,15 @@ namespace net.rs64.TexTransCore.TransTexture
                 }
                 if (dispatchPolygonCount == 0) { break; }
 
-                using var fpBuf = engine.SetStorageBufferFromUpload(computeHandler, fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
-                using var tpBuf = engine.SetStorageBufferFromUpload(computeHandler, toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
+                using var fpBuf = engine.SetStorageBufferFromUpload<TTCE, TTVector4>(computeHandler, fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
+                using var tpBuf = engine.SetStorageBufferFromUpload<TTCE, Vector2>(computeHandler, toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
 
-                computeHandler.Dispatch((uint)dispatchPolygonCount, 1, 1);
+                foreach (var (dispatchCount, indexOffset) in SliceDispatch((uint)dispatchPolygonCount, ushort.MaxValue))
+                {
+                    BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), indexOffset);
+                    computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
+                    computeHandler.Dispatch(dispatchCount, 1, 1);
+                }
             }
         }
         static bool BoxIntersect(TTVector4 a, TTVector4 b)

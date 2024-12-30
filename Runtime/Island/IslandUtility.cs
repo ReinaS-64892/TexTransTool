@@ -100,10 +100,9 @@ namespace net.rs64.TexTransTool.UVIsland
                 island.triangles.Add(idx);
             }
         }
-
-        public static List<Island> UVtoIsland(MeshData meshData)
+        public static List<Island> UVtoIsland(MeshData meshData, int subMeshIndex)
         {
-            return UVtoIsland(meshData.CombinedTriangleIndex.AsList(), meshData.VertexUV.AsList());
+            return UVtoIsland(meshData.TriangleIndex[subMeshIndex].AsList(), meshData.VertexUV.AsList());
         }
 
         public static List<Island> UVtoIsland(IList<TriangleIndex> triIndexes, IList<Vector2> vertexUV)

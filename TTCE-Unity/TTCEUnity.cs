@@ -46,7 +46,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         }
         public ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false)
         { return new TTUnityComputeHandler.TTUnityStorageBuffer(length, downloadable); }
-        public ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged
+        public ITTStorageBuffer UploadStorageBuffer<T>(ReadOnlySpan<T> data, bool downloadable = false) where T : unmanaged
         {
             var length = data.Length * UnsafeUtility.SizeOf<T>();
             var paddedLength = TTMath.NormalizeOf4Multiple(length);

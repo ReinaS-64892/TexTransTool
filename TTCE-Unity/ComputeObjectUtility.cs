@@ -12,7 +12,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static Dictionary<string, TTGeneralComputeOperator> GeneralComputeObjects;
         public static UnityStandardComputeKeyHolder UStdHolder;
         [TexTransInitialize]
-        public static void GrabBlendingInit()
+        public static void ComputeObjectsInit()
         {
             BlendingObject = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendingComputeShader)).Cast<TTBlendingComputeShader>().ToDictionary(i => i.name, i => i);
             GrabBlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTGrabBlendingComputeShader)).Cast<TTGrabBlendingComputeShader>().ToDictionary(i => i.name, i => i);
@@ -41,6 +41,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
 
             public ITTComputeKey TransMapping { get; private set; }
+            public ITTComputeKey TransMappingUseOffset { get; }
 
             public ITTComputeKey TransWarpNone { get; private set; }
             public ITTComputeKey TransWarpStretch { get; private set; }
