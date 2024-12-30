@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = HighQualityPadding;
+            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
 
             var targetRenderers = RendererSelector.GetSelectedOrIncludingAll(domainRenderers, domain.OriginEqual, out var _);

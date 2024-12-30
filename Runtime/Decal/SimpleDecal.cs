@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.TargetPropertyName = TargetPropertyName;
                 decalContext.IsTextureStretch = false;
                 decalContext.DecalPadding = Padding;
-                decalContext.HighQualityPadding = HighQualityPadding;
+                decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
                 decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
 
