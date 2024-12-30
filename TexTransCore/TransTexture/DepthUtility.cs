@@ -5,6 +5,12 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class DepthUtility
     {
+        public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ReadOnlySpan<TTVector4> transFromPolygons)
+        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
+        {
+            using var fBuf = engine.UploadStorageBuffer(transFromPolygons);
+            engine.WriteDepth(depthBuffer, fBuf, (uint)(transFromPolygons.Length / 3));
+        }
         public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ITTStorageBuffer polygons, uint polygonCount)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
