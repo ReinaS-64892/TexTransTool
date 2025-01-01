@@ -30,27 +30,27 @@ namespace net.rs64.TexTransTool.IslandSelector
         static readonly Vector3[] lineList = new Vector3[]{
 
             new (0f,0f,0f),
-            new (0f,0f,0.5f),
+            new (0f,0f,1f),
 
 
-            new (-0.05f,0f,0.45f),
-            new (0f,0f,0.5f),
+            new (-0.1f,0f,0.9f),
+            new (0f,0f,1f),
 
-            new (0f,0f,0.5f),
-            new (0.05f,0f,0.45f),
+            new (0f,0f,1f),
+            new (0.1f,0f,0.9f),
 
 
-            new (0f,-0.05f,0.45f),
-            new (0f,0f,0.5f),
+            new (0f,-0.1f,0.9f),
+            new (0f,0f,1f),
 
-            new (0f,0f,0.5f),
-            new (0f,0.05f,0.45f),
+            new (0f,0f,1f),
+            new (0f,0.1f,0.9f),
         };
 
 
         internal override void OnDrawGizmosSelected()
         {
-            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.matrix = Matrix4x4.TRS(transform.position,transform.rotation,transform.lossyScale * 0.25f);
             Gizmos.DrawLineList(lineList.AsSpan());
         }
     }
