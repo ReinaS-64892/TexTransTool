@@ -11,8 +11,8 @@ namespace net.rs64.TexTransTool.Editor
             TextureTransformerEditor.DrawerWarning(target.GetType().Name);
             base.OnInspectorGUI();
 
-            if (_isAimEntered is false) { if (GUILayout.Button("IslandSelector:button:AimStart")) { AimStart(); } }
-            else { if (GUILayout.Button("IslandSelector:button:AimExit")) { AimExit(); } }
+            if (_isAimEntered is false) { if (GUILayout.Button("IslandSelector:button:AimStart".Glc())) { AimStart(); } }
+            else { if (GUILayout.Button("IslandSelector:button:AimExit".Glc())) { AimExit(); } }
         }
 
         bool _isAimEntered = false;
