@@ -19,14 +19,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
 - TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)
 - SingleGradationDecal にも RendererSelectMode が追加され SimpleDecal のような レンダラーを手動で指定する事が可能になりました (#753)
+- シーンビューからエイムすることでアイランドを選択できる AimIslandSelector が追加されました (#764)
+- マテリアルの参照をベースにアイランドを選択できる MaterialIslandSelector が追加されました (#764)
+- SimpleDecal の DepthDecal 機能が内部実装の変更により、レンダラーごとではなくすべてのレンダラーで統一された Depthバッファー を参照するようになりました (#764)
 
 ### Changed
 
 - SingleGradationDecal がデフォルト設定では 無効なレンダラーに対して描画しないようになりました (#753)
+- RayCastIslandSelector は PinIslandSelector に名前が変更されました (#764)
+- Decal系は Preview の場合 HighQualityPadding が無効化されるように変更されました (#764)
 
 ### Fixed
 
 - PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
+- RendererIslandSelector が NDMF Preview で正常に動作しない問題を修正 (#764)
 
 ## [v0.8.11](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...v0.8.11) - 2024-12-24
 
