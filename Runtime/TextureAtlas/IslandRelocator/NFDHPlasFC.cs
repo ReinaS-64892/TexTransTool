@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.TTMathUtil;
 using net.rs64.TexTransTool.UVIsland;
 using Unity.Collections;
 using UnityEngine;

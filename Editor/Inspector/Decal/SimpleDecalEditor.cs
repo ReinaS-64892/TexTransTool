@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
                 EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
 
-                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is RayCastIslandSelector)
+                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is PinIslandSelector)
                 {
                     var sIslandCulling = thisSObject.FindProperty("IslandCulling");
                     if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
@@ -189,7 +189,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             if (simpleDecal.IslandSelector != null)
             {
-                if (simpleDecal.IslandSelector is not RayCastIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
+                if (simpleDecal.IslandSelector is not PinIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
                 else { if (!EditorUtility.DisplayDialog("Migrate IslandCulling To IslandSelector", "IslandSelector に RayCastIslandSelector が既に割り当てられています。 \n 割り当てられている RayCastIslandSelector を編集する形でマイグレーションしますか？", "実行")) { return; } }
             }
             Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");

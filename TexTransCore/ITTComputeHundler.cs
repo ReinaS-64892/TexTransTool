@@ -40,7 +40,7 @@ namespace net.rs64.TexTransCore
             computeHandler.Dispatch((uint)((size.x + (x - 1)) / x), (uint)((size.y + (y - 1)) / y), 1);
         }
 
-        public static ITTStorageBuffer SetStorageBufferFromUpload<TTCE, T>(this TTCE engine, ITTComputeHandler computeHandler, int id, Span<T> data, bool downloadable = false)
+        public static ITTStorageBuffer SetStorageBufferFromUpload<TTCE, T>(this TTCE engine, ITTComputeHandler computeHandler, int id, ReadOnlySpan<T> data, bool downloadable = false)
         where TTCE : ITexTransDriveStorageBufferHolder
         where T : unmanaged
         {

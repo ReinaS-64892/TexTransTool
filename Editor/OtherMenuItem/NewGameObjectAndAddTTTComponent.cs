@@ -31,7 +31,8 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + RasterLayer.MenuPath)] static void RL() => C<RasterLayer>();
         [M(BP + RasterImportedLayer.MenuPath)] static void RIL() => C<RasterImportedLayer>();
         [M(BP + SolidColorLayer.MenuPath)] static void SCL() => C<SolidColorLayer>();
-        [M(BP + HSLAdjustmentLayer.MenuPath)] static void HAL() => C<HSLAdjustmentLayer>();
+        [M(BP + HSLAdjustmentLayer.MenuPath)] static void HSLAL() => C<HSLAdjustmentLayer>();
+        [M(BP + HSVAdjustmentLayer.MenuPath)] static void HSVAL() => C<HSVAdjustmentLayer>();
         [M(BP + LevelAdjustmentLayer.MenuPath)] static void LAL() => C<LevelAdjustmentLayer>();
         [M(BP + SelectiveColoringAdjustmentLayer.MenuPath)] static void SCAL() => C<SelectiveColoringAdjustmentLayer>();
         [M(BP + UnityGradationMapLayer.MenuPath)] static void UGML() => C<UnityGradationMapLayer>();
@@ -45,8 +46,10 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         [M(BP + BoxIslandSelector.MenuPath)] static void BIS() => C<BoxIslandSelector>();
         [M(BP + SphereIslandSelector.MenuPath)] static void SIS() => C<SphereIslandSelector>();
-        [M(BP + RayCastIslandSelector.MenuPath)] static void RCIS() => C<RayCastIslandSelector>();
+        [M(BP + PinIslandSelector.MenuPath)] static void PIS() => C<PinIslandSelector>();
+        [M(BP + AimIslandSelector.MenuPath)] static void AIS() => C<AimIslandSelector>();
         [M(BP + RendererIslandSelector.MenuPath)] static void RIS() => C<RendererIslandSelector>();
+        [M(BP + MaterialIslandSelector.MenuPath)] static void MIS() => C<MaterialIslandSelector>();
         [M(BP + SubMeshIslandSelector.MenuPath)] static void SMIS() => C<SubMeshIslandSelector>();
         [M(BP + IslandSelectorOR.MenuPath)] static void ISOR() => C<IslandSelectorOR>();
         [M(BP + IslandSelectorAND.MenuPath)] static void ISAND() => C<IslandSelectorAND>();

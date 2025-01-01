@@ -12,13 +12,13 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
         internal override void LookAtCalling(ILookingObject looker) { LookAtChildren(this, looker); }
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             BitArray bitArray = null;
             foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform))
             {
                 Profiler.BeginSample(islandSelector.GetType().Name);
-                var selectBit = islandSelector.IslandSelect(islands, islandDescription);
+                var selectBit = islandSelector.IslandSelect(ctx);
                 Profiler.EndSample();
                 if (bitArray is null) { bitArray = selectBit; continue; }
                 bitArray.Xor(selectBit);

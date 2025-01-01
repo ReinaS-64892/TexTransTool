@@ -4,15 +4,14 @@ using Unity.Collections;
 using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.TTMathUtil;
 
 namespace net.rs64.TexTransTool.UVIsland
 {
     [BurstCompile]
     internal struct RayCastJob : IJobParallelFor
     {
-        [ReadOnly]
-        public Matrix4x4 rayMatrix;
+        public RayIntersect.Ray ray;
         [ReadOnly]
         public NativeArray<Triangle> triangles;
 
@@ -22,17 +21,19 @@ namespace net.rs64.TexTransTool.UVIsland
         public NativeArray<bool> HitResult;
         public void Execute(int index)
         {
-            var tri = triangles[index];
-            tri.zero = rayMatrix.MultiplyPoint3x4(tri.zero.ToUnity()).ToTTCore();
-            tri.one = rayMatrix.MultiplyPoint3x4(tri.one.ToUnity()).ToTTCore();
-            tri.two = rayMatrix.MultiplyPoint3x4(tri.two.ToUnity()).ToTTCore();
-            var CrossT = tri.Cross(new(0, 0, 0)).ToUnity();
+            HitResult[index] = RayIntersect.Intersect(ray, triangles[index], out var result);
+            Distance[index] = result.Distance;
 
-            var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
-            if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { return; }
-            var IsIn = VectorUtility.IsInCal(CrossT.x, CrossT.y, CrossT.z);
-            HitResult[index] = IsIn;
-            Distance[index] = tri.FromBCS(TBC.ToTTCore()).Z;
+            // tri.zero = rayMatrix.MultiplyPoint3x4(tri.zero.ToUnity()).ToTTCore();
+            // tri.one = rayMatrix.MultiplyPoint3x4(tri.one.ToUnity()).ToTTCore();
+            // tri.two = rayMatrix.MultiplyPoint3x4(tri.two.ToUnity()).ToTTCore();
+            // var CrossT = tri.Cross(new(0, 0, 0));
+
+            // var tbc = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
+            // if (float.IsNaN(tbc.X) || float.IsNaN(tbc.Y) || float.IsNaN(tbc.Z)) { return; }
+            // var IsIn = VectorUtility.IsInCal(CrossT.X, CrossT.Y, CrossT.Z);
+            // HitResult[index] = IsIn;
+            // Distance[index] = tri.FromBCS(tbc).Z;
 
         }
 
@@ -42,8 +43,7 @@ namespace net.rs64.TexTransTool.UVIsland
     [BurstCompile]
     internal struct RayCastJob2 : IJobParallelFor
     {
-        [ReadOnly]
-        public Matrix4x4 rayMatrix;
+        public RayIntersect.Ray ray;
         [ReadOnly]
         [DeallocateOnJobCompletion]
         public NativeArray<TriangleIndex> Triangles;
@@ -57,18 +57,10 @@ namespace net.rs64.TexTransTool.UVIsland
         public void Execute(int index)
         {
             var trIndex = Triangles[index];
-            var tri = new Triangle();
-            tri.zero = rayMatrix.MultiplyPoint3x4(Position[trIndex.zero]).ToTTCore();
-            tri.one = rayMatrix.MultiplyPoint3x4(Position[trIndex.one]).ToTTCore();
-            tri.two = rayMatrix.MultiplyPoint3x4(Position[trIndex.two]).ToTTCore();
-            var CrossT = tri.Cross(new(0, 0, 0)).ToUnity();
+            var tri = new Triangle() { zero = Position[trIndex[0]].ToTTCore(), one = Position[trIndex[1]].ToTTCore(), two = Position[trIndex[2]].ToTTCore() };
 
-            var TBC = VectorUtility.ToBarycentricCoordinateSystem(CrossT);
-            if (float.IsNaN(TBC.x) || float.IsNaN(TBC.y) || float.IsNaN(TBC.z)) { return; }
-            var IsIn = VectorUtility.IsInCal(CrossT.x, CrossT.y, CrossT.z);
-            HitResult[index] = IsIn;
-            Distance[index] = tri.FromBCS(TBC.ToTTCore()).Z;
-
+            HitResult[index] = RayIntersect.Intersect(ray, tri, out var result);
+            Distance[index] = result.Distance;
         }
 
 

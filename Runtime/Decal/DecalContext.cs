@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,27 +9,42 @@ using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore.TransTexture;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal interface ISpaceConverter : IDisposable
+    internal interface ISpaceConverter<TDecalSpace>
+    where TDecalSpace : IDecalSpace
     {
-        void Input(MeshData meshData);//この MeshData の解放責任は受け取らない
-        NativeArray<Vector2> UVOut();
-        bool AllowDepth { get; }
-        NativeArray<Vector3> UVOutWithDepth();
+        // この MeshData の解放責任は受け取らない
+        // そして後に返す OutputUV や Triangles の配列の数は MeshData の数に一致据えるようにね！
+        TDecalSpace ConvertSpace(MeshData[] meshData);
     }
-    internal interface ITrianglesFilter<TSpace> : IDisposable
+
+    internal interface IDecalSpace : IDisposable { }
+    internal interface IDecalSpaceWith2D : IDecalSpace { NativeArray<Vector2>[] OutputUV(); }
+    // DepthDecal をやりたい場合は 3D 必須だが、メモリ的に扱いやすいほうを片方だけ実装してよい。
+    // どちらであっても、GPU にメモリを転送するときは同じ扱いになるから。
+    internal interface IDecalSpaceWith3D : IDecalSpace { NativeArray<Vector3>[] OutputUV(); }
+
+    internal interface ITrianglesFilter<TDecalSpace, TFilteringOutput>
+    where TDecalSpace : IDecalSpace
+    where TFilteringOutput : IFilteredTriangleHolder
     {
-        void SetSpace(TSpace space);
-        NativeArray<TriangleIndex> GetFilteredSubTriangle(int subMeshIndex);
+        TFilteringOutput Filtering(TDecalSpace space);
     }
-    internal class DecalContext<ConvertSpace, TrianglesFilter>
-    where ConvertSpace : ISpaceConverter
-    where TrianglesFilter : ITrianglesFilter<ConvertSpace>
+
+    internal interface IFilteredTriangleHolder : IDisposable { NativeArray<TriangleIndex>[][] GetTriangles(); }
+
+
+    internal class DecalContext<SpaceConvertor, TDecalSpace, TrianglesFilter, TFilteringOutput>
+    where SpaceConvertor : ISpaceConverter<TDecalSpace>
+    where TDecalSpace : IDecalSpace
+    where TrianglesFilter : ITrianglesFilter<TDecalSpace, TFilteringOutput>
+    where TFilteringOutput : IFilteredTriangleHolder
     {
         ITexTransToolForUnity _ttce4u;
-        ConvertSpace _convertSpace;
+        SpaceConvertor _spaceConvertor;
         TrianglesFilter _trianglesFilter;
 
 
@@ -38,133 +54,191 @@ namespace net.rs64.TexTransTool.Decal
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
 
-        public HashSet<Material> DrawMaskMaterials = null;
+        public HashSet<Material>? DrawMaskMaterials = null;
 
-        public DecalContext(ITexTransToolForUnity ttce4u, ConvertSpace convertSpace, TrianglesFilter trianglesFilter)
+        public DecalContext(ITexTransToolForUnity ttce4u, SpaceConvertor spaceConvertor, TrianglesFilter trianglesFilter)
         {
             _ttce4u = ttce4u;
-            _convertSpace = convertSpace;
+            _spaceConvertor = spaceConvertor;
             _trianglesFilter = trianglesFilter;
         }
 
-        internal void WriteDecalTexture<KeyTexture>(Dictionary<KeyTexture, TTRenderTexWithDistance> renderTextures, Renderer targetRenderer, ITTRenderTexture sourceTexture)
+        internal Dictionary<KeyTexture, TTRenderTexWithDistance>? WriteDecalTexture<KeyTexture>(IEnumerable<Renderer> targetRenderers, ITTRenderTexture sourceTexture)
         where KeyTexture : Texture
         {
-            if (renderTextures == null) { throw new ArgumentNullException(nameof(renderTextures)); }
-            if (targetRenderer is not (SkinnedMeshRenderer or MeshRenderer)) { return; }
-            if (targetRenderer.GetMesh() == null) { return; }
+            targetRenderers = targetRenderers.Where(i => i is SkinnedMeshRenderer or MeshRenderer).Where(i => i.GetMesh() != null).ToArray();
+
+            if (targetRenderers.Any() is false) { return null; }
+
 
             Profiler.BeginSample("GetMeshData");
-            var meshData = targetRenderer.GetToMemorizedMeshData();
+            var meshData = targetRenderers.Select(i => i.GetToMemorizedMeshData()).ToArray();
             Profiler.EndSample();
 
-            Profiler.BeginSample("GetUVs");
-            var tUV = meshData.VertexUV;
+            Profiler.BeginSample("ConvertSpace");
+            using var decalSpace = _spaceConvertor.ConvertSpace(meshData);
+            Profiler.EndSample();
+
+            Profiler.BeginSample("Filtering");
+            using var filteredTriangles = _trianglesFilter.Filtering(decalSpace);
+            Profiler.EndSample();
+
+            Profiler.BeginSample("to Triangle upload");
+            var toTrianglesStorageBuffers = new NativeArray<Vector2>?[meshData.Length][];
+            for (var i = 0; toTrianglesStorageBuffers.Length > i; i += 1)
+            {
+                var refMeshData = meshData[i];
+                var triSubBuffer = new NativeArray<Vector2>?[refMeshData.TriangleIndex.Length];
+                for (var s = 0; triSubBuffer.Length > s; s += 1)
+                {
+                    var triangles = filteredTriangles.GetTriangles()[i][s];
+                    if (triangles.Length == 0) { triSubBuffer[s] = null; continue; }
+                    // TODO : Job を用いた高速化
+                    var packedFromTriangle = TransTexture.PackingTrianglesForTo(triangles, refMeshData.VertexUV, Allocator.Temp);
+                    triSubBuffer[s] = packedFromTriangle;
+                }
+                toTrianglesStorageBuffers[i] = triSubBuffer;
+            }
+            Profiler.EndSample();
+
+            Profiler.BeginSample("from Triangle upload and WriteDepth");
+            var fromTrianglesStorageBuffers = new NativeArray<Vector4>?[meshData.Length][];
+            switch (decalSpace)
+            {
+                default: { throw new NotSupportedException(); }
+                case IDecalSpaceWith3D decalSpaceWith3D:
+                    {
+                        var outSourceUV = decalSpaceWith3D.OutputUV();
+                        for (var i = 0; fromTrianglesStorageBuffers.Length > i; i += 1)
+                        {
+                            var refMeshData = meshData[i];
+                            var triSubBuffer = new NativeArray<Vector4>?[refMeshData.TriangleIndex.Length];
+                            for (var s = 0; triSubBuffer.Length > s; s += 1)
+                            {
+                                var triangles = filteredTriangles.GetTriangles()[i][s];
+                                if (triangles.Length == 0) { triSubBuffer[s] = null; continue; }
+                                // TODO : Job を用いた高速化
+                                var packedFromTriangle = TransTexture.PackingTrianglesForFrom(triangles, outSourceUV[i], Allocator.Temp);
+                                triSubBuffer[s] = packedFromTriangle;
+
+                            }
+                            fromTrianglesStorageBuffers[i] = triSubBuffer;
+                        }
+                        break;
+                    }
+                case IDecalSpaceWith2D decalSpaceWith2D:
+                    {
+                        var outSourceUV = decalSpaceWith2D.OutputUV();
+                        for (var i = 0; fromTrianglesStorageBuffers.Length > i; i += 1)
+                        {
+                            var refMeshData = meshData[i];
+                            var triSubBuffer = new NativeArray<Vector4>?[refMeshData.TriangleIndex.Length];
+                            for (var s = 0; triSubBuffer.Length > s; s += 1)
+                            {
+                                var triangles = filteredTriangles.GetTriangles()[i][s];
+                                if (triangles.Length == 0) { triSubBuffer[s] = null; continue; }
+                                // TODO : Job を用いた高速化
+                                var packedFromTriangle = TransTexture.PackingTrianglesForFrom(triangles, outSourceUV[i], Allocator.Temp);
+                                triSubBuffer[s] = packedFromTriangle;
+                            }
+                            fromTrianglesStorageBuffers[i] = triSubBuffer;
+                        }
+                        break;
+                    }
+            }
+
+            DepthBufferHolder? depthBuffer;
+            switch (decalSpace, UseDepthOrInvert.HasValue)
+            {
+                case (IDecalSpaceWith3D, true):
+                    {
+                        var depthBufferSize = sourceTexture.Size();
+
+                        // 最低保証
+                        depthBufferSize.x = Math.Max(depthBufferSize.x, 2048);
+                        depthBufferSize.y = Math.Max(depthBufferSize.y, 2048);
+
+                        depthBuffer = DepthBufferHolder.Create(_ttce4u, depthBufferSize);
+
+                        Profiler.BeginSample("Write Depth");
+                        for (var i = 0; fromTrianglesStorageBuffers.Length > i; i += 1)
+                        {
+                            var sub = fromTrianglesStorageBuffers[i];
+                            for (var s = 0; sub.Length > s; s += 1)
+                            {
+                                var fromTri = sub[s];
+                                if (fromTri.HasValue is false) { continue; }
+
+                                _ttce4u.WriteDepth(depthBuffer, MemoryMarshal.Cast<Vector4, TTVector4>(fromTri.Value));
+                            }
+                        }
+                        Profiler.EndSample();
+                        break;
+                    }
+                default: { depthBuffer = null; break; }
+            }
+
+            var renderTextureHolders = new Dictionary<KeyTexture, TTRenderTexWithDistance>();
             Profiler.EndSample();
             try
             {
-                Profiler.BeginSample("convertSpace.Input");
-                _convertSpace.Input(meshData);
-                Profiler.EndSample();
+                Profiler.BeginSample("Write Decals");
 
-                _trianglesFilter.SetSpace(_convertSpace);
-
-                var materials = targetRenderer.sharedMaterials;
-                var validSlotCount = Math.Min(materials.Length, meshData.Triangles.Length);
-                for (int i = 0; i < validSlotCount; i++)
+                for (var r = 0; meshData.Length > r; r += 1)
                 {
-                    var targetMat = materials[i];
+                    var md = meshData[r];
+                    var materials = md.ReferenceRenderer.sharedMaterials;
+                    var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
 
-                    if (targetMat == null) { continue; }
-                    if (!targetMat.HasProperty(TargetPropertyName)) { continue; };
-                    var targetTexture = targetMat.GetTexture(TargetPropertyName) as KeyTexture;
-                    if (targetTexture == null) { continue; }
-
-                    if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(targetMat) is false) { continue; }
-
-                    Profiler.BeginSample("GetFilteredSubTriangle");
-                    var filteredTriangle = _trianglesFilter.GetFilteredSubTriangle(i);
-                    Profiler.EndSample();
-                    if (filteredTriangle.Length == 0) { continue; }
-
-                    if (!renderTextures.ContainsKey(targetTexture))
+                    for (var s = 0; validSlot > s; s += 1)
                     {
-                        var newTempRt = renderTextures[targetTexture] = TTRenderTexWithDistance.Create(_ttce4u, (targetTexture.width, targetTexture.height), DecalPadding);
-                        newTempRt.Texture.Name = $"{targetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
-                        newTempRt.DistanceMap.Name = $"{targetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
-                    }
-                    var target = renderTextures[targetTexture];
+                        var mat = materials[s];
+                        if (mat == null) { continue; }
+                        if (mat.HasProperty(TargetPropertyName) is false) { continue; }
 
-                    Profiler.BeginSample("TransTexture");
+                        var decalTargetTexture = mat.GetTexture(TargetPropertyName) as KeyTexture;
+                        if (decalTargetTexture == null) { continue; }
+                        if (fromTrianglesStorageBuffers[r][s] is null || toTrianglesStorageBuffers[r][s] is null) { continue; }
+                        if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(mat) is false) { continue; }
 
-                    using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, target.Texture.Size(), sourceTexture.Size(), DecalPadding);
-
-                    if (UseDepthOrInvert.HasValue && _convertSpace.AllowDepth)
-                    {
-                        var sUV = _convertSpace.UVOutWithDepth();
-
-                        Profiler.BeginSample("PackingTriangles");
-                        using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
-                        using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
-                        Profiler.EndSample();
-
-                        Profiler.BeginSample("WriteMapping");
-                        var fromTriSpan = MemoryMarshal.Cast<Vector4, TTVector4>(packedFromTriangle);
-                        var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
-                        using var fromPolygonStorage = _ttce4u.UploadStorageBuffer(fromTriSpan);
-                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromPolygonStorage);
-                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
-                        Profiler.EndSample();
-
-                        Profiler.BeginSample("TransCulling");
-                        if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
-                        else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
-                        Profiler.EndSample();
-
-                        Profiler.BeginSample("WriteDepth");
-                        try
+                        if (renderTextureHolders.ContainsKey(decalTargetTexture) is false)
                         {
-                            var polygonCount = (uint)(fromTriSpan.Length / 3);
-                            _ttce4u.DepthCulling(transMappingHolder, fromPolygonStorage, polygonCount, UseDepthOrInvert.Value, 0.0001f);
+                            var newTempRt = renderTextureHolders[decalTargetTexture] = TTRenderTexWithDistance.Create(_ttce4u, (decalTargetTexture.width, decalTargetTexture.height), DecalPadding);
+                            newTempRt.Texture.Name = $"{decalTargetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                            newTempRt.DistanceMap.Name = $"{decalTargetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
                         }
-                        finally { fromPolygonStorage.Dispose(); }
-                        Profiler.EndSample();
-                    }
-                    else
-                    {
-                        var sUV = _convertSpace.UVOut();
 
-                        Profiler.BeginSample("PackingTriangles");
-                        using var packedFromTriangle = TransTexture.PackingTrianglesForFrom(filteredTriangle, sUV, Allocator.Temp);
-                        using var packedToTriangle = TransTexture.PackingTrianglesForTo(filteredTriangle, tUV, Allocator.Temp);
-                        Profiler.EndSample();
+                        var writeTarget = renderTextureHolders[decalTargetTexture];
+                        using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, writeTarget.Texture.Size(), sourceTexture.Size(), DecalPadding);
 
-                        Profiler.BeginSample("WriteMapping");
-                        var fromTriSpan = MemoryMarshal.Cast<Vector4, TTVector4>(packedFromTriangle);
-                        var toTriSpan = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(packedToTriangle);
-                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, toTriSpan, fromTriSpan);
-                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, toTriSpan, fromTriSpan);
-                        Profiler.EndSample();
-                        Profiler.BeginSample("TransCulling");
+                        var tTri = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(toTrianglesStorageBuffers[r][s]!.Value.AsSpan());
+                        var fTri = MemoryMarshal.Cast<Vector4, TTVector4>(fromTrianglesStorageBuffers[r][s]!.Value.AsSpan());
+
+                        if (HighQualityPadding is false) _ttce4u.WriteMapping(transMappingHolder, tTri, fTri);
+                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, tTri, fTri);
+
+                        if (depthBuffer is not null) { _ttce4u.DepthCulling(transMappingHolder, depthBuffer, UseDepthOrInvert!.Value); }
+
                         if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
                         else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
-                        Profiler.EndSample();
+
+                        _ttce4u.TransWrite(transMappingHolder, writeTarget, sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
                     }
-
-                    Profiler.BeginSample("TransWrite");
-                    _ttce4u.TransWrite(transMappingHolder, target, sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
-                    Profiler.EndSample();
-
-                    Profiler.EndSample();
                 }
+                Profiler.EndSample();
             }
             finally
             {
-                _trianglesFilter.Dispose();
-                _convertSpace.Dispose();
+                foreach (var ff in fromTrianglesStorageBuffers)
+                    foreach (var f in ff)
+                        if (f is not null)
+                            f.Value.Dispose();
+                foreach (var tt in toTrianglesStorageBuffers)
+                    foreach (var t in tt)
+                        if (t is not null)
+                            t.Value.Dispose();
             }
-
-
+            return renderTextureHolders;
         }
     }
 

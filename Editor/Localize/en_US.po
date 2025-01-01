@@ -598,3 +598,11 @@ msgstr "Failed to evacuate UV as all UV channels are used!"
 
 msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
 msgstr "If there is no problem, ignore this warning."
+
+# IslandSelector
+
+msgid "IslandSelector:button:AimStart"
+msgstr "AimStart"
+
+msgid "IslandSelector:button:AimExit"
+msgstr "AimExit"

@@ -66,7 +66,7 @@ namespace net.rs64.TexTransCore
     public interface ITexTransDriveStorageBufferHolder
     {
         ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false);
-        ITTStorageBuffer UploadStorageBuffer<T>(Span<T> data, bool downloadable = false) where T : unmanaged;
+        ITTStorageBuffer UploadStorageBuffer<T>(ReadOnlySpan<T> data, bool downloadable = false) where T : unmanaged;
         /// <summary>
         /// 一度ダウンロードしたら二度と使用できない。
         /// 関数内で Dispose() が呼ばれる。
@@ -111,7 +111,6 @@ namespace net.rs64.TexTransCore
     public interface ITexTransTransTextureComputeKey
     {
         ITTComputeKey TransMapping { get; }
-
         ITTComputeKey TransWarpNone { get; }
         ITTComputeKey TransWarpStretch { get; }
 

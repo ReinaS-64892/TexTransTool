@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.Decal
     public delegate JobHandle JobChain<Input>(Input input, JobHandle jobHandle);
     internal static class TriangleFilterUtility
     {
-        public static JobResult<NativeArray<bool>> FilteringTriangle<InterSpace>(NativeArray<TriangleIndex> target, InterSpace interObjects, JobChain<FilterTriangleJobInput<InterSpace>>[] filtersJobs,JobHandle jobHandle = default)
+        public static JobResult<NativeArray<bool>> FilteringTriangle<InterSpace>(NativeArray<TriangleIndex> target, InterSpace interObjects, JobChain<FilterTriangleJobInput<InterSpace>>[] filtersJobs, JobHandle jobHandle = default)
         {
             Profiler.BeginSample("FilteringTriangle");
             var filteredBit = new NativeArray<bool>(target.Length, Allocator.TempJob);
@@ -199,8 +199,6 @@ namespace net.rs64.TexTransTool.Decal
             }
 
         }
-
-
     }
 
 }

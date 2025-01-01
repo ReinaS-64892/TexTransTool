@@ -11,9 +11,9 @@ END__TT_COMPUTE_SHADER_HEADER
 cbuffer gv
 {
     uint2 DepthMapSize;
+    uint DispatchIndexOffset;
 
     float AlimentPadding1;
-    float AlimentPadding2;
 }
 
 StructuredBuffer<float4> Polygons;
@@ -34,7 +34,8 @@ float4 MinMax(float2 tri[3])
 {
     uint thisID = id.y;
     uint idMax = PARALLEL_COUNT;
-    uint polygonIndex = id.x * 3;
+    uint polygonID = DispatchIndexOffset + id.x;
+    uint polygonIndex = polygonID * 3;
 
     float2 polygon[3];
     float2 depthPolygon[3];
