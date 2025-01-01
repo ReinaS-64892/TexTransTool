@@ -32,7 +32,9 @@ namespace net.rs64.TexTransTool.Unsafe
             {
                 var triangleBuffer = new NativeArray<TriangleIndex>(desc.indexCount / 3, allocator, NativeArrayOptions.UninitializedMemory);
                 var indexes = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<int>(triangleBuffer.GetUnsafePtr(), desc.indexCount, Allocator.None);
+#if UNITY_EDITOR
                 NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref indexes, NativeArrayUnsafeUtility.GetAtomicSafetyHandle(triangleBuffer));
+#endif
                 mainMesh.GetIndices(indexes, subMeshIndex);
                 return triangleBuffer;
             }
