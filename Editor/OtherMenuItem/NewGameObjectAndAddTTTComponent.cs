@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + BoxIslandSelector.MenuPath)] static void BIS() => C<BoxIslandSelector>();
         [M(BP + SphereIslandSelector.MenuPath)] static void SIS() => C<SphereIslandSelector>();
         [M(BP + PinIslandSelector.MenuPath)] static void PIS() => C<PinIslandSelector>();
-        [M(BP + RayCastIslandSelector.MenuPath)] static void RCIS() => C<RayCastIslandSelector>();
+        [M(BP + AimIslandSelector.MenuPath)] static void AIS() => C<AimIslandSelector>();
         [M(BP + RendererIslandSelector.MenuPath)] static void RIS() => C<RendererIslandSelector>();
         [M(BP + MaterialIslandSelector.MenuPath)] static void MIS() => C<MaterialIslandSelector>();
         [M(BP + SubMeshIslandSelector.MenuPath)] static void SMIS() => C<SubMeshIslandSelector>();

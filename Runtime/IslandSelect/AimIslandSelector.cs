@@ -13,9 +13,9 @@ using net.rs64.TexTransCoreEngineForUnity;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class RayCastIslandSelector : AbstractIslandSelector
+    public class AimIslandSelector : AbstractIslandSelector
     {
-        internal const string ComponentName = "TTT " + nameof(RayCastIslandSelector);
+        internal const string ComponentName = "TTT " + nameof(AimIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
 
@@ -27,11 +27,31 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override BitArray IslandSelect(IslandSelectorContext ctx) { return RayBaseIslandSelect.RayCastIslandSelect(GetIslandSelectorRay(), ctx.Islands, ctx.IslandDescription); }
         internal RayIntersect.Ray GetIslandSelectorRay() { return new Ray(transform.position, transform.forward).ToTTCore(); }
 
+        static readonly Vector3[] lineList = new Vector3[]{
+
+            new (0f,0f,0f),
+            new (0f,0f,0.5f),
+
+
+            new (-0.05f,0f,0.45f),
+            new (0f,0f,0.5f),
+
+            new (0f,0f,0.5f),
+            new (0.05f,0f,0.45f),
+
+
+            new (0f,-0.05f,0.45f),
+            new (0f,0f,0.5f),
+
+            new (0f,0f,0.5f),
+            new (0f,0.05f,0.45f),
+        };
+
 
         internal override void OnDrawGizmosSelected()
         {
             Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawRay(Vector3.zero, new Vector3(0, 0, 1f));
+            Gizmos.DrawLineList(lineList.AsSpan());
         }
     }
 
