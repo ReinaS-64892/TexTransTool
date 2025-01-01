@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             if (tttComponents.Any() is false) { return; }
 
             var config = context.AvatarRootObject.GetComponent<NegotiateAAOConfig>();
-            var removalToIslandDisabling = config?.AAORemovalToIslandDisabling ?? true;
+            var removalToIsland = config?.AAORemovalToIsland ?? true;
             var uvEvacuationAndRegisterToAAO = config?.UVEvacuationAndRegisterToAAO ?? true;
             var overrideEvacuationIndex = (config?.OverrideEvacuationUVChannel ?? false) ? config?.OverrideEvacuationUVChannelIndex : null;
 
@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
                 if (uvEvacuationAndRegisterToAAO && UVUsageCompabilityAPI.IsTexCoordUsed(smr, 0))
                     UVEvacuation(uvBuf, smr, overrideEvacuationIndex);
 
-                if (removalToIslandDisabling is false) { continue; }
+                if (removalToIsland is false) { continue; }
                 var removalProvider = MeshRemovalProvider.GetForRenderer(smr);
                 if (removalProvider is not null)
                     using (removalProvider)
@@ -69,6 +69,8 @@ namespace net.rs64.TexTransTool.NDMF.AAO
         private static void ProvideToIsland(SkinnedMeshRenderer renderer, MeshRemovalProvider removalProvider)
         {
             var mesh = renderer.sharedMesh;
+            var editableMesh = UnityEngine.Object.Instantiate(mesh);
+            Span<int> triangleBuffer = stackalloc int[3];
 
             //今は 三角形以外を処理でき無いから、三角形以外があった時は何もしないという安全側にする
             if (Enumerable.Range(0, mesh.subMeshCount).Any(i => mesh.GetTopology(i) is not MeshTopology.Triangles)) { return; }
@@ -95,7 +97,6 @@ namespace net.rs64.TexTransTool.NDMF.AAO
                     {
                         foreach (var tri in island.triangles)
                         {
-                            Span<int> triangleBuffer = stackalloc int[3];
                             triangleBuffer[0] = tri[0];
                             triangleBuffer[1] = tri[1];
                             triangleBuffer[2] = tri[2];
@@ -131,7 +132,6 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             vertex.RemoveAll(i => usedHash.Contains(i) is false);
             var finalVertexes = vertex.Concat(vanishVertex).ToList();
 
-            var editableMesh = UnityEngine.Object.Instantiate(mesh);
             MeshInfoUtility.ClearTriangleToWriteVertex(editableMesh, meshDesc, finalVertexes);
 
             for (var i = 0; editableMesh.subMeshCount > i; i += 1)

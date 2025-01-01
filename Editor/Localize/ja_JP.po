@@ -97,6 +97,12 @@ msgstr "下に表示されるマテリアルを、割り当てた GameObject 配
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "リフレッシュマテリアル"
 
+msgid "AtlasTexture:button:SelectAll"
+msgstr "全選択"
+
+msgid "AtlasTexture:button:Invert"
+msgstr "反転"
+
 msgid "AtlasTexture:label:Target"
 msgstr "対象"
 

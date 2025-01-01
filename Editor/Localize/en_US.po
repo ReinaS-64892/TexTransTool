@@ -97,6 +97,12 @@ msgstr "Limit candidate materials to GameObject subordinates."
 msgid "AtlasTexture:button:RefreshMaterials"
 msgstr "RefreshMaterials"
 
+msgid "AtlasTexture:button:SelectAll"
+msgstr "SelectAll"
+
+msgid "AtlasTexture:button:Invert"
+msgstr "Invert"
+
 msgid "AtlasTexture:label:Target"
 msgstr "Target"
 

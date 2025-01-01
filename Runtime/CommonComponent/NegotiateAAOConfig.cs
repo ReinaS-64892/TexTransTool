@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool
 {
@@ -11,7 +12,7 @@ namespace net.rs64.TexTransTool
         public bool UVEvacuationAndRegisterToAAO = true;
         public bool OverrideEvacuationUVChannel = false;
         [Range(1, 7)] public int OverrideEvacuationUVChannelIndex = 7;
-        public bool AAORemovalToIslandDisabling = true;
+        [FormerlySerializedAs("AAORemovalToIslandDisabling")] public bool AAORemovalToIsland = true;
 
     }
 }
