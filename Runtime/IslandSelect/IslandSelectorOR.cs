@@ -24,6 +24,7 @@ namespace net.rs64.TexTransTool.IslandSelector
                 if (bitArray is null) { bitArray = selectBit; continue; }
                 bitArray.Or(selectBit);
             }
+            bitArray ??= new(islands.Length);
             return bitArray;
         }
         internal override void OnDrawGizmosSelected() { foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform)) { islandSelector.OnDrawGizmosSelected(); } }
