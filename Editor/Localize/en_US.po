@@ -367,6 +367,9 @@ msgstr "RenderersSettings"
 msgid "CommonDecal:prop:UseMaterialFiltering"
 msgstr "UseMaterialFiltering"
 
+msgid "CommonDecal:prop:AutoSelectFilterMaterials"
+msgstr "AutoSelectFilterMaterials"
+
 msgid "CommonDecal:prop:IncludingDisableRenderers"
 msgstr "IncludingDisableRenderers"
 
