@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.12...HEAD)
 
+### Fixed
+
+- IslandSelectorAND(OR,XOR) が子として連なる IslandSelector が存在しない場合に Null 例外を発生させる問題を修正 (#766)
+
 ## [v0.8.12](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...v0.8.12) - 2024-12-28
 
 ## [v0.8.11](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.10...v0.8.11) - 2024-12-24
