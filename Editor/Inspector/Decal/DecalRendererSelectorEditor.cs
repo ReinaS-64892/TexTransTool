@@ -53,6 +53,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
                                 position.y += position.height;
                             }
+                            position.height = EditorGUI.GetPropertyHeight(sAutoSelectFilterMaterials);
+                            EditorGUI.PropertyField(position, sAutoSelectFilterMaterials,"CommonDecal:prop:AutoSelectFilterMaterials".Glc());
+                            position.y += position.height;
+                            position.height = 18f;
                         }
                         EditorGUI.PropertyField(position, sIsAutoIncludingDisableRenderers, "CommonDecal:prop:IncludingDisableRenderers".Glc());
                         position.y += position.height;
@@ -86,7 +90,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     {
                         h += 18f;
                         h += 18f;
-                        if (sUseMaterialFilteringForAutoSelect.boolValue) h += 18f * ((_materialSelectionCandidates?.Count ?? 0 + 1) / 2);
+                        if (sUseMaterialFilteringForAutoSelect.boolValue)
+                        {
+                            h += 18f * ((_materialSelectionCandidates?.Count ?? 0 + 1) / 2);
+                            h += EditorGUI.GetPropertyHeight(sAutoSelectFilterMaterials);
+                        };
                         break;
                     }
                 case RendererSelectMode.Manual:

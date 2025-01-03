@@ -366,6 +366,9 @@ msgstr "レンダラー設定"
 msgid "CommonDecal:prop:UseMaterialFiltering"
 msgstr "マテリアルでフィルタリング"
 
+msgid "CommonDecal:prop:AutoSelectFilterMaterials"
+msgstr "自動選択時にフィルタリングするマテリアル"
+
 msgid "CommonDecal:prop:IncludingDisableRenderers"
 msgstr "適用時に非アクティブなレンダラーを含める"
 
