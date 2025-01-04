@@ -2,20 +2,14 @@ using System;
 using System.Buffers.Binary;
 using System.Linq;
 using System.Threading.Tasks;
+using net.rs64.ParserUtility;
 using net.rs64.PSDParser;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.PSDParser;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
-using Vector4 = UnityEngine.Vector4;
 
 namespace net.rs64.TexTransTool.PSDImporter
 {
@@ -43,9 +37,10 @@ namespace net.rs64.TexTransTool.PSDImporter
                 Profiler.BeginSample("RLE");
                 using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
 
-                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.B.ImageDataAddress.Length)));// コピーを避けるために 4の倍数に切り上げます、まぁ問題にはならないでしょうけど...ファイルの終端にぶち当たった場合は頭を抱え、コピーが走るようにします...
+                // コピーを避けるために 4の倍数に切り上げます、まぁ問題にはならないでしょうけど...ファイルの終端にぶち当たった場合は頭を抱え、コピーが走るようにします...
                 DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.R.ImageDataAddress.Length)));
                 DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.G.ImageDataAddress.Length)));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.B.ImageDataAddress.Length)));
                 if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.A.ImageDataAddress.Length)));
                 else ttce.AlphaFill(writeTarget, 1f);
                 Profiler.EndSample();
@@ -55,6 +50,12 @@ namespace net.rs64.TexTransTool.PSDImporter
                 Profiler.BeginSample("BaseFallBack");
                 base.LoadImage(importSource, ttce, writeTarget);
                 Profiler.EndSample();
+            }
+
+            if (psdCanvasDesc.BitDepth is 32)
+            {
+                // float の場合 リニア空間で保存されてるっぽい ... 本当にこの認識で正しいのだろうか ... ?
+                ttce.LinearToGamma(writeTarget);
             }
 
             Profiler.EndSample();
@@ -96,8 +97,8 @@ namespace net.rs64.TexTransTool.PSDImporter
             }
 
             computeHandler.UploadConstantsBuffer<uint>(gvID, gvBuf);
-            engine.SetStorageBufferFromUpload<TTCE,uint>(computeHandler, spanBufferID, spanBuf);
-            engine.SetStorageBufferFromUpload<TTCE,byte>(computeHandler, rleBufferID, dSpan);
+            engine.SetStorageBufferFromUpload<TTCE, uint>(computeHandler, spanBufferID, spanBuf);
+            engine.SetStorageBufferFromUpload<TTCE, byte>(computeHandler, rleBufferID, dSpan);
 
             computeHandler.SetTexture(texID, writeTarget);
 
@@ -108,22 +109,26 @@ namespace net.rs64.TexTransTool.PSDImporter
             var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
+            var containsAlpha = RasterImageData.A.ImageDataAddress.Length != 0;
+
             Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
             getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, psdBinary.PSDByteArray));
             getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, psdBinary.PSDByteArray));
             getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, psdBinary.PSDByteArray));
-            if (RasterImageData.A.ImageDataAddress.Length != 0) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, psdBinary.PSDByteArray)); }
+            if (containsAlpha) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, psdBinary.PSDByteArray)); }
             var image = WeightTask(getImageTask).Result;
+            var height = RasterImageData.RectTangle.GetHeight();
+            var width = RasterImageData.RectTangle.GetWidth();
             try
             {
                 var ppB = EnginUtil.GetPixelParByte(psdCanvasDesc.ImportedImageFormat, TexTransCoreTextureChannel.R);
 
                 var pivot = PivotT;
-                for (var y = 0; RasterImageData.RectTangle.GetHeight() > y; y += 1)
+                for (var y = 0; height > y; y += 1)
                 {
-                    for (var x = 0; RasterImageData.RectTangle.GetWidth() > x; x += 1)
+                    for (var x = 0; width > x; x += 1)
                     {
-                        var flipY = RasterImageData.RectTangle.GetHeight() - 1 - y;
+                        var flipY = height - 1 - y;
 
                         var writeX = pivot.x + x;
                         var writeY = pivot.y + flipY;
@@ -131,34 +136,34 @@ namespace net.rs64.TexTransTool.PSDImporter
                         if (writeX < 0 || writeX >= psdCanvasDesc.Width) { continue; }
                         if (writeY < 0 || writeY >= psdCanvasDesc.Height) { continue; }
 
-                        var readIndex = (x + y * RasterImageData.RectTangle.GetWidth()) * ppB;
-                        var writeIndex = (writeX + writeY * psdCanvasDesc.Width) * ppB * 4;
+                        var readIndex = (y * width + x) * ppB;
+                        var writeIndex = ((writeY * psdCanvasDesc.Width) + writeX) * ppB * 4;
 
                         switch (ppB)
                         {
                             default:
-                            case 1:
+                            case 1:// 1bit or 8bit
                                 {
                                     writeTarget[writeIndex + 0] = image[0][readIndex];
                                     writeTarget[writeIndex + 1] = image[1][readIndex];
                                     writeTarget[writeIndex + 2] = image[2][readIndex];
-                                    writeTarget[writeIndex + 3] = RasterImageData.A is not null ? image[3][readIndex] : byte.MaxValue;
+                                    writeTarget[writeIndex + 3] = containsAlpha ? image[3][readIndex] : byte.MaxValue;
                                     break;
                                 }
-                            case 4:
-                            case 8:
+                            case 2:// 16bit
+                            case 4:// 32bit
                                 {
-                                    image[0].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 0 * ppB, ppB));
-                                    image[1].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 1 * ppB, ppB));
-                                    image[2].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 2 * ppB, ppB));
-                                    if (RasterImageData.A is not null)
+                                    image[0].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + (0 * ppB), ppB));
+                                    image[1].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + (1 * ppB), ppB));
+                                    image[2].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + (2 * ppB), ppB));
+                                    if (containsAlpha)
                                     {
-                                        image[3].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + 3 * ppB, ppB));
+                                        image[3].AsSpan().Slice(readIndex, ppB).CopyTo(writeTarget.Slice(writeIndex + (3 * ppB), ppB));
                                     }
                                     else
                                     {
                                         var span = writeTarget.Slice(writeIndex + 3 * ppB, ppB);
-                                        if (ppB is 4) { BitConverter.TryWriteBytes(span, ushort.MaxValue); }
+                                        if (ppB is 2) { BitConverter.TryWriteBytes(span, ushort.MaxValue); }
                                         else { BitConverter.TryWriteBytes(span, 1f); }
                                     }
                                     break;
@@ -174,198 +179,29 @@ namespace net.rs64.TexTransTool.PSDImporter
                 image[0].Dispose();
                 image[1].Dispose();
                 image[2].Dispose();
-                if (RasterImageData.A.ImageDataAddress.Length != 0) image[3].Dispose();
+                if (containsAlpha) image[3].Dispose();
             }
         }
 
 
         protected (int x, int y) PivotT => (RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
-        protected Vector2Int Pivot => new Vector2Int(RasterImageData.RectTangle.Left, CanvasDescription.Height - RasterImageData.RectTangle.Bottom);
 
-        internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSource)
+        internal NativeArray<byte> LoadToNativeArray(ChannelImageDataParser.ChannelImageData imageData, byte[] importSourcePSDBytes)
         {
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
-            var rawByteCount = ChannelImageDataParser.ChannelImageData.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
+            var rawByteCount = ChannelImageDataParser.GetImageByteCount(RasterImageData.RectTangle, psdCanvasDesc.BitDepth);
 
             var writeArray = new NativeArray<byte>(rawByteCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             using (var buffer = new NativeArray<byte>((int)imageData.ImageDataAddress.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-                imageData.GetImageData(importSource, RasterImageData.RectTangle, buffer, writeArray);
+            {
+                importSourcePSDBytes.LongCopyTo(imageData.ImageDataAddress.StartAddress, buffer.AsSpan());
+                imageData.GetImageData((psdCanvasDesc.BitDepth, psdCanvasDesc.IsPSB), buffer, RasterImageData.RectTangle, writeArray);
+            }
             return writeArray;
         }
-
-        protected void LoadImage(byte[] importSource, RenderTexture WriteTarget)
-        {
-            // var timer = System.Diagnostics.Stopwatch.StartNew();
-            var containsAlpha = RasterImageData.A.ImageDataAddress.Length != 0;
-            Task<NativeArray<byte>>[] getImageTask = new Task<NativeArray<byte>>[4];
-            getImageTask[0] = Task.Run(() => LoadToNativeArray(RasterImageData.R, importSource));
-            getImageTask[1] = Task.Run(() => LoadToNativeArray(RasterImageData.G, importSource));
-            getImageTask[2] = Task.Run(() => LoadToNativeArray(RasterImageData.B, importSource));
-            if (containsAlpha) { getImageTask[3] = Task.Run(() => LoadToNativeArray(RasterImageData.A, importSource)); }
-
-            var texWidth = RasterImageData.RectTangle.GetWidth();
-            var texHeight = RasterImageData.RectTangle.GetHeight();
-            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
-
-            var format = BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
-
-            var texR = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
-            texR.filterMode = FilterMode.Point;
-            var texG = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
-            texG.filterMode = FilterMode.Point;
-            var texB = new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
-            texB.filterMode = FilterMode.Point;
-            var texA = containsAlpha ? new Texture2D(texWidth, texHeight, GraphicsFormat.R8_UNorm, TextureCreationFlags.None) : null;
-            if (containsAlpha) { texA.filterMode = FilterMode.Point; }
-
-            if (s_tempMat == null) { s_tempMat = new Material(MergeColorAndOffsetShader); }
-            s_tempMat.SetTexture("_RTex", texR);
-            s_tempMat.SetTexture("_GTex", texG);
-            s_tempMat.SetTexture("_BTex", texB);
-            s_tempMat.SetTexture("_ATex", texA);
-            s_tempMat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, texWidth / (float)CanvasDescription.Width, texHeight / (float)CanvasDescription.Height));
-            // s_tempMat.EnableKeyword(SHADER_KEYWORD_SRGB);
-
-            // timer.Stop(); Debug.Log(name + "+SetUp:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
-            var image = WeightTask(getImageTask).Result;
-            // timer.Stop(); Debug.Log("TaskAwait:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
-
-            texR.LoadRawTextureData(image[0]); texR.Apply();
-            texG.LoadRawTextureData(image[1]); texG.Apply();
-            texB.LoadRawTextureData(image[2]); texB.Apply();
-            if (containsAlpha) { texA.LoadRawTextureData(image[3]); texA.Apply(); }
-
-            // timer.Stop(); Debug.Log("LoadRawDataAndApply:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
-
-            Graphics.Blit(null, WriteTarget, s_tempMat);
-
-            // timer.Stop(); Debug.Log("Blit:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
-
-            // s_tempMat.DisableKeyword(SHADER_KEYWORD_SRGB);
-            image[0].Dispose();
-            image[1].Dispose();
-            image[2].Dispose();
-            if (containsAlpha) { image[3].Dispose(); }
-
-            UnityEngine.Object.DestroyImmediate(texR);
-            UnityEngine.Object.DestroyImmediate(texG);
-            UnityEngine.Object.DestroyImmediate(texB);
-            if (containsAlpha) { UnityEngine.Object.DestroyImmediate(texA); }
-
-            // timer.Stop(); Debug.Log("Dispose:" + timer.ElapsedMilliseconds + "ms"); timer.Restart();
-        }
-
-        public static TextureFormat BitDepthToTextureFormat(int bitDepth)
-        {
-            return BitDepthToTextureFormat(bitDepth, 1);
-        }
-        public static TextureFormat BitDepthToTextureFormat(int bitDepth, int channelCount)
-        {
-            switch (bitDepth, channelCount)
-            {
-                case (1, 1):
-                case (8, 1):
-                    { return TextureFormat.R8; }
-                case (8, 3):
-                    { return TextureFormat.RGB24; }
-                case (8, 4):
-                    { return TextureFormat.RGBA32; }
-                case (16, 1):
-                    { return TextureFormat.R16; }
-                case (16, 3):
-                    { return TextureFormat.RGB48; }
-                case (16, 4):
-                    { return TextureFormat.RGBA64; }
-
-                case (32, 1):
-                    { return TextureFormat.RFloat; }
-                case (32, 4):
-                    { return TextureFormat.RGBAFloat; }
-            }
-
-            throw new ArgumentOutOfRangeException();
-        }
-
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)
         {
             return await Task.WhenAll(tasks.Where(i => i != null)).ConfigureAwait(false);
         }
-        [TexTransInitialize]
-        public static void Init()
-        {
-            MergeColorAndOffsetShader = Shader.Find(MERGE_COLOR_AND_OFFSET_SHADER);
-        }
-
-
-        internal const string MERGE_COLOR_AND_OFFSET_SHADER = "Hidden/MergeColorAndOffset";
-        internal static Shader MergeColorAndOffsetShader;
-        internal static Material s_tempMat;
-        internal const string SHADER_KEYWORD_SRGB = "COLOR_SPACE_SRGB";
-
-        [BurstCompile]
-        internal struct OffsetMoveAlphaJob : IJobParallelFor
-        {
-            [NativeDisableParallelForRestriction]
-            [NativeDisableContainerSafetyRestriction]
-            [WriteOnly] public NativeArray<Color32> Target;
-            [ReadOnly] public NativeArray<byte> R;
-            [ReadOnly] public NativeArray<byte> G;
-            [ReadOnly] public NativeArray<byte> B;
-            [ReadOnly] public NativeArray<byte> A;
-            public int2 TargetSize;
-
-            public int2 SourceSize;
-            public int2 Offset;
-            public void Execute(int index)
-            {
-                var sourcePos = CovInt2(index, SourceSize.x);
-                sourcePos.y = SourceSize.y - sourcePos.y;
-                var writePos = Offset + sourcePos;
-
-                if (writePos.x < 0) { return; }
-                if (writePos.y < 0) { return; }
-                if (writePos.x >= TargetSize.x) { return; }
-                if (writePos.y >= TargetSize.y) { return; }
-
-                Target[CovInt(writePos, TargetSize.x)] = new Color32(R[index], G[index], B[index], A[index]);
-            }
-            public static int2 CovInt2(int i, int width)
-            {
-                return new int2(i % width, i / width);
-            }
-            public static int CovInt(int2 i, int width)
-            {
-                return (i.y * width) + i.x;
-            }
-        }
-        [BurstCompile]
-        internal struct OffsetMoveJob : IJobParallelFor
-        {
-            [NativeDisableParallelForRestriction]
-            [NativeDisableContainerSafetyRestriction]
-            [WriteOnly] public NativeArray<Color32> Target;
-            [ReadOnly] public NativeArray<byte> R;
-            [ReadOnly] public NativeArray<byte> G;
-            [ReadOnly] public NativeArray<byte> B;
-            public int2 TargetSize;
-
-            public int2 SourceSize;
-            public int2 Offset;
-            public void Execute(int index)
-            {
-                var sourcePos = OffsetMoveAlphaJob.CovInt2(index, SourceSize.x);
-                sourcePos.y = SourceSize.y - sourcePos.y;
-                var writePos = Offset + sourcePos;
-
-                if (writePos.x < 0) { return; }
-                if (writePos.y < 0) { return; }
-                if (writePos.x >= TargetSize.x) { return; }
-                if (writePos.y >= TargetSize.y) { return; }
-
-                Target[OffsetMoveAlphaJob.CovInt(writePos, TargetSize.x)] = new Color32(R[index], G[index], B[index], byte.MaxValue);
-            }
-
-        }
-
     }
 }

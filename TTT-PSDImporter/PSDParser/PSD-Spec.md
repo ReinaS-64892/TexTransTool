@@ -33,7 +33,7 @@
 |4(ASCII-String)|シグネチャ: "8BPS" という 恐らく ASCII で シグネチャが確定で記述されている。これに一致しなかった場合は読み取らないように、という警告が元のSpecにも記述されている。 |
 |2(ushort)|バージョン: PSD だと 1 、PSB だと 2 になっている。上と同様にそれぞれサポートしていないなら読み取らないように|
 |6|予約済み: 必ずゼロで埋める必要がある領域のようだ|
-|2(ushort)|ChannelCount: 含まれるチャンネル数の数、通常の RGB+A を持つ場合は 4。 1 ~ 56 間でサポートされている。[ImageData](#imagedata) に入っている色のチャンネル数となる。|
+|2(ushort)|ChannelCount: 含まれるチャンネル数の数、通常の RGB+A を持つ場合は 4。 1 ~ 56 間でサポートされている。[ImageData](#imagedata) に入っている色のチャンネル数となる。レイヤーが持つチャンネル数とは一致する保証はないようで、[LayerRecode](#layerrecode)の方をその場合は信用するように。|
 |4(uint)|キャンバスサイズの縦幅: ここを読み取れば PSD の Height がわかる。 1 ~ 30000 まで、 PSB だと最大 300000|
 |4(uint)|キャンバスサイズの横幅: ここを読み取れば PSD の Width がわかる。1 ~ 30000 まで、 PSB だと最大 300000|
 |2(ushort)|ビット深度: [後述](#bitdepth) |
@@ -764,6 +764,17 @@ for (var x = 0; width > x; x += 1)
     write[writeIndex + 3] = three[x];
 }
 ```
+
+#### ZIPWithPredictionWithImageData
+
+恐らく RLE や Raw と違って圧縮時のサイズが予期できないからか、 16bit or 32bit PSD では ImageData では使用されていません。
+
+- RLE は CompressedWidthLengthArray を読み取り、すべての合計値を求めれば長さがわかる
+- Raw は 縦幅 \* 横幅 \* (BitDepth / 8) でバイト数がわかる
+
+- Zip(zlib) は構造的に長さがわかるのかは私はわからないので謎ですが ... 一般にわかるわけではないとみていいでしょう。
+
+だからか、使用されておらず、16bit or 32bit PSD では Raw で ImageData が配置されています。
 
 ## UnicodeString
 

@@ -344,7 +344,6 @@ namespace net.rs64.TexTransTool.PSDParser
             //サイズゼロで一色のマスクが存在することがあるっぽくて、画像のあるなしでは判別してはいけないらしい。
             // if (record.LayerMaskAdjustmentLayerData.RectTangle.CalculateRawCompressLength() == 0) { return null; }
 
-
             var importedMask = new PSDImportedRasterMaskImageData();
             importedMask.RectTangle = record.LayerMaskAdjustmentLayerData.RectTangle;
             importedMask.MaskImage = channelInfoAndImage[ChannelIDEnum.UserLayerMask];
@@ -381,58 +380,6 @@ namespace net.rs64.TexTransTool.PSDParser
             }
             return channelInfoAndImage;
         }
-
-        // public static NativeArrayMap<Color32> DrawOffsetEvaluateTexture(
-        //     NativeArrayMap<Color32> targetTexture,
-        //     Vector2Int texturePivot,
-        //     Vector2Int canvasSize,
-        //     Color? DefaultColor
-        // )
-        // {
-        //     var RightUpPos = texturePivot + targetTexture.MapSize;
-        //     var Pivot = texturePivot;
-        //     if (RightUpPos != canvasSize || Pivot != Vector2Int.zero)
-        //     {
-        //         return TextureOffset(targetTexture, canvasSize, Pivot, DefaultColor);
-        //     }
-        //     else
-        //     {
-        //         return targetTexture;
-        //     }
-        // }
-
-        // public static NativeArrayMap<Color32> TextureOffset(NativeArrayMap<Color32> texture, Vector2Int TargetSize, Vector2Int Pivot, Color32? DefaultColor)
-        // {
-        //     var sTex2D = texture;
-        //     var tTex2D = new NativeArrayMap<Color32>(new NativeArray<Color32>(TargetSize.x * TargetSize.y, Allocator.TempJob), TargetSize.x, TargetSize.y);
-        //     var initColor = DefaultColor.HasValue ? DefaultColor.Value : new Color32(0, 0, 0, 0);
-        //     tTex2D.Array.Fill(initColor);
-
-
-        //     var xStart = Mathf.Max(-Pivot.x, 0);
-        //     var xEnd = Mathf.Min(Pivot.x + sTex2D.Width, TargetSize.x) - Pivot.x;
-        //     var xLength = xEnd - xStart;
-
-        //     var yStart = Mathf.Max(-Pivot.y, 0);
-        //     var yEnd = Mathf.Min(Pivot.y + sTex2D.MapSize.y, TargetSize.y) - Pivot.y;
-
-        //     if (xLength < 0)
-        //     {
-        //         texture.Dispose();
-        //         return tTex2D;
-        //     }
-
-
-        //     for (var yi = yStart; yEnd > yi; yi += 1)
-        //     {
-        //         var sSpan = sTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart, yi, sTex2D.Width), xLength);
-        //         var tSpan = tTex2D.Array.Slice(NativeArrayMap<int>.Convert1D(xStart + Pivot.x, yi + Pivot.y, tTex2D.Width), xLength);
-        //         sSpan.CopyTo(tSpan);
-        //     }
-        //     texture.Dispose();
-        //     return tTex2D;
-        // }
-
     }
 
     [Serializable]

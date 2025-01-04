@@ -1,15 +1,11 @@
 using System;
+using net.rs64.ParserUtility;
 using net.rs64.PSDParser;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.PSDParser;
 using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Profiling;
 using static net.rs64.TexTransCore.RenderTextureOperator;
 
 namespace net.rs64.TexTransTool.PSDImporter
@@ -57,10 +53,10 @@ namespace net.rs64.TexTransTool.PSDImporter
                 case TexTransCoreTextureFormat.UShort:
                     {
                         var writeValue = (ushort)(MaskImageData.DefaultValue / (float)byte.MaxValue * ushort.MaxValue);
-                        var forByteLen = writeTarget.Length / 4;
+                        var forByteLen = writeTarget.Length / 2;
                         for (var i = 0; forByteLen > i; i += 1)
                         {
-                            BitConverter.TryWriteBytes(writeTarget.Slice(i * 4, 4), writeValue);
+                            BitConverter.TryWriteBytes(writeTarget.Slice(i * 2, 2), writeValue);
                         }
                         break;
                     }
@@ -77,23 +73,26 @@ namespace net.rs64.TexTransTool.PSDImporter
             }
 
             using var buffer = new NativeArray<byte>((int)MaskImageData.MaskImage.ImageDataAddress.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            using var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            MaskImageData.MaskImage.GetImageData(psdBinary.PSDByteArray, MaskImageData.RectTangle, buffer, data);
+            using var data = new NativeArray<byte>(ChannelImageDataParser.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            psdBinary.PSDByteArray.LongCopyTo(MaskImageData.MaskImage.ImageDataAddress.StartAddress, buffer.AsSpan());
+            MaskImageData.MaskImage.GetImageData((psdCanvasDesc.BitDepth, psdCanvasDesc.IsPSB), buffer, MaskImageData.RectTangle, data);
 
 
             var ppB = EnginUtil.GetPixelParByte(psdCanvasDesc.ImportedImageFormat, TexTransCoreTextureChannel.R);
+            var width = MaskImageData.RectTangle.GetWidth();
+            var height = MaskImageData.RectTangle.GetHeight();
 
             var pivot = PivotT;
-            for (var y = 0; MaskImageData.RectTangle.GetHeight() > y; y += 1)
+            for (var y = 0; height > y; y += 1)
             {
-                for (var x = 0; MaskImageData.RectTangle.GetWidth() > x; x += 1)
+                for (var x = 0; width > x; x += 1)
                 {
-                    var flipY = MaskImageData.RectTangle.GetHeight() - 1 - y;
+                    var flipY = height - 1 - y;
 
                     var writeX = pivot.x + x;
                     var writeY = pivot.y + flipY;
 
-                    var readIndex = (x + y * MaskImageData.RectTangle.GetWidth()) * ppB;
+                    var readIndex = (y * width + x) * ppB;
                     var writeIndex = (writeX + writeY * psdCanvasDesc.Width) * ppB * 4;
 
                     if (writeX < 0 || writeX >= psdCanvasDesc.Width) { continue; }
@@ -128,82 +127,6 @@ namespace net.rs64.TexTransTool.PSDImporter
         }
 
         protected (int x, int y) PivotT => (MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
-        protected Vector2Int Pivot => new Vector2Int(MaskImageData.RectTangle.Left, CanvasDescription.Height - MaskImageData.RectTangle.Bottom);
-
-        protected JobResult<NativeArray<Color32>> LoadImage(byte[] importSource, NativeArray<Color32>? writeTarget = null)
-        {
-            Profiler.BeginSample("Init");
-            var native2DArray = writeTarget ?? new NativeArray<Color32>(CanvasDescription.Width * CanvasDescription.Height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            Unsafe.UnsafeNativeArrayUtility.ClearMemoryOnColor(native2DArray, MaskImageData.DefaultValue);
-
-            var canvasSize = new int2(CanvasDescription.Width, CanvasDescription.Height);
-            var sourceTexSize = new int2(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight());
-
-            Profiler.EndSample();
-
-            JobHandle offsetJobHandle;
-            if ((MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0) { return new(native2DArray); }
-
-            Profiler.BeginSample("RLE");
-
-            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
-            var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var buffer = new NativeArray<byte>((int)MaskImageData.MaskImage.ImageDataAddress.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, buffer, data);
-
-            Profiler.EndSample();
-            Profiler.BeginSample("OffsetMoveAlphaJobSetUp");
-
-            var offset = new PSDImportedRasterImage.OffsetMoveAlphaJob()
-            {
-                Target = native2DArray,
-                R = data,
-                G = data,
-                B = data,
-                A = data,
-                Offset = new int2(Pivot.x, Pivot.y),
-                SourceSize = sourceTexSize,
-                TargetSize = canvasSize,
-            };
-            offsetJobHandle = offset.Schedule(data.Length, 64);
-
-            Profiler.EndSample();
-            return new(native2DArray, offsetJobHandle, () => { data.Dispose(); });
-        }
-        protected void LoadImage(byte[] importSource, RenderTexture WriteTarget)
-        {
-            var isZeroSize = (MaskImageData.RectTangle.GetWidth() * MaskImageData.RectTangle.GetHeight()) == 0;
-            if (PSDImportedRasterImage.s_tempMat == null) { PSDImportedRasterImage.s_tempMat = new Material(PSDImportedRasterImage.MergeColorAndOffsetShader); }
-            var mat = PSDImportedRasterImage.s_tempMat;
-
-            var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
-            var format = PSDImportedRasterImage.BitDepthToTextureFormat(psdCanvasDesc.BitDepth);
-
-            var texR = new Texture2D(MaskImageData.RectTangle.GetWidth(), MaskImageData.RectTangle.GetHeight(), GraphicsFormat.R8_UNorm, TextureCreationFlags.None);
-            texR.filterMode = FilterMode.Point;
-
-            TextureBlend.FillColor(WriteTarget, new Color32(MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue, MaskImageData.DefaultValue));
-
-            if (!isZeroSize)
-            {
-                using (var data = new NativeArray<byte>(ChannelImageDataParser.ChannelImageData.GetImageByteCount(MaskImageData.RectTangle, psdCanvasDesc.BitDepth), Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-                using (var buffer = new NativeArray<byte>((int)MaskImageData.MaskImage.ImageDataAddress.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-                {
-                    MaskImageData.MaskImage.GetImageData(importSource, MaskImageData.RectTangle, buffer, data);
-                    texR.LoadRawTextureData(data); texR.Apply();
-                }
-
-                mat.SetTexture("_RTex", texR);
-                mat.SetTexture("_GTex", texR);
-                mat.SetTexture("_BTex", texR);
-                mat.SetTexture("_ATex", texR);
-
-                mat.SetVector("_Offset", new Vector4(Pivot.x / (float)CanvasDescription.Width, Pivot.y / (float)CanvasDescription.Height, MaskImageData.RectTangle.GetWidth() / (float)CanvasDescription.Width, MaskImageData.RectTangle.GetHeight() / (float)CanvasDescription.Height));
-                Graphics.Blit(null, WriteTarget, mat);
-            }
-
-            UnityEngine.Object.DestroyImmediate(texR);
-        }
     }
 }
 

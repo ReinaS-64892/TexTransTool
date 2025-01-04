@@ -97,5 +97,19 @@ namespace net.rs64.TexTransCore
         {
             return v % 4 is not 0 ? v + (4 - v % 4) : v;
         }
+
+        public static float LinearToGamma(float v)
+        {
+            if (v <= 0f) { return 0f; }
+            if (v <= 0.0031308f) { return 12.92f * v; }
+            if (v < 1.0f) { return 1.055f * (float)Math.Pow(Math.Abs(v), 0.4166667f) - 0.055f; }
+            return (float)Math.Pow(Math.Abs(v), 0.45454545f);
+        }
+        public static float GammaToLinear(float v)
+        {
+            if (v <= 0.04045) { return 0.0f; }
+            if (v < 1.0f) { return (float)Math.Pow((Math.Abs(v) + 0.055f) / 1.055f, 2.4f); }
+            return (float)Math.Pow(Math.Abs(v), 2.2f);
+        }
     }
 }
