@@ -202,14 +202,8 @@ namespace net.rs64.TexTransTool
                 foreach (var mergeResult in MergedStacks)
                 {
                     if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
-                    SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
+                    this.ReplaceTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
                     TransferAsset(mergeResult.MergeTexture);
-                }
-                void SetTexture(Texture2D target, Texture2D setTex)
-                {
-                    var mats = RendererUtility.GetFilteredMaterials(_subDomainsRenderer);
-                    ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
-                    RegisterReplace(target, setTex);
                 }
             }
         }
