@@ -60,7 +60,7 @@ namespace net.rs64.TexTransTool
             var containedHash = new Dictionary<Material, bool>();
             foreach (var r in domainRenderers)
             {
-                var mats = r.sharedMaterials;
+                var mats = r.sharedMaterials.Where(i => i != null);
                 if (mats.Any(containedHash.GetValueOrDefault)) // キャッシュに true になるものがあったら、調査をすべてスキップしてあった事にする。
                 {
                     yield return r;
