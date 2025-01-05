@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
 - 一部の場合で Material が一時アセットだった場合に複製せずにテクスチャを置き換えるようになりました (#744)
 - SimpleDecal に Select Mode が追加され 既存の方法は Manual に そして新規に、範囲内であれば自動で選択され、マテリアルでフィルタリングも可能な Auto が追加されました (#753)
+- TexTransTool の内部処理で使用される RenderTexture の Format を指定できる設定 InternalTextureFormat が `Tools/TexTransTool` に追加されました (#774)
 
 ### Removed
 
