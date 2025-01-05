@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.12...HEAD)
 
+### Fixed
+
+- AAO:Avatar Optimizer との API を用いた連携の時に、 ポリゴンが存在しないサブメッシュが対象に含まれていると例外が発生する問題を修正 (#771)
+
 ## [v0.8.12](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...v0.8.12) - 2024-12-28
 
 ### Added
