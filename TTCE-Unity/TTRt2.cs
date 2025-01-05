@@ -17,6 +17,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
         private static readonly Dictionary<RenderTexture, TempRtState> s_reverseTempRtState = new();
         private static int s_releaseFrameCount = 0;
 
+        public static void SetRGBAFormat(TexTransCoreTextureFormat format) { RGBAFormat = format; }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RenderTexture Get(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
