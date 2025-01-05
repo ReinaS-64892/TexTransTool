@@ -107,7 +107,7 @@ namespace net.rs64.TexTransTool.PSDParser
                 {
                     case PSDImportMode.Photoshop:
                         {
-                            // Photosohp の挙動に、色調補正系 つまり Grab系 が存在する通過レイヤーフォルダーに対する クリッピングを行うと、そのレイヤーフォルダーは通過ではなくる仕様の修正
+                            // Photosohp の挙動に、色調補正系 つまり Grab系 が存在する通過レイヤーフォルダーに対する クリッピングを行うと、そのレイヤーフォルダーは通過ではなくなる仕様の修正
                             // TTT は 通過レイヤーフォルダーに Grab系が存在しても、クリッピングされたときに挙動を変えるみたいな奇妙なことをしないので、
                             if (layer is LayerFolderData lf && lf.PassThrough)
                             {
