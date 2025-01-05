@@ -191,23 +191,6 @@ namespace net.rs64.ParserUtility
             throw new NotImplementedException();
         }
 
-
-
-
-
-        public static void Fill<T>(this Span<T> values, T val) where T : struct
-        {
-            for (var i = 0; values.Length > i; i += 1)
-            {
-                values[i] = val;
-            }
-        }
-
-        public static void CopyTo<T>(this Span<T> from, Span<T> to) where T : struct
-        {
-            to.CopyFrom(from);
-        }
-
         public static void CopyFrom<T>(this Span<T> to, Span<T> from) where T : struct
         {
             for (var i = 0; to.Length > i; i += 1)

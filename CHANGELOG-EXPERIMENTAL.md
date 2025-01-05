@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - シーンビューからエイムすることでアイランドを選択できる AimIslandSelector が追加されました (#764)
 - マテリアルの参照をベースにアイランドを選択できる MaterialIslandSelector が追加されました (#764)
 - SimpleDecal の DepthDecal 機能が内部実装の変更により、レンダラーごとではなくすべてのレンダラーで統一された Depthバッファー を参照するようになりました (#764)
+- TTT PSD Importer は PSD の ImageDataSection の画像を PSDImportedImageDataSectionImage としてインポートするようになりました (#772)
+- TTT PSD Importer は 32bit PSD と 16bit PSD のプレビューが可能になりました (#772)
 
 ### Changed
 

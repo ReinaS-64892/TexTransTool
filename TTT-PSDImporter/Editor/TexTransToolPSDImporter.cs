@@ -67,11 +67,21 @@ namespace net.rs64.TexTransTool.PSDImporter
                 var mliImporter = new MultiLayerImageImporter(multiLayerImageCanvas, canvasDescription, ctx, CreatePSDImportedImage);
                 mliImporter.AddLayers(pSDData.RootLayers);
 
+                // TODO : これもうちょっと何とかしてもいいかも ... ?
+                var imageDataSectionImage = ScriptableObject.CreateInstance<PSDImportedImageDataSectionImage>();
+                imageDataSectionImage.CanvasDescription = canvasDescription;
+                imageDataSectionImage.ImageDataSectionData = new(lowPSDData);
+                imageDataSectionImage.name = "PSDImageDataSectionImage";
+
+
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Import Canvas", "SaveSubAsset", 0.5f);
                 Profiler.BeginSample("SaveSubAssets");
 
                 mliImporter.SaveSubAsset();
+
+                // TODO : 上と同様
+                ctx.AddObjectToAsset("PSDImageDataSectionImage", imageDataSectionImage);
 
                 Profiler.EndSample();
                 Profiler.EndSample();
