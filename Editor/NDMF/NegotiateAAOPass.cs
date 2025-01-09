@@ -136,7 +136,8 @@ namespace net.rs64.TexTransTool.NDMF.AAO
 
             for (var i = 0; editableMesh.subMeshCount > i; i += 1)
             {
-                (var tri, var reTri) = removalsDict[i];
+                if (removalsDict.TryGetValue(i, out var triTuple) is false) { continue; }
+                (var tri, var reTri) = triTuple;
                 var triangles = tri.Concat(reTri).Select(vi => finalVertexes.IndexOf(vi)).ToArray();
                 editableMesh.SetTriangles(triangles, i);
             }
