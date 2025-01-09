@@ -24,12 +24,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SimpleDecal の DepthDecal 機能が内部実装の変更により、レンダラーごとではなくすべてのレンダラーで統一された Depthバッファー を参照するようになりました (#764)
 - TTT PSD Importer は PSD の ImageDataSection の画像を PSDImportedImageDataSectionImage としてインポートするようになりました (#772)
 - TTT PSD Importer は 32bit PSD と 16bit PSD のプレビューが可能になりました (#772)
+- 一つの子となる IslandSelector を基に IslandSelect の範囲を広げて選択できる、 IslandSelectorLink系 コンポーネントが 4つ 追加されました (#777)
 
 ### Changed
 
 - SingleGradationDecal がデフォルト設定では 無効なレンダラーに対して描画しないようになりました (#753)
 - RayCastIslandSelector は PinIslandSelector に名前が変更されました (#764)
 - Decal系は Preview の場合 HighQualityPadding が無効化されるように変更されました (#764)
+- SubMeshIslandSelector が SubMeshIndexIslandSelector に名前が変更されました (#777)
 
 ### Fixed
 
