@@ -42,9 +42,9 @@ namespace net.rs64.TexTransTool.Migration
 
             var selectUtilBox = new VisualElement();
             selectUtilBox.style.flexDirection = FlexDirection.Row;
-            var prefabSelectAll = new Button(() => { foreach (var toggle in PrefabToToggle.Values) toggle.value = true; });
+            var prefabSelectAll = new Button(() => { foreach (var toggle in PrefabToToggle.Values.Where(i => i.enabledSelf)) toggle.value = true; });
             prefabSelectAll.text = "PrefabSelectAll";
-            var prefabSelectInvert = new Button(() => { foreach (var toggle in PrefabToToggle.Values) toggle.value = !toggle.value; });
+            var prefabSelectInvert = new Button(() => { foreach (var toggle in PrefabToToggle.Values.Where(i => i.enabledSelf)) toggle.value = !toggle.value; });
             prefabSelectInvert.text = "PrefabSelectInvert";
             selectUtilBox.hierarchy.Add(prefabSelectAll);
             selectUtilBox.hierarchy.Add(prefabSelectInvert);
@@ -114,7 +114,7 @@ namespace net.rs64.TexTransTool.Migration
                 }
             }
 
-            Scene = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).Where(path => !AAOMigrator.IsReadOnlyPath(path)).ToDictionary(i => i, i => false);
+            Scene = AAOMigrator.GetMigratableScenes().ToDictionary(i => i, i => false);
             SceneToToggle = Scene.ToDictionary(s => s.Key, s => new Toggle(Path.GetFileNameWithoutExtension(s.Key)) { value = false, tooltip = s.Key });
             foreach (var toggleKV in SceneToToggle)
             {
@@ -141,7 +141,7 @@ namespace net.rs64.TexTransTool.Migration
 
         void Migration()
         {
-            var prefabTarget = MigrationTarget.Where(kv => kv.Value).Select(kv => kv.Key).ToHashSet();
+            var prefabTarget = MigrationTarget.Where(kv => kv.Key.activeSelf && kv.Value).Select(kv => kv.Key).ToHashSet();
 
             var saveDataVersionValues = PrefabMinimumSaveDataVersion.Where(kv => prefabTarget.Contains(kv.Key)).Select(i => i.Value);
             if (saveDataVersionValues.Any() is false) { saveDataVersionValues = saveDataVersionValues.Append(0); }

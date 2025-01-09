@@ -311,6 +311,15 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
         {
             return InterfaceUtility.GetInterfaceInstance<IMigrator>().ToDictionary(i => i.MigrateTarget, i => i);
         }
+        const string PACKAGES = "Packages";
+        internal static IEnumerable<string> GetMigratableScenes()
+        {
+            return AssetDatabase.FindAssets("t:scene")
+             .Select(AssetDatabase.GUIDToAssetPath)
+             .Where(path => !IsReadOnlyPath(path))
+             .Where(path => path.StartsWith(PACKAGES) is false)
+             ;
+        }
 #pragma warning restore CS0612
         private static void MigratePartialFor(IMigrator migrator, HashSet<GameObject> targetPrefabs, HashSet<string> targetScenePath, bool continuesMigrate = false)
         {
@@ -319,7 +328,7 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
                 if (!continuesMigrate) PreMigration();
 
                 var prefabs = GetPrefabs().Where(targetPrefabs.Contains).ToList();
-                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).Where(targetScenePath.Contains).ToList();
+                var scenePaths = GetMigratableScenes().Where(targetScenePath.Contains).ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
 
                 MigratePrefabsImpl(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
@@ -371,7 +380,7 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
                 if (!continuesMigrate) PreMigration();
 
                 var prefabs = GetPrefabs();
-                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                var scenePaths = GetMigratableScenes().ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
 
                 MigratePrefabsImpl(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
