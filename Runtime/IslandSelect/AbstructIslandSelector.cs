@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using Unity.Collections;
 using System.Collections;
@@ -52,7 +53,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         public readonly NativeArray<Vector3> Position;//ワールドスペース
         public readonly NativeArray<Vector2> UV;
         public readonly Renderer Renderer;
-        public readonly int MaterialSlot;
+        public readonly int MaterialSlot;// SubMeshIndex でもある
 
         public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, int materialSlot)
         {

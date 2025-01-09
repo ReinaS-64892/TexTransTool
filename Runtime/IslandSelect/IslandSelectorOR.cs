@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override void LookAtCalling(ILookingObject looker) { LookAtChildren(this, looker); }
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
-            BitArray bitArray = null;
+            BitArray? bitArray = null;
             foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform))
             {
                 Profiler.BeginSample(islandSelector.GetType().Name);
@@ -22,7 +23,8 @@ namespace net.rs64.TexTransTool.IslandSelector
                 if (bitArray is null) { bitArray = selectBit; continue; }
                 bitArray.Or(selectBit);
             }
-            return bitArray;
+            System.Diagnostics.Debug.Assert(bitArray is not null);
+            return bitArray!;
         }
         internal override void OnDrawGizmosSelected() { foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform)) { islandSelector.OnDrawGizmosSelected(); } }
     }

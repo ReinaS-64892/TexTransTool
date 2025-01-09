@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;

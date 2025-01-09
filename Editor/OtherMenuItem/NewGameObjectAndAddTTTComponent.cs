@@ -50,11 +50,15 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + AimIslandSelector.MenuPath)] static void AIS() => C<AimIslandSelector>();
         [M(BP + RendererIslandSelector.MenuPath)] static void RIS() => C<RendererIslandSelector>();
         [M(BP + MaterialIslandSelector.MenuPath)] static void MIS() => C<MaterialIslandSelector>();
-        [M(BP + SubMeshIslandSelector.MenuPath)] static void SMIS() => C<SubMeshIslandSelector>();
+        [M(BP + SubMeshIndexIslandSelector.MenuPath)] static void SMIIS() => C<SubMeshIndexIslandSelector>();
         [M(BP + IslandSelectorOR.MenuPath)] static void ISOR() => C<IslandSelectorOR>();
         [M(BP + IslandSelectorAND.MenuPath)] static void ISAND() => C<IslandSelectorAND>();
         [M(BP + IslandSelectorNOT.MenuPath)] static void ISNOT() => C<IslandSelectorNOT>();
         [M(BP + IslandSelectorXOR.MenuPath)] static void ISXOR() => C<IslandSelectorXOR>();
+        [M(BP + RendererIslandSelectorLink.MenuPath)] static void RISL() => C<RendererIslandSelectorLink>();
+        [M(BP + MaterialIslandSelectorLink.MenuPath)] static void MISL() => C<MaterialIslandSelectorLink>();
+        [M(BP + SubMeshIndexIslandSelectorLink.MenuPath)] static void SMIISL() => C<SubMeshIndexIslandSelectorLink>();
+        [M(BP + SubMeshIslandSelectorLink.MenuPath)] static void SMISL() => C<SubMeshIslandSelectorLink>();
 
         [M(BP + SingleGradationDecal.MenuPath)] static void SGD() => C<SingleGradationDecal>();
         [M(BP + TextureConfigurator.MenuPath)] static void TC() => C<TextureConfigurator>();
