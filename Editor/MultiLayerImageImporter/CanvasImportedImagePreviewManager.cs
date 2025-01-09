@@ -14,6 +14,7 @@ using Debug = UnityEngine.Debug;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using UnityEditor.SceneManagement;
 
 
 
@@ -68,6 +69,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             AssemblyReloadEvents.beforeAssemblyReload += ReleaseManager;
             EditorApplication.playModeStateChanged += StateChangedEventLister;
+            EditorSceneManager.activeSceneChangedInEditMode += ActiveSceneChanged;
 
         }
         static void StateChangedEventLister(PlayModeStateChange playModeStateChange)
@@ -81,6 +83,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                         break;
                     }
             }
+        }
+        static void ActiveSceneChanged(UnityEngine.SceneManagement.Scene prev, UnityEngine.SceneManagement.Scene now)
+        {
+            ReleaseManager();
         }
 #if CONTAINS_TTCE_WGPU
         static bool tryDeviceCreateLimiter = false;//セーフティ
@@ -137,7 +143,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 #endif
         public static Texture2D PlaceHolderOrErrorTexture { get; private set; } = null!;
 
-        static Dictionary<TTTImportedImage, Task<Func<Texture2D>>> s_previewsTask = new();
+        static Dictionary<TTTImportedImage, Task<Func<Texture2D?>>> s_previewsTask = new();
         static Dictionary<TTTImportedImage, Texture2D> s_previewsDict = new();
         static Dictionary<string, HashSet<TTTImportedImage>> s_guid2Images = new();
         public static Texture2D GetPreview(TTTImportedImage importedImage)
@@ -166,6 +172,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 var tex2D = task.Result.Invoke();
                 Profiler.EndSample();
                 // EditorUtility.ClearProgressBar();
+
+                if (tex2D == null) { texture = null; return false; }
 
                 s_previewsTask.Remove(importedImage);
                 texture = s_previewsDict[importedImage] = tex2D;
@@ -196,8 +204,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             {
                 await task.ConfigureAwait(false);
 
-                Func<Texture2D> tex2DResult = () =>
+                Func<Texture2D?> tex2DResult = () =>
                 {
+                    if (previewTex == null) { return null; }
                     previewTex.Apply(true, true);
                     return previewTex;
                 };
@@ -266,8 +275,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 {
                     await task.ConfigureAwait(false);
 
-                    Func<Texture2D> tex2DResult = () =>
+                    Func<Texture2D?> tex2DResult = () =>
                     {
+                        if(previewTex == null){ return null; }
                         Profiler.BeginSample("CompressAndFinalize");
                         EditorUtility.CompressTexture(previewTex, TextureFormat.BC7, 100);
                         previewTex.Apply(true);
