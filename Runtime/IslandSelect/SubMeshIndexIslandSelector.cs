@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
@@ -5,9 +6,9 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class SubMeshIslandSelector : AbstractIslandSelector
+    public class SubMeshIndexIslandSelector : AbstractIslandSelector
     {
-        internal const string ComponentName = "TTT SubMeshIslandSelector";
+        internal const string ComponentName = "TTT " + nameof(SubMeshIndexIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
         public int SelectSubMeshIndex = 0;

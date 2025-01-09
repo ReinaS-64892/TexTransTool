@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using Unity.Collections;
 using System.Collections;

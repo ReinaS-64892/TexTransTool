@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT " + nameof(MaterialIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public List<Material> Materials = new();
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
-        public List<Material> Materials;
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             var selectRendererHash = ctx.OriginEqual.GetDomainsMaterialsHashSet(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), Materials);

@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using Unity.Collections;
 using System.Collections;
@@ -17,7 +18,6 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string ComponentName = "TTT " + nameof(AimIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-
 
         internal override void LookAtCalling(ILookingObject looker)
         {

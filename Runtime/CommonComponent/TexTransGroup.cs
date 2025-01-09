@@ -12,6 +12,7 @@ namespace net.rs64.TexTransTool
         internal const string ComponentName = "TTT TexTransGroup";
         internal const string MenuPath = TexTransGroup.FoldoutName + "/" + ComponentName;
 
+#nullable enable
         internal static IEnumerable<Behavior> GetChildeComponent<Behavior>(Transform transform)
         {
             return transform.GetChildren().Select(x => x.GetComponent<Behavior>()).Where(x => x != null);
