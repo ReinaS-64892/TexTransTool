@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture が誤って Renderer.enabled が無効なレンダラーを IncludeDisableRenderer が無効な場合に含めてしまっていた問題を修正 (#756)
+- Migrator ウィンドウにて、マイグレーションする必要のない Prefab が選択できたり、実行対象に含まれてしまう問題を修正 (#779)
+- Packages 配下にある Scene を誤ってマイグレーションしてしまっていた問題を修正 (#779)
 
 ## [v0.8.12](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.11...v0.8.12) - 2024-12-28
 
