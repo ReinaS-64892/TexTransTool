@@ -1,6 +1,6 @@
+#nullable enable
 using System;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -10,10 +10,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         internal const string ComponentName = "TTT LevelAdjustmentLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        public Level RGB;
-        public Level Red;
-        public Level Green;
-        public Level Blue;
+        public Level RGB = new();
+        public Level Red = new();
+        public Level Green = new();
+        public Level Blue = new();
         internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
             return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new LevelAdjustment(RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData()));

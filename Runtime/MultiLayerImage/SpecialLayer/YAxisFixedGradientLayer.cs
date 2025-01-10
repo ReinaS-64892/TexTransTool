@@ -1,3 +1,4 @@
+#nullable enable
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCoreEngineForUnity;
@@ -27,6 +28,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
 
         public const string Y_AXIS_FIXED_GRADIENT = "Hidden/YAxisFixedGradient";
-        public static Shader YAxisFixedGradientShader;
+        public static Shader YAxisFixedGradientShader = null!;
     }
 }

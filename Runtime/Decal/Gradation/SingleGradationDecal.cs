@@ -1,16 +1,11 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.IslandSelector;
 using System;
-using JetBrains.Annotations;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Burst;
-using net.rs64.TexTransCoreEngineForUnity;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.TransTexture;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -21,10 +16,10 @@ namespace net.rs64.TexTransTool.Decal
         internal const string MenuPath = ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
         public DecalRendererSelector RendererSelector = new() { UseMaterialFilteringForAutoSelect = true };
-        public Gradient Gradient;
+        public Gradient Gradient = new();
         [Range(0, 1)] public float Alpha = 1;
         public bool GradientClamp = true;
-        public AbstractIslandSelector IslandSelector;
+        public AbstractIslandSelector? IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
@@ -34,7 +29,7 @@ namespace net.rs64.TexTransTool.Decal
         #region V5SaveData
         [Obsolete("V5SaveData", true)][SerializeField] internal List<Material> TargetMaterials = new();
         #endregion V5SaveData
-        internal override void Apply([NotNull] IDomain domain)
+        internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));

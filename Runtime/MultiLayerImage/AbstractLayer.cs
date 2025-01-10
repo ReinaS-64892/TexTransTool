@@ -1,5 +1,5 @@
+#nullable enable
 using System;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore;
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 case MultiLayerImage.LayerMask layerMask:
                     {
                         if (layerMask.ContainedMask is false) { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
-                        var importedDiskTex = engine.Wrapping(layerMask.MaskTexture);
+                        var importedDiskTex = engine.Wrapping(layerMask.MaskTexture!);
                         return new TexTransCore.MultiLayerImageCanvas.DiskToMask<TTCE4U>(importedDiskTex, Opacity);
                     }
             }
@@ -62,11 +62,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     public class LayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
-        public Texture2D MaskTexture;
+        public Texture2D? MaskTexture;
 
         public bool ContainedMask => LayerMaskDisabled is false && MaskTexture != null;
 
-        public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
+        public void LookAtCalling(ILookingObject lookingObject) { if (MaskTexture != null) lookingObject.LookAt(MaskTexture); }
 
         public void WriteMaskTexture<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         where TTCE4U : ITexTransToolForUnity
@@ -76,6 +76,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
+            if (MaskTexture == null) { throw new InvalidOperationException(); }
             using var lm = engine.Wrapping(MaskTexture);
             engine.LoadTextureWidthAnySize(renderTexture, lm);
         }

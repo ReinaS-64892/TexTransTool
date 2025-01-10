@@ -1,6 +1,6 @@
+#nullable enable
 using System;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;

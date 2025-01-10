@@ -1,10 +1,7 @@
 #nullable enable
-using System;
 using UnityEngine;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
-using net.rs64.TexTransTool.Utils;
 using Unity.Burst;
 
 namespace net.rs64.TexTransTool.Decal

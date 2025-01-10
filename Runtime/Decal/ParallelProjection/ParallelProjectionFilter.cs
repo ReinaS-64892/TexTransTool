@@ -1,13 +1,7 @@
 #nullable enable
 using UnityEngine;
-using System.Collections.Generic;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using UnityEngine.Profiling;
-using Unity.Jobs;
 using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal

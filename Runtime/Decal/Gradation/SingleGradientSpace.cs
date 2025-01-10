@@ -80,10 +80,10 @@ namespace net.rs64.TexTransTool.Decal
 
     internal class IslandSelectFilter : ITrianglesFilter<SingleGradientSpace, SingleGradientFilteredTrianglesHolder>
     {
-        IIslandSelector _islandSelector;
+        IIslandSelector? _islandSelector;
         OriginEqual _originEqual;
 
-        public IslandSelectFilter(IIslandSelector islandSelector, OriginEqual originEqual)
+        public IslandSelectFilter(IIslandSelector? islandSelector, OriginEqual originEqual)
         {
             _islandSelector = islandSelector;
             _originEqual = originEqual;

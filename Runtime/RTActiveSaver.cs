@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using System;
 

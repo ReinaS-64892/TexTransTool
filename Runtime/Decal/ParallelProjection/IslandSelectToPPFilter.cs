@@ -1,6 +1,5 @@
 #nullable enable
 using UnityEngine;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.IslandSelector;
 using UnityEngine.Profiling;
@@ -49,7 +48,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             return new IslandSelectedJobChainedFilteredTrianglesHolder(islandSelectedTriangles, filteredBitJobs);
         }
-        internal static NativeArray<TriangleIndex>[][] IslandSelectExecute(IIslandSelector islandSelector, MeshData[] meshData, OriginEqual originEqual)
+        internal static NativeArray<TriangleIndex>[][] IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, OriginEqual originEqual)
         {
             if (islandSelector == null)
             {

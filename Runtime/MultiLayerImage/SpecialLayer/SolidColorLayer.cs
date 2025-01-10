@@ -1,4 +1,4 @@
-
+#nullable enable
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;

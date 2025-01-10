@@ -1,7 +1,7 @@
+#nullable enable
 using UnityEngine;
 using UnityEditor;
 using Unity.Collections;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransCore;
 using System;
 
@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
     public abstract class TTTImportedImage : ScriptableObject
     {
-        public TTTImportedCanvasDescription CanvasDescription;
+        public TTTImportedCanvasDescription CanvasDescription = null!;// インポートされた時点で正しくキャンバスの情報に対する参照が入っていることを期待します。
         // public Texture2D PreviewTexture;
 
 

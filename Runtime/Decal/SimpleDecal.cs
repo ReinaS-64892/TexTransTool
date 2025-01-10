@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
@@ -21,7 +22,7 @@ namespace net.rs64.TexTransTool.Decal
         internal const string MenuPath = ComponentName;
         public DecalRendererSelector RendererSelector = new();
 
-        [ExpandTexture2D] public Texture2D DecalTexture;
+        [ExpandTexture2D] public Texture2D? DecalTexture;
         [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
 
         public UnityEngine.Color Color = UnityEngine.Color.white;
@@ -32,11 +33,11 @@ namespace net.rs64.TexTransTool.Decal
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
         public bool PolygonOutOfCulling = true;
 
-        public AbstractIslandSelector IslandSelector;
-        public MultiLayerImageCanvas OverrideDecalTextureWithMultiLayerImageCanvas;
+        public AbstractIslandSelector? IslandSelector;
+        public MultiLayerImageCanvas? OverrideDecalTextureWithMultiLayerImageCanvas;
         public bool UseDepth;
         public bool DepthInvert;
-
+#nullable disable
         #region V5SaveData
         [Obsolete("V5SaveData", true)][SerializeField] internal List<Renderer> TargetRenderers = new List<Renderer> { null };
         [Obsolete("V5SaveData", true)][SerializeField] internal bool MultiRendererMode = false;
@@ -60,7 +61,7 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V0SaveData", true)][HideInInspector] public bool IsSeparateMatAndTexture;
         [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
         #endregion
-
+#nullable enable
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
         internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
         internal override void Apply(IDomain domain)
@@ -86,7 +87,7 @@ namespace net.rs64.TexTransTool.Decal
         internal Dictionary<Texture, TTRenderTexWithDistance> CompileDecal(IDomain domain)
         {
             var ttce = domain.GetTexTransCoreEngineForUnity();
-            ITTRenderTexture mulDecalTexture = null;
+            ITTRenderTexture? mulDecalTexture = null;
             try
             {
                 if (OverrideDecalTextureWithMultiLayerImageCanvas == null)
