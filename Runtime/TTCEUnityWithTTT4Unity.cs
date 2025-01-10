@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;

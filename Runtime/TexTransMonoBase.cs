@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace net.rs64.TexTransTool
     }
     internal static class DestroyCall
     {
-        public static event Action<TexTransMonoBase> OnDestroy;
+        public static event Action<TexTransMonoBase>? OnDestroy;
         public static void DestroyThis(TexTransMonoBase destroy) => OnDestroy?.Invoke(destroy);
     }
 }

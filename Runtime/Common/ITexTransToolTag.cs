@@ -1,4 +1,4 @@
-using UnityEngine;
+#nullable enable
 
 #if VRC_BASE
 using VRC.SDKBase;
