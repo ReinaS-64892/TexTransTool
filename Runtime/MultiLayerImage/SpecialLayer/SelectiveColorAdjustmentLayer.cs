@@ -1,4 +1,4 @@
-using System;
+#nullable enable
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;

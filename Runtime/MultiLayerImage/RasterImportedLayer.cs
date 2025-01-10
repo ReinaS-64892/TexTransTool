@@ -1,10 +1,7 @@
+#nullable enable
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
-using net.rs64.TexTransTool;
-using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -14,7 +11,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         internal const string ComponentName = "TTT RasterImportedLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        public TTTImportedImage ImportedImage;
+        public TTTImportedImage? ImportedImage;
 
         public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {

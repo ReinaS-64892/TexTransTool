@@ -1,3 +1,4 @@
+#nullable enable
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         internal const string ComponentName = "TTT RasterLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
-        public Texture2D RasterTexture;
+        public Texture2D? RasterTexture;
 
         public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {

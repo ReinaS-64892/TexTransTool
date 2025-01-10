@@ -1,6 +1,6 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -17,11 +17,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public TextureSelector TextureSelector;
+        public TextureSelector TextureSelector = new();
 
-        [SerializeField, HideInInspector] public TTTImportedCanvasDescription tttImportedCanvasDescription;
+        [SerializeField, HideInInspector] public TTTImportedCanvasDescription? tttImportedCanvasDescription;
 
-        internal override void Apply([NotNull] IDomain domain)
+        internal override void Apply(IDomain domain)
         {
             var replaceTarget = TextureSelector.GetTexture();
             if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); domain.LookAt(this); return; }
