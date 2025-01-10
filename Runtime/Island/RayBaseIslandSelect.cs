@@ -1,15 +1,7 @@
-
-using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
 using System;
 using Unity.Jobs;
 using Unity.Collections;
-using UnityEngine.Pool;
-using UnityEngine.Profiling;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.TTMathUtil;
 using System.Collections;
 using net.rs64.TexTransTool.IslandSelector;
