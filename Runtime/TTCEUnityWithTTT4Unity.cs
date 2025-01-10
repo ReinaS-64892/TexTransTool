@@ -54,7 +54,7 @@ namespace net.rs64.TexTransTool
 
         public ITTBlendKey QueryBlendKey(string blendKeyName)
         {
-            return TextureBlend.BlendObjects[blendKeyName];
+            return ComputeObjectUtility.BlendingObject[blendKeyName];
         }
 
         public ITTDiskTexture Wrapping(Texture2D texture2D)
