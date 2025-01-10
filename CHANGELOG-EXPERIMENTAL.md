@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - TTT PSD Importer は PSD の ImageDataSection の画像を PSDImportedImageDataSectionImage としてインポートするようになりました (#772)
 - TTT PSD Importer は 32bit PSD と 16bit PSD のプレビューが可能になりました (#772)
 - 一つの子となる IslandSelector を基に IslandSelect の範囲を広げて選択できる、 IslandSelectorLink系 コンポーネントが 4つ 追加されました (#777)
+- TTT PSD Importer に PSD ImportMode SAI が追加され、出力元が SAI であるとみられる場合に自動判定されるようになりました (#781)
 
 ### Changed
 
