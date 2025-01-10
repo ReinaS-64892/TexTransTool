@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore;
@@ -11,10 +12,21 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static Dictionary<string, TTGrabBlendingComputeShader> GrabBlendObjects;
         public static Dictionary<string, TTGeneralComputeOperator> GeneralComputeObjects;
         public static UnityStandardComputeKeyHolder UStdHolder;
+
+        public static event Action InitBlendShadersCallBack;
         [TexTransInitialize]
         public static void ComputeObjectsInit()
         {
-            BlendingObject = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendingComputeShader)).Cast<TTBlendingComputeShader>().ToDictionary(i => i.name, i => i);
+            InitImpl();
+            TexTransCoreRuntime.AssetModificationListen[typeof(TTBlendingComputeShader)] = InitImpl;
+
+            static void InitImpl()
+            {
+                BlendingObject = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendingComputeShader)).Cast<TTBlendingComputeShader>().ToDictionary(i => i.BlendTypeKey, i => i);
+                InitBlendShadersCallBack?.Invoke();
+            }
+
+            BlendingObject = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTBlendingComputeShader)).Cast<TTBlendingComputeShader>().ToDictionary(i => i.BlendTypeKey, i => i);
             GrabBlendObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTGrabBlendingComputeShader)).Cast<TTGrabBlendingComputeShader>().ToDictionary(i => i.name, i => i);
             GeneralComputeObjects = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTGeneralComputeOperator)).Cast<TTGeneralComputeOperator>().ToDictionary(i => i.name, i => i);
             SamplerComputeShaders = TexTransCoreRuntime.LoadAssetsAtType(typeof(TTSamplerComputeShader)).Cast<TTSamplerComputeShader>().ToDictionary(i => i.name, i => i);
