@@ -15,27 +15,26 @@ namespace net.rs64.TexTransTool.PSDParser
 {
     public static class PSDHighLevelParser
     {
-        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData levelData, PSDImportMode? importMode = null)
+        public static PSDHighLevelData Parse(PSDLowLevelParser.PSDLowLevelData lowLevelData, PSDImportMode? importMode = null)
         {
             var psd = new PSDHighLevelData
             {
-                Width = (int)levelData.Width,
-                Height = (int)levelData.Height,
-                Depth = levelData.BitDepth,
-                channels = levelData.Channels,
+                Width = (int)lowLevelData.Width,
+                Height = (int)lowLevelData.Height,
+                Depth = lowLevelData.BitDepth,
+                channels = lowLevelData.Channels,
                 RootLayers = new List<AbstractLayerData>()
             };
 
             var ctx = new HighLevelParserContext();
 
             ctx.RootLayers = psd.RootLayers;
-
-            importMode ??= levelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.ClipStudioPaint : PSDImportMode.Photoshop;
+            importMode = DetectPSDSource(lowLevelData);
             ctx.ImportMode = importMode.Value;
 
-            ctx.ImageDataQueue = new Queue<ChannelImageData>(levelData.LayerInfo.ChannelImageData ?? new());
-            ctx.ImageRecordQueue = new Queue<LayerRecord>(levelData.LayerInfo.LayerRecords ?? new());
-            ctx.CanvasTypeAdditionalLayerInfo = levelData.CanvasTypeAdditionalLayerInfo;
+            ctx.ImageDataQueue = new Queue<ChannelImageData>(lowLevelData.LayerInfo.ChannelImageData ?? new());
+            ctx.ImageRecordQueue = new Queue<LayerRecord>(lowLevelData.LayerInfo.LayerRecords ?? new());
+            ctx.CanvasTypeAdditionalLayerInfo = lowLevelData.CanvasTypeAdditionalLayerInfo;
 
             CollectAdditionalLayer(ctx);
 
@@ -45,6 +44,17 @@ namespace net.rs64.TexTransTool.PSDParser
             ResolveClippingAndPassThrough(ctx, ctx.RootLayers);
 
             return psd;
+        }
+
+        private static PSDImportMode? DetectPSDSource(PSDLowLevelParser.PSDLowLevelData lowLevelData)
+        {
+            // SAI は空のレイヤーを すべて 4チャンネル すべて Red チャンネルとして出力するからそれを見る。
+            if (lowLevelData.LayerInfo.LayerRecords.Any(i => i.ChannelInformationArray.Length == 4 && i.ChannelInformationArray.All(i => i.ChannelID == ChannelIDEnum.Red)))
+            {
+                return PSDImportMode.SAI;
+            }
+            // 1060番の ImageResources は クリスタが出力しないのを利用して判断する。(GIMPはそれを正しく出力するため誤認するが今はいったん無視)
+            return lowLevelData.ImageResources.FindIndex(ir => ir.UniqueIdentifier == 1060) == -1 ? PSDImportMode.ClipStudioPaint : PSDImportMode.Photoshop;
         }
 
         public class HighLevelParserContext
@@ -75,6 +85,7 @@ namespace net.rs64.TexTransTool.PSDParser
             Unknown = 0,
             Photoshop = 2,
             ClipStudioPaint = 3,
+            SAI = 4,
         }
 
 

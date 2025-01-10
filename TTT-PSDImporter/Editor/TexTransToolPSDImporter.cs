@@ -119,6 +119,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             Unknown = 0,
             Photoshop = 2,
             ClipStudioPaint = 3,
+            SAI = 4,
         }
 
     }
