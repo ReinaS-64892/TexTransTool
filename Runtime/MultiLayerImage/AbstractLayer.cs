@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
         public bool Clipping;
-        [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         [SerializeReference] public ILayerMask LayerMask = new LayerMask();
 
         internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)

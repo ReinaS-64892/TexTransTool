@@ -89,64 +89,6 @@ namespace net.rs64.TexTransTool
                 domain.TransferAsset(unityObject);
             }
         }
-        public static void AddTextureStack<BlendTex>(this IDomain domain, Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
-        {
-            var ttce4u = domain.GetTexTransCoreEngineForUnity();
-            switch (setTex.Texture)
-            {
-                case Texture2D texture2D: { break; }
-                case RenderTexture renderTexture:
-                    {
-                        var rt = ttce4u.UploadTexture(renderTexture);
-                        ttce4u.LinearToGamma(rt);
-                        domain.AddTextureStack(dist, rt, ttce4u.QueryBlendKey(setTex.BlendTypeKey));
-                        break;
-                    }
-            }
-        }
-
-        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D)
-        {
-            var originSize = origin.GetOriginalTextureSize(texture2D);
-            var tempRt = TTRt.G(originSize, originSize, true);
-            tempRt.name = $"{texture2D.name}:GetOriginTempRt-{tempRt.width}x{tempRt.height}";
-            tempRt.CopyFilWrap(texture2D);
-            origin.WriteOriginalTexture(texture2D, tempRt);
-            return tempRt;
-        }
-
-        public static IDisposable GetOriginTempRtU(this IOriginTexture origin, out RenderTexture tempRt, Texture2D texture2D)
-        {
-            var originSize = origin.GetOriginalTextureSize(texture2D);
-            var useVal = TTRt.U(out tempRt, originSize, originSize, true);
-            tempRt.name = $"{texture2D.name}:GetOriginTempRtU-{tempRt.width}x{tempRt.height}";
-            tempRt.CopyFilWrap(texture2D);
-            origin.WriteOriginalTexture(texture2D, tempRt);
-            return useVal;
-        }
-        public static RenderTexture GetOriginTempRt(this IOriginTexture origin, Texture2D texture2D, int size)
-        {
-            var tempRt = TTRt.G(size, size, true);
-            tempRt.name = $"{texture2D.name}:GetOriginTempRtWithSize-{tempRt.width}x{tempRt.height}";
-            tempRt.CopyFilWrap(texture2D);
-            origin.WriteOriginalTexture(texture2D, tempRt);
-            return tempRt;
-        }
-
-        public static IDisposable GetOriginTempRt(this IOriginTexture origin, out RenderTexture tempRt, Texture2D texture2D, int size)
-        {
-            var useVal = TTRt.U(out tempRt, size, size, true);
-            tempRt.name = $"{texture2D.name}:GetOriginTempRtWithSizeU-{tempRt.width}x{tempRt.height}";
-            tempRt.CopyFilWrap(texture2D);
-            origin.WriteOriginalTexture(texture2D, tempRt);
-            return useVal;
-        }
-        public static IEnumerable<Renderer> GetDomainsRenderers(this IDomain domain, IEnumerable<Renderer> renderers)
-        {
-            if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
-            return domain.EnumerateRenderer().Where(Contains);
-            bool Contains(Renderer dr) { return renderers.Any(sr => domain.OriginEqual(dr, sr)); }
-        }
         public static IEnumerable<Renderer> GetDomainsRenderers(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderer, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }

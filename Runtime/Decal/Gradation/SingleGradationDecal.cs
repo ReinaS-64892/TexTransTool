@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Decal
         [Range(0, 1)] public float Alpha = 1;
         public bool GradientClamp = true;
         public AbstractIslandSelector? IslandSelector;
-        [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;

@@ -180,7 +180,7 @@ namespace net.rs64.TexTransTool.NDMF
             {
             }
 
-            public override void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { _rootDomain.AddTextureStack(dist, new TextureBlend.BlendTexturePair(addTex.Unwrap(), blendKey.Unwrap().BlendTypeKey)); }
+            public override void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { _rootDomain.AddTextureStack(dist, addTex, blendKey); }
 
             public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
             {

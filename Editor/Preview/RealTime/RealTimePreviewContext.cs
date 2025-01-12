@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,7 +6,6 @@ using System.Linq;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.MultiLayerImage;
-using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -16,14 +16,14 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 {
     internal class RealTimePreviewContext : ScriptableSingleton<RealTimePreviewContext>
     {
-        RealTimePreviewDomain _previewDomain = null;
+        RealTimePreviewDomain? _previewDomain = null;
         Dictionary<TexTransRuntimeBehavior, int> _PriorityMap = new();
         Dictionary<int, HashSet<TexTransRuntimeBehavior>> _dependencyMap = new();
         HashSetQueue<TexTransRuntimeBehavior> _updateQueue = new();
 
 
-        public event Action<GameObject> OnPreviewEnter;
-        public event Action OnPreviewExit;
+        public event Action<GameObject>? OnPreviewEnter;
+        public event Action? OnPreviewExit;
 
         public static bool IsPreviewPossibleType(TexTransRuntimeBehavior ttr)
         {
@@ -136,6 +136,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         internal void RealTimePreviewRestart()
         {
+            if (_previewDomain is null) { Debug.Assert(false); return; }
             var domainRoot = _previewDomain.DomainRoot;
             ExitRealTimePreview();
             EnterRealtimePreview(domainRoot);
@@ -143,6 +144,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         void UpdatePreview()
         {
+            if (_previewDomain is null) { Debug.Assert(false); return; }
             Profiler.BeginSample("UpdatePreview");
             if (_updateQueue.TryDequeue(out var texTransRuntimeBehavior) && _PriorityMap.TryGetValue(texTransRuntimeBehavior, out var priority))
             {

@@ -13,6 +13,7 @@ namespace net.rs64.TexTransCore
     , ITexTransLoadTexture
     , ITexTransRenderTextureIO
     , ITexTransCopyRenderTexture
+    , ITexTransCloneRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
     , ITexTransDriveStorageBufferHolder
@@ -56,6 +57,19 @@ namespace net.rs64.TexTransCore
         /// RenderTexture をコピーする。ただし、リサイズなどは行われず、絶対に同じサイズでないといけない。
         /// </summary>
         void CopyRenderTexture(ITTRenderTexture target, ITTRenderTexture source);
+    }
+    public interface ITexTransCloneRenderTexture : ITexTransCreateTexture, ITexTransCopyRenderTexture
+    {
+        /// <summary>
+        /// source とは別の参照を持つ、内容がコピーされたテクスチャーを生成する。
+        /// 実装をまじめにやる気があるならデフォルト実装ではなく、　CreateRenderTexture で行われる初期化をバイパスしてコピーして渡すなどをするとよいかも。
+        /// </summary>
+        ITTRenderTexture CloneRenderTexture(ITTRenderTexture source)
+        {
+            var newRt = CreateRenderTexture(source.Width, source.Hight, source.ContainsChannel);
+            CopyRenderTexture(newRt, source);
+            return newRt;
+        }
     }
 
     public interface ITexTransGetComputeHandler

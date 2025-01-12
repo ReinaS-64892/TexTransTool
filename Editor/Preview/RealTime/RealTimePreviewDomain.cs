@@ -1,10 +1,10 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {
@@ -13,27 +13,28 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         GameObject _domainRoot;
         HashSet<Renderer> _domainRenderers = new();
         ITextureManager _textureManager = new TextureManager(true);
-        PreviewStackManager _stackManager = new();
+        PreviewStackManager _stackManager;
         Dictionary<Material, Material> _previewMaterialMap = new();
         Action<TexTransRuntimeBehavior, int> _lookAtCallBack;
+        private TTCEUnityWithTTT4Unity _ttce4U;
+
 
         public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransRuntimeBehavior, int> lookAtCallBack)
         {
             _domainRoot = domainRoot;
             _lookAtCallBack = lookAtCallBack;
-            _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
             _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
+            _stackManager = new(_ttce4U, NewPreviewTextureRegister);
+            // _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
             _domainRenderers.Clear();
             _domainRenderers.UnionWith(_domainRoot.GetComponentsInChildren<Renderer>(true));
             SwapPreviewMaterial();
         }
-
-        public GameObject DomainRoot => _domainRoot;
         int _nowPriority;
-        TexTransRuntimeBehavior _texTransRuntimeBehavior;
-        private TTCEUnityWithTTT4Unity _ttce4U;
+        TexTransRuntimeBehavior? _texTransRuntimeBehavior;
+        public GameObject DomainRoot => _domainRoot;
 
         public void SetNowBehavior(TexTransRuntimeBehavior texTransRuntimeBehavior, int priority)
         {
@@ -44,7 +45,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
-            _stackManager.AddTextureStack(_nowPriority, dist, new BlendTexturePair(addTex.Unwrap(), blendKey.Unwrap().BlendTypeKey));//TODO : さすがにスタックマネージャ側を何とかしたほうが良い
+            _stackManager.AddTextureStack(_nowPriority, dist, addTex, blendKey);//TODO : さすがにスタックマネージャ側を何とかしたほうが良い
         }
 
         public void UpdateNeeded()
@@ -95,8 +96,9 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
 
 
-        public void NewPreviewTextureRegister(Texture2D texture2D, RenderTexture previewTexture)
+        public void NewPreviewTextureRegister(Texture2D texture2D, ITTRenderTexture previewTexture)
         {
+            if (previewTexture is not UnityRenderTexture unityRtHolder) { throw new NotSupportedException(); }
             foreach (var m in _previewMaterialMap.Values)
             {
                 var shader = m.shader;
@@ -104,7 +106,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 {
                     if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
                     var nameID = shader.GetPropertyNameId(i);
-                    if (m.GetTexture(nameID) == texture2D) { m.SetTexture(nameID, previewTexture); }
+                    if (m.GetTexture(nameID) == texture2D) { m.SetTexture(nameID, unityRtHolder.Unwrap()); }
                 }
             }
         }
@@ -148,7 +150,11 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }
         public void TransferAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
-        public void LookAt(UnityEngine.Object obj) { _lookAtCallBack(_texTransRuntimeBehavior, obj.GetInstanceID()); }
+        public void LookAt(UnityEngine.Object obj)
+        {
+            if (_texTransRuntimeBehavior is null) { Debug.Assert(_texTransRuntimeBehavior is not null); return; }
+            _lookAtCallBack(_texTransRuntimeBehavior, obj.GetInstanceID());
+        }
 
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
     }
