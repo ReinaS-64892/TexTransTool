@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Decal
         public DecalRendererSelector RendererSelector = new();
 
         [ExpandTexture2D] public Texture2D? DecalTexture;
-        [BlendTypeKey] public string BlendTypeKey = TextureBlend.BL_KEY_DEFAULT;
+        [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
 
         public UnityEngine.Color Color = UnityEngine.Color.white;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;

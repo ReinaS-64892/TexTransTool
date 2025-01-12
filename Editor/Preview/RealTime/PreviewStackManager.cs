@@ -1,38 +1,47 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
-using static net.rs64.TexTransTool.TextureBlend;
 
 namespace net.rs64.TexTransTool.Preview.RealTime
 {
     internal class PreviewStackManager
     {
-        Dictionary<Texture2D, RenderTexture> _previewTextureMap = new();
+        Dictionary<Texture2D, ITTRenderTexture> _previewTextureMap = new();
         Dictionary<RenderTexture, PrioritizedDeferredStack> _stackMap = new();
-        public event Action<Texture2D, RenderTexture> NewPreviewTexture;
-        public void AddTextureStack<BlendTex>(int priority, Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
+
+        ITexTransToolForUnity _ttce4U;
+        Action<Texture2D, ITTRenderTexture> _newPreviewTexture;
+
+        public PreviewStackManager(TTCEUnityWithTTT4Unity ttce4U, Action<Texture2D, ITTRenderTexture> newPreviewTextureRegister)
+        {
+            _ttce4U = ttce4U;
+            _newPreviewTexture = newPreviewTextureRegister;
+        }
+        public void AddTextureStack(int priority, Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
             switch (dist)
             {
                 case RenderTexture rt:
                     {
-                        if (_stackMap.ContainsKey(rt)) { _stackMap[rt].AddTextureStack(priority, new BlendTexturePair(setTex)); }
+                        if (_stackMap.ContainsKey(rt)) { _stackMap[rt].AddTextureStack(priority, addTex, blendKey); }
                         else { Debug.Log("Invalid RenderTexture"); }
                         break;
                     }
                 case Texture2D tex2D:
                     {
-                        if (_previewTextureMap.ContainsKey(tex2D)) { _stackMap[_previewTextureMap[tex2D]].AddTextureStack(priority, new BlendTexturePair(setTex)); }
+                        if (_previewTextureMap.ContainsKey(tex2D)) { _stackMap[_previewTextureMap[tex2D].Unwrap()].AddTextureStack(priority, addTex, blendKey); }
                         else
                         {
-                            var newStack = new PrioritizedDeferredStack(tex2D);
+                            var newStack = new PrioritizedDeferredStack(_ttce4U, tex2D);
                             _previewTextureMap[tex2D] = newStack.StackView;
-                            _stackMap[newStack.StackView] = newStack;
-                            NewPreviewTexture?.Invoke(tex2D, newStack.StackView);
-                            newStack.AddTextureStack(priority, new BlendTexturePair(setTex));
+                            _stackMap[newStack.StackView.Unwrap()] = newStack;
+                            _newPreviewTexture?.Invoke(tex2D, newStack.StackView);
+                            newStack.AddTextureStack(priority, addTex, blendKey);
                         }
                         break;
                     }
@@ -49,38 +58,38 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                         if (!_previewTextureMap.ContainsKey(tex2D)) { return; }
                         var rt = _previewTextureMap[tex2D];
 
-                        var stack = _stackMap[rt];
-                        _stackMap.Remove(rt);
+                        _stackMap.Remove(rt.Unwrap(), out var stack);
+                        stack.Dispose();
+
                         _previewTextureMap.Remove(tex2D);
-                        stack.ReleaseStack();
                         break;
                     }
                 case RenderTexture rt:
                     {
                         if (!_stackMap.ContainsKey(rt)) { return; }
 
-                        var stack = _stackMap[rt];
-                        _stackMap.Remove(rt);
-                        _previewTextureMap.Remove(_previewTextureMap.First(kv => kv.Value == rt).Key);
-                        stack.ReleaseStack();
+                        _stackMap.Remove(rt, out var stack);
+                        stack.Dispose();
+
+                        _previewTextureMap.Remove(_previewTextureMap.First(kv => kv.Value.Unwrap() == rt).Key);
                         break;
                     }
             }
         }
         public void ReleaseStackAll()
         {
-            foreach (var stack in _stackMap.Values) { stack.ReleaseStack(); }
-            _previewTextureMap.Clear();
+            foreach (var stack in _stackMap.Values) { stack.Dispose(); }
             _stackMap.Clear();
+            _previewTextureMap.Clear();
         }
 
         internal HashSet<RenderTexture> FindAtPriority(int priority) { return _stackMap.Keys.Where(i => _stackMap[i].ContainedPriority(priority)).ToHashSet(); }
 
-        public RenderTexture GetPreviewTexture(Texture2D texture)
+        public RenderTexture? GetPreviewTexture(Texture2D? texture)
         {
             if (texture == null) { return null; }
             if (!_previewTextureMap.ContainsKey(texture)) { return null; }
-            return _previewTextureMap[texture];
+            return _previewTextureMap[texture].Unwrap();
         }
 
 
@@ -93,30 +102,39 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             }
         }
 
-        internal class PrioritizedDeferredStack
+        internal class PrioritizedDeferredStack : IDisposable
         {
-            Texture2D _initialTexture;
-            RenderTexture _stackViewTexture;
+            ITTRenderTexture _initialTexture;
+            ITTRenderTexture _stackViewTexture;
+
+            ITexTransToolForUnity _ttce4U;
 
             public bool UpdateNeeded { get; private set; } = false;
-            SortedList<int, List<BlendTexturePair>> _stack = new();
+            SortedList<int, List<(ITTRenderTexture addTex, ITTBlendKey blendKey)>> _stack = new();
 
-            public RenderTexture StackView => _stackViewTexture;
+            public ITTRenderTexture StackView => _stackViewTexture;
 
-            public PrioritizedDeferredStack(Texture2D initialTexture)
+            public PrioritizedDeferredStack(ITexTransToolForUnity ttce4U, Texture2D initialTexture)
             {
-                _initialTexture = initialTexture;
-                _stackViewTexture = TTRt.G(initialTexture.width, initialTexture.height);
-                _stackViewTexture.name = $"{initialTexture.name}:PrioritizedDeferredStack-{_stackViewTexture.width}x{_stackViewTexture.height}";
+                _ttce4U = ttce4U;
 
-                _stackViewTexture.CopyFilWrap(initialTexture);
-                Graphics.Blit(initialTexture, _stackViewTexture);
+                using var initialDiskTex = _ttce4U.Wrapping(initialTexture);
+                _initialTexture = _ttce4U.CreateRenderTexture(initialDiskTex.Width, initialDiskTex.Hight);
+                _ttce4U.LoadTexture(_initialTexture, initialDiskTex);
+
+                _stackViewTexture = _ttce4U.CloneRenderTexture(_initialTexture);
+                _stackViewTexture.Name = $"{initialTexture.name}:PrioritizedDeferredStack-{_stackViewTexture.Width}x{_stackViewTexture.Hight}";
+
+                //あまり この if に意味はないけど ...
+                if (_stackViewTexture is UnityRenderTexture urt) { urt.Unwrap().CopyFilWrap(initialTexture); }
+                if (_initialTexture is UnityRenderTexture urt2) { urt2.Unwrap().CopyFilWrap(initialTexture); }
             }
 
-            public void AddTextureStack(int priority, BlendTexturePair blendTexturePair)
+            public void AddTextureStack(int priority, ITTRenderTexture addTex, ITTBlendKey blendKey)
             {
                 if (!_stack.ContainsKey(priority)) { _stack.Add(priority, new()); }
-                _stack[priority].Add(blendTexturePair);
+
+                _stack[priority].Add((_ttce4U.CloneRenderTexture(addTex), blendKey));// addTex は基本的に借用。だから所有権を増やす必要がある。
                 UpdateNeeded = true;
             }
             public void ReleaseStackOfPriority(int priority)
@@ -124,30 +142,29 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 if (!_stack.ContainsKey(priority)) { return; }
                 var cs = _stack[priority];
 
-                foreach (var l in cs) { if (l.Texture is RenderTexture rt) { TTRt.R(rt); UpdateNeeded = true; } }
+                foreach (var l in cs) { l.addTex.Dispose(); }
                 cs.Clear();
-            }
-            public void ReleaseStack()
-            {
-                TTRt.R(_stackViewTexture);
-                _stackViewTexture = null;
-                foreach (var ptl in _stack)
-                    foreach (var l in ptl.Value) { if (l.Texture is RenderTexture rt) { TTRt.R(rt); } }
-
             }
             public void StackViewUpdate()
             {
-                Graphics.Blit(_initialTexture, _stackViewTexture);
+                _ttce4U.CopyRenderTexture(_stackViewTexture, _initialTexture);
                 foreach (var ptl in _stack)
                     foreach (var l in ptl.Value)
                     {
-                        _stackViewTexture.BlendBlit(l);
+                        _ttce4U.BlendingWithAnySize(_stackViewTexture, l.addTex, l.blendKey);
                     }
                 UpdateNeeded = false;
             }
 
             public bool ContainedPriority(int priority) => _stack.ContainsKey(priority);
 
+            public void Dispose()
+            {
+                _stackViewTexture?.Dispose();
+                _stackViewTexture = null!;
+                foreach (var ptl in _stack) foreach (var l in ptl.Value) { l.addTex.Dispose(); }
+                _stack.Clear();
+            }
         }
     }
 }

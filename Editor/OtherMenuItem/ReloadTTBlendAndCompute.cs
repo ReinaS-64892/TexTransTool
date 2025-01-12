@@ -19,8 +19,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
             foreach (var asset in reloadTargets)
                 AssetDatabase.ImportAsset(AssetDatabase.GUIDToAssetPath(asset));
-
-            TextureBlend.BlendShadersInit();
+            ComputeObjectUtility.ComputeObjectsInit();
         }
     }
 }

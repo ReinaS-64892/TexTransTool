@@ -111,9 +111,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
             holder._buffer = null;
         }
 
-        public static bool IsLinerRenderTexture = false;//基本的にガンマだ
-
-
         public ITexTransStandardComputeKey StandardComputeKey => ComputeObjectUtility.UStdHolder;
         public ITexTransTransTextureComputeKey TransTextureComputeKey => ComputeObjectUtility.UStdHolder;
         public ITexTransComputeKeyDictionary<string> GrabBlend { get; } = new GrabBlendQuery();

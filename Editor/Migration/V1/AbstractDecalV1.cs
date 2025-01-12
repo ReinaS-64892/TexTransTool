@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Migration.V1
             if (abstractDecal == null) { Debug.LogWarning("マイグレーションターゲットが存在しません。"); return; }
             if (abstractDecal is ITexTransToolTag TTTag && TTTag.SaveDataVersion > 2) { Debug.Log(abstractDecal.name + " AtlasTexture : マイグレーション不可能なバージョンです。"); return; }
 
-            var convertBlendTypeKey = abstractDecal.BlendType == BlendType.AlphaLerp ? TextureBlend.BL_KEY_DEFAULT : abstractDecal.BlendType.ToString();
+            var convertBlendTypeKey = abstractDecal.BlendType == BlendType.AlphaLerp ? ITexTransToolForUnity.BL_KEY_DEFAULT : abstractDecal.BlendType.ToString();
             abstractDecal.BlendTypeKey = convertBlendTypeKey;
 
             EditorUtility.SetDirty(abstractDecal);

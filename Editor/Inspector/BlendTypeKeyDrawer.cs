@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (s_blendTypeKeyContents == null || s_nowLangCode != TTTConfig.Language)
             {
-                if (TextureBlend.BlendObjects == null) { return; }//次フレームを待つ
+                if (ComputeObjectUtility.BlendingObject == null) { return; }//次フレームを待つ
                 s_nowLangCode = TTTConfig.Language;
                 var langCode = TTTConfig.Language.ToString().ToLower();
 
@@ -104,16 +104,16 @@ namespace net.rs64.TexTransTool.Editor
                 "Saturation",//彩度
                 "Color",//カラー
                 "Luminosity",//輝度
-        };
+                };
                 var stdHash = stdKeys.ToHashSet();
-                s_blendTypeKeys = TextureBlend.BlendObjects.Keys.Where(i => stdHash.Contains(i) is false).Concat(stdKeys).ToHashSet().ToArray();
+                s_blendTypeKeys = ComputeObjectUtility.BlendingObject.Keys.Where(i => stdHash.Contains(i) is false).Concat(stdKeys).ToHashSet().ToArray();
                 s_blendTypeKeyContents = s_blendTypeKeys.Select(GetLocale).ToArray();
 
                 // Debug.Log(string.Join("\n", s_blendTypeKeys.Select(i => i + ":" + string.Join("-", UTF8Encoding.UTF8.GetBytes(i)))));
 
                 GUIContent GetLocale(string key)
                 {
-                    var text = TextureBlend.BlendObjects.GetValueOrDefault(key)?.Locales?.FirstOrDefault(i => i.LangCode == langCode)?.DisplayName;
+                    var text = ComputeObjectUtility.BlendingObject.GetValueOrDefault(key)?.Locales?.FirstOrDefault(i => i.LangCode == langCode)?.DisplayName;
                     text ??= key;
                     return new(text);
                 }
@@ -134,7 +134,7 @@ namespace net.rs64.TexTransTool.Editor
         [InitializeOnLoadMethod]
         static void RegisterCallBack()
         {
-            TextureBlend.InitBlendShadersCallBack += () =>
+            ComputeObjectUtility.InitBlendShadersCallBack += () =>
             {
                 s_blendTypeKeyContents = null;
                 s_blendTypeKeys = null;

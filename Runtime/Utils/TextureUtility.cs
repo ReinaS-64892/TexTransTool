@@ -12,6 +12,13 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class TextureUtility
     {
+        public static void FillColor(RenderTexture rt, Color color)
+        {
+            var cs = ((TTGeneralComputeOperator)ComputeObjectUtility.UStdHolder.ColorFill).Compute;
+            cs.SetFloats("Color", color.r, color.g, color.b, color.a);
+            cs.SetTexture(0, "Tex", rt);
+            cs.Dispatch(0, Mathf.Max(1, rt.width / 32), Mathf.Max(1, rt.height / 32), 1);
+        }
         public static Texture2D CopyTexture2D(this RenderTexture rt, TextureFormat? overrideFormat = null, bool? overrideUseMip = null)
         {
             var useMip = overrideUseMip ?? rt.useMipMap;
@@ -72,14 +79,6 @@ namespace net.rs64.TexTransTool.Utils
                 GL.Clear(true, true, Color.clear);
             }
         }
-        public static void ClearWithColor(this RenderTexture rt, Color color)
-        {
-            using (new RTActiveSaver())
-            {
-                RenderTexture.active = rt;
-                GL.Clear(true, true, color);
-            }
-        }
 
 
         public static Texture2D ResizeTexture(Texture2D source, Vector2Int size, bool forceRegenerateMipMap = false)
@@ -116,33 +115,6 @@ namespace net.rs64.TexTransTool.Utils
             }
         }
 
-
-        public static Texture2D CreateColorTex(Color color)
-        {
-            var mainTex2d = new Texture2D(1, 1);
-            mainTex2d.SetPixel(0, 0, color);
-            mainTex2d.Apply();
-            return mainTex2d;
-        }
-        public static RenderTexture CreateColorTexForRT(Color color)
-        {
-            var rt = TTRt.G(1);
-            rt.name = $"ColorTex4RT-{rt.width}x{rt.height}";
-            TextureBlend.FillColor(rt, color);
-            return rt;
-        }
-        public static Texture2D CreateFillTexture(int size, Color fillColor)
-        {
-            return CreateFillTexture(new Vector2Int(size, size), fillColor);
-        }
-        public static Texture2D CreateFillTexture(Vector2Int size, Color fillColor)
-        {
-            var newTex = new Texture2D(size.x, size.y, TextureFormat.RGBA32, true);
-            var na = new NativeArray<Color32>(size.x * size.y, Allocator.Temp);
-            na.AsSpan().Fill(fillColor);
-            newTex.SetPixelData(na, 0);
-            return newTex;
-        }
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
 

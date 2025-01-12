@@ -1,4 +1,5 @@
 using net.rs64.TexTransTool.Utils;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,11 +26,19 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         }
         private static void GenerateAndSaveBlankTexture(int size)
         {
-            var tex = TextureUtility.CreateFillTexture(size, new Color(0, 0, 0, 0));
+            var tex = CreateFillTexture(size, new Color(0, 0, 0, 0));
             var path = AssetDatabase.GenerateUniqueAssetPath($"Assets/BlankTexture-{size}.png");
             var pngByte = tex.EncodeToPNG();
             System.IO.File.WriteAllBytes(path, pngByte);
             AssetDatabase.ImportAsset(path);
+        }
+        public static Texture2D CreateFillTexture(int size, Color fillColor)
+        {
+            var newTex = new Texture2D(size, size, TextureFormat.RGBA32, true);
+            var na = new NativeArray<Color32>(size * size, Allocator.Temp);
+            na.AsSpan().Fill(fillColor);
+            newTex.SetPixelData(na, 0);
+            return newTex;
         }
     }
 }
