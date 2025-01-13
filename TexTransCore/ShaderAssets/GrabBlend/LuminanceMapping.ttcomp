@@ -1,7 +1,5 @@
 /*
-BEGIN_ _TT_COMPUTE_SHADER_HEADER
-
-// 後で何とかしないといけないから無効化中
+BEGIN__TT_COMPUTE_SHADER_HEADER
 
 Language HLSL
 LanguageVersion 2018
@@ -10,22 +8,32 @@ TTComputeType GrabBlend
 
 ColorSpace Gamma
 
-END_ _TT_COMPUTE_SHADER_HEADER
+END__TT_COMPUTE_SHADER_HEADER
 */
 
 #include "../Blendings/SetSL.hlsl"
 
-Texture2D Gradient;
-SamplerState samplerGradient;
+cbuffer gv
+{
+    uint GradientTextureWidth;
 
+    float AlimentPadding_;
+    float AlimentPadding__;
+    float AlimentPadding___;
+}
+StructuredBuffer<float4> GradientTexture;
 RWTexture2D<float4> Tex;
 
 [numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
 {
     float4 col = Tex[id.xy];
 
-    float lum = GetLum(col.rgb);
-    col = Gradient.SampleLevel(samplerGradient, float2(lum, 0.5) , 0 );
+    float lumPos = GetLum(col.rgb) * (GradientTextureWidth - 1.0);
 
-    Tex[id.xy] = col;
+    float4 fCol = GradientTexture[floor(lumPos)];
+    float4 cCol = GradientTexture[ceil(lumPos)];
+
+    float4 mappedCol = lerp(fCol , cCol, frac(lumPos));
+
+    Tex[id.xy] = mappedCol;
 }

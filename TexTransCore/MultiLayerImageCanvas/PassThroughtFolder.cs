@@ -10,6 +10,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public List<LayerObject<TTCE>> Layers;
 

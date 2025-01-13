@@ -11,7 +11,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public string BlendTypeKey;
         public bool IsLinerRequired;
         public ComputeShader Compute;
-        public Shader Shader;
+        // public Shader Shader;
 
         public List<Locale> Locales;
         [Serializable]

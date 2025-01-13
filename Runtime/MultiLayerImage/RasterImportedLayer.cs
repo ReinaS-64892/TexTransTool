@@ -15,20 +15,28 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
         {
+            if (ImportedImage == null)
+            {
+                engine.ColorFill(renderTexture, TexTransCore.Color.Zero);
+                return;
+            }
             using var ri = engine.Wrapping(ImportedImage);
             engine.LoadTextureWidthAnySize(renderTexture, ri);
         }
 
         internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
         {
-            var ri = engine.Wrapping(ImportedImage);
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+
+            if (ImportedImage == null) { return new EmptyLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey)); }
+
+            var ri = engine.Wrapping(ImportedImage);
             return new RasterLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), ri);
         }
         internal override void LookAtCalling(ILookingObject lookingObject)
         {
             base.LookAtCalling(lookingObject);
-            lookingObject.LookAt(ImportedImage);
+            if (ImportedImage != null) lookingObject.LookAt(ImportedImage);
         }
     }
     [Serializable]

@@ -12,6 +12,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         private TTCE _engine;
 
@@ -187,6 +188,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public int Width;
         public int Height;
@@ -205,6 +207,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         TextureOnlyToMask<TTCE> _alphaMask;
         List<LayerObject<TTCE>>? _preBlends;

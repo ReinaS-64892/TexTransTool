@@ -11,6 +11,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public bool Visible;
         public bool PreBlendToLayerBelow;
@@ -38,6 +39,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public NotMask() { }
         public override void Masking(TTCE engine, ITTRenderTexture maskTarget) { }
@@ -65,6 +68,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         float _maskValue;
         public SolidToMask(float maskValue) { _maskValue = maskValue; }
@@ -80,6 +84,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         float _maskValue;
         ITTDiskTexture _maskTexture;
@@ -103,6 +108,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         float _maskValue;
         ITTRenderTexture _maskTexture;
@@ -121,6 +127,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         ITTRenderTexture _maskTexture;
 

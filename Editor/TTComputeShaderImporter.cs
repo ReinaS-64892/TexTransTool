@@ -90,14 +90,14 @@ namespace net.rs64.TexTransTool
                             op.Locales.Add(new() { LangCode = langCode, DisplayName = displayName });
                         }
 
-                        var shaderName = "Hidden/" + op.BlendTypeKey;
                         var csCode = TTComputeUnityObject.KernelDefine + srcText + TTComputeShaderUtility.BlendingShaderTemplate;
-                        var scCode = TTBlendingComputeShader.ShaderNameDefine + shaderName + TTBlendingComputeShader.ShaderDefine + srcText + (op.IsLinerRequired ? TTBlendingComputeShader.ShaderTemplateWithLinear : TTBlendingComputeShader.ShaderTemplate);
+                        // var shaderName = "Hidden/" + op.BlendTypeKey;
+                        // var scCode = TTBlendingComputeShader.ShaderNameDefine + shaderName + TTBlendingComputeShader.ShaderDefine + srcText + (op.IsLinerRequired ? TTBlendingComputeShader.ShaderTemplateWithLinear : TTBlendingComputeShader.ShaderTemplate);
 
                         var cs = op.Compute = ShaderUtil.CreateComputeShaderAsset(ctx, csCode);
-                        var sc = op.Shader = ShaderUtil.CreateShaderAsset(ctx, scCode, true);
+                        // var sc = op.Shader = ShaderUtil.CreateShaderAsset(ctx, scCode, true);
                         ctx.AddObjectToAsset("ComputeShader", cs);
-                        ctx.AddObjectToAsset("BlendingShader", sc);
+                        // ctx.AddObjectToAsset("BlendingShader", sc);
                         ctx.AddObjectToAsset("TTGrabBlendingComputeShader", op);
                         ctx.SetMainObject(op);
 

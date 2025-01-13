@@ -7,6 +7,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public AlphaOperation AlphaOperation;
         public ITTBlendKey BlendTypeKey;
