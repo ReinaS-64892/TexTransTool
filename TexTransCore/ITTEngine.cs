@@ -17,6 +17,7 @@ namespace net.rs64.TexTransCore
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
     , ITexTransDriveStorageBufferHolder
+    , ITexTransRenderTextureUploadToCreate
     { }
 
     public interface ITexTransCreateTexture
@@ -50,6 +51,18 @@ namespace net.rs64.TexTransCore
         // 基本的にパフォーマンスは良くないからうまく使わないといけない
         void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
         void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
+    }
+    public interface ITexTransRenderTextureUploadToCreate : ITexTransRenderTextureIO, ITexTransCreateTexture
+    {
+        /// <summary>
+        ///  CloneRenderTexture と同様、まじめにやるなら初期化をバイパスしてアップロードできるようにするよ良きかも。
+        /// </summary>
+        ITTRenderTexture UploadTexture<T>(int width, int height, TexTransCoreTextureChannel channel, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
+        {
+            var rt = CreateRenderTexture(width, height, channel);
+            UploadTexture(rt, bytes, format);
+            return rt;
+        }
     }
     public interface ITexTransCopyRenderTexture
     {

@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    public interface ITexTransToolForUnity : ITexTransCoreEngine, ITexTransRenderTextureUploadToCreate
+    public interface ITexTransToolForUnity : ITexTransCoreEngine
     {
         public const string BL_KEY_DEFAULT = "Normal";
 
@@ -36,11 +36,10 @@ namespace net.rs64.TexTransTool
 
         ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
-            using var na = new NativeArray<byte>(renderTexture.width * renderTexture.height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var (format, channel) = renderTexture.graphicsFormat.ToTTCTextureFormat();
+            using var na = new NativeArray<byte>(EnginUtil.GetPixelParByte(format, channel) * renderTexture.width * renderTexture.height, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             renderTexture.DownloadFromRenderTexture(na.AsSpan());
-            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height, TexTransCoreTextureChannel.RGBA);
-            UploadTexture<byte>(rt, na.AsSpan(), TexTransCoreTextureFormat.Byte);
-            return rt;
+            return UploadTexture<byte>(renderTexture.width, renderTexture.height, channel, na.AsSpan(), format);
         }
 
     }
@@ -54,16 +53,6 @@ namespace net.rs64.TexTransTool
     public interface ITexTransLoadTextureWithDiskUtil
     {
         void LoadTexture(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, ITTDiskTexture diskTexture);
-    }
-
-    public interface ITexTransRenderTextureUploadToCreate : ITexTransRenderTextureIO, ITexTransCreateTexture
-    {
-        ITTRenderTexture UploadTexture<T>(int width, int height, TexTransCoreTextureChannel channel, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
-        {
-            var rt = CreateRenderTexture(width, height, channel);
-            UploadTexture(rt, bytes, format);
-            return rt;
-        }
     }
     public class RenderTextureAsDiskTexture : ITTDiskTexture
     {
