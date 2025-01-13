@@ -17,7 +17,11 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             B = b;
         }
 
-        public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture) where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler
+        public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture)
+        where TTCE : ITexTransCreateTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
+        , ITexTransDriveStorageBufferHolder
         {
             using var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(LevelAdjustment)]);
 

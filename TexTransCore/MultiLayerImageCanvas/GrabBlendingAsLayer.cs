@@ -7,6 +7,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         ITTGrabBlending _grabBlendingObject;
         ITTBlendKey _blendTypeKey;

@@ -9,7 +9,9 @@ namespace net.rs64.TexTransCore
         void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture)
         where TTCE : ITexTransCreateTexture
         , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler;
+        , ITexTransGetComputeHandler
+        , ITexTransDriveStorageBufferHolder
+        ;
     }
 
 

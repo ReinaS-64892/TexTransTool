@@ -7,6 +7,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransCopyRenderTexture
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
+    , ITexTransDriveStorageBufferHolder
     {
         public GrabLayer(bool visible, AlphaMask<TTCE> alphaMask, bool preBlendToLayerBelow) : base(visible, alphaMask, preBlendToLayerBelow)
         {
