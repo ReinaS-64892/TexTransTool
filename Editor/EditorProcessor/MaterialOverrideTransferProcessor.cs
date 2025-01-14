@@ -13,21 +13,46 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
+
+            var isVariatMode = materialOverrideTransfer.Mode == MaterialOverrideTransferMode.Variant;
             
             if (materialOverrideTransfer.TargetMaterial == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotSet"); return; }
-            if (materialOverrideTransfer.MaterialVariantSource == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:VariantNotSet"); return;}
+            if (isVariatMode && materialOverrideTransfer.MaterialVariantSource == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:VariantNotSet"); return;}
 
             var mats = GetTargetMaterials(domain.EnumerateRenderer(), domain.OriginEqual, materialOverrideTransfer.TargetMaterial);
             if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotFound"); return; }
 
             var materialSwapDict = new Dictionary<Material, Material>();
-            foreach (var unEditableMat in mats)
-            {
-                var mat = Material.Instantiate(unEditableMat);
-                var overrideProperties = GetOverrideProperties(materialOverrideTransfer.MaterialVariantSource);
-                SetProperties(mat, overrideProperties);
-                materialSwapDict[unEditableMat] = mat;
+
+            if (isVariatMode) {
+                foreach (var unEditableMat in mats)
+                {
+                    var mat = Material.Instantiate(unEditableMat);
+                    var overrideProperties = GetOverrideProperties(materialOverrideTransfer.MaterialVariantSource);
+                    SetProperties(mat, overrideProperties);
+                    materialSwapDict[unEditableMat] = mat;
+                }
             }
+            else  {
+                foreach (var unEditableMat in mats)
+                {
+                    Material mat;
+                    // Recording
+                    if (materialOverrideTransfer.IsRecording && materialOverrideTransfer.TempMaterial != null) {
+                        mat = materialOverrideTransfer.TempMaterial;
+                    }
+                    else {
+                        mat = Material.Instantiate(unEditableMat);
+                        SetProperties(mat, materialOverrideTransfer.OverrideProperties);
+                    }
+                    if(materialOverrideTransfer.OverrideShader != null)
+                    {
+                        mat.shader = materialOverrideTransfer.OverrideShader;
+                    }
+                    materialSwapDict[unEditableMat] = mat;
+                }
+            }
+
             domain.ReplaceMaterials(materialSwapDict);
         }
 
@@ -58,6 +83,26 @@ namespace net.rs64.TexTransTool.EditorProcessor
             }
         }
 
+        public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
+        {
+            if (overrideMaterial == null) yield break;
+            if (originalMaterial == null) yield break;
+
+            var shader = overrideMaterial.shader;
+            var propertyCount = shader.GetPropertyCount();
+            for (var i = 0; propertyCount > i; i += 1)
+            {
+                var propertyName = shader.GetPropertyName(i);
+                var propertyType = shader.GetPropertyType(i);
+
+                if (!MaterialProperty.TryGet(overrideMaterial, propertyName, propertyType, out var overrideProperty)) continue;
+                if (!MaterialProperty.TryGet(originalMaterial, propertyName, propertyType, out var originalProperty)) continue;
+
+                if (overrideProperty.Equals(originalProperty)) continue;
+
+                yield return overrideProperty;
+            }
+        }
 
         private static IEnumerable<Material> GetTargetMaterials(IEnumerable<Renderer> domainRenderer, OriginEqual originEqual, Material target)
         {
