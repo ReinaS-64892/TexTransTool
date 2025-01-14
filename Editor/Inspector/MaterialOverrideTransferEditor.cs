@@ -75,11 +75,17 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (_target.TempMaterial == null) { StopEditing(); return; }
 
-                if (GUILayout.Button("Stop Editing"))
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    StopEditing();
+                    if (GUILayout.Button("Apply", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.7f)))
+                    {
+                        StopEditing(true);
+                    }
+                    if (GUILayout.Button("Cancel"))
+                    {
+                        StopEditing(false);
+                    }
                 }
-                
                 _materialEditor ??= UnityEditor.Editor.CreateEditor(_target.TempMaterial);
                 _materialEditor?.DrawHeader ();
                 _materialEditor?.OnInspectorGUI (); 
@@ -104,14 +110,16 @@ namespace net.rs64.TexTransTool.Editor
             EditorUtility.SetDirty(_target);
         }
 
-        private void StopEditing()
+        private void StopEditing(bool apply = true)
         {
             _target.IsRecording = false;
 
             if (_target.TempMaterial != null)
             {
-                _target.OverrideShader = _target.TargetMaterial.shader != _target.TempMaterial.shader ? _target.TempMaterial.shader : null;
-                _target.OverrideProperties = MaterialOverrideTransferProcessor.GetOverrideProperties(_target.TargetMaterial, _target.TempMaterial).ToList();
+                if (apply) {
+                    _target.OverrideShader = _target.TargetMaterial.shader != _target.TempMaterial.shader ? _target.TempMaterial.shader : null;
+                    _target.OverrideProperties = MaterialOverrideTransferProcessor.GetOverrideProperties(_target.TargetMaterial, _target.TempMaterial).ToList();
+                }
                 DestroyImmediate(_target.TempMaterial);
                 _target.TempMaterial = null;
             }
