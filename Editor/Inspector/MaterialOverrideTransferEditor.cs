@@ -99,6 +99,7 @@ namespace net.rs64.TexTransTool.Editor
             _target.IsRecording = true;
 
             _target.TempMaterial = Material.Instantiate(_target.TargetMaterial);
+            _target.TempMaterial.shader = _target.OverrideShader;
             MaterialOverrideTransferProcessor.SetProperties(_target.TempMaterial, _target.OverrideProperties);
             EditorUtility.SetDirty(_target);
         }

@@ -43,11 +43,10 @@ namespace net.rs64.TexTransTool.EditorProcessor
                     }
                     else {
                         mat = Material.Instantiate(unEditableMat);
+                        if(materialOverrideTransfer.OverrideShader != null) {
+                            mat.shader = materialOverrideTransfer.OverrideShader;
+                        }
                         SetProperties(mat, materialOverrideTransfer.OverrideProperties);
-                    }
-                    if(materialOverrideTransfer.OverrideShader != null)
-                    {
-                        mat.shader = materialOverrideTransfer.OverrideShader;
                     }
                     materialSwapDict[unEditableMat] = mat;
                 }
