@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool
         // ShaderPropertyType.Float, ShaderPropertyType.Range
         public float FloatValue;
 
-        public bool Equals(MaterialProperty other)
+        public bool Equals(MaterialProperty other, bool strict = true)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -33,24 +33,29 @@ namespace net.rs64.TexTransTool
             switch (PropertyType)
             {
                 case ShaderPropertyType.Texture:
-                    return TextureValue == other.TextureValue && TextureOffsetValue.Equals(other.TextureOffsetValue) && TextureScaleValue.Equals(other.TextureScaleValue);
+                    if (strict) {
+                        return TextureValue.Equals(other.TextureValue) && TextureOffsetValue.Equals(other.TextureOffsetValue) && TextureScaleValue.Equals(other.TextureScaleValue);
+                    }
+                    else {
+                        return TextureValue == other.TextureValue && TextureOffsetValue == other.TextureOffsetValue && TextureScaleValue == other.TextureScaleValue;
+                    }
                 case ShaderPropertyType.Color:
-                    return ColorValue.Equals(other.ColorValue);
+                    return strict ? ColorValue.Equals(other.ColorValue) : ColorValue == other.ColorValue;
                 case ShaderPropertyType.Vector:
-                    return VectorValue.Equals(other.VectorValue);
+                    return strict ? VectorValue.Equals(other.VectorValue) : VectorValue == other.VectorValue;
                 case ShaderPropertyType.Int:
                     return IntValue == other.IntValue;
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
-                    return FloatValue.Equals(other.FloatValue);
+                    return strict ? Math.Abs(FloatValue - other.FloatValue) < Mathf.Epsilon : FloatValue == other.FloatValue;
                 default:
                     return false;
             }
         }
 
-        public void Set(Material mat)
+        public bool TrySet(Material mat)
         {
-            if (!Validiate(mat, PropertyName, PropertyType)) return;
+            if (!Validiate(mat, PropertyName, PropertyType)) return false;
 
             switch (PropertyType)
             {
@@ -83,6 +88,7 @@ namespace net.rs64.TexTransTool
                         break;
                     }
             }
+            return true;
         }
 
         public static bool TryGet(Material mat, string propertyName, ShaderPropertyType propertyType, out MaterialProperty materialProperty)
