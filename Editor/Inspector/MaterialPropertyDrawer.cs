@@ -11,26 +11,23 @@ namespace net.rs64.TexTransTool.Editor
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            position.height = EditorGUIUtility.singleLineHeight;
-            
             var propertyName = property.FindPropertyRelative(nameof(MaterialProperty.PropertyName));
             var propertyType = property.FindPropertyRelative(nameof(MaterialProperty.PropertyType));
-            var textureValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureValue));
-            var textureOffsetValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue));
-            var textureScaleValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue));
-            var colorValue = property.FindPropertyRelative(nameof(MaterialProperty.ColorValue));
-            var vectorValue = property.FindPropertyRelative(nameof(MaterialProperty.VectorValue));
-            var intValue = property.FindPropertyRelative(nameof(MaterialProperty.IntValue));
-            var floatValue = property.FindPropertyRelative(nameof(MaterialProperty.FloatValue));
+
+            position.height = EditorGUIUtility.singleLineHeight;
 
             EditorGUI.PropertyField(position, propertyName);
             position.y += EditorGUIUtility.singleLineHeight;
             EditorGUI.PropertyField(position, propertyType);
             position.y += EditorGUIUtility.singleLineHeight;
 
-            switch ((ShaderPropertyType)propertyType.enumValueIndex)
+            var type = (ShaderPropertyType)propertyType.enumValueIndex;
+            switch (type)
             {
                 case ShaderPropertyType.Texture:
+                    var textureValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureValue));
+                    var textureOffsetValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue));
+                    var textureScaleValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue));
                     EditorGUI.PropertyField(position, textureValue);
                     position.y += EditorGUIUtility.singleLineHeight;
                     EditorGUI.PropertyField(position, textureOffsetValue);
@@ -39,11 +36,14 @@ namespace net.rs64.TexTransTool.Editor
                     position.y += EditorGUIUtility.singleLineHeight;
                     break;
                 case ShaderPropertyType.Color:
+                    var colorValue = property.FindPropertyRelative(nameof(MaterialProperty.ColorValue));
                     EditorGUI.PropertyField(position, colorValue);
                     position.y += EditorGUIUtility.singleLineHeight;
                     break;
                 case ShaderPropertyType.Vector:
-                    Vector4 newValue = EditorGUI.Vector4Field(position, label, vectorValue.vector4Value);
+                    var vectorValue = property.FindPropertyRelative(nameof(MaterialProperty.VectorValue));
+                    EditorGUI.BeginChangeCheck();
+                    Vector4 newValue = EditorGUI.Vector4Field(position, "VectorValue", vectorValue.vector4Value);
                     if (EditorGUI.EndChangeCheck())
                     {
                         vectorValue.vector4Value = newValue;
@@ -51,11 +51,13 @@ namespace net.rs64.TexTransTool.Editor
                     position.y += EditorGUIUtility.singleLineHeight;
                     break;
                 case ShaderPropertyType.Int:
+                    var intValue = property.FindPropertyRelative(nameof(MaterialProperty.IntValue));
                     EditorGUI.PropertyField(position, intValue);
                     position.y += EditorGUIUtility.singleLineHeight;
                     break;
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
+                    var floatValue = property.FindPropertyRelative(nameof(MaterialProperty.FloatValue));
                     EditorGUI.PropertyField(position, floatValue);
                     position.y += EditorGUIUtility.singleLineHeight;
                     break;
