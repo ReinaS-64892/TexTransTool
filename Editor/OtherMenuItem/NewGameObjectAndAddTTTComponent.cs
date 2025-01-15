@@ -10,16 +10,25 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 {
     internal class NewGameObjectAndAddTTTComponent
     {
-        static void C<TTB>() where TTB : MonoBehaviour
+        static TTB C<TTB>() where TTB : MonoBehaviour
         {
-            var parent = Selection.activeGameObject;
-            var newGameObj = new GameObject(typeof(TTB).Name);
-            newGameObj.transform.SetParent(parent?.transform, false);
-            newGameObj.AddComponent<TTB>();
-            Undo.RegisterCreatedObjectUndo(newGameObj, "Create " + typeof(TTB).Name);
+            var parent = Selection.activeGameObject?.transform;
+            if (parent == null) return null;
+            var component = C<TTB>(parent, typeof(TTB).Name);
+            Undo.RegisterCreatedObjectUndo(component.gameObject, "Create " + typeof(TTB).Name);
+            return component;
+        }
+
+        static TTB C<TTB>(Transform parent, string name) where TTB : MonoBehaviour
+        {
+            var newGameObj = new GameObject(name);
+            newGameObj.transform.SetParent(parent, false);
+            var newComponent = newGameObj.AddComponent<TTB>();
             Selection.activeGameObject = newGameObj;
             EditorGUIUtility.PingObject(newGameObj);
+            return newComponent;
         }
+
         const string GOPath = "GameObject";
         const string BP = GOPath + "/" + TexTransBehavior.TTTName + "/";
 
