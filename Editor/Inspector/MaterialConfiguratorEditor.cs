@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -9,121 +10,171 @@ namespace net.rs64.TexTransTool.Editor
     {
         private MaterialConfigurator _target;
         private SerializedProperty _targetMaterial;
+        private SerializedProperty _isoverrideShader;
         private SerializedProperty _overrideShader;
         private SerializedProperty _overrideProperties;
-        private UnityEditor.Editor _materialEditor;
+
+        private Material _recordingMaterial;
+        private CustomMaterialEditor _materialEditor;
         private bool _showOverrides;
 
         private void OnEnable()
         {
             _target = target as MaterialConfigurator;
             _targetMaterial = serializedObject.FindProperty(nameof(MaterialConfigurator.TargetMaterial));
+            _isoverrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.IsOverrideShader));
             _overrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideShader));
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideProperties));
+            _recordingMaterial = new Material(Shader.Find("Standard"));
+            _recordingMaterial.name = "Configured Material";
+            if (_target.TargetMaterial != null) {
+                MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
+            }
+            _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
+            _materialEditor.OnShaderChangedPublic += OnShaderChanged;
+            Undo.undoRedoPerformed += UpdateRecordingMaterial;
         }
 
         private void OnDisable()
         {
+            if (_recordingMaterial != null)
+            {
+                DestroyImmediate(_recordingMaterial);
+            }
             if (_materialEditor != null)
             {
                 DestroyImmediate(_materialEditor);
-                _materialEditor = null;
             }
+            _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
+            Undo.undoRedoPerformed -= UpdateRecordingMaterial;
         }
+
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
+            bool shouldUpdate = false;
+
             EditorGUILayout.PropertyField(_targetMaterial);
-            EditMaterialGUI();
-            OverridesGUI();
+            if (serializedObject.hasModifiedProperties)
+            {
+                OnTargetChanged();
+                shouldUpdate = true;
+            }
+
+            if (_targetMaterial.objectReferenceValue != null)
+            {
+                if (_materialEditor != null) {
+                    
+                    _materialEditor.DrawHeader();
+
+                    EditorGUI.BeginChangeCheck();
+                    _materialEditor.OnInspectorGUI();
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        OnMaterialEdited();
+                        // shouldUpdate = true; 必須ではない
+                    }
+                }
+
+                EditorGUI.BeginChangeCheck();
+                OverridesGUI();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    shouldUpdate = true;
+                }
+            }
 
             serializedObject.ApplyModifiedProperties();
-        }
 
-        private void EditMaterialGUI()
-        {
-            GUI.enabled = _target.TargetMaterial != null;
-            
-            if (_target.IsRecording)
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button("Apply", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.7f)))
-                    {
-                        StopEditing(true);
-                    }
-                    if (GUILayout.Button("Cancel"))
-                    {
-                        StopEditing(false);
-                    }
-                }
-
-                if (_target.RecordingMaterial == null) { StopEditing(); return; }
-
-                if (_target.TargetMaterial != null && _target.RecordingMaterial != null) {
-                    _materialEditor ??= UnityEditor.Editor.CreateEditor(_target.RecordingMaterial);
-                    _materialEditor?.DrawHeader ();
-                    _materialEditor?.OnInspectorGUI (); 
-                }
-
+            if (shouldUpdate) {
+                UpdateRecordingMaterial();
             }
-            else
-            {
-                if (GUILayout.Button("Start Editing"))
-                {
-                    StartEditing();
-                }
-            }
-
-            GUI.enabled = true;
         }
 
         private void OverridesGUI()
         {
-            var count = (_overrideShader.objectReferenceValue != null ? 1 : 0) + _overrideProperties.arraySize;
+            var count = (_isoverrideShader.boolValue ? 1 : 0) + _overrideProperties.arraySize;
             _showOverrides = EditorGUILayout.Foldout(_showOverrides, $"Overrides: {count}");
             if (_showOverrides)
             {
                 EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_isoverrideShader);
+                GUI.enabled = _isoverrideShader.boolValue;
                 EditorGUILayout.PropertyField(_overrideShader);
+                GUI.enabled = true;
                 EditorGUILayout.PropertyField(_overrideProperties);
                 EditorGUI.indentLevel--;
             }
         }
 
-        private void StartEditing()
+        private void OnTargetChanged()
         {
-            _target.IsRecording = true;
-
-            _target.RecordingMaterial = Material.Instantiate(_target.TargetMaterial);
-            _target.RecordingMaterial.name += "_Configured";
-            if (_target.OverrideShader != null) _target.RecordingMaterial.shader = _target.OverrideShader;
-            MaterialConfigurator.SetProperties(_target.RecordingMaterial, _target.OverrideProperties);
-            EditorUtility.SetDirty(_target);
+            _isoverrideShader.boolValue = false;
+            _overrideShader.objectReferenceValue = null;
+            _overrideProperties.ClearArray();
         }
 
-        private void StopEditing(bool apply = true)
+        
+        private void OnMaterialEdited()
         {
-            _target.IsRecording = false;
+            var targetMaterial = _targetMaterial.objectReferenceValue as Material;
 
-            if (_target.RecordingMaterial != null)
-            {
-                if (apply) {
-                    _target.OverrideShader = _target.TargetMaterial.shader != _target.RecordingMaterial.shader ? _target.RecordingMaterial.shader : null;
-                    _target.OverrideProperties = MaterialConfigurator.GetOverrideProperties(_target.TargetMaterial, _target.RecordingMaterial).ToList();
-                }
-                DestroyImmediate(_target.RecordingMaterial);
-                _target.RecordingMaterial = null;
-            }
-            EditorUtility.SetDirty(_target);
+            CheckShaderChanged();
 
-            if (_materialEditor != null)
+            var overrideProperties = MaterialConfigurator.GetOverrideProperties(targetMaterial, _recordingMaterial).ToList();
+            _overrideProperties.ClearArray();
+            _overrideProperties.arraySize = overrideProperties.Count;
+            for(int i = 0; i < overrideProperties.Count; i++)
             {
-                DestroyImmediate(_materialEditor);
-                _materialEditor = null;
+                var element = _overrideProperties.GetArrayElementAtIndex(i);
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = overrideProperties[i].PropertyName;
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyType)).enumValueIndex = (int)overrideProperties[i].PropertyType;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureValue)).objectReferenceValue = overrideProperties[i].TextureValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue)).vector2Value = overrideProperties[i].TextureOffsetValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue)).vector2Value = overrideProperties[i].TextureScaleValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.ColorValue)).colorValue = overrideProperties[i].ColorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.VectorValue)).vector4Value = overrideProperties[i].VectorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = overrideProperties[i].IntValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = overrideProperties[i].FloatValue;
             }
+        }
+
+        private void CheckShaderChanged()
+        {
+            var targetMaterial = _targetMaterial.objectReferenceValue as Material;
+            var isOverrideShader = _recordingMaterial.shader != targetMaterial.shader;
+            _isoverrideShader.boolValue = isOverrideShader;
+            if (isOverrideShader)
+            {
+                _overrideShader.objectReferenceValue = _recordingMaterial.shader;
+            }
+        }
+
+        private void OnShaderChanged()
+        {
+            CheckShaderChanged();
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void UpdateRecordingMaterial()
+        {
+            if (_target.TargetMaterial == null) return;
+            MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
+            MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
+        }
+    }
+
+    // OnShaderChangedがprotectedなのでラップする
+    internal class CustomMaterialEditor : MaterialEditor
+    {
+        public event Action OnShaderChangedPublic;
+
+        protected override void OnShaderChanged()
+        {
+            base.OnShaderChanged();
+            OnShaderChangedPublic?.Invoke();
         }
     }
 
