@@ -1,3 +1,4 @@
+using System;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -74,6 +75,23 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
         [M(BP + MaterialConfigurator.MenuPath)] static void MC() => C<MaterialConfigurator>();
+
+        static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
+        {
+            var material = menuCommand.context as Material;
+            var transform = Selection.activeGameObject?.transform;
+            if (transform == null) return;
+            var parent = transform.parent == null ? transform : transform.parent;
+            var component = C<TTB>(parent, material.name);
+            action?.Invoke(component, material);
+            Undo.RegisterCreatedObjectUndo(component.gameObject, "Create " + typeof(TTB).Name);
+        }
+
+        const string CPath = "CONTEXT";
+        const string MRP = CPath + "/" + nameof(Material) + "/";
+        const int PRIORITY = 200;
+        [M(MRP + MaterialOverrideTransfer.Name, false, PRIORITY)] static void MOTM(MenuCommand mc) => CM<MaterialOverrideTransfer>(mc, (c, m) => c.TargetMaterial = m);
+        [M(MRP + MaterialConfigurator.ComponentName, false, PRIORITY)] static void MCM(MenuCommand mc) => CM<MaterialConfigurator>(mc, (c, m) => c.TargetMaterial = m);
 
     }
 }
