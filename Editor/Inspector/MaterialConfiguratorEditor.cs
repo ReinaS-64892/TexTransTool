@@ -31,8 +31,10 @@ namespace net.rs64.TexTransTool.Editor
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
+            // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
+            // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
             _materialEditor.OnShaderChangedPublic += OnShaderChanged;
-            Undo.undoRedoPerformed += UpdateRecordingMaterial;
+            ObjectChangeEvents.changesPublished += OnObjectChange;
         }
 
         private void OnDisable()
@@ -40,19 +42,16 @@ namespace net.rs64.TexTransTool.Editor
             if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
             if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
             _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
-            Undo.undoRedoPerformed -= UpdateRecordingMaterial;
+            ObjectChangeEvents.changesPublished -= OnObjectChange;
         }
-
 
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning(nameof(MaterialConfigurator));
+
             serializedObject.Update();
 
-            bool shouldUpdate = false;
-
             EditorGUILayout.PropertyField(_targetMaterial);
-            if (serializedObject.hasModifiedProperties) { shouldUpdate = true; }
 
             if (_targetMaterial.objectReferenceValue != null && _materialEditor != null)
             {
@@ -62,18 +61,12 @@ namespace net.rs64.TexTransTool.Editor
                 if (materialEditorChange.changed)
                 {
                     OnMaterialEdited();
-                    // shouldUpdate = true; 必須ではない
                 }
             }
-            {
-                using var overrideGUIChange = new EditorGUI.ChangeCheckScope();
-                OverridesGUI();
-                if (overrideGUIChange.changed) { shouldUpdate = true; }
-            }
+
+            OverridesGUI();
 
             serializedObject.ApplyModifiedProperties();
-
-            if (shouldUpdate) { UpdateRecordingMaterial(); }
         }
 
         private void OverridesGUI()
@@ -136,6 +129,26 @@ namespace net.rs64.TexTransTool.Editor
             if (_target.TargetMaterial == null) return;
             MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
             MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
+        }
+        
+        // 以下のEventによるプロパティの変更からUpdateRecordingMaterialを呼ぶ
+        // ・Inspector上からの操作
+        // ・Undo/Redo
+        // ・Prefab Revert/Apply
+        // 他のイベントも混じるが重複実行は問題ないのと、CustomEditorが起動しているときのみ1フレームあたり一回の呼び出しなので多分大丈夫
+        // Prefab Revert/ApplyのEventを受け取るのが主な意図
+        // PrefabUtility.prefabInstanceUpdatedはPrefabIntanceのEventしか取得できないのと、ApplyAllなどに反応しないっぽい？
+        private void OnObjectChange(ref ObjectChangeEventStream stream)
+        {
+            for (int i = 0; i < stream.length; i++)
+            {
+                var eventType = stream.GetEventType(i);
+                if (eventType == ObjectChangeKind.ChangeGameObjectOrComponentProperties || eventType == ObjectChangeKind.UpdatePrefabInstances || eventType == ObjectChangeKind.ChangeAssetObjectProperties)
+                {
+                    UpdateRecordingMaterial();
+                    return;
+                }
+            }
         }
     }
 
