@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 一つの子となる IslandSelector を基に IslandSelect の範囲を広げて選択できる、 IslandSelectorLink系 コンポーネントが 4つ 追加されました (#777)
 - TTT PSD Importer に PSD ImportMode SAI が追加され、出力元が SAI であるとみられる場合に自動判定されるようになりました (#781)
 - マテリアルをその場で変更し差分をオーバーライドとして非破壊的に適用できる MaterialConfigurator が追加されました (#788)
+- マテリアルのコンテキストメニューから MaterialOverrideTransfer と MaterialConfigurator が追加できる MenuItem が追加されました (#792)
 
 ### Changed
 

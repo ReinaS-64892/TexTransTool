@@ -1,3 +1,4 @@
+using System;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
 using net.rs64.TexTransTool.MultiLayerImage;
@@ -10,16 +11,25 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 {
     internal class NewGameObjectAndAddTTTComponent
     {
-        static void C<TTB>() where TTB : MonoBehaviour
+        static TTB C<TTB>() where TTB : MonoBehaviour
         {
-            var parent = Selection.activeGameObject;
-            var newGameObj = new GameObject(typeof(TTB).Name);
-            newGameObj.transform.SetParent(parent?.transform, false);
-            newGameObj.AddComponent<TTB>();
-            Undo.RegisterCreatedObjectUndo(newGameObj, "Create " + typeof(TTB).Name);
+            var parent = Selection.activeGameObject?.transform;
+            if (parent == null) return null;
+            var component = C<TTB>(parent, typeof(TTB).Name);
+            Undo.RegisterCreatedObjectUndo(component.gameObject, "Create " + typeof(TTB).Name);
+            return component;
+        }
+
+        static TTB C<TTB>(Transform parent, string name) where TTB : MonoBehaviour
+        {
+            var newGameObj = new GameObject(name);
+            newGameObj.transform.SetParent(parent, false);
+            var newComponent = newGameObj.AddComponent<TTB>();
             Selection.activeGameObject = newGameObj;
             EditorGUIUtility.PingObject(newGameObj);
+            return newComponent;
         }
+
         const string GOPath = "GameObject";
         const string BP = GOPath + "/" + TexTransBehavior.TTTName + "/";
 
@@ -65,6 +75,24 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
         [M(BP + MaterialConfigurator.MenuPath)] static void MC() => C<MaterialConfigurator>();
+
+        static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
+        {
+            var material = menuCommand.context as Material;
+            var transform = Selection.activeGameObject?.transform;
+            if (transform == null) return;
+            var parent = transform.parent == null ? transform : transform.parent;
+            var component = C<TTB>(parent, material.name);
+            action?.Invoke(component, material);
+            Undo.RegisterCreatedObjectUndo(component.gameObject, "Create " + typeof(TTB).Name);
+        }
+
+        const string CPath = "CONTEXT";
+        // 四つ超えたら、 TexTransTool としてまとめてもよいかも
+        const string MRP = CPath + "/" + nameof(Material) + "/";
+        const int PRIORITY = 200;
+        [M(MRP + MaterialOverrideTransfer.ComponentName, false, PRIORITY)] static void MOTM(MenuCommand mc) => CM<MaterialOverrideTransfer>(mc, (c, m) => c.TargetMaterial = m);
+        [M(MRP + MaterialConfigurator.ComponentName, false, PRIORITY)] static void MCM(MenuCommand mc) => CM<MaterialConfigurator>(mc, (c, m) => c.TargetMaterial = m);
 
     }
 }
