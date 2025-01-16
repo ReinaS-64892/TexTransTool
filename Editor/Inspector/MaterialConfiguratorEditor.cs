@@ -27,9 +27,8 @@ namespace net.rs64.TexTransTool.Editor
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideProperties));
             _recordingMaterial = new Material(Shader.Find("Standard"));
             _recordingMaterial.name = "Configured Material";
-            if (_target.TargetMaterial != null) {
-                MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
-            }
+            if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
+
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
             _materialEditor.OnShaderChangedPublic += OnShaderChanged;
             Undo.undoRedoPerformed += UpdateRecordingMaterial;
