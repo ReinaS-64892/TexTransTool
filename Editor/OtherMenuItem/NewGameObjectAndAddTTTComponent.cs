@@ -88,6 +88,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         }
 
         const string CPath = "CONTEXT";
+        // 四つ超えたら、 TexTransTool としてまとめてもよいかも
         const string MRP = CPath + "/" + nameof(Material) + "/";
         const int PRIORITY = 200;
         [M(MRP + MaterialOverrideTransfer.Name, false, PRIORITY)] static void MOTM(MenuCommand mc) => CM<MaterialOverrideTransfer>(mc, (c, m) => c.TargetMaterial = m);
