@@ -46,6 +46,7 @@ namespace net.rs64.TexTransTool.Editor
 
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawerWarning(nameof(MaterialConfigurator));
             serializedObject.Update();
 
             bool shouldUpdate = false;
