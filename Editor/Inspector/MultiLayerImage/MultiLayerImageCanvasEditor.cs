@@ -34,11 +34,10 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         {
             var texManager = new TextureManager(true);
             var texTransUnityCoreEngine = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManager));
-            var canvasResult = mlic.EvaluateCanvas(texTransUnityCoreEngine, 1024, 1024).Unwrap();
+            using var canvasResult = mlic.EvaluateCanvas(texTransUnityCoreEngine, 1024, 1024);
             texManager.DestroyDeferred();
 
-            EditorGUI.DrawTextureTransparent(previewArea, canvasResult, ScaleMode.ScaleToFit);
-            TTRt.R(canvasResult);
+            EditorGUI.DrawTextureTransparent(previewArea, canvasResult.Unwrap(), ScaleMode.ScaleToFit);
         }
 
 
