@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool.Editor
         private void OverridesGUI()
         {
             var count = (_isoverrideShader.boolValue ? 1 : 0) + _overrideProperties.arraySize;
-            _showOverrides = EditorGUILayout.Foldout(_showOverrides, $"Overrides: {count}");
+            _showOverrides = EditorGUILayout.Foldout(_showOverrides, $"Overrides: {count}", true);
             if (_showOverrides)
             {
                 EditorGUI.indentLevel++;
