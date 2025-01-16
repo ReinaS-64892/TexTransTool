@@ -13,6 +13,7 @@ namespace net.rs64.TexTransTool
     internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
+        // TransferAsset と one2one の場合は RegisterReplace を適切に実行するように。
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
@@ -24,11 +25,15 @@ namespace net.rs64.TexTransTool
             if (IsTemporaryAsset(material)) { return; }
             Profiler.BeginSample("GetMutable-with-Clone", material);
             var origin = material;
-            material = UnityEngine.Object.Instantiate(material);
-            ReplaceMaterials(new() { { origin, material } }, true);
-            TransferAsset(material);
-            RegisterReplace(origin, material);
-            material.name = origin.name + "(TTT GetMutable)";
+
+            var mutableMat = UnityEngine.Object.Instantiate(origin);
+            ReplaceMaterials(new() { { origin, mutableMat } }, true);
+            // ReplaceMaterials が基本これらを実行するから必要がない。
+            // TransferAsset(mutableMat);
+            // RegisterReplace(origin, mutableMat);
+            mutableMat.name = origin.name + "(TTT GetMutable)";
+
+            material = mutableMat;
             Profiler.EndSample();
         }
         bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
