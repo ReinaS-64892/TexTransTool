@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         private MaterialConfigurator _target;
         private SerializedProperty _targetMaterial;
-        private SerializedProperty _isoverrideShader;
+        private SerializedProperty _isOverrideShader;
         private SerializedProperty _overrideShader;
         private SerializedProperty _overrideProperties;
 
@@ -22,9 +22,10 @@ namespace net.rs64.TexTransTool.Editor
         {
             _target = target as MaterialConfigurator;
             _targetMaterial = serializedObject.FindProperty(nameof(MaterialConfigurator.TargetMaterial));
-            _isoverrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.IsOverrideShader));
+            _isOverrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.IsOverrideShader));
             _overrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideShader));
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideProperties));
+
             _recordingMaterial = new Material(Shader.Find("Standard"));
             _recordingMaterial.name = "Configured Material";
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
@@ -36,14 +37,8 @@ namespace net.rs64.TexTransTool.Editor
 
         private void OnDisable()
         {
-            if (_recordingMaterial != null)
-            {
-                DestroyImmediate(_recordingMaterial);
-            }
-            if (_materialEditor != null)
-            {
-                DestroyImmediate(_materialEditor);
-            }
+            if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
+            if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
             _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
             Undo.undoRedoPerformed -= UpdateRecordingMaterial;
         }
@@ -56,66 +51,44 @@ namespace net.rs64.TexTransTool.Editor
             bool shouldUpdate = false;
 
             EditorGUILayout.PropertyField(_targetMaterial);
-            if (serializedObject.hasModifiedProperties)
+            if (serializedObject.hasModifiedProperties) { shouldUpdate = true; }
+
+            if (_targetMaterial.objectReferenceValue != null && _materialEditor != null)
             {
-                OnTargetChanged();
-                shouldUpdate = true;
-            }
-
-            if (_targetMaterial.objectReferenceValue != null)
-            {
-                if (_materialEditor != null) {
-                    
-                    _materialEditor.DrawHeader();
-
-                    EditorGUI.BeginChangeCheck();
-                    _materialEditor.OnInspectorGUI();
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        OnMaterialEdited();
-                        // shouldUpdate = true; 必須ではない
-                    }
-                }
-
-                EditorGUI.BeginChangeCheck();
-                OverridesGUI();
-                if (EditorGUI.EndChangeCheck())
+                using var materialEditorChange = new EditorGUI.ChangeCheckScope();
+                _materialEditor.DrawHeader();
+                _materialEditor.OnInspectorGUI();
+                if (materialEditorChange.changed)
                 {
-                    shouldUpdate = true;
+                    OnMaterialEdited();
+                    // shouldUpdate = true; 必須ではない
                 }
+            }
+            {
+                using var overrideGUIChange = new EditorGUI.ChangeCheckScope();
+                OverridesGUI();
+                if (overrideGUIChange.changed) { shouldUpdate = true; }
             }
 
             serializedObject.ApplyModifiedProperties();
 
-            if (shouldUpdate) {
-                UpdateRecordingMaterial();
-            }
+            if (shouldUpdate) { UpdateRecordingMaterial(); }
         }
 
         private void OverridesGUI()
         {
-            var count = (_isoverrideShader.boolValue ? 1 : 0) + _overrideProperties.arraySize;
+            var count = (_isOverrideShader.boolValue ? 1 : 0) + _overrideProperties.arraySize;
             _showOverrides = EditorGUILayout.Foldout(_showOverrides, $"Overrides: {count}", true);
             if (_showOverrides)
             {
                 EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_isoverrideShader);
-                GUI.enabled = _isoverrideShader.boolValue;
+                EditorGUILayout.PropertyField(_isOverrideShader);
                 EditorGUILayout.PropertyField(_overrideShader);
-                GUI.enabled = true;
                 EditorGUILayout.PropertyField(_overrideProperties);
                 EditorGUI.indentLevel--;
             }
         }
 
-        private void OnTargetChanged()
-        {
-            _isoverrideShader.boolValue = false;
-            _overrideShader.objectReferenceValue = null;
-            _overrideProperties.ClearArray();
-        }
-
-        
         private void OnMaterialEdited()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
@@ -125,7 +98,7 @@ namespace net.rs64.TexTransTool.Editor
             var overrideProperties = MaterialConfigurator.GetOverrideProperties(targetMaterial, _recordingMaterial).ToList();
             _overrideProperties.ClearArray();
             _overrideProperties.arraySize = overrideProperties.Count;
-            for(int i = 0; i < overrideProperties.Count; i++)
+            for (int i = 0; i < overrideProperties.Count; i++)
             {
                 var element = _overrideProperties.GetArrayElementAtIndex(i);
                 element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = overrideProperties[i].PropertyName;
@@ -144,7 +117,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
             var isOverrideShader = _recordingMaterial.shader != targetMaterial.shader;
-            _isoverrideShader.boolValue = isOverrideShader;
+            _isOverrideShader.boolValue = isOverrideShader;
             if (isOverrideShader)
             {
                 _overrideShader.objectReferenceValue = _recordingMaterial.shader;

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -55,7 +56,7 @@ namespace net.rs64.TexTransTool
 
         public bool TrySet(Material mat)
         {
-            if (!Validiate(mat, PropertyName, PropertyType)) return false;
+            if (!Validate(mat, PropertyName, PropertyType)) return false;
 
             switch (PropertyType)
             {
@@ -95,7 +96,7 @@ namespace net.rs64.TexTransTool
         {
             materialProperty = default;
 
-            if (!Validiate(mat, propertyName, propertyType)) return false;
+            if (!Validate(mat, propertyName, propertyType)) return false;
 
             materialProperty = new MaterialProperty
             {
@@ -137,7 +138,7 @@ namespace net.rs64.TexTransTool
             return true;
         }
 
-        private static bool Validiate(Material mat, string propertyName, ShaderPropertyType propertyType)
+        private static bool Validate(Material mat, string propertyName, ShaderPropertyType propertyType)
         {
             if (!mat.HasProperty(propertyName))
             {
