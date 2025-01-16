@@ -27,6 +27,9 @@ namespace net.rs64.TexTransTool
             var origin = material;
 
             var mutableMat = UnityEngine.Object.Instantiate(origin);
+#if UNITY_EDITOR
+            mutableMat.parent = null;
+#endif
             ReplaceMaterials(new() { { origin, mutableMat } }, true);
             // ReplaceMaterials が基本これらを実行するから必要がない。
             // TransferAsset(mutableMat);
