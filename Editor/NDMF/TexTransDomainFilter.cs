@@ -42,6 +42,9 @@ namespace net.rs64.TexTransTool.NDMF
 
             foreach (var root in avatarRoots)
             {
+                //ルートから無効化されている場合そもそもプレビューする意味がないので完全スキップ
+                if (ctx.ActiveInHierarchy(root) is false) { continue; }
+
                 Profiler.BeginSample(root.name, root);
                 Profiler.BeginSample("FindAtPhase");
 
@@ -138,7 +141,7 @@ namespace net.rs64.TexTransTool.NDMF
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviorIndex)
             {
-                Profiler.BeginSample("Mod target",ttbKV.Key);
+                Profiler.BeginSample("Mod target", ttbKV.Key);
                 var modificationTargets = ttbKV.Key.ModificationTargetRenderers(ofRenderers[ttbKV.Value.domainIndex], (l, r) => l == r);
                 Profiler.EndSample();
                 targetRendererGroup.Add(ttbKV.Key, modificationTargets.ToHashSet());
