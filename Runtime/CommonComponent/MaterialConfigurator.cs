@@ -91,6 +91,14 @@ namespace net.rs64.TexTransTool
             }
         }
 
+        public static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
+        {
+            if (overrideMaterial == null) return (false, null);
+            if (originalMaterial == null) return (false, null);
+            if( originalMaterial.shader == overrideMaterial.shader) return (false, null);
+            return (true, overrideMaterial.shader);
+        }
+
         private static IEnumerable<MaterialProperty> GetProperties(Material material)
         {
             if (material == null) yield break;

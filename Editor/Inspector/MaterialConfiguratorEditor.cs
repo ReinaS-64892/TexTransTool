@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace net.rs64.TexTransTool.Editor
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
             // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
             // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
-            _materialEditor.OnShaderChangedPublic += OnShaderChanged;
+            _materialEditor.OnShaderChangedPublic += ApplyOverridesToComponent;
             ObjectChangeEvents.changesPublished += OnObjectChange;
         }
 
@@ -41,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
             if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
-            _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
+            _materialEditor.OnShaderChangedPublic -= ApplyOverridesToComponent;
             ObjectChangeEvents.changesPublished -= OnObjectChange;
         }
 
@@ -60,7 +61,7 @@ namespace net.rs64.TexTransTool.Editor
                 _materialEditor.OnInspectorGUI();
                 if (materialEditorChange.changed)
                 {
-                    OnMaterialEdited();
+                    ApplyOverridesToComponent();
                 }
             }
 
@@ -83,50 +84,51 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
-        private void OnMaterialEdited()
+
+        private void ApplyOverridesToComponent()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
-
-            CheckShaderChanged();
-
-            var overrideProperties = MaterialConfigurator.GetOverrideProperties(targetMaterial, _recordingMaterial).ToList();
-            _overrideProperties.ClearArray();
-            _overrideProperties.arraySize = overrideProperties.Count;
-            for (int i = 0; i < overrideProperties.Count; i++)
-            {
-                var element = _overrideProperties.GetArrayElementAtIndex(i);
-                element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = overrideProperties[i].PropertyName;
-                element.FindPropertyRelative(nameof(MaterialProperty.PropertyType)).enumValueIndex = (int)overrideProperties[i].PropertyType;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureValue)).objectReferenceValue = overrideProperties[i].TextureValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue)).vector2Value = overrideProperties[i].TextureOffsetValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue)).vector2Value = overrideProperties[i].TextureScaleValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.ColorValue)).colorValue = overrideProperties[i].ColorValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.VectorValue)).vector4Value = overrideProperties[i].VectorValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = overrideProperties[i].IntValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = overrideProperties[i].FloatValue;
-            }
+            ApplyOverridesToComponent(targetMaterial, _recordingMaterial, true);
         }
 
-        private void CheckShaderChanged()
+        private void ApplyOverridesToComponent(Material originalMaterial, Material overrideMaterial, bool clear = true)
         {
-            var targetMaterial = _targetMaterial.objectReferenceValue as Material;
-            var isOverrideShader = _recordingMaterial.shader != targetMaterial.shader;
-            _isOverrideShader.boolValue = isOverrideShader;
-            if (isOverrideShader)
-            {
-                _overrideShader.objectReferenceValue = _recordingMaterial.shader;
-            }
+            (var isOverideShader, var overrideShader) = MaterialConfigurator.GetOverrideShader(originalMaterial, overrideMaterial);
+            var overrideProperties = MaterialConfigurator.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            ApplyShaderOverrideToComponent(isOverideShader, overrideShader);
+            ApplyPropertyOverridesToComponent(overrideProperties, clear);
         }
 
-        private void OnShaderChanged()
+        private void ApplyShaderOverrideToComponent(bool isOverideShader, Shader overrideShader)
         {
-            CheckShaderChanged();
-            serializedObject.ApplyModifiedProperties();
+            _isOverrideShader.boolValue = isOverideShader;
+            if (isOverideShader) { _overrideShader.objectReferenceValue = overrideShader; }
+            else { _overrideShader.objectReferenceValue = null; }
+        }
+
+        private void ApplyPropertyOverridesToComponent(List<MaterialProperty> overrides, bool clear = true)
+        {
+            if (clear) { _overrideProperties.ClearArray(); }
+            var startIndex = _overrideProperties.arraySize;
+            _overrideProperties.arraySize += overrides.Count;
+            for (int i = 0; i < overrides.Count; i++)
+            {
+                var element = _overrideProperties.GetArrayElementAtIndex(startIndex + i);
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = overrides[i].PropertyName;
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyType)).enumValueIndex = (int)overrides[i].PropertyType;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureValue)).objectReferenceValue = overrides[i].TextureValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue)).vector2Value = overrides[i].TextureOffsetValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue)).vector2Value = overrides[i].TextureScaleValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.ColorValue)).colorValue = overrides[i].ColorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.VectorValue)).vector4Value = overrides[i].VectorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = overrides[i].IntValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = overrides[i].FloatValue;
+            }
         }
 
         private void UpdateRecordingMaterial()
         {
-            if (_target.TargetMaterial == null) return;
+            if (_target.TargetMaterial == null || _recordingMaterial == null) return;
             MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
             MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
         }
