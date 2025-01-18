@@ -10,27 +10,22 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class TransMappingUtility
     {
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToPolygons, ReadOnlySpan<TTVector4> transFromPolygons)
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer transToVertex, ITTStorageBuffer transFromVertexBuffer, ITTStorageBuffer polygonIndexesBuffer, int polygonCount, ITTStorageBuffer? transFromDepth)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
-            using var fBuf = engine.UploadStorageBuffer(transFromPolygons);
-            using var tBuf = engine.UploadStorageBuffer(transToPolygons);
-            engine.WriteMapping(transMappingHolder, tBuf, fBuf, (uint)(transToPolygons.Length / 3));
-        }
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer transToPolygons, ITTStorageBuffer transFromPolygonBuffer, uint polygonCount)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
-        {
-            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
+            var useDepth = transFromDepth is not null && transMappingHolder.DepthMap is not null;
+            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingWithDepth) : engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
 
             var transMapID = computeHandler.NameToID("TransMap");
             var distanceMapID = computeHandler.NameToID("DistanceMap");
             var scalingMapID = computeHandler.NameToID("ScalingMap");
-            var additionalDataMapID = computeHandler.NameToID("AdditionalDataMap");
 
-            var fromPolygonsID = computeHandler.NameToID("FromPolygons");
-            var toPolygonID = computeHandler.NameToID("ToPolygons");
+            var polygonIndexID = computeHandler.NameToID("PolygonIndex");
+
+            var fromVertexID = computeHandler.NameToID("FromVertex");
+            var toVertexID = computeHandler.NameToID("ToVertex");
 
             Span<byte> gvBuf = stackalloc byte[32];
             BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.TargetSize.x);
@@ -44,13 +39,21 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
             computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
-            computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            computeHandler.SetStorageBuffer(fromPolygonsID, transFromPolygonBuffer);
-            computeHandler.SetStorageBuffer(toPolygonID, transToPolygons);
+            computeHandler.SetStorageBuffer(fromVertexID, transFromVertexBuffer);
+            computeHandler.SetStorageBuffer(toVertexID, transToVertex);
+            computeHandler.SetStorageBuffer(polygonIndexID, polygonIndexesBuffer);
+
+            if (useDepth)
+            {
+                var depthMapID = computeHandler.NameToID("DepthMap");
+                var fromDepthVertexID = computeHandler.NameToID("FromDepthVertex");
+                computeHandler.SetTexture(depthMapID, transMappingHolder.DepthMap!);
+                computeHandler.SetStorageBuffer(fromDepthVertexID, transFromDepth!);
+            }
 
             // MaxDistance を 0 にして三角形の内側を絶対に塗る。
-            foreach (var (dispatchCount, indexOffset) in SliceDispatch(polygonCount, ushort.MaxValue))
+            foreach (var (dispatchCount, indexOffset) in SliceDispatch((uint)polygonCount, ushort.MaxValue))
             {
                 BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), indexOffset);
                 computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
@@ -61,7 +64,7 @@ namespace net.rs64.TexTransCore.TransTexture
 
             BitConverter.TryWriteBytes(gvBuf.Slice(16, 4), transMappingHolder.MaxDistance);
 
-            foreach (var (dispatchCount, indexOffset) in SliceDispatch(polygonCount, ushort.MaxValue))
+            foreach (var (dispatchCount, indexOffset) in SliceDispatch((uint)polygonCount, ushort.MaxValue))
             {
                 BitConverter.TryWriteBytes(gvBuf.Slice(20, 4), indexOffset);
                 computeHandler.UploadConstantsBuffer<byte>(gvBufId, gvBuf);
@@ -76,28 +79,29 @@ namespace net.rs64.TexTransCore.TransTexture
                 yield return (Math.Min(polygonCount - offset, dispatchMax), offset);
             }
         }
-
-        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToPolygons, ReadOnlySpan<TTVector4> transFromPolygons)
+        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToVertex, ITTStorageBuffer transToVertexBuf, ITTStorageBuffer transFromVertexBuf, ReadOnlySpan<int> polygonIndexes, ITTStorageBuffer? transFromDepthBuf)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
+            var polygonCount = polygonIndexes.Length / 3;
             if (transMappingHolder.MaxDistance <= 0.0001)
             {
-                engine.WriteMapping(transMappingHolder, transToPolygons, transFromPolygons);
+                using var pBuf = engine.UploadStorageBuffer(polygonIndexes);
+                engine.WriteMapping(transMappingHolder, transToVertexBuf, transFromVertexBuf, pBuf, polygonCount, transFromDepthBuf);
                 return;
             }
-            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
+            var useDepth = transFromDepthBuf is not null && transMappingHolder.DepthMap is not null;
+            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingWithDepth) : engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
 
             var transMapID = computeHandler.NameToID("TransMap");
             var distanceMapID = computeHandler.NameToID("DistanceMap");
             var scalingMapID = computeHandler.NameToID("ScalingMap");
-            var additionalDataMapID = computeHandler.NameToID("AdditionalDataMap");
 
-            var fromPolygonsID = computeHandler.NameToID("FromPolygons");
-            var toPolygonID = computeHandler.NameToID("ToPolygons");
+            var polygonIndexID = computeHandler.NameToID("PolygonIndex");
 
-            var offsetValuesID = computeHandler.NameToID("OffsetValues");
+            var fromVertexID = computeHandler.NameToID("FromVertex");
+            var toVertexID = computeHandler.NameToID("ToVertex");
 
             Span<byte> gvBuf = stackalloc byte[32];
             BitConverter.TryWriteBytes(gvBuf.Slice(0, 4), transMappingHolder.TargetSize.x);
@@ -110,15 +114,21 @@ namespace net.rs64.TexTransCore.TransTexture
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);
             computeHandler.SetTexture(distanceMapID, transMappingHolder.DistanceMap);
             computeHandler.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
-            computeHandler.SetTexture(additionalDataMapID, transMappingHolder.AdditionalDataMap);
 
-            var polygonCount = transToPolygons.Length / 3;
+            computeHandler.SetStorageBuffer(fromVertexID, transFromVertexBuf);
+            computeHandler.SetStorageBuffer(toVertexID, transToVertexBuf);
 
-            var bufferF = new TTVector4[transFromPolygons.Length];
-            var bufferT = new Vector2[transToPolygons.Length];
+            if (useDepth)
+            {
+                var depthMapID = computeHandler.NameToID("DepthMap");
+                var fromDepthVertexID = computeHandler.NameToID("FromDepthVertex");
+                computeHandler.SetTexture(depthMapID, transMappingHolder.DepthMap!);
+                computeHandler.SetStorageBuffer(fromDepthVertexID, transFromDepthBuf!);
+            }
 
             var need = new BitArray(polygonCount, true);
             var boxBuffer = new TTVector4[polygonCount];
+            var bufferI = new int[polygonIndexes.Length];
 
 
             var boxCache = new TTVector4[polygonCount];
@@ -126,16 +136,16 @@ namespace net.rs64.TexTransCore.TransTexture
             var yP = 1f / transMappingHolder.TargetSize.y * transMappingHolder.MaxDistance;
             for (var i = 0; need.Length > i; i += 1)
             {
-                var rI = i * 3;
-                var tp = transToPolygons.Slice(rI, 3);
+                var pIndex = i * 3;
+                var tp = polygonIndexes.Slice(pIndex, 3);
 
-                TTVector4 box = new TTVector4(tp[0].X, tp[0].Y, tp[0].X, tp[0].Y);
+                TTVector4 box = new TTVector4(transToVertex[tp[0]].X, transToVertex[tp[0]].Y, transToVertex[tp[0]].X, transToVertex[tp[0]].Y);
                 for (var t = 1; tp.Length > t; t += 1)
                 {
-                    box.X = Math.Min(box.X, tp[t].X);
-                    box.Y = Math.Min(box.Y, tp[t].Y);
-                    box.Z = Math.Max(box.Z, tp[t].X);
-                    box.W = Math.Max(box.W, tp[t].Y);
+                    box.X = Math.Min(box.X, transToVertex[tp[t]].X);
+                    box.Y = Math.Min(box.Y, transToVertex[tp[t]].Y);
+                    box.Z = Math.Max(box.Z, transToVertex[tp[t]].X);
+                    box.W = Math.Max(box.W, transToVertex[tp[t]].Y);
                 }
                 box.X -= xP;
                 box.Y -= yP;
@@ -153,22 +163,26 @@ namespace net.rs64.TexTransCore.TransTexture
                     if (need[i] is false) { continue; }
 
                     var rI = i * 3;
-                    var tp = transToPolygons.Slice(rI, 3);
+                    var pIndex = polygonIndexes.Slice(rI, 3);
 
                     var box = boxCache[i];
+
                     var boxHash = box.GetHashCode();
-                    var polyHash = HashCode.Combine(tp[0], tp[1], tp[2]);
+                    var polyIndexHash = HashCode.Combine(pIndex[0], pIndex[1], pIndex[2]);
+                    var polyHash = HashCode.Combine(transToVertex[pIndex[0]], transToVertex[pIndex[1]], transToVertex[pIndex[2]]);
+
                     var conflict = false;
                     for (var bi = 0; dispatchPolygonCount > bi; bi += 1)
                     {
                         conflict = BoxIntersect(boxBuffer[bi], box);
                         if (conflict)
                         {
-                            var bPoly = bufferT.AsSpan(bi * 3, 3);
-                            if (
-                                boxBuffer[bi].GetHashCode() == boxHash && boxBuffer[bi].Equals(box)
-                                 && polyHash == HashCode.Combine(bPoly[0], bPoly[1], bPoly[2])
-                                 && tp[0] == bPoly[0] && tp[1] == bPoly[1] && tp[2] == bPoly[2]
+                            var bPoly = bufferI.AsSpan(bi * 3, 3);
+
+                            if (polyIndexHash == HashCode.Combine(bPoly[0], bPoly[1], bPoly[2])
+                                && polyHash == HashCode.Combine(transToVertex[bPoly[0]], transToVertex[bPoly[1]], transToVertex[bPoly[2]])
+                                && boxBuffer[bi].GetHashCode() == boxHash && boxBuffer[bi].Equals(box)
+                                && pIndex[0] == bPoly[0] && pIndex[1] == bPoly[1] && pIndex[2] == bPoly[2]
                             )
                             {
                                 need[i] = false;//完全一致しているポリゴンは見なかったことにします！
@@ -179,24 +193,15 @@ namespace net.rs64.TexTransCore.TransTexture
 
                     if (conflict) { continue; }
 
-                    var wI = dispatchPolygonCount * 3;
-
-                    var bf = bufferF.AsSpan(wI, 3);
-                    var bt = bufferT.AsSpan(wI, 3);
-
-                    var fp = transFromPolygons.Slice(rI, 3);
-
-                    fp.CopyTo(bf);
-                    tp.CopyTo(bt);
-
+                    pIndex.CopyTo(bufferI.AsSpan(dispatchPolygonCount * 3, 3));
                     boxBuffer[dispatchPolygonCount] = box;
+
                     need[i] = false;
                     dispatchPolygonCount += 1;
                 }
                 if (dispatchPolygonCount == 0) { break; }
 
-                using var fpBuf = engine.SetStorageBufferFromUpload<TTCE, TTVector4>(computeHandler, fromPolygonsID, bufferF.AsSpan(0, dispatchPolygonCount * 3));
-                using var tpBuf = engine.SetStorageBufferFromUpload<TTCE, Vector2>(computeHandler, toPolygonID, bufferT.AsSpan(0, dispatchPolygonCount * 3));
+                using var indexBuf = engine.SetStorageBufferFromUpload<TTCE, int>(computeHandler, polygonIndexID, bufferI.AsSpan(0, dispatchPolygonCount * 3));
 
                 foreach (var (dispatchCount, indexOffset) in SliceDispatch((uint)dispatchPolygonCount, ushort.MaxValue))
                 {
@@ -279,20 +284,20 @@ namespace net.rs64.TexTransCore.TransTexture
     {
         public ITTRenderTexture TransMap;
         public ITTRenderTexture DistanceMap, ScalingMap;
-        public ITTRenderTexture AdditionalDataMap;
+        public ITTRenderTexture? DepthMap;
         public readonly (int x, int y) TargetSize, SourceSize;
         public readonly float MaxDistance;
-        private TTTransMappingHolder(ITTRenderTexture transMap, ITTRenderTexture distanceMap, ITTRenderTexture scalingMap, ITTRenderTexture additionalDataMap, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
+        private TTTransMappingHolder(ITTRenderTexture transMap, ITTRenderTexture distanceMap, ITTRenderTexture scalingMap, ITTRenderTexture? depthMap, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
         {
             TransMap = transMap;
             DistanceMap = distanceMap;
             ScalingMap = scalingMap;
-            AdditionalDataMap = additionalDataMap;
+            DepthMap = depthMap;
             TargetSize = targetsize;
             SourceSize = sourceSize;
             MaxDistance = maxDistance;
         }
-        public static TTTransMappingHolder Create<TTCE>(TTCE engine, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance)
+        public static TTTransMappingHolder Create<TTCE>(TTCE engine, (int x, int y) targetsize, (int x, int y) sourceSize, float maxDistance, bool useDepthMap = false)
         where TTCE : ITexTransCreateTexture
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
@@ -300,9 +305,9 @@ namespace net.rs64.TexTransCore.TransTexture
             var transMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.RG);
             var distanceMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.R);
             var scalingMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.R);
-            var additionalDataMap = engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.RG);
+            var depthMap = useDepthMap ? engine.CreateRenderTexture(targetsize.x, targetsize.y, TexTransCoreTextureChannel.R) : null;
             engine.FillR(distanceMap, maxDistance);
-            return new(transMap, distanceMap, scalingMap, additionalDataMap, targetsize, sourceSize, maxDistance);
+            return new(transMap, distanceMap, scalingMap, depthMap, targetsize, sourceSize, maxDistance);
         }
         public void Dispose()
         {
@@ -312,8 +317,8 @@ namespace net.rs64.TexTransCore.TransTexture
             DistanceMap = null!;
             ScalingMap?.Dispose();
             ScalingMap = null!;
-            AdditionalDataMap?.Dispose();
-            AdditionalDataMap = null!;
+            DepthMap?.Dispose();
+            DepthMap = null;
         }
     }
 

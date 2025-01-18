@@ -16,7 +16,9 @@ cbuffer gv
     float AlimentPadding1;
 }
 
-StructuredBuffer<float4> Polygons;
+StructuredBuffer<float2> Vertex;
+StructuredBuffer<float> VertexDepth;
+StructuredBuffer<int> Polygons;
 RWStructuredBuffer<uint> DepthBuffer;
 
 #include "./TransMappingHelper.hlsl"
@@ -40,13 +42,13 @@ float4 MinMax(float2 tri[3])
     float2 polygon[3];
     float2 depthPolygon[3];
 
-    polygon[0].xy = Polygons[polygonIndex + 0].xy * float2(DepthMapSize);
-    polygon[1].xy = Polygons[polygonIndex + 1].xy * float2(DepthMapSize);
-    polygon[2].xy = Polygons[polygonIndex + 2].xy * float2(DepthMapSize);
+    polygon[0].xy = Vertex[Polygons[polygonIndex + 0]] * float2(DepthMapSize);
+    polygon[1].xy = Vertex[Polygons[polygonIndex + 1]] * float2(DepthMapSize);
+    polygon[2].xy = Vertex[Polygons[polygonIndex + 2]] * float2(DepthMapSize);
 
-    depthPolygon[0].xy = Polygons[polygonIndex + 0].zw;
-    depthPolygon[1].xy = Polygons[polygonIndex + 1].zw;
-    depthPolygon[2].xy = Polygons[polygonIndex + 2].zw;
+    depthPolygon[0].xy = VertexDepth[Polygons[polygonIndex + 0]].xx;
+    depthPolygon[1].xy = VertexDepth[Polygons[polygonIndex + 1]].xx;
+    depthPolygon[2].xy = VertexDepth[Polygons[polygonIndex + 2]].xx;
 
     float4 rect = MinMax(polygon);
     int2 minVal = int2(floor(rect.xy));

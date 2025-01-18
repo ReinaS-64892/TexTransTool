@@ -138,6 +138,8 @@ namespace net.rs64.TexTransCore
     public interface ITexTransTransTextureComputeKey
     {
         ITTComputeKey TransMapping { get; }
+        ITTComputeKey TransMappingWithDepth { get; }
+        
         ITTComputeKey TransWarpNone { get; }
         ITTComputeKey TransWarpStretch { get; }
 
