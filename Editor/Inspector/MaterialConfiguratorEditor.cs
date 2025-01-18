@@ -103,7 +103,7 @@ namespace net.rs64.TexTransTool.Editor
                 _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Add")) {
+                    if (GUILayout.Button("Add diff to this component")) {
                         ProcessMaterialDiff(false);
                     }
                 };
@@ -114,7 +114,7 @@ namespace net.rs64.TexTransTool.Editor
                 _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Add")) {
+                    if (GUILayout.Button("Add diff to this component")) {
                         ProcessMaterialVariantdiff(false);
                     }
                 }
