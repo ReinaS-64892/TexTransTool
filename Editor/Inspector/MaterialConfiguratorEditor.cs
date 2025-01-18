@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Editor
         private Material _recordingMaterial;
         private CustomMaterialEditor _materialEditor;
         private bool _showOverrides;
-        private bool _showAdvanced;
+        private bool _showOverrideUtlity;
         private Material _originalMaterial;
         private Material _overrideMaterial;
         private Material _variantMaterial;
@@ -70,7 +70,6 @@ namespace net.rs64.TexTransTool.Editor
             }
 
             OverridesGUI();
-            AdvacedGUI();
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -85,15 +84,16 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.PropertyField(_isOverrideShader);
                 EditorGUILayout.PropertyField(_overrideShader);
                 EditorGUILayout.PropertyField(_overrideProperties);
+                OverrideUtilityGUI();
                 EditorGUI.indentLevel--;
             }
         }
 
-        private void AdvacedGUI()
+        private void OverrideUtilityGUI()
         {
-            _showAdvanced = EditorGUILayout.Foldout(_showAdvanced, $"Advaced", false);
+            _showOverrideUtlity = EditorGUILayout.Foldout(_showOverrideUtlity, $"Utility", false);
             EditorGUILayout.Space();
-            if (_showAdvanced)
+            if (_showOverrideUtlity)
             {
                 EditorGUI.indentLevel++;
 
