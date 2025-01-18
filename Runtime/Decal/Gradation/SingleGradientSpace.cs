@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.Decal
 
     }
 
-    internal class SingleGradientSpace : IDecalSpaceWith2D
+    internal class SingleGradientSpace : IDecalSpace
     {
         // not owned
         internal readonly MeshData[] _meshData;

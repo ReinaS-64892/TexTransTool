@@ -1,32 +1,31 @@
 #nullable enable
 using System;
+using System.Numerics;
 
 namespace net.rs64.TexTransCore.TransTexture
 {
     public static class DepthUtility
     {
-        public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ReadOnlySpan<TTVector4> transFromPolygons)
-        where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
-        {
-            using var fBuf = engine.UploadStorageBuffer(transFromPolygons);
-            engine.WriteDepth(depthBuffer, fBuf, (uint)(transFromPolygons.Length / 3));
-        }
-        public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ITTStorageBuffer polygons, uint polygonCount)
+        public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ITTStorageBuffer vertex, ITTStorageBuffer depthVertex, ITTStorageBuffer polygons, int polygonCount)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             using var depthRendererHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.DepthRenderer);
 
             var drGvID = depthRendererHandler.NameToID("gv");
             var drPolygonID = depthRendererHandler.NameToID("Polygons");
+            var drVertexID = depthRendererHandler.NameToID("Vertex");
+            var drVertexDepthID = depthRendererHandler.NameToID("VertexDepth");
             var drDepthBufferID = depthRendererHandler.NameToID("DepthBuffer");
 
             Span<uint> drGV = stackalloc uint[4];
             drGV[0] = (uint)depthBuffer.DepthBufferSize.x;
             drGV[1] = (uint)depthBuffer.DepthBufferSize.y;
+            depthRendererHandler.SetStorageBuffer(drVertexID, vertex);
+            depthRendererHandler.SetStorageBuffer(drVertexDepthID, depthVertex);
             depthRendererHandler.SetStorageBuffer(drPolygonID, polygons);
             depthRendererHandler.SetStorageBuffer(drDepthBufferID, depthBuffer.DepthBuffer);
 
-            foreach (var (dispatchCount, indexOffset) in TransMappingUtility.SliceDispatch(polygonCount, ushort.MaxValue))
+            foreach (var (dispatchCount, indexOffset) in TransMappingUtility.SliceDispatch((uint)polygonCount, ushort.MaxValue))
             {
                 drGV[2] = indexOffset;
                 depthRendererHandler.UploadConstantsBuffer<uint>(drGvID, drGV);
@@ -36,12 +35,13 @@ namespace net.rs64.TexTransCore.TransTexture
         public static void DepthCulling<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, DepthBufferHolder depthBuffer, bool depthInverse = false, float depthOffset = 0.01f)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
+            if (transMappingHolder.DepthMap is null) { throw new NullReferenceException(); }
             using var cullingDepthHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.CullingDepth);
 
             var cdGvID = cullingDepthHandler.NameToID("gv");
             var cdDepthBufferID = cullingDepthHandler.NameToID("DepthBuffer");
             var cdTransMapID = cullingDepthHandler.NameToID("TransMap");
-            var cdAdditionalDataMapID = cullingDepthHandler.NameToID("AdditionalDataMap");
+            var cdTransDepthMapID = cullingDepthHandler.NameToID("TransDepthMap");
             var cdDistanceMapID = cullingDepthHandler.NameToID("DistanceMap");
 
             Span<byte> cdGV = stackalloc byte[32];
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransCore.TransTexture
             cullingDepthHandler.SetStorageBuffer(cdDepthBufferID, depthBuffer.DepthBuffer);
 
             cullingDepthHandler.SetTexture(cdTransMapID, transMappingHolder.TransMap);
-            cullingDepthHandler.SetTexture(cdAdditionalDataMapID, transMappingHolder.AdditionalDataMap);
+            cullingDepthHandler.SetTexture(cdTransDepthMapID, transMappingHolder.DepthMap!);
             cullingDepthHandler.SetTexture(cdDistanceMapID, transMappingHolder.DistanceMap);
 
             cullingDepthHandler.DispatchWithTextureSize(transMappingHolder.TransMap);
