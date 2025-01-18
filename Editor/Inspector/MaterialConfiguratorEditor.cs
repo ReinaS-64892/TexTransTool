@@ -18,6 +18,10 @@ namespace net.rs64.TexTransTool.Editor
         private Material _recordingMaterial;
         private CustomMaterialEditor _materialEditor;
         private bool _showOverrides;
+        private bool _showAdvanced;
+        private Material _originalMaterial;
+        private Material _overrideMaterial;
+        private Material _variantMaterial;
 
         private void OnEnable()
         {
@@ -66,6 +70,7 @@ namespace net.rs64.TexTransTool.Editor
             }
 
             OverridesGUI();
+            AdvacedGUI();
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -84,6 +89,57 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
+        private void AdvacedGUI()
+        {
+            _showAdvanced = EditorGUILayout.Foldout(_showAdvanced, $"Advaced", false);
+            EditorGUILayout.Space();
+            if (_showAdvanced)
+            {
+                EditorGUI.indentLevel++;
+
+                EditorGUILayout.LabelField("Get Material Diff", EditorStyles.boldLabel);
+                _originalMaterial ??= _target.TargetMaterial;
+                _originalMaterial = EditorGUILayout.ObjectField("Original Material", _originalMaterial, typeof(Material), false) as Material;
+                _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Add")) {
+                        ProcessMaterialDiff(false);
+                    }
+                };
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField("Get Material Variant Diff", EditorStyles.boldLabel);
+                _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Add")) {
+                        ProcessMaterialVariantdiff(false);
+                    }
+                }
+                
+                EditorGUI.indentLevel--;
+            }
+
+            return;
+
+            void ProcessMaterialDiff(bool clear)
+            {
+                if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                ApplyOverridesToComponent(_originalMaterial, _overrideMaterial, clear);
+                _originalMaterial = null;
+                _overrideMaterial = null;
+            }
+
+            void ProcessMaterialVariantdiff(bool clear)
+            {
+                if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
+                ApplyPropertyOverridesToComponent(overrideProperties, clear);
+                _variantMaterial = null;
+            }
+        }
 
         private void ApplyOverridesToComponent()
         {
@@ -150,6 +206,26 @@ namespace net.rs64.TexTransTool.Editor
                     UpdateRecordingMaterial();
                     return;
                 }
+            }
+        }
+
+        private static IEnumerable<MaterialProperty> GetVariantOverrideProperties(Material variant)
+        {
+            if (variant == null) yield break;
+            if (!variant.isVariant) yield break;
+
+            var shader = variant.shader;
+            var propertyCount = shader.GetPropertyCount();
+            for (var i = 0; propertyCount > i; i += 1)
+            {
+                var propertyName = shader.GetPropertyName(i);
+                var propertyType = shader.GetPropertyType(i);
+
+                if (!variant.IsPropertyOverriden(propertyName)) continue;
+
+                if (!MaterialProperty.TryGet(variant, propertyName, propertyType, out var overrideProperty)) continue;
+
+                yield return overrideProperty;
             }
         }
     }
