@@ -15,13 +15,12 @@ namespace net.rs64.TexTransTool.Editor
         private SerializedProperty _overrideShader;
         private SerializedProperty _overrideProperties;
 
+        // recoding UI fields
         private Material _recordingMaterial;
         private CustomMaterialEditor _materialEditor;
+
         private bool _showOverrides;
-        private bool _showOverrideUtlity;
-        private Material _originalMaterial;
-        private Material _overrideMaterial;
-        private Material _variantMaterial;
+
 
         private void OnEnable()
         {
@@ -89,11 +88,16 @@ namespace net.rs64.TexTransTool.Editor
             }
         }
 
+        // use OverrideUtility fields
+        private bool _showOverrideUtility;
+        private Material _originalMaterial;
+        private Material _overrideMaterial;
+        private Material _variantMaterial;
         private void OverrideUtilityGUI()
         {
-            _showOverrideUtlity = EditorGUILayout.Foldout(_showOverrideUtlity, $"Utility", false);
+            _showOverrideUtility = EditorGUILayout.Foldout(_showOverrideUtility, $"Utility", false);
             EditorGUILayout.Space();
-            if (_showOverrideUtlity)
+            if (_showOverrideUtility)
             {
                 EditorGUI.indentLevel++;
 
@@ -103,10 +107,11 @@ namespace net.rs64.TexTransTool.Editor
                 _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Add diff to this component")) {
+                    if (GUILayout.Button("Add diff to this component"))
+                    {
                         ProcessMaterialDiff(false);
                     }
-                };
+                }
 
                 EditorGUILayout.Space();
 
@@ -114,11 +119,12 @@ namespace net.rs64.TexTransTool.Editor
                 _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Add diff to this component")) {
-                        ProcessMaterialVariantdiff(false);
+                    if (GUILayout.Button("Add diff to this component"))
+                    {
+                        ProcessMaterialVariantDiff(false);
                     }
                 }
-                
+
                 EditorGUI.indentLevel--;
             }
 
@@ -132,7 +138,7 @@ namespace net.rs64.TexTransTool.Editor
                 _overrideMaterial = null;
             }
 
-            void ProcessMaterialVariantdiff(bool clear)
+            void ProcessMaterialVariantDiff(bool clear)
             {
                 if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
@@ -188,7 +194,7 @@ namespace net.rs64.TexTransTool.Editor
             MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
             MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
         }
-        
+
         // 以下のEventによるプロパティの変更からUpdateRecordingMaterialを呼ぶ
         // ・Inspector上からの操作
         // ・Undo/Redo
