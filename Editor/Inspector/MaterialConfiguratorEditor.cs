@@ -15,9 +15,12 @@ namespace net.rs64.TexTransTool.Editor
         private SerializedProperty _overrideShader;
         private SerializedProperty _overrideProperties;
 
+        // recoding UI fields
         private Material _recordingMaterial;
         private CustomMaterialEditor _materialEditor;
+
         private bool _showOverrides;
+
 
         private void OnEnable()
         {
@@ -80,10 +83,69 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.PropertyField(_isOverrideShader);
                 EditorGUILayout.PropertyField(_overrideShader);
                 EditorGUILayout.PropertyField(_overrideProperties);
+                OverrideUtilityGUI();
                 EditorGUI.indentLevel--;
             }
         }
 
+        // use OverrideUtility fields
+        private bool _showOverrideUtility;
+        private Material _originalMaterial;
+        private Material _overrideMaterial;
+        private Material _variantMaterial;
+        private void OverrideUtilityGUI()
+        {
+            _showOverrideUtility = EditorGUILayout.Foldout(_showOverrideUtility, $"Utility", false);
+            EditorGUILayout.Space();
+            if (_showOverrideUtility)
+            {
+                EditorGUI.indentLevel++;
+
+                EditorGUILayout.LabelField("Get Material Diff", EditorStyles.boldLabel);
+                _originalMaterial ??= _target.TargetMaterial;
+                _originalMaterial = EditorGUILayout.ObjectField("Original Material", _originalMaterial, typeof(Material), false) as Material;
+                _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Add diff to this component"))
+                    {
+                        ProcessMaterialDiff(false);
+                    }
+                }
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField("Get Material Variant Diff", EditorStyles.boldLabel);
+                _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Add diff to this component"))
+                    {
+                        ProcessMaterialVariantDiff(false);
+                    }
+                }
+
+                EditorGUI.indentLevel--;
+            }
+
+            return;
+
+            void ProcessMaterialDiff(bool clear)
+            {
+                if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                ApplyOverridesToComponent(_originalMaterial, _overrideMaterial, clear);
+                _originalMaterial = null;
+                _overrideMaterial = null;
+            }
+
+            void ProcessMaterialVariantDiff(bool clear)
+            {
+                if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
+                ApplyPropertyOverridesToComponent(overrideProperties, clear);
+                _variantMaterial = null;
+            }
+        }
 
         private void ApplyOverridesToComponent()
         {
@@ -132,7 +194,7 @@ namespace net.rs64.TexTransTool.Editor
             MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
             MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
         }
-        
+
         // 以下のEventによるプロパティの変更からUpdateRecordingMaterialを呼ぶ
         // ・Inspector上からの操作
         // ・Undo/Redo
@@ -150,6 +212,26 @@ namespace net.rs64.TexTransTool.Editor
                     UpdateRecordingMaterial();
                     return;
                 }
+            }
+        }
+
+        private static IEnumerable<MaterialProperty> GetVariantOverrideProperties(Material variant)
+        {
+            if (variant == null) yield break;
+            if (!variant.isVariant) yield break;
+
+            var shader = variant.shader;
+            var propertyCount = shader.GetPropertyCount();
+            for (var i = 0; propertyCount > i; i += 1)
+            {
+                var propertyName = shader.GetPropertyName(i);
+                var propertyType = shader.GetPropertyType(i);
+
+                if (!variant.IsPropertyOverriden(propertyName)) continue;
+
+                if (!MaterialProperty.TryGet(variant, propertyName, propertyType, out var overrideProperty)) continue;
+
+                yield return overrideProperty;
             }
         }
     }
