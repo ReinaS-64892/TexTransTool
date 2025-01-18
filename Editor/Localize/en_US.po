@@ -589,6 +589,9 @@ msgstr "Target not Set!"
 msgid "MaterialConfigurator:info:TargetNotFound"
 msgstr "Target not found!"
 
+msgid "MaterialConfigurator:info:NullShader"
+msgstr "Target shader not found!"
+
 # MaterialOverrideTransfer
 
 msgid "MaterialOverrideTransfer:info:TargetNotSet"

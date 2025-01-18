@@ -588,6 +588,9 @@ msgstr "適用対象が設定されていません！"
 msgid "MaterialConfigurator:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
 
+msgid "MaterialConfigurator:info:NullShader"
+msgstr "適用するシェーダーが存在しません！"
+
 # MaterialOverrideTransfer
 
 msgid "MaterialOverrideTransfer:info:TargetNotSet"

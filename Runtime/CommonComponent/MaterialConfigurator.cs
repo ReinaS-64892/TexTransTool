@@ -47,7 +47,11 @@ namespace net.rs64.TexTransTool
 
         public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
         {
-            if (isOverrideShader) { editableMat.shader = overrideShader; }
+            if (isOverrideShader) 
+            {
+                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:NullShader"); }
+                else { editableMat.shader = overrideShader; } 
+            }
             foreach (var overrideProperty in overrideProperties)
             {
                 overrideProperty.TrySet(editableMat);
@@ -85,6 +89,14 @@ namespace net.rs64.TexTransTool
 
                 yield return overrideProperty;
             }
+        }
+
+        public static (bool, Shader?) GetOverrideShader(Material originalMaterial, Material overrideMaterial)
+        {
+            if (overrideMaterial == null) return (false, null);
+            if (originalMaterial == null) return (false, null);
+            if( originalMaterial.shader == overrideMaterial.shader) return (false, null);
+            return (true, overrideMaterial.shader);
         }
 
         private static IEnumerable<MaterialProperty> GetProperties(Material material)
