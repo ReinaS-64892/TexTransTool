@@ -6,31 +6,6 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class MaterialUtility
     {
-        public static Dictionary<Material, Material> ReplaceTextureAll<Tex>(IEnumerable<Material> materials, Tex target, Tex setTex)
-        where Tex : Texture
-        {
-            var outPut = new Dictionary<Material, Material>();
-            foreach (var mat in materials)
-            {
-                var textures = GetAllTexture(mat);
-
-                if (textures.ContainsValue(target))
-                {
-                    var material = UnityEngine.Object.Instantiate(mat);
-
-                    foreach (var kvp in textures)
-                    {
-                        if (kvp.Value == target)
-                        {
-                            material.SetTexture(kvp.Key, setTex);
-                        }
-                    }
-
-                    outPut.Add(mat, material);
-                }
-            }
-            return outPut;
-        }
         public static Dictionary<Material, Material> ReplaceTextureAll<Tex>(IEnumerable<Material> materials, Dictionary<Tex, Tex> texturePair)
         where Tex : Texture
         {
@@ -49,29 +24,48 @@ namespace net.rs64.TexTransTool.Utils
             }
             return outPut;
         }
+
+        public static bool ContainsTexture<Tex>(this Material mat, Tex target)
+        where Tex : Texture
+        {
+            var shader = mat.shader;
+            var pc = shader.GetPropertyCount();
+            for (var i = 0; pc > i; i += 1)
+            {
+                var NameID = shader.GetPropertyNameId(i);
+                switch (shader.GetPropertyType(i))
+                {
+                    default: break;
+                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                        {
+                            var dTex = mat.GetTexture(NameID) as Tex;
+                            if (dTex == null) { break; }
+                            if (dTex != target) { break; }
+                            return true;
+                        }
+                }
+            }
+            return false;
+        }
         public static void ReplaceTextureInPlace<Tex>(this Material mat, Tex target, Tex set)
         where Tex : Texture
         {
-            var textures = GetAllTexture(mat);
-            if (textures.ContainsValue(target) is false) { return; }
-
-            foreach (var kvp in textures)
+            var shader = mat.shader;
+            var pc = shader.GetPropertyCount();
+            for (var i = 0; pc > i; i += 1)
             {
-                if (kvp.Value == target)
+                var NameID = shader.GetPropertyNameId(i);
+                switch (shader.GetPropertyType(i))
                 {
-                    mat.SetTexture(kvp.Key, set);
-                }
-            }
-        }
-        public static void SetTextures<Tex>(this Material targetMat, Dictionary<string, Tex> propAndTextures, Func<Texture, bool> setTargetComparer)
-        where Tex : Texture
-        {
-            foreach (var propAndTexture in propAndTextures)
-            {
-                if (!targetMat.HasProperty(propAndTexture.Key)) { continue; }
-                if (setTargetComparer(targetMat.GetTexture(propAndTexture.Key)))
-                {
-                    targetMat.SetTexture(propAndTexture.Key, propAndTexture.Value);
+                    default: break;
+                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                        {
+                            var dTex = mat.GetTexture(NameID) as Tex;
+                            if (dTex == null) { break; }
+                            if (dTex != target) { break; }
+                            mat.SetTexture(NameID, set);
+                            break;
+                        }
                 }
             }
         }
@@ -163,5 +157,50 @@ namespace net.rs64.TexTransTool.Utils
                     }
             }
         }
+
+        public static void PropertyCopy(Material sMat, Material dMat)
+        {
+            if (sMat.shader != dMat.shader) { throw new ArgumentException(); }
+            var shader = sMat.shader;
+            var pc = shader.GetPropertyCount();
+            for (var i = 0; pc > i; i += 1)
+            {
+                var NameID = shader.GetPropertyNameId(i);
+                switch (shader.GetPropertyType(i))
+                {
+                    case UnityEngine.Rendering.ShaderPropertyType.Color:
+                        {
+                            dMat.SetColor(NameID, sMat.GetColor(NameID));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Vector:
+                        {
+                            dMat.SetVector(NameID, sMat.GetVector(NameID));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Float:
+                    case UnityEngine.Rendering.ShaderPropertyType.Range:
+                        {
+                            dMat.SetFloat(NameID, sMat.GetFloat(NameID));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Int:
+                        {
+                            dMat.SetInt(NameID, sMat.GetInt(NameID));
+                            break;
+                        }
+                    case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                        {
+                            dMat.SetTexture(NameID, sMat.GetTexture(NameID));
+                            dMat.SetTextureScale(NameID, sMat.GetTextureScale(NameID));
+                            dMat.SetTextureOffset(NameID, sMat.GetTextureOffset(NameID));
+                            break;
+                        }
+                }
+            }
+        }
+
+
+
     }
 }

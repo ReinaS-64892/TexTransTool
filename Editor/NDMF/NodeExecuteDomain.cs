@@ -76,7 +76,17 @@ namespace net.rs64.TexTransTool.NDMF
             if (_rendererApplyRecaller.ContainsKey(_proxy2OriginRendererDict[proxyRenderer])) { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] += recall; }
             else { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] = recall; }
         }
+        public bool IsTemporaryAsset(UnityEngine.Object obj) { return _transferredObject.Contains(obj); }
+        public void GetMutable(ref Material material)
+        {
+            if (IsTemporaryAsset(material)) { return; }
+            var origin = material;
 
+            var mutableMat = NDMFPreviewMaterialPool.Get(origin);
+            ReplaceMaterials(new() { { origin, mutableMat } }, true);
+            mutableMat.name = origin.name + "(TTT GetMutable on NDMF Preview for pooled)";
+            material = mutableMat;
+        }
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
             foreach (var dr in _proxyDomainRenderers)
@@ -125,25 +135,21 @@ namespace net.rs64.TexTransTool.NDMF
             foreach (var mergeResult in _textureStacks.StackDict)
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                SetTexture(mergeResult.Key, mergeResult.Value.Unwrap());
+                this.ReplaceTexture(mergeResult.Key, mergeResult.Value.Unwrap());
                 _ttce4U.GammaToLinear(mergeResult.Value);
             }
 
             _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
-
-
-            void SetTexture(Texture firstTexture, Texture mergeTexture)
-            {
-                var mats = RendererUtility.GetFilteredMaterials(_proxyDomainRenderers);
-                ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, firstTexture, mergeTexture));
-                RegisterReplace(firstTexture, mergeTexture);
-            }
         }
 
         public void Dispose()
         {
-            foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj, true); }
+            foreach (var obj in _transferredObject)
+            {
+                if (obj is Material mat) { _ = NDMFPreviewMaterialPool.Ret(mat); continue; }
+                UnityEngine.Object.DestroyImmediate(obj, true);
+            }
             foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
             _transferredObject.Clear();
             _textureStacks.Dispose();

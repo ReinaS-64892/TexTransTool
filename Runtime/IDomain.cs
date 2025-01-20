@@ -126,22 +126,18 @@ namespace net.rs64.TexTransTool
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
-        public static void ReplaceTexture(this IDomain domain, Texture2D target, Texture2D setTex)
+        public static void ReplaceTexture<Tex>(this IDomain domain, Tex target, Tex setTex)
+        where Tex : Texture
         {
             var mats = RendererUtility.GetFilteredMaterials(domain.EnumerateRenderer());
 
             foreach (var m in mats)
             {
-                var textures = MaterialUtility.GetAllTexture<Texture2D>(m);
-                if (textures.ContainsValue(target) is false) { continue; }
+                if (m.ContainsTexture(target) is false) { continue; }
 
                 var mutableMat = m;
                 domain.GetMutable(ref mutableMat);
-
-                foreach (var kvp in textures)
-                    if (kvp.Value == target)
-                        mutableMat.SetTexture(kvp.Key, setTex);
-
+                mutableMat.ReplaceTextureInPlace(target, setTex);
             }
             domain.RegisterReplace(target, setTex);
         }
