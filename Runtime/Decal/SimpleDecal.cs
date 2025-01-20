@@ -120,7 +120,7 @@ namespace net.rs64.TexTransTool.Decal
 
                 var decalContext = new DecalContext
                     <ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
-                    (ttce, GetSpaceConverter(), GetTriangleFilter(domain));
+                    (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
                 decalContext.TargetPropertyName = TargetPropertyName;
                 decalContext.IsTextureStretch = false;
                 decalContext.DecalPadding = Padding;
@@ -159,9 +159,9 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         internal ParallelProjectionSpaceConvertor GetSpaceConverter() { return new(transform.worldToLocalMatrix); }
-        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IDomain domain)
+        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(OriginEqual originEqual)
         {
-            if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), domain.OriginEqual); }
+            if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), originEqual); }
             return new ParallelProjectionFilter(GetFilter());
         }
 
