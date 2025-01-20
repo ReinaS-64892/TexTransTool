@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
     **もし、これら API 関係で TTT および Reina_Sakiria に不利益を及ばせるものが見られた場合、これらコンポーネントは予告なく internal に戻します。**
     */
 
-    public abstract class TexTransBehavior : TexTransMonoBase
+    public abstract class TexTransBehavior : TexTransMonoBaseGameObjectOwned
     {
         internal bool ThisEnable => gameObject.activeInHierarchy;
         internal abstract TexTransPhase PhaseDefine { get; }

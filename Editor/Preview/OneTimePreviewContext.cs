@@ -109,11 +109,11 @@ namespace net.rs64.TexTransTool.Preview
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
                 if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
-                else { Debug.LogError("Domainが見つかりません！！！"); return; }
+                else { Debug.LogError("Domainが見つかりません!!!"); return; }
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
                 //カスタムプレビューとエディターコールビヘイビアは違うから注意
-                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, previewDomain)) { if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomain); }
+                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, marker, previewDomain)) { if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomain); }
 
                 EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
                 previewDomain.EditFinish();

@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.NDMF
     {
         protected TexTransBuildSession TTTContext(BuildContext context)
         {
-            return context.GetState(b => new TexTransBuildSession(new NDMFDomain(b), FindAtPhase(context.AvatarRootObject)));
+            return context.GetState(b => new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), FindAtPhase(context.AvatarRootObject)));
         }
     }
     internal class PreviewCancelerPass : Pass<PreviewCancelerPass>

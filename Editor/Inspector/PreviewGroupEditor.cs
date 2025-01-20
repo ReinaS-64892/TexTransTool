@@ -40,28 +40,28 @@ namespace net.rs64.TexTransTool.Editor
                 var label = new Label(TexTransPhase.BeforeUVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.BeforeUVModification]);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.BeforeUVModification]);
 
                 label = new Label(TexTransPhase.UVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.UVModification]);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.UVModification]);
 
 
                 label = new Label(TexTransPhase.AfterUVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.AfterUVModification]);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.AfterUVModification]);
 
                 label = new Label(TexTransPhase.UnDefined.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.UnDefined]);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.UnDefined]);
 
                 label = new Label(TexTransPhase.Optimizing.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
-                foreach (var d in atPhase) CreateGroupElements(rootVE, d.Behaviour[TexTransPhase.Optimizing]);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.Optimizing]);
             }
         }
 

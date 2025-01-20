@@ -30,31 +30,28 @@ namespace net.rs64.TexTransTool.NDMF
         NodeExecuteDomain _nodeDomain;
         internal TexTransPhase TargetPhase;
         internal Dictionary<Renderer, Renderer> o2pDict;
-        internal Renderer[][] ofRenderers;
-        internal Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex;
+        internal Renderer[] domainRenderers;
+        internal Dictionary<TexTransBehavior, int> behaviorIndex;
         public void NodeExecuteAndInit(IEnumerable<TexTransBehavior> flattenTTB, ComputeContext ctx)
         {
             Profiler.BeginSample("NodeExecuteDomain.ctr");
             _nodeDomain = new NodeExecuteDomain(o2pDict, ctx, ObjectRegistry.ActiveRegistry);
             Profiler.EndSample();
-            Profiler.BeginSample("apply ttb s");
-            foreach (var domainBy in flattenTTB.GroupBy(t => behaviorIndex[t].domainIndex).OrderBy(t => t.Key))
-            {
-                IDomain domain = domainBy.Key != (ofRenderers.Length - 1) ? _nodeDomain.GetSubDomain(ofRenderers[domainBy.Key]) : _nodeDomain;
-                foreach (var behavior in domainBy.OrderBy(t => behaviorIndex[t].index))
-                {
-                    if (behavior == null) { continue; }
-                    ctx.Observe(behavior);
 
-                    Profiler.BeginSample("apply-" + behavior.name);
-                    behavior.Apply(domain);
-                    Profiler.EndSample();
-                }
-                Profiler.BeginSample("MargeStack Or DomainFinish");
-                if (domain is NodeExecuteDomain) _nodeDomain.DomainFinish();
-                else { (domain as NodeExecuteDomain.NodeSubDomain).MergeStack(); }
+            Profiler.BeginSample("apply ttb s");
+            foreach (var behavior in flattenTTB.OrderBy(behaviorIndex.GetValueOrDefault))
+            {
+                if (behavior == null) { continue; }
+                ctx.Observe(behavior);
+
+                Profiler.BeginSample("apply-" + behavior.name);
+                behavior.Apply(_nodeDomain);
                 Profiler.EndSample();
             }
+            Profiler.EndSample();
+
+            Profiler.BeginSample("MargeStack Or DomainFinish");
+            _nodeDomain.DomainFinish();
             Profiler.EndSample();
         }
         public void OnFrame(Renderer original, Renderer proxy)

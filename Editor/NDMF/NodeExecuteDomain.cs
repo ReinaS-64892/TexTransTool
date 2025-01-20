@@ -164,64 +164,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             _rendererApplyRecaller[original].Invoke(proxy);
         }
-
-
-
-        internal NodeSubDomain GetSubDomain(Renderer[] subDomainRenderers)
-        {
-            return new NodeSubDomain(this, subDomainRenderers);
-        }
-
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
-
-        internal class NodeSubDomain : TexTransTool.AbstractSubDomain<NodeExecuteDomain>
-        {
-            public NodeSubDomain(NodeExecuteDomain rootDomain, IEnumerable<Renderer> subDomainsRenderer) : base(rootDomain, subDomainsRenderer)
-            {
-            }
-
-            public override void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { _rootDomain.AddTextureStack(dist, addTex, blendKey); }
-
-            public override void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
-            {
-                foreach (var dr in _subDomainsRenderer)
-                {
-                    _rootDomain.RegisterRecall(dr, i => RendererUtility.SwapMaterials(i, mapping));
-                    RendererUtility.SwapMaterials(dr, mapping);
-                }
-                if (one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
-                this.transferAssets(mapping.Values);
-                _rootDomain.UsedMaterialReplace = true;
-            }
-
-            public override void SetMesh(Renderer renderer, Mesh mesh)
-            {
-                _rootDomain.RegisterRecall(renderer, i => i.SetMesh(mesh));
-                renderer.SetMesh(mesh);
-                _rootDomain.UsedSetMesh = true;
-            }
-
-            public override void MergeStack()
-            {
-                foreach (var mergeResult in _rootDomain._textureStacks.StackDict)
-                {
-                    if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                    SetTexture(mergeResult.Key, mergeResult.Value.Unwrap());
-                    _rootDomain._neededReleaseTempRt.Add(mergeResult.Value.Unwrap());
-
-                    _rootDomain.GetTexTransCoreEngineForUnity().GammaToLinear(mergeResult.Value);
-                }
-
-                void SetTexture(Texture firstTexture, Texture mergeTexture)
-                {
-                    var mats = RendererUtility.GetFilteredMaterials(_subDomainsRenderer);
-                    ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, firstTexture, mergeTexture));
-                    RegisterReplace(firstTexture, mergeTexture);
-                }
-            }
-
-
-        }
     }
 
 

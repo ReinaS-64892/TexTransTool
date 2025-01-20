@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
-        public Material TargetMaterial;
+        public Material? TargetMaterial;
 
         public bool IsOverrideShader = false;
         public Shader? OverrideShader = null;

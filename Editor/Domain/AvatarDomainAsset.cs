@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,7 @@ namespace net.rs64.TexTransTool
 {
     internal class AvatarDomainAsset : ScriptableObject
     {
-        public UnityEngine.Object OverrideContainer;
+        public UnityEngine.Object? OverrideContainer;
         [SerializeField] List<Object> _subAssets = new List<Object>();
 
         public void AddSubObject(Object unityObject)

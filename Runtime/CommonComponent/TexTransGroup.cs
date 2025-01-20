@@ -6,7 +6,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class TexTransGroup : TexTransAnnotation
+    public class TexTransGroup : TexTransSequencing
     {
         internal const string FoldoutName = "Group";
         internal const string ComponentName = "TTT TexTransGroup";
