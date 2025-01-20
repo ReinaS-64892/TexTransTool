@@ -41,6 +41,7 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.EndSample();
             var allGroups = new List<RenderGroup>();
             var waker = new NDMFGameObjectObservedWaker(ctx);
+            var notNDMFwaker = new AvatarBuildUtils.DefaultGameObjectWakingTool();
 
             foreach (var root in avatarRoots)
             {
@@ -50,7 +51,16 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.BeginSample(root.name, root);
                 Profiler.BeginSample("FindAtPhase");
 
-                var behaviors = AvatarBuildUtils.FindAtPhase(root, waker)[PreviewTargetPhase];
+                var behaviors = AvatarBuildUtils.FindAtPhase(root, notNDMFwaker)[PreviewTargetPhase];
+
+                Profiler.EndSample();
+                Profiler.BeginSample("Observing");
+
+                // 順序の変更を見るために Path を監視
+                foreach (var b in behaviors) ctx.ObservePath(b.transform);
+
+                // 増減をみるために 無意味な GetComponentsInChildren を呼ぶ
+                ctx.GetComponentsInChildren<TexTransMonoBaseGameObjectOwned>(root, true);
 
                 Profiler.EndSample();
                 Profiler.BeginSample("domain2PhaseList");
