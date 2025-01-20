@@ -374,9 +374,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
         {
             var image = s_previewsTask.Keys.FirstOrDefault();
             if (image is null) { return; }
-            try { GetPreview(image); }
-            finally { s_previewsTask.Remove(image); }
-            if (s_previewsDict.Remove(image, out var tex)) { UnityEngine.Object.DestroyImmediate(tex); }
+            GetPreview(image);
+
+            // 毎回 ロードされてしまうから破棄しない方針で行く
+            // if (s_previewsDict.Remove(image, out var tex)) { UnityEngine.Object.DestroyImmediate(tex); }
         }
         public static void ForgetPreloadCollect()
         {
