@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Editor
                 rootVE.styleSheets.Add(s_style);
 
                 var groupBehaviors = new List<TexTransBehavior>();
-                AvatarBuildUtils.FindTreedBehavior(groupBehaviors, (target as TexTransGroup).gameObject);
+                AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, (target as TexTransGroup).gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
                 CreateGroupElements(rootVE, groupBehaviors);
             }
         }

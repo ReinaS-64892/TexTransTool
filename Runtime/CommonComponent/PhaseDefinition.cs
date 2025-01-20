@@ -3,7 +3,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + PDMenuPath)]
-    public sealed class PhaseDefinition : TexTransGroup
+    public sealed class PhaseDefinition : TexTransSequencing
     {
         internal const string PDName = "TTT PhaseDefinition";
         internal const string PDMenuPath = TexTransGroup.FoldoutName + "/" + PDName;

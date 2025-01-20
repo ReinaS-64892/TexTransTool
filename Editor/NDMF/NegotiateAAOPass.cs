@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
         protected override void Execute(BuildContext context)
         {
             var tttCtx = TTTContext(context);
-            var tttComponents = tttCtx.PhaseAtList.SelectMany(i => i.Behaviour.SelectMany(b => b.Value));
+            var tttComponents = tttCtx.PhaseAtList.SelectMany(i => i.Value);
             if (tttComponents.Any() is false) { return; }
 
             var config = context.AvatarRootObject.GetComponent<NegotiateAAOConfig>();

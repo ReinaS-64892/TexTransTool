@@ -1,11 +1,12 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    internal interface IActivenessChanger
+    public abstract class TexTransSequencing : TexTransMonoBaseGameObjectOwned
     {
-        bool IsActive { get; }
+
     }
 }

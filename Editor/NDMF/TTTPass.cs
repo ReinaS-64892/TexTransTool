@@ -2,6 +2,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
+using UnityEngine.Profiling;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -10,7 +11,16 @@ namespace net.rs64.TexTransTool.NDMF
     {
         protected TexTransBuildSession TTTContext(BuildContext context)
         {
-            return context.GetState(b => new TexTransBuildSession(new NDMFDomain(b), FindAtPhase(context.AvatarRootObject)));
+            return context.GetState(b =>
+            {
+                Profiler.BeginSample("FindAtPhase");
+                var p2b = FindAtPhase(context.AvatarRootObject);
+                Profiler.EndSample();
+                Profiler.BeginSample("TexTransBuildSession.ctr");
+                var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
+                Profiler.EndSample();
+                return bs;
+            });
         }
     }
     internal class PreviewCancelerPass : Pass<PreviewCancelerPass>

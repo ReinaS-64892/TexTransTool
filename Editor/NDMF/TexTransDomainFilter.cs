@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -39,6 +40,8 @@ namespace net.rs64.TexTransTool.NDMF
             var avatarRoots = ctx.GetAvatarRoots();
             Profiler.EndSample();
             var allGroups = new List<RenderGroup>();
+            var waker = new NDMFGameObjectObservedWaker(ctx);
+            var notNDMFwaker = new AvatarBuildUtils.DefaultGameObjectWakingTool();
 
             foreach (var root in avatarRoots)
             {
@@ -48,27 +51,31 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.BeginSample(root.name, root);
                 Profiler.BeginSample("FindAtPhase");
 
-                var domain2PhaseList = AvatarBuildUtils.FindAtPhase(root, new NDMFGameObjectObservedWaker(ctx));
+                var behaviors = AvatarBuildUtils.FindAtPhase(root, notNDMFwaker)[PreviewTargetPhase];
+
+                Profiler.EndSample();
+                Profiler.BeginSample("Observing");
+
+                // 順序の変更を見るために Path を監視
+                foreach (var b in behaviors) ctx.ObservePath(b.transform);
+
+                // 増減をみるために 無意味な GetComponentsInChildren を呼ぶ
+                ctx.GetComponentsInChildren<TexTransMonoBaseGameObjectOwned>(root, true);
 
                 Profiler.EndSample();
                 Profiler.BeginSample("domain2PhaseList");
 
-                foreach (var d in domain2PhaseList)
-                {
-                    var behaviors = d.Behaviour[PreviewTargetPhase];
-                    behaviors.RemoveAll(a => LookAtIsActive(a, ctx) is false);//ここで消すと同時に監視となる。
-                    foreach (var b in behaviors) { ctx.Observe(b); }
-                }
+                behaviors.RemoveAll(b => AvatarBuildUtils.CheckIsActiveBehavior(b, waker, root) is false);//ここで消すと同時に監視。
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Grouping");
-                var ofRenderers = domain2PhaseList.Select(i => i.Domain != null ? ctx.GetComponentsInChildren<Renderer>(i.Domain.gameObject, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray() : ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray()).ToArray();
-                var behaviorIndex = GetFlattenBehaviorAndIndex(domain2PhaseList);
+                var domainRenderers = ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray();
+                var behaviorIndex = GetFlattenBehaviorAndIndex(behaviors);
 
-                var targetRendererGroup = GetTargetGrouping(behaviorIndex, ofRenderers);
+                var targetRendererGroup = GetTargetGrouping(behaviorIndex, domainRenderers);
                 var renderersGroup2behavior = GetRendererGrouping(targetRendererGroup);
 
-                allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value, ofRenderers, behaviorIndex))));
+                allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value, domainRenderers, behaviorIndex))));
                 Profiler.EndSample();
 
                 Profiler.EndSample();
@@ -80,30 +87,25 @@ namespace net.rs64.TexTransTool.NDMF
         class PassingData
         {
             public HashSet<TexTransBehavior> Behaviors;
-            public Renderer[][] DomainOfRenderers;
-            public Dictionary<TexTransBehavior, (int index, int domainIndex)> BehaviorIndex;
+            public Renderer[] DomainRenderers;
+            public Dictionary<TexTransBehavior, int> BehaviorIndex;
 
-            public PassingData(HashSet<TexTransBehavior> value, Renderer[][] ofRenderers, Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex)
+            public PassingData(HashSet<TexTransBehavior> value, Renderer[] domainRenderers, Dictionary<TexTransBehavior, int> behaviorIndex)
             {
                 Behaviors = value;
-                DomainOfRenderers = ofRenderers;
+                DomainRenderers = domainRenderers;
                 BehaviorIndex = behaviorIndex;
             }
         }
-        private Dictionary<TexTransBehavior, (int index, int domainIndex)> GetFlattenBehaviorAndIndex(List<Domain2Behavior> domain2Behaviors)
+        private Dictionary<TexTransBehavior, int> GetFlattenBehaviorAndIndex(List<TexTransBehavior> behaviors)
         {
-            var behaviorIndex = new Dictionary<TexTransBehavior, (int index, int domainIndex)>();
+            var behaviorIndex = new Dictionary<TexTransBehavior, int>();
+
             var index = 0;
-            var domainIndex = 0;
-            foreach (var phase in domain2Behaviors)
+            foreach (var b in behaviors)
             {
-                var behaviors = phase.Behaviour[PreviewTargetPhase];
-                foreach (var behavior in behaviors)
-                {
-                    behaviorIndex[behavior] = (index, domainIndex);
-                    index += 1;
-                }
-                domainIndex += 1;
+                behaviorIndex[b] = index;
+                index += 1;
             }
 
             return behaviorIndex;
@@ -136,13 +138,13 @@ namespace net.rs64.TexTransTool.NDMF
             return grouping;
         }
 
-        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(Dictionary<TexTransBehavior, (int index, int domainIndex)> behaviorIndex, Renderer[][] ofRenderers)
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
         {
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviorIndex)
             {
                 Profiler.BeginSample("Mod target", ttbKV.Key);
-                var modificationTargets = ttbKV.Key.ModificationTargetRenderers(ofRenderers[ttbKV.Value.domainIndex], (l, r) => l == r);
+                var modificationTargets = ttbKV.Key.ModificationTargetRenderers(ofRenderers, (l, r) => l == r);
                 Profiler.EndSample();
                 targetRendererGroup.Add(ttbKV.Key, modificationTargets.ToHashSet());
             }
@@ -159,7 +161,7 @@ namespace net.rs64.TexTransTool.NDMF
             var node = new TexTransPhaseNode();
             node.TargetPhase = PreviewTargetPhase;
             node.o2pDict = o2pDict;
-            node.ofRenderers = data.DomainOfRenderers.Select(i => i.Where(r => o2pDict.ContainsKey(r)).Select(r => o2pDict[r]).ToArray()).ToArray();
+            node.domainRenderers = o2pDict.Values.ToArray();
             node.behaviorIndex = data.BehaviorIndex;
 #if TTT_DISPLAY_RUNTIME_LOG
             var timer = System.Diagnostics.Stopwatch.StartNew();
@@ -180,28 +182,23 @@ namespace net.rs64.TexTransTool.NDMF
             yield return NDMFPlugin.s_togglablePreviewPhases[PreviewTargetPhase];
         }
 
-        static bool LookAtIsActive(TexTransBehavior ttb, ComputeContext ctx)
-        {
-            var state = true;
-            foreach (var tf in ctx.ObservePath(ttb.transform))
-            {
-                var activenessChanger = ctx.GetComponent<IActivenessChanger>(tf.gameObject);
-                if (activenessChanger is not null) { return state && activenessChanger.IsActive; }
-                state &= tf.gameObject.activeSelf;
-            }
-            return state;
-        }
 
-
-        internal struct NDMFGameObjectObservedWaker : AvatarBuildUtils.IGameObjectWakingTool
+        internal struct NDMFGameObjectObservedWaker : AvatarBuildUtils.IGameObjectWakingTool, AvatarBuildUtils.IGameObjectActivenessWakingTool
         {
             ComputeContext _context;
             public NDMFGameObjectObservedWaker(ComputeContext context)
             {
                 _context = context;
             }
+
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public GameObject GetChilde(GameObject gameObject, int index)
+            public bool ActiveSelf(GameObject gameObject)
+            {
+                return _context.Observe(gameObject, g => g.gameObject.activeSelf);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public GameObject? GetChilde(GameObject gameObject, int index)
             {
                 return _context.Observe(gameObject, (g) => g.transform.GetChild(index)?.gameObject);
             }
@@ -222,6 +219,12 @@ namespace net.rs64.TexTransTool.NDMF
             public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
             {
                 return _context.GetComponentsInChildren<C>(gameObject, includeInactive);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public GameObject? GetParent(GameObject gameObject)
+            {
+                return _context.Observe(gameObject, g => g.transform.parent?.gameObject);
             }
         }
     }

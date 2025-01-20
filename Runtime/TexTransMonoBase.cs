@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    [DisallowMultipleComponent]
     [ExecuteInEditMode]
     public abstract class TexTransMonoBase : MonoBehaviour, ITexTransToolTag
     {
@@ -27,6 +26,8 @@ namespace net.rs64.TexTransTool
             DestroyCall.DestroyThis(this);
         }
     }
+    [DisallowMultipleComponent]
+    public abstract class TexTransMonoBaseGameObjectOwned : TexTransMonoBase { }
     internal static class DestroyCall
     {
         public static event Action<TexTransMonoBase>? OnDestroy;
