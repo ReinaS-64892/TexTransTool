@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool.Editor
 {
-    [CustomEditor(typeof(MaterialConfigurator))]
-    public class MaterialConfiguratorEditor : UnityEditor.Editor
+    [CustomEditor(typeof(MaterialModifier))]
+    public class MaterialModifierEditor : UnityEditor.Editor
     {
-        private MaterialConfigurator _target;
+        private MaterialModifier _target;
         private SerializedProperty _targetMaterial;
         private SerializedProperty _isOverrideShader;
         private SerializedProperty _overrideShader;
@@ -24,11 +24,11 @@ namespace net.rs64.TexTransTool.Editor
 
         private void OnEnable()
         {
-            _target = target as MaterialConfigurator;
-            _targetMaterial = serializedObject.FindProperty(nameof(MaterialConfigurator.TargetMaterial));
-            _isOverrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.IsOverrideShader));
-            _overrideShader = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideShader));
-            _overrideProperties = serializedObject.FindProperty(nameof(MaterialConfigurator.OverrideProperties));
+            _target = target as MaterialModifier;
+            _targetMaterial = serializedObject.FindProperty(nameof(MaterialModifier.TargetMaterial));
+            _isOverrideShader = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideShader));
+            _overrideShader = serializedObject.FindProperty(nameof(MaterialModifier.OverrideShader));
+            _overrideProperties = serializedObject.FindProperty(nameof(MaterialModifier.OverrideProperties));
 
             _recordingMaterial = new Material(Shader.Find("Standard"));
             _recordingMaterial.name = "Configured Material";
@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.Editor
 
         public override void OnInspectorGUI()
         {
-            TextureTransformerEditor.DrawerWarning(nameof(MaterialConfigurator));
+            TextureTransformerEditor.DrawerWarning(nameof(MaterialModifier));
 
             serializedObject.Update();
 
@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool.Editor
 
             void ProcessMaterialDiff(bool clear)
             {
-                if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
                 ApplyOverridesToComponent(_originalMaterial, _overrideMaterial, clear);
                 _originalMaterial = null;
                 _overrideMaterial = null;
@@ -141,7 +141,7 @@ namespace net.rs64.TexTransTool.Editor
 
             void ProcessMaterialVariantDiff(bool clear)
             {
-                if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+                if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
                 ApplyPropertyOverridesToComponent(overrideProperties, clear);
                 _variantMaterial = null;
@@ -156,8 +156,8 @@ namespace net.rs64.TexTransTool.Editor
 
         private void ApplyOverridesToComponent(Material originalMaterial, Material overrideMaterial, bool clear = true)
         {
-            (var isOverideShader, var overrideShader) = MaterialConfigurator.GetOverrideShader(originalMaterial, overrideMaterial);
-            var overrideProperties = MaterialConfigurator.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            (var isOverideShader, var overrideShader) = MaterialModifier.GetOverrideShader(originalMaterial, overrideMaterial);
+            var overrideProperties = MaterialModifier.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
             ApplyShaderOverrideToComponent(isOverideShader, overrideShader);
             ApplyPropertyOverridesToComponent(overrideProperties, clear);
         }
@@ -192,8 +192,8 @@ namespace net.rs64.TexTransTool.Editor
         private void UpdateRecordingMaterial()
         {
             if (_target.TargetMaterial == null || _recordingMaterial == null) return;
-            MaterialConfigurator.TransferValues(_target.TargetMaterial, _recordingMaterial);
-            MaterialConfigurator.ConfigureMaterial(_recordingMaterial, _target);
+            MaterialModifier.TransferValues(_target.TargetMaterial, _recordingMaterial);
+            MaterialModifier.ConfigureMaterial(_recordingMaterial, _target);
         }
 
         // 以下のEventによるプロパティの変更からUpdateRecordingMaterialを呼ぶ

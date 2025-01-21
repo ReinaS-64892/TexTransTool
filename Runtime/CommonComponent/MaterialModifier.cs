@@ -9,10 +9,10 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialConfigurator : TexTransRuntimeBehavior
+    public sealed class MaterialModifier : TexTransRuntimeBehavior
     {
         internal const string FoldoutName = "Other";
-        internal const string ComponentName = "TTT MaterialConfigurator";
+        internal const string ComponentName = "TTT MaterialModifier";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
 
@@ -26,10 +26,10 @@ namespace net.rs64.TexTransTool
         {
             domain.LookAt(this);
 
-            if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotFound"); return; }
+            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
             {
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool
         }
 
 
-        public static void ConfigureMaterial(Material editableMat, MaterialConfigurator config)
+        public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
             ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
         }
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool
         {
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:NullShader"); }
+                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialModifier:info:NullShader"); }
                 else { editableMat.shader = overrideShader; }
             }
             foreach (var overrideProperty in overrideProperties)
