@@ -581,15 +581,15 @@ msgstr "適用対象が設定されていません！"
 msgid "TextureConfigurator:error:TargetNotFound"
 msgstr "Target not found!"
 
-# MaterialConfigurator
+# MaterialModifier
 
-msgid "MaterialConfigurator:info:TargetNotSet"
+msgid "MaterialModifier:info:TargetNotSet"
 msgstr "Target not Set!"
 
-msgid "MaterialConfigurator:info:TargetNotFound"
+msgid "MaterialModifier:info:TargetNotFound"
 msgstr "Target not found!"
 
-msgid "MaterialConfigurator:info:NullShader"
+msgid "MaterialModifier:info:NullShader"
 msgstr "Target shader not found!"
 
 # MaterialOverrideTransfer

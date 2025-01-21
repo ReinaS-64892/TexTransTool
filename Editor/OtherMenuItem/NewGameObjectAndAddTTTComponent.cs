@@ -74,7 +74,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + TextureConfigurator.MenuPath)] static void TC() => C<TextureConfigurator>();
         [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
-        [M(BP + MaterialConfigurator.MenuPath)] static void MC() => C<MaterialConfigurator>();
+        [M(BP + MaterialModifier.MenuPath)] static void MC() => C<MaterialModifier>();
 
         static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
         {
@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         const string MRP = CPath + "/" + nameof(Material) + "/";
         const int PRIORITY = 200;
         [M(MRP + MaterialOverrideTransfer.ComponentName, false, PRIORITY)] static void MOTM(MenuCommand mc) => CM<MaterialOverrideTransfer>(mc, (c, m) => c.TargetMaterial = m);
-        [M(MRP + MaterialConfigurator.ComponentName, false, PRIORITY)] static void MCM(MenuCommand mc) => CM<MaterialConfigurator>(mc, (c, m) => c.TargetMaterial = m);
+        [M(MRP + MaterialModifier.ComponentName, false, PRIORITY)] static void MCM(MenuCommand mc) => CM<MaterialModifier>(mc, (c, m) => c.TargetMaterial = m);
 
     }
 }
