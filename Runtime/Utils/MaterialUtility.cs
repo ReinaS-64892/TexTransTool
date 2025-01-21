@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Utils
             var outPut = new Dictionary<Material, Material>();
             foreach (var mat in materials)
             {
-                var textures = GetAllTexture(mat);
+                var textures = GetAllTextureWithDictionary(mat);
 
                 bool replacedFlag = false;
                 foreach (var tex in textures) { if (texturePair.ContainsKey(tex.Value as Tex)) { replacedFlag = true; break; } }
@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool.Utils
             }
         }
 
-        public static Dictionary<string, Texture2D> GetAllTexture2D(this Material material)
+        public static Dictionary<string, Texture2D> GetAllTexture2DWithDictionary(this Material material)
         {
             var output = new Dictionary<string, Texture2D>();
             if (material == null || material.shader == null) { return output; }
@@ -88,11 +88,11 @@ namespace net.rs64.TexTransTool.Utils
             }
             return output;
         }
-        public static Dictionary<string, Texture> GetAllTexture(this Material material)
+        public static Dictionary<string, Texture> GetAllTextureWithDictionary(this Material material)
         {
-            return GetAllTexture<Texture>(material);
+            return GetAllTextureWithDictionary<Texture>(material);
         }
-        public static Dictionary<string, Tex> GetAllTexture<Tex>(this Material material) where Tex : Texture
+        public static Dictionary<string, Tex> GetAllTextureWithDictionary<Tex>(this Material material) where Tex : Texture
         {
             var output = new Dictionary<string, Tex>();
             if (material == null || material.shader == null) { return output; }
@@ -108,6 +108,22 @@ namespace net.rs64.TexTransTool.Utils
             return output;
         }
 
+        public static IEnumerable<Tex> GetAllTexture<Tex>(this Material material) where Tex : Texture
+        {
+            if (material == null || material.shader == null) { yield break; }
+            var shader = material.shader;
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                if (shader.GetPropertyType(i) is not UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
+
+                var texture = material.GetTexture(shader.GetPropertyNameId(i)) as Tex;
+                if (texture != null)
+                {
+                    yield return texture;
+                }
+            }
+        }
         public static void AllPropertyReset(this Material material)
         {
             var shader = material.shader;

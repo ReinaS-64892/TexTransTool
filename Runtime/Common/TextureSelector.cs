@@ -49,18 +49,17 @@ namespace net.rs64.TexTransTool
         }
 
         internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
-        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
             var targetTex = GetTexture();
-            var domainMaterials = RendererUtility.GetFilteredMaterials(domainRenderers);
-            var targetTextures = domainMaterials.SelectMany(m => Memoize.Memo(m, MaterialUtility.GetAllTexture).Values).Where(t => replaceTracking(t, targetTex)).ToHashSet();
+            var targetTextures = rendererTargeting.GetAllTextures().Where(t => rendererTargeting.OriginEqual(t, targetTex)).ToHashSet();
 
             if (targetTextures.Any() is false) { yield break; }
 
             var containedHash = new Dictionary<Material, bool>();
-            foreach (var r in domainRenderers)
+            foreach (var r in rendererTargeting.EnumerateRenderer())
             {
-                var mats = r.sharedMaterials.Where(i => i != null);
+                var mats = rendererTargeting.GetMaterials(r).Where(i => i != null);
                 if (mats.Any(containedHash.GetValueOrDefault)) // キャッシュに true になるものがあったら、調査をすべてスキップしてあった事にする。
                 {
                     yield return r;
@@ -70,8 +69,8 @@ namespace net.rs64.TexTransTool
                 foreach (var m in mats)
                 {
                     if (containedHash.ContainsKey(m)) { continue; }//このコードパスに来るってことは キャッシュにあるものが true であることはない。
-                    var dict = Memoize.Memo(m, MaterialUtility.GetAllTexture);
-                    if (dict.Values.Any(targetTextures.Contains))
+
+                    if (m.GetAllTexture<Texture>().Any(targetTextures.Contains))
                     {
                         containedHash.Add(m, true);
                         yield return r;

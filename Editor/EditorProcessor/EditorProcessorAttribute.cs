@@ -22,7 +22,11 @@ namespace net.rs64.TexTransTool.EditorProcessor
     internal interface IEditorProcessor
     {
         void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain);
-        IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
+        IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting);
+        void AffectingRendererTargeting(TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting rendererTargetingModification)
+        {
+            // non op
+        }
     }
 
     internal static class EditorProcessorUtility
@@ -71,9 +75,13 @@ namespace net.rs64.TexTransTool.EditorProcessor
             GetPresserType(texTransCallEditorBehavior.GetType()).Process(texTransCallEditorBehavior, editorCallDomain);
         }
 
-        public static IEnumerable<Renderer> CallProcessorModificationTargetRenderers(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        public static IEnumerable<Renderer> CallProcessorModificationTargetRenderers(this TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting)
         {
-            return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, domainRenderers, replaceTracking);
+            return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, rendererTargeting);
+        }
+        public static void CallProcessorAffectingRendererTargeting(this TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting affectingRendererTargeting)
+        {
+            GetPresserType(texTransCallEditorBehavior.GetType()).AffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting);
         }
 
     }

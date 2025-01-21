@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool
             var materials = domain.EnumerateRenderer()
             .SelectMany(i => i.sharedMaterials)
             .Distinct().Where(i => i != null);
-            var targetTex2D = materials.SelectMany(i => i.GetAllTexture2D().Values).FirstOrDefault(i => domain.OriginEqual(i, target));
+            var targetTex2D = materials.SelectMany(i => i.GetAllTexture2DWithDictionary().Values).FirstOrDefault(i => domain.OriginEqual(i, target));
 
             if (targetTex2D == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
@@ -102,10 +102,8 @@ namespace net.rs64.TexTransTool
         }
 
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
-        {
-            return TargetTexture.ModificationTargetRenderers(domainRenderers, replaceTracking);
-        }
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        { return TargetTexture.ModificationTargetRenderers(rendererTargeting); }
 
     }
 

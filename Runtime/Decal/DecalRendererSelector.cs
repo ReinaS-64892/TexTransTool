@@ -35,9 +35,9 @@ namespace net.rs64.TexTransTool.Decal
 
         // 自身のモード、そして、マテリアルによるフィルタリングを行うかなどを加味してないから取り扱いには気を付けることね
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<Renderer> GetAutoMaterialFiltered(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
+        internal IEnumerable<Renderer> GetAutoMaterialFiltered(IRendererTargeting rendererTargeting)
         {
-            return MaybeFilterDisableRenderers(originEqual.RendererFilterForMaterial(domainRenderers, AutoSelectFilterMaterials));
+            return MaybeFilterDisableRenderers(rendererTargeting.RendererFilterForMaterial(AutoSelectFilterMaterials));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,32 +54,32 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal HashSet<Material> GetAutoMaterialHashSet(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
+        internal HashSet<Material> GetAutoMaterialHashSet(IRendererTargeting rendererTargeting)
         {
-            return originEqual.GetDomainsMaterialsHashSet(domainRenderers, AutoSelectFilterMaterials);
+            return rendererTargeting.GetDomainsMaterialsHashSet(AutoSelectFilterMaterials);
         }
         // 自身のモードを確認していないため取り扱いには気を付けることね
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<Renderer> GetManualRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
+        internal IEnumerable<Renderer> GetManualRenderers(IRendererTargeting rendererTargeting)
         {
-            return originEqual.GetDomainsRenderers(domainRenderers, ManualSelections);
+            return rendererTargeting.GetDomainsRenderers(ManualSelections);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal HashSet<Material>? GetOrNullAutoMaterialHashSet(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual)
+        internal HashSet<Material>? GetOrNullAutoMaterialHashSet(IRendererTargeting rendererTargeting)
         {
             switch (Mode)
             {
                 default: { return null; }
                 case RendererSelectMode.Auto:
                     {
-                        if (UseMaterialFilteringForAutoSelect) { return GetAutoMaterialHashSet(domainRenderers, originEqual); }
+                        if (UseMaterialFilteringForAutoSelect) { return GetAutoMaterialHashSet(rendererTargeting); }
                         return null;
                     }
 
             }
         }
-        internal IEnumerable<Renderer> GetSelectedOrIncludingAll(IEnumerable<Renderer> domainRenderers, OriginEqual originEqual, out bool isIncludingAll)
+        internal IEnumerable<Renderer> GetSelectedOrIncludingAll(IRendererTargeting rendererTargeting, out bool isIncludingAll)
         {
             switch (Mode)
             {
@@ -89,15 +89,15 @@ namespace net.rs64.TexTransTool.Decal
                         if (UseMaterialFilteringForAutoSelect)
                         {
                             isIncludingAll = false;
-                            return GetAutoMaterialFiltered(domainRenderers, originEqual);
+                            return GetAutoMaterialFiltered(rendererTargeting);
                         }
                         isIncludingAll = true;
-                        return MaybeFilterDisableRenderers(domainRenderers);
+                        return MaybeFilterDisableRenderers(rendererTargeting.EnumerateRenderer());
                     }
                 case RendererSelectMode.Manual:
                     {
                         isIncludingAll = false;
-                        return GetManualRenderers(domainRenderers, originEqual);
+                        return GetManualRenderers(rendererTargeting);
                     }
             }
         }

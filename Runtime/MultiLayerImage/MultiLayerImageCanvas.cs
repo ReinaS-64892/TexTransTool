@@ -86,9 +86,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             foreach (var cl in GetChileLayers()) { cl.LookAtCalling(looker); }
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return TextureSelector.ModificationTargetRenderers(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer), replaceTracking);
+            return TextureSelector.ModificationTargetRenderers(rendererTargeting);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

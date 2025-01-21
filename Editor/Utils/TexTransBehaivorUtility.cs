@@ -17,17 +17,30 @@ namespace net.rs64.TexTransTool
                     { EditorProcessorUtility.CallProcessorApply(texTransCallEditorBehavior, domain); break; }
             }
         }
-        public static IEnumerable<Renderer> ModificationTargetRenderers(this TexTransBehavior texTransBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        public static IEnumerable<Renderer> ModificationTargetRenderers(this TexTransBehavior texTransBehavior, IRendererTargeting rendererTargeting)
         {
             switch (texTransBehavior)
             {
                 case TexTransRuntimeBehavior texTransRuntime:
-                    { return texTransRuntime.ModificationTargetRenderers(domainRenderers, replaceTracking); }
+                    { return texTransRuntime.ModificationTargetRenderers(rendererTargeting); }
                 case TexTransCallEditorBehavior texTransCallEditorBehavior:
-                    { return EditorProcessorUtility.CallProcessorModificationTargetRenderers(texTransCallEditorBehavior, domainRenderers, replaceTracking); }
+                    { return EditorProcessorUtility.CallProcessorModificationTargetRenderers(texTransCallEditorBehavior, rendererTargeting); }
 
                 default:
                     return Array.Empty<Renderer>();
+            }
+        }
+        public static void AffectingRendererTargeting(this TexTransBehavior texTransBehavior, IAffectingRendererTargeting affectingRendererTargeting)
+        {
+            switch (texTransBehavior)
+            {
+                case TexTransRuntimeBehavior texTransRuntime:
+                    { texTransRuntime.AffectingRendererTargeting(affectingRendererTargeting); return; }
+                case TexTransCallEditorBehavior texTransCallEditorBehavior:
+                    { EditorProcessorUtility.CallProcessorAffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting); return; }
+
+                default:
+                    return;
             }
         }
     }

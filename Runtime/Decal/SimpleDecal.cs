@@ -115,9 +115,7 @@ namespace net.rs64.TexTransTool.Decal
                     Profiler.EndSample();
                 }
 
-                var domainRenderers = domain.EnumerateRenderer();
-                var targetRenderers = GetTargetRenderers(domainRenderers, domain.OriginEqual);
-
+                var targetRenderers = ModificationTargetRenderers(domain);
                 var decalContext = new DecalContext
                     <ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
                     (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
@@ -126,20 +124,16 @@ namespace net.rs64.TexTransTool.Decal
                 decalContext.DecalPadding = Padding;
                 decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
                 decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
-                decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
+                decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
                 domain.LookAt(targetRenderers);
                 return decalContext.WriteDecalTexture<Texture>(targetRenderers, mulDecalTexture) ?? new();
             }
             finally { mulDecalTexture?.Dispose(); }
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _), TargetPropertyName);
-        }
-        private IEnumerable<Renderer> GetTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
-        {
-            return GetIntersectRenderers(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _));
+            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, out var _), TargetPropertyName);
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {

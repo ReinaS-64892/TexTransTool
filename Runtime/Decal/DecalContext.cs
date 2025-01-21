@@ -205,13 +205,13 @@ namespace net.rs64.TexTransTool.Decal
     internal static class DecalContextUtility
     {
         internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
-        internal static IEnumerable<Renderer> FilterDecalTarget(IEnumerable<Renderer> targetRenderers, string targetPropertyName)
+        internal static IEnumerable<Renderer> FilterDecalTarget(IRendererTargeting rendererTargeting, IEnumerable<Renderer> targetRenderers, string targetPropertyName)
         {
             foreach (var tr in targetRenderers)
             {
                 if (tr is not (SkinnedMeshRenderer or MeshRenderer)) { continue; }
                 if (tr.GetMesh() == null) { continue; }
-                foreach (var mat in tr.sharedMaterials)
+                foreach (var mat in rendererTargeting.GetMaterials(tr))
                 {
                     if (mat == null) { continue; }
                     var targetTex = mat.HasProperty(targetPropertyName) ? mat.GetTexture(targetPropertyName) : null;
