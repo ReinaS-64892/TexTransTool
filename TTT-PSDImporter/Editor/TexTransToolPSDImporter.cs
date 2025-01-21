@@ -12,6 +12,11 @@ using net.rs64.TexTransTool.PSDParser;
 
 namespace net.rs64.TexTransTool.PSDImporter
 {
+    /*
+    これらの情報が変わると、インポーター再設定だから変わらないように気を付けないといけない。
+    AssemblyName: net.rs64.ttt-psd-importer.editor
+    FullName: net.rs64.TexTransTool.PSDImporter.TexTransToolPSDImporter
+    */
     [ScriptedImporter(1, new string[] { "psb" }, new string[] { "psd" }, AllowCaching = true)]
     public class TexTransToolPSDImporter : ScriptedImporter
     {
