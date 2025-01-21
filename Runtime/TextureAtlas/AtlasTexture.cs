@@ -792,7 +792,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = AtlasSetting.ForceSetTexture, TextureScaleOffsetReset = AtlasSetting.TextureScaleOffsetReset };
             if (AtlasSetting.UnsetTextures.Any())
             {
-                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTexture().Select(i => i.Value));
+                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
                 atlasMatOption.UnsetTextures = AtlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
             if (AtlasSetting.MergeMaterials)
@@ -968,11 +968,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(GetTargetAllowedFilter(domainRenderers)).Where(i => i != null));
-            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => replaceTracking(smat.Material, mat))).ToHashSet();
-            return domainRenderers.Where(r => r.sharedMaterials.Any(targetMaterials.Contains));
+            var nowContainsMatSet = new HashSet<Material>(GetTargetAllowedFilter(rendererTargeting.EnumerateRenderer()).SelectMany(r => rendererTargeting.GetMaterials(r)).Where(i => i != null));
+            var selectedMaterials = SelectMatList.Select(sMat => sMat.Material);
+            var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginEqual(sMat, mat))).ToHashSet();
+            return rendererTargeting.RendererFilterForMaterial(targetMaterials);
         }
     }
 }

@@ -14,6 +14,10 @@ namespace net.rs64.TexTransTool
         /// <param name="domain">The domain</param>
         internal abstract void Apply(IDomain domain);
 
-        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
+        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting);
+        internal virtual void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
+        {
+            // non op
+        }
     }
 }

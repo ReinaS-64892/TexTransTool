@@ -71,6 +71,7 @@ namespace net.rs64.TexTransTool.Editor
             OverridesGUI();
 
             serializedObject.ApplyModifiedProperties();
+            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
         }
 
         private void OverridesGUI()

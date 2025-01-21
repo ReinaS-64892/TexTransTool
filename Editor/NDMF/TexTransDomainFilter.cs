@@ -69,13 +69,24 @@ namespace net.rs64.TexTransTool.NDMF
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Grouping");
+
+                Profiler.BeginSample("get domain renderer and flatten");
                 var domainRenderers = ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray();
                 var behaviorIndex = GetFlattenBehaviorAndIndex(behaviors);
+                Profiler.EndSample();
 
-                var targetRendererGroup = GetTargetGrouping(behaviorIndex, domainRenderers);
+                Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
+                using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(domainRenderers);
+                Profiler.EndSample();
+
+                Profiler.BeginSample("eval grouping");
+                var targetRendererGroup = GetTargetGrouping(affectingRendererTargeting, behaviorIndex, domainRenderers);
                 var renderersGroup2behavior = GetRendererGrouping(targetRendererGroup);
+                Profiler.EndSample();
 
+                Profiler.BeginSample("add to all groups");
                 allGroups.AddRange(renderersGroup2behavior.Select(i => RenderGroup.For(i.Key).WithData(new PassingData(i.Value, domainRenderers, behaviorIndex))));
+                Profiler.EndSample();
                 Profiler.EndSample();
 
                 Profiler.EndSample();
@@ -138,15 +149,21 @@ namespace net.rs64.TexTransTool.NDMF
             return grouping;
         }
 
-        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(NDMFAffectingRendererTargeting affectingRendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
         {
+            var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
-            foreach (var ttbKV in behaviorIndex)
+            foreach (var ttbKV in behaviors)
             {
-                Profiler.BeginSample("Mod target", ttbKV.Key);
-                var modificationTargets = ttbKV.Key.ModificationTargetRenderers(ofRenderers, (l, r) => l == r);
+                Profiler.BeginSample("Mod target", ttbKV);
+                var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting);
                 Profiler.EndSample();
-                targetRendererGroup.Add(ttbKV.Key, modificationTargets.ToHashSet());
+                Profiler.BeginSample("Affect target", ttbKV);
+                ttbKV.AffectingRendererTargeting(affectingRendererTargeting);
+                Profiler.EndSample();
+                Profiler.BeginSample("register target group", ttbKV);
+                targetRendererGroup.Add(ttbKV, modificationTargets.ToHashSet());
+                Profiler.EndSample();
             }
             return targetRendererGroup;
         }
@@ -227,5 +244,67 @@ namespace net.rs64.TexTransTool.NDMF
                 return _context.Observe(gameObject, g => g.transform.parent?.gameObject);
             }
         }
+
+        internal class NDMFAffectingRendererTargeting : IAffectingRendererTargeting, IDisposable
+        {
+            Renderer[] _domainRenderers;
+            Material[] _allMaterials;
+            Dictionary<Renderer, Material[]> _mutableMaterials;
+            Dictionary<UnityEngine.Object, UnityEngine.Object> _replacing;
+            public NDMFAffectingRendererTargeting(Renderer[] renderers)
+            {
+                _domainRenderers = renderers;
+                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
+                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().ToArray();
+
+                var origin2Mutable = new Dictionary<Material, Material>();
+                Profiler.BeginSample("get mutable from pool : count " + _allMaterials.Length);
+                for (var i = 0; _allMaterials.Length > i; i += 1)
+                {
+                    var origin = _allMaterials[i];
+                    origin2Mutable[origin] = _allMaterials[i] = NDMFPreviewMaterialPool.Get(origin);
+                }
+                Profiler.EndSample();
+                foreach (var rkv in _mutableMaterials)
+                {
+                    var matArray = rkv.Value;
+                    for (var i = 0; rkv.Value.Length > i; i += 1)
+                        matArray[i] = origin2Mutable[matArray[i]];
+                }
+                _replacing = new();
+                foreach (var o2m in origin2Mutable)
+                    _replacing[o2m.Value] = o2m.Key;
+            }
+            public IEnumerable<Renderer> EnumerateRenderer() => _domainRenderers;
+
+            public Material[] GetMutableMaterials(Renderer renderer) => _allMaterials;
+            public Material[] GetMaterials(Renderer renderer) => _allMaterials;
+
+            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+            {
+                if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
+                if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
+                return l == r;
+            }
+
+            public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+            {
+                _replacing[nowObject] = oldObject;
+            }
+
+            public void Dispose()
+            {
+                for (var i = 0; _allMaterials.Length > i; i += 1)
+                {
+                    NDMFPreviewMaterialPool.Ret(_allMaterials[i]);
+                }
+                _domainRenderers = null!;
+                _allMaterials = null!;
+                _mutableMaterials = null!;
+                _replacing = null!;
+            }
+        }
+
+
     }
 }

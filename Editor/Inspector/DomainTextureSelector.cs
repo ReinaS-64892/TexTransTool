@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.Editor
             TextureProperty = textureProperty;
             var domainObject = DomainMarkerFinder.FindMarker(component.gameObject);
             DomainContainsTextures = domainObject.GetComponentsInChildren<Renderer>(true)
-            .SelectMany(i => i.sharedMaterials).SelectMany(i => i.GetAllTexture2D()).GroupBy(i => i.Key).ToDictionary(i => i.Key, i => i.Select(k => k.Value).Distinct().ToList());
+            .SelectMany(i => i.sharedMaterials).SelectMany(i => i.GetAllTexture2DWithDictionary()).GroupBy(i => i.Key).ToDictionary(i => i.Key, i => i.Select(k => k.Value).Distinct().ToList());
 
             rootVisualElement.styleSheets.Add(styleSheet);
 

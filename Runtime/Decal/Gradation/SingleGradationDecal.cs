@@ -44,15 +44,14 @@ namespace net.rs64.TexTransTool.Decal
             var filter = new IslandSelectFilter(islandSelector, domain.OriginEqual);
 
 
-            var domainRenderers = domain.EnumerateRenderer();
             var decalContext = new DecalContext<SingleGradientConvertor, SingleGradientSpace, IslandSelectFilter, SingleGradientFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
             decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
-            decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domainRenderers, domain.OriginEqual);
+            decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
-            var targetRenderers = RendererSelector.GetSelectedOrIncludingAll(domainRenderers, domain.OriginEqual, out var _);
+            var targetRenderers = ModificationTargetRenderers(domain);
             var blKey = ttce.QueryBlendKey(BlendTypeKey);
             using var gradTex = ttce.LoadTextureWidthFullScale(gradDiskTex);
 
@@ -75,9 +74,9 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(RendererSelector.GetSelectedOrIncludingAll(domainRenderers, replaceTracking, out var _), TargetPropertyName);
+            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, out var _), TargetPropertyName);
         }
     }
 }

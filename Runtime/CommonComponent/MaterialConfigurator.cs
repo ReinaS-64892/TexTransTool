@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool
 
             if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotSet"); return; }
 
-            var mats = GetTargetMaterials(domain.EnumerateRenderer(), domain.OriginEqual, TargetMaterial);
+            var mats = GetTargetMaterials(domain, TargetMaterial);
             if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialConfigurator:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
@@ -47,10 +47,10 @@ namespace net.rs64.TexTransTool
 
         public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
         {
-            if (isOverrideShader) 
+            if (isOverrideShader)
             {
                 if (overrideShader == null) { TTTRuntimeLog.Info("MaterialConfigurator:info:NullShader"); }
-                else { editableMat.shader = overrideShader; } 
+                else { editableMat.shader = overrideShader; }
             }
             foreach (var overrideProperty in overrideProperties)
             {
@@ -95,7 +95,7 @@ namespace net.rs64.TexTransTool
         {
             if (overrideMaterial == null) return (false, null);
             if (originalMaterial == null) return (false, null);
-            if( originalMaterial.shader == overrideMaterial.shader) return (false, null);
+            if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
             return (true, overrideMaterial.shader);
         }
 
@@ -116,17 +116,16 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private static IEnumerable<Material> GetTargetMaterials(IEnumerable<Renderer> domainRenderer, OriginEqual originEqual, Material target)
-        {
-            return RendererUtility.GetFilteredMaterials(domainRenderer).Where(m => originEqual(m, target));
-        }
+        private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material target)
+        { return rendererTargeting.GetDomainsMaterialsHashSet(target); }
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        { return rendererTargeting.RendererFilterForMaterial(TargetMaterial); }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
         {
-            if (TargetMaterial == null) { return Array.Empty<Renderer>(); }
-
-            var modTarget = GetTargetMaterials(domainRenderers, replaceTracking, TargetMaterial).ToHashSet();
-            return domainRenderers.Where(i => i.sharedMaterials.Any(mat => modTarget.Contains(mat)));
+            if (TargetMaterial == null) { return; }
+            foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, TargetMaterial))
+                ConfigureMaterial(mutableMat, this);
         }
 
     }

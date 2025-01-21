@@ -6,18 +6,18 @@ using UnityEngine;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Profiling;
+using net.rs64.TexTransTool.Decal;
 
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject
+    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         // TransferAsset と one2one の場合は RegisterReplace を適切に実行するように。
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
-        public IEnumerable<Renderer> EnumerateRenderer();
         ITextureManager GetTextureManager();
 
         void GetMutable(ref Material material)
@@ -55,6 +55,31 @@ namespace net.rs64.TexTransTool
     {
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
+    }
+    internal interface IRendererTargeting : IReplaceTracking
+    {
+        IEnumerable<Renderer> EnumerateRenderer();
+        Material[] GetMaterials(Renderer renderer) { return renderer.sharedMaterials; }
+        MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
+        HashSet<Material> GetAllMaterials()
+        {
+            var matHash = new HashSet<Material>();
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r)); }
+            return matHash;
+        }
+        HashSet<Texture> GetAllTextures()
+        {
+            var texHash = new HashSet<Texture>();
+            var mats = GetAllMaterials();
+            foreach (var m in mats) { texHash.UnionWith(m.GetAllTexture<Texture>()); }
+            return texHash;
+        }
+    }
+    internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
+    {
+        // おおもとの IRendererTargeting.GetMaterials を隠すような形で実装すること (これなんかいい形で明示したいのだけど ... 方法がわからん)
+        // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
+        Material[] GetMutableMaterials(Renderer renderer);
     }
     public interface ILookingObject
     {
@@ -97,32 +122,50 @@ namespace net.rs64.TexTransTool
                 domain.TransferAsset(unityObject);
             }
         }
-        public static IEnumerable<Renderer> GetDomainsRenderers(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderer, IEnumerable<Renderer> renderers)
+        public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
-            return domainRenderer.Where(Contains);
+            return rendererTargeting.EnumerateRenderer().Where(Contains);
+            bool Contains(Renderer dr) { return renderers.Any(sr => rendererTargeting.OriginEqual(dr, sr)); }
+        }
+        public static IEnumerable<Renderer> GetDomainsRenderers(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Renderer> renderers)
+        {
+            if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
+            return domainRenderers.Where(Contains);
             bool Contains(Renderer dr) { return renderers.Any(sr => originEqual(dr, sr)); }
         }
 
-        public static IEnumerable<Renderer> RendererFilterForMaterial(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
+
+        public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
-            var matHash = originEqual.GetDomainsMaterialsHashSet(domainRenderers, material);
-
-            return domainRenderers.Where(i => i.sharedMaterials.Any(m => matHash.Contains(m)));
+            var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => matHash.Contains(m)));
+        }
+        public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
+        {
+            if (material == null) { return Array.Empty<Renderer>(); }
+            var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => matHash.Contains(m)));
         }
 
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
+        {
+            if (material.Any() is false) { return new(); }
+            return rendererTargeting.GetAllMaterials().Where(m => material.Any(tm => rendererTargeting.OriginEqual(m, tm))).ToHashSet();
+        }
         public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return new(); }
-            return RendererUtility.GetFilteredMaterials(domainRenderers.Where(r => r is SkinnedMeshRenderer or MeshRenderer)).Where(m => material.Any(tm => originEqual.Invoke(m, tm))).ToHashSet();
+            return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
+        }
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, Material? material)
+        {
+            if (material == null) { return new(); }
+            return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginEqual(m, material)).ToHashSet();
         }
 
-        public static IEnumerable<Material> GetDomainMaterials(this IDomain domain, IEnumerable<Material> materials)
-        {
-            return RendererUtility.GetFilteredMaterials(domain.EnumerateRenderer()).Where(m => Contains(m));
-            bool Contains(Material m) { return materials.Any(tm => domain.OriginEqual(m, tm)); }
-        }
+
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
