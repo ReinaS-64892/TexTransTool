@@ -1,0 +1,20 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key ExtraColorBlending/ColorReplace
+KeyName ja 拡張色合成/カラー置き換え
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+    return float4(AddColor.rgb, BaseColor.a);
+}
