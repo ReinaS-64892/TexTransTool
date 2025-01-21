@@ -166,7 +166,6 @@ namespace net.rs64.TexTransTool.Editor
         {
             _isOverrideShader.boolValue = isOverideShader;
             if (isOverideShader) { _overrideShader.objectReferenceValue = overrideShader; }
-            else { _overrideShader.objectReferenceValue = null; }
         }
 
         private void ApplyPropertyOverridesToComponent(List<MaterialProperty> overrides, bool clear = true)
