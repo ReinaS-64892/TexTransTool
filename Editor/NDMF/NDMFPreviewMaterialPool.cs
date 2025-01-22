@@ -42,15 +42,19 @@ namespace net.rs64.TexTransTool.NDMF
 
             var pm = s_reverseDict[r];
             if (pm.IsUsed is false) { return false; }
+
+            if (pm.Shader != r.shader) { r.shader = pm.Shader; }
             pm.IsUsed = false;
+
             return true;
         }
         class PooledMaterial
         {
+            public Shader Shader;
             public Material Material;
             public bool IsUsed;
 
-            public PooledMaterial(Material mat) { Material = mat; }
+            public PooledMaterial(Material mat) { Material = mat; Shader = Material.shader; }
         }
     }
 }
