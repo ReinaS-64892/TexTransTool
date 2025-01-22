@@ -15,9 +15,11 @@ namespace net.rs64.TexTransTool
         internal abstract void Apply(IDomain domain);
 
         internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting);
-        internal virtual void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
-        {
-            // non op
-        }
+    }
+
+    internal interface IRendererTargetingAffecter { }
+    internal interface IRendererTargetingAffecterWithRuntime : IRendererTargetingAffecter
+    {
+        void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification);
     }
 }

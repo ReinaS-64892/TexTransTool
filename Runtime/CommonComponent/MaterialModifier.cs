@@ -9,7 +9,7 @@ using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialModifier : TexTransRuntimeBehavior
+    public sealed class MaterialModifier : TexTransRuntimeBehavior, IRendererTargetingAffecterWithRuntime
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT MaterialModifier";
@@ -121,13 +121,12 @@ namespace net.rs64.TexTransTool
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         { return rendererTargeting.RendererFilterForMaterial(TargetMaterial); }
 
-        internal override void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
+        void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
         {
             if (TargetMaterial == null) { return; }
             foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, TargetMaterial))
                 ConfigureMaterial(mutableMat, this);
         }
-
     }
 
 }
