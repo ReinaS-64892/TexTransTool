@@ -42,7 +42,6 @@ namespace net.rs64.TexTransTool.NDMF
             Profiler.EndSample();
             var allGroups = new List<RenderGroup>();
             var waker = new NDMFGameObjectObservedWaker(ctx);
-            var notNDMFwaker = new AvatarBuildUtils.DefaultGameObjectWakingTool();
 
             foreach (var root in avatarRoots)
             {
@@ -52,7 +51,7 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.BeginSample(root.name, root);
                 Profiler.BeginSample("FindAtPhase");
 
-                var behaviors = AvatarBuildUtils.FindAtPhase(root, notNDMFwaker)[PreviewTargetPhase];
+                var behaviors = Memoize.Memo(root, AvatarBuildUtils.FindAtPhase)[PreviewTargetPhase];
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Observing");
