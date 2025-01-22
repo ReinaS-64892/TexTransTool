@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using nadena.dev.ndmf.preview;
 using nadena.dev.ndmf.runtime;
 using net.rs64.TexTransTool.Build;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -69,19 +70,35 @@ namespace net.rs64.TexTransTool.NDMF
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Grouping");
-
                 Profiler.BeginSample("get domain renderer and flatten");
                 var domainRenderers = ctx.GetComponentsInChildren<Renderer>(root, true).Where(r => r is SkinnedMeshRenderer or MeshRenderer).ToArray();
                 var behaviorIndex = GetFlattenBehaviorAndIndex(behaviors);
                 Profiler.EndSample();
 
-                Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
-                using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(domainRenderers);
-                Profiler.EndSample();
+                Dictionary<TexTransBehavior, HashSet<Renderer>> targetGrouping;
 
+                if (behaviors.Any(b => b is IRendererTargetingAffecter))
+                {
+                    Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
+                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(domainRenderers);
+                    Profiler.EndSample();
+
+                    Profiler.BeginSample("GetTargetGroupingWithAffecting");
+                    targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
+                    Profiler.EndSample();
+                }
+                else
+                {
+                    Profiler.BeginSample("NDMFRendererTargeting ctr");
+                    var rendererTargeting = new NDMFRendererTargeting(domainRenderers);
+                    Profiler.EndSample();
+
+                    Profiler.BeginSample("GetTargetGrouping");
+                    targetGrouping = GetTargetGrouping(rendererTargeting, behaviorIndex, domainRenderers);
+                    Profiler.EndSample();
+                }
                 Profiler.BeginSample("eval grouping");
-                var targetRendererGroup = GetTargetGrouping(affectingRendererTargeting, behaviorIndex, domainRenderers);
-                var renderersGroup2behavior = GetRendererGrouping(targetRendererGroup);
+                var renderersGroup2behavior = GetRendererGrouping(targetGrouping);
                 Profiler.EndSample();
 
                 Profiler.BeginSample("add to all groups");
@@ -149,7 +166,23 @@ namespace net.rs64.TexTransTool.NDMF
             return grouping;
         }
 
-        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(NDMFAffectingRendererTargeting affectingRendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(IRendererTargeting rendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
+        {
+            var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
+            var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
+            foreach (var ttbKV in behaviors)
+            {
+                Profiler.BeginSample("Mod target", ttbKV);
+                var modificationTargets = ttbKV.ModificationTargetRenderers(rendererTargeting);
+                Profiler.EndSample();
+                Profiler.BeginSample("register target group", ttbKV);
+                targetRendererGroup.Add(ttbKV, modificationTargets.ToHashSet());
+                Profiler.EndSample();
+            }
+            return targetRendererGroup;
+        }
+
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGroupingWithAffecting(NDMFAffectingRendererTargeting affectingRendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
         {
             var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
@@ -159,7 +192,7 @@ namespace net.rs64.TexTransTool.NDMF
                 var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting);
                 Profiler.EndSample();
                 Profiler.BeginSample("Affect target", ttbKV);
-                ttbKV.AffectingRendererTargeting(affectingRendererTargeting);
+                if (ttbKV is IRendererTargetingAffecter affecter) affecter.AffectingRendererTargeting(affectingRendererTargeting);
                 Profiler.EndSample();
                 Profiler.BeginSample("register target group", ttbKV);
                 targetRendererGroup.Add(ttbKV, modificationTargets.ToHashSet());
@@ -167,7 +200,6 @@ namespace net.rs64.TexTransTool.NDMF
             }
             return targetRendererGroup;
         }
-
         public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
             var data = group.GetData<PassingData>();
@@ -302,6 +334,48 @@ namespace net.rs64.TexTransTool.NDMF
                 _allMaterials = null!;
                 _mutableMaterials = null!;
                 _replacing = null!;
+            }
+        }
+        internal class NDMFRendererTargeting : IRendererTargeting
+        {
+            Renderer[] _domainRenderers;
+            private HashSet<Material>? _matHash;
+            private HashSet<Texture>? _texHash;
+            private Dictionary<Renderer, Material[]> _sharedMaterialCache;
+
+            public NDMFRendererTargeting(Renderer[] renderers)
+            {
+                _domainRenderers = renderers;
+                _sharedMaterialCache = new();
+            }
+            public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
+            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
+
+            public Material[] GetMaterials(Renderer renderer)
+            {
+                if (_sharedMaterialCache.TryGetValue(renderer, out var mats)) { return mats; }
+                mats = _sharedMaterialCache[renderer] = renderer.sharedMaterials;
+                return mats;
+            }
+            public Decal.MeshData GetMeshData(Renderer renderer) { return Decal.DecalContextUtility.GetToMemorizedMeshData(renderer); }
+            public HashSet<Material> GetAllMaterials()
+            {
+                if (_matHash is null)
+                {
+                    _matHash = new HashSet<Material>();
+                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r)); }
+                }
+                return _matHash;
+            }
+            public HashSet<Texture> GetAllTextures()
+            {
+                if (_texHash is null)
+                {
+                    _texHash = new HashSet<Texture>();
+                    var mats = GetAllMaterials();
+                    foreach (var m in mats) { _texHash.UnionWith(m.GetAllTexture<Texture>()); }
+                }
+                return _texHash;
             }
         }
 

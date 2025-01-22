@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 namespace net.rs64.TexTransTool.EditorProcessor
 {
     [EditorProcessor(typeof(MaterialOverrideTransfer))]
-    internal class MaterialOverrideTransferProcessor : IEditorProcessor
+    internal class MaterialOverrideTransferProcessor : IEditorProcessor, IRendererTargetingAffecterWithEditorCall
     {
 
         public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)

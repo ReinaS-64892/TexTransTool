@@ -3,7 +3,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialOverrideTransfer : TexTransCallEditorBehavior
+    public sealed class MaterialOverrideTransfer : TexTransCallEditorBehavior , IRendererTargetingAffecter
     {
         internal const string ComponentName = "TTT MaterialOverrideTransfer";
         internal const string FoldoutName = "Other";

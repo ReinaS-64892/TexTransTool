@@ -23,12 +23,12 @@ namespace net.rs64.TexTransTool.EditorProcessor
     {
         void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain);
         IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting);
-        void AffectingRendererTargeting(TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting rendererTargetingModification)
-        {
-            // non op
-        }
     }
 
+    internal interface IRendererTargetingAffecterWithEditorCall
+    {
+        void AffectingRendererTargeting(TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting rendererTargetingModification);
+    }
     internal static class EditorProcessorUtility
     {
         static Dictionary<Type, IEditorProcessor> s_processor;
@@ -79,9 +79,11 @@ namespace net.rs64.TexTransTool.EditorProcessor
         {
             return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, rendererTargeting);
         }
-        public static void CallProcessorAffectingRendererTargeting(this TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting affectingRendererTargeting)
+        public static bool CallProcessorAffectingRendererTargeting(this TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting affectingRendererTargeting)
         {
-            GetPresserType(texTransCallEditorBehavior.GetType()).AffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting);
+            if (GetPresserType(texTransCallEditorBehavior.GetType()) is not IRendererTargetingAffecterWithEditorCall rendererTargetingAffecterWithEditorCall) { return false; }
+            rendererTargetingAffecterWithEditorCall.AffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting);
+            return true;
         }
 
     }

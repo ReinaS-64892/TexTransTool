@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using net.rs64.TexTransTool.EditorProcessor;
@@ -30,17 +31,16 @@ namespace net.rs64.TexTransTool
                     return Array.Empty<Renderer>();
             }
         }
-        public static void AffectingRendererTargeting(this TexTransBehavior texTransBehavior, IAffectingRendererTargeting affectingRendererTargeting)
+        public static bool AffectingRendererTargeting(this IRendererTargetingAffecter texTransBehavior, IAffectingRendererTargeting affectingRendererTargeting)
         {
             switch (texTransBehavior)
             {
-                case TexTransRuntimeBehavior texTransRuntime:
-                    { texTransRuntime.AffectingRendererTargeting(affectingRendererTargeting); return; }
+                case IRendererTargetingAffecterWithRuntime texTransRuntime:
+                    { texTransRuntime.AffectingRendererTargeting(affectingRendererTargeting); return true; }
                 case TexTransCallEditorBehavior texTransCallEditorBehavior:
-                    { EditorProcessorUtility.CallProcessorAffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting); return; }
-
+                    { return EditorProcessorUtility.CallProcessorAffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting); }
                 default:
-                    return;
+                    return false;
             }
         }
     }
