@@ -56,7 +56,7 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking
+    internal interface IRendererTargeting : IReplaceTracking , ILookingObject
     {
         IEnumerable<Renderer> EnumerateRenderer();
         Material?[] GetMaterials(Renderer renderer) { return renderer.sharedMaterials; }
@@ -84,6 +84,11 @@ namespace net.rs64.TexTransTool
     public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
+        TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction)
+        where TObj : UnityEngine.Object
+        {
+            return getAction(obj);
+        }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
