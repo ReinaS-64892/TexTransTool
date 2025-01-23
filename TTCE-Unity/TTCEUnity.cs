@@ -112,20 +112,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
         }
 
         public ITexTransStandardComputeKey StandardComputeKey => ComputeObjectUtility.UStdHolder;
-        public ITexTransTransTextureComputeKey TransTextureComputeKey => ComputeObjectUtility.UStdHolder;
-        public ITexTransComputeKeyDictionary<string> GrabBlend { get; } = new GrabBlendQuery();
-        public ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; } = new BlendKeyUnWrapper();
-        public ITexTransComputeKeyDictionary<string> GenealCompute { get; } = new GenealComputeQuery();
-        public IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; } = new SamplerKeyQuery();
-        public ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; } = new SamplerKeyToResizing();
-        public ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; } = new SamplerKeyToTransSampler();
-
-        class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => key.Unwrap(); }
-        class GrabBlendQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => ComputeObjectUtility.GrabBlendObjects[key]; }
-        class GenealComputeQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => ComputeObjectUtility.GeneralComputeObjects[key]; }
-        class SamplerKeyQuery : IKeyValueStore<string, ITTSamplerKey> { public ITTSamplerKey this[string key] => ComputeObjectUtility.SamplerComputeShaders[key]; }
-        class SamplerKeyToResizing : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetResizingComputeKey; }
-        class SamplerKeyToTransSampler : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetTransSamplerComputeKey; }
+        public TExKeyQ GetExKeyQuery<TExKeyQ>() where TExKeyQ : ITTExtraComputeKeyQuery
+        {
+            if (ComputeObjectUtility.UStdHolder is not TExKeyQ exKeyQ) { throw new ComputeKeyInterfaceIsNotImplementException($"{GetType().Name} is not supported {typeof(TExKeyQ).GetType().Name}."); }
+            return exKeyQ;
+        }
     }
 
 

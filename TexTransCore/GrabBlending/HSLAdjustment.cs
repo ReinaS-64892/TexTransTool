@@ -22,7 +22,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         , ITexTransGetComputeHandler
         , ITexTransDriveStorageBufferHolder
         {
-            using var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(HSLAdjustment)]);
+            using var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<IBlendingComputeKey>().GrabBlend[nameof(HSLAdjustment)]);
 
             var texID = computeHandler.NameToID("Tex");
             var gvBufId = computeHandler.NameToID("gv");

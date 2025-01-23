@@ -10,7 +10,7 @@ namespace net.rs64.TexTransCore
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
             if (dist.Width != add.Width || dist.Hight != add.Hight) { throw new ArgumentException(); }
-            using (var computeHandler = engine.GetComputeHandler(engine.BlendKey[blendKey]))
+            using (var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<IBlendingComputeKey>().BlendKey[blendKey]))
             {
                 var addTexID = computeHandler.NameToID("AddTex");
                 var distTexID = computeHandler.NameToID("DistTex");

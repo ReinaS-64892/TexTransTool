@@ -14,7 +14,7 @@ namespace net.rs64.TexTransCore.TransTexture
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             var useDepth = transFromDepth is not null && transMappingHolder.DepthMap is not null;
-            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingWithDepth) : engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
+            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransMappingWithDepth) : engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
 
@@ -90,7 +90,7 @@ namespace net.rs64.TexTransCore.TransTexture
                 return;
             }
             var useDepth = transFromDepthBuf is not null && transMappingHolder.DepthMap is not null;
-            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.TransTextureComputeKey.TransMappingWithDepth) : engine.GetComputeHandler(engine.TransTextureComputeKey.TransMapping);
+            using var computeHandler = useDepth ? engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransMappingWithDepth) : engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransMapping);
 
             var gvBufId = computeHandler.NameToID("gv");
 
@@ -221,7 +221,7 @@ namespace net.rs64.TexTransCore.TransTexture
         {
             if (dist.Texture.EqualSize(transMappingHolder.TransMap) is false || source.Width != transMappingHolder.SourceSize.x || source.Hight != transMappingHolder.SourceSize.y) { throw new ArgumentException(); }
 
-            using var sampleCompute = engine.GetComputeHandler(engine.TransSamplerKey[samplerKey]);
+            using var sampleCompute = engine.GetComputeHandler(engine.GetExKeyQuery<ISamplerComputeKey>().TransSamplerKey[samplerKey]);
 
             var readTexID = sampleCompute.NameToID("ReadTex");
             var readTextureParmBufId = sampleCompute.NameToID("ReadTextureParm");
@@ -253,7 +253,7 @@ namespace net.rs64.TexTransCore.TransTexture
         public static void TransWarpModifierWithNone<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransWarpNone);
+            using var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransWarpNone);
 
             var gvBufId = computeHandler.NameToID("gv");
             var transMapID = computeHandler.NameToID("TransMap");
@@ -271,7 +271,7 @@ namespace net.rs64.TexTransCore.TransTexture
         public static void TransWarpModifierWithStretch<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler
         {
-            using var computeHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.TransWarpNone);
+            using var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().TransWarpNone);
 
             var transMapID = computeHandler.NameToID("TransMap");
             computeHandler.SetTexture(transMapID, transMappingHolder.TransMap);

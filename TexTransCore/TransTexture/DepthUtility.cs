@@ -9,7 +9,7 @@ namespace net.rs64.TexTransCore.TransTexture
         public static void WriteDepth<TTCE>(this TTCE engine, DepthBufferHolder depthBuffer, ITTStorageBuffer vertex, ITTStorageBuffer depthVertex, ITTStorageBuffer polygons, int polygonCount)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
-            using var depthRendererHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.DepthRenderer);
+            using var depthRendererHandler = engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().DepthRenderer);
 
             var drGvID = depthRendererHandler.NameToID("gv");
             var drPolygonID = depthRendererHandler.NameToID("Polygons");
@@ -36,7 +36,7 @@ namespace net.rs64.TexTransCore.TransTexture
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             if (transMappingHolder.DepthMap is null) { throw new NullReferenceException(); }
-            using var cullingDepthHandler = engine.GetComputeHandler(engine.TransTextureComputeKey.CullingDepth);
+            using var cullingDepthHandler = engine.GetComputeHandler(engine.GetExKeyQuery<ITransTextureComputeKey>().CullingDepth);
 
             var cdGvID = cullingDepthHandler.NameToID("gv");
             var cdDepthBufferID = cullingDepthHandler.NameToID("DepthBuffer");

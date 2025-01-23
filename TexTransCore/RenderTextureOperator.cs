@@ -18,7 +18,7 @@ namespace net.rs64.TexTransCore
         {
             if (sourceTexture.Width == targetTexture.Width && sourceTexture.Hight == targetTexture.Hight) { throw new ArgumentException(); }
 
-            using var computeHandler = engine.GetComputeHandler(engine.ResizingSamplerKey[engine.StandardComputeKey.DefaultSampler]);
+            using var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<ISamplerComputeKey>().ResizingSamplerKey[engine.StandardComputeKey.DefaultSampler]);
 
             var targetTexID = computeHandler.NameToID("TargetTex");
             var resizeTargetParmBufId = computeHandler.NameToID("ResizeTargetParm");
