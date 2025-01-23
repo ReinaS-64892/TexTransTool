@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace net.rs64.TexTransCore
 {
@@ -104,13 +105,7 @@ namespace net.rs64.TexTransCore
     public interface ITexTransComputeKeyQuery
     {
         ITexTransStandardComputeKey StandardComputeKey { get; }
-        ITexTransTransTextureComputeKey TransTextureComputeKey { get; }
-        ITexTransComputeKeyDictionary<string> GenealCompute { get; }
-        ITexTransComputeKeyDictionary<string> GrabBlend { get; }
-        ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
-        IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; }
-        ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; }
-        ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; }
+        TExKeyQ GetExKeyQuery<TExKeyQ>() where TExKeyQ : ITTExtraComputeKeyQuery;
     }
 
     public interface ITexTransStandardComputeKey
@@ -135,16 +130,33 @@ namespace net.rs64.TexTransCore
         ITTComputeKey FillROnly { get; }
         ITTComputeKey FillGOnly { get; }
     }
-    public interface ITexTransTransTextureComputeKey
+    public interface ITTExtraComputeKeyQuery { }
+
+    public interface ITransTextureComputeKey : ITTExtraComputeKeyQuery
     {
         ITTComputeKey TransMapping { get; }
         ITTComputeKey TransMappingWithDepth { get; }
-        
+
         ITTComputeKey TransWarpNone { get; }
         ITTComputeKey TransWarpStretch { get; }
 
         ITTComputeKey DepthRenderer { get; }
         ITTComputeKey CullingDepth { get; }
+    }
+    public interface IQuayGeneraleComputeKey : ITTExtraComputeKeyQuery
+    {
+        ITexTransComputeKeyDictionary<string> GenealCompute { get; }
+    }
+    public interface IBlendingComputeKey : ITTExtraComputeKeyQuery
+    {
+        ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; }
+        ITexTransComputeKeyDictionary<string> GrabBlend { get; }
+    }
+    public interface ISamplerComputeKey : ITTExtraComputeKeyQuery
+    {
+        IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; }
+        ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; }
+        ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; }
     }
     public interface ITexTransComputeKeyDictionary<TKey> : IKeyValueStore<TKey, ITTComputeKey> { }
     public interface IKeyValueStore<TKey, TValue> { TValue this[TKey key] { get; } }
@@ -217,6 +229,16 @@ namespace net.rs64.TexTransCore
                 engine.DefaultResizing(renderTexture, sourceSizeRt);
             }
         }
+    }
 
+    [System.Serializable]
+    public class ComputeKeyInterfaceIsNotImplementException : System.Exception
+    {
+        public ComputeKeyInterfaceIsNotImplementException() { }
+        public ComputeKeyInterfaceIsNotImplementException(string message) : base(message) { }
+        public ComputeKeyInterfaceIsNotImplementException(string message, System.Exception inner) : base(message, inner) { }
+        protected ComputeKeyInterfaceIsNotImplementException(
+            System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

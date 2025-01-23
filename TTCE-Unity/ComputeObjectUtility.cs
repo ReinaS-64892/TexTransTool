@@ -33,7 +33,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
             UStdHolder = new();
         }
 
-        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey, ITexTransTransTextureComputeKey
+        public class UnityStandardComputeKeyHolder : ITexTransStandardComputeKey
+        , ITransTextureComputeKey
+        , IQuayGeneraleComputeKey
+        , IBlendingComputeKey
+        , ISamplerComputeKey
         {
             public ITTComputeKey AlphaFill { get; private set; }
             public ITTComputeKey AlphaCopy { get; private set; }
@@ -61,6 +65,12 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTComputeKey DepthRenderer { get; private set; }
             public ITTComputeKey CullingDepth { get; private set; }
 
+            public ITexTransComputeKeyDictionary<string> GrabBlend { get; } = new GrabBlendQuery();
+            public ITexTransComputeKeyDictionary<ITTBlendKey> BlendKey { get; } = new BlendKeyUnWrapper();
+            public ITexTransComputeKeyDictionary<string> GenealCompute { get; } = new GenealComputeQuery();
+            public IKeyValueStore<string, ITTSamplerKey> SamplerKey { get; } = new SamplerKeyQuery();
+            public ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; } = new SamplerKeyToResizing();
+            public ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; } = new SamplerKeyToTransSampler();
 
             public UnityStandardComputeKeyHolder()
             {
@@ -89,6 +99,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 DepthRenderer = GeneralComputeObjects[nameof(DepthRenderer)];
                 CullingDepth = GeneralComputeObjects[nameof(CullingDepth)];
             }
+
+
+            class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => key.Unwrap(); }
+            class GrabBlendQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => GrabBlendObjects[key]; }
+            class GenealComputeQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => GeneralComputeObjects[key]; }
+            class SamplerKeyQuery : IKeyValueStore<string, ITTSamplerKey> { public ITTSamplerKey this[string key] => SamplerComputeShaders[key]; }
+            class SamplerKeyToResizing : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetResizingComputeKey; }
+            class SamplerKeyToTransSampler : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetTransSamplerComputeKey; }
         }
 
     }

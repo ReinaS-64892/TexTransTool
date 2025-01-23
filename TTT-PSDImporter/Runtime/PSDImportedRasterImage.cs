@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             if (psdCanvasDesc.BitDepth is 8 && psdCanvasDesc.IsPSB is false && isAll8BitRLE)
             {
                 Profiler.BeginSample("RLE");
-                using var ch = ttce.GetComputeHandler(ttce.GenealCompute["Decompress8BitPSDRLE"]);
+                using var ch = ttce.GetComputeHandler(ttce.GetExKeyQuery<IQuayGeneraleComputeKey>().GenealCompute["Decompress8BitPSDRLE"]);
 
                 // コピーを避けるために 4の倍数に切り上げます、まぁ問題にはならないでしょうけど...ファイルの終端にぶち当たった場合は頭を抱え、コピーが走るようにします...
                 DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.R.ImageDataAddress.Length)));

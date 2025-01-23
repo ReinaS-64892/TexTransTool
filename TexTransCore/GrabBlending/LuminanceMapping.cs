@@ -21,7 +21,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             using var gradTex = engine.CreateRenderTexture(gradient.Length, 1);
             Gradient.WriteGradient(gradient);
 
-            using var computeHandler = engine.GetComputeHandler(engine.GrabBlend[nameof(LuminanceMapping)]);
+            using var computeHandler = engine.GetComputeHandler(engine.GetExKeyQuery<IBlendingComputeKey>().GrabBlend[nameof(LuminanceMapping)]);
 
             var gvBufId = computeHandler.NameToID("gv");
             var gradientTextureID = computeHandler.NameToID("GradientTexture");
