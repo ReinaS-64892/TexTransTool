@@ -1,0 +1,44 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float FadeStart;
+    float MaxDistance;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+}
+
+RWTexture2D<float4> Texture;
+RWTexture2D<float> PolygonToDistance;
+
+[numthreads(32,32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float p2distance = PolygonToDistance[id.xy];
+
+    // { float4 col = Texture[id.xy]; col.a = 1 - p2distance / MaxDistance; Texture[id.xy] = col; return; }
+
+    if (p2distance < FadeStart) { return; }
+    if (p2distance > MaxDistance)
+    {
+        float4 col = Texture[id.xy];
+        col.a = 0.0;
+        Texture[id.xy] = col;
+        return;
+    }
+
+    float normalized = 1 - (clamp(p2distance, FadeStart, MaxDistance) - FadeStart) / (MaxDistance - FadeStart);
+
+    float4 col = Texture[id.xy];
+    col.a *= normalized;
+    Texture[id.xy] = col;
+}

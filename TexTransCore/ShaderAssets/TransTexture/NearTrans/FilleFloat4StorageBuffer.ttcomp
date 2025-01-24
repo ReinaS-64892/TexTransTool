@@ -1,0 +1,22 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float4 FillValue;
+}
+
+RWStructuredBuffer<float4> FillTarget;
+
+[numthreads(256,1, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    FillTarget[id.x] = FillValue;
+}

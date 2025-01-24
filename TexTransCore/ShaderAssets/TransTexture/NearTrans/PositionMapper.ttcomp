@@ -15,13 +15,13 @@ END__TT_COMPUTE_SHADER_HEADER
 cbuffer gv
 {
     uint2 PositionMapSize;
-    float MaxDistance;
+    float MaxPaddingDistance;
     uint DispatchIndexOffset;
 }
 
 
 // RWStructuredBuffer なのはなぜかというと TTCE の都合的に 4チャンネルは 32bit float であることが保障されないから迂回
-RWStructuredBuffer<float4> PositionDistanceMap; // XYZ + Distance(W)
+RWStructuredBuffer<float4> PositionPaddingDistanceMap; // XYZ + Distance(W)
 
 StructuredBuffer<int> PolygonIndex;
 StructuredBuffer<float4> Vertex; // w は aliment の都合
@@ -33,7 +33,7 @@ float4 MinMax(float2 tri[3])
 {
     float2 minVal = min(min(tri[0], tri[1]), tri[2]);
     float2 maxVal = max(max(tri[0], tri[1]), tri[2]);
-    return float4(minVal - MaxDistance, maxVal + MaxDistance);
+    return float4(minVal - MaxPaddingDistance, maxVal + MaxPaddingDistance);
 }
 
 [numthreads(1, PARALLEL_COUNT, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
@@ -75,8 +75,8 @@ float4 MinMax(float2 tri[3])
 
             float3 position = CalculatePositionFromBarycentricWithFloat3(polygon, toBC);
 
-            bool isWrite = PositionDistanceMap[bufferIndex].w > distance && MaxDistance > distance;
-            if (isWrite) { PositionDistanceMap[bufferIndex] = float4(toBC ,distance); }
+            bool isWrite = PositionPaddingDistanceMap[bufferIndex].w > distance && MaxPaddingDistance > distance;
+            if (isWrite) { PositionPaddingDistanceMap[bufferIndex] = float4(position ,distance); }
         }
     }
 }

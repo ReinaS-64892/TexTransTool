@@ -38,6 +38,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         , IQuayGeneraleComputeKey
         , IBlendingComputeKey
         , ISamplerComputeKey
+        , INearTransComputeKey
         {
             public ITTComputeKey AlphaFill { get; private set; }
             public ITTComputeKey AlphaCopy { get; private set; }
@@ -72,6 +73,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITexTransComputeKeyDictionary<ITTSamplerKey> ResizingSamplerKey { get; } = new SamplerKeyToResizing();
             public ITexTransComputeKeyDictionary<ITTSamplerKey> TransSamplerKey { get; } = new SamplerKeyToTransSampler();
 
+            public ITTComputeKey NearTransTexture { get; private set; }
+            public ITTComputeKey PositionMapper { get; private set; }
+            public ITTComputeKey FilleFloat4StorageBuffer { get; private set; }
+            public ITTComputeKey NearDistanceFadeWrite { get; private set; }
+
             public UnityStandardComputeKeyHolder()
             {
                 AlphaFill = GeneralComputeObjects[nameof(AlphaFill)];
@@ -98,6 +104,11 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
                 DepthRenderer = GeneralComputeObjects[nameof(DepthRenderer)];
                 CullingDepth = GeneralComputeObjects[nameof(CullingDepth)];
+
+                NearTransTexture = GenealCompute[nameof(NearTransTexture)];
+                PositionMapper = GenealCompute[nameof(PositionMapper)];
+                FilleFloat4StorageBuffer = GenealCompute[nameof(FilleFloat4StorageBuffer)];
+                NearDistanceFadeWrite = GenealCompute[nameof(NearDistanceFadeWrite)];
             }
 
 

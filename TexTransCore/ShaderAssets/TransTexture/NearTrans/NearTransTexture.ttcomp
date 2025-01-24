@@ -13,9 +13,7 @@ cbuffer gv
 {
     uint2 PositionMapSize;
     float MaxDistance;
-
-    float AlimentPadding1;
-
+    float PaddingMaxDistance;
 
     uint PolygonStartIndex;
     uint PolygonCount;
@@ -24,7 +22,7 @@ cbuffer gv
     float AlimentPadding3;
 }
 // PointMap でもあるわね
-RWStructuredBuffer<float4> PositionDistanceMap; // XYZ + Distance(W)
+RWStructuredBuffer<float4> PositionPaddingDistanceMap; // XYZ + Distance(W)
 // 一番近い場所から UV 情報にし、後にテクスチャとして書きこむ形をとります。
 
 // 書き込まれる対象。 Polygon To Distance は初期化されていなくても問題はない。
@@ -38,36 +36,7 @@ StructuredBuffer<float2> UVVertex;
 
 #include "../TransMappingHelper.hlsl"
 
-struct Plane
-{
-    float3 normal;
-};
-
-struct NearPlanePoint
-{
-    float3 position;
-    float distance;
-};
-
-Plane PolygonToPlane(float3 polygon[3])
-{
-    float3 planeNormal = normalize( cross( polygon[1] - polygon[0] , polygon[2] - polygon[0] ) );
-    Plane plane;
-    plane.normal = planeNormal;
-    return plane;
-}
-NearPlanePoint ClosetPointOnPlane(float3 p, float3 polygon[3], Plane polygonPlane)
-{
-    float3 polygonToPoint = p - polygon[0];
-    float planeToDistance = dot(polygonPlane.normal , polygonToPoint);
-    float3 onPoint = p - (polygonPlane.normal * planeToDistance);
-
-    NearPlanePoint result;
-    result.position = onPoint;
-    result.distance = abs( planeToDistance );
-    return result;
-}
-float3 Barycentric(float3 p, float3 tri[3], Plane polygonPlane)
+float4 BarycentricWith3D(float3 p, float3 tri[3])
 {
     float3 pTri[3];
 
@@ -75,71 +44,98 @@ float3 Barycentric(float3 p, float3 tri[3], Plane polygonPlane)
     pTri[1] = tri[1] - p;
     pTri[2] = tri[2] - p;
 
-    float u = dot( cross(pTri[2], pTri[1]) , polygonPlane.normal );
-    float v = dot( cross(pTri[2], pTri[0]) , polygonPlane.normal );
-    float w = dot( cross(pTri[0], pTri[1]) , polygonPlane.normal );
-    float3 bc = float3(u,v,w) / (u+v+w);
+    float3 u = cross(pTri[1] , pTri[2]);
+    float3 v = cross(pTri[2], pTri[0]);
+    float3 w = cross(pTri[0], pTri[1]);
 
-    return float3(bc);
+    bool isInside = dot(u , v) >= 0.0 && dot(u , w) >= 0.0;
+
+    float ul = length( u );
+    float vl = length( v );
+    float wl = length( w );
+    float3 bc = float3(ul,vl,wl) / (ul + vl + wl);
+
+    return float4(bc ,isInside ? 1.0 : 0.0);
 }
 [numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    float3 fPoint = PositionDistanceMap[(PositionMapSize.x * id.y) + id.x].xyz;
+    float4 positionPaddingDistance = PositionPaddingDistanceMap[(PositionMapSize.x * id.y) + id.x];
+    float3 fPoint = positionPaddingDistance.xyz;
 
-    float2 transSourcePos;
+    if(positionPaddingDistance.w >= PaddingMaxDistance)
+    {
+        TransMap[id.xy] = float2(0.0,0.0);
+        PolygonToDistance[id.xy] = MaxDistance + 0.01;
+        return;
+    }
+
+    float2 transSourcePos = float2(0.0,0.0);
     float polygonToDistance = MaxDistance + 0.01;
-
+    // uint spi = 11219 - 34;
+    // uint spi = 10000;
+    // for (uint pi = spi; (spi + 1) > pi ; pi += 1)
     for (uint pi = PolygonStartIndex; PolygonCount > pi ; pi += 1)
+    // for (uint pi = PolygonStartIndex; 1 > pi ; pi += 1)
     {
         uint polygonIndex = pi * 3;
 
         float3 polygon[3];
-        polygon[0].xyz = Vertex[PolygonIndex[polygonIndex + 0]].xyz;
-        polygon[1].xyz = Vertex[PolygonIndex[polygonIndex + 1]].xyz;
-        polygon[2].xyz = Vertex[PolygonIndex[polygonIndex + 2]].xyz;
+        polygon[0] = Vertex[PolygonIndex[polygonIndex + 0]].xyz;
+        polygon[1] = Vertex[PolygonIndex[polygonIndex + 1]].xyz;
+        polygon[2] = Vertex[PolygonIndex[polygonIndex + 2]].xyz;
         float2 uvPolygon[3];
         uvPolygon[0] = UVVertex[PolygonIndex[polygonIndex + 0]];
         uvPolygon[1] = UVVertex[PolygonIndex[polygonIndex + 1]];
         uvPolygon[2] = UVVertex[PolygonIndex[polygonIndex + 2]];
 
+        // 面積がほとんどないポリゴンは無視する。
+        if(length(cross( polygon[1] - polygon[0] , polygon[2] - polygon[0] )) < 0.0001 ){continue;}
 
-        // 最接近点が polygon の上だった場合
-        Plane plane = PolygonToPlane(polygon);
-        NearPlanePoint planePoint = ClosetPointOnPlane(fPoint , polygon , plane);
-        float3 bc = Barycentric(fPoint , polygon , plane);
-
-        if( InsideBarycentric( bc ) )
         {
-            // それが他よりも近かったらそのまま書き込む。
-            if(polygonToDistance < planePoint.distance) { continue; }
-            transSourcePos = CalculatePositionFromBarycentric(uvPolygon, bc);
-            polygonToDistance = planePoint.distance;
+            // 最接近点が polygon の上だった場合
+            float3 planeNormal = normalize( cross( polygon[1] - polygon[0] , polygon[2] - polygon[0] ) );
+            float3 polygonToPoint = fPoint - polygon[0];
+            float planeToDistance = dot(planeNormal , polygonToPoint);
+            float absolutePlaneToDistance = abs(planeToDistance);
+            float3 onPlanePoint =  polygon[0] + polygonToPoint - (planeNormal * planeToDistance);
 
-            continue;
+            float4 bcAndIsIn = BarycentricWith3D(onPlanePoint , polygon);
+
+            // polygonToDistance = bcAndIsIn.w;
+
+            // if( bcAndIsIn.w > 0.5)
+            if( bcAndIsIn.w > 0.5 && polygonToDistance > absolutePlaneToDistance)
+            {
+                // それが他よりも近かったらそのまま書き込む。
+                transSourcePos = CalculatePositionFromBarycentric(uvPolygon, bcAndIsIn.xyz);
+                polygonToDistance = absolutePlaneToDistance;
+                continue;
+            }
         }
+        {
+            // 外だった場合 polygon の辺の上で一番近いところをだす。(同時に一番近いところが頂点であった場合も。)
 
-        // 外だった場合 polygon の辺の上で一番近いところをだす。(同時に一番近いところが頂点であった場合も。)
+            float3 lNear0 = Line2NearWthFloat3(polygon[0], polygon[1], fPoint);
+            float3 lNear1 = Line2NearWthFloat3(polygon[1], polygon[2], fPoint);
+            float3 lNear2 = Line2NearWthFloat3(polygon[2], polygon[0], fPoint);
+            float lDistance0 = distance(lNear0 , fPoint);
+            float lDistance1 = distance(lNear1 , fPoint);
+            float lDistance2 = distance(lNear2 , fPoint);
 
-        float3 lNear0 = Line2NearWthFloat3(polygon[0], polygon[1], fPoint);
-        float3 lNear1 = Line2NearWthFloat3(polygon[1], polygon[2], fPoint);
-        float3 lNear2 = Line2NearWthFloat3(polygon[2], polygon[0], fPoint);
-        float lDistance0 = distance(lNear0 , fPoint);
-        float lDistance1 = distance(lNear1 , fPoint);
-        float lDistance2 = distance(lNear2 , fPoint);
+            float minLength = min(min(lDistance0 , lDistance1) , lDistance2);
 
-        float minLength = min(min(lDistance0 , lDistance1) , lDistance2);
+            if( polygonToDistance > minLength )
+            {
+                float3 lineOnNearPoint = lNear2;
+                if ( minLength == lDistance0 ){ lineOnNearPoint = lNear0;}
+                if ( minLength == lDistance1 ){ lineOnNearPoint = lNear1;}
 
-        if( polygonToDistance < minLength ) { continue; }
-
-        float3 lineOnNearPoint;
-        if ( minLength == lDistance0 ){ lineOnNearPoint = lNear0;}
-        else if ( minLength == lDistance1 ){ lineOnNearPoint = lNear1;}
-        else { lineOnNearPoint = lNear2;}
-
-        bc = Barycentric(lineOnNearPoint , polygon , plane);
-
-        transSourcePos = CalculatePositionFromBarycentric(uvPolygon, bc);
-        polygonToDistance = minLength;
+                float3 bc = BarycentricWith3D(lineOnNearPoint , polygon).xyz;// in out はみる必要がない。
+                transSourcePos = CalculatePositionFromBarycentric(uvPolygon, bc);
+                polygonToDistance = minLength;
+                continue;
+            }
+        }
     }
 
     TransMap[id.xy] = transSourcePos;

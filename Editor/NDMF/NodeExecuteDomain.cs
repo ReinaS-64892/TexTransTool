@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.NDMF
             _proxy2OriginRendererDict = o2pDict.ToDictionary(i => i.Value, i => i.Key);
             _proxyDomainRenderers = o2pDict.Values.ToList();
             _textureManager = new TextureManager(true);
-            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
+            _ttce4U = new TTCEUnityWithTTT4UnityOnNDMFPreview(new UnityDiskUtil(_textureManager));
             _textureStacks = new(_ttce4U);
             _ctx = computeContext;
             _objectRegistry = objectRegistry;
@@ -232,6 +232,18 @@ namespace net.rs64.TexTransTool.NDMF
         {
             foreach (var rt in _stackDict) { rt.Value.Dispose(); }
             _stackDict.Clear();
+        }
+    }
+
+    class TTCEUnityWithTTT4UnityOnNDMFPreview : TTCEUnityWithTTT4Unity
+    {
+        public TTCEUnityWithTTT4UnityOnNDMFPreview(ITexTransUnityDiskUtil diskUtil) : base(diskUtil) { }
+
+        public override ITTRenderTexture UploadTexture(RenderTexture renderTexture)
+        {
+            var newRt = base.UploadTexture(renderTexture);
+            if (TTRt2.Contains(renderTexture)) { this.LinearToGamma(newRt); }
+            return newRt;
         }
     }
 }

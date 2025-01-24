@@ -148,6 +148,14 @@ namespace net.rs64.TexTransCore
         ITTComputeKey DepthRenderer { get; }
         ITTComputeKey CullingDepth { get; }
     }
+    public interface INearTransComputeKey : ITTExtraComputeKeyQuery
+    {
+        ITTComputeKey NearTransTexture { get; }
+        ITTComputeKey PositionMapper { get; }
+
+        ITTComputeKey FilleFloat4StorageBuffer { get; }
+        ITTComputeKey NearDistanceFadeWrite { get; }
+    }
     public interface IQuayGeneraleComputeKey : ITTExtraComputeKeyQuery
     {
         ITexTransComputeKeyDictionary<string> GenealCompute { get; }
