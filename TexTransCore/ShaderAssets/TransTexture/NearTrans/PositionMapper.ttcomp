@@ -27,7 +27,7 @@ StructuredBuffer<int> PolygonIndex;
 StructuredBuffer<float4> Vertex; // w は aliment の都合
 StructuredBuffer<float2> UVVertex;
 
-#include "../TransTexture/TransMappingHelper.hlsl"
+#include "../TransMappingHelper.hlsl"
 
 float4 MinMax(float2 tri[3])
 {
