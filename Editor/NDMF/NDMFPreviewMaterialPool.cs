@@ -21,13 +21,16 @@ namespace net.rs64.TexTransTool.NDMF
             if (s_pool.ContainsKey(s) is false) { s_pool[s] = new(); }
             var sPool = s_pool[s];
 
+            var materialDestroyed = false;
             foreach (var m in sPool)
             {
                 if (m.IsUsed) { continue; }
+                if (m.Material == null) { materialDestroyed = true; break; }
                 MaterialUtility.PropertyCopy(source, m.Material);
                 m.IsUsed = true;
                 return m.Material;
             }
+            if (materialDestroyed) { sPool.RemoveAll(i => i.Material == null); }
 
             var nm = Material.Instantiate(source);
             nm.parent = null;
