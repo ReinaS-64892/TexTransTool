@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
+            using var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
             Profiler.EndSample();
 
             // TextureBlend.ToLinear(result);
