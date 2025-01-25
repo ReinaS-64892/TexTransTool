@@ -30,11 +30,21 @@ namespace net.rs64.TexTransTool
             UnityEngine.Object.DestroyImmediate(tex);
         }
 
-        public ITTRenderTexture UploadTexture(RenderTexture renderTexture)
+        public virtual ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
-            var rt = CreateRenderTexture(renderTexture.width, renderTexture.height);
-            Graphics.Blit(renderTexture, rt.Unwrap());
-            return rt;
+            var urt = UnityRenderTexture.RefFromTTRt2(renderTexture);
+            if (urt is not null)// TTT が所有している物は Liner だけど中身が gamma なので気を付けないといけない。
+            {
+                var rt = CreateRenderTexture(renderTexture.width, renderTexture.height, urt.ContainsChannel);
+                CopyRenderTexture(rt, urt);
+                return rt;
+            }
+            else
+            {
+                var rt = CreateRenderTexture(renderTexture.width, renderTexture.height);
+                Graphics.Blit(renderTexture, rt.Unwrap());
+                return rt;
+            }
         }
 
         public void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged

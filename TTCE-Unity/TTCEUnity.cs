@@ -122,12 +122,20 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
     internal class UnityRenderTexture : ITTRenderTexture
     {
+        bool _isOwned;
         internal RenderTexture RenderTexture;
         internal TexTransCoreTextureChannel Channel;
         public UnityRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
+            _isOwned = true;
             Channel = channel;
             RenderTexture = TTRt2.Get(width, height, channel);
+        }
+        private UnityRenderTexture(RenderTexture renderTexture)
+        {
+            _isOwned = false;
+            RenderTexture = renderTexture;
+            Channel = renderTexture.graphicsFormat.ToTTCTextureFormat().channel;
         }
         public bool IsDepthAndStencil => RenderTexture.depth != 0;
 
@@ -139,7 +147,13 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public TexTransCoreTextureChannel ContainsChannel => Channel;
 
-        public void Dispose() { TTRt2.Rel(RenderTexture); }
+        public void Dispose() { if (_isOwned) TTRt2.Rel(RenderTexture); }
+
+        internal static UnityRenderTexture? RefFromTTRt2(RenderTexture renderTexture)
+        {
+            if (TTRt2.Contains(renderTexture) is false) { return null; }
+            return new UnityRenderTexture(renderTexture);
+        }
     }
     internal static class TTCoreEnginTypeUtil
     {

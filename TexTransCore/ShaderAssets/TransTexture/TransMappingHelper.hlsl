@@ -20,11 +20,27 @@ float2 CalculatePositionFromBarycentric(float2 tri[3], float3 bc)
     pos += tri[2] * bc.z;
     return pos;
 }
+float3 CalculatePositionFromBarycentricWithFloat3(float3 tri[3], float3 bc)
+{
+    float3 pos = float3(0, 0, 0);
+    pos += tri[0] * bc.x;
+    pos += tri[1] * bc.y;
+    pos += tri[2] * bc.z;
+    return pos;
+}
 float2 Line2Near(float2 v1, float2 v2, float2 p)
 {
     float2 vLine = v2 - v1;
     float vLength = length(vLine);
     float2 vLineNormalized = normalize(vLine);
+    float onLineLength = clamp(dot(vLineNormalized, p - v1), 0, vLength);
+    return v1 + (vLineNormalized * onLineLength);
+}
+float3 Line2NearWthFloat3(float3 v1, float3 v2, float3 p)
+{
+    float3 vLine = v2 - v1;
+    float vLength = length(vLine);
+    float3 vLineNormalized = normalize(vLine);
     float onLineLength = clamp(dot(vLineNormalized, p - v1), 0, vLength);
     return v1 + (vLineNormalized * onLineLength);
 }

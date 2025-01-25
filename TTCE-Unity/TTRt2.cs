@@ -126,6 +126,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             }
         }
 
+        internal static bool Contains(RenderTexture renderTexture) { return s_reverseTempRtState.TryGetValue(renderTexture, out _); }
 
         private struct TTRenderTextureDescriptor : IEquatable<TTRenderTextureDescriptor>
         {

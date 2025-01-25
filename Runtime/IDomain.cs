@@ -122,6 +122,12 @@ namespace net.rs64.TexTransTool
                 domain.TransferAsset(unityObject);
             }
         }
+        public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
+        {
+            if (renderer == null) { return Array.Empty<Renderer>(); }
+            return rendererTargeting.EnumerateRenderer().Where(Contains);
+            bool Contains(Renderer dr) { return rendererTargeting.OriginEqual(dr, renderer); }
+        }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }

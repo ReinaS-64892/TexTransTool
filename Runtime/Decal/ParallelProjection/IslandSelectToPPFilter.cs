@@ -64,6 +64,27 @@ namespace net.rs64.TexTransTool.Decal
                 }
                 return tri;
             }
+            var islandsArray = IslandsArrayFromMeshData(meshData);
+
+            Profiler.BeginSample("IslandSelect");
+            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, originEqual));
+            Profiler.EndSample();
+
+            Profiler.BeginSample("FilterTriangle");
+            var triList = IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
+            Profiler.EndSample();
+
+            return triList;
+        }
+        internal struct IslandsArray
+        {
+            public Island[][][] allMeshIslands;
+            public Island[] flattenIslands;
+            public Dictionary<Island, int> islandToIndex;
+            public IslandDescription[] flattenIslandDescription;
+        }
+        internal static IslandsArray IslandsArrayFromMeshData(MeshData[] meshData)
+        {
             var allMeshIslands = new Island[meshData.Length][][];
             for (var i = 0; allMeshIslands.Length > i; i += 1)
             {
@@ -73,7 +94,6 @@ namespace net.rs64.TexTransTool.Decal
             }
 
             var flattenIslands = allMeshIslands.SelectMany(i => i.SelectMany(i2 => i2)).ToArray();
-
             var islandToIndex = new Dictionary<Island, int>(flattenIslands.Length);
             {
                 var index = 0;
@@ -114,15 +134,13 @@ namespace net.rs64.TexTransTool.Decal
             }
             Profiler.EndSample();
 
-            Profiler.BeginSample("IslandSelect");
-            var bitArray = islandSelector.IslandSelect(new(flattenIslands, flattenIslandDescription, originEqual));
-            Profiler.EndSample();
-
-            Profiler.BeginSample("FilterTriangle");
-            var triList = IslandSelectToTriangleIndex(allMeshIslands, islandToIndex, bitArray);
-            Profiler.EndSample();
-
-            return triList;
+            return new()
+            {
+                allMeshIslands = allMeshIslands,
+                flattenIslands = flattenIslands,
+                flattenIslandDescription = flattenIslandDescription,
+                islandToIndex = islandToIndex,
+            };
         }
 
         private static NativeArray<TriangleIndex>[][] IslandSelectToTriangleIndex(Island[][][] allMeshIslands, Dictionary<Island, int> islandToIndex, BitArray bitArray)

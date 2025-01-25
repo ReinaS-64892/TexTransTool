@@ -28,8 +28,8 @@ namespace net.rs64.TexTransCore
         /// 内容は必ず すべてのチャンネルが 0 で初期化されている。アルファも 0 。
         /// 基本的に RGBA の 4チャンネルで Gamma がデフォだけど、エンジン側がいい感じにすることを前提としてリニアにもできるようにしたいね！
         /// Depth や MipMap なんてなかった...いいね！
-        /// チャンネル数は基本的に RGBA を使用し、Depth用途などの場合に  R だけにするように、 RGBA の場合は適当な形式だが、 R の場合は特別に高めのBit深度の物が割り当てられることがある。
-        /// 解像度は 必ず 64 * 64 かそれ以上である必要があり、 実用量が 256 byte で割り切れるような大きさでなければならない。
+        /// チャンネル数は基本的に RGBA を使用し、Depth用途や変換マップなどの場合に  R or RG だけにするように、
+        /// RGBA の場合は(engine 側の裁量で)適当な形式だが、 R や RG の場合は 32Bit float (つまり TexTransCoreTextureFormat.Float) であることを保証する必要がある。
         /// </summary>
         ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA);
 
@@ -51,6 +51,11 @@ namespace net.rs64.TexTransCore
     {
         // 基本的にパフォーマンスは良くないからうまく使わないといけない
         void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
+
+        /// <summary>
+        /// Download を行う場合、解像度は 必ず 64 * 64 かそれ以上である必要があり、 実用量が 256 byte で割り切れるような大きさでなければならない。
+        /// それらを満たしていない場合の動作は、 engine に依存します。
+        /// </summary>
         void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }
     public interface ITexTransRenderTextureUploadToCreate : ITexTransRenderTextureIO, ITexTransCreateTexture
@@ -142,6 +147,14 @@ namespace net.rs64.TexTransCore
 
         ITTComputeKey DepthRenderer { get; }
         ITTComputeKey CullingDepth { get; }
+    }
+    public interface INearTransComputeKey : ITTExtraComputeKeyQuery
+    {
+        ITTComputeKey NearTransTexture { get; }
+        ITTComputeKey PositionMapper { get; }
+
+        ITTComputeKey FilleFloat4StorageBuffer { get; }
+        ITTComputeKey NearDistanceFadeWrite { get; }
     }
     public interface IQuayGeneraleComputeKey : ITTExtraComputeKeyQuery
     {

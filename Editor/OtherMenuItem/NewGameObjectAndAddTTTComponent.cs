@@ -76,6 +76,8 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
         [M(BP + MaterialModifier.MenuPath)] static void MC() => C<MaterialModifier>();
 
+        [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
+
         static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
         {
             var material = menuCommand.context as Material;

@@ -79,6 +79,19 @@ namespace net.rs64.TexTransTool
 
     public static class TTT4UnityUtility
     {
+        public static ITTRenderTexture WrappingToLoadOrUpload(this ITexTransToolForUnity engine, Texture texture)
+        {
+            switch (texture)
+            {
+                case Texture2D texture2D:
+                    {
+                        using var diskTex = engine.Wrapping(texture2D);
+                        return engine.LoadTextureWidthFullScale(diskTex);
+                    }
+                case RenderTexture rt: { return engine.UploadTexture(rt); }
+                default: { throw new InvalidOperationException(); }
+            }
+        }
         public static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U ttt4u, ITTRenderTexture rt, TexTransCoreTextureFormat format = TexTransCoreTextureFormat.Byte)
         where TTT4U : ITexTransRenderTextureIO
         {
