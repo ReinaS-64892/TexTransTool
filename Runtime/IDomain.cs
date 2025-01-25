@@ -59,12 +59,12 @@ namespace net.rs64.TexTransTool
     internal interface IRendererTargeting : IReplaceTracking
     {
         IEnumerable<Renderer> EnumerateRenderer();
-        Material[] GetMaterials(Renderer renderer) { return renderer.sharedMaterials; }
+        Material?[] GetMaterials(Renderer renderer) { return renderer.sharedMaterials; }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r)); }
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
             return matHash;
         }
         HashSet<Texture> GetAllTextures()
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool
     {
         // おおもとの IRendererTargeting.GetMaterials を隠すような形で実装すること (これなんかいい形で明示したいのだけど ... 方法がわからん)
         // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
-        Material[] GetMutableMaterials(Renderer renderer);
+        Material?[] GetMutableMaterials(Renderer renderer);
     }
     public interface ILookingObject
     {
@@ -146,13 +146,13 @@ namespace net.rs64.TexTransTool
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => matHash.Contains(m)));
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? matHash.Contains(m) : false));
         }
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
         {
             if (material == null) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => matHash.Contains(m)));
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? matHash.Contains(m) : false));
         }
 
         public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)

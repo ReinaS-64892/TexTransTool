@@ -280,13 +280,13 @@ namespace net.rs64.TexTransTool.NDMF
         {
             Renderer[] _domainRenderers;
             Material[] _allMaterials;
-            Dictionary<Renderer, Material[]> _mutableMaterials;
+            Dictionary<Renderer, Material?[]> _mutableMaterials;
             Dictionary<UnityEngine.Object, UnityEngine.Object> _replacing;
             public NDMFAffectingRendererTargeting(Renderer[] renderers)
             {
                 _domainRenderers = renderers;
                 _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().ToArray();
+                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
 
                 var origin2Mutable = new Dictionary<Material, Material>();
                 Profiler.BeginSample("get mutable from pool : count " + _allMaterials.Length);
@@ -300,7 +300,8 @@ namespace net.rs64.TexTransTool.NDMF
                 {
                     var matArray = rkv.Value;
                     for (var i = 0; rkv.Value.Length > i; i += 1)
-                        matArray[i] = origin2Mutable[matArray[i]];
+                        if (matArray[i] != null)
+                            matArray[i] = origin2Mutable[matArray[i]!];
                 }
                 _replacing = new();
                 foreach (var o2m in origin2Mutable)
