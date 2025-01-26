@@ -35,24 +35,14 @@ namespace net.rs64.TexTransTool
             {
                 var mutableMat = mat;
                 domain.GetMutable(ref mutableMat);
-                ConfigureMaterial(mutableMat, this, domain);
+                ConfigureMaterial(mutableMat, this);
             }
         }
 
 
-        public static void ConfigureMaterial(Material editableMat, MaterialModifier config, ILookingObject? lookingObject = null)
+        public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
-            if (lookingObject is not null)
-                ConfigureMaterial(editableMat
-                , lookingObject.LookAtGet(config, c => c.IsOverrideShader)
-                , lookingObject.LookAtGet(config, c => c.OverrideShader)
-                // 前回との比較ができるようにするために複製
-                , lookingObject.LookAtGet(config, c => c.OverrideProperties.ToArray(), (l, r) => l.SequenceEqual(r))
-                );
-            else
-            {
-                ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
-            }
+            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
         }
 
         public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
@@ -136,8 +126,18 @@ namespace net.rs64.TexTransTool
             var targetMat = rendererTargeting.LookAtGet(this, i => i.TargetMaterial);
             if (targetMat == null) { return; }
 
+            _ = rendererTargeting.LookAtGet(this, c => c.IsOverrideShader);// looking
+            _ = rendererTargeting.LookAtGet(this, c => c.OverrideShader);
+            _ = rendererTargeting.LookAtGet(this,
+                    c => c.OverrideProperties
+                        .Where(op => op.PropertyType is UnityEngine.Rendering.ShaderPropertyType.Texture)
+                        .Select(op => op.TextureValue)
+                        .ToArray(),
+                    (l, r) => l.SequenceEqual(r)
+                );
+
             foreach (var mutableMat in GetTargetMaterials(rendererTargeting, targetMat))
-                ConfigureMaterial(mutableMat, this, rendererTargeting);
+                ConfigureMaterial(mutableMat, this);
         }
     }
 
