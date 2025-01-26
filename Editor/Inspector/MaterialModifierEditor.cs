@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.Editor
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialModifier.OverrideProperties));
 
             _recordingMaterial = new Material(Shader.Find("Standard"));
-            _recordingMaterial.name = "Configured Material";
+            _recordingMaterial.name = "Modified Material";
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
