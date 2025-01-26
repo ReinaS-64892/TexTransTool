@@ -38,7 +38,7 @@ namespace net.rs64.TexTransTool.Editor
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
             // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
             // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
-            _materialEditor.OnShaderChangedPublic += ApplyOverridesToComponent;
+            _materialEditor.OnShaderChangedPublic += OnShaderChanged;
             ObjectChangeEvents.changesPublished += OnObjectChange;
         }
 
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
             if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
-            _materialEditor.OnShaderChangedPublic -= ApplyOverridesToComponent;
+            _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
             ObjectChangeEvents.changesPublished -= OnObjectChange;
         }
 
@@ -255,6 +255,12 @@ namespace net.rs64.TexTransTool.Editor
                     return;
                 }
             }
+        }
+
+        private void OnShaderChanged()
+        {
+            ApplyOverridesToComponent();
+            serializedObject.ApplyModifiedProperties();
         }
 
         private static IEnumerable<MaterialProperty> GetVariantOverrideProperties(Material variant)
