@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -91,6 +92,8 @@ namespace net.rs64.TexTransTool.Editor
 
         // use OverrideUtility fields
         private bool _showOverrideUtility;
+        private Texture _sourceTexture;
+        private Texture _destinationTexture;
         private Material _originalMaterial;
         private Material _overrideMaterial;
         private Material _variantMaterial;
@@ -101,6 +104,16 @@ namespace net.rs64.TexTransTool.Editor
             if (_showOverrideUtility)
             {
                 EditorGUI.indentLevel++;
+
+                EditorGUILayout.LabelField("Replace Texture", EditorStyles.boldLabel);
+                _sourceTexture = EditorGUILayout.ObjectField("Source Texture", _sourceTexture, typeof(Texture), false) as Texture;
+                _destinationTexture = EditorGUILayout.ObjectField("Destination Texture", _destinationTexture, typeof(Texture), false) as Texture;
+                if (GUILayout.Button("Add diff to this component"))
+                {
+                    ProcessReplaceTexture(false);
+                }
+
+                EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("Get Material Diff", EditorStyles.boldLabel);
                 _originalMaterial ??= _target.TargetMaterial;
@@ -130,6 +143,15 @@ namespace net.rs64.TexTransTool.Editor
             }
 
             return;
+
+            void ProcessReplaceTexture(bool clear)
+            {
+                if (_sourceTexture == null || _destinationTexture == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+                var overrideProperties = GetReplaceTextureOverrides(_sourceTexture, _destinationTexture);
+                ApplyPropertyOverridesToComponent(overrideProperties, clear);
+                _sourceTexture = null;
+                _destinationTexture = null;
+            }
 
             void ProcessMaterialDiff(bool clear)
             {
@@ -186,6 +208,26 @@ namespace net.rs64.TexTransTool.Editor
                 element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = overrides[i].IntValue;
                 element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = overrides[i].FloatValue;
             }
+        }
+
+        private List<MaterialProperty> GetReplaceTextureOverrides(Texture src, Texture dst)
+        {
+            var overrides = new List<MaterialProperty>();
+            var properties = MaterialModifier.GetProperties(_recordingMaterial);
+            foreach (var property in properties)
+            {
+                if (property.PropertyType == ShaderPropertyType.Texture && property.TextureValue == src)
+                {
+                    overrides.Add(new MaterialProperty()
+                        {
+                            PropertyName = property.PropertyName,
+                            PropertyType = ShaderPropertyType.Texture,
+                            TextureValue = dst
+                        }
+                    );
+                }
+            }
+            return overrides;
         }
 
         private void UpdateRecordingMaterial()

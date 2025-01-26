@@ -99,7 +99,7 @@ namespace net.rs64.TexTransTool
             return (true, overrideMaterial.shader);
         }
 
-        private static IEnumerable<MaterialProperty> GetProperties(Material material)
+        public static IEnumerable<MaterialProperty> GetProperties(Material material)
         {
             if (material == null) yield break;
 
