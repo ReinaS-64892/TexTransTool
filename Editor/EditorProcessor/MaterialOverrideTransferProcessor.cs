@@ -106,7 +106,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
             var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
             if (isValid is false) return;
             var materialVariantSource = rendererTargetingModification.LookAtGet(materialOverrideTransfer, mot => mot.MaterialVariantSource);
-            rendererTargetingModification.LookAt(materialVariantSource);
+            _ = rendererTargetingModification.LookAtGet(materialVariantSource, mv => GetOverrides(mv).Where(kv => kv.Value is ShaderPropertyType.Texture), (l, r) => l.SequenceEqual(r));
             var overridePropertyDict = GetOverrides(materialVariantSource);
             foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, materialOverrideTransfer.TargetMaterial))
                 TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
