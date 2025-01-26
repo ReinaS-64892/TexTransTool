@@ -56,10 +56,14 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking
+    internal interface IRendererTargeting : IReplaceTracking, ILookingObject
     {
         IEnumerable<Renderer> EnumerateRenderer();
-        Material?[] GetMaterials(Renderer renderer) { return renderer.sharedMaterials; }
+        Material?[] GetMaterials(Renderer renderer)
+        {
+            return LookAtGet(renderer, GetShardMaterial);
+            Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
+        }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
         HashSet<Material> GetAllMaterials()
         {
@@ -71,8 +75,10 @@ namespace net.rs64.TexTransTool
         {
             var texHash = new HashSet<Texture>();
             var mats = GetAllMaterials();
-            foreach (var m in mats) { texHash.UnionWith(m.GetAllTexture<Texture>()); }
+            foreach (var m in mats) { texHash.UnionWith(m.GetAllTexture(GetShader, GetTex)); }
             return texHash;
+            Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
+            Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
         }
     }
     internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
@@ -84,6 +90,11 @@ namespace net.rs64.TexTransTool
     public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
+        TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+        where TObj : UnityEngine.Object
+        {
+            return getAction(obj);
+        }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }

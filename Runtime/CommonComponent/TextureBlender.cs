@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool
         {
             domain.LookAt(this);
 
-            var distTex = TargetTexture.GetTexture();
+            var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (distTex == null) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
             var domainTexture = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer());
@@ -58,7 +58,8 @@ namespace net.rs64.TexTransTool
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting);
+            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
+        TextureSelector GetTextureSelector(TextureBlender texBlend) { return texBlend.TargetTexture; }
     }
 }

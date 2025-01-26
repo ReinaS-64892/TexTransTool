@@ -79,7 +79,7 @@ namespace net.rs64.TexTransTool.NDMF
                 if (behaviors.Any(b => b is IRendererTargetingAffecter))
                 {
                     Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
-                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(domainRenderers);
+                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
                     Profiler.EndSample();
 
                     Profiler.BeginSample("GetTargetGroupingWithAffecting");
@@ -89,7 +89,7 @@ namespace net.rs64.TexTransTool.NDMF
                 else
                 {
                     Profiler.BeginSample("NDMFRendererTargeting ctr");
-                    var rendererTargeting = new NDMFRendererTargeting(domainRenderers);
+                    var rendererTargeting = new NDMFRendererTargeting(ctx, domainRenderers);
                     Profiler.EndSample();
 
                     Profiler.BeginSample("GetTargetGrouping");
@@ -171,11 +171,11 @@ namespace net.rs64.TexTransTool.NDMF
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviors)
             {
-                Profiler.BeginSample("Mod target", ttbKV);
-                var modificationTargets = ttbKV.ModificationTargetRenderers(rendererTargeting);
+                Profiler.BeginSample("get ModificationTargetRenderers", ttbKV);
+                var modificationTargets = ttbKV.ModificationTargetRenderers(rendererTargeting).ToHashSet();
                 Profiler.EndSample();
                 Profiler.BeginSample("register target group", ttbKV);
-                targetRendererGroup.Add(ttbKV, modificationTargets.ToHashSet());
+                targetRendererGroup.Add(ttbKV, modificationTargets);
                 Profiler.EndSample();
             }
             return targetRendererGroup;
@@ -187,14 +187,14 @@ namespace net.rs64.TexTransTool.NDMF
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviors)
             {
-                Profiler.BeginSample("Mod target", ttbKV);
-                var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting);
+                Profiler.BeginSample("get ModificationTargetRenderers", ttbKV);
+                var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting).ToHashSet();
                 Profiler.EndSample();
-                Profiler.BeginSample("Affect target", ttbKV);
+                Profiler.BeginSample("Do AffectingRendererTargeting", ttbKV);
                 if (ttbKV is IRendererTargetingAffecter affecter) affecter.AffectingRendererTargeting(affectingRendererTargeting);
                 Profiler.EndSample();
                 Profiler.BeginSample("register target group", ttbKV);
-                targetRendererGroup.Add(ttbKV, modificationTargets.ToHashSet());
+                targetRendererGroup.Add(ttbKV, modificationTargets);
                 Profiler.EndSample();
             }
             return targetRendererGroup;
@@ -278,21 +278,28 @@ namespace net.rs64.TexTransTool.NDMF
 
         internal class NDMFAffectingRendererTargeting : IAffectingRendererTargeting, IDisposable
         {
+            ComputeContext _ctx;
             Renderer[] _domainRenderers;
             Material[] _allMaterials;
+            HashSet<Material> _allMaterialsHash;
             Dictionary<Renderer, Material?[]> _mutableMaterials;
             Dictionary<UnityEngine.Object, UnityEngine.Object> _replacing;
-            public NDMFAffectingRendererTargeting(Renderer[] renderers)
+            public NDMFAffectingRendererTargeting(ComputeContext ctx, Renderer[] renderers)
             {
+                _ctx = ctx;
                 _domainRenderers = renderers;
-                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
+                // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
+                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, r => r.sharedMaterials));// すべてに対して Observe するの ... どうなんだろうね～?
                 _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
+                _allMaterialsHash = new(_allMaterials);
 
                 var origin2Mutable = new Dictionary<Material, Material>();
                 Profiler.BeginSample("get mutable from pool : count " + _allMaterials.Length);
                 for (var i = 0; _allMaterials.Length > i; i += 1)
                 {
                     var origin = _allMaterials[i];
+                    _ctx.Observe(origin); // これは本当に必要だろうか ... ?
+                    // LookAt(origin);
                     origin2Mutable[origin] = _allMaterials[i] = NDMFPreviewMaterialPool.Get(origin);
                 }
                 Profiler.EndSample();
@@ -335,27 +342,43 @@ namespace net.rs64.TexTransTool.NDMF
                 _mutableMaterials = null!;
                 _replacing = null!;
             }
+            public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+            where TObj : UnityEngine.Object
+            {
+                if (obj is Material mat && _allMaterialsHash.Contains(mat)) { return getAction(obj); }//プールされているマテリアルを observe したらどうなるかわからないのでしない。
+                return _ctx.Observe(obj, getAction, comp);
+                // return getAction(obj);
+            }
+            public void LookAt(UnityEngine.Object obj)
+            {
+                if (obj is Material mat && _allMaterialsHash.Contains(mat)) { return; }
+                _ctx.Observe(obj);
+            }
+            public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
         }
         internal class NDMFRendererTargeting : IRendererTargeting
         {
+            ComputeContext _ctx;
             Renderer[] _domainRenderers;
             private HashSet<Material>? _matHash;
             private HashSet<Texture>? _texHash;
-            private Dictionary<Renderer, Material[]> _sharedMaterialCache;
+            private Dictionary<Renderer, Material?[]> _sharedMaterialCache;
 
-            public NDMFRendererTargeting(Renderer[] renderers)
+            public NDMFRendererTargeting(ComputeContext ctx, Renderer[] renderers)
             {
+                _ctx = ctx;
                 _domainRenderers = renderers;
                 _sharedMaterialCache = new();
             }
             public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
             public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
 
-            public Material[] GetMaterials(Renderer renderer)
+            public Material?[] GetMaterials(Renderer renderer)
             {
                 if (_sharedMaterialCache.TryGetValue(renderer, out var mats)) { return mats; }
-                mats = _sharedMaterialCache[renderer] = renderer.sharedMaterials;
+                mats = _sharedMaterialCache[renderer] = LookAtGet(renderer, GetShardMaterial);
                 return mats;
+                Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
             }
             public Decal.MeshData GetMeshData(Renderer renderer) { return Decal.DecalContextUtility.GetToMemorizedMeshData(renderer); }
             public HashSet<Material> GetAllMaterials()
@@ -363,7 +386,7 @@ namespace net.rs64.TexTransTool.NDMF
                 if (_matHash is null)
                 {
                     _matHash = new HashSet<Material>();
-                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r)); }
+                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
                 }
                 return _matHash;
             }
@@ -373,10 +396,20 @@ namespace net.rs64.TexTransTool.NDMF
                 {
                     _texHash = new HashSet<Texture>();
                     var mats = GetAllMaterials();
-                    foreach (var m in mats) { _texHash.UnionWith(m.GetAllTexture<Texture>()); }
+                    foreach (var m in mats) { _texHash.UnionWith(m.GetAllTexture(GetShader, GetTex)); }
                 }
                 return _texHash;
+                Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
+                Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
             }
+            TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+            where TObj : UnityEngine.Object
+            {
+                return _ctx.Observe(obj, getAction, comp);
+                // return getAction(obj);
+            }
+            public void LookAt(UnityEngine.Object obj) { _ctx.Observe(obj); }
+            public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
         }
 
 

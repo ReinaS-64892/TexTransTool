@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TextureSelector.GetTexture();
+            var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); domain.LookAt(this); return; }
 
             var nowDomainsTargets = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer()).Where(m => domain.OriginEqual(m, replaceTarget));
@@ -80,7 +80,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal void LookAtCallingCanvas(ILookingObject looker)
         {
-            TextureSelector.LookAtCalling(looker);
             looker.LookAt(this);
             looker.LookAtChildeComponents<AbstractLayer>(gameObject);
             foreach (var cl in GetChileLayers()) { cl.LookAtCalling(looker); }
@@ -88,8 +87,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return TextureSelector.ModificationTargetRenderers(rendererTargeting);
+            return TextureSelector.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
+        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TextureSelector; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }

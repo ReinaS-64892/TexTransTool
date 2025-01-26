@@ -1,20 +1,21 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool
 {
     [Serializable]
-    public struct MaterialProperty
+    public struct MaterialProperty : IEquatable<MaterialProperty>
     {
         public string PropertyName;
         public ShaderPropertyType PropertyType;
-        
+
         // ShaderPropertyType.Texture
         public Texture TextureValue;
         public Vector2 TextureOffsetValue;
-        public Vector2 TextureScaleValue; 
+        public Vector2 TextureScaleValue;
         // ShaderPropertyType.Color
         public Color ColorValue;
         // ShaderPropertyType.Vector
@@ -34,10 +35,12 @@ namespace net.rs64.TexTransTool
             switch (PropertyType)
             {
                 case ShaderPropertyType.Texture:
-                    if (strict) {
+                    if (strict)
+                    {
                         return TextureValue.Equals(other.TextureValue) && TextureOffsetValue.Equals(other.TextureOffsetValue) && TextureScaleValue.Equals(other.TextureScaleValue);
                     }
-                    else {
+                    else
+                    {
                         return TextureValue == other.TextureValue && TextureOffsetValue == other.TextureOffsetValue && TextureScaleValue == other.TextureScaleValue;
                     }
                 case ShaderPropertyType.Color:
@@ -145,12 +148,61 @@ namespace net.rs64.TexTransTool
                 return false;
             }
             var propertyIndex = mat.shader.FindPropertyIndex(propertyName);
-            if(propertyIndex == -1 || mat.shader.GetPropertyType(propertyIndex) != propertyType)
+            if (propertyIndex == -1 || mat.shader.GetPropertyType(propertyIndex) != propertyType)
             {
                 return false;
             }
 
             return true;
         }
+        public bool Equals(MaterialProperty other) { return Equals(other, true); }
+        public override bool Equals(object other)
+        {
+            if (other is MaterialProperty materialProperty) { return Equals(materialProperty, true); }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            switch (PropertyType)
+            {
+                default: return HashCode.Combine(PropertyName, PropertyType);
+                case ShaderPropertyType.Texture:
+                    {
+                        return HashCode.Combine(PropertyName, PropertyType, TextureValue, TextureOffsetValue, TextureScaleValue);
+                    }
+                case ShaderPropertyType.Color:
+                    {
+                        return HashCode.Combine(PropertyName, PropertyType, ColorValue);
+                    }
+                case ShaderPropertyType.Vector:
+                    {
+                        return HashCode.Combine(PropertyName, PropertyType, VectorValue);
+                    }
+                case ShaderPropertyType.Int:
+                    {
+                        return HashCode.Combine(PropertyName, PropertyType, IntValue);
+                    }
+                case ShaderPropertyType.Float:
+                case ShaderPropertyType.Range:
+                    {
+                        return HashCode.Combine(PropertyName, PropertyType, FloatValue);
+                    }
+            }
+        }
+
+        public class NotStrictComparer : IEqualityComparer<MaterialProperty>
+        {
+            public bool Equals(MaterialProperty x, MaterialProperty y)
+            {
+                return x.Equals(y, false);
+            }
+
+            public int GetHashCode(MaterialProperty obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+
     }
 }

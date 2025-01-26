@@ -76,7 +76,8 @@ namespace net.rs64.TexTransTool.Decal
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, out var _), TargetPropertyName);
+            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
         }
+        DecalRendererSelector GetDRS(SingleGradationDecal d) => d.RendererSelector;
     }
 }

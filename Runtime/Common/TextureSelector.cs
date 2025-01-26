@@ -48,10 +48,39 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
-        internal IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal Texture GetTextureWithLookAt<TObj>(IRendererTargeting targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        where TObj : UnityEngine.Object
         {
-            var targetTex = GetTexture();
+            var mode = targeting.LookAtGet(thisObject, i => getThis(i).Mode);
+            switch (mode)
+            {
+                case SelectMode.Absolute:
+                    {
+                        return targeting.LookAtGet(thisObject, i => getThis(i).SelectTexture);
+                    }
+                case SelectMode.Relative:
+                    {
+                        var rendererAsPath = targeting.LookAtGet(thisObject, i => getThis(i).RendererAsPath);
+                        if (rendererAsPath == null) return null;
+                        var domainsRendererAsPath = targeting.GetDomainsRenderers(rendererAsPath).FirstOrDefault();
+                        if (domainsRendererAsPath == null) return null;
+                        var distMaterials = targeting.GetMaterials(domainsRendererAsPath);
+
+                        var slotAsPath = targeting.LookAtGet(thisObject, i => getThis(i).SlotAsPath);
+                        if (distMaterials.Length <= slotAsPath) return null;
+                        var distMat = distMaterials[slotAsPath];
+
+                        var propertyNameAsPath = targeting.LookAtGet(thisObject, i => getThis(i).PropertyNameAsPath);
+                        if (targeting.LookAtGet(distMat, m => m.HasProperty(propertyNameAsPath)) is false) return null;
+                        return targeting.LookAtGet(distMat, m => m.GetTexture(propertyNameAsPath));
+                    }
+                default: { return null; }
+            }
+        }
+        internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IRendererTargeting rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        where TObj : UnityEngine.Object
+        {
+            var targetTex = GetTextureWithLookAt(rendererTargeting, thisObject, getThis);
             var targetTextures = rendererTargeting.GetAllTextures().Where(t => rendererTargeting.OriginEqual(t, targetTex)).ToHashSet();
 
             if (targetTextures.Any() is false) { yield break; }
@@ -80,7 +109,5 @@ namespace net.rs64.TexTransTool
                 }
             }
         }
-
-        internal void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(GetTexture()); }
     }
 }

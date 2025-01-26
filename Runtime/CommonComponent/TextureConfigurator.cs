@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool
             if (!OverrideTextureSetting && !OverrideCompression) { return; }
 
             var textureManager = domain.GetTextureManager();
-            var target = TargetTexture.GetTexture();
+            var target = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (target == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
             var materials = domain.EnumerateRenderer()
@@ -103,7 +103,11 @@ namespace net.rs64.TexTransTool
 
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
-        { return TargetTexture.ModificationTargetRenderers(rendererTargeting); }
+        {
+            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+        }
+        TextureSelector GetTextureSelector(TextureConfigurator texBlend) { return texBlend.TargetTexture; }
+
 
     }
 
