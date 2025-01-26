@@ -37,18 +37,18 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 var newTemp = new TempRtState(renderTextureDescriptor);
                 newTemp.IsUsed = true;
 
-                s_reverseTempRtState[newTemp.RenderTexture] = newTemp;
+                s_reverseTempRtState[newTemp.TempRenderTexture] = newTemp;
                 tmpList.Add(newTemp);
 
-                newTemp.RenderTexture.Clear();
-                return newTemp.RenderTexture;
+                newTemp.TempRenderTexture.Clear();
+                return newTemp.TempRenderTexture;
             }
             else
             {
                 tmpList[letIndex].IsUsed = true;
-                tmpList[letIndex].RenderTexture.Clear();
+                tmpList[letIndex].TempRenderTexture.Clear();
 
-                return tmpList[letIndex].RenderTexture;
+                return tmpList[letIndex].TempRenderTexture;
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -160,18 +160,19 @@ namespace net.rs64.TexTransCoreEngineForUnity
         private class TempRtState : IDisposable
         {
             public bool IsUsed;
-            public RenderTexture RenderTexture;
+            public RenderTexture TempRenderTexture;
 
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
                 var format = renderTextureDescriptor.Channel is TexTransCoreTextureChannel.RGBA ? RGBAFormat : RGAndRFormat;
-                RenderTexture = new RenderTexture(renderTextureDescriptor.Width, renderTextureDescriptor.Height, 0, format.ToUnityGraphicsFormat(renderTextureDescriptor.Channel));
-                RenderTexture.enableRandomWrite = true;
+                TempRenderTexture = new RenderTexture(renderTextureDescriptor.Width, renderTextureDescriptor.Height, 0, format.ToUnityGraphicsFormat(renderTextureDescriptor.Channel));
+                TempRenderTexture.enableRandomWrite = true;
             }
 
             public void Dispose()
             {
-                UnityEngine.Object.DestroyImmediate(RenderTexture);
+                if (RenderTexture.active == TempRenderTexture) { RenderTexture.active = null; }
+                UnityEngine.Object.DestroyImmediate(TempRenderTexture);
             }
         }
 
