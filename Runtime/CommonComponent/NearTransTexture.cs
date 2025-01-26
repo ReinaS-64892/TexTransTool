@@ -69,6 +69,7 @@ namespace net.rs64.TexTransTool
             var sourceTexture = sourceMaterial.GetTexture(SourcePropertyName);
             var targetTexture = targetMaterial.GetTexture(TargetPropertyName);
             if (sourceTexture == null || targetTexture == null) { TTTRuntimeLog.Error("NearTransTexture:error:TextureIsNull"); return; }
+            domain.LookAt(this);
 
             using var sourceVertArray = new NativeArray<Vector4>(sourceMeshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             using var targetVertArray = new NativeArray<Vector4>(targetMeshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
