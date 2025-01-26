@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool
         IEnumerable<Renderer> EnumerateRenderer();
         Material?[] GetMaterials(Renderer renderer)
         {
-            return LookAtGet(renderer, GetShardMaterial);
+            return LookAtGet(renderer, GetShardMaterial, (l,r) => l.SequenceEqual(r));
             Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }

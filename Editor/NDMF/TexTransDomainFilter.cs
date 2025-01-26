@@ -289,7 +289,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _ctx = ctx;
                 _domainRenderers = renderers;
                 // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, r => r.sharedMaterials));// すべてに対して Observe するの ... どうなんだろうね～?
+                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, r => r.sharedMaterials, (l, r) => l.SequenceEqual(r)));// すべてに対して Observe するの ... どうなんだろうね～?
                 _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
                 _allMaterialsHash = new(_allMaterials);
 
@@ -316,9 +316,8 @@ namespace net.rs64.TexTransTool.NDMF
             }
             public IEnumerable<Renderer> EnumerateRenderer() => _domainRenderers;
 
-            public Material[] GetMutableMaterials(Renderer renderer) => _allMaterials;
-            public Material[] GetMaterials(Renderer renderer) => _allMaterials;
-
+            public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
+            public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
             public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
             {
                 if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
@@ -376,7 +375,7 @@ namespace net.rs64.TexTransTool.NDMF
             public Material?[] GetMaterials(Renderer renderer)
             {
                 if (_sharedMaterialCache.TryGetValue(renderer, out var mats)) { return mats; }
-                mats = _sharedMaterialCache[renderer] = LookAtGet(renderer, GetShardMaterial);
+                mats = _sharedMaterialCache[renderer] = LookAtGet(renderer, GetShardMaterial, (l, r) => l.SequenceEqual(r));
                 return mats;
                 Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
             }
