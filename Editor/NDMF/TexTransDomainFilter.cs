@@ -402,7 +402,7 @@ namespace net.rs64.TexTransTool.NDMF
                 Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
                 Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
             }
-            TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+            public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
             where TObj : UnityEngine.Object
             {
                 return _ctx.Observe(obj, getAction, comp);
