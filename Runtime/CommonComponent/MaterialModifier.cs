@@ -35,14 +35,24 @@ namespace net.rs64.TexTransTool
             {
                 var mutableMat = mat;
                 domain.GetMutable(ref mutableMat);
-                ConfigureMaterial(mutableMat, this);
+                ConfigureMaterial(mutableMat, this, domain);
             }
         }
 
 
-        public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
+        public static void ConfigureMaterial(Material editableMat, MaterialModifier config, ILookingObject? lookingObject = null)
         {
-            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
+            if (lookingObject is not null)
+                ConfigureMaterial(editableMat
+                , lookingObject.LookAtGet(config, c => c.IsOverrideShader)
+                , lookingObject.LookAtGet(config, c => c.OverrideShader)
+                // 前回との比較ができるようにするために複製
+                , lookingObject.LookAtGet(config, c => c.OverrideProperties.ToArray(), (l, r) => l.SequenceEqual(r))
+                );
+            else
+            {
+                ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
+            }
         }
 
         public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
@@ -116,16 +126,18 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material target)
+        private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material? target)
         { return rendererTargeting.GetDomainsMaterialsHashSet(target); }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
-        { return rendererTargeting.RendererFilterForMaterial(TargetMaterial); }
+        { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(this, i => i.TargetMaterial)); }
 
-        void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
+        void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargeting)
         {
-            if (TargetMaterial == null) { return; }
-            foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, TargetMaterial))
-                ConfigureMaterial(mutableMat, this);
+            var targetMat = rendererTargeting.LookAtGet(this, i => i.TargetMaterial);
+            if (targetMat == null) { return; }
+
+            foreach (var mutableMat in GetTargetMaterials(rendererTargeting, targetMat))
+                ConfigureMaterial(mutableMat, this, rendererTargeting);
         }
     }
 

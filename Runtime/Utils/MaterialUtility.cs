@@ -124,6 +124,22 @@ namespace net.rs64.TexTransTool.Utils
                 }
             }
         }
+        public static IEnumerable<Tex> GetAllTexture<Tex>(this Material material, Func<Material,Shader> GetShader,Func<Material, int, Tex> GetTex) where Tex : Texture
+        {
+            if (material == null || material.shader == null) { yield break; }
+            var shader = GetShader(material);
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; propCount > i; i += 1)
+            {
+                if (shader.GetPropertyType(i) is not UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
+
+                var texture = GetTex(material, shader.GetPropertyNameId(i));
+                if (texture != null)
+                {
+                    yield return texture;
+                }
+            }
+        }
         public static void AllPropertyReset(this Material material)
         {
             var shader = material.shader;

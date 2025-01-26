@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
         public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
-            return rendererTargeting.RendererFilterForMaterial(materialOverrideTransfer.TargetMaterial);
+            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(materialOverrideTransfer, mot => mot.TargetMaterial));
         }
         private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material target)
         {
@@ -105,7 +105,8 @@ namespace net.rs64.TexTransTool.EditorProcessor
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
             var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
             if (isValid is false) return;
-            var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
+            var materialVariantSource = rendererTargetingModification.LookAtGet(materialOverrideTransfer, mot => mot.MaterialVariantSource);
+            rendererTargetingModification.LookAt(materialVariantSource);
             var overridePropertyDict = GetOverrides(materialVariantSource);
             foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, materialOverrideTransfer.TargetMaterial))
                 TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);

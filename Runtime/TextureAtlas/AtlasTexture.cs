@@ -971,7 +971,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
             var nowContainsMatSet = new HashSet<Material>(GetTargetAllowedFilter(rendererTargeting.EnumerateRenderer()).SelectMany(r => rendererTargeting.GetMaterials(r)).Where(i => i != null));
-            var selectedMaterials = SelectMatList.Select(sMat => sMat.Material);
+            var selectedMaterials = rendererTargeting.LookAtGet(this, at => at.SelectMatList.Select(sMat => sMat.Material).ToArray(), (l, r) => l.SequenceEqual(r));
             var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginEqual(sMat, mat))).ToHashSet();
             return rendererTargeting.RendererFilterForMaterial(targetMaterials);
         }
