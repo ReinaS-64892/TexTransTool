@@ -43,7 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
 - RendererIslandSelector が NDMF Preview で正常に動作しない問題を修正 (#764)
-- SingleGradiationDecal や YAsixFixedGradientLayer にて、境界の色がにじむ問題を修正 (#786)
+- SingleGradationDecal や YAsixFixedGradientLayer にて、境界の色がにじむ問題を修正 (#786)
 
 ## [v0.8.13](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.12...v0.8.13) - 2025-01-09
 
