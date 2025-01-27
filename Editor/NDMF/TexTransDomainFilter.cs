@@ -76,17 +76,17 @@ namespace net.rs64.TexTransTool.NDMF
 
                 Dictionary<TexTransBehavior, HashSet<Renderer>> targetGrouping;
 
-                if (behaviors.Any(b => b is IRendererTargetingAffecter))
-                {
-                    Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
-                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
-                    Profiler.EndSample();
+                // if (behaviors.Any(b => b is IRendererTargetingAffecter))
+                // {
+                //     Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
+                //     using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
+                //     Profiler.EndSample();
 
-                    Profiler.BeginSample("GetTargetGroupingWithAffecting");
-                    targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
-                    Profiler.EndSample();
-                }
-                else
+                //     Profiler.BeginSample("GetTargetGroupingWithAffecting");
+                //     targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
+                //     Profiler.EndSample();
+                // }
+                // else
                 {
                     Profiler.BeginSample("NDMFRendererTargeting ctr");
                     var rendererTargeting = new NDMFRendererTargeting(ctx, domainRenderers);
@@ -288,8 +288,11 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 _ctx = ctx;
                 _domainRenderers = renderers;
+                // すべてに対して Observe するの ... どうなんだろうね～?
+                // → 無限ループしてしまうからダメそう (しかし、いったいなぜ ... ?)
+                // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
+                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)));
                 // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, r => r.sharedMaterials, (l, r) => l.SequenceEqual(r)));// すべてに対して Observe するの ... どうなんだろうね～?
                 _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
                 _allMaterialsHash = new(_allMaterials);
 
@@ -299,7 +302,6 @@ namespace net.rs64.TexTransTool.NDMF
                 {
                     var origin = _allMaterials[i];
                     _ctx.Observe(origin); // これは本当に必要だろうか ... ?
-                    // LookAt(origin);
                     origin2Mutable[origin] = _allMaterials[i] = NDMFPreviewMaterialPool.Get(origin);
                 }
                 Profiler.EndSample();
@@ -344,13 +346,14 @@ namespace net.rs64.TexTransTool.NDMF
             public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
             where TObj : UnityEngine.Object
             {
-                if (obj is Material mat && _allMaterialsHash.Contains(mat)) { return getAction(obj); }//プールされているマテリアルを observe したらどうなるかわからないのでしない。
+                //プールされているマテリアルを observe したらどうなるかわからないのでしない。
+                if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return getAction(obj); }
                 return _ctx.Observe(obj, getAction, comp);
                 // return getAction(obj);
             }
             public void LookAt(UnityEngine.Object obj)
             {
-                if (obj is Material mat && _allMaterialsHash.Contains(mat)) { return; }
+                if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return; }
                 _ctx.Observe(obj);
             }
             public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }

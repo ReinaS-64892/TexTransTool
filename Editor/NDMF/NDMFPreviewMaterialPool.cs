@@ -51,6 +51,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             return true;
         }
+        public static bool Contains(Material material) { return s_reverseDict.ContainsKey(material); }
         class PooledMaterial
         {
             public Shader Shader;
