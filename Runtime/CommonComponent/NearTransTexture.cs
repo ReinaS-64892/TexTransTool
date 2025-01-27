@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool
     {
         internal const string ComponentName = "TTT " + nameof(NearTransTexture);
         internal const string MenuPath = ComponentName;
-        internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.PostProcessing;
 
         public Renderer? TransSourceRenderer;
         public int SourceMaterialSlot = 0;

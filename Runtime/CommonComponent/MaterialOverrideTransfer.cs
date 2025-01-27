@@ -8,7 +8,7 @@ namespace net.rs64.TexTransTool
         internal const string ComponentName = "TTT MaterialOverrideTransfer";
         internal const string FoldoutName = "Other";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
-        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
         public Material TargetMaterial;
         public Material MaterialVariantSource;

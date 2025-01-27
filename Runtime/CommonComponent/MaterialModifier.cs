@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT MaterialModifier";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
-        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
         public Material? TargetMaterial;
 
