@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -112,7 +113,7 @@ namespace net.rs64.TexTransTool.Editor
                 _destinationTexture = EditorGUILayout.ObjectField("Destination Texture", _destinationTexture, typeof(Texture), false, GUILayout.Height(18f)) as Texture;
                 if (GUILayout.Button("Add diff to this component"))
                 {
-                    ProcessReplaceTexture(false);
+                    ProcessReplaceTexture();
                 }
 
                 EditorGUILayout.Space();
@@ -123,7 +124,7 @@ namespace net.rs64.TexTransTool.Editor
                 _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
                 if (GUILayout.Button("Add diff to this component"))
                 {
-                    ProcessMaterialDiff(false);
+                    ProcessMaterialDiff();
                 }
 
                 EditorGUILayout.Space();
@@ -132,7 +133,7 @@ namespace net.rs64.TexTransTool.Editor
                 _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
                 if (GUILayout.Button("Add diff to this component"))
                 {
-                    ProcessMaterialVariantDiff(false);
+                    ProcessMaterialVariantDiff();
                 }
 
                 EditorGUI.indentLevel--;
@@ -140,28 +141,37 @@ namespace net.rs64.TexTransTool.Editor
 
             return;
 
-            void ProcessReplaceTexture(bool clear)
+            void ProcessReplaceTexture()
             {
                 if (_sourceTexture == null || _destinationTexture == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
-                var overrideProperties = GetReplaceTextureOverrides(_sourceTexture, _destinationTexture);
-                ApplyPropertyOverridesToComponent(overrideProperties, clear);
+
+                _recordingMaterial.ReplaceTextureInPlace(_sourceTexture, _destinationTexture);
+                ApplyOverridesToComponent();
+
                 _sourceTexture = null;
                 _destinationTexture = null;
             }
 
-            void ProcessMaterialDiff(bool clear)
+            void ProcessMaterialDiff()
             {
                 if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
-                ApplyOverridesToComponent(_originalMaterial, _overrideMaterial, clear);
+
+                var overrideProperties = MaterialModifier.GetOverrideProperties(_originalMaterial, _overrideMaterial).ToList();
+                MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);
+                ApplyOverridesToComponent();
+
                 _originalMaterial = null;
                 _overrideMaterial = null;
             }
 
-            void ProcessMaterialVariantDiff(bool clear)
+            void ProcessMaterialVariantDiff()
             {
                 if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
-                ApplyPropertyOverridesToComponent(overrideProperties, clear);
+                MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);
+                ApplyOverridesToComponent();
+
                 _variantMaterial = null;
             }
         }
@@ -169,61 +179,95 @@ namespace net.rs64.TexTransTool.Editor
         private void ApplyOverridesToComponent()
         {
             var targetMaterial = _targetMaterial.objectReferenceValue as Material;
-            ApplyOverridesToComponent(targetMaterial, _recordingMaterial, true);
+            ApplyOverridesToComponent(targetMaterial, _recordingMaterial);
         }
 
-        private void ApplyOverridesToComponent(Material originalMaterial, Material overrideMaterial, bool clear = true)
+        private void ApplyOverridesToComponent(Material originalMaterial, Material overrideMaterial)
         {
-            (var isOverideShader, var overrideShader) = MaterialModifier.GetOverrideShader(originalMaterial, overrideMaterial);
-            var overrideProperties = MaterialModifier.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            var (isOverideShader, overrideShader) = MaterialModifier.GetOverrideShader(originalMaterial, overrideMaterial);
             ApplyShaderOverrideToComponent(isOverideShader, overrideShader);
-            ApplyPropertyOverridesToComponent(overrideProperties, clear);
+
+            var overrideProperties = MaterialModifier.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            ApplyPropertyOverridesToComponent(overrideProperties);
         }
 
-        private void ApplyShaderOverrideToComponent(bool isOverideShader, Shader overrideShader)
+        private void ApplyShaderOverrideToComponent(bool isOverrideShader, Shader overrideShader)
         {
-            _isOverrideShader.boolValue = isOverideShader;
-            if (isOverideShader) { _overrideShader.objectReferenceValue = overrideShader; }
+            _isOverrideShader.boolValue = isOverrideShader;
+            if (isOverrideShader) { _overrideShader.objectReferenceValue = overrideShader; }
         }
 
-        private void ApplyPropertyOverridesToComponent(List<MaterialProperty> overrides, bool clear = true)
+        private void ApplyPropertyOverridesToComponent(List<MaterialProperty> overrides)
         {
-            if (clear) { _overrideProperties.ClearArray(); }
-            var startIndex = _overrideProperties.arraySize;
-            _overrideProperties.arraySize += overrides.Count;
-            for (int i = 0; i < overrides.Count; i++)
+            var willRemove = new HashSet<string>();//削除対象を事前に調査
             {
-                var element = _overrideProperties.GetArrayElementAtIndex(startIndex + i);
-                element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = overrides[i].PropertyName;
-                element.FindPropertyRelative(nameof(MaterialProperty.PropertyType)).enumValueIndex = (int)overrides[i].PropertyType;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureValue)).objectReferenceValue = overrides[i].TextureValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue)).vector2Value = overrides[i].TextureOffsetValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue)).vector2Value = overrides[i].TextureScaleValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.ColorValue)).colorValue = overrides[i].ColorValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.VectorValue)).vector4Value = overrides[i].VectorValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = overrides[i].IntValue;
-                element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = overrides[i].FloatValue;
-            }
-        }
-
-        private List<MaterialProperty> GetReplaceTextureOverrides(Texture src, Texture dst)
-        {
-            var overrides = new List<MaterialProperty>();
-            var properties = MaterialModifier.GetProperties(_recordingMaterial);
-            foreach (var property in properties)
-            {
-                if (property.PropertyType == ShaderPropertyType.Texture && property.TextureValue == src)
+                var nowAdd = overrides.Select(i => i.PropertyName).ToHashSet();
+                for (int i = 0; i < _overrideProperties.arraySize; i += 1)
                 {
-                    overrides.Add(new MaterialProperty()
-                    {
-                        PropertyName = property.PropertyName,
-                        PropertyType = ShaderPropertyType.Texture,
-                        TextureValue = dst
-                    }
-                    );
+                    var element = _overrideProperties.GetArrayElementAtIndex(i);
+                    var pn = element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue;
+                    if (nowAdd.Contains(pn) is false) { willRemove.Add(pn); }
                 }
             }
-            return overrides;
+
+            var addNew = new List<MaterialProperty>(overrides.Count);
+
+            foreach (var mp in overrides)// 上書き add , 無かったら addHashに
+            {
+                var propertyName = mp.PropertyName;
+
+                var writeIndex = -1;
+                for (int i = 0; i < _overrideProperties.arraySize; i += 1)
+                {
+                    var element = _overrideProperties.GetArrayElementAtIndex(i);
+                    if (element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue != propertyName) { continue; }
+
+                    WriteProperties(element, mp);
+                    writeIndex = i;
+                    break;
+                }
+                if (writeIndex is -1) { addNew.Add(mp); continue; }
+
+                var startIndex = _overrideProperties.arraySize - 1;
+                for (int i = startIndex; (writeIndex + 1) <= i; i -= 1)// 重複を削除
+                {
+                    var element = _overrideProperties.GetArrayElementAtIndex(i);
+                    if (element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue != propertyName) { continue; }
+                    _overrideProperties.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            foreach (var mp in addNew)// 新規 add
+            {
+                var newIndex = _overrideProperties.arraySize;
+                _overrideProperties.arraySize += 1;
+                WriteProperties(_overrideProperties.GetArrayElementAtIndex(newIndex), mp);
+            }
+
+            if (willRemove.Any())
+            {
+                var startIndex = _overrideProperties.arraySize - 1;
+                for (int i = startIndex; 0 <= i; i -= 1)
+                {
+                    var element = _overrideProperties.GetArrayElementAtIndex(i);
+                    var pn = element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue;
+                    if (willRemove.Contains(pn) is false) { continue; }
+                    _overrideProperties.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            static void WriteProperties(SerializedProperty element, MaterialProperty mp)
+            {
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyName)).stringValue = mp.PropertyName;
+                element.FindPropertyRelative(nameof(MaterialProperty.PropertyType)).enumValueIndex = (int)mp.PropertyType;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureValue)).objectReferenceValue = mp.TextureValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue)).vector2Value = mp.TextureOffsetValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue)).vector2Value = mp.TextureScaleValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.ColorValue)).colorValue = mp.ColorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.VectorValue)).vector4Value = mp.VectorValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.IntValue)).intValue = mp.IntValue;
+                element.FindPropertyRelative(nameof(MaterialProperty.FloatValue)).floatValue = mp.FloatValue;
+            }
         }
 
         private void UpdateRecordingMaterial()
