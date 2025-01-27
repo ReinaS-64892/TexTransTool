@@ -32,32 +32,39 @@ namespace net.rs64.TexTransTool.Editor
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialModifier.OverrideProperties));
 
             _recordingMaterial = new Material(Shader.Find("Standard"));
-            _recordingMaterial.name = "Configured Material";
+            _recordingMaterial.name = "Modified Material";
             if (_target.TargetMaterial != null) { UpdateRecordingMaterial(); }
 
             _materialEditor = CreateEditor(_recordingMaterial, typeof(CustomMaterialEditor)) as CustomMaterialEditor;
             // 大体のイベントはObjectChangeEventsから受け取り、_recordingMaterialを更新する
             // MaterialEditorのHeaderからShaderを変更されるイベントはObjectChangeEventsから取得できないのでMaterialEditorから受け取る
-            _materialEditor.OnShaderChangedPublic += ApplyOverridesToComponent;
-            ObjectChangeEvents.changesPublished += OnObjectChange;
+            _materialEditor.OnShaderChangedPublic += OnShaderChanged;
+            ObjectChangeEvents.changesPublished += OnObjectChanged;
         }
 
         private void OnDisable()
         {
             if (_recordingMaterial != null) { DestroyImmediate(_recordingMaterial); }
             if (_materialEditor != null) { DestroyImmediate(_materialEditor); }
-            _materialEditor.OnShaderChangedPublic -= ApplyOverridesToComponent;
-            ObjectChangeEvents.changesPublished -= OnObjectChange;
+            _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
+            ObjectChangeEvents.changesPublished -= OnObjectChanged;
         }
 
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning(nameof(MaterialModifier));
-
             serializedObject.Update();
 
             EditorGUILayout.PropertyField(_targetMaterial);
+            RecordingMaterialGUI();
+            OverridesGUI();
 
+            serializedObject.ApplyModifiedProperties();
+            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
+        }
+
+        private void RecordingMaterialGUI()
+        {
             if (_targetMaterial.objectReferenceValue != null && _materialEditor != null)
             {
                 using var materialEditorChange = new EditorGUI.ChangeCheckScope();
@@ -68,11 +75,6 @@ namespace net.rs64.TexTransTool.Editor
                     ApplyOverridesToComponent();
                 }
             }
-
-            OverridesGUI();
-
-            serializedObject.ApplyModifiedProperties();
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
         }
 
         private void OverridesGUI()
@@ -119,24 +121,18 @@ namespace net.rs64.TexTransTool.Editor
                 _originalMaterial ??= _target.TargetMaterial;
                 _originalMaterial = EditorGUILayout.ObjectField("Original Material", _originalMaterial, typeof(Material), false) as Material;
                 _overrideMaterial = EditorGUILayout.ObjectField("Override Material", _overrideMaterial, typeof(Material), false) as Material;
-                using (new EditorGUILayout.HorizontalScope())
+                if (GUILayout.Button("Add diff to this component"))
                 {
-                    if (GUILayout.Button("Add diff to this component"))
-                    {
-                        ProcessMaterialDiff(false);
-                    }
+                    ProcessMaterialDiff(false);
                 }
 
                 EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("Get Material Variant Diff", EditorStyles.boldLabel);
                 _variantMaterial = EditorGUILayout.ObjectField("Material Variant", _variantMaterial, typeof(Material), false) as Material;
-                using (new EditorGUILayout.HorizontalScope())
+                if (GUILayout.Button("Add diff to this component"))
                 {
-                    if (GUILayout.Button("Add diff to this component"))
-                    {
-                        ProcessMaterialVariantDiff(false);
-                    }
+                    ProcessMaterialVariantDiff(false);
                 }
 
                 EditorGUI.indentLevel--;
@@ -244,7 +240,7 @@ namespace net.rs64.TexTransTool.Editor
         // 他のイベントも混じるが重複実行は問題ないのと、CustomEditorが起動しているときのみ1フレームあたり一回の呼び出しなので多分大丈夫
         // Prefab Revert/ApplyのEventを受け取るのが主な意図
         // PrefabUtility.prefabInstanceUpdatedはPrefabIntanceのEventしか取得できないのと、ApplyAllなどに反応しないっぽい？
-        private void OnObjectChange(ref ObjectChangeEventStream stream)
+        private void OnObjectChanged(ref ObjectChangeEventStream stream)
         {
             for (int i = 0; i < stream.length; i++)
             {
@@ -255,6 +251,12 @@ namespace net.rs64.TexTransTool.Editor
                     return;
                 }
             }
+        }
+
+        private void OnShaderChanged()
+        {
+            ApplyOverridesToComponent();
+            serializedObject.ApplyModifiedProperties();
         }
 
         private static IEnumerable<MaterialProperty> GetVariantOverrideProperties(Material variant)
