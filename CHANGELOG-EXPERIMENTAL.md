@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MaterialModifier がゼロからリメイクされ、マテリアルをその場で変更し差分をオーバーライドとして非破壊的に適用できる機能を持って、新規コンポーネントとして復活しました (#788 #807)
 - マテリアルのコンテキストメニューから MaterialOverrideTransfer と MaterialModifier が追加できる MenuItem が追加されました (#792)
 - 非常に実験的なコンポーネントとして、ポリゴンの最接近点からテクスチャを転写するようなことができる NearTransTexture が追加されました (#816)
+- 二つの色を指定し、その色差をテクスチャに適用する ColorDifferenceChanger が追加されました (#827)
 
 ### Changed
 
