@@ -291,7 +291,7 @@ namespace net.rs64.TexTransTool.NDMF
                 // すべてに対して Observe するの ... どうなんだろうね～?
                 // → 無限ループしてしまうからダメそう (しかし、いったいなぜ ... ?)
                 // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
-                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)));
+                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)).ToArray());
                 // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
                 _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
                 _allMaterialsHash = new(_allMaterials);

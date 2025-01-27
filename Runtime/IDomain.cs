@@ -90,6 +90,10 @@ namespace net.rs64.TexTransTool
     public interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
+        /// <summary>
+        /// これで取得した戻り値は基本的に、編集してはならない。 ReadOnly
+        /// 編集したい場合は ToArray など複製すること。
+        /// </summary>
         TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
         where TObj : UnityEngine.Object
         {
