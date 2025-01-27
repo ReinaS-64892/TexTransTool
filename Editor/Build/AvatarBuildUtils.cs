@@ -111,11 +111,8 @@ namespace net.rs64.TexTransTool.Build
 
         public static void ExeCuteAllPhase(TexTransBuildSession session)
         {
-            session.ApplyFor(TexTransPhase.BeforeUVModification);
-            session.ApplyFor(TexTransPhase.UVModification);
-            session.ApplyFor(TexTransPhase.AfterUVModification);
-            session.ApplyFor(TexTransPhase.UnDefined);
-            session.ApplyFor(TexTransPhase.Optimizing);
+            foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+                session.ApplyFor(phase);
         }
         public interface IGameObjectWakingTool
         {
@@ -183,13 +180,7 @@ namespace net.rs64.TexTransTool.Build
             var behavior = new CorrectingResult();
             Correct(behavior, rootDomainObject, wakingTool);
 
-            var phasedBehaviour = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                {TexTransPhase.BeforeUVModification,new ()},
-                {TexTransPhase.UVModification,new ()},
-                {TexTransPhase.AfterUVModification,new ()},
-                {TexTransPhase.UnDefined,new ()},
-                {TexTransPhase.Optimizing,new ()},
-            };
+            var phasedBehaviour = TexTransPhaseUtility.GeneratePhaseDictionary<List<TexTransBehavior>>();
 
             foreach (var pd in behavior.PhaseDefinitions)
                 GroupedComponentsCorrect(phasedBehaviour[pd.TexTransPhase], pd.gameObject, wakingTool);
@@ -294,12 +285,8 @@ namespace net.rs64.TexTransTool.Build
 
         internal static IEnumerable<TexTransRuntimeBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> behaviors)
         {
-            foreach (var behavior in behaviors[TexTransPhase.BeforeUVModification].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
-            foreach (var behavior in behaviors[TexTransPhase.UVModification].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
-            foreach (var behavior in behaviors[TexTransPhase.AfterUVModification].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
-            foreach (var behavior in behaviors[TexTransPhase.UnDefined].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
-            foreach (var behavior in behaviors[TexTransPhase.Optimizing].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
-
+            foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+                foreach (var behavior in behaviors[phase].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
         }
     }
 

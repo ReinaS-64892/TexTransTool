@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - RayCastIslandSelector は PinIslandSelector に名前が変更されました (#764)
 - Decal系は Preview の場合 HighQualityPadding が無効化されるように変更されました (#764)
 - SubMeshIslandSelector が SubMeshIndexIslandSelector に名前が変更されました (#777)
+- MaterialOverrideTransfer は UnDefinedPhase から MaterialModificationPhase に属するフェーズが変更されました (#826)
 
 ### Fixed
 
