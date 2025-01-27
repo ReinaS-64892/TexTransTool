@@ -33,6 +33,13 @@ namespace net.rs64.TexTransTool.NDMF
             throw new TTTNotExecutable();
         }
     }
+    internal class MaterialModificationPass : TTTPass<MaterialModificationPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).ApplyFor(TexTransPhase.MaterialModification);
+        }
+    }
     internal class BeforeUVModificationPass : TTTPass<BeforeUVModificationPass>
     {
         protected override void Execute(BuildContext context)
@@ -52,6 +59,13 @@ namespace net.rs64.TexTransTool.NDMF
         protected override void Execute(BuildContext context)
         {
             TTTContext(context).ApplyFor(TexTransPhase.AfterUVModification);
+        }
+    }
+    internal class PostProcessingPass : TTTPass<PostProcessingPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).ApplyFor(TexTransPhase.PostProcessing);
         }
     }
     internal class UnDefinedPass : TTTPass<UnDefinedPass>

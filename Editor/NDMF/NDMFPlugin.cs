@@ -35,10 +35,11 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(NegotiateAAOPass.Instance).Then
 #endif
 
+            .Run(MaterialModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.MaterialModification)).Then
             .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
-
             .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
             .Run(AfterUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.AfterUVModification)).Then
+            .Run(PostProcessingPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.PostProcessing)).Then
             .Run(UnDefinedPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UnDefined));
 
 
@@ -54,9 +55,11 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(TTTComponentPurgePass.Instance);
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
+            { TexTransPhase.MaterialModification,  TogglablePreviewNode.Create(() => "MaterialModification-Phase", "MaterialModification", true) },
             { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
             { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-Phase", "UVModification",  true) },
             { TexTransPhase.AfterUVModification,  TogglablePreviewNode.Create(() => "AfterUVModification-Phase", "AfterUVModification",  true) },
+            { TexTransPhase.PostProcessing,  TogglablePreviewNode.Create(() => "PostProcessing-Phase", "AfterUVModification",  true) },
             { TexTransPhase.UnDefined,  TogglablePreviewNode.Create(() => "UnDefined-Phase", "UnDefined",  true) },
             { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", false) },
         };

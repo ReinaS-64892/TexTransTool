@@ -21,18 +21,15 @@ namespace net.rs64.TexTransTool.Preview.Custom
             if (texTransBehavior is PhaseDefinition)
             {
                 foreach (var ttb in list) { ttb.Apply(domain); }
+                domain.MergeStack();
             }
             else
             {
-                foreach (var ttb in list.Where(i => i.PhaseDefine == TexTransPhase.BeforeUVModification).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
-                domain.MergeStack();
-                foreach (var ttb in list.Where(i => i.PhaseDefine == TexTransPhase.UVModification).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
-                domain.MergeStack();
-                foreach (var ttb in list.Where(i => i.PhaseDefine == TexTransPhase.AfterUVModification).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
-                domain.MergeStack();
-                foreach (var ttb in list.Where(i => i.PhaseDefine == TexTransPhase.UnDefined).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
-                domain.MergeStack();
-                foreach (var ttb in list.Where(i => i.PhaseDefine == TexTransPhase.Optimizing).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
+                foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+                {
+                    foreach (var ttb in list.Where(i => i.PhaseDefine == phase).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
+                    domain.MergeStack();
+                }
             }
         }
     }

@@ -37,7 +37,12 @@ namespace net.rs64.TexTransTool.Editor
                 var previewGroup = target as PreviewGroup;
                 var atPhase = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
 
-                var label = new Label(TexTransPhase.BeforeUVModification.ToString());
+                var label = new Label(TexTransPhase.MaterialModification.ToString());
+                label.style.fontSize = 16f;
+                rootVE.hierarchy.Add(label);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.MaterialModification]);
+
+                 label = new Label(TexTransPhase.BeforeUVModification.ToString());
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
                 CreateGroupElements(rootVE, atPhase[TexTransPhase.BeforeUVModification]);
@@ -52,6 +57,12 @@ namespace net.rs64.TexTransTool.Editor
                 label.style.fontSize = 16f;
                 rootVE.hierarchy.Add(label);
                 CreateGroupElements(rootVE, atPhase[TexTransPhase.AfterUVModification]);
+
+                label = new Label(TexTransPhase.PostProcessing.ToString());
+                label.style.fontSize = 16f;
+                rootVE.hierarchy.Add(label);
+                CreateGroupElements(rootVE, atPhase[TexTransPhase.PostProcessing]);
+
 
                 label = new Label(TexTransPhase.UnDefined.ToString());
                 label.style.fontSize = 16f;

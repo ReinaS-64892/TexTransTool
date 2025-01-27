@@ -19,23 +19,9 @@ namespace net.rs64.TexTransTool.NDMF
             if (texTransMonoBase.GetType() == typeof(TexTransGroup) || texTransMonoBase.GetType() == typeof(PreviewGroup)) { return; }
 
             TexTransPhase? phase = texTransMonoBase is not PhaseDefinition pd ? texTransMonoBase is TexTransBehavior ttb ? ttb.PhaseDefine : null : pd.TexTransPhase;
+            if (phase is null) { return; }
 
-            TogglablePreviewNode previewNode;
-            switch (phase)
-            {
-                default: { return; }
-                case TexTransPhase.BeforeUVModification:
-                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.BeforeUVModification]; break; }
-                case TexTransPhase.UVModification:
-                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.UVModification]; break; }
-                case TexTransPhase.AfterUVModification:
-                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.AfterUVModification]; break; }
-                case TexTransPhase.UnDefined:
-                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.UnDefined]; break; }
-                case TexTransPhase.Optimizing:
-                    { previewNode = NDMFPlugin.s_togglablePreviewPhases[TexTransPhase.Optimizing]; break; }
-            }
-
+            var previewNode = NDMFPlugin.s_togglablePreviewPhases[phase.Value];
             if (previewNode.IsEnabled.Value)
             {
                 if (GUILayout.Button("Common:ndmf:DisableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
