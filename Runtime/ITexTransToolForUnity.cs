@@ -12,6 +12,7 @@ namespace net.rs64.TexTransTool
     public interface ITexTransToolForUnity : ITexTransCoreEngine
     {
         public const string BL_KEY_DEFAULT = "Normal";
+        public const string BL_KEY_NOT_BLEND = "NotBlend";
 
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
