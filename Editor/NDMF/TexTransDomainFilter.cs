@@ -76,17 +76,17 @@ namespace net.rs64.TexTransTool.NDMF
 
                 Dictionary<TexTransBehavior, HashSet<Renderer>> targetGrouping;
 
-                // if (behaviors.Any(b => b is IRendererTargetingAffecter))
-                // {
-                //     Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
-                //     using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
-                //     Profiler.EndSample();
+                if (behaviors.Any(b => b is IRendererTargetingAffecter))
+                {
+                    Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
+                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
+                    Profiler.EndSample();
 
-                //     Profiler.BeginSample("GetTargetGroupingWithAffecting");
-                //     targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
-                //     Profiler.EndSample();
-                // }
-                // else
+                    Profiler.BeginSample("GetTargetGroupingWithAffecting");
+                    targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
+                    Profiler.EndSample();
+                }
+                else
                 {
                     Profiler.BeginSample("NDMFRendererTargeting ctr");
                     var rendererTargeting = new NDMFRendererTargeting(ctx, domainRenderers);
