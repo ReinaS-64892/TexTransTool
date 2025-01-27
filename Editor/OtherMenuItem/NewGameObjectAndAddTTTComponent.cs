@@ -75,6 +75,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();
         [M(BP + MaterialModifier.MenuPath)] static void MC() => C<MaterialModifier>();
+        [M(BP + ColorDifferenceChanger.MenuPath)] static void CDC() => C<ColorDifferenceChanger>();
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
 

@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool
         IEnumerable<Renderer> EnumerateRenderer();
         Material?[] GetMaterials(Renderer renderer)
         {
-            return LookAtGet(renderer, GetShardMaterial, (l,r) => l.SequenceEqual(r));
+            return LookAtGet(renderer, GetShardMaterial, (l, r) => l.SequenceEqual(r));
             Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
@@ -151,7 +151,12 @@ namespace net.rs64.TexTransTool
             return domainRenderers.Where(Contains);
             bool Contains(Renderer dr) { return renderers.Any(sr => originEqual(dr, sr)); }
         }
-
+        public static IEnumerable<Texture> GetDomainsTextures(this IRendererTargeting rendererTargeting, Texture texture)
+        {
+            if (texture == null) { return Array.Empty<Texture>(); }
+            return rendererTargeting.GetAllTextures().Where(Contains);
+            bool Contains(Texture dr) { return rendererTargeting.OriginEqual(dr, texture); }
+        }
 
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
         {
