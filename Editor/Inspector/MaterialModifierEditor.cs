@@ -106,8 +106,8 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUI.indentLevel++;
 
                 EditorGUILayout.LabelField("Replace Texture", EditorStyles.boldLabel);
-                _sourceTexture = EditorGUILayout.ObjectField("Source Texture", _sourceTexture, typeof(Texture), false) as Texture;
-                _destinationTexture = EditorGUILayout.ObjectField("Destination Texture", _destinationTexture, typeof(Texture), false) as Texture;
+                _sourceTexture = EditorGUILayout.ObjectField("Source Texture", _sourceTexture, typeof(Texture), false, GUILayout.Height(18f)) as Texture;
+                _destinationTexture = EditorGUILayout.ObjectField("Destination Texture", _destinationTexture, typeof(Texture), false, GUILayout.Height(18f)) as Texture;
                 if (GUILayout.Button("Add diff to this component"))
                 {
                     ProcessReplaceTexture(false);
@@ -219,11 +219,11 @@ namespace net.rs64.TexTransTool.Editor
                 if (property.PropertyType == ShaderPropertyType.Texture && property.TextureValue == src)
                 {
                     overrides.Add(new MaterialProperty()
-                        {
-                            PropertyName = property.PropertyName,
-                            PropertyType = ShaderPropertyType.Texture,
-                            TextureValue = dst
-                        }
+                    {
+                        PropertyName = property.PropertyName,
+                        PropertyType = ShaderPropertyType.Texture,
+                        TextureValue = dst
+                    }
                     );
                 }
             }
