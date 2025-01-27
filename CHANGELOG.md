@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 一部の場合で Material が一時アセットだった場合に複製せずにテクスチャを置き換えるようになりました (#744)
 - SimpleDecal に Select Mode が追加され 既存の方法は Manual に そして新規に、範囲内であれば自動で選択され、マテリアルでフィルタリングも可能な Auto が追加されました (#753)
 - TexTransTool の内部処理で使用される RenderTexture の Format を指定できる設定 InternalTextureFormat が `Tools/TexTransTool` に追加されました (#774)
-- ~~NDMF Preview にて 同一フェーズ に限り、 MaterialOverrideTransfer などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました~~ (#806 #828)
+- NDMF Preview にて 同一フェーズ に限り、 MaterialOverrideTransfer などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#806 #828 #830)
 - 色合成をしない特殊な色合成、 ExtraColorBlending に属するいくつかの色合成が追加されました (#812)
 - MaterialModificationPhase と PostProcessingPhase が追加されました (#826)
 
