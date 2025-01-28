@@ -67,18 +67,18 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TextureSelector; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        List<AbstractLayer> GetChileLayers() { return GetChileLayers(transform); }
+        List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static List<AbstractLayer> GetChileLayers(Transform transform)
+        internal static List<IMultiLayerImageCanvasLayer> GetChileLayers(Transform transform)
         {
             var tf = transform;
             var chilesCount = tf.childCount;
-            var chiles = new List<AbstractLayer>(chilesCount);
+            var chiles = new List<IMultiLayerImageCanvasLayer>(chilesCount);
 
             for (var i = chilesCount - 1; 0 <= i; i -= 1)
             {
-                var layer = tf.GetChild(i).GetComponent<AbstractLayer>();
+                var layer = tf.GetChild(i).GetComponent<IMultiLayerImageCanvasLayer>();
                 if (layer != null)
                 {
                     chiles.Add(layer);

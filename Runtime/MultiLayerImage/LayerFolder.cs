@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        List<AbstractLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
+        List<IMultiLayerImageCanvasLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
     }
 
 
