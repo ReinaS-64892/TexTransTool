@@ -12,30 +12,26 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT LayerFolder";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public bool PassThrough;
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
-            var layers = GetChileLayers();
-            var chiles = new List<LayerObject<TTCE4U>>(layers.Capacity);
-            foreach (var l in layers) { chiles.Add(l.GetLayerObject(engine)); }
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
 
-            if (PassThrough)
-            {
-                return new PassThoughtFolder<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, chiles);
-            }
+            var layers = GetChileLayers();
+            var chiles = new List<LayerObject<ITexTransToolForUnity>>(layers.Capacity);
+            foreach (var l in layers) { chiles.Add(l.GetLayerObject(domain, engine)); }
+
+            var mask = GetAlphaMask(domain, engine);
+            if (PassThrough) { return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, Clipping, chiles); }
             else
             {
                 var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-                return new LayerFolder<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), chiles);
+                var blKey = engine.QueryBlendKey(BlendTypeKey);
+                return new LayerFolder<ITexTransToolForUnity>(Visible, mask, alphaOperator, Clipping, blKey, chiles);
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<AbstractLayer> GetChileLayers() { return MultiLayerImageCanvas.GetChileLayers(transform); }
-        internal override void LookAtCalling(ILookingObject lookingObject)
-        {
-            base.LookAtCalling(lookingObject);
-            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(lookingObject); }
-        }
-
     }
 
 

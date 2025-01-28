@@ -6,7 +6,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class LevelAdjustmentLayer : AbstractGrabLayer
+    public class LevelAdjustmentLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT LevelAdjustmentLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
@@ -14,9 +14,17 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Level Red = new();
         public Level Green = new();
         public Level Blue = new();
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
-            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new LevelAdjustment(RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData()));
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
+
+            var lm = GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var la = new LevelAdjustment(RGB.ToTTCoreLevelData(), Red.ToTTCoreLevelData(), Green.ToTTCoreLevelData(), Blue.ToTTCoreLevelData());
+
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(Visible, lm, Clipping, blKey, la);
         }
 
         [Serializable]

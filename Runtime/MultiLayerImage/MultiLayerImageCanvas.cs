@@ -24,14 +24,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void Apply(IDomain domain)
         {
             var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); domain.LookAt(this); return; }
+            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
-            var nowDomainsTargets = RendererUtility.GetAllTexture<Texture>(domain.EnumerateRenderer()).Where(m => domain.OriginEqual(m, replaceTarget));
+            var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget);
             if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
-
-            Profiler.BeginSample("LookAtCallingCanvas");
-            LookAtCallingCanvas(domain);
-            Profiler.EndSample();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
@@ -39,50 +35,29 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            using var result = EvaluateCanvas(texTransUnityCoreEngine, canvasWidth, canvasHeigh);
+            using var result = EvaluateCanvas(domain, texTransUnityCoreEngine, canvasWidth, canvasHeigh);
             Profiler.EndSample();
 
-            // TextureBlend.ToLinear(result);
             var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
-
             foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
         }
 
-        internal ITTRenderTexture EvaluateCanvas<TTCE4U>(TTCE4U texTransCoreEngine, int canvasWidth, int canvasHeigh)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        internal ITTRenderTexture EvaluateCanvas(IDomain domain, ITexTransToolForUnity texTransCoreEngine, int canvasWidth, int canvasHeigh)
         {
-            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<TTCE4U>(texTransCoreEngine);
+            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<ITexTransToolForUnity>(texTransCoreEngine);
             Profiler.BeginSample("ctr and GetRootLayerObjects");
-            var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<TTCE4U>(canvasWidth, canvasHeigh, GetRootLayerObjects<TTCE4U>(texTransCoreEngine));
+            using var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<ITexTransToolForUnity>(canvasWidth, canvasHeigh, GetRootLayerObjects(domain, texTransCoreEngine));
             Profiler.EndSample();
-
             return canvasCtx.EvaluateCanvas(canvas);
         }
-
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>> GetRootLayerObjects<TTCE4U>(TTCE4U engine)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>> GetRootLayerObjects(IDomain domain, ITexTransToolForUnity engine)
         {
+            domain.LookAt(this);
+            domain.LookAtChildeComponents<TexTransMonoBase>(gameObject);
             var layers = GetChileLayers();
-            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U>>(layers.Capacity);
-            foreach (var l in layers) { list.Add(l.GetLayerObject(engine)); }
+            var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>>(layers.Capacity);
+            foreach (var l in layers) { list.Add(l.GetLayerObject(domain, engine)); }
             return list;
-        }
-
-        internal void LookAtCallingCanvas(ILookingObject looker)
-        {
-            looker.LookAt(this);
-            looker.LookAtChildeComponents<AbstractLayer>(gameObject);
-            foreach (var cl in GetChileLayers()) { cl.LookAtCalling(looker); }
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)

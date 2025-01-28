@@ -7,51 +7,53 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class RasterImportedLayer : AbstractImageLayer
+    public class RasterImportedLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT RasterImportedLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage? ImportedImage;
 
-        public override void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
-            if (ImportedImage == null)
-            {
-                engine.ColorFill(renderTexture, TexTransCore.Color.Zero);
-                return;
-            }
-            using var ri = engine.Wrapping(ImportedImage);
-            engine.LoadTextureWidthAnySize(renderTexture, ri);
-        }
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
 
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
-        {
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            var alphaMask = GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
 
-            if (ImportedImage == null) { return new EmptyLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey)); }
+            if (ImportedImage == null) { return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey); }
 
-            var ri = engine.Wrapping(ImportedImage);
-            return new RasterLayer<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), ri);
-        }
-        internal override void LookAtCalling(ILookingObject lookingObject)
-        {
-            base.LookAtCalling(lookingObject);
-            if (ImportedImage != null) lookingObject.LookAt(ImportedImage);
+            domain.LookAt(ImportedImage);
+            var diskTex = engine.Wrapping(ImportedImage);
+            return new RasterLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey, diskTex);
         }
     }
     [Serializable]
     public class TTTImportedLayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
-        [SerializeField] internal TTTImportedImage MaskTexture;
+        public TTTImportedImage MaskTexture;
 
-        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage maskPNG)
+        internal TTTImportedLayerMask(bool layerMaskDisabled, TTTImportedImage importedMask)
         {
             LayerMaskDisabled = layerMaskDisabled;
-            MaskTexture = maskPNG;
+            MaskTexture = importedMask;
         }
 
-        public bool ContainedMask => LayerMaskDisabled is false && MaskTexture != null;
-        public void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(MaskTexture); }
+        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
+        {
+            var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as TTTImportedLayerMask);
+            if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
+
+            var layerMaskDisabled = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.LayerMaskDisabled);
+            if (layerMaskDisabled) { return new NoMask<ITexTransToolForUnity>(); }
+
+            var maskTexture = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as TTTImportedLayerMask)!.MaskTexture);
+            if (maskTexture == null) { return new NoMask<ITexTransToolForUnity>(); }
+
+            domain.LookAt(maskTexture);
+            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture!));
+        }
     }
 }

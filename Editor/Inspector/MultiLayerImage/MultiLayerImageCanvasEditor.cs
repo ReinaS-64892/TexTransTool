@@ -1,8 +1,6 @@
 using UnityEditor;
 using net.rs64.TexTransTool.MultiLayerImage;
-using UnityEngine;
-using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransCoreEngineForUnity;
+
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]
@@ -21,25 +19,5 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             sTarget.ApplyModifiedProperties();
         }
-
-        public override bool HasPreviewGUI() { return false; }
-
-        public override void DrawPreview(Rect previewArea)
-        {
-            var mlic = target as MultiLayerImageCanvas;
-            DrawPreviewMLIC(previewArea, mlic);
-        }
-
-        public static void DrawPreviewMLIC(Rect previewArea, MultiLayerImageCanvas mlic)
-        {
-            var texManager = new TextureManager(true);
-            var texTransUnityCoreEngine = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManager));
-            using var canvasResult = mlic.EvaluateCanvas(texTransUnityCoreEngine, 1024, 1024);
-            texManager.DestroyDeferred();
-
-            EditorGUI.DrawTextureTransparent(previewArea, canvasResult.Unwrap(), ScaleMode.ScaleToFit);
-        }
-
-
     }
 }

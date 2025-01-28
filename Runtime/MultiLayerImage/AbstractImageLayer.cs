@@ -14,40 +14,34 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     /// </summary>
     public abstract class AbstractImageLayer : AbstractLayer
     {
-        public abstract void GetImage<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler;
+        public abstract void GetImage(ITexTransToolForUnity engine, ITTRenderTexture renderTexture);
 
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
+            domain.LookAt(this);// 個別にやるべきか ... 否か ... ?
+            domain.LookAt(gameObject);
+
+            var alphaMask = GetAlphaMask(domain, engine);
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-            return new TTTAbstractImageWarper<TTCE4U>(Visible, GetAlphaMask(engine), alphaOperator, Clipping, engine.QueryBlendKey(BlendTypeKey), this);
+            var blendTypeKey = engine.QueryBlendKey(BlendTypeKey);
+
+            return new TTTAbstractImageWarper(Visible, alphaMask, alphaOperator, Clipping, blendTypeKey, this);
         }
 
-        class TTTAbstractImageWarper<TTCE4U> : ImageLayer<TTCE4U>
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        class TTTAbstractImageWarper : ImageLayer<ITexTransToolForUnity>
         {
             private AbstractImageLayer _imageLayer;
+            public TTTAbstractImageWarper(
+                bool visible
+                , AlphaMask<ITexTransToolForUnity> alphaMask
+                , AlphaOperation alphaOperation
+                , bool preBlendToLayerBelow
+                , ITTBlendKey blendTypeKey
+                , AbstractImageLayer imageLayer
+                ) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
+            { _imageLayer = imageLayer; }
 
-            public TTTAbstractImageWarper(bool visible, AlphaMask<TTCE4U> alphaMask, AlphaOperation alphaOperation, bool preBlendToLayerBelow, ITTBlendKey blendTypeKey, AbstractImageLayer imageLayer) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
-            {
-                _imageLayer = imageLayer;
-            }
-
-
-            public override void GetImage(TTCE4U engine, ITTRenderTexture writeTarget)
-            {
-                _imageLayer.GetImage(engine, writeTarget);
-            }
+            public override void GetImage(ITexTransToolForUnity engine, ITTRenderTexture writeTarget) { _imageLayer.GetImage(engine, writeTarget); }
         }
 
     }
