@@ -10,7 +10,7 @@ using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior, ITTTChildExclusion
+    public sealed class MultiLayerImageCanvas : TexTransRuntimeBehavior
     {
         internal const string FoldoutName = "MultiLayerImage";
         internal const string ComponentName = "TTT MultiLayerImageCanvas";
