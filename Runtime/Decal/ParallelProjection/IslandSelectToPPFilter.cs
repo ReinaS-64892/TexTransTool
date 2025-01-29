@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public IFilteredTriangleHolder Filtering(ParallelProjectionSpace space)
         {
-            var islandSelectedTriangles = IslandSelectExecute(_islandSelector, space._meshData, _originEqual);
+            var islandSelectedTriangles = IslandSelectExecute(_islandSelector, space._meshData, _originEqual).Take();
 
             var filteredBitJobs = new JobResult<NativeArray<bool>>[space._meshData.Length][];
             for (var i = 0; filteredBitJobs.Length > i; i += 1)
@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             return new IslandSelectedJobChainedFilteredTrianglesHolder(islandSelectedTriangles, filteredBitJobs);
         }
-        internal static NativeArray<TriangleIndex>[][] IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, OriginEqual originEqual)
+        internal static IslandSelectedTriangleHolder IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, OriginEqual originEqual)
         {
             if (islandSelector == null)
             {
@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool.Decal
                         tr[s] = new NativeArray<TriangleIndex>(md.TriangleIndex[s], Allocator.TempJob);
                     }
                 }
-                return tri;
+                return new(tri);
             }
             var islandsArray = IslandsArrayFromMeshData(meshData);
 
@@ -75,6 +75,39 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             return triList;
+        }
+        internal struct IslandSelectedTriangleHolder : IDisposable
+        {
+            NativeArray<TriangleIndex>[][]? Triangles;
+            public IslandSelectedTriangleHolder(NativeArray<TriangleIndex>[][] triangles)
+            {
+                Triangles = triangles;
+            }
+            public NativeArray<TriangleIndex>[][] Ref()
+            {
+                if (Triangles is null) { throw new InvalidProgramException(); }
+                return Triangles;
+            }
+            public NativeArray<TriangleIndex>[][] Take()
+            {
+                if (Triangles is null) { throw new InvalidProgramException(); }
+                var tri = Triangles;
+                Triangles = null;
+                return tri;
+            }
+            public void Dispose()
+            {
+                if (Triangles is null) { return; }
+                for (var ri = 0; Triangles.Length > ri; ri += 1)
+                {
+                    var subMeshTriangles = Triangles[ri];
+                    for (var si = 0; subMeshTriangles.Length > si; si += 1)
+                    {
+                        subMeshTriangles[si].Dispose();
+                    }
+                }
+                Triangles = null!;
+            }
         }
         internal struct IslandsArray
         {
@@ -143,7 +176,7 @@ namespace net.rs64.TexTransTool.Decal
             };
         }
 
-        private static NativeArray<TriangleIndex>[][] IslandSelectToTriangleIndex(Island[][][] allMeshIslands, Dictionary<Island, int> islandToIndex, BitArray bitArray)
+        internal static IslandSelectedTriangleHolder IslandSelectToTriangleIndex(Island[][][] allMeshIslands, Dictionary<Island, int> islandToIndex, BitArray bitArray)
         {
             var allSelectedTriangles = new NativeArray<TriangleIndex>[allMeshIslands.Length][];
             for (var i = 0; allSelectedTriangles.Length > i; i += 1)
@@ -172,7 +205,7 @@ namespace net.rs64.TexTransTool.Decal
                 }
             }
 
-            return allSelectedTriangles;
+            return new(allSelectedTriangles);
         }
 
     }
