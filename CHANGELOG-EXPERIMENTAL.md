@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 二つの色を指定し、その色差をテクスチャに適用する ColorDifferenceChanger が追加されました (#827)
 - TextureBlender や ColorDifferenceChanger を MultiLayerImageCanvas のレイヤーとして扱うことのできる AsLayer が追加されました (#834)
 - MultiLayerImageCanvas に連なるレイヤーの LayerMask が、 TTT ImportedLayerMask マスクなどの別種類のレイヤーマスクを選択することが可能になりました (#834)
+- MaterialModifier や TextureConfigurator を右クリックをした GameObject 配下のマテリアルやテクスチャすべてに対して コンポーネントを一括で生成できる `Generate` が追加されました (#833)
 
 ### Changed
 
