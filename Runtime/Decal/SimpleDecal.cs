@@ -110,8 +110,7 @@ namespace net.rs64.TexTransTool.Decal
                 else
                 {
                     Profiler.BeginSample("Rendering MultiLayerImageCanvas");
-                    OverrideDecalTextureWithMultiLayerImageCanvas.LookAtCallingCanvas(domain);
-                    mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain.GetTexTransCoreEngineForUnity(), 2048, 2048);
+                    mulDecalTexture = OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(domain, domain.GetTexTransCoreEngineForUnity(), 2048, 2048);
                     Profiler.EndSample();
                 }
 

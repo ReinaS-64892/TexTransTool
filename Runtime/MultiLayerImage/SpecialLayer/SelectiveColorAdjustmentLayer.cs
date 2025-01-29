@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class SelectiveColoringAdjustmentLayer : AbstractGrabLayer
+    public class SelectiveColoringAdjustmentLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT SelectiveColoringAdjustmentLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
@@ -21,9 +21,27 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Vector4 NeutralsCMYK;
         public Vector4 BlacksCMYK;
         public bool IsAbsolute;
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engin)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
-            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engin), Clipping, engin.QueryBlendKey(BlendTypeKey), new SelectiveColorAdjustment(RedsCMYK.ToTTCore(), YellowsCMYK.ToTTCore(), GreensCMYK.ToTTCore(), CyansCMYK.ToTTCore(), BluesCMYK.ToTTCore(), MagentasCMYK.ToTTCore(), WhitesCMYK.ToTTCore(), NeutralsCMYK.ToTTCore(), BlacksCMYK.ToTTCore(), IsAbsolute));
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
+
+            var lm = GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var sca = new SelectiveColorAdjustment(
+                RedsCMYK.ToTTCore()
+                , YellowsCMYK.ToTTCore()
+                , GreensCMYK.ToTTCore()
+                , CyansCMYK.ToTTCore()
+                , BluesCMYK.ToTTCore()
+                , MagentasCMYK.ToTTCore()
+                , WhitesCMYK.ToTTCore()
+                , NeutralsCMYK.ToTTCore()
+                , BlacksCMYK.ToTTCore()
+                , IsAbsolute
+                );
+
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(Visible, lm, Clipping, blKey, sca);
         }
     }
 }

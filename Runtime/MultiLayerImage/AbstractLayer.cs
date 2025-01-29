@@ -3,90 +3,63 @@ using System;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
-    [DisallowMultipleComponent]
-    public abstract class AbstractLayer : MonoBehaviour, ITexTransToolTag
+
+    internal interface IMultiLayerImageCanvasLayer
+    {
+        LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine);
+    }
+    public abstract class AbstractLayer : TexTransMonoBaseGameObjectOwned, IMultiLayerImageCanvasLayer
     {
         internal bool Visible { get => gameObject.activeSelf; set => gameObject.SetActive(value); }
-
-        [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
-        int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
         [Range(0, 1)] public float Opacity = 1;
         public bool Clipping;
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
-        [SerializeReference] public ILayerMask LayerMask = new LayerMask();
+        [SerializeReference][SubclassSelector] public ILayerMask? LayerMask = new LayerMask();
 
-        internal abstract TexTransCore.MultiLayerImageCanvas.LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler;
+        internal abstract LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine);
+        LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine) => GetLayerObject(domain, engine);
 
-        internal virtual TexTransCore.MultiLayerImageCanvas.AlphaMask<TTCE4U> GetAlphaMask<TTCE4U>(TTCE4U engine)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        internal virtual AlphaMask<ITexTransToolForUnity> GetAlphaMask(IDomain domain, ITexTransToolForUnity engine)
         {
-            switch (LayerMask)
-            {
-                default: { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
-                case TTTImportedLayerMask importedLayerMask:
-                    {
-                        if (importedLayerMask.ContainedMask is false) { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
-                        var importedDiskTex = engine.Wrapping(importedLayerMask.MaskTexture);
-                        return new TexTransCore.MultiLayerImageCanvas.DiskToMask<TTCE4U>(importedDiskTex, Opacity);
-                    }
-                case MultiLayerImage.LayerMask layerMask:
-                    {
-                        if (layerMask.ContainedMask is false) { return new TexTransCore.MultiLayerImageCanvas.SolidToMask<TTCE4U>(Opacity); }
-                        var importedDiskTex = engine.Wrapping(layerMask.MaskTexture!);
-                        return new TexTransCore.MultiLayerImageCanvas.DiskToMask<TTCE4U>(importedDiskTex, Opacity);
-                    }
-            }
+            Func<UnityEngine.Object, ILayerMask?> getLayerMask = o => (o as AbstractLayer)!.LayerMask;
+            var lm = domain.LookAtGet(this, getLayerMask);
+
+            var innerMask = lm?.GetAlphaMask(domain, engine, this, getLayerMask);
+
+            if (innerMask is not null) return new MaskAndSolid<ITexTransToolForUnity>(innerMask, Opacity);
+            else return new SolidToMask<ITexTransToolForUnity>(Opacity);
         }
-        internal virtual void LookAtCalling(ILookingObject lookingObject)
-        {
-            lookingObject.LookAt(gameObject);
-            lookingObject.LookAt(this);
-            LayerMask.LookAtCalling(lookingObject);
-        }
+
     }
+    public interface ILayerMask
+    {
+        internal AlphaMask<ITexTransToolForUnity> GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask);
+    }
+
     [Serializable]
     public class LayerMask : ILayerMask
     {
         public bool LayerMaskDisabled;
         public Texture2D? MaskTexture;
 
-        public bool ContainedMask => LayerMaskDisabled is false && MaskTexture != null;
-
-        public void LookAtCalling(ILookingObject lookingObject) { if (MaskTexture != null) lookingObject.LookAt(MaskTexture); }
-
-        public void WriteMaskTexture<TTCE4U>(TTCE4U engine, ITTRenderTexture renderTexture)
-        where TTCE4U : ITexTransToolForUnity
-        , ITexTransCreateTexture
-        , ITexTransLoadTexture
-        , ITexTransCopyRenderTexture
-        , ITexTransComputeKeyQuery
-        , ITexTransGetComputeHandler
+        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
         {
-            if (MaskTexture == null) { throw new InvalidOperationException(); }
-            using var lm = engine.Wrapping(MaskTexture);
-            engine.LoadTextureWidthAnySize(renderTexture, lm);
+            var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as LayerMask);
+            if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
+
+            var layerMaskDisabled = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.LayerMaskDisabled);
+            if (layerMaskDisabled) { return new NoMask<ITexTransToolForUnity>(); }
+
+            var maskTexture = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.MaskTexture);
+            if (maskTexture == null) { return new NoMask<ITexTransToolForUnity>(); }
+
+            domain.LookAt(maskTexture);
+            return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture!));
         }
     }
-
-    public interface ILayerMask
-    {
-        bool ContainedMask { get; }
-        void LookAtCalling(ILookingObject lookingObject);
-    }
-
 
 }

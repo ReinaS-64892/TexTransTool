@@ -625,3 +625,8 @@ msgstr "エイム開始"
 
 msgid "IslandSelector:button:AimExit"
 msgstr "エイム終了"
+
+# AsLayer
+
+msgid "AsLayer:button:AddLayer"
+msgstr "AsLayer を追加してレイヤーにする"

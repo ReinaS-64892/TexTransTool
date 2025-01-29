@@ -6,16 +6,23 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class HSLAdjustmentLayer : AbstractGrabLayer
+    public class HSLAdjustmentLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT HSLAdjustmentLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Lightness;
-        internal override LayerObject<TTCE4U> GetLayerObject<TTCE4U>(TTCE4U engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
         {
-            return new GrabBlendingAsLayer<TTCE4U>(Visible, GetAlphaMask(engine), Clipping, engine.QueryBlendKey(BlendTypeKey), new HSLAdjustment(Hue, Saturation, Lightness));
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
+
+            var lm = GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var hsla = new HSLAdjustment(Hue, Saturation, Lightness);
+
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(Visible, lm, Clipping, blKey, hsla);
         }
     }
 }

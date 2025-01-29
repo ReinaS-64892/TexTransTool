@@ -189,7 +189,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             if (s_previewsDict.TryGetValue(importedImage, out var _)) { return; }
 
             var needResizing = Math.Max(importedImage.CanvasDescription.Width, importedImage.CanvasDescription.Height) > 1024;
-            var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.BC7, false, true);
+            var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.BC7, false, false);
             var dataNa = previewTex.GetRawTextureData<byte>();
 
             var task = Task.Run(() =>
@@ -246,16 +246,43 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 // var length = extractRt.Width * extractRt.Hight * EnginUtil.GetPixelParByte(TexTransCoreTextureFormat.Byte, TexTransCoreTextureChannel.RGBA);
                 // var na = new NativeArray<byte>(length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-                var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.RGBA32, false, true);
+                var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.RGBA32, false, false);
                 previewTex.name = "ImportedPreview-" + importedImage.name;
                 var dataNa = previewTex.GetRawTextureData<byte>();
-
 
                 Profiler.BeginSample("LoadCanvasSource");
                 canvasSource ??= Memoize.Memo<(TTTImportedCanvasDescription, string), ITTImportedCanvasSource>((importedImage.CanvasDescription, guid), (t) => { return t.Item1.LoadCanvasSource(AssetDatabase.GUIDToAssetPath(t.Item2)); });
                 Profiler.EndSample();
 
-#if CONTAINS_TTCE_WGPU
+#if !CONTAINS_TTCE_WGPU
+
+                var destroyHash = new HashSet<Texture2D>();
+                var ttce4u = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
+
+                Profiler.BeginSample("CreatePreviewImage");
+                CreatePreviewImage(ttce4u, importedImage, canvasSource, dataNa);
+                Profiler.EndSample();
+
+                EditorUtility.DisplayProgressBar("CreatePreviewImage", "Compress And Finalize", 0.6f);
+
+
+                EditorUtility.CompressTexture(previewTex, TextureFormat.BC7, 100);
+                previewTex.Apply(true);
+                dataNa = previewTex.GetRawTextureData<byte>();
+
+                using var stream = File.Open(createOutputPath, FileMode.CreateNew, FileAccess.Write);
+                stream.Write(dataNa.AsSpan());
+
+                previewTex.Apply(true, true);
+                s_previewsDict[importedImage] = previewTex;
+
+                if (s_guid2Images.ContainsKey(guid)) { s_guid2Images[guid].Add(importedImage); }
+                else { s_guid2Images[guid] = new() { importedImage }; }
+
+                foreach (var i in destroyHash) { UnityEngine.Object.DestroyImmediate(i); }
+                EditorUtility.DisplayProgressBar("CreatePreviewImage", "End", 1f);
+#else
+
 
                 var task = Task.Run(() =>
                 {
@@ -297,32 +324,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                 });
 
                 s_previewsTask[importedImage] = texFnTask;
-#else
-                var destroyHash = new HashSet<Texture2D>();
-                var ttce4u = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
-
-                Profiler.BeginSample("CreatePreviewImage");
-                CreatePreviewImage(ttce4u, importedImage, canvasSource, dataNa);
-                Profiler.EndSample();
-
-                EditorUtility.DisplayProgressBar("CreatePreviewImage", "Compress And Finalize", 0.6f);
-
-
-                EditorUtility.CompressTexture(previewTex, TextureFormat.BC7, 100);
-                previewTex.Apply(true);
-                dataNa = previewTex.GetRawTextureData<byte>();
-
-                using var stream = File.Open(createOutputPath, FileMode.CreateNew, FileAccess.Write);
-                stream.Write(dataNa.AsSpan());
-
-                previewTex.Apply(true, true);
-                s_previewsDict[importedImage] = previewTex;
-
-                if (s_guid2Images.ContainsKey(guid)) { s_guid2Images[guid].Add(importedImage); }
-                else { s_guid2Images[guid] = new() { importedImage }; }
-
-                foreach (var i in destroyHash) { UnityEngine.Object.DestroyImmediate(i); }
-                EditorUtility.DisplayProgressBar("CreatePreviewImage", "End", 1f);
 #endif
             }
             finally
@@ -358,7 +359,6 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
                     extractRt = resizedRt;
                 }
                 else { extractRt = loadRt; }
-                ttce4u.GammaToLinear(extractRt);
 
                 Profiler.BeginSample("DownloadTexture");
                 ttce4u.DownloadTexture(writeTarget, TexTransCoreTextureFormat.Byte, extractRt);

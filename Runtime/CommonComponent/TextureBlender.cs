@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -6,17 +7,19 @@ using System.Linq;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransCore;
 using Color = UnityEngine.Color;
+using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TextureBlender : TexTransRuntimeBehavior
+    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         public TextureSelector TargetTexture;
 
-        [ExpandTexture2D] public Texture2D BlendTexture;
+        [ExpandTexture2D] public Texture2D? BlendTexture;
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
@@ -60,5 +63,47 @@ namespace net.rs64.TexTransTool
             return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
         TextureSelector GetTextureSelector(TextureBlender texBlend) { return texBlend.TargetTexture; }
+
+        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine, AsLayer asLayer)
+        {
+            domain.LookAt(this);
+            var alphaMask = asLayer.GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            if (BlendTexture != null)
+            {
+                var blendTex = engine.Wrapping(BlendTexture);
+                return new RasterLayerAndMultipleColor<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey, blendTex, Color.ToTTCore());
+            }
+            else { return new SolidColorLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey, Color.ToTTCore()); }
+        }
+        public bool HaveBlendTypeKey => true;
+
+        class RasterLayerAndMultipleColor<TTCE> : RasterLayer<TTCE>
+        where TTCE : ITexTransCreateTexture
+        , ITexTransLoadTexture
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
+        , ITexTransDriveStorageBufferHolder
+        {
+            public TexTransCore.Color Color;
+            public RasterLayerAndMultipleColor(
+                bool visible
+                , AlphaMask<TTCE> alphaModifier
+                , AlphaOperation alphaOperation
+                , bool preBlendToLayerBelow
+                , ITTBlendKey blendTypeKey
+                , ITTTexture texture
+                , TexTransCore.Color color
+                ) : base(visible, alphaModifier, alphaOperation, preBlendToLayerBelow, blendTypeKey, texture)
+            { Color = color; }
+
+            public override void GetImage(TTCE engine, ITTRenderTexture renderTexture)
+            {
+                base.GetImage(engine, renderTexture);
+                engine.ColorMultiply(renderTexture, Color);
+            }
+        }
     }
 }

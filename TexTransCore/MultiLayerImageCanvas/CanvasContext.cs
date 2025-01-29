@@ -35,44 +35,32 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             foreach (var pairedLayer in flattened)
             {
-                using var abstractLayer = pairedLayer.AbstractLayer;
+                var abstractLayer = pairedLayer.AbstractLayer;
                 var preBlends = pairedLayer.PreBlends;
-                try
+                if (abstractLayer.Visible is false) { continue; }
+
+                switch (abstractLayer)
                 {
-                    if (abstractLayer.Visible is false) { continue; }
+                    case ImageLayer<TTCE> imageLayer:
+                        using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
+                        {
+                            imageLayer.GetImage(_engine, layerRt);
 
-                    switch (abstractLayer)
-                    {
-                        case ImageLayer<TTCE> imageLayer:
+                            using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, preBlends))
                             {
-                                using (var layerRt = _engine.CreateRenderTexture(canvasTex.Width, canvasTex.Hight))
-                                {
-                                    imageLayer.GetImage(_engine, layerRt);
-
-                                    using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, imageLayer.AlphaMask, preBlends))
-                                    {
-                                        nEvalCtx.AlphaMask.Masking(_engine, layerRt);
-                                        if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
-                                            EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
-                                    }
-                                    BlendForAlphaOperation(canvasTex, imageLayer, layerRt);
-                                }
-                                break;
+                                nEvalCtx.AlphaMask.Masking(_engine, layerRt);
+                                if (nEvalCtx.PreBlends is not null && nEvalCtx.PreBlends.Any() is true)
+                                    EvaluateForFlattened(layerRt, null, nEvalCtx.PreBlends.Select(l => new PreBlendPairedLayer(l, null)));
                             }
-                        case GrabLayer<TTCE> grabLayer:
-                            {
-                                using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, preBlends))
-                                {
-                                    grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
-                                }
-                                break;
-                            }
-
-                    }
-                }
-                finally
-                {
-                    if (preBlends is not null) { foreach (var p in preBlends) { p?.Dispose(); } }
+                            BlendForAlphaOperation(canvasTex, imageLayer, layerRt);
+                        }
+                        break;
+                    case GrabLayer<TTCE> grabLayer:
+                        using (var nEvalCtx = EvaluateContext<TTCE>.NestContext(_engine, canvasTex.Width, canvasTex.Hight, evalCtx, grabLayer.AlphaMask, preBlends))
+                        {
+                            grabLayer.GrabImage(_engine, nEvalCtx, canvasTex);
+                        }
+                        break;
                 }
             }
 
@@ -182,7 +170,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     }
 
 
-    public class Canvas<TTCE>
+    public class Canvas<TTCE> : IDisposable
     where TTCE : ITexTransCreateTexture
     , ITexTransLoadTexture
     , ITexTransCopyRenderTexture
@@ -200,6 +188,8 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             Height = height;
             RootLayers = rootLayers;
         }
+
+        public void Dispose() { foreach (var l in RootLayers) { l.Dispose(); } }
     }
     public class EvaluateContext<TTCE> : IDisposable
     where TTCE : ITexTransCreateTexture
@@ -209,7 +199,7 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
     , ITexTransGetComputeHandler
     , ITexTransDriveStorageBufferHolder
     {
-        TextureOnlyToMask<TTCE> _alphaMask;
+        RenderTextureOnlyToMask<TTCE> _alphaMask;
         List<LayerObject<TTCE>>? _preBlends;
 
         public EvaluateContext(ITTRenderTexture nowAlphaMask, List<LayerObject<TTCE>>? preBlends)

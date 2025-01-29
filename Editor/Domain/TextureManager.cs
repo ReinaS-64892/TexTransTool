@@ -293,6 +293,12 @@ namespace net.rs64.TexTransTool
         {
             return new UnityImportedDiskTexture(texture2D, _texManage.IsPreview);
         }
+        static ComputeShader CopyFromGammaTexture2D;
+        [TexTransInitialize]
+        internal static void Init()
+        {
+            CopyFromGammaTexture2D = TexTransCoreRuntime.LoadAsset("b1cd01a41aef7f443bafb8684546de39", typeof(ComputeShader)) as ComputeShader;
+        }
 
         public void LoadTexture(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
         {
@@ -309,8 +315,9 @@ namespace net.rs64.TexTransTool
                         var texture = importedWrapper.Texture;
                         if (_texManage.IsPreview)
                         {
-                            Graphics.Blit(CanvasImportedImagePreviewManager.GetPreview(texture), writeTarget.Unwrap());
-                            ttce4u.LinearToGamma(writeTarget);
+                            CopyFromGammaTexture2D.SetTexture(0, "Source", CanvasImportedImagePreviewManager.GetPreview(texture));
+                            CopyFromGammaTexture2D.SetTexture(0, "Dist", writeTarget.Unwrap());
+                            CopyFromGammaTexture2D.Dispatch(0, (writeTarget.Width + 31) / 32, (writeTarget.Hight + 31) / 32, 1);
                         }
                         else
                         {

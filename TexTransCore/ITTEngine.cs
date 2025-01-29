@@ -242,6 +242,16 @@ namespace net.rs64.TexTransCore
                 engine.DefaultResizing(renderTexture, sourceSizeRt);
             }
         }
+        public static void CopyTextureWidthAnySize<TTCE>(this TTCE engine, ITTRenderTexture distTexture, ITTRenderTexture sourceTexture)
+        where TTCE : ITexTransCreateTexture
+        , ITexTransLoadTexture
+        , ITexTransCopyRenderTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
+        {
+            if (sourceTexture.EqualSize(distTexture)) { engine.CopyRenderTexture(distTexture, sourceTexture); }
+            else { engine.DefaultResizing(distTexture, sourceTexture); }
+        }
     }
 
     [System.Serializable]

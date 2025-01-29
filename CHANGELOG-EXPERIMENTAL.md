@@ -30,6 +30,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - マテリアルのコンテキストメニューから MaterialOverrideTransfer と MaterialModifier が追加できる MenuItem が追加されました (#792)
 - 非常に実験的なコンポーネントとして、ポリゴンの最接近点からテクスチャを転写するようなことができる NearTransTexture が追加されました (#816)
 - 二つの色を指定し、その色差をテクスチャに適用する ColorDifferenceChanger が追加されました (#827)
+- TextureBlender や ColorDifferenceChanger を MultiLayerImageCanvas のレイヤーとして扱うことのできる AsLayer が追加されました (#834)
+- MultiLayerImageCanvas に連なるレイヤーの LayerMask が、 TTT ImportedLayerMask マスクなどの別種類のレイヤーマスクを選択することが可能になりました (#834)
 
 ### Changed
 
