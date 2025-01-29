@@ -16,12 +16,14 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     {
         public abstract void GetImage(ITexTransToolForUnity engine, ITTRenderTexture renderTexture);
 
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
             domain.LookAt(this);// 個別にやるべきか ... 否か ... ?
             domain.LookAt(gameObject);
 
-            var alphaMask = GetAlphaMask(domain, engine);
+            var alphaMask = GetAlphaMaskObject(ctx);
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
             var blendTypeKey = engine.QueryBlendKey(BlendTypeKey);
 

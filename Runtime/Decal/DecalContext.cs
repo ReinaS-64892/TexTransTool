@@ -47,12 +47,10 @@ namespace net.rs64.TexTransTool.Decal
         TrianglesFilter _trianglesFilter;
 
 
-        public string TargetPropertyName { get; set; } = "_MainTex";
         public bool IsTextureStretch { get; set; } = false;
         public float DecalPadding { get; set; } = 5f;
         public bool HighQualityPadding { get; set; } = false;
         public bool? UseDepthOrInvert { get; set; } = null;
-
         public HashSet<Material>? DrawMaskMaterials = null;
 
         public DecalContext(ITexTransToolForUnity ttce4u, SpaceConvertor spaceConvertor, TrianglesFilter trianglesFilter)
@@ -62,28 +60,113 @@ namespace net.rs64.TexTransTool.Decal
             _trianglesFilter = trianglesFilter;
         }
 
-        internal Dictionary<KeyTexture, TTRenderTexWithDistance>? WriteDecalTexture<KeyTexture>(IEnumerable<Renderer> targetRenderers, ITTRenderTexture sourceTexture)
+        internal Dictionary<KeyTexture, TTRenderTexWithPaddingDistance>? WriteDecalTexture<KeyTexture>(
+        IRendererTargeting targeting
+        , IEnumerable<Renderer> targetRenderers
+        , ITTRenderTexture sourceTexture
+        , string targetPropertyName = "_MainTex"
+        )
         where KeyTexture : Texture
         {
             targetRenderers = targetRenderers.Where(i => i is SkinnedMeshRenderer or MeshRenderer).Where(i => i.GetMesh() != null).ToArray();
-
             if (targetRenderers.Any() is false) { return null; }
 
-
-            Profiler.BeginSample("GetMeshData");
-            var meshData = targetRenderers.Select(i => i.GetToMemorizedMeshData()).ToArray();
-            Profiler.EndSample();
-
-            Profiler.BeginSample("ConvertSpace");
+            Profiler.BeginSample("GetMeshData and converting and more");
+            var meshData = targetRenderers.Select(targeting.GetMeshData).ToArray();
             using var decalSpace = _spaceConvertor.ConvertSpace(meshData);
-            Profiler.EndSample();
-
-            Profiler.BeginSample("Filtering");
             using var filteredTriangles = _trianglesFilter.Filtering(decalSpace);
+            var depthBuffer = GenerateAndWriteDepthBuffer(sourceTexture, decalSpace, filteredTriangles);
             Profiler.EndSample();
 
-            Profiler.BeginSample("WriteDepth");
-            DepthBufferHolder? depthBuffer;
+            Profiler.BeginSample("Write Decals");
+            var renderTextureHolders = new Dictionary<KeyTexture, TTRenderTexWithPaddingDistance>();
+
+            for (var r = 0; meshData.Length > r; r += 1)
+            {
+                var md = meshData[r];
+                var materials = targeting.GetMaterials(md.ReferenceRenderer);
+                var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
+
+                using var decalMesh = new DecalMeshHolder(_ttce4u, md, decalSpace, r);
+
+                for (var s = 0; validSlot > s; s += 1)
+                {
+                    var mat = materials[s];
+                    if (mat == null) { continue; }
+
+                    if (mat.HasProperty(targetPropertyName) is false) { continue; }
+                    var decalTargetTexture = mat.GetTexture(targetPropertyName) as KeyTexture;
+
+                    if (decalTargetTexture == null) { continue; }
+                    if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(mat) is false) { continue; }
+
+                    var triangleIndexes = filteredTriangles.GetTriangles()[r][s];
+                    if (triangleIndexes.Length is 0) { continue; }
+
+                    if (renderTextureHolders.ContainsKey(decalTargetTexture) is false)
+                    {
+                        var newTempRt = renderTextureHolders[decalTargetTexture] = TTRenderTexWithPaddingDistance.Create(_ttce4u, (decalTargetTexture.width, decalTargetTexture.height), DecalPadding);
+                        newTempRt.Texture.Name = $"{decalTargetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                        newTempRt.PaddingDistanceMap.Name = $"{decalTargetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
+                    }
+                    var writeTarget = renderTextureHolders[decalTargetTexture];
+
+                    WriteDecal(writeTarget, sourceTexture, decalMesh, triangleIndexes, depthBuffer);
+                }
+
+            }
+            Profiler.EndSample();
+
+            return renderTextureHolders;
+        }
+
+
+        internal bool WriteDecalTextureWithSingleTexture(
+            IRendererTargeting targeting
+            , IEnumerable<Renderer> targetRenderers
+            , ITTRenderTexture decalWriteTarget
+            , ITTRenderTexture sourceTexture
+            )
+        {
+            targetRenderers = targetRenderers.Where(i => i is SkinnedMeshRenderer or MeshRenderer).Where(i => i.GetMesh() != null).ToArray();
+            if (targetRenderers.Any() is false) { return false; }
+
+            using var writeTarget = TTRenderTexWithPaddingDistance.CreateFrom(_ttce4u, decalWriteTarget, DecalPadding);
+
+            Profiler.BeginSample("GetMeshData and converting and more");
+            var meshData = targetRenderers.Select(targeting.GetMeshData).ToArray();
+            using var decalSpace = _spaceConvertor.ConvertSpace(meshData);
+            using var filteredTriangles = _trianglesFilter.Filtering(decalSpace);
+            var depthBuffer = GenerateAndWriteDepthBuffer(sourceTexture, decalSpace, filteredTriangles);
+            Profiler.EndSample();
+
+            Profiler.BeginSample("Write Decals");
+            for (var r = 0; meshData.Length > r; r += 1)
+            {
+                var md = meshData[r];
+                var materials = targeting.GetMaterials(md.ReferenceRenderer);
+                var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
+
+                using var decalMesh = new DecalMeshHolder(_ttce4u, md, decalSpace, r);
+
+                for (var s = 0; validSlot > s; s += 1)
+                {
+                    var mat = materials[s];
+                    if (mat == null) { continue; }
+                    if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(mat) is false) { continue; }
+
+                    var triangleIndexes = filteredTriangles.GetTriangles()[r][s];
+                    if (triangleIndexes.Length is 0) { continue; }
+
+                    WriteDecal(writeTarget, sourceTexture, decalMesh, triangleIndexes, depthBuffer);
+                }
+
+            }
+            Profiler.EndSample();
+            return true;
+        }
+        private DepthBufferHolder? GenerateAndWriteDepthBuffer(ITTRenderTexture sourceTexture, TDecalSpace decalSpace, TFilteringOutput filteredTriangles)
+        {
             switch (decalSpace, UseDepthOrInvert.HasValue)
             {
                 case (IDecalSpaceWith3D ds3D, true):
@@ -94,7 +177,7 @@ namespace net.rs64.TexTransTool.Decal
                         depthBufferSize.x = Math.Max(depthBufferSize.x, 2048);
                         depthBufferSize.y = Math.Max(depthBufferSize.y, 2048);
 
-                        depthBuffer = DepthBufferHolder.Create(_ttce4u, depthBufferSize);
+                        var depthBuffer = DepthBufferHolder.Create(_ttce4u, depthBufferSize);
 
                         Profiler.BeginSample("Write Depth");
                         var outSourceUV = ds3D.OutputUV();
@@ -115,84 +198,66 @@ namespace net.rs64.TexTransTool.Decal
                             }
                         }
                         Profiler.EndSample();
-                        break;
+                        return depthBuffer;
                     }
-                default: { depthBuffer = null; break; }
+                default: { return null; }
             }
-
-            Profiler.EndSample();
-
-            Profiler.BeginSample("Write Decals");
-            var renderTextureHolders = new Dictionary<KeyTexture, TTRenderTexWithDistance>();
-
-            for (var r = 0; meshData.Length > r; r += 1)
-            {
-                var md = meshData[r];
-                var materials = md.ReferenceRenderer.sharedMaterials;
-                var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
-
-                var transToVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(md.VertexUV);
-                var transFromVertex = decalSpace.OutputUV()[r];
-                using var transToVertexBuf = _ttce4u.UploadStorageBuffer<System.Numerics.Vector2>(transToVertex);
-                using var transFromVertexBuf = _ttce4u.UploadStorageBuffer<Vector2>(transFromVertex);
-                ITTStorageBuffer? transFromDepth = null;
-                try
-                {
-                    if (depthBuffer is not null && decalSpace is IDecalSpaceWith3D decalSpaceWith3D)
-                    {
-                        transFromDepth = _ttce4u.UploadStorageBuffer<float>(decalSpaceWith3D.OutputDepth()[r]);
-                    }
-
-
-                    for (var s = 0; validSlot > s; s += 1)
-                    {
-                        var mat = materials[s];
-                        if (mat == null) { continue; }
-                        if (mat.HasProperty(TargetPropertyName) is false) { continue; }
-
-                        var decalTargetTexture = mat.GetTexture(TargetPropertyName) as KeyTexture;
-                        if (decalTargetTexture == null) { continue; }
-                        if (DrawMaskMaterials is not null && DrawMaskMaterials.Contains(mat) is false) { continue; }
-
-                        var triangleIndexes = filteredTriangles.GetTriangles()[r][s];
-                        if (triangleIndexes.Length is 0) { continue; }
-
-                        if (renderTextureHolders.ContainsKey(decalTargetTexture) is false)
-                        {
-                            var newTempRt = renderTextureHolders[decalTargetTexture] = TTRenderTexWithDistance.Create(_ttce4u, (decalTargetTexture.width, decalTargetTexture.height), DecalPadding);
-                            newTempRt.Texture.Name = $"{decalTargetTexture.name}-CreateWriteDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
-                            newTempRt.DistanceMap.Name = $"{decalTargetTexture.name}-CreateDistanceDecalTexture-{newTempRt.Texture.Width}x{newTempRt.Texture.Hight}";
-                        }
-
-                        var writeTarget = renderTextureHolders[decalTargetTexture];
-                        using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, writeTarget.Texture.Size(), sourceTexture.Size(), DecalPadding, depthBuffer is not null);
-
-                        var polygonIndexesSpan = MemoryMarshal.Cast<TriangleIndex, int>(triangleIndexes);
-                        var polygonCount = triangleIndexes.Length;
-                        if (HighQualityPadding is false)
-                        {
-                            using var polygonIndexesBuffer = _ttce4u.UploadStorageBuffer<int>(polygonIndexesSpan);
-                            _ttce4u.WriteMapping(transMappingHolder, transToVertexBuf, transFromVertexBuf, polygonIndexesBuffer, polygonCount, transFromDepth);
-                        }
-                        else _ttce4u.WriteMappingHighQuality(transMappingHolder, transToVertex, transToVertexBuf, transFromVertexBuf, polygonIndexesSpan, transFromDepth);
-
-                        if (depthBuffer is not null) { _ttce4u.DepthCulling(transMappingHolder, depthBuffer, UseDepthOrInvert!.Value); }
-
-                        if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
-                        else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
-
-                        _ttce4u.TransWrite(transMappingHolder, writeTarget, sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
-                    }
-                }
-                finally
-                {
-                    transFromDepth?.Dispose();
-                }
-            }
-            Profiler.EndSample();
-
-            return renderTextureHolders;
         }
+        private void WriteDecal(TTRenderTexWithPaddingDistance writeTarget, ITTRenderTexture sourceTexture, DecalMeshHolder decalMesh, NativeArray<TriangleIndex> triangleIndexes, DepthBufferHolder? depthBuffer)
+        {
+            using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, writeTarget.Texture.Size(), sourceTexture.Size(), DecalPadding, depthBuffer is not null);
+
+            var polygonIndexesSpan = MemoryMarshal.Cast<TriangleIndex, int>(triangleIndexes);
+            var polygonCount = triangleIndexes.Length;
+
+            if (HighQualityPadding is false)
+            {
+                using var polygonIndexesBuffer = _ttce4u.UploadStorageBuffer<int>(polygonIndexesSpan);
+                _ttce4u.WriteMapping(transMappingHolder, decalMesh.TransToVertexBuf, decalMesh.TransFromVertexBuf, polygonIndexesBuffer, polygonCount, decalMesh.TransFromDepth);
+            }
+            else
+            {
+                var transToVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(decalMesh.MeshData.VertexUV);
+                _ttce4u.WriteMappingHighQuality(transMappingHolder, transToVertex, decalMesh.TransToVertexBuf, decalMesh.TransFromVertexBuf, polygonIndexesSpan, decalMesh.TransFromDepth);
+            }
+
+            if (depthBuffer is not null) { _ttce4u.DepthCulling(transMappingHolder, depthBuffer, UseDepthOrInvert!.Value); }
+
+            if (IsTextureStretch) _ttce4u.TransWarpModifierWithStretch(transMappingHolder);
+            else _ttce4u.TransWarpModifierWithNone(transMappingHolder);
+
+            _ttce4u.TransWrite(transMappingHolder, writeTarget, sourceTexture, _ttce4u.StandardComputeKey.DefaultSampler);
+        }
+
+        struct DecalMeshHolder : IDisposable
+        {
+            public readonly MeshData MeshData;
+            public ITTStorageBuffer TransToVertexBuf;
+            public ITTStorageBuffer TransFromVertexBuf;
+            public ITTStorageBuffer? TransFromDepth;
+            public DecalMeshHolder(ITexTransToolForUnity engine, MeshData meshData, TDecalSpace decalSpace, int meshIndex)
+            {
+                MeshData = meshData;
+                var transToVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(MeshData.VertexUV);
+                var transFromVertex = decalSpace.OutputUV()[meshIndex];
+
+                TransToVertexBuf = engine.UploadStorageBuffer<System.Numerics.Vector2>(transToVertex);
+                TransFromVertexBuf = engine.UploadStorageBuffer<Vector2>(transFromVertex);
+
+                if (decalSpace is IDecalSpaceWith3D decalSpaceWith3D) TransFromDepth = engine.UploadStorageBuffer<float>(decalSpaceWith3D.OutputDepth()[meshIndex]);
+                else TransFromDepth = null;
+            }
+            public void Dispose()
+            {
+                TransToVertexBuf?.Dispose();
+                TransToVertexBuf = null!;
+                TransFromVertexBuf?.Dispose();
+                TransFromVertexBuf = null!;
+                TransFromDepth?.Dispose();
+                TransFromDepth = null;
+            }
+        }
+
     }
 
     public enum PolygonCulling

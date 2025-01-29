@@ -13,15 +13,22 @@ namespace net.rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SingleGradationDecal))]
     internal class SingleGradationDecalEditor : UnityEditor.Editor
     {
+        CanBehaveAsLayerEditorUtil behaveLayerUtil;
+        void BehaveUtilInit() { behaveLayerUtil = new(target as Component); }
+        void OnEnable() { BehaveUtilInit(); EditorApplication.hierarchyChanged += BehaveUtilInit; }
+        void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawerWarning(target.GetType().Name);
 
-            EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
+            if (behaveLayerUtil.IsLayerMode is false)
+            {
+                EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
 
-            var sRendererSelector = serializedObject.FindProperty("RendererSelector");
-            EditorGUILayout.PropertyField(sRendererSelector);
+                var sRendererSelector = serializedObject.FindProperty("RendererSelector");
+                EditorGUILayout.PropertyField(sRendererSelector);
+            }
 
             EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("CommonDecal:label:GradationSettings".Glc(), EditorStyles.boldLabel);
@@ -57,13 +64,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sBlendTypeKey, "SingleGradationDecal:prop:BlendTypeKey".Glc());
 
             var sTargetPropertyName = serializedObject.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(sTargetPropertyName, "SingleGradationDecal:prop:TargetPropertyName".Glc());
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "SingleGradationDecal:prop:TargetPropertyName".Glc());
 
             EditorGUI.indentLevel -= 1;
 
             DecalEditorUtil.DrawerAdvancedOption(serializedObject);
 
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
+            if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
+            behaveLayerUtil.DrawAddLayerButton(target as Component);
+
             serializedObject.ApplyModifiedProperties();
             tf.ApplyModifiedProperties();
         }

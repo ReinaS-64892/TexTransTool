@@ -10,7 +10,7 @@ namespace net.rs64.TexTransCore.TransTexture
 {
     public static class TransMappingUtility
     {
-        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer transToVertex, ITTStorageBuffer transFromVertexBuffer, ITTStorageBuffer polygonIndexesBuffer, int polygonCount, ITTStorageBuffer? transFromDepth)
+        public static void WriteMapping<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ITTStorageBuffer transToVertex, ITTStorageBuffer transFromVertexBuffer, ITTStorageBuffer polygonIndexesBuffer, int polygonCount, ITTStorageBuffer? transFromDepth = null)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             var useDepth = transFromDepth is not null && transMappingHolder.DepthMap is not null;
@@ -79,7 +79,7 @@ namespace net.rs64.TexTransCore.TransTexture
                 yield return (Math.Min(polygonCount - offset, dispatchMax), offset);
             }
         }
-        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToVertex, ITTStorageBuffer transToVertexBuf, ITTStorageBuffer transFromVertexBuf, ReadOnlySpan<int> polygonIndexes, ITTStorageBuffer? transFromDepthBuf)
+        public static void WriteMappingHighQuality<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, ReadOnlySpan<Vector2> transToVertex, ITTStorageBuffer transToVertexBuf, ITTStorageBuffer transFromVertexBuf, ReadOnlySpan<int> polygonIndexes, ITTStorageBuffer? transFromDepthBuf = null)
         where TTCE : ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
         {
             var polygonCount = polygonIndexes.Length / 3;
@@ -215,7 +215,7 @@ namespace net.rs64.TexTransCore.TransTexture
         {
             return (a.X <= b.Z && a.Z >= b.X) && (a.Y <= b.W && a.W >= b.Y);
         }
-        public static void TransWrite<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, TTRenderTexWithDistance dist, ITTRenderTexture source, ITTSamplerKey samplerKey)
+        public static void TransWrite<TTCE>(this TTCE engine, TTTransMappingHolder transMappingHolder, TTRenderTexWithPaddingDistance dist, ITTRenderTexture source, ITTSamplerKey samplerKey)
         where TTCE : ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
@@ -245,7 +245,7 @@ namespace net.rs64.TexTransCore.TransTexture
             sampleCompute.SetTexture(scalingMapID, transMappingHolder.ScalingMap);
 
             sampleCompute.SetTexture(targetTexID, dist.Texture);
-            sampleCompute.SetTexture(targetDistanceMapID, dist.DistanceMap);
+            sampleCompute.SetTexture(targetDistanceMapID, dist.PaddingDistanceMap);
 
             sampleCompute.DispatchWithTextureSize(dist.Texture);
         }
@@ -322,35 +322,49 @@ namespace net.rs64.TexTransCore.TransTexture
         }
     }
 
-    public class TTRenderTexWithDistance : IDisposable
+    public class TTRenderTexWithPaddingDistance : IDisposable
     {
+        public readonly bool Owned;
         public ITTRenderTexture Texture;
-        public ITTRenderTexture DistanceMap;
+        public ITTRenderTexture PaddingDistanceMap;
         public readonly (int x, int y) Size;
-        public readonly float MaxDistance;
-        private TTRenderTexWithDistance(ITTRenderTexture texture, ITTRenderTexture distanceMap, (int x, int y) size, float maxDistance)
+        public readonly float MaxPaddingDistance;
+        private TTRenderTexWithPaddingDistance(bool owned, ITTRenderTexture texture, ITTRenderTexture distanceMap, (int x, int y) size, float maxDistance)
         {
+            Owned = owned;
             Texture = texture;
             Size = size;
-            DistanceMap = distanceMap;
-            MaxDistance = maxDistance;
+            PaddingDistanceMap = distanceMap;
+            MaxPaddingDistance = maxDistance;
         }
-        public static TTRenderTexWithDistance Create<TTCE>(TTCE engine, (int x, int y) size, float maxDistance)
+        public static TTRenderTexWithPaddingDistance Create<TTCE>(TTCE engine, (int x, int y) size, float maxPaddingDistance)
         where TTCE : ITexTransCreateTexture
         , ITexTransComputeKeyQuery
         , ITexTransGetComputeHandler
         {
             var texture = engine.CreateRenderTexture(size.x, size.y);
             var distanceMap = engine.CreateRenderTexture(size.x, size.y, TexTransCoreTextureChannel.R);
-            engine.FillR(distanceMap, maxDistance);
-            return new(texture, distanceMap, size, maxDistance);
+            engine.FillR(distanceMap, maxPaddingDistance);
+            return new(true, texture, distanceMap, size, maxPaddingDistance);
+        }
+        public static TTRenderTexWithPaddingDistance CreateFrom<TTCE>(TTCE engine, ITTRenderTexture renderTexture, float maxPaddingDistance)
+        where TTCE : ITexTransCreateTexture
+        , ITexTransComputeKeyQuery
+        , ITexTransGetComputeHandler
+        {
+            var distanceMap = engine.CreateRenderTexture(renderTexture.Width, renderTexture.Hight, TexTransCoreTextureChannel.R);
+            engine.FillR(distanceMap, maxPaddingDistance);
+            return new(false, renderTexture, distanceMap, renderTexture.Size(), maxPaddingDistance);
         }
         public void Dispose()
         {
-            Texture?.Dispose();
-            Texture = null!;
-            DistanceMap?.Dispose();
-            DistanceMap = null!;
+            if (Owned)
+            {
+                Texture?.Dispose();
+                Texture = null!;
+            }
+            PaddingDistanceMap?.Dispose();
+            PaddingDistanceMap = null!;
         }
     }
 

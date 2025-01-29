@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.Editor
             TextureTransformerEditor.DrawerWarning(nameof(ColorDifferenceChanger));
             var thisSObject = serializedObject;
 
-            if (behaveLayerUtil.ThisIsLayer is false) EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.TargetTexture)));
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.TargetTexture)));
 
             EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.DifferenceSourceColor)));
             EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.TargetColor)));

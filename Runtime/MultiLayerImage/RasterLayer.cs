@@ -10,13 +10,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT RasterLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Texture2D? RasterTexture;
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-            var alphaMask = GetAlphaMask(domain, engine);
+            var alphaMask = GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
 
             if (RasterTexture == null) { return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey); }

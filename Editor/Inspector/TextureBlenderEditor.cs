@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.Editor
             var thisTarget = target as TextureBlender;
             var thisSObject = serializedObject;
 
-            if (behaveLayerUtil.ThisIsLayer is false) EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"));
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"));
 
             var sBlendTexture = thisSObject.FindProperty("BlendTexture");
             EditorGUILayout.PropertyField(sBlendTexture, sBlendTexture.name.Glc());
@@ -55,6 +55,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         public readonly bool ThisIsLayer;
         public readonly bool ThisIsMLICChilde;
+        public bool IsLayerMode => ThisIsLayer && ThisIsMLICChilde;
         public bool IsDrawPreviewButton => ThisIsLayer is false && ThisIsMLICChilde is false;
         public CanBehaveAsLayerEditorUtil(Component component)
         {

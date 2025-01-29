@@ -25,8 +25,8 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
                 case ITTDiskTexture diskTexture: { engine.LoadTextureWidthAnySize(renderTexture, diskTexture); break; }
                 case ITTRenderTexture rt:
                     {
-                        if (rt.EqualSize(renderTexture)) engine.CopyRenderTexture(rt, renderTexture);
-                        else engine.DefaultResizing(rt, renderTexture);
+                        if (rt.EqualSize(renderTexture)) engine.CopyRenderTexture(renderTexture, rt);
+                        else engine.DefaultResizing(renderTexture, rt);
                         break;
                     }
             }

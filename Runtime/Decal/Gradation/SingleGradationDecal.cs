@@ -6,11 +6,13 @@ using System;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.MultiLayerImage;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SingleGradationDecal : TexTransRuntimeBehavior
+    public sealed class SingleGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
     {
         internal const string ComponentName = "TTT SingleGradationDecal";
         internal const string MenuPath = ComponentName;
@@ -33,22 +35,13 @@ namespace net.rs64.TexTransTool.Decal
         {
             domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));
-            var islandSelector = IslandSelector != null ? IslandSelector : null;
-            if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
             if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotSet"); return; }
             var ttce = domain.GetTexTransCoreEngineForUnity();
 
             using var gradDiskTex = ttce.Wrapping(GradientTempTexture.Get(Gradient, Alpha));
-            var space = new SingleGradientConvertor(transform.worldToLocalMatrix);
-            var filter = new IslandSelectFilter(islandSelector, domain.OriginEqual);
 
-
-            var decalContext = new DecalContext<SingleGradientConvertor, SingleGradientSpace, IslandSelectFilter, SingleGradientFilteredTrianglesHolder>(ttce, space, filter);
-            decalContext.TargetPropertyName = TargetPropertyName;
-            decalContext.IsTextureStretch = GradientClamp is false;
-            decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            var decalContext = GenerateDecalCtx(domain, ttce);
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
             var targetRenderers = ModificationTargetRenderers(domain);
@@ -57,13 +50,28 @@ namespace net.rs64.TexTransTool.Decal
 
 
             domain.LookAt(targetRenderers);
-            var result = decalContext.WriteDecalTexture<Texture>(targetRenderers, gradTex) ?? new();
+            var result = decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, gradTex, TargetPropertyName) ?? new();
 
             foreach (var m2rt in result) { domain.AddTextureStack(m2rt.Key, m2rt.Value.Texture, blKey); }
 
 
             foreach (var w in result) { w.Value.Dispose(); }
             if (result.Keys.Any() is false) { TTTRuntimeLog.Info("SingleGradationDecal:info:TargetNotFound"); }
+        }
+
+        private DecalContext<SingleGradientConvertor, SingleGradientSpace, IslandSelectFilter, SingleGradientFilteredTrianglesHolder> GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
+        {
+            var islandSelector = IslandSelector != null ? IslandSelector : null;
+            if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
+
+            var space = new SingleGradientConvertor(transform.worldToLocalMatrix);
+            var filter = new IslandSelectFilter(islandSelector, domain.OriginEqual);
+
+            var decalContext = new DecalContext<SingleGradientConvertor, SingleGradientSpace, IslandSelectFilter, SingleGradientFilteredTrianglesHolder>(ttce, space, filter);
+            decalContext.IsTextureStretch = GradientClamp is false;
+            decalContext.DecalPadding = Padding;
+            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            return decalContext;
         }
 
         private void OnDrawGizmosSelected()
@@ -79,5 +87,43 @@ namespace net.rs64.TexTransTool.Decal
             return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
         }
         DecalRendererSelector GetDRS(SingleGradationDecal d) => d.RendererSelector;
+
+        bool ICanBehaveAsLayer.HaveBlendTypeKey => true;
+        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
+        {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
+            domain.LookAt(this);
+            var alphaMask = asLayer.GetAlphaMaskObject(ctx);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+
+            if (ctx.TargetContainedMaterials is null)
+            {
+                TTTRuntimeLog.Error("SingleGradationDecal:error:CanNotAsLayerWhenUnsupportedContext");
+                return new EmptyLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey);
+            }
+
+            var islandSelector = IslandSelector != null ? IslandSelector : null;
+            if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
+
+            domain.LookAt(transform.GetParents().Append(transform));
+
+            var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
+            using var gradDiskTex = engine.WrappingToLoadOrUpload(GradientTempTexture.Get(Gradient, Alpha));
+
+            var decalContext = GenerateDecalCtx(domain, engine);
+            decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;
+
+            var decalRenderTarget = ctx.Domain.RendererFilterForMaterialFromDomains(ctx.TargetContainedMaterials);
+            domain.LookAt(decalRenderTarget);
+
+
+            if (decalContext.WriteDecalTextureWithSingleTexture(domain, decalRenderTarget, decalWriteTarget, gradDiskTex))
+                return new RasterLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey, decalWriteTarget);
+            else { return new EmptyLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey); }
+
+        }
     }
 }

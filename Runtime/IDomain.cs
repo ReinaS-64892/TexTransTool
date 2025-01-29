@@ -168,6 +168,11 @@ namespace net.rs64.TexTransTool
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
             return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? matHash.Contains(m) : false));
         }
+        public static IEnumerable<Renderer> RendererFilterForMaterialFromDomains(this IRendererTargeting rendererTargeting, HashSet<Material> domainMaterial)
+        {
+            if (domainMaterial.Any() is false) { return Array.Empty<Renderer>(); }
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? domainMaterial.Contains(m) : false));
+        }
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
         {
             if (material == null) { return Array.Empty<Renderer>(); }

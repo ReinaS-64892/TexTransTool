@@ -13,13 +13,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public TTTImportedImage? ImportedImage;
 
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
             var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
-            var alphaMask = GetAlphaMask(domain, engine);
+            var alphaMask = GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
 
             if (ImportedImage == null) { return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, alphaOperator, Clipping, blKey); }
@@ -41,8 +44,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             MaskTexture = importedMask;
         }
 
-        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
+        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMaskObject(GenerateLayerObjectContext ctx, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as TTTImportedLayerMask);
             if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
 

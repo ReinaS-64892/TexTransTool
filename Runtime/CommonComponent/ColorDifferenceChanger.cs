@@ -107,10 +107,13 @@ namespace net.rs64.TexTransTool
         }
         TextureSelector GetTextureSelector(ColorDifferenceChanger texBlend) { return texBlend.TargetTexture; }
 
-        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine, AsLayer asLayer)
+        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
-            var alphaMask = asLayer.GetAlphaMask(domain, engine);
+            var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(asLayer.BlendTypeKey);
             return new GrabBlendingAsLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, asLayer.Clipping, blKey, this);
         }
