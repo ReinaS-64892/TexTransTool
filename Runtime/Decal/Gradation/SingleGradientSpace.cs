@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.Decal
 
         public SingleGradientFilteredTrianglesHolder Filtering(SingleGradientSpace space)
         {
-            return new(IslandSelectToPPFilter.IslandSelectExecute(_islandSelector, space._meshData, _originEqual));
+            return new(IslandSelectToPPFilter.IslandSelectExecute(_islandSelector, space._meshData, _originEqual).Take());
         }
     }
     internal class SingleGradientFilteredTrianglesHolder : IFilteredTriangleHolder

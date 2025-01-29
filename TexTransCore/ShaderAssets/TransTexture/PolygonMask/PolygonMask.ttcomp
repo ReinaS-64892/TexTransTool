@@ -1,0 +1,76 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#define PARALLEL_COUNT 256
+// #define PARALLEL_COUNT 1
+
+cbuffer gv
+{
+    uint2 MapSize;
+    float MaxPaddingDistance;
+    uint DispatchIndexOffset;
+}
+RWTexture2D<float4> MaskMap;
+RWTexture2D<float> PaddingDistanceMap;
+
+StructuredBuffer<int> PolygonIndex;
+StructuredBuffer<float2> UVVertex;
+
+#include "../TransMappingHelper.hlsl"
+
+float4 MinMax(float2 tri[3])
+{
+    float2 minVal = min(min(tri[0], tri[1]), tri[2]);
+    float2 maxVal = max(max(tri[0], tri[1]), tri[2]);
+    return float4(minVal - MaxPaddingDistance, maxVal + MaxPaddingDistance);
+}
+
+[numthreads(1, PARALLEL_COUNT, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint thisID = id.y;
+    uint idMax = PARALLEL_COUNT;
+    uint polygonID = DispatchIndexOffset + id.x;
+    uint polygonIndex = polygonID * 3;
+
+    float2 uvPolygon[3];
+    uvPolygon[0] = UVVertex[PolygonIndex[polygonIndex + 0]] * float2(MapSize);
+    uvPolygon[1] = UVVertex[PolygonIndex[polygonIndex + 1]] * float2(MapSize);
+    uvPolygon[2] = UVVertex[PolygonIndex[polygonIndex + 2]] * float2(MapSize);
+
+    float4 rect = MinMax(uvPolygon);
+    int2 minVal = max( int2(floor(rect.xy)), int2(0,0));
+    int2 maxVal = min( int2(ceil(rect.zw)), MapSize);
+
+    int ySize = maxVal.y - minVal.y;
+    for (int yID = thisID; ySize > yID; yID += idMax)
+    {
+        int y = minVal.y + yID;
+        for (int x = minVal.x; maxVal.x > x; x += 1)
+        {
+            float2 pos = float2(x + 0.5, y + 0.5);
+            int2 posIndex = int2(x, y);
+
+            float3 toBC = Barycentric(uvPolygon, pos);
+            float distance = Distance(uvPolygon, pos);
+            if (InsideBarycentric(toBC) > 0.5)
+            {
+                distance = -1;
+            }
+
+            bool isWrite = PaddingDistanceMap[posIndex] > distance && MaxPaddingDistance > distance;
+            if (isWrite)
+            {
+                PaddingDistanceMap[posIndex] = distance;
+                MaskMap[posIndex] = float4( 1.0 , 1.0 , 1.0 , 1.0 );
+            }
+        }
+    }
+}
