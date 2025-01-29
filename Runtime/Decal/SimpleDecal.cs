@@ -95,6 +95,16 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             var targetRenderers = ModificationTargetRenderers(domain);
+            var decalContext = GenerateDecalCtx(domain, ttce);
+            decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
+
+            domain.LookAt(targetRenderers);
+            return decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, mulDecalTexture, TargetPropertyName) ?? new();
+
+        }
+
+        private DecalContext<ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder> GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
+        {
             var decalContext = new DecalContext
                 <ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
                 (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
@@ -102,11 +112,7 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.DecalPadding = Padding;
             decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
             decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
-            decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
-
-            domain.LookAt(targetRenderers);
-            return decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, mulDecalTexture, TargetPropertyName) ?? new();
-
+            return decalContext;
         }
 
         private ITTRenderTexture GetDecalSourceTexture(IDomain domain, ITexTransToolForUnity ttce)
@@ -235,13 +241,7 @@ namespace net.rs64.TexTransTool.Decal
 
             var decalRenderTarget = ctx.Domain.RendererFilterForMaterialFromDomains(ctx.TargetContainedMaterials);
             domain.LookAt(decalRenderTarget);
-            var decalContext = new DecalContext
-                <ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
-                (ctx.Engine, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
-            decalContext.IsTextureStretch = false;
-            decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
-            decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+            var decalContext = GenerateDecalCtx(domain, engine);
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;
 
             if (decalContext.WriteDecalTextureWithSingleTexture(domain, decalRenderTarget, decalWriteTarget, decalSourceTex))
