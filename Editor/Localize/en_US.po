@@ -626,3 +626,8 @@ msgstr "AimStart"
 
 msgid "IslandSelector:button:AimExit"
 msgstr "AimExit"
+
+# AsLayer
+
+msgid "AsLayer:button:AddLayer"
+msgstr "Add AsLayer to make it a layer"
