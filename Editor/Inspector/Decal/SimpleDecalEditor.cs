@@ -14,12 +14,18 @@ namespace net.rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal))]
     internal class SimpleDecalEditor : UnityEditor.Editor
     {
+        CanBehaveAsLayerEditorUtil behaveLayerUtil;
+        void BehaveUtilInit() { behaveLayerUtil = new(target as Component); }
+        void OnEnable() { BehaveUtilInit(); EditorApplication.hierarchyChanged += BehaveUtilInit; }
+        void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
         public override void OnInspectorGUI()
         {
             var thisSObject = serializedObject;
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;
 
+
+            if (behaveLayerUtil.IsLayerMode is false)
             {
                 EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
                 EditorGUI.indentLevel += 1;
@@ -28,25 +34,27 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.PropertyField(sRendererSelector, "Common:RendererSelectMode".Glc());
 
                 EditorGUI.indentLevel -= 1;
-                EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
-                EditorGUI.indentLevel += 1;
-
-                if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null)
-                {
-                    var sDecalTexture = thisSObject.FindProperty("DecalTexture");
-                    EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
-
-                    var sColor = thisSObject.FindProperty("Color");
-                    EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
-                }
-
-                var sBlendType = thisSObject.FindProperty("BlendTypeKey");
-                EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
-
-                var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-                EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
-                EditorGUI.indentLevel -= 1;
             }
+
+            EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+
+            if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null || behaveLayerUtil.IsLayerMode)
+            {
+                var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+                EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
+
+                var sColor = thisSObject.FindProperty("Color");
+                EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
+            }
+
+            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
+            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
+
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
+            EditorGUI.indentLevel -= 1;
+
 
             if (!isMultiEdit)
             {
@@ -77,7 +85,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
 
                 var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
-                EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
+                if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
 
                 if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is PinIslandSelector)
                 {
@@ -97,7 +105,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             }
 
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
+            if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
+            behaveLayerUtil.DrawAddLayerButton(target as Component);
 
             thisSObject.ApplyModifiedProperties();
         }
