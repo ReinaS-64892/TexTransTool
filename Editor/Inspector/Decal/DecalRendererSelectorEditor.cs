@@ -40,21 +40,22 @@ namespace net.rs64.TexTransTool.Editor.Decal
                     {
                         EditorGUI.PropertyField(position, sUseMaterialFilteringForAutoSelect, "CommonDecal:prop:UseMaterialFiltering".Glc());
                         position.y += position.height;
-                        if (sUseMaterialFilteringForAutoSelect.boolValue && _materialSelectionCandidates is not null)
+                        if (sUseMaterialFilteringForAutoSelect.boolValue)
                         {
-                            foreach (var mat2mat in EnumPair(_materialSelectionCandidates))
-                            {
-                                var rect = position;
+                            if (_materialSelectionCandidates is not null)
+                                foreach (var mat2mat in EnumPair(_materialSelectionCandidates))
+                                {
+                                    var rect = position;
 
-                                rect.width *= 0.5f;
-                                DrawAtMaterial(sAutoSelectFilterMaterials, mat2mat.Item1, rect);
-                                rect.x += rect.width;
-                                DrawAtMaterial(sAutoSelectFilterMaterials, mat2mat.Item2, rect);
+                                    rect.width *= 0.5f;
+                                    DrawAtMaterial(sAutoSelectFilterMaterials, mat2mat.Item1, rect);
+                                    rect.x += rect.width;
+                                    DrawAtMaterial(sAutoSelectFilterMaterials, mat2mat.Item2, rect);
 
-                                position.y += position.height;
-                            }
+                                    position.y += position.height;
+                                }
                             position.height = EditorGUI.GetPropertyHeight(sAutoSelectFilterMaterials);
-                            EditorGUI.PropertyField(position, sAutoSelectFilterMaterials,"CommonDecal:prop:AutoSelectFilterMaterials".Glc());
+                            EditorGUI.PropertyField(position, sAutoSelectFilterMaterials, "CommonDecal:prop:AutoSelectFilterMaterials".Glc());
                             position.y += position.height;
                             position.height = 18f;
                         }
@@ -94,7 +95,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
                         {
                             h += 18f * ((_materialSelectionCandidates?.Count ?? 0 + 1) / 2);
                             h += EditorGUI.GetPropertyHeight(sAutoSelectFilterMaterials);
-                        };
+                        }
+                        ;
                         break;
                     }
                 case RendererSelectMode.Manual:
