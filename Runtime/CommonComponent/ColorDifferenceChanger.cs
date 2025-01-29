@@ -1,14 +1,17 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
+using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class ColorDifferenceChanger : TexTransRuntimeBehavior
+    public sealed class ColorDifferenceChanger : TexTransRuntimeBehavior, ICanBehaveAsLayer, ITTGrabBlending
     {
         internal const string ComponentName = "TTT " + nameof(ColorDifferenceChanger);
         internal const string FoldoutName = "Other";
@@ -42,55 +45,60 @@ namespace net.rs64.TexTransTool
             {
                 using var rt = engine.WrappingToLoadOrUpload(targetTex);
 
-                // switch (ColorDiffSpaceMode)
-                // {
-                //     default:
-                //     case ColorDiffSpace.RGB:
-                //          {
-                            using var ch = engine.GetComputeHandler(gcQuay.GenealCompute["ColorAddition"]);
-
-                            var gvBufID = ch.NameToID("gv");
-                            var texID = ch.NameToID("Tex");
-
-                            Span<float> gv = stackalloc float[4];
-                            gv[0] = TargetColor.r - DifferenceSourceColor.r;
-                            gv[1] = TargetColor.g - DifferenceSourceColor.g;
-                            gv[2] = TargetColor.b - DifferenceSourceColor.b;
-                            gv[3] = 0f;
-
-                            ch.UploadConstantsBuffer<float>(gvBufID, gv);
-                            ch.SetTexture(texID, rt);
-
-                            ch.DispatchWithTextureSize(rt);
-                //             break;
-                //         }
-                //     case ColorDiffSpace.HSV: // 実装してみたはいい物のあんまりいい感じにならなかったから一旦実装を保留
-                //         {
-                //             using var ch = engine.GetComputeHandler(gcQuay.GenealCompute["ColorAdditionWithHSV"]);
-
-                //             var gvBufID = ch.NameToID("gv");
-                //             var texID = ch.NameToID("Tex");
-
-                //             Color.RGBToHSV(DifferenceSourceColor, out var sH, out var sS, out var sV);
-                //             Color.RGBToHSV(TargetColor, out var tH, out var tS, out var tV);
-
-                //             Span<float> gv = stackalloc float[4];
-                //             gv[0] = tH - sH;
-                //             gv[1] = tS - sS;
-                //             gv[2] = tV - sV;
-                //             gv[3] = 0f;
-
-                //             ch.UploadConstantsBuffer<float>(gvBufID, gv);
-                //             ch.SetTexture(texID, rt);
-
-                //             ch.DispatchWithTextureSize(rt);
-                //             break;
-                //         }
-                // }
+                WriteColorDifferenceChange(engine, gcQuay, rt);
 
                 var botBlendKey = engine.QueryBlendKey(ITexTransToolForUnity.BL_KEY_NOT_BLEND);
                 domain.AddTextureStack(targetTex, rt, botBlendKey);
             }
+        }
+
+        internal void WriteColorDifferenceChange(ITexTransToolForUnity engine, IQuayGeneraleComputeKey gcQuay, ITTRenderTexture writeTarget)
+        {
+            // switch (ColorDiffSpaceMode)
+            // {
+            //     default:
+            //     case ColorDiffSpace.RGB:
+            //          {
+            using var ch = engine.GetComputeHandler(gcQuay.GenealCompute["ColorAddition"]);
+
+            var gvBufID = ch.NameToID("gv");
+            var texID = ch.NameToID("Tex");
+
+            Span<float> gv = stackalloc float[4];
+            gv[0] = TargetColor.r - DifferenceSourceColor.r;
+            gv[1] = TargetColor.g - DifferenceSourceColor.g;
+            gv[2] = TargetColor.b - DifferenceSourceColor.b;
+            gv[3] = 0f;
+
+            ch.UploadConstantsBuffer<float>(gvBufID, gv);
+            ch.SetTexture(texID, writeTarget);
+
+            ch.DispatchWithTextureSize(writeTarget);
+            //             break;
+            //         }
+            //     case ColorDiffSpace.HSV: // 実装してみたはいい物のあんまりいい感じにならなかったから一旦実装を保留
+            //         {
+            //             using var ch = engine.GetComputeHandler(gcQuay.GenealCompute["ColorAdditionWithHSV"]);
+
+            //             var gvBufID = ch.NameToID("gv");
+            //             var texID = ch.NameToID("Tex");
+
+            //             Color.RGBToHSV(DifferenceSourceColor, out var sH, out var sS, out var sV);
+            //             Color.RGBToHSV(TargetColor, out var tH, out var tS, out var tV);
+
+            //             Span<float> gv = stackalloc float[4];
+            //             gv[0] = tH - sH;
+            //             gv[1] = tS - sS;
+            //             gv[2] = tV - sV;
+            //             gv[3] = 0f;
+
+            //             ch.UploadConstantsBuffer<float>(gvBufID, gv);
+            //             ch.SetTexture(texID, rt);
+
+            //             ch.DispatchWithTextureSize(rt);
+            //             break;
+            //         }
+            // }
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
@@ -98,5 +106,23 @@ namespace net.rs64.TexTransTool
             return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
         TextureSelector GetTextureSelector(ColorDifferenceChanger texBlend) { return texBlend.TargetTexture; }
+
+        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine, AsLayer asLayer)
+        {
+            domain.LookAt(this);
+            var alphaMask = asLayer.GetAlphaMask(domain, engine);
+            var blKey = engine.QueryBlendKey(asLayer.BlendTypeKey);
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, asLayer.Clipping, blKey, this);
+        }
+        public void GrabBlending<TTCE>(TTCE engine, ITTRenderTexture grabTexture) where TTCE : ITexTransCreateTexture, ITexTransComputeKeyQuery, ITexTransGetComputeHandler, ITexTransDriveStorageBufferHolder
+        {
+            var ttce4u = engine as ITexTransToolForUnity;
+
+            Debug.Assert(ttce4u != null);
+            if (ttce4u == null) { return; }
+
+            var gcQuay = engine.GetExKeyQuery<IQuayGeneraleComputeKey>();
+            WriteColorDifferenceChange(ttce4u, gcQuay, grabTexture);
+        }
     }
 }

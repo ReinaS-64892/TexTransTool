@@ -7,7 +7,7 @@ using net.rs64.TexTransTool.Preview.RealTime;
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TexTransBehavior), true)]
+    [CustomEditor(typeof(TexTransMonoBase), true)]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()

@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [Range(0, 1)] public float Opacity = 1;
         public bool Clipping;
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
-        [SerializeReference] public ILayerMask? LayerMask = new LayerMask();
+        [SerializeReference][SubclassSelector] public ILayerMask? LayerMask = new LayerMask();
 
         internal abstract LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine);
         LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine) => GetLayerObject(domain, engine);
