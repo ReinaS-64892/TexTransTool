@@ -14,12 +14,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         public Gradient Gradation = new();
 
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
-            var lm = GetAlphaMask(domain, engine);
+            var lm = GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var lumMap = new LuminanceMapping(new UnityGradationWrapper(Gradation));
 

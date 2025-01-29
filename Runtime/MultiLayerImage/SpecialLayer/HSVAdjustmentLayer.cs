@@ -13,12 +13,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Value;
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
-            var lm = GetAlphaMask(domain, engine);
+            var lm = GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var hsva = new HSVAdjustment(Hue, Saturation, Value);
 

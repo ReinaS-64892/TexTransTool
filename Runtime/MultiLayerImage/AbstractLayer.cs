@@ -4,13 +4,28 @@ using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.MultiLayerImageCanvas;
+using System.Collections.Generic;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
+    internal class GenerateLayerObjectContext
+    {
+        public readonly IDomain Domain;
+        public readonly ITexTransToolForUnity Engine;
+        public readonly (int x, int y) CanvasSize;
+        public HashSet<Material>? TargetContainedMaterials;
 
+        public GenerateLayerObjectContext(IDomain domain, (int x, int y) canvasSize, HashSet<Material>? targetContainedMaterials = null)
+        {
+            Domain = domain;
+            Engine = Domain.GetTexTransCoreEngineForUnity();
+            CanvasSize = canvasSize;
+            TargetContainedMaterials = targetContainedMaterials;
+        }
+    }
     internal interface IMultiLayerImageCanvasLayer
     {
-        LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine);
+        LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx);
     }
     public abstract class AbstractLayer : TexTransMonoBaseGameObjectOwned, IMultiLayerImageCanvasLayer
     {
@@ -20,15 +35,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         [SerializeReference][SubclassSelector] public ILayerMask? LayerMask = new LayerMask();
 
-        internal abstract LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine);
-        LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine) => GetLayerObject(domain, engine);
+        internal abstract LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx);
+        LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(GenerateLayerObjectContext ctx) => GetLayerObject(ctx);
 
-        internal virtual AlphaMask<ITexTransToolForUnity> GetAlphaMask(IDomain domain, ITexTransToolForUnity engine)
+        internal virtual AlphaMask<ITexTransToolForUnity> GetAlphaMaskObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
             Func<UnityEngine.Object, ILayerMask?> getLayerMask = o => (o as AbstractLayer)!.LayerMask;
             var lm = domain.LookAtGet(this, getLayerMask);
 
-            var innerMask = lm?.GetAlphaMask(domain, engine, this, getLayerMask);
+            var innerMask = lm?.GetAlphaMaskObject(ctx, this, getLayerMask);
 
             if (innerMask is not null) return new MaskAndSolid<ITexTransToolForUnity>(innerMask, Opacity);
             else return new SolidToMask<ITexTransToolForUnity>(Opacity);
@@ -37,7 +53,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     }
     public interface ILayerMask
     {
-        internal AlphaMask<ITexTransToolForUnity> GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask);
+        internal AlphaMask<ITexTransToolForUnity> GetAlphaMaskObject(GenerateLayerObjectContext ctx, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask);
     }
 
     [Serializable]
@@ -46,8 +62,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public bool LayerMaskDisabled;
         public Texture2D? MaskTexture;
 
-        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMask(IDomain domain, ITexTransToolForUnity engine, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
+        AlphaMask<ITexTransToolForUnity> ILayerMask.GetAlphaMaskObject(GenerateLayerObjectContext ctx, UnityEngine.Object thisObj, Func<UnityEngine.Object, ILayerMask?> getThisToLayerMask)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as LayerMask);
             if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
 

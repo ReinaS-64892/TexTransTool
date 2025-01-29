@@ -12,16 +12,19 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string ComponentName = "TTT LayerFolder";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public bool PassThrough;
-        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
             var layers = GetChileLayers();
             var chiles = new List<LayerObject<ITexTransToolForUnity>>(layers.Capacity);
-            foreach (var l in layers) { chiles.Add(l.GetLayerObject(domain, engine)); }
+            foreach (var l in layers) { chiles.Add(l.GetLayerObject(ctx)); }
 
-            var mask = GetAlphaMask(domain, engine);
+            var mask = GetAlphaMaskObject(ctx);
             if (PassThrough) { return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, Clipping, chiles); }
             else
             {

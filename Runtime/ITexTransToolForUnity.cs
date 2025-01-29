@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCore.TransTexture;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.Utils;

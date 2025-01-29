@@ -9,7 +9,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 {
     internal interface ICanBehaveAsLayer
     {
-        LayerObject<ITexTransToolForUnity> GetLayerObject(IDomain domain, ITexTransToolForUnity engine, AsLayer asLayer);
+        LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer);
         bool HaveBlendTypeKey => false;
     }
 
@@ -28,28 +28,33 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         [SerializeReference][SubclassSelector] public ILayerMask? LayerMask = new LayerMask();
 
-        LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine)
+        LayerObject<ITexTransToolForUnity> IMultiLayerImageCanvasLayer.GetLayerObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
             domain.LookAt(this);
             domain.LookAt(gameObject);
 
             var cdc = GetComponent<ICanBehaveAsLayer>();
 
-            if (cdc != null) { return cdc.GetLayerObject(domain, engine, this); }
+            if (cdc != null) { return cdc.GetLayerObject(ctx, this); }
             else
             {
-                var alphaMask = GetAlphaMask(domain, engine);
+                var alphaMask = GetAlphaMaskObject(ctx);
                 var blKey = engine.QueryBlendKey(BlendTypeKey);
                 return new EmptyLayer<ITexTransToolForUnity>(Visible, alphaMask, AlphaOperation.Normal, Clipping, blKey);
             }
         }
 
-        internal AlphaMask<ITexTransToolForUnity> GetAlphaMask(IDomain domain, ITexTransToolForUnity engine)
+        internal AlphaMask<ITexTransToolForUnity> GetAlphaMaskObject(GenerateLayerObjectContext ctx)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             Func<UnityEngine.Object, ILayerMask?> getLayerMask = o => (o as AsLayer)!.LayerMask;
             var lm = domain.LookAtGet(this, getLayerMask);
 
-            var innerMask = lm?.GetAlphaMask(domain, engine, this, getLayerMask);
+            var innerMask = lm?.GetAlphaMaskObject(ctx, this, getLayerMask);
 
             if (innerMask is not null) return new MaskAndSolid<ITexTransToolForUnity>(innerMask, Opacity);
             else return new SolidToMask<ITexTransToolForUnity>(Opacity);

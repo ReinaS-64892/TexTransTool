@@ -45,7 +45,6 @@ namespace net.rs64.TexTransTool.Decal
 
 
             var decalContext = new DecalContext<SingleGradientConvertor, SingleGradientSpace, IslandSelectFilter, SingleGradientFilteredTrianglesHolder>(ttce, space, filter);
-            decalContext.TargetPropertyName = TargetPropertyName;
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
             decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
@@ -57,7 +56,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
             domain.LookAt(targetRenderers);
-            var result = decalContext.WriteDecalTexture<Texture>(targetRenderers, gradTex) ?? new();
+            var result = decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, gradTex, TargetPropertyName) ?? new();
 
             foreach (var m2rt in result) { domain.AddTextureStack(m2rt.Key, m2rt.Value.Texture, blKey); }
 

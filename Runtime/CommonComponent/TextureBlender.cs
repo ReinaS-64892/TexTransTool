@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
-        public TextureSelector TargetTexture;
+        public TextureSelector TargetTexture = new();
 
         [ExpandTexture2D] public Texture2D? BlendTexture;
         public Color Color = Color.white;
@@ -64,10 +64,13 @@ namespace net.rs64.TexTransTool
         }
         TextureSelector GetTextureSelector(TextureBlender texBlend) { return texBlend.TargetTexture; }
 
-        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(IDomain domain, ITexTransToolForUnity engine, AsLayer asLayer)
+        LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
         {
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+
             domain.LookAt(this);
-            var alphaMask = asLayer.GetAlphaMask(domain, engine);
+            var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
             if (BlendTexture != null)

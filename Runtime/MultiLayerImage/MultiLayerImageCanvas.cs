@@ -26,8 +26,10 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
-            var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget);
+            var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
             if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
+
+            var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.GetAllTexture<Texture>().Any(nowDomainsTargets.Contains)).ToHashSet();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
@@ -35,28 +37,28 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            using var result = EvaluateCanvas(domain, texTransUnityCoreEngine, canvasWidth, canvasHeigh);
+            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh),targetContainsMaterials));
             Profiler.EndSample();
 
             var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
             foreach (var target in nowDomainsTargets) { domain.AddTextureStack(target, result, notBlendKey); }
         }
 
-        internal ITTRenderTexture EvaluateCanvas(IDomain domain, ITexTransToolForUnity texTransCoreEngine, int canvasWidth, int canvasHeigh)
+        internal ITTRenderTexture EvaluateCanvas(GenerateLayerObjectContext ctx)
         {
-            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<ITexTransToolForUnity>(texTransCoreEngine);
-            Profiler.BeginSample("ctr and GetRootLayerObjects");
-            using var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<ITexTransToolForUnity>(canvasWidth, canvasHeigh, GetRootLayerObjects(domain, texTransCoreEngine));
+            var canvasCtx = new TexTransCore.MultiLayerImageCanvas.CanvasContext<ITexTransToolForUnity>(ctx.Engine);
+            Profiler.BeginSample("GenerateLayerObject");
+            using var canvas = new TexTransCore.MultiLayerImageCanvas.Canvas<ITexTransToolForUnity>(ctx.CanvasSize.x, ctx.CanvasSize.y, GenerateLayerObject(ctx));
             Profiler.EndSample();
             return canvasCtx.EvaluateCanvas(canvas);
         }
-        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>> GetRootLayerObjects(IDomain domain, ITexTransToolForUnity engine)
+        internal List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>> GenerateLayerObject(GenerateLayerObjectContext ctx)
         {
-            domain.LookAt(this);
-            domain.LookAtChildeComponents<TexTransMonoBase>(gameObject);
+            ctx.Domain.LookAt(this);
+            ctx.Domain.LookAtChildeComponents<TexTransMonoBase>(gameObject);
             var layers = GetChileLayers();
             var list = new List<TexTransCore.MultiLayerImageCanvas.LayerObject<ITexTransToolForUnity>>(layers.Capacity);
-            foreach (var l in layers) { list.Add(l.GetLayerObject(domain, engine)); }
+            foreach (var l in layers) { list.Add(l.GetLayerObject(ctx)); }
             return list;
         }
 
