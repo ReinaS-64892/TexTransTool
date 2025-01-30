@@ -80,6 +80,10 @@ namespace net.rs64.TexTransTool
             Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
             Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
         }
+        HashSet<Texture> GetMaterialTexture(Material mat)
+        {
+            return mat.GetAllTexture<Texture>().ToHashSet();
+        }
     }
     internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
     {

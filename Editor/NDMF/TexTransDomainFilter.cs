@@ -365,12 +365,14 @@ namespace net.rs64.TexTransTool.NDMF
             private HashSet<Material>? _matHash;
             private HashSet<Texture>? _texHash;
             private Dictionary<Renderer, Material?[]> _sharedMaterialCache;
+            private Dictionary<Material, HashSet<Texture>> _textureHashOnMaterial;
 
             public NDMFRendererTargeting(ComputeContext ctx, Renderer[] renderers)
             {
                 _ctx = ctx;
                 _domainRenderers = renderers;
                 _sharedMaterialCache = new();
+                _textureHashOnMaterial = new();
             }
             public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
             public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
@@ -398,11 +400,16 @@ namespace net.rs64.TexTransTool.NDMF
                 {
                     _texHash = new HashSet<Texture>();
                     var mats = GetAllMaterials();
-                    foreach (var m in mats) { _texHash.UnionWith(m.GetAllTexture(GetShader, GetTex)); }
+                    foreach (var m in mats) { _texHash.UnionWith(GetMaterialTexture(m)); }
                 }
                 return _texHash;
-                Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
-                Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
+            }
+            public HashSet<Texture> GetMaterialTexture(Material mat)
+            {
+                if (_textureHashOnMaterial.TryGetValue(mat, out var tex)) { return tex; }
+                LookAt(mat);
+                tex = _textureHashOnMaterial[mat] = mat.GetAllTexture<Texture>().ToHashSet();
+                return tex;
             }
             public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
             where TObj : UnityEngine.Object
