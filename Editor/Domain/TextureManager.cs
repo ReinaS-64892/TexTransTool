@@ -62,8 +62,6 @@ namespace net.rs64.TexTransTool
             var size = _originTexture.GetOriginalTextureSize(diskTexture);
             return (size, size);
         }
-
-        public void LoadTexture(RenderTexture writeRt, Texture2D diskSource) { WriteOriginalTexture(diskSource, writeRt); }
     }
 
     internal class DeferredDestroyer : IDeferredDestroyTexture
@@ -306,7 +304,7 @@ namespace net.rs64.TexTransTool
             {
                 case UnityDiskTexture tex2DWrapper:
                     {
-                        _texManage.LoadTexture(writeTarget.Unwrap(), tex2DWrapper.Texture);
+                        _texManage.WriteOriginalTexture(tex2DWrapper.Texture, writeTarget.Unwrap());
                         ttce4u.LinearToGamma(writeTarget);
                         break;
                     }

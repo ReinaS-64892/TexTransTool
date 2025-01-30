@@ -115,7 +115,6 @@ namespace net.rs64.TexTransTool
 
 
         (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture);
-        void LoadTexture(RenderTexture writeRt, Texture2D diskSource);
         bool IsPreview { get; }
     }
     public interface IDeferTextureCompress
