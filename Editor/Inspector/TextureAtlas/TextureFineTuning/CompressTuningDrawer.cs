@@ -9,13 +9,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     [CustomPropertyDrawer(typeof(Compress))]
     internal class CompressTuningDrawer : PropertyDrawer
     {
-        public static readonly Dictionary<BuildTarget, (string[] displayName, TextureFormat[] formats)> SimpleFormatChoices = new()
+        public static readonly Dictionary<BuildTarget, (GUIContent[] displayName, TextureFormat[] formats)> SimpleFormatChoices = new()
         {
             {BuildTarget.StandaloneWindows64,
-                (new string[]{"RGBA-BC7","RGBA-DXT5|BC3","RGB-DXT1|BC1","RG-BC5","R-BC4"},
+                (new GUIContent[]{new("RGBA-BC7"),new("RGBA-DXT5|BC3"),new("RGB-DXT1|BC1"),new("RG-BC5"),new("R-BC4")},
                  new TextureFormat[]{TextureFormat.BC7,TextureFormat.DXT5,TextureFormat.DXT1,TextureFormat.BC5,TextureFormat.BC4})},
             {BuildTarget.Android,
-                (new string[]{"RGBA-ASTC_4x4","RGBA-ASTC_5x5","RGBA-ASTC_6x6","RGBA-ASTC_8x8","RGBA-ASTC_10x10","RGBA-ASTC_12x12"},
+                (new GUIContent[]{new("RGBA-ASTC_4x4"),new("RGBA-ASTC_5x5"),new("RGBA-ASTC_6x6"),new("RGBA-ASTC_8x8"),new("RGBA-ASTC_10x10"),new("RGBA-ASTC_12x12")},
                  new TextureFormat[]{TextureFormat.ASTC_4x4,TextureFormat.ASTC_5x5,TextureFormat.ASTC_6x6,TextureFormat.ASTC_8x8,TextureFormat.ASTC_10x10,TextureFormat.ASTC_12x12})}
         };
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -47,18 +47,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             position.height = 18f;
             if (!sUseOverride.boolValue)
             {
-                EditorGUI.PropertyField(position, sCompressFormatQuality, "TextureFineTuning:prop:FormatQuality".Glc());
+                EditorGUI.PropertyField(position, sCompressFormatQuality, "TextureFineTuning:prop:FormatQuality".GlcV());
                 position.y += 18;
             }
             else
             {
                 var nowChoicer = SimpleFormatChoices[EditorUserBuildSettings.activeBuildTarget];
                 var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);//なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
-                var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GetLocalize(), preIndex, nowChoicer.displayName);
+                var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GlcV(), preIndex, nowChoicer.displayName);
                 if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
                 position.y += 18;
 
-                EditorGUI.PropertyField(position, sOverrideTextureFormat, "TextureFineTuning:prop:OverrideTextureFormat".Glc());
+                EditorGUI.PropertyField(position, sOverrideTextureFormat, "TextureFineTuning:prop:OverrideTextureFormat".GlcV());
                 position.y += 18;
                 EditorGUI.PropertyField(position, sCompressCompressionQuality, "TextureFineTuning:prop:CompressionQuality".Glc());
                 position.y += 18;
