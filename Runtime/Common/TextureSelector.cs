@@ -99,7 +99,7 @@ namespace net.rs64.TexTransTool
                 {
                     if (containedHash.ContainsKey(m)) { continue; }//このコードパスに来るってことは キャッシュにあるものが true であることはない。
 
-                    if (m.GetAllTexture<Texture>().Any(targetTextures.Contains))
+                    if (rendererTargeting.GetMaterialTexture(m).Any(targetTextures.Contains))
                     {
                         containedHash.Add(m, true);
                         yield return r;
