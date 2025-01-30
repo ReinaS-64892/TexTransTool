@@ -27,20 +27,20 @@ namespace net.rs64.TexTransTool.Editor
 
             EditorGUILayout.PropertyField(sTargetTexture);
 
-            EditorGUILayout.PropertyField(sOverrideTextureSetting);
+            EditorGUILayout.PropertyField(sOverrideTextureSetting,"OverrideTextureSetting".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideTextureSetting.boolValue))
             using (new EditorGUI.IndentLevelScope())
             {
-                EditorGUILayout.PropertyField(sTextureSize);
-                EditorGUILayout.PropertyField(sMipMap);
+                EditorGUILayout.PropertyField(sTextureSize, "TextureSize".GlcV());
+                EditorGUILayout.PropertyField(sMipMap, "MipMap".GlcV());
                 EditorGUILayout.PropertyField(sDownScalingAlgorithm);
                 EditorGUILayout.PropertyField(sDownScalingWithLookAtAlpha);
             }
 
-            EditorGUILayout.PropertyField(sOverrideCompression);
+            EditorGUILayout.PropertyField(sOverrideCompression,"OverrideCompression".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideCompression.boolValue))
             using (new EditorGUI.IndentLevelScope())
-            { EditorGUILayout.PropertyField(sCompressionSetting); }
+            { EditorGUILayout.PropertyField(sCompressionSetting, "OverrideCompression".GlcV()); }
 
             PreviewButtonDrawUtil.Draw(targetTC);
             sObj.ApplyModifiedProperties();

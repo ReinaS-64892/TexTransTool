@@ -86,8 +86,8 @@ namespace net.rs64.TexTransTool.Editor
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(_isOverrideShader);
-                EditorGUILayout.PropertyField(_overrideShader);
-                EditorGUILayout.PropertyField(_overrideProperties);
+                EditorGUILayout.PropertyField(_overrideShader, "OverrideShader".GlcV());
+                EditorGUILayout.PropertyField(_overrideProperties,"OverrideProperties".GlcV());
                 OverrideUtilityGUI();
                 EditorGUI.indentLevel--;
             }

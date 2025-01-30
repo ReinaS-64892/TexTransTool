@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NDMF Preview にて 同一フェーズ に限り、 MaterialOverrideTransfer などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#806 #828 #830)
 - 色合成をしない特殊な色合成、 ExtraColorBlending に属するいくつかの色合成が追加されました (#812)
 - MaterialModificationPhase と PostProcessingPhase が追加されました (#826)
+- VRAM容量 (テクスチャーメモリやメッシュ) に影響を与えうる設定項目に対して、アイコンが表示されるようになりました (#839)
 
 ### Removed
 

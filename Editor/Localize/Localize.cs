@@ -29,6 +29,12 @@ namespace net.rs64.TexTransTool
             if (!LocalizationAssets.ContainsKey(Language)) { LoadLocalize(); }
             return LocalizationAssets[Language].GetLocalizedString(str);
         }
+        public static GUIContent GlcV(this string str)
+        {
+            var c = str.Glc();
+            c.image = TTTImageAssets.VramICon;
+            return c;
+        }
 
         public static GUIContent Glc(this string str)
         {
@@ -46,3 +52,4 @@ namespace net.rs64.TexTransTool
         }
     }
 }
+
