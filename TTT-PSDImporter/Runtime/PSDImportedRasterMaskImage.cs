@@ -6,6 +6,7 @@ using net.rs64.TexTransTool.MultiLayerImage;
 using net.rs64.TexTransTool.PSDParser;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Profiling;
 using static net.rs64.TexTransCore.RenderTextureOperator;
 
 namespace net.rs64.TexTransTool.PSDImporter
@@ -33,6 +34,13 @@ namespace net.rs64.TexTransTool.PSDImporter
                 PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, psdBinary.PSDByteArray.AsSpan((int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
                 ttce.Swizzling(writeTarget, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A);
             }
+            else
+            {
+                Profiler.BeginSample("BaseFallBack");
+                base.LoadImage(importSource, ttce, writeTarget);
+                Profiler.EndSample();
+            }
+
 
 
         }
