@@ -99,10 +99,10 @@ namespace net.rs64.TexTransTool
         }
 
 
-        internal static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U engine, ITTRenderTexture renderTexture, bool useMipMap, bool isLiner = false)
+        internal static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U engine, ITTRenderTexture renderTexture, bool useMipMap, TexTransCoreTextureFormat? overrideFormat = null, bool isLiner = false)
         where TTT4U : ITexTransToolForUnity
         {
-            var ttcFormat = engine.PrimaryTextureFormat;
+            var ttcFormat = overrideFormat ?? engine.PrimaryTextureFormat;
             var texFormat = ttcFormat.ToUnityTextureFormat();
             var bpp = EnginUtil.GetPixelParByte(ttcFormat, TexTransCoreTextureChannel.RGBA);
 

@@ -311,7 +311,10 @@ namespace net.rs64.TexTransTool
                 case UnityDiskTexture tex2DWrapper:
                     {
                         _texManage.WriteOriginalTexture(tex2DWrapper.Texture, writeTarget.Unwrap());
-                        ttce4u.LinearToGamma(writeTarget);
+                        // sRGB なフォーマットだった場合は、(Unityが)勝手にリニア変換するお節介を逆補正する
+                        // Texture.isDataSRGB は 16bit 等の SRGB ではないやつであっても、
+                        // テクスチャ作成時の引数の isLiner が false だった場合に true になることがあるから この場合は 信用してはならない。
+                        if (GraphicsFormatUtility.IsSRGBFormat(tex2DWrapper.Texture.graphicsFormat)) ttce4u.LinearToGamma(writeTarget);
                         break;
                     }
                 case UnityImportedDiskTexture importedWrapper:

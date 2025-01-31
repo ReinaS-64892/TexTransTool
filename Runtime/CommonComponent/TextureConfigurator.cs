@@ -75,13 +75,13 @@ namespace net.rs64.TexTransTool
             if (useMipMap)
             {
                 //TODO : TTCE を用いた MipMap の生成
-                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, true);
+                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, true, TexTransCoreTextureFormat.Byte);// 個々のフォーマット指定は出力空間次第で変更できてもよい気がする。
                 resizedTexture2d.Apply(true);
                 return resizedTexture2d;
             }
             else
             {
-                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, false);
+                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, false, TexTransCoreTextureFormat.Byte);
                 resizedTexture2d.Apply();
                 return resizedTexture2d;
             }
