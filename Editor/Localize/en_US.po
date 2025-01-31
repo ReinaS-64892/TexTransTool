@@ -53,6 +53,12 @@ msgstr "Auto"
 msgid "Common:RendererSelectMode:Manual"
 msgstr "Manual"
 
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat"
+msgstr "It texture is may contains alpha, but is compressed non-alpha format."
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
+msgstr "It my be false positive, if it is Intentional or no-problem, just ignore it completely."
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"

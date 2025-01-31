@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -78,7 +81,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             if (UseOverride) { return (OverrideTextureFormat, CompressionQuality); }
 
 #if UNITY_STANDALONE_WIN
-            var hasAlpha = HasAlphaChannel(texture2D);
+            var hasAlpha = HasAlphaChannel(texture2D).GetResult();
 #else
             var hasAlpha = true;
 #endif
@@ -131,18 +134,135 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             return textureFormat;
         }
 
-        public bool HasAlphaChannel(Texture2D texture2D)
+        public static AlphaContainsResult HasAlphaChannel(Texture2D texture2D)
         {
-            if (GraphicsFormatUtility.HasAlphaChannel(texture2D.format) is false) { return false; }
-            if (texture2D.format != TextureFormat.RGBA32) { return true; }//RGBA32以外の実装はいったんしない TODO
+            if (GraphicsFormatUtility.HasAlphaChannel(texture2D.format) is false) { return new(false); }
 
-            var containsAlpha = false;
-            var span = texture2D.GetRawTextureData<Color32>().AsReadOnlySpan();
-            for (int i = 0; span.Length > i; i += 1)
+            switch (texture2D.format)
             {
-                containsAlpha |= span[i].a != 255 && span[i].a != 254;
+                default: return new(true);
+                case TextureFormat.RGBA32:
+                    {
+                        var res = new NativeArray<bool>(1, Allocator.TempJob);
+                        var na = new NativeArray<Color32>(texture2D.GetRawTextureData<Color32>(), Allocator.TempJob);
+                        return new(res, new AlphaContainsRGBA32() { Bytes = na, Result = res }.Schedule());
+                    }
+                case TextureFormat.RGBA64:
+                    {
+                        var res = new NativeArray<bool>(1, Allocator.TempJob);
+                        var na = new NativeArray<Color64>(texture2D.GetRawTextureData<Color64>(), Allocator.TempJob);
+                        return new(res, new AlphaContainsRGBA64() { Bytes = na, Result = res }.Schedule());
+                    }
+                case TextureFormat.RGBAHalf:
+                    {
+                        var res = new NativeArray<bool>(1, Allocator.TempJob);
+                        var na = new NativeArray<Color64>(texture2D.GetRawTextureData<Color64>(), Allocator.TempJob);
+                        return new(res, new AlphaContainsRGBAHalf() { Bytes = na, Result = res }.Schedule());
+                    }
+                case TextureFormat.RGBAFloat:
+                    {
+                        var res = new NativeArray<bool>(1, Allocator.TempJob);
+                        var na = new NativeArray<Color>(texture2D.GetRawTextureData<Color>(), Allocator.TempJob);
+                        return new(res, new AlphaContainsRGBAFloat() { Bytes = na, Result = res }.Schedule());
+                    }
             }
-            return containsAlpha;
+        }
+        public struct AlphaContainsResult : IDisposable
+        {
+            JobHandle jobHandle;
+            NativeArray<bool> result;
+            bool? value;
+            public AlphaContainsResult(bool val)
+            {
+                result = default;
+                jobHandle = default;
+                value = val;
+            }
+            public AlphaContainsResult(NativeArray<bool> res, JobHandle handle)
+            {
+                result = res;
+                jobHandle = handle;
+                value = null;
+            }
+
+            public bool GetResult()
+            {
+                if (value is null)
+                {
+                    jobHandle.Complete();
+                    value = result[0];
+                    result.Dispose();
+                }
+                return value.Value;
+            }
+            public void Dispose() { GetResult(); }
+
+        }
+
+        struct AlphaContainsRGBA32 : IJob
+        {
+            [ReadOnly][DeallocateOnJobCompletion] public NativeArray<Color32> Bytes;
+            [WriteOnly] public NativeArray<bool> Result;
+            public void Execute()
+            {
+                var containsAlpha = false;
+                for (var i = 0; Bytes.Length > i; i += 1)
+                {
+                    // 基本的に 0.01 の誤差を受け入れる方針です。
+                    if (Bytes[i].a >= (byte.MaxValue - 3) is false) { containsAlpha = true; }
+                }
+                Result[0] = containsAlpha;
+            }
+        }
+        struct AlphaContainsRGBA64 : IJob
+        {
+            [ReadOnly][DeallocateOnJobCompletion] public NativeArray<Color64> Bytes;
+            [WriteOnly] public NativeArray<bool> Result;
+            public void Execute()
+            {
+                var containsAlpha = false;
+                for (var i = 0; Bytes.Length > i; i += 1)
+                {
+                    if (Bytes[i].a >= (ushort.MaxValue - 655) is false) { containsAlpha = true; }
+                }
+                Result[0] = containsAlpha;
+            }
+        }
+        struct Color64
+        {
+            public ushort r;
+            public ushort g;
+            public ushort b;
+            public ushort a;
+        }
+        struct AlphaContainsRGBAHalf : IJob
+        {
+            [ReadOnly][DeallocateOnJobCompletion] public NativeArray<Color64> Bytes;
+            [WriteOnly] public NativeArray<bool> Result;
+            public void Execute()
+            {
+                var containsAlpha = false;
+                for (var i = 0; Bytes.Length > i; i += 1)
+                {
+                    if (Unity.Mathematics.math.f16tof32(Bytes[i].a) >= (1f - 0.01f) is false) { containsAlpha = true; }
+                }
+                Result[0] = containsAlpha;
+            }
+        }
+        struct AlphaContainsRGBAFloat : IJob
+        {
+            [ReadOnly][DeallocateOnJobCompletion] public NativeArray<Color> Bytes;
+            [WriteOnly] public NativeArray<bool> Result;
+            public void Execute()
+            {
+                var containsAlpha = false;
+                for (var i = 0; Bytes.Length > i; i += 1)
+                {
+
+                    if (Bytes[i].a >= (1f - 0.01f) is false) { containsAlpha = true; }
+                }
+                Result[0] = containsAlpha;
+            }
         }
 
     }

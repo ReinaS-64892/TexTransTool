@@ -14,6 +14,9 @@ using UnityEditor;
 using UnityEngine;
 using net.rs64.TexTransTool.MultiLayerImage.Importer;
 using UnityEngine.Experimental.Rendering;
+using Unity.Jobs;
+using Unity.Collections;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool
 {
@@ -216,6 +219,7 @@ namespace net.rs64.TexTransTool
                 .Where(kv => GraphicsFormatUtility.IsCompressedFormat(kv.t.format) is false)
                 .ToArray();
 
+            var needAlphaInfoTarget = new Dictionary<Texture2D, TextureCompressionData.AlphaContainsResult>();
             // ほかツールが増やした場合のために自分が情報を持っているやつから派生した場合にフォールバック設定で圧縮が行われる
             foreach (var (tex, fallBackCompressing) in targetTextures)
             {
@@ -225,6 +229,10 @@ namespace net.rs64.TexTransTool
                     else return fallBackCompressing.Get(tex);
                 }
                 var compressFormat = GetCompressFormat(tex, fallBackCompressing);
+
+                if (GraphicsFormatUtility.HasAlphaChannel(compressFormat.CompressFormat) is false)
+                    needAlphaInfoTarget[tex] = TextureCompressionData.HasAlphaChannel(tex);
+
                 EditorUtility.CompressTexture(tex, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
@@ -241,8 +249,14 @@ namespace net.rs64.TexTransTool
             }
 
             _compressDict.Clear();
-        }
 
+            // アルファが存在するがフォーマット的に消えたやつら
+            var alphaContainsFormatNeedTextures = needAlphaInfoTarget.Where(i => i.Value.GetResult()).ToArray();
+            if (alphaContainsFormatNeedTextures.Any())
+            {
+                TTTRuntimeLog.Info("Common:info:AlphaContainsTextureCompressToAlphaMissingFormat", alphaContainsFormatNeedTextures.Select(i => i.Key));
+            }
+        }
         public static ITTTextureFormat GetTTTextureFormat(Texture2D texture2D)
         {
             static ITTTextureFormat GetDirect(Texture2D texture2D) { return new DirectFormat(texture2D.format, 50); }

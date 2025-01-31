@@ -53,6 +53,12 @@ msgstr "自動"
 msgid "Common:RendererSelectMode:Manual"
 msgstr "手動"
 
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat"
+msgstr "アルファの存在する可能性のあるテクスチャーが、アルファのないフォーマットに圧縮されています。"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
+msgstr "判定が誤っている可能性もあり、意図的である場合や問題がない場合は完全に無視してください。"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
