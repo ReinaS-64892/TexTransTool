@@ -44,6 +44,9 @@ namespace net.rs64.TexTransTool
             return UploadTexture<byte>(renderTexture.width, renderTexture.height, channel, na.AsSpan(), format);
         }
 
+        // できる場合はいい感じに 内部で使用されている物を雑に投げつけて
+        public TexTransCoreTextureFormat PrimaryTextureFormat { get => TexTransCoreTextureFormat.Byte; }
+
     }
     public interface ITexTransUnityDiskUtil : ITexTransUnityDiskWrapper, ITexTransLoadTextureWithDiskUtil
     { }
@@ -81,7 +84,7 @@ namespace net.rs64.TexTransTool
 
     public static class TTT4UnityUtility
     {
-        public static ITTRenderTexture WrappingToLoadOrUpload(this ITexTransToolForUnity engine, Texture texture)
+        public static ITTRenderTexture WrappingToLoadFullScaleOrUpload(this ITexTransToolForUnity engine, Texture texture)
         {
             switch (texture)
             {
@@ -94,15 +97,22 @@ namespace net.rs64.TexTransTool
                 default: { throw new InvalidOperationException(); }
             }
         }
-        public static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U ttt4u, ITTRenderTexture rt, TexTransCoreTextureFormat format = TexTransCoreTextureFormat.Byte)
-        where TTT4U : ITexTransRenderTextureIO
+
+
+        internal static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U engine, ITTRenderTexture renderTexture, bool useMipMap, TexTransCoreTextureFormat? overrideFormat = null, bool isLiner = false)
+        where TTT4U : ITexTransToolForUnity
         {
-            var tex = new Texture2D(rt.Width, rt.Hight, format.ToUnityTextureFormat(rt.ContainsChannel), false);
-            var texPtr = tex.GetRawTextureData<byte>();
-            ttt4u.DownloadTexture<byte>(texPtr, format, rt);
-            tex.Apply();
-            return tex;
+            var ttcFormat = overrideFormat ?? engine.PrimaryTextureFormat;
+            var texFormat = ttcFormat.ToUnityTextureFormat();
+            var bpp = EnginUtil.GetPixelParByte(ttcFormat, TexTransCoreTextureChannel.RGBA);
+
+            var resultTex2D = new Texture2D(renderTexture.Width, renderTexture.Hight, texFormat, useMipMap, isLiner);
+            var map = resultTex2D.GetRawTextureData<byte>().AsSpan().Slice(0, renderTexture.Width * renderTexture.Hight * bpp);
+            engine.DownloadTexture(map, ttcFormat, renderTexture);
+
+            return resultTex2D;
         }
+
     }
 
 }

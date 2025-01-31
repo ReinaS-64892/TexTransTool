@@ -12,6 +12,9 @@ namespace net.rs64.TexTransTool
     internal class TTCEUnityWithTTT4Unity : TTCEUnity, ITexTransToolForUnity
     {
         ITexTransUnityDiskUtil _diskUtil;
+
+        public TexTransCoreTextureFormat PrimaryTextureFormat => TTRt2.GetRGBAFormat();
+
         public TTCEUnityWithTTT4Unity(ITexTransUnityDiskUtil diskUtil)
         {
             _diskUtil = diskUtil;

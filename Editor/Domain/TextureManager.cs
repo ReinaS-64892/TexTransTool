@@ -14,6 +14,9 @@ using UnityEditor;
 using UnityEngine;
 using net.rs64.TexTransTool.MultiLayerImage.Importer;
 using UnityEngine.Experimental.Rendering;
+using Unity.Jobs;
+using Unity.Collections;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool
 {
@@ -204,10 +207,10 @@ namespace net.rs64.TexTransTool
         public virtual void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual)
         {
             if (_compressDict == null) { return; }
-            var compressKV = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
+            var compressKV = _compressDict.Where(i => i.Key != null).ToDictionary(i => i.Key, i => i.Value);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 
             var targetTextures = RendererUtility.GetFilteredMaterials(renderers)
-                .SelectMany(m => MaterialUtility.GetAllTexture2DWithDictionary(m).Select(i => i.Value))
+                .SelectMany(m => MaterialUtility.GetAllTexture<Texture2D>(m))
                 .Where(t => t != null)
                 .Distinct()
                 .Select(t => (t, compressKV.FirstOrDefault(kv => originEqual(kv.Key, t))))
@@ -216,10 +219,21 @@ namespace net.rs64.TexTransTool
                 .Where(kv => GraphicsFormatUtility.IsCompressedFormat(kv.t.format) is false)
                 .ToArray();
 
-            foreach (var tex in targetTextures)
+            var needAlphaInfoTarget = new Dictionary<Texture2D, TextureCompressionData.AlphaContainsResult>();
+            // ほかツールが増やした場合のために自分が情報を持っているやつから派生した場合にフォールバック設定で圧縮が行われる
+            foreach (var (tex, fallBackCompressing) in targetTextures)
             {
-                var compressFormat = tex.Value.Get(tex.t);
-                EditorUtility.CompressTexture(tex.t, compressFormat.CompressFormat, compressFormat.Quality);
+                (TextureFormat CompressFormat, int Quality) GetCompressFormat(Texture2D tex, ITTTextureFormat fallBackCompressing)
+                {
+                    if (compressKV.TryGetValue(tex, out var compression)) return compression.Get(tex);
+                    else return fallBackCompressing.Get(tex);
+                }
+                var compressFormat = GetCompressFormat(tex, fallBackCompressing);
+
+                if (GraphicsFormatUtility.HasAlphaChannel(compressFormat.CompressFormat) is false)
+                    needAlphaInfoTarget[tex] = TextureCompressionData.HasAlphaChannel(tex);
+
+                EditorUtility.CompressTexture(tex, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
             foreach (var tex in targetTextures) tex.t.Apply(false, true);
@@ -235,8 +249,14 @@ namespace net.rs64.TexTransTool
             }
 
             _compressDict.Clear();
-        }
 
+            // アルファが存在するがフォーマット的に消えたやつら
+            var alphaContainsFormatNeedTextures = needAlphaInfoTarget.Where(i => i.Value.GetResult()).ToArray();
+            if (alphaContainsFormatNeedTextures.Any())
+            {
+                TTTRuntimeLog.Info("Common:info:AlphaContainsTextureCompressToAlphaMissingFormat", alphaContainsFormatNeedTextures.Select(i => i.Key));
+            }
+        }
         public static ITTTextureFormat GetTTTextureFormat(Texture2D texture2D)
         {
             static ITTTextureFormat GetDirect(Texture2D texture2D) { return new DirectFormat(texture2D.format, 50); }
@@ -305,7 +325,10 @@ namespace net.rs64.TexTransTool
                 case UnityDiskTexture tex2DWrapper:
                     {
                         _texManage.WriteOriginalTexture(tex2DWrapper.Texture, writeTarget.Unwrap());
-                        ttce4u.LinearToGamma(writeTarget);
+                        // sRGB なフォーマットだった場合は、(Unityが)勝手にリニア変換するお節介を逆補正する
+                        // Texture.isDataSRGB は 16bit 等の SRGB ではないやつであっても、
+                        // テクスチャ作成時の引数の isLiner が false だった場合に true になることがあるから この場合は 信用してはならない。
+                        if (GraphicsFormatUtility.IsSRGBFormat(tex2DWrapper.Texture.graphicsFormat)) ttce4u.LinearToGamma(writeTarget);
                         break;
                     }
                 case UnityImportedDiskTexture importedWrapper:

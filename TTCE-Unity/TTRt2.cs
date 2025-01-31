@@ -18,6 +18,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         private static int s_releaseFrameCount = 0;
 
         public static void SetRGBAFormat(TexTransCoreTextureFormat format) { RGBAFormat = format; }
+        public static TexTransCoreTextureFormat GetRGBAFormat() =>  RGBAFormat;
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
