@@ -53,8 +53,7 @@ namespace net.rs64.TexTransCore
         void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged;
 
         /// <summary>
-        /// Download を行う場合、解像度は 必ず 64 * 64 かそれ以上である必要があり、 実用量が 256 byte で割り切れるような大きさでなければならない。
-        /// それらを満たしていない場合の動作は、 engine に依存します。
+        /// 解像度が 二のべき乗 ではなかったり、 64 * 64 以下だった場合の挙動は engine に依存し、それら対応を放棄してもよい。
         /// </summary>
         void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged;
     }

@@ -111,7 +111,7 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(transform.GetParents().Append(transform));
 
             var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
-            using var gradDiskTex = engine.WrappingToLoadOrUpload(GradientTempTexture.Get(Gradient, Alpha));
+            using var gradDiskTex = engine.WrappingToLoadFullScaleOrUpload(GradientTempTexture.Get(Gradient, Alpha));
 
             var decalContext = GenerateDecalCtx(domain, engine);
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;

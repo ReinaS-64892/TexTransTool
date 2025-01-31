@@ -84,12 +84,7 @@ namespace net.rs64.TexTransTool.TextureStack
 
         public Texture2D MergeStack()
         {
-            var resultTex2D = new Texture2D(BaseTexture.width, BaseTexture.height, TextureFormat.RGBA32, BaseTexture.mipmapCount > 1, true);
-            var map = resultTex2D.GetRawTextureData<byte>().AsSpan().Slice(0, BaseTexture.width * BaseTexture.height * 4);
-
-            TTCEWith4Unity.GammaToLinear(_renderTexture);
-
-            TTCEWith4Unity.DownloadTexture(map, TexTransCoreTextureFormat.Byte, _renderTexture);
+            var resultTex2D = TTCEWith4Unity.DownloadToTexture2D(_renderTexture, BaseTexture.mipmapCount > 1);
 
             resultTex2D.CopyFilWrap2D(BaseTexture);
             TextureManager.DeferredInheritTextureCompress(BaseTexture, resultTex2D);

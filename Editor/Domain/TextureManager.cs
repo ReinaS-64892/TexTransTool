@@ -207,7 +207,7 @@ namespace net.rs64.TexTransTool
             var compressKV = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 
             var targetTextures = RendererUtility.GetFilteredMaterials(renderers)
-                .SelectMany(m => MaterialUtility.GetAllTexture2DWithDictionary(m).Select(i => i.Value))
+                .SelectMany(m => MaterialUtility.GetAllTexture<Texture2D>(m))
                 .Where(t => t != null)
                 .Distinct()
                 .Select(t => (t, compressKV.FirstOrDefault(kv => originEqual(kv.Key, t))))
