@@ -204,7 +204,7 @@ namespace net.rs64.TexTransTool
         public virtual void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual)
         {
             if (_compressDict == null) { return; }
-            var compressKV = _compressDict.Where(i => i.Key != null);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
+            var compressKV = _compressDict.Where(i => i.Key != null).ToDictionary(i => i.Key, i => i.Value);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 
             var targetTextures = RendererUtility.GetFilteredMaterials(renderers)
                 .SelectMany(m => MaterialUtility.GetAllTexture<Texture2D>(m))
@@ -216,10 +216,16 @@ namespace net.rs64.TexTransTool
                 .Where(kv => GraphicsFormatUtility.IsCompressedFormat(kv.t.format) is false)
                 .ToArray();
 
-            foreach (var tex in targetTextures)
+            // ほかツールが増やした場合のために自分が情報を持っているやつから派生した場合にフォールバック設定で圧縮が行われる
+            foreach (var (tex, fallBackCompressing) in targetTextures)
             {
-                var compressFormat = tex.Value.Get(tex.t);
-                EditorUtility.CompressTexture(tex.t, compressFormat.CompressFormat, compressFormat.Quality);
+                (TextureFormat CompressFormat, int Quality) GetCompressFormat(Texture2D tex, ITTTextureFormat fallBackCompressing)
+                {
+                    if (compressKV.TryGetValue(tex, out var compression)) return compression.Get(tex);
+                    else return fallBackCompressing.Get(tex);
+                }
+                var compressFormat = GetCompressFormat(tex, fallBackCompressing);
+                EditorUtility.CompressTexture(tex, compressFormat.CompressFormat, compressFormat.Quality);
             }
 
             foreach (var tex in targetTextures) tex.t.Apply(false, true);
