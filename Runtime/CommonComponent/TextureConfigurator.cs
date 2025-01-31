@@ -34,8 +34,8 @@ namespace net.rs64.TexTransTool
             var target = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (target == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
-            var targetTex2Ds = domain.GetDomainsTextures(target).OfType<Texture2D>();
-            if (targetTex2Ds == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
+            var targetTex2Ds = domain.GetDomainsTextures(target).OfType<Texture2D>().ToArray();
+            if (targetTex2Ds.Any() is false) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             var engine = domain.GetTexTransCoreEngineForUnity();
             var textureManager = domain.GetTextureManager();
@@ -44,7 +44,7 @@ namespace net.rs64.TexTransTool
             foreach (var tex2D in targetTex2Ds)
             {
                 var originTex2D = tex2D;
-                Texture2D? resultTex2D = null;
+                Texture2D resultTex2D;
 
                 using var originalFullScaleTexture = engine.WrappingToLoadFullScaleOrUpload(originTex2D);
 
