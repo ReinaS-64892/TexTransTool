@@ -12,25 +12,29 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SingleGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
+    public sealed class DistanceGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
     {
-        internal const string ComponentName = "TTT SingleGradationDecal";
+        internal const string ComponentName = "TTT " + nameof(DistanceGradationDecal);
         internal const string MenuPath = ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
+
         public DecalRendererSelector RendererSelector = new() { UseMaterialFilteringForAutoSelect = true };
+
+        public float GradationMinDistance = 0f;
+        public float GradationMaxDistance = 0f;
+
         public Gradient Gradient = new();
         [Range(0, 1)] public float Alpha = 1;
         public bool GradientClamp = true;
+
         public AbstractIslandSelector? IslandSelector;
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
+
         public float Padding = 5;
         public bool HighQualityPadding = false;
 
 
-        #region V5SaveData
-        [Obsolete("V5SaveData", true)][SerializeField] internal List<Material> TargetMaterials = new();
-        #endregion V5SaveData
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
@@ -59,15 +63,16 @@ namespace net.rs64.TexTransTool.Decal
             if (result.Keys.Any() is false) { TTTRuntimeLog.Info("GradationDecal:info:TargetNotFound"); }
         }
 
-        private DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder> GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
+        private DecalContext<DistanceGradationConvertor, DistanceGradationSpace, DistanceGradationDecalIslandSelectFilter, DistanceGradationFilteredTrianglesHolder>
+            GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
         {
             var islandSelector = IslandSelector != null ? IslandSelector : null;
             if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
-            var space = new SingleGradationConvertor(transform.worldToLocalMatrix);
-            var filter = new SingleGradationDecalIslandSelectFilter(islandSelector, domain.OriginEqual);
+            var space = new DistanceGradationConvertor(transform.worldToLocalMatrix, (GradationMinDistance, GradationMaxDistance));
+            var filter = new DistanceGradationDecalIslandSelectFilter(islandSelector, domain.OriginEqual);
 
-            var decalContext = new DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder>(ttce, space, filter);
+            var decalContext = new DecalContext<DistanceGradationConvertor, DistanceGradationSpace, DistanceGradationDecalIslandSelectFilter, DistanceGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
             decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
@@ -79,14 +84,15 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.color = UnityEngine.Color.black;
             Gizmos.matrix = transform.localToWorldMatrix;
 
-            Gizmos.DrawLine(Vector3.zero, Vector3.up);
+            Gizmos.DrawWireSphere(Vector3.zero, GradationMinDistance);
+            Gizmos.DrawWireSphere(Vector3.zero, GradationMaxDistance);
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
             return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
         }
-        DecalRendererSelector GetDRS(SingleGradationDecal d) => d.RendererSelector;
+        DecalRendererSelector GetDRS(DistanceGradationDecal d) => d.RendererSelector;
 
         bool ICanBehaveAsLayer.HaveBlendTypeKey => true;
         LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)

@@ -439,6 +439,9 @@ msgstr "GradationSettings"
 msgid "CommonDecal:label:DecalSettings"
 msgstr "DecalSettings"
 
+msgid "CommonDecal:prop:IslandSelector"
+msgstr "IslandSelector"
+
 #  SimpleDecal
 
 msgid "SimpleDecal:error:TTTNotExecutable"
@@ -539,13 +542,30 @@ msgstr "SummaryNone"
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "GroupChildren"
 
-# SingleGradationDecal
+# GradationDecal
 
-msgid "SingleGradationDecal:info:TargetNotSet"
+msgid "GradationDecal:info:TargetNotSet"
 msgstr "Target not set!"
 
-msgid "SingleGradationDecal:info:TargetNotFound"
+msgid "GradationDecal:info:TargetNotFound"
 msgstr "Target not found!"
+
+msgid "GradationDecal:prop:Gradient"
+msgstr "Gradient"
+
+msgid "GradationDecal:prop:Alpha"
+msgstr "Alpha"
+
+msgid "GradationDecal:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+msgid "GradationDecal:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "GradationDecal:prop:GradientClamp"
+msgstr "GradientClamp"
+
+# SingleGradationDecal
 
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "SelectedMaterialView"
@@ -553,23 +573,13 @@ msgstr "SelectedMaterialView"
 msgid "SingleGradationDecal:prop:GradationLength"
 msgstr "GradationLength"
 
-msgid "SingleGradationDecal:prop:Gradient"
-msgstr "Gradient"
+# DistanceGradationDecal
 
-msgid "SingleGradationDecal:prop:Alpha"
-msgstr "Alpha"
+msgid "DistanceGradationDecal:prop:GradationMinDistance"
+msgstr "GradationMinDistance"
 
-msgid "SingleGradationDecal:prop:IslandSelector"
-msgstr "IslandSelector"
-
-msgid "SingleGradationDecal:prop:BlendTypeKey"
-msgstr "BlendTypeKey"
-
-msgid "SingleGradationDecal:prop:TargetPropertyName"
-msgstr "TargetPropertyName"
-
-msgid "SingleGradationDecal:prop:GradientClamp"
-msgstr "GradientClamp"
+msgid "DistanceGradationDecal:prop:GradationMaxDistance"
+msgstr "GradationMaxDistance"
 
 # TextureBlender
 

@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MaterialModifier や TextureConfigurator を右クリックをした GameObject 配下のマテリアルやテクスチャすべてに対して コンポーネントを一括で生成できる `Generate` が追加されました (#833)
 - SimpleDecal や SingleGradationDecal が AsLayer でレイヤーとして扱うことが可能になりました (#837)
 - レイヤーに対して使用できるレイヤーマスクとして、 IslandSelector をマスクにすることが可能な IslandSelectAsLayerMask が追加されました (#838)
+- 距離ベースでグラデーションをかけることができる、 DistanceGradationDecal が追加されました (#847)
 
 ### Changed
 
