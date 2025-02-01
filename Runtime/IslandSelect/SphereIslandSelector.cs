@@ -61,5 +61,6 @@ namespace net.rs64.TexTransTool.IslandSelector
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireSphere(Vector3.zero, 1);
         }
+        internal override bool IsExperimental => false;
     }
 }

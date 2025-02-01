@@ -30,6 +30,8 @@ namespace net.rs64.TexTransTool.IslandSelector
             lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
         }
+
+        internal virtual bool IsExperimental => true;
     }
     internal interface IIslandSelector
     {

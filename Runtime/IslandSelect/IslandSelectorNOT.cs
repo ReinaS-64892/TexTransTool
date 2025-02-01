@@ -27,5 +27,6 @@ namespace net.rs64.TexTransTool.IslandSelector
         }
 
         internal override void OnDrawGizmosSelected() { GetIslandSelector()?.OnDrawGizmosSelected(); }
+        internal override bool IsExperimental => false;
     }
 }

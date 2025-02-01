@@ -27,5 +27,6 @@ namespace net.rs64.TexTransTool.IslandSelector
             return bitArray;
         }
         internal override void OnDrawGizmosSelected() { foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform)) { islandSelector.OnDrawGizmosSelected(); } }
+        internal override bool IsExperimental => false;
     }
 }
