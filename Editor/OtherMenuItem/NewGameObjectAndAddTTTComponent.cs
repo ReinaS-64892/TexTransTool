@@ -81,6 +81,8 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
 
+        [M(BP + ParallelProjectionWithLilToonDecal.MenuPath)] static void PPWLD() => C<ParallelProjectionWithLilToonDecal>();        
+
         static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
         {
             var material = menuCommand.context as Material;

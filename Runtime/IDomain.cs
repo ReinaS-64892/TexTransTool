@@ -65,6 +65,7 @@ namespace net.rs64.TexTransTool
             Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
+        Mesh? GetMesh(Renderer renderer) { return renderer.GetMesh(); }
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
