@@ -10,8 +10,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
 {
 
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(SingleGradationDecal))]
-    internal class SingleGradationDecalEditor : UnityEditor.Editor
+    [CustomEditor(typeof(DistanceGradationDecal))]
+    internal class DistanceGradationDecalEditor : UnityEditor.Editor
     {
         CanBehaveAsLayerEditorUtil behaveLayerUtil;
         void BehaveUtilInit() { behaveLayerUtil = new(target as Component); }
@@ -34,14 +34,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.LabelField("CommonDecal:label:GradationSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var tf = new SerializedObject((serializedObject.targetObject as SingleGradationDecal).transform);
-            var sLocalScale = tf.FindProperty("m_LocalScale");
-            var length = sLocalScale.vector3Value.y;
-            var lengthRect = EditorGUILayout.GetControlRect();
-            var propGUIContent = EditorGUI.BeginProperty(lengthRect, "SingleGradationDecal:prop:GradationLength".Glc(), sLocalScale);
-            length = EditorGUI.FloatField(lengthRect, propGUIContent, length);
-            sLocalScale.vector3Value = new Vector3(length, length, length);
-            EditorGUI.EndProperty();
+
+            var sGradationMinDistance = serializedObject.FindProperty("GradationMinDistance");
+            EditorGUILayout.PropertyField(sGradationMinDistance, "DistanceGradationDecal:prop:GradationMinDistance".Glc());
+            var sGradationMaxDistance = serializedObject.FindProperty("GradationMaxDistance");
+            EditorGUILayout.PropertyField(sGradationMaxDistance, "DistanceGradationDecal:prop:GradationMaxDistance".Glc());
 
 
             var sGradient = serializedObject.FindProperty("Gradient");
@@ -61,10 +58,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.PropertyField(sIslandSelector, "CommonDecal:prop:IslandSelector".Glc());
 
             var sBlendTypeKey = serializedObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendTypeKey, "GradationDecal:prop:BlendTypeKey".Glc());
+            EditorGUILayout.PropertyField(sBlendTypeKey, "CommonDecal:prop:BlendTypeKey".Glc());
 
             var sTargetPropertyName = serializedObject.FindProperty("TargetPropertyName");
-            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "GradationDecal:prop:TargetPropertyName".Glc());
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
 
             EditorGUI.indentLevel -= 1;
 
@@ -74,7 +71,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
             behaveLayerUtil.DrawAddLayerButton(target as Component);
 
             serializedObject.ApplyModifiedProperties();
-            tf.ApplyModifiedProperties();
         }
 
 

@@ -438,6 +438,9 @@ msgstr "グラデーション設定"
 msgid "CommonDecal:label:DecalSettings"
 msgstr "デカール設定"
 
+msgid "CommonDecal:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
 #  SimpleDecal
 
 msgid "SimpleDecal:error:TTTNotExecutable"
@@ -538,37 +541,41 @@ msgstr "概要はありません"
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "グループの子"
 
-# SingleGradationDecal
+# GradationDecal
 
-msgid "SingleGradationDecal:info:TargetNotSet"
+msgid "GradationDecal:info:TargetNotSet"
 msgstr "適用対象が設定されていません！"
 
-msgid "SingleGradationDecal:info:TargetNotFound"
+msgid "GradationDecal:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
 
-msgid "SingleGradationDecal:prop:SelectedMaterialView"
-msgstr "選択済みマテリアル"
+msgid "GradationDecal:prop:Gradient"
+msgstr "グラデーション"
+
+msgid "GradationDecal:prop:Alpha"
+msgstr "透明度"
+
+msgid "GradationDecal:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+msgid "GradationDecal:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "GradationDecal:prop:GradientClamp"
+msgstr "グラデーションのクランプ"
+
+# SingleGradationDecal
 
 msgid "SingleGradationDecal:prop:GradationLength"
 msgstr "グラデーションの長さ"
 
-msgid "SingleGradationDecal:prop:Gradient"
-msgstr "グラデーション"
+# DistanceGradationDecal
 
-msgid "SingleGradationDecal:prop:Alpha"
-msgstr "透明度"
+msgid "DistanceGradationDecal:prop:GradationMinDistance"
+msgstr "グラデーション最小距離"
 
-msgid "SingleGradationDecal:prop:IslandSelector"
-msgstr "アイランドセレクター"
-
-msgid "SingleGradationDecal:prop:BlendTypeKey"
-msgstr "ブレンドタイプキー"
-
-msgid "SingleGradationDecal:prop:TargetPropertyName"
-msgstr "ターゲットプロパティネーム"
-
-msgid "SingleGradationDecal:prop:GradientClamp"
-msgstr "グラデーションのクランプ"
+msgid "DistanceGradationDecal:prop:GradationMaxDistance"
+msgstr "グラデーション最大距離"
 
 # TextureBlender
 

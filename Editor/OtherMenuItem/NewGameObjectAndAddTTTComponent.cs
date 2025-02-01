@@ -71,6 +71,8 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + SubMeshIslandSelectorLink.MenuPath)] static void SMISL() => C<SubMeshIslandSelectorLink>();
 
         [M(BP + SingleGradationDecal.MenuPath)] static void SGD() => C<SingleGradationDecal>();
+        [M(BP + DistanceGradationDecal.MenuPath)] static void DGD() => C<DistanceGradationDecal>();
+
         [M(BP + TextureConfigurator.MenuPath)] static void TC() => C<TextureConfigurator>();
         [M(BP + TextureBlender.MenuPath)] static void TB() => C<TextureBlender>();
         [M(BP + MaterialOverrideTransfer.MenuPath)] static void MOT() => C<MaterialOverrideTransfer>();

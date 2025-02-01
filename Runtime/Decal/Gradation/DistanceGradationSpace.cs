@@ -8,12 +8,13 @@ using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Decal
 {
-    internal class SingleGradientConvertor : ISpaceConverter<SingleGradientSpace>
+    internal class DistanceGradationConvertor : ISpaceConverter<DistanceGradationSpace>
     {
         Matrix4x4 _world2LocalMatrix;
-        public SingleGradientConvertor(Matrix4x4 w2l) { _world2LocalMatrix = w2l; }
+        (float min, float max) _distanceRange;
+        public DistanceGradationConvertor(Matrix4x4 w2l, (float min, float max) distanceRange) { _world2LocalMatrix = w2l; _distanceRange = distanceRange; }
 
-        public SingleGradientSpace ConvertSpace(MeshData[] meshData)
+        public DistanceGradationSpace ConvertSpace(MeshData[] meshData)
         {
             var handleArray = new JobHandle[meshData.Length];
             var uvArray = new NativeArray<Vector2>[meshData.Length];
@@ -24,6 +25,8 @@ namespace net.rs64.TexTransTool.Decal
                 var uvNa = uvArray[i] = new NativeArray<Vector2>(md.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
                 var convertJob = new ConvertJob()
                 {
+                    min = _distanceRange.min,
+                    max = _distanceRange.max,
                     World2Local = _world2LocalMatrix,
                     worldVerticals = md.Vertices,
                     uv = uvNa
@@ -33,7 +36,7 @@ namespace net.rs64.TexTransTool.Decal
                 handleArray[i] = convertJobHandle;
             }
 
-            return new SingleGradientSpace(meshData, uvArray, handleArray);
+            return new DistanceGradationSpace(meshData, uvArray, handleArray);
         }
 
         [BurstCompile]
@@ -42,12 +45,20 @@ namespace net.rs64.TexTransTool.Decal
             [ReadOnly] public NativeArray<Vector3> worldVerticals;
             [ReadOnly] public Matrix4x4 World2Local;
             [WriteOnly] public NativeArray<Vector2> uv;
-            public void Execute(int index) { uv[index] = new Vector2(World2Local.MultiplyPoint3x4(worldVerticals[index]).y, 0.5f); }
+            internal float min;
+            internal float max;
+
+            public void Execute(int index)
+            {
+                var distance = World2Local.MultiplyPoint3x4(worldVerticals[index]).magnitude;
+                distance = (distance - min) / (max - min);
+                uv[index] = new Vector2(distance, 0.5f);
+            }
         }
 
     }
 
-    internal class SingleGradientSpace : IDecalSpace
+    internal class DistanceGradationSpace : IDecalSpace
     {
         // not owned
         internal readonly MeshData[] _meshData;
@@ -56,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
         NativeArray<Vector2>[] _uv;
         JobHandle[] _uvCalculateJobHandles;
 
-        public SingleGradientSpace(MeshData[] meshData, NativeArray<Vector2>[] uv, JobHandle[] uvCalculateJobHandles)
+        public DistanceGradationSpace(MeshData[] meshData, NativeArray<Vector2>[] uv, JobHandle[] uvCalculateJobHandles)
         {
             _meshData = meshData;
             _uv = uv;
@@ -78,27 +89,27 @@ namespace net.rs64.TexTransTool.Decal
         }
     }
 
-    internal class IslandSelectFilter : ITrianglesFilter<SingleGradientSpace, SingleGradientFilteredTrianglesHolder>
+    internal class DistanceGradationDecalIslandSelectFilter : ITrianglesFilter<DistanceGradationSpace, DistanceGradationFilteredTrianglesHolder>
     {
         IIslandSelector? _islandSelector;
         OriginEqual _originEqual;
 
-        public IslandSelectFilter(IIslandSelector? islandSelector, OriginEqual originEqual)
+        public DistanceGradationDecalIslandSelectFilter(IIslandSelector? islandSelector, OriginEqual originEqual)
         {
             _islandSelector = islandSelector;
             _originEqual = originEqual;
         }
 
 
-        public SingleGradientFilteredTrianglesHolder Filtering(SingleGradientSpace space)
+        public DistanceGradationFilteredTrianglesHolder Filtering(DistanceGradationSpace space)
         {
             return new(IslandSelectToPPFilter.IslandSelectExecute(_islandSelector, space._meshData, _originEqual).Take());
         }
     }
-    internal class SingleGradientFilteredTrianglesHolder : IFilteredTriangleHolder
+    internal class DistanceGradationFilteredTrianglesHolder : IFilteredTriangleHolder
     {
         NativeArray<TriangleIndex>[][] _triangles;
-        public SingleGradientFilteredTrianglesHolder(NativeArray<TriangleIndex>[][] triangles)
+        public DistanceGradationFilteredTrianglesHolder(NativeArray<TriangleIndex>[][] triangles)
         {
             _triangles = triangles;
         }
