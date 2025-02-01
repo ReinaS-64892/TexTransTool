@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 色合成をしない特殊な色合成、 ExtraColorBlending に属するいくつかの色合成が追加されました (#812)
 - MaterialModificationPhase と PostProcessingPhase が追加されました (#826)
 - VRAM容量 (テクスチャーメモリやメッシュ) に影響を与えうる設定項目に対して、アイコンが表示されるようになりました (#839)
+- SingleGradationDecal が Experimental ではなく、 Stable としてマークされました (#848)
+- IslandSelectorAND(NOT,OR,XOR) と Box(Sphere,Pin)IslandSelector が Experimental ではなく、 Stable としてマークされました (#848)
 
 ### Removed
 

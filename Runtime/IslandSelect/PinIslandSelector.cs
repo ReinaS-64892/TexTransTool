@@ -31,6 +31,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawLine(Vector3.zero, new Vector3(0, 0, IslandSelectorRange));
         }
+        internal override bool IsExperimental => false;
     }
 
     internal class PinIslandSelectorClass : IIslandSelector

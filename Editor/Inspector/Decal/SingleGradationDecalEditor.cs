@@ -19,8 +19,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
         void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
         public override void OnInspectorGUI()
         {
-            TextureTransformerEditor.DrawerWarning(target.GetType().Name);
-
             EditorGUI.indentLevel += 1;
             if (behaveLayerUtil.IsLayerMode is false)
             {

@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
-            TextureTransformerEditor.DrawerWarning(target.GetType().Name);
+            if ((target as AbstractIslandSelector)?.IsExperimental ?? true) TextureTransformerEditor.DrawerWarning(target.GetType().Name);
             base.OnInspectorGUI();
         }
     }
