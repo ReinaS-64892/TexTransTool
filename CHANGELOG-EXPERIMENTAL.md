@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SimpleDecal や SingleGradationDecal が AsLayer でレイヤーとして扱うことが可能になりました (#837)
 - レイヤーに対して使用できるレイヤーマスクとして、 IslandSelector をマスクにすることが可能な IslandSelectAsLayerMask が追加されました (#838)
 - 距離ベースでグラデーションをかけることができる、 DistanceGradationDecal が追加されました (#847)
+- (Imported)RasterLayer や LayerFolder(非Passthrough) などの、ImageLayer に限り、LayerMask 等も加味した単体プレビューが表示されるようになりました (#849)
 
 ### Changed
 

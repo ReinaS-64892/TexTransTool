@@ -18,7 +18,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
         private static int s_releaseFrameCount = 0;
 
         public static void SetRGBAFormat(TexTransCoreTextureFormat format) { RGBAFormat = format; }
-        public static TexTransCoreTextureFormat GetRGBAFormat() =>  RGBAFormat;
+        public static TexTransCoreTextureFormat GetRGBAFormat() => RGBAFormat;
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +55,14 @@ namespace net.rs64.TexTransCoreEngineForUnity
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Rel(RenderTexture renderTexture)
         {
-            if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false) { throw new InvalidOperationException(); }
+            if (s_reverseTempRtState.TryGetValue(renderTexture, out var state) is false)
+            {
+#if TTT_DEBUG_TEMP_RT_TRACE
+                if (renderTexture == null) Debug.Log("InvalidRelOperation: null RenderTexture");
+                else Debug.Log(renderTexture.name);
+#endif
+                return;
+            }
             state.IsUsed = false;
         }
 

@@ -357,7 +357,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public VisualElement GetVisualElement => _viRoot;
     }
 
-    class NotWorkDomain : IDomain, IDisposable
+    internal class NotWorkDomain : IDomain, IDisposable
     {
         IEnumerable<Renderer> _domainRenderers;
         HashSet<UnityEngine.Object> _transferredObject = new();
