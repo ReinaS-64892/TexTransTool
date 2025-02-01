@@ -21,8 +21,8 @@ namespace net.rs64.TexTransTool.Preview
             AssemblyReloadEvents.beforeAssemblyReload += ExitPreview;
             EditorSceneManager.sceneClosing -= ExitPreview;
             EditorSceneManager.sceneClosing += ExitPreview;
-            DestroyCall.OnDestroy -= DestroyObserve;
-            DestroyCall.OnDestroy += DestroyObserve;
+            MonoBehaviourCallProvider.OnDestroy -= DestroyObserve;
+            MonoBehaviourCallProvider.OnDestroy += DestroyObserve;
         }
 
         private void OnEnable()

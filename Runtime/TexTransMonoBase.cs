@@ -21,14 +21,11 @@ namespace net.rs64.TexTransTool
         int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
 
 
-        internal void OnDestroy()
-        {
-            DestroyCall.DestroyThis(this);
-        }
+        internal void OnDestroy() => MonoBehaviourCallProvider.DestroyThis(this);
     }
     [DisallowMultipleComponent]
     public abstract class TexTransMonoBaseGameObjectOwned : TexTransMonoBase { }
-    internal static class DestroyCall
+    internal static class MonoBehaviourCallProvider
     {
         public static event Action<TexTransMonoBase>? OnDestroy;
         public static void DestroyThis(TexTransMonoBase destroy) => OnDestroy?.Invoke(destroy);
