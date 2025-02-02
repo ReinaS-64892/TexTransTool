@@ -4,18 +4,17 @@ using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
-    [CustomPropertyDrawer(typeof(MipMapRemove))]
-    internal class MipMapRemoveTuningDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(DiscardAlphaChannel))]
+    internal class DiscardAlphaChannelTuningDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position.height = 18f;
 
+            var sIsDiscard = property.FindPropertyRelative("IsDiscard");
             var sPropertyNames = property.FindPropertyRelative("PropertyNameList");
             var sSelect = property.FindPropertyRelative("Select");
-            var sIsRemove = property.FindPropertyRelative("IsRemove");
-
-            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:IsRemove".GlcV());
+            EditorGUI.PropertyField(position, sIsDiscard, "IsDiscard".GlcV());
             position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sPropertyNames);

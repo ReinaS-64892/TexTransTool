@@ -7,7 +7,6 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransTool.Utils;
-using IA = net.rs64.TexTransTool.TTTImageAssets;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -35,7 +34,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 {
                     if (_displayMaterial is not null)
                     {
-                        var l = new[] { GUILayout.MaxWidth(64f), GUILayout.MinWidth(18f), GUILayout.Height(18f) };
+                        var l = new[] { GUILayout.MaxWidth(64f + 18f), GUILayout.MinWidth(18f), GUILayout.Height(18f) };
                         if (GUILayout.Button("AtlasTexture:button:SelectAll".GlcV(), l)) { SelectAll(sMatSelectors, _displayMaterial); }
                         if (GUILayout.Button("AtlasTexture:button:Invert".GlcV(), l)) { SelectInvert(sMatSelectors, _displayMaterial); }
                     }
@@ -115,7 +114,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".GlcV());
 
-            EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".Glc());
+            EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".GlcV());
 
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
@@ -278,18 +277,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public static void MaterialSelectEditor(SerializedProperty targetMaterial, List<List<Material>> tempMaterialGroupAll)
         {
             // EditorGUI.indentLevel += 1;
-            var hadeRect = EditorGUILayout.GetControlRect();
-            var hadeWidth = hadeRect.width;
-            hadeRect.width = 64f;
-            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:Target".GlcV());
+            var headerRect = EditorGUILayout.GetControlRect();
+            var headerWidth = headerRect.width;
+            var targetTextWidth = headerRect.width = 64f + 18f;
+            EditorGUI.LabelField(headerRect, "AtlasTexture:label:Target".GlcV());
 
-            hadeRect.width = (hadeWidth * 0.5f) - 64f;
-            hadeRect.x = 64f;
-            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:SizePriority".Glc());
+            headerRect.width = (headerWidth * 0.5f) - targetTextWidth;
+            headerRect.x = targetTextWidth;
+            EditorGUI.LabelField(headerRect, "AtlasTexture:label:SizePriority".GlcV());
 
-            hadeRect.width = hadeWidth * 0.5f;
-            hadeRect.x = hadeRect.width;
-            EditorGUI.LabelField(hadeRect, "AtlasTexture:label:Material".Glc());
+            headerRect.width = headerWidth * 0.5f;
+            headerRect.x = headerRect.width;
+            EditorGUI.LabelField(headerRect, "AtlasTexture:label:Material".Glc());
 
             foreach (var matGroup in tempMaterialGroupAll)
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))

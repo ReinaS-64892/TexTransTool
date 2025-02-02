@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor
                     var textureValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureValue));
                     var textureOffsetValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureOffsetValue));
                     var textureScaleValue = property.FindPropertyRelative(nameof(MaterialProperty.TextureScaleValue));
-                    EditorGUI.PropertyField(position, textureValue, nameof(MaterialProperty.TextureValue).GlcV());
+                    EditorGUI.PropertyField(position, textureValue);
                     position.y += EditorGUIUtility.singleLineHeight;
                     EditorGUI.PropertyField(position, textureOffsetValue);
                     position.y += EditorGUIUtility.singleLineHeight;

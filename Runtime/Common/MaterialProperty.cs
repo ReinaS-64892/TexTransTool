@@ -10,10 +10,10 @@ namespace net.rs64.TexTransTool
     public struct MaterialProperty : IEquatable<MaterialProperty>
     {
         public string PropertyName;
-        public ShaderPropertyType PropertyType;
+        [AffectVRAM] public ShaderPropertyType PropertyType;
 
         // ShaderPropertyType.Texture
-        public Texture TextureValue;
+        [AffectVRAM] public Texture TextureValue;
         public Vector2 TextureOffsetValue;
         public Vector2 TextureScaleValue;
         // ShaderPropertyType.Color

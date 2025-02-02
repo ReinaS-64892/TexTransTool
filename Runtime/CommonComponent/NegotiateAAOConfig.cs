@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool
         public bool UVEvacuationAndRegisterToAAO = true;
         public bool OverrideEvacuationUVChannel = false;
         [Range(1, 7)] public int OverrideEvacuationUVChannelIndex = 7;
-        [FormerlySerializedAs("AAORemovalToIslandDisabling")] public bool AAORemovalToIsland = true;
+        [AffectVRAM][FormerlySerializedAs("AAORemovalToIslandDisabling")] public bool AAORemovalToIsland = true;
 
     }
 }

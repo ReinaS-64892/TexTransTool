@@ -23,9 +23,9 @@ namespace net.rs64.TexTransTool.Editor
             var sOverrideCompression = sObj.FindProperty("OverrideCompression");
             var sCompressionSetting = sObj.FindProperty("CompressionSetting");
 
-            EditorGUILayout.PropertyField(sTargetTexture);
+            EditorGUILayout.PropertyField(sTargetTexture, "TargetTexture".GlcV());
 
-            EditorGUILayout.PropertyField(sOverrideTextureSetting,"OverrideTextureSetting".GlcV());
+            EditorGUILayout.PropertyField(sOverrideTextureSetting, "OverrideTextureSetting".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideTextureSetting.boolValue))
             using (new EditorGUI.IndentLevelScope())
             {
@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.PropertyField(sMipMap, "MipMap".GlcV());
             }
 
-            EditorGUILayout.PropertyField(sOverrideCompression,"OverrideCompression".GlcV());
+            EditorGUILayout.PropertyField(sOverrideCompression, "OverrideCompression".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideCompression.boolValue))
             using (new EditorGUI.IndentLevelScope())
             { EditorGUILayout.PropertyField(sCompressionSetting, "OverrideCompression".GlcV()); }

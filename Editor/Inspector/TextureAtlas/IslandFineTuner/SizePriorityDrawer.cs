@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             position.y += 18;
 
             var sIslandSelector = property.FindPropertyRelative("IslandSelector");
-            EditorGUI.PropertyField(position, sIslandSelector, "IIslandFineTuner:prop:IslandSelector".Glc());
+            EditorGUI.PropertyField(position, sIslandSelector, "IIslandFineTuner:prop:IslandSelector".GlcV());
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
