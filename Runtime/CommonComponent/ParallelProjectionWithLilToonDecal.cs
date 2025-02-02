@@ -22,18 +22,17 @@ namespace net.rs64.TexTransTool
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
         public Material? TargetMaterial;
-
         [ExpandTexture2D] public Texture2D? DecalTexture;
+
         public Color Color = Color.white;
         public bool MSDFTexture;
         public lilToonCullMode CullMode;
-        [Range(1, 3)] public int WriteUVTarget = 1;
-        public ReplaceTexture ReplaceTextureTarget = ReplaceTexture.Texture2nd;
         public lilToonTransparentMode TransparentMode;
         public lilToonBlendingMode ShaderBlendingMode;
 
+        public ReplaceTexture ReplaceTextureTarget = ReplaceTexture.Texture2nd;
+        [Range(1, 3)] public int WriteUVTarget = 1;
         public AbstractIslandSelector? IslandSelector;
-        public bool BackCulling = true;
 
         public enum lilToonCullMode
         {
