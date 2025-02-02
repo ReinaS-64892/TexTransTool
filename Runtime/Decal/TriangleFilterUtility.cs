@@ -153,9 +153,7 @@ namespace net.rs64.TexTransTool.Decal
         [BurstCompile]
         public struct OutOfPolygonStruct : IJobParallelFor
         {
-            public float MinRange;
-            public float MaxRange;
-            public bool IsAllVertex;
+            private TexTransUnityAABB AABB;
 
             [ReadOnly] public NativeArray<TriangleIndex> Triangle;
             [ReadOnly] public NativeArray<Vector3> WorldVerticals;
@@ -166,19 +164,17 @@ namespace net.rs64.TexTransTool.Decal
                 if (FilteringBit[index]) { return; }
                 var targetTri = Triangle[index];
 
-                var result = OutOfPolygonVertexBase(targetTri, WorldVerticals, MaxRange, MinRange, IsAllVertex);
+                var result = OutOfPolygonVertexBase(targetTri, WorldVerticals, AABB);
                 FilteringBit[index] = result;
             }
 
-            internal static JobChain<FilterTriangleJobInput<NativeArray<Vector3>>> GetJobChain(float minRange, float maxRange, bool isAllVertex)
+            internal static JobChain<FilterTriangleJobInput<NativeArray<Vector3>>> GetJobChain(TexTransUnityAABB aabb)
             {
                 return (input, jobHandle) =>
                 {
                     var job = new OutOfPolygonStruct()
                     {
-                        MinRange = minRange,
-                        MaxRange = maxRange,
-                        IsAllVertex = isAllVertex,
+                        AABB = aabb,
                         Triangle = input.Triangle,
                         FilteringBit = input.FilteredBit,
                         WorldVerticals = input.InternalSpace
@@ -186,16 +182,12 @@ namespace net.rs64.TexTransTool.Decal
                     return job.Schedule(input.FilteredBit.Length, 32, jobHandle);
                 };
             }
-            public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, NativeArray<Vector3> vertex, float maxRange, float minRange, bool isAllVertex)
+            public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, NativeArray<Vector3> vertex, TexTransUnityAABB aabb)
             {
-                Span<bool> outOfPolygon = stackalloc bool[3] { false, false, false };
-                for (var index = 0; 3 > index; index += 1)
-                {
-                    var targetVertex = vertex[targetTri[index]];
-                    outOfPolygon[index] = !(targetVertex.x < maxRange && targetVertex.x > minRange && targetVertex.y < maxRange && targetVertex.y > minRange);
-                }
-                if (isAllVertex) return outOfPolygon[0] && outOfPolygon[1] && outOfPolygon[2];
-                else return outOfPolygon[0] || outOfPolygon[1] || outOfPolygon[2];
+                var triAABB = new TexTransUnityAABB(vertex[targetTri.zero]);
+                triAABB.AddVertex(vertex[targetTri.one]);
+                triAABB.AddVertex(vertex[targetTri.two]);
+                return aabb.IsIntersect(triAABB);
             }
 
         }

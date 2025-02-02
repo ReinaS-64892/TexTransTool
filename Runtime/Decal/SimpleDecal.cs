@@ -171,7 +171,7 @@ namespace net.rs64.TexTransTool.Decal
                 TriangleFilterUtility.NearStruct.GetJobChain(0, true)
             };
             if (BackCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
-            if (PolygonOutOfCulling) filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(0, 1, true));
+            filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(new TexTransUnityAABB(Vector2.zero).AddVertex(Vector2.one)));
 
             return filters.ToArray();
         }

@@ -199,10 +199,11 @@ namespace net.rs64.TexTransTool.Decal
             return v;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddVertex(Vector3 vector3)
+        internal TexTransUnityAABB AddVertex(Vector3 vector3)
         {
             Min = Vector3.Min(Min, vector3);
             Max = Vector3.Max(Max, vector3);
+            return this;
         }
     }
 }

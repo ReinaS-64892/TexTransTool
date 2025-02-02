@@ -81,6 +81,18 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
 
+        [M(BP + ParallelProjectionWithLilToonDecal.MenuPath)]
+        static void PPWLD()
+        {
+            var ppwld = C<ParallelProjectionWithLilToonDecal>();
+            var ais = C<AimIslandSelector>();
+            Undo.RecordObject(ais.transform, "move parent and scaling");
+            ais.transform.SetParent(ppwld.transform, false);
+            ais.transform.localScale = new Vector3(4f, 4f, 4f);
+            Undo.RecordObject(ppwld, "set island selector");
+            ppwld.IslandSelector = ais;
+        }
+
         static void CM<TTB>(MenuCommand menuCommand, Action<TTB, Material> action = null) where TTB : MonoBehaviour
         {
             var material = menuCommand.context as Material;
