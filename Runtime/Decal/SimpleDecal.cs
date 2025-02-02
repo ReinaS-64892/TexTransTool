@@ -32,8 +32,6 @@ namespace net.rs64.TexTransTool.Decal
         public bool HighQualityPadding = false;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
-        public bool PolygonOutOfCulling = true;
-
         public AbstractIslandSelector? IslandSelector;
         public MultiLayerImageCanvas? OverrideDecalTextureWithMultiLayerImageCanvas;
         public bool UseDepth;
