@@ -52,6 +52,7 @@ namespace net.rs64.TexTransTool.Editor
             }
 
             PreviewButtonDrawUtil.Draw(thisTarget);
+            thisSObject.ApplyModifiedProperties();
         }
 
 
