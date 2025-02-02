@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.Decal
     public sealed class DistanceGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
     {
         internal const string ComponentName = "TTT " + nameof(DistanceGradationDecal);
-        internal const string MenuPath = ComponentName;
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;// 安定的機能ではないから 一旦 other にいてもらいます。
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
         public DecalRendererSelector RendererSelector = new() { UseMaterialFilteringForAutoSelect = true };

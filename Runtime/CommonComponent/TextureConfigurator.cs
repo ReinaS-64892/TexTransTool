@@ -12,7 +12,6 @@ namespace net.rs64.TexTransTool
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class TextureConfigurator : TexTransRuntimeBehavior
     {
-        internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureConfigurator";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
