@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - SimpleDecal の MultiRendererMode は削除され、デフォルトで複数レンダラーを選択可能になりました (#753)
+- SimpleDecal の PolygonCulling は修正に伴い削除されました (#856)
 
 ### Changed
 
