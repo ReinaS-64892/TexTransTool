@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VRAM容量 (テクスチャーメモリやメッシュ) に影響を与えうる設定項目に対して、アイコンが表示されるようになりました (#839)
 - SingleGradationDecal が Experimental ではなく、 Stable としてマークされました (#848)
 - IslandSelectorAND(NOT,OR,XOR) と Box(Sphere,Pin)IslandSelector が Experimental ではなく、 Stable としてマークされました (#848)
+- TextureBlender が Experimental ではなく、 Stable としてマークされました (#857)
 
 ### Removed
 
