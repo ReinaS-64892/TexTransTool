@@ -237,7 +237,7 @@ namespace net.rs64.TexTransTool
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return rendererTargeting.RendererFilterForMaterial(TargetMaterial);
+            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(this, i => i.TargetMaterial));
         }
 
         void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
