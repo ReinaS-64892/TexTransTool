@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool
     public sealed class NearTransTexture : TexTransRuntimeBehavior
     {
         internal const string ComponentName = "TTT " + nameof(NearTransTexture);
-        internal const string MenuPath = ComponentName;
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.PostProcessing;
 
         public Renderer? TransSourceRenderer;

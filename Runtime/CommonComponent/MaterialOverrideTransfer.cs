@@ -6,8 +6,7 @@ namespace net.rs64.TexTransTool
     public sealed class MaterialOverrideTransfer : TexTransCallEditorBehavior, IRendererTargetingAffecter
     {
         internal const string ComponentName = "TTT MaterialOverrideTransfer";
-        internal const string FoldoutName = "Other";
-        internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
         [AffectVRAM] public Material TargetMaterial;

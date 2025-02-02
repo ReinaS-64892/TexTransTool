@@ -14,8 +14,7 @@ namespace net.rs64.TexTransTool
     public sealed class ColorDifferenceChanger : TexTransRuntimeBehavior, ICanBehaveAsLayer, ITTGrabBlending
     {
         internal const string ComponentName = "TTT " + nameof(ColorDifferenceChanger);
-        internal const string FoldoutName = "Other";
-        internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.PostProcessing;
 
         public TextureSelector TargetTexture = new();

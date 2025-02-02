@@ -11,7 +11,6 @@ namespace net.rs64.TexTransTool
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
     public sealed class MaterialModifier : TexTransRuntimeBehavior, IRendererTargetingAffecterWithRuntime
     {
-        internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT MaterialModifier";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
