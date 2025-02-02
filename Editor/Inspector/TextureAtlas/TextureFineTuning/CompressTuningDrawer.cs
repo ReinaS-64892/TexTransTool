@@ -28,12 +28,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
 
             position.height = EditorGUI.GetPropertyHeight(sCompressPropertyNames);
-            EditorGUI.PropertyField(position, sCompressPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
+            EditorGUI.PropertyField(position, sCompressPropertyNames, "TextureFineTuning:prop:TargetPropertyName".GlcV());
             position.y += position.height;
             position.height = 18f;
 
 
-            EditorGUI.PropertyField(position, sCompressSelect, "TextureFineTuning:prop:Select".Glc());
+            EditorGUI.PropertyField(position, sCompressSelect, "TextureFineTuning:prop:Select".GlcV());
             position.y += 18;
         }
 
