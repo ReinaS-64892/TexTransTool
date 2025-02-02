@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
-        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
+        internal const string MenuPath = ComponentName;
         public TextureSelector TargetTexture = new();
 
         [ExpandTexture2D] public Texture2D? BlendTexture;
