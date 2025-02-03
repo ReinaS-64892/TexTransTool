@@ -17,7 +17,13 @@ namespace net.rs64.TexTransTool.NDMF
 
         public static Material Get(Material source)
         {
-            var s = source.shader;
+            var pooledMat = GetFromShaderWithUninitialized(source.shader);
+            MaterialUtility.PropertyCopy(source, pooledMat);
+            return pooledMat;
+        }
+        public static Material GetFromShaderWithUninitialized(Shader shader)
+        {
+            var s = shader;
             if (s_pool.ContainsKey(s) is false) { s_pool[s] = new(); }
             var sPool = s_pool[s];
 
@@ -26,18 +32,18 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (m.IsUsed) { continue; }
                 if (m.Material == null) { materialDestroyed = true; break; }
-                MaterialUtility.PropertyCopy(source, m.Material);
                 m.IsUsed = true;
                 return m.Material;
             }
             if (materialDestroyed) { sPool.RemoveAll(i => i.Material == null); }
 
-            var nm = Material.Instantiate(source);
+            var nm = new Material(shader);
             nm.parent = null;
             var pooledMat = new PooledMaterial(nm) { IsUsed = true };
             sPool.Add(pooledMat);
             s_reverseDict[nm] = pooledMat;
             return nm;
+
         }
         public static bool Ret(Material r)
         {
