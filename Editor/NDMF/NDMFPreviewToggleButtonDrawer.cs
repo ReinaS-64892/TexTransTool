@@ -2,6 +2,7 @@
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Editor;
+using net.rs64.TexTransTool.IslandSelector;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -16,21 +17,46 @@ namespace net.rs64.TexTransTool.NDMF
 
         static void DrawNDMFPreviewToggleButton(TexTransMonoBase texTransMonoBase)
         {
-            if (texTransMonoBase.GetType() == typeof(TexTransGroup) || texTransMonoBase.GetType() == typeof(PreviewGroup)) { return; }
-
-            TexTransPhase? phase = texTransMonoBase is not PhaseDefinition pd ? texTransMonoBase is TexTransBehavior ttb ? ttb.PhaseDefine : null : pd.TexTransPhase;
-            if (phase is null) { return; }
-
-            var previewNode = NDMFPlugin.s_togglablePreviewPhases[phase.Value];
-            if (previewNode.IsEnabled.Value)
+            switch (texTransMonoBase)
             {
-                if (GUILayout.Button("Common:ndmf:DisableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
-                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
-            }
-            else
-            {
-                if (GUILayout.Button("Common:ndmf:EnableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
-                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
+                case PreviewGroup:
+                case TexTransGroup:
+                    { return; }
+
+                case AbstractIslandSelector islandSelector:
+                    {
+                        if (PreviewIslandSelector.PreviewTarget.Value != islandSelector)
+                        {
+                            if (GUILayout.Button("Start preview IslandSelector this"))
+                                PreviewIslandSelector.PreviewTarget.Value = islandSelector;
+                        }
+                        else
+                        {
+                            if (GUILayout.Button("Exit preview IslandSelector this"))
+                                PreviewIslandSelector.PreviewTarget.Value = null;
+                        }
+                        return;
+                    }
+
+                case TexTransBehavior ttb:
+                    {
+                        var phase = ttb.PhaseDefine;
+
+                        var previewNode = NDMFPlugin.s_togglablePreviewPhases[phase];
+                        if (previewNode.IsEnabled.Value)
+                        {
+                            if (GUILayout.Button("Common:ndmf:DisableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
+                            { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
+                        }
+                        else
+                        {
+                            if (GUILayout.Button("Common:ndmf:EnableThisComponentPhasePreview".Glf(previewNode.DisplayName.Invoke())))
+                            { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
+                        }
+                        return;
+                    }
+
+                default: return;
             }
         }
 
