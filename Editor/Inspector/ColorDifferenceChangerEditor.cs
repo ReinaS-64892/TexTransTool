@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.Editor
 
             EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.DifferenceSourceColor)));
             EditorGUILayout.PropertyField(thisSObject.FindProperty(nameof(ColorDifferenceChanger.TargetColor)));
+            PreviewButtonDrawUtil.DrawUnlitButton();
 
             thisSObject.ApplyModifiedProperties();
             if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);

@@ -1,4 +1,5 @@
 
+using System;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Editor;
@@ -13,6 +14,7 @@ namespace net.rs64.TexTransTool.NDMF
         internal static void OverrideButton()
         {
             PreviewButtonDrawUtil.ExternalPreviewDrawer = DrawNDMFPreviewToggleButton;
+            PreviewButtonDrawUtil.ExternalUnlitButton = DrawNDMFEverythingUnlitTextureButton;
         }
 
         static void DrawNDMFPreviewToggleButton(TexTransMonoBase texTransMonoBase)
@@ -57,6 +59,20 @@ namespace net.rs64.TexTransTool.NDMF
                     }
 
                 default: return;
+            }
+        }
+        private static void DrawNDMFEverythingUnlitTextureButton()
+        {
+            var previewNode = EverythingUnlitTexture.s_EverythingUnlitTexture;
+            if (previewNode.IsEnabled.Value)
+            {
+                if (GUILayout.Button("Everything Unlit/Texture disable"))
+                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
+            }
+            else
+            {
+                if (GUILayout.Button("Everything Unlit/Texture enable"))
+                { previewNode.IsEnabled.Value = !previewNode.IsEnabled.Value; }
             }
         }
 
