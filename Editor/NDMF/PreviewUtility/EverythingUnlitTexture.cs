@@ -7,21 +7,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 
 namespace net.rs64.TexTransTool.NDMF
 {
     internal class EverythingUnlitTexture : IRenderFilter
     {
-        public ImmutableList<RenderGroup> GetTargetGroups(ComputeContext context)
-        {
-            return context.GetComponentsByType<Renderer>()
-                .Where(r => r is SkinnedMeshRenderer or MeshRenderer)
-                .Where(r => context.ActiveInHierarchy(r.gameObject))
-                .Select(r => RenderGroup.For(r))
-                .ToImmutableList();
-        }
+        internal static TogglablePreviewNode s_EverythingUnlitTexture = TogglablePreviewNode.Create(() => "Everything Unlit/Texture", "EverythingUnlitTexture", initialState: false);
+        const string UNLIT_TEXTURE = "Unlit/Texture";
+
+        static Shader _unlitTextureShader;
+        static Shader GetUnlitTextureShader => _unlitTextureShader ??= Shader.Find(UNLIT_TEXTURE);
+
         public bool IsEnabled(ComputeContext context)
         {
             var pubVal = s_EverythingUnlitTexture.IsEnabled;
@@ -32,11 +29,14 @@ namespace net.rs64.TexTransTool.NDMF
         {
             yield return s_EverythingUnlitTexture;
         }
-        internal static TogglablePreviewNode s_EverythingUnlitTexture = TogglablePreviewNode.Create(() => "Everything Unlit/Texture", "EverythingUnlitTexture", initialState: false);
-        const string UNLIT_TEXTURE = "Unlit/Texture";
-
-        static Shader _unlitTextureShader;
-        static Shader GetUnlitTextureShader => _unlitTextureShader ??= Shader.Find(UNLIT_TEXTURE);
+        public ImmutableList<RenderGroup> GetTargetGroups(ComputeContext context)
+        {
+            return context.GetComponentsByType<Renderer>()
+                .Where(r => r is SkinnedMeshRenderer or MeshRenderer)
+                .Where(r => context.ActiveInHierarchy(r.gameObject))
+                .Select(r => RenderGroup.For(r))
+                .ToImmutableList();
+        }
         public Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
             var matDict = new Dictionary<Material, Material>();
@@ -50,6 +50,8 @@ namespace net.rs64.TexTransTool.NDMF
                     var previewMat = mats[i] = NDMFPreviewMaterialPool.GetFromShaderWithUninitialized(GetUnlitTextureShader);
                     previewMat.mainTexture = preMat.mainTexture;
                     matDict[preMat] = previewMat;
+
+                    ObjectRegistry.RegisterReplacedObject(preMat, previewMat);
                 }
 
             }
