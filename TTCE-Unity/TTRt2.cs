@@ -38,18 +38,20 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 var newTemp = new TempRtState(renderTextureDescriptor);
                 newTemp.IsUsed = true;
 
-                s_reverseTempRtState[newTemp.TempRenderTexture] = newTemp;
+                var rt = newTemp.CheckAndClearToGet();
+                s_reverseTempRtState[rt] = newTemp;
                 tmpList.Add(newTemp);
 
-                newTemp.TempRenderTexture.Clear();
-                return newTemp.TempRenderTexture;
+                return rt;
             }
             else
             {
-                tmpList[letIndex].IsUsed = true;
-                tmpList[letIndex].TempRenderTexture.Clear();
+                var tempRtState = tmpList[letIndex];
+                tempRtState.IsUsed = true;
+                var rt = tempRtState.CheckAndClearToGet();
+                s_reverseTempRtState[rt] = tempRtState;
 
-                return tmpList[letIndex].TempRenderTexture;
+                return rt;
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,19 +170,30 @@ namespace net.rs64.TexTransCoreEngineForUnity
         private class TempRtState : IDisposable
         {
             public bool IsUsed;
-            public RenderTexture TempRenderTexture;
+            RenderTexture? TempRenderTexture;
 
+            TTRenderTextureDescriptor _renderTextureDescriptor;
             public TempRtState(TTRenderTextureDescriptor renderTextureDescriptor)
             {
-                var format = renderTextureDescriptor.Channel is TexTransCoreTextureChannel.RGBA ? RGBAFormat : RGAndRFormat;
-                TempRenderTexture = new RenderTexture(renderTextureDescriptor.Width, renderTextureDescriptor.Height, 0, format.ToUnityGraphicsFormat(renderTextureDescriptor.Channel));
-                TempRenderTexture.enableRandomWrite = true;
+                _renderTextureDescriptor = renderTextureDescriptor;
+            }
+            public RenderTexture CheckAndClearToGet()
+            {
+                if (TempRenderTexture == null)
+                {
+                    var format = _renderTextureDescriptor.Channel is TexTransCoreTextureChannel.RGBA ? RGBAFormat : RGAndRFormat;
+                    TempRenderTexture = new RenderTexture(_renderTextureDescriptor.Width, _renderTextureDescriptor.Height, 0, format.ToUnityGraphicsFormat(_renderTextureDescriptor.Channel));
+                    TempRenderTexture.enableRandomWrite = true;
+                }
+                TempRenderTexture.Clear();
+                return TempRenderTexture;
             }
 
             public void Dispose()
             {
                 if (RenderTexture.active == TempRenderTexture) { RenderTexture.active = null; }
-                UnityEngine.Object.DestroyImmediate(TempRenderTexture);
+                if (TempRenderTexture != null) UnityEngine.Object.DestroyImmediate(TempRenderTexture);
+                TempRenderTexture = null;
             }
         }
 
