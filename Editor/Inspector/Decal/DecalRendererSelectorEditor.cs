@@ -93,7 +93,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
                         h += 18f;
                         if (sUseMaterialFilteringForAutoSelect.boolValue)
                         {
-                            h += 18f * ((_materialSelectionCandidates?.Count ?? 0 + 1) / 2);
+                            h += 18f * (((_materialSelectionCandidates?.Count ?? 0) + 1) / 2);
                             h += EditorGUI.GetPropertyHeight(sAutoSelectFilterMaterials);
                         }
                         ;
