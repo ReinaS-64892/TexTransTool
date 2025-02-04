@@ -48,6 +48,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
         }
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var isMultiple = targets.Length != 1;
             var targetName = isMultiple is false ? target.GetType().Name : "MultiImageLayer";
             TextureTransformerEditor.DrawerWarning(targetName.GetLocalize());

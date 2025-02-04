@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
         void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var thisSObject = serializedObject;
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;

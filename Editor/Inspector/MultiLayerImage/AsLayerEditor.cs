@@ -23,6 +23,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             var sBlendTypeKey = sObj.FindProperty("BlendTypeKey");
             var sLayerMask = sObj.FindProperty("LayerMask");
 
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             TextureTransformerEditor.DrawerWarning(nameof(AsLayer).GetLocalize());
 
             EditorGUILayout.PropertyField(sOpacity);

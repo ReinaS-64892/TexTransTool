@@ -15,6 +15,7 @@ namespace net.rs64.TexTransTool.Editor
 
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var thisTarget = target as TextureBlender;
             var thisSObject = serializedObject;
 

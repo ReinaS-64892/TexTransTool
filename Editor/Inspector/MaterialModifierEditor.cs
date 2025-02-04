@@ -53,6 +53,7 @@ namespace net.rs64.TexTransTool.Editor
 
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             TextureTransformerEditor.DrawerWarning(nameof(MaterialModifier));
             serializedObject.Update();
 
