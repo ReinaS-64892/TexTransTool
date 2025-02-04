@@ -59,6 +59,9 @@ msgstr "アルファの存在する可能性のあるテクスチャーが、ア
 msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
 msgstr "判定が誤っている可能性もあり、意図的である場合や問題がない場合は完全に無視してください。"
 
+msgid "Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow"
+msgstr "このコンポーネントのセーブデータは古いバージョンです! Migrator を開く"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"

@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Editor
         public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
         {
             if ((ttMonoBase as ITexTransToolTag).SaveDataVersion < TexTransMonoBase.TTTDataVersion)
-                if (GUILayout.Button("Common:button:ThisComponentSaveDataIsNeedMigrationOpenMigrator"))
+                if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
                     Migration.MigratorWindow.ShowWindow();
         }
         public static void DrawerWarning(string typeName)
