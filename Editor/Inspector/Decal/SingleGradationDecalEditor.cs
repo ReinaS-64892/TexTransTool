@@ -20,16 +20,16 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public override void OnInspectorGUI()
         {
             TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            EditorGUI.indentLevel += 1;
             if (behaveLayerUtil.IsLayerMode is false)
             {
                 EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
 
+                EditorGUI.indentLevel += 1;
                 var sRendererSelector = serializedObject.FindProperty("RendererSelector");
                 EditorGUILayout.PropertyField(sRendererSelector);
+                EditorGUI.indentLevel -= 1;
             }
 
-            EditorGUI.indentLevel -= 1;
             EditorGUILayout.LabelField("CommonDecal:label:GradationSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
@@ -65,9 +65,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sTargetPropertyName = serializedObject.FindProperty("TargetPropertyName");
             if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "GradationDecal:prop:TargetPropertyName".Glc());
 
-            EditorGUI.indentLevel -= 1;
-
             DecalEditorUtil.DrawerAdvancedOption(serializedObject);
+
+            EditorGUI.indentLevel -= 1;
 
             if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
             behaveLayerUtil.DrawAddLayerButton(target as Component);
