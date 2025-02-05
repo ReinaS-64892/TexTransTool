@@ -8,6 +8,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             TextureTransformerEditor.DrawerWarning("MultiLayerImageCanvas".GetLocalize());
 
             var sTarget = serializedObject;

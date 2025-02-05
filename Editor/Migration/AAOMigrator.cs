@@ -284,6 +284,7 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
             PreMigration();
             for (var version = MigrationUtility.GetSaveDataVersion.SaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
+                if (version is 5) { MigratorWindow.ReflectCallPSDMigration(); }
                 if (migrators.TryGetValue(version, out var migrator))
                 {
                     MigrateEverythingFor(migrator, true);

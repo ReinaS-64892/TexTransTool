@@ -10,6 +10,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             TextureTransformerEditor.DrawerWarning("ParallelProjectionWith lilToon Decal");
 
             var thisTarget = target as ParallelProjectionWithLilToonDecal;

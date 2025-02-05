@@ -16,6 +16,12 @@ namespace net.rs64.TexTransTool.Editor
             base.OnInspectorGUI();
             PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
         }
+        public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
+        {
+            if ((ttMonoBase as ITexTransToolTag).SaveDataVersion < TexTransMonoBase.TTTDataVersion)
+                if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
+                    Migration.MigratorWindow.ShowWindow();
+        }
         public static void DrawerWarning(string typeName)
         {
             EditorGUILayout.HelpBox(typeName + " " + "Common:ExperimentalWarning".GetLocalize(), MessageType.Warning);
@@ -36,7 +42,7 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawerRealTimePreviewEditorButton(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
-            if(texTransRuntimeBehavior == null){return;}
+            if (texTransRuntimeBehavior == null) { return; }
             var rpm = RealTimePreviewContext.instance;
             if (!rpm.IsPreview())
             {

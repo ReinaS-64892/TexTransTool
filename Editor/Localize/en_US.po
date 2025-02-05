@@ -59,6 +59,9 @@ msgstr "It texture is may contains alpha, but is compressed non-alpha format."
 msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
 msgstr "It my be false positive, if it is Intentional or no-problem, just ignore it completely."
 
+msgid "Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow"
+msgstr "This component's save data is older version! open the Migrator window."
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
