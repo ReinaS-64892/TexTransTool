@@ -3,16 +3,14 @@ using UnityEngine;
 using Unity.Collections;
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
+using System;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [DisallowMultipleComponent]
-    public abstract class AbstractIslandSelector : MonoBehaviour, ITexTransToolTag, IIslandSelector
+    public abstract class AbstractIslandSelector : TexTransMonoBaseGameObjectOwned, IIslandSelector, IEquatable<AbstractIslandSelector>
     {
         internal const string FoldoutName = "IslandSelector";
-
-        [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
-        int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
 
         internal abstract void LookAtCalling(ILookingObject looker);
 
@@ -29,6 +27,11 @@ namespace net.rs64.TexTransTool.IslandSelector
             foreach (var chile in chiles) { chile.LookAtCalling(lookingObject); }
             lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
+        }
+
+        public bool Equals(AbstractIslandSelector other)
+        {
+            return this == other;
         }
 
         internal virtual bool IsExperimental => true;

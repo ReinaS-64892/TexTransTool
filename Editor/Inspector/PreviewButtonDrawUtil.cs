@@ -17,5 +17,13 @@ namespace net.rs64.TexTransTool.Editor
             { TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior); }
             else { OneTimePreviewContext.instance.DrawApplyAndRevert(target); }
         }
+
+        internal static Action ExternalUnlitButton = null;
+        public static void DrawUnlitButton()
+        {
+            if (ExternalUnlitButton is null) { return; }
+            ExternalUnlitButton.Invoke();
+        }
+
     }
 }

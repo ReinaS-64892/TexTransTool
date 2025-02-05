@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Editor
         {
             DrawerWarning(target.GetType().Name);
             base.OnInspectorGUI();
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
+            PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
         }
         public static void DrawerWarning(string typeName)
         {
