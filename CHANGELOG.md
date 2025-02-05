@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SingleGradationDecal が Experimental ではなく、 Stable としてマークされました (#848)
 - IslandSelectorAND(NOT,OR,XOR) と Box(Sphere,Pin)IslandSelector が Experimental ではなく、 Stable としてマークされました (#848 #865)
 - TextureBlender が Experimental ではなく、 Stable としてマークされました (#857)
+- SimpleDecal の IslandSelector が Experimental ではなく、Stable としてマークされました (#865)
 
 ### Removed
 
