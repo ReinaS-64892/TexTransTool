@@ -494,11 +494,8 @@ msgstr "背面カリング"
 msgid "SimpleDecal:prop:BackCulling:tooltip"
 msgstr "ポリゴンがデカールから見て背面のポリゴンにデカールを貼らない設定"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgid "SimpleDecal:prop:IslandSelector"
 msgstr "アイランド選択"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
-msgstr "アイランドで選択を指定しその範囲にデカールを張る機能"
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "深度デカール"
