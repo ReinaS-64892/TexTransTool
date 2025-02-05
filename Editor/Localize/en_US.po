@@ -495,11 +495,8 @@ msgstr "BackCulling"
 msgid "SimpleDecal:prop:BackCulling:tooltip"
 msgstr "Setting to cull back side polygon when view from the decal."
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgid "SimpleDecal:prop:IslandSelector"
 msgstr "IslandSelect"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
-msgstr "A feature that decal apply area for select island."
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "UseDepth"

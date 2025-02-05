@@ -71,6 +71,8 @@ namespace net.rs64.TexTransTool.Editor.Decal
             var sSideCulling = thisSObject.FindProperty("BackCulling");
             EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:BackCulling".Glc());
 
+            var sIslandSelector = thisSObject.FindProperty("IslandSelector");
+            EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:IslandSelector".Glc());
 
             EditorGUI.indentLevel -= 1;
 
@@ -79,9 +81,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
-                var sIslandSelector = thisSObject.FindProperty("IslandSelector");
-                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
-
                 var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
                 if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
 
