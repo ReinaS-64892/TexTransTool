@@ -8,6 +8,7 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace net.rs64.TexTransTool.Build
 {
@@ -279,8 +280,41 @@ namespace net.rs64.TexTransTool.Build
             foreach (var itttTag in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
                 if (itttTag is not MonoBehaviour mb) { continue; }
+                if (mb == null) { continue; }
+                RemoveDependent(mb.gameObject, mb);
                 MonoBehaviour.DestroyImmediate(mb);
             }
+        }
+
+        static Dictionary<Type, HashSet<Type>> s_requireComponentCache = new();
+        private static void RemoveDependent(GameObject gameObject, Component component)
+        {
+            var removeTargetType = component.GetType();
+            foreach (var mayDependent in gameObject.GetComponents<Component>())
+            {
+                if (mayDependent == component) { continue; }
+                if (GetRequireComponent(mayDependent.GetType()).Any(t => t.IsAssignableFrom(removeTargetType)) is false) { continue; }
+                var dependent = mayDependent;
+
+                if (dependent is not ITexTransToolTag dpTTTComponent) { continue; }
+                if (dependent is not Component dpTTTComponent2) { continue; }
+                if (dpTTTComponent2 == null) { continue; }
+                RemoveDependent(gameObject, dpTTTComponent2);
+                Component.DestroyImmediate(dpTTTComponent2);
+            }
+
+        }
+        private static HashSet<Type> GetRequireComponent(Type type)
+        {
+            if (s_requireComponentCache.TryGetValue(type, out var rqTypes)) { return rqTypes; }
+            s_requireComponentCache[type] = rqTypes = new();
+            foreach (var rc in type.GetCustomAttributes<RequireComponent>(true))
+            {
+                if (rc.m_Type0 != null) rqTypes.Add(rc.m_Type0);
+                if (rc.m_Type1 != null) rqTypes.Add(rc.m_Type1);
+                if (rc.m_Type2 != null) rqTypes.Add(rc.m_Type2);
+            }
+            return rqTypes;
         }
 
         internal static IEnumerable<TexTransRuntimeBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> behaviors)
