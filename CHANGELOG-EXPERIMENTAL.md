@@ -38,6 +38,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 距離ベースでグラデーションをかけることができる、 DistanceGradationDecal が追加されました (#847)
 - (Imported)RasterLayer や LayerFolder(非Passthrough) などの、ImageLayer に限り、LayerMask 等も加味した単体プレビューが表示されるようになりました (#849)
 - VRAMの増加と引き換えに元のテクスチャの解像度を超越できる、ParallelProjectionWithLilToonDecal が追加されました (#851)
+- EverythingUnlitTexture が追加されました (#859)
+- PreviewIslandSelector が追加されましたが、NDMF 側のバグにより一時無効化されています。(#859)
 - MultiLayerImageCanvas もレイヤーのようなプレビューが表示されるようになりました (#870)
 
 ### Changed
