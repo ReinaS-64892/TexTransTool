@@ -21,21 +21,31 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             // TTT が初期化されてない状態で実行すると失敗するため
             if (ComputeObjectUtility.BlendingObject == null) { return; }
             _needUpdate = false;
+
             var isMultiple = targets.Length != 1;
             if (isMultiple) { return; }
+
             if (_imageLayerPreviewResult != null) { _imageLayerPreviewResult.Dispose(); _imageLayerPreviewResult = null; }
+
             var layer = target as AbstractLayer;
             if (layer is null) { return; }
+
             var previewCanvasSize = (1024, 1024);
             var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), new TextureManager(true));
             var engine = domain.GetTexTransCoreEngineForUnity();
+
             var layerObject = layer.GetLayerObject(new(domain, previewCanvasSize));
+
             if (layerObject is ImageLayer<ITexTransToolForUnity> imageLayer)
                 try
                 {
                     _imageLayerPreviewResult = engine.CreateRenderTexture(previewCanvasSize.Item1, previewCanvasSize.Item2);
                     imageLayer.GetImage(engine, _imageLayerPreviewResult);
                     imageLayer.AlphaMask.Masking(engine, _imageLayerPreviewResult);
+
+
+                    // これをそのままインスペクターに描画しようとすると薄くなってしまうから Linear 空間にすることでごまかす。
+                    engine.GammaToLinear(_imageLayerPreviewResult);
                 }
                 finally { imageLayer.Dispose(); }
             else layerObject.Dispose();
