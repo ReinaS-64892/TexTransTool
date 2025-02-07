@@ -63,8 +63,8 @@ namespace net.rs64.TexTransTool
 
         private Texture2D TextureSettingsConfigure(ITexTransToolForUnity engine, ITTRenderTexture originFullSizeRenderTexture, int targetTextureSize, bool useMipMap)
         {
-            var aspect = originFullSizeRenderTexture.Hight / originFullSizeRenderTexture.Width;
-            using var targetSizeTexture = engine.CreateRenderTexture(TextureSize, TextureSize * aspect);
+            var aspect = (float)originFullSizeRenderTexture.Hight / originFullSizeRenderTexture.Width;
+            using var targetSizeTexture = engine.CreateRenderTexture(targetTextureSize, (int)(targetTextureSize * aspect));
 
             // TODO : リサイズアルゴリズムを何とかする
             if (targetTextureSize != originFullSizeRenderTexture.Width) engine.DefaultResizing(targetSizeTexture, originFullSizeRenderTexture);
