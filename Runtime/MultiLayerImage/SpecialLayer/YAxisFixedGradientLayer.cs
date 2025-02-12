@@ -6,9 +6,9 @@ using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class YAsixFixedGradientLayer : AbstractImageLayer
+    public sealed class YAxisFixedGradientLayer : AbstractImageLayer
     {
-        internal const string ComponentName = "TTT YAsixFixedGradientLayer";
+        internal const string ComponentName = "TTT YAxisFixedGradientLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         public Gradient Gradient = new();
         public override void GetImage(ITexTransToolForUnity engine, ITTRenderTexture writeTarget)
