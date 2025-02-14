@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.Editor
                         var sTexture2D = property.FindPropertyRelative("SelectTexture");
                         var component = sTexture2D.serializedObject.targetObject;
                         EditorGUI.BeginDisabledGroup(component is not Component);
-                        if (GUI.Button(position, "OpenSelector"))
+                        if (GUI.Button(position, "TextureSelector:prop:OpenSelector".Glc()))
                         {
                             DomainTextureSelector.OpenSelector(sTexture2D, component as Component);
                         }
@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Editor
 
                         var texRect = position;
                         texRect.height = 64f;
-                        var prop = EditorGUI.BeginProperty(texRect, sTexture2D.name.Glc(), sTexture2D);
+                        var prop = EditorGUI.BeginProperty(texRect, "TextureSelector:prop:SelectTexture".Glc(), sTexture2D);
                         sTexture2D.objectReferenceValue = EditorGUI.ObjectField(texRect, prop, sTexture2D.objectReferenceValue, typeof(Texture2D), true);
                         EditorGUI.EndProperty();
                         break;
@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.Editor
                         var sTargetRenderer = property.FindPropertyRelative("RendererAsPath");
 
                         EditorGUI.BeginChangeCheck();
-                        EditorGUI.PropertyField(position, sTargetRenderer, "RendererAsPath".Glc());
+                        EditorGUI.PropertyField(position, sTargetRenderer, "TextureSelector:prop:RendererAsPath".Glc());
                         position.y += position.height;
                         if (EditorGUI.EndChangeCheck() && sTargetRenderer.objectReferenceValue != null)
                         { sTargetRenderer.objectReferenceValue = TextureTransformerEditor.RendererFiltering(sTargetRenderer.objectReferenceValue as Renderer); }
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.Editor
                         ArraySelector(sMaterialSelect, TargetMaterials, ref position);
 
                         var sTargetPropertyName = property.FindPropertyRelative("PropertyNameAsPath");
-                        EditorGUI.PropertyField(position, sTargetPropertyName, "PropertyNameAsPath".Glc());
+                        EditorGUI.PropertyField(position, sTargetPropertyName, "TextureSelector:prop:PropertyNameAsPath".Glc());
                         position.y += position.height;
 
                         if (TargetMaterials != null && TargetMaterials.Length > sMaterialSelect.intValue && sMaterialSelect.intValue >= 0)
@@ -75,7 +75,7 @@ namespace net.rs64.TexTransTool.Editor
                             {
                                 var previewTexRect = position;
                                 previewTexRect.height = 64f;
-                                EditorGUI.ObjectField(previewTexRect, "SelectTexturePreview".GetLocalize(), texture, typeof(Texture2D), true);
+                                EditorGUI.ObjectField(previewTexRect, "TextureSelector:prop:SelectTexturePreview".GetLocalize(), texture, typeof(Texture2D), true);
                             }
                         }
 
@@ -126,7 +126,7 @@ namespace net.rs64.TexTransTool.Editor
             var offset = 160;
             var propRect = position; propRect.height *= Array.Length;
             var labelRect = position; labelRect.width = offset;
-            EditorGUI.LabelField(labelRect, EditorGUI.BeginProperty(propRect, Select.name.Glc(), Select));
+            EditorGUI.LabelField(labelRect, EditorGUI.BeginProperty(propRect, "TextureSelector:prop:SlotAsPath".Glc(), Select));
 
             foreach (var ArrayValue in Array)
             {

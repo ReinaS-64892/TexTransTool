@@ -643,3 +643,37 @@ msgstr "エイム終了"
 
 msgid "AsLayer:button:AddLayer"
 msgstr "AsLayer を追加してレイヤーにする"
+
+# TextureBlender
+
+msgid "TextureBlender:prop:TargetTexture"
+msgstr "ターゲットテクスチャー"
+
+msgid "TextureBlender:prop:BlendTexture"
+msgstr "ブレンドテクスチャー"
+
+msgid "TextureBlender:prop:Color"
+msgstr "カラー"
+
+msgid "TextureBlender:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+# TextureSelector
+
+msgid "TextureSelector:prop:OpenSelector"
+msgstr "セレクターを開く"
+
+msgid "TextureSelector:prop:SelectTexture"
+msgstr "選択テクスチャー"
+
+msgid "TextureSelector:prop:RendererAsPath"
+msgstr "パスとなるレンダラー"
+
+msgid "TextureSelector:prop:SlotAsPath"
+msgstr "パスとなるスロット"
+
+msgid "TextureSelector:prop:PropertyNameAsPath"
+msgstr "パスとなるプロパティネーム"
+
+msgid "TextureSelector:prop:SelectTexturePreview"
+msgstr "選択テクスチャーのプレビュー"

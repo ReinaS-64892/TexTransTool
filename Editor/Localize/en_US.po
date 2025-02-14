@@ -647,3 +647,37 @@ msgstr "AimExit"
 
 msgid "AsLayer:button:AddLayer"
 msgstr "Add AsLayer to make it a layer"
+
+# TextureBlender
+
+msgid "TextureBlender:prop:TargetTexture"
+msgstr "TargetTexture"
+
+msgid "TextureBlender:prop:BlendTexture"
+msgstr "BlendTexture"
+
+msgid "TextureBlender:prop:Color"
+msgstr "Color"
+
+msgid "TextureBlender:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+# TextureSelector
+
+msgid "TextureSelector:prop:OpenSelector"
+msgstr "OpenSelector"
+
+msgid "TextureSelector:prop:SelectTexture"
+msgstr "SelectTexture"
+
+msgid "TextureSelector:prop:RendererAsPath"
+msgstr "RendererAsPath"
+
+msgid "TextureSelector:prop:SlotAsPath"
+msgstr "SlotAsPath"
+
+msgid "TextureSelector:prop:PropertyNameAsPath"
+msgstr "PropertyNameAsPath"
+
+msgid "TextureSelector:prop:SelectTexturePreview"
+msgstr "SelectTexturePreview"
