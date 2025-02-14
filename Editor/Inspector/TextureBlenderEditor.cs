@@ -19,16 +19,16 @@ namespace net.rs64.TexTransTool.Editor
             var thisTarget = target as TextureBlender;
             var thisSObject = serializedObject;
 
-            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"));
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(thisSObject.FindProperty("TargetTexture"), "TextureBlender:prop:TargetTexture".Glc());
 
             var sBlendTexture = thisSObject.FindProperty("BlendTexture");
-            EditorGUILayout.PropertyField(sBlendTexture, sBlendTexture.name.Glc());
+            EditorGUILayout.PropertyField(sBlendTexture, "TextureBlender:prop:BlendTexture".Glc());
 
             var sColor = thisSObject.FindProperty("Color");
-            EditorGUILayout.PropertyField(sColor, sColor.name.Glc());
+            EditorGUILayout.PropertyField(sColor, "TextureBlender:prop:Color".Glc());
 
             var sBlendTypeKey = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendTypeKey, sBlendTypeKey.name.Glc());
+            EditorGUILayout.PropertyField(sBlendTypeKey, "TextureBlender:prop:BlendTypeKey".Glc());
 
             thisSObject.ApplyModifiedProperties();
             if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(thisTarget);
