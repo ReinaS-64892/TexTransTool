@@ -5,11 +5,11 @@ using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.preview;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransCore.Utils;
-using net.rs64.TexTransTool.TextureStack;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.NDMF
 {
@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
         private IObjectRegistry _objectRegistry;
+        private TTCEUnityWithTTT4Unity _ttce4U;
 
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
@@ -34,12 +35,13 @@ namespace net.rs64.TexTransTool.NDMF
         public bool UsedLookAt { get; private set; } = false;
 
 
-        public NodeExecuteDomain(IEnumerable<(Renderer origin, Renderer proxy)> renderers, ComputeContext computeContext, IObjectRegistry objectRegistry)
+        public NodeExecuteDomain(Dictionary<Renderer, Renderer> o2pDict, ComputeContext computeContext, IObjectRegistry objectRegistry)
         {
-            _proxyDomainRenderers = renderers.Select(i => i.proxy).ToList();
-            _proxy2OriginRendererDict = renderers.ToDictionary(i => i.proxy, i => i.origin);
+            _proxy2OriginRendererDict = o2pDict.ToDictionary(i => i.Value, i => i.Key);
+            _proxyDomainRenderers = o2pDict.Values.ToList();
             _textureManager = new TextureManager(true);
-            _textureStacks = new();
+            _ttce4U = new TTCEUnityWithTTT4UnityOnNDMFPreview(new UnityDiskUtil(_textureManager));
+            _textureStacks = new(_ttce4U);
             _ctx = computeContext;
             _objectRegistry = objectRegistry;
         }
@@ -56,12 +58,9 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true);
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        public void AddTextureStack(Texture dist, TexTransCore.ITTRenderTexture addTex, TexTransCore.ITTBlendKey blendKey)
         {
-            _textureStacks.AddTextureStack(dist, setTex);
-
-            if (setTex.Texture is RenderTexture rt && !AssetDatabase.Contains(rt))
-            { TTRt.R(rt); }
+            _textureStacks.AddTextureStack(dist, addTex, blendKey);
             UsedTextureStack = true;
         }
         public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
@@ -77,7 +76,17 @@ namespace net.rs64.TexTransTool.NDMF
             if (_rendererApplyRecaller.ContainsKey(_proxy2OriginRendererDict[proxyRenderer])) { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] += recall; }
             else { _rendererApplyRecaller[_proxy2OriginRendererDict[proxyRenderer]] = recall; }
         }
+        public bool IsTemporaryAsset(UnityEngine.Object obj) { return _transferredObject.Contains(obj); }
+        public void GetMutable(ref Material material)
+        {
+            if (IsTemporaryAsset(material)) { return; }
+            var origin = material;
 
+            var mutableMat = NDMFPreviewMaterialPool.Get(origin);
+            ReplaceMaterials(new() { { origin, mutableMat } }, true);
+            mutableMat.name = origin.name + "(TTT GetMutable on NDMF Preview for pooled)";
+            material = mutableMat;
+        }
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
             foreach (var dr in _proxyDomainRenderers)
@@ -111,40 +120,39 @@ namespace net.rs64.TexTransTool.NDMF
             return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
         }
 
-        public void TransferAsset(UnityEngine.Object asset)
-        {
-            _transferredObject.Add(asset);
-        }
+        public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
 
 
         public void DomainFinish()
         {
+            MargeStack();
+            _textureManager.DestroyDeferred();
+            _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
+        }
 
-
+        private void MargeStack()
+        {
             foreach (var mergeResult in _textureStacks.StackDict)
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                SetTexture(mergeResult.Key, mergeResult.Value);
-                _neededReleaseTempRt.Add(mergeResult.Value);
+                this.ReplaceTexture(mergeResult.Key, mergeResult.Value.Unwrap());
+                _ttce4U.GammaToLinear(mergeResult.Value);
             }
 
             _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
-
-
-            void SetTexture(Texture firstTexture, Texture mergeTexture)
-            {
-                var mats = RendererUtility.GetFilteredMaterials(_proxyDomainRenderers);
-                ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, firstTexture, mergeTexture));
-                RegisterReplace(firstTexture, mergeTexture);
-            }
         }
 
         public void Dispose()
         {
-            foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj, true); }
+            foreach (var obj in _transferredObject)
+            {
+                if (obj is Material mat) { _ = NDMFPreviewMaterialPool.Ret(mat); continue; }
+                UnityEngine.Object.DestroyImmediate(obj, true);
+            }
             foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
             _transferredObject.Clear();
+            _textureStacks.Dispose();
 
             _ctx = null;
         }
@@ -162,6 +170,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             _rendererApplyRecaller[original].Invoke(proxy);
         }
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
     }
 
 
@@ -193,22 +202,48 @@ namespace net.rs64.TexTransTool.NDMF
         }
     }
 
-    class NDMFPreviewStackManager
+    class NDMFPreviewStackManager : IDisposable
     {
-        Dictionary<Texture, RenderTexture> _stackDict = new();
-        public IReadOnlyDictionary<Texture, RenderTexture> StackDict => _stackDict;
+        ITexTransToolForUnity _ttce4u;
+        Dictionary<Texture, ITTRenderTexture> _stackDict = new();
+        public IReadOnlyDictionary<Texture, ITTRenderTexture> StackDict => _stackDict;
+        public NDMFPreviewStackManager(ITexTransToolForUnity ttce4u)
+        {
+            _ttce4u = ttce4u;
+        }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
             if (_stackDict.ContainsKey(dist) is false)
             {
-                var stackTexture = TTRt.G(dist.width, dist.height);
-                stackTexture.name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
-                stackTexture.CopyFilWrap(dist);
-                Graphics.Blit(dist, stackTexture);
+                var stackTexture = _ttce4u.CreateRenderTexture(dist.width, dist.height);
+                stackTexture.Name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
+                stackTexture.Unwrap().CopyFilWrap(dist);
+
+                Graphics.Blit(dist, stackTexture.Unwrap());
+                _ttce4u.LinearToGamma(stackTexture);
+
                 _stackDict.Add(dist, stackTexture);
             }
-            _stackDict[dist].BlendBlit(setTex);
+            _ttce4u.BlendingWithAnySize(_stackDict[dist], addTex, blendKey);
+        }
+
+        public void Dispose()
+        {
+            foreach (var rt in _stackDict) { rt.Value.Dispose(); }
+            _stackDict.Clear();
+        }
+    }
+
+    class TTCEUnityWithTTT4UnityOnNDMFPreview : TTCEUnityWithTTT4Unity
+    {
+        public TTCEUnityWithTTT4UnityOnNDMFPreview(ITexTransUnityDiskUtil diskUtil) : base(diskUtil) { }
+
+        public override ITTRenderTexture UploadTexture(RenderTexture renderTexture)
+        {
+            var newRt = base.UploadTexture(renderTexture);
+            if (TTRt2.Contains(renderTexture)) { this.LinearToGamma(newRt); }
+            return newRt;
         }
     }
 }

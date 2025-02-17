@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Utils;
-using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {

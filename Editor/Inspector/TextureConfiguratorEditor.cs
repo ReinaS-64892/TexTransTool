@@ -19,28 +19,24 @@ namespace net.rs64.TexTransTool.Editor
             var sOverrideTextureSetting = sObj.FindProperty("OverrideTextureSetting");
             var sTextureSize = sObj.FindProperty("TextureSize");
             var sMipMap = sObj.FindProperty("MipMap");
-            var sDownScalingAlgorithm = sObj.FindProperty("DownScalingAlgorithm");
-            var sDownScalingWithLookAtAlpha = sObj.FindProperty("DownScalingWithLookAtAlpha");
 
             var sOverrideCompression = sObj.FindProperty("OverrideCompression");
             var sCompressionSetting = sObj.FindProperty("CompressionSetting");
 
-            EditorGUILayout.PropertyField(sTargetTexture);
+            EditorGUILayout.PropertyField(sTargetTexture, "TargetTexture".GlcV());
 
-            EditorGUILayout.PropertyField(sOverrideTextureSetting);
+            EditorGUILayout.PropertyField(sOverrideTextureSetting, "OverrideTextureSetting".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideTextureSetting.boolValue))
             using (new EditorGUI.IndentLevelScope())
             {
-                EditorGUILayout.PropertyField(sTextureSize);
-                EditorGUILayout.PropertyField(sMipMap);
-                EditorGUILayout.PropertyField(sDownScalingAlgorithm);
-                EditorGUILayout.PropertyField(sDownScalingWithLookAtAlpha);
+                EditorGUILayout.PropertyField(sTextureSize, "TextureSize".GlcV());
+                EditorGUILayout.PropertyField(sMipMap, "MipMap".GlcV());
             }
 
-            EditorGUILayout.PropertyField(sOverrideCompression);
+            EditorGUILayout.PropertyField(sOverrideCompression, "OverrideCompression".GlcV());
             using (new EditorGUI.DisabledScope(!sOverrideCompression.boolValue))
             using (new EditorGUI.IndentLevelScope())
-            { EditorGUILayout.PropertyField(sCompressionSetting); }
+            { EditorGUILayout.PropertyField(sCompressionSetting, "OverrideCompression".GlcV()); }
 
             PreviewButtonDrawUtil.Draw(targetTC);
             sObj.ApplyModifiedProperties();

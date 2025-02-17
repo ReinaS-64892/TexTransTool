@@ -1,6 +1,8 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 using net.rs64.TexTransTool.Preview;
+using System.Collections.Generic;
+using net.rs64.TexTransTool.Build;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -24,7 +26,9 @@ namespace net.rs64.TexTransTool.Editor
             rootVE.hierarchy.Add(previewButton);
             rootVE.styleSheets.Add(s_style);
 
-            CreateGroupElements(rootVE, (target as PhaseDefinition).Targets, true);
+            var groupBehaviors = new List<TexTransBehavior>();
+            AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, (target as PhaseDefinition).gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
+            CreateGroupElements(rootVE, groupBehaviors);
 
             return rootVE;
         }

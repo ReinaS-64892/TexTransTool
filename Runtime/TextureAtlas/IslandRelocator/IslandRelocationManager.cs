@@ -1,9 +1,8 @@
 
 using System;
 using System.Linq;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandRelocator
 {

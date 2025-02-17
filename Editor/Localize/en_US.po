@@ -44,6 +44,24 @@ msgstr "(NDMF) Disable {0} Preview"
 msgid "Common:ndmf:EnableThisComponentPhasePreview"
 msgstr "(NDMF) Enable {0} Preview"
 
+msgid "Common:RendererSelectMode"
+msgstr "RendererSelectMode"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "Auto"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "Manual"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat"
+msgstr "It texture is may contains alpha, but is compressed non-alpha format."
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
+msgstr "It my be false positive, if it is Intentional or no-problem, just ignore it completely."
+
+msgid "Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow"
+msgstr "This component's save data is older version! open the Migrator window."
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
@@ -355,6 +373,15 @@ msgstr "PriorityValue"
 msgid "CommonDecal:label:RenderersSettings"
 msgstr "RenderersSettings"
 
+msgid "CommonDecal:prop:UseMaterialFiltering"
+msgstr "UseMaterialFiltering"
+
+msgid "CommonDecal:prop:AutoSelectFilterMaterials"
+msgstr "AutoSelectFilterMaterials"
+
+msgid "CommonDecal:prop:IncludingDisableRenderers"
+msgstr "IncludingDisableRenderers"
+
 msgid "CommonDecal:prop:TargetRenderer"
 msgstr "TargetRenderer"
 
@@ -409,6 +436,15 @@ msgstr "Padding"
 msgid "CommonDecal:prop:Padding:tooltip"
 msgstr "Setting width for padding generate."
 
+msgid "CommonDecal:label:GradationSettings"
+msgstr "GradationSettings"
+
+msgid "CommonDecal:label:DecalSettings"
+msgstr "DecalSettings"
+
+msgid "CommonDecal:prop:IslandSelector"
+msgstr "IslandSelector"
+
 #  SimpleDecal
 
 msgid "SimpleDecal:error:TTTNotExecutable"
@@ -453,17 +489,14 @@ msgstr "PolygonCulling"
 msgid "SimpleDecal:prop:PolygonCulling:tooltip"
 msgstr "Setting the criteria for polygon culling."
 
-msgid "SimpleDecal:prop:SideCulling"
-msgstr "SideCulling"
+msgid "SimpleDecal:prop:BackCulling"
+msgstr "BackCulling"
 
-msgid "SimpleDecal:prop:SideCulling:tooltip"
+msgid "SimpleDecal:prop:BackCulling:tooltip"
 msgstr "Setting to cull back side polygon when view from the decal."
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgid "SimpleDecal:prop:IslandSelector"
 msgstr "IslandSelect"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
-msgstr "A feature that decal apply area for select island."
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "UseDepth"
@@ -509,13 +542,30 @@ msgstr "SummaryNone"
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "GroupChildren"
 
-# SingleGradationDecal
+# GradationDecal
 
-msgid "SingleGradationDecal:info:TargetNotSet"
+msgid "GradationDecal:info:TargetNotSet"
 msgstr "Target not set!"
 
-msgid "SingleGradationDecal:info:TargetNotFound"
+msgid "GradationDecal:info:TargetNotFound"
 msgstr "Target not found!"
+
+msgid "GradationDecal:prop:Gradient"
+msgstr "Gradient"
+
+msgid "GradationDecal:prop:Alpha"
+msgstr "Alpha"
+
+msgid "GradationDecal:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+msgid "GradationDecal:prop:TargetPropertyName"
+msgstr "TargetPropertyName"
+
+msgid "GradationDecal:prop:GradientClamp"
+msgstr "GradientClamp"
+
+# SingleGradationDecal
 
 msgid "SingleGradationDecal:prop:SelectedMaterialView"
 msgstr "SelectedMaterialView"
@@ -523,23 +573,13 @@ msgstr "SelectedMaterialView"
 msgid "SingleGradationDecal:prop:GradationLength"
 msgstr "GradationLength"
 
-msgid "SingleGradationDecal:prop:Gradient"
-msgstr "Gradient"
+# DistanceGradationDecal
 
-msgid "SingleGradationDecal:prop:Alpha"
-msgstr "Alpha"
+msgid "DistanceGradationDecal:prop:GradationMinDistance"
+msgstr "GradationMinDistance"
 
-msgid "SingleGradationDecal:prop:IslandSelector"
-msgstr "IslandSelector"
-
-msgid "SingleGradationDecal:prop:BlendTypeKey"
-msgstr "BlendTypeKey"
-
-msgid "SingleGradationDecal:prop:TargetPropertyName"
-msgstr "TargetPropertyName"
-
-msgid "SingleGradationDecal:prop:GradientClamp"
-msgstr "GradientClamp"
+msgid "DistanceGradationDecal:prop:GradationMaxDistance"
+msgstr "GradationMaxDistance"
 
 # TextureBlender
 
@@ -556,6 +596,17 @@ msgstr "適用対象が設定されていません！"
 
 msgid "TextureConfigurator:error:TargetNotFound"
 msgstr "Target not found!"
+
+# MaterialModifier
+
+msgid "MaterialModifier:info:TargetNotSet"
+msgstr "Target not Set!"
+
+msgid "MaterialModifier:info:TargetNotFound"
+msgstr "Target not found!"
+
+msgid "MaterialModifier:info:NullShader"
+msgstr "Target shader not found!"
 
 # MaterialOverrideTransfer
 
@@ -583,3 +634,50 @@ msgstr "Failed to evacuate UV as all UV channels are used!"
 
 msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
 msgstr "If there is no problem, ignore this warning."
+
+# IslandSelector
+
+msgid "IslandSelector:button:AimStart"
+msgstr "AimStart"
+
+msgid "IslandSelector:button:AimExit"
+msgstr "AimExit"
+
+# AsLayer
+
+msgid "AsLayer:button:AddLayer"
+msgstr "Add AsLayer to make it a layer"
+
+# TextureBlender
+
+msgid "TextureBlender:prop:TargetTexture"
+msgstr "TargetTexture"
+
+msgid "TextureBlender:prop:BlendTexture"
+msgstr "BlendTexture"
+
+msgid "TextureBlender:prop:Color"
+msgstr "Color"
+
+msgid "TextureBlender:prop:BlendTypeKey"
+msgstr "BlendTypeKey"
+
+# TextureSelector
+
+msgid "TextureSelector:prop:OpenSelector"
+msgstr "OpenSelector"
+
+msgid "TextureSelector:prop:SelectTexture"
+msgstr "SelectTexture"
+
+msgid "TextureSelector:prop:RendererAsPath"
+msgstr "RendererAsPath"
+
+msgid "TextureSelector:prop:SlotAsPath"
+msgstr "SlotAsPath"
+
+msgid "TextureSelector:prop:PropertyNameAsPath"
+msgstr "PropertyNameAsPath"
+
+msgid "TextureSelector:prop:SelectTexturePreview"
+msgstr "SelectTexturePreview"

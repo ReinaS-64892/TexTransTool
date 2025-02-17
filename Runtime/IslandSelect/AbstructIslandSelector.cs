@@ -1,32 +1,22 @@
+#nullable enable
 using UnityEngine;
-using net.rs64.TexTransTool;
-using System.Collections.Generic;
-using net.rs64.TexTransCore.Island;
 using Unity.Collections;
 using System.Collections;
+using net.rs64.TexTransTool.UVIsland;
 using System;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [DisallowMultipleComponent]
-    public abstract class AbstractIslandSelector : MonoBehaviour, ITexTransToolTag, IIslandSelector
+    public abstract class AbstractIslandSelector : TexTransMonoBaseGameObjectOwned, IIslandSelector, IEquatable<AbstractIslandSelector>
     {
         internal const string FoldoutName = "IslandSelector";
-
-        [HideInInspector, SerializeField] int _saveDataVersion = TexTransBehavior.TTTDataVersion;
-        int ITexTransToolTag.SaveDataVersion => _saveDataVersion;
 
         internal abstract void LookAtCalling(ILookingObject looker);
 
 
-        internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
-        BitArray IIslandSelector.IslandSelect(Island[] islands, IslandDescription[] islandDescription) => IslandSelect(islands, islandDescription);
-        /*
-        頂点の持つ情報
-        レンダラー
-        レンダラーから見た時のスロット
-        マテリアルの参照を比較してはならない。
-        */
+        internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
+        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) => IslandSelect(ctx);
 
         internal abstract void OnDrawGizmosSelected();
 
@@ -38,17 +28,37 @@ namespace net.rs64.TexTransTool.IslandSelector
             lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
         }
+
+        public bool Equals(AbstractIslandSelector other)
+        {
+            return this == other;
+        }
+
+        internal virtual bool IsExperimental => true;
     }
     internal interface IIslandSelector
     {
-        internal abstract BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription);
+        internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
+    }
+    internal class IslandSelectorContext
+    {
+        public Island[] Islands;
+        public IslandDescription[] IslandDescription;
+        public OriginEqual OriginEqual;
+
+        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, OriginEqual originEqual)
+        {
+            Islands = islands;
+            IslandDescription = islandDescription;
+            OriginEqual = originEqual;
+        }
     }
     internal readonly struct IslandDescription
     {
         public readonly NativeArray<Vector3> Position;//ワールドスペース
         public readonly NativeArray<Vector2> UV;
         public readonly Renderer Renderer;
-        public readonly int MaterialSlot;
+        public readonly int MaterialSlot;// SubMeshIndex でもある
 
         public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, int materialSlot)
         {

@@ -6,6 +6,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.13...HEAD)
 
+### Added
+
+- MultiLayerImageCanvas の処理時に必要な VRAM 使用量が大幅に削減されました (#672)
+- TTT PSD Importer の PSD の出力元ソフトウェアの判定をオーバーライドできる、 ImportMode 設定が追加されました (#675)
+- TTT PSD Importer の PSD の出力元ソフトウェアに応じて PassThrough や Clipping が調整されるようになりました (#675)
+- 16Bit 32Bit の PSD をインポートとビルドができるようになりました (#675)
+- 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#676)
+- クリスタの `色相・彩度・明度` 色調調整レイヤーを再現する HSVAdjustmentLayer が追加されました(#678)
+- PSD の ImportMode が ClipStudioPaint に自動決定またはオーバライドされていた場合 HSLAdjustmentLayer が HSVAdjustmentLayer としてインポートされるようになりました (#678)
+- TTT PSD Importer はインポートのタイミングでプレビューを生成せず、必要になったタイミングで生成するようなりインポート自体の速度は大幅に高速化しました。(#727)
+- PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
+- TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)
+- SingleGradationDecal にも RendererSelectMode が追加され SimpleDecal のような レンダラーを手動で指定する事が可能になりました (#753)
+- シーンビューからエイムすることでアイランドを選択できる AimIslandSelector が追加されました (#764)
+- マテリアルの参照をベースにアイランドを選択できる MaterialIslandSelector が追加されました (#764)
+- SimpleDecal の DepthDecal 機能が内部実装の変更により、レンダラーごとではなくすべてのレンダラーで統一された Depthバッファー を参照するようになりました (#764)
+- TTT PSD Importer は PSD の ImageDataSection の画像を PSDImportedImageDataSectionImage としてインポートするようになりました (#772)
+- TTT PSD Importer は 32bit PSD と 16bit PSD のプレビューが可能になりました (#772)
+- 一つの子となる IslandSelector を基に IslandSelect の範囲を広げて選択できる、 IslandSelectorLink系 コンポーネントが 4つ 追加されました (#777)
+- TTT PSD Importer に PSD ImportMode SAI が追加され、出力元が SAI であるとみられる場合に自動判定されるようになりました (#781)
+- MaterialModifier がゼロからリメイクされ、マテリアルをその場で変更し差分をオーバーライドとして非破壊的に適用できる機能を持って、新規コンポーネントとして復活しました (#788 #807)
+- マテリアルのコンテキストメニューから MaterialOverrideTransfer と MaterialModifier が追加できる MenuItem が追加されました (#792)
+- 非常に実験的なコンポーネントとして、ポリゴンの最接近点からテクスチャを転写するようなことができる NearTransTexture が追加されました (#816)
+- 二つの色を指定し、その色差をテクスチャに適用する ColorDifferenceChanger が追加されました (#827)
+- TextureBlender や ColorDifferenceChanger を MultiLayerImageCanvas のレイヤーとして扱うことのできる AsLayer が追加されました (#834)
+- MultiLayerImageCanvas に連なるレイヤーの LayerMask が、 TTT ImportedLayerMask マスクなどの別種類のレイヤーマスクを選択することが可能になりました (#834)
+- MaterialModifier や TextureConfigurator を右クリックをした GameObject 配下のマテリアルやテクスチャすべてに対して コンポーネントを一括で生成できる `Generate` が追加されました (#833)
+- SimpleDecal や SingleGradationDecal が AsLayer でレイヤーとして扱うことが可能になりました (#837)
+- レイヤーに対して使用できるレイヤーマスクとして、 IslandSelector をマスクにすることが可能な IslandSelectAsLayerMask が追加されました (#838)
+- 距離ベースでグラデーションをかけることができる、 DistanceGradationDecal が追加されました (#847)
+- (Imported)RasterLayer や LayerFolder(非Passthrough) などの、ImageLayer に限り、LayerMask 等も加味した単体プレビューが表示されるようになりました (#849)
+- VRAMの増加と引き換えに元のテクスチャの解像度を超越できる、ParallelProjectionWithLilToonDecal が追加されました (#851)
+- EverythingUnlitTexture が追加されました (#859)
+- PreviewIslandSelector が追加されました ~~が、NDMF 側のバグにより一時無効化されています。~~(#859 #879)
+- MultiLayerImageCanvas もレイヤーのようなプレビューが表示されるようになりました (#870)
+
+### Changed
+
+- SingleGradationDecal がデフォルト設定では 無効なレンダラーに対して描画しないようになりました (#753)
+- RayCastIslandSelector は PinIslandSelector に名前が変更されました (#764)
+- Decal系は Preview の場合 HighQualityPadding が無効化されるように変更されました (#764)
+- SubMeshIslandSelector が SubMeshIndexIslandSelector に名前が変更されました (#777)
+- MaterialOverrideTransfer は UnDefinedPhase から MaterialModificationPhase に属するフェーズが変更されました (#826)
+
+### Fixed
+
+- PSD の古い 色相/彩度 の色調調整レイヤーの追加情報 KeyCode "hue " が誤っていて認識されていなかった可能性のある問題を修正 (#675)
+- RendererIslandSelector が NDMF Preview で正常に動作しない問題を修正 (#764)
+- SingleGradationDecal や YAsixFixedGradientLayer にて、境界の色がにじむ問題を修正 (#786)
+
 ## [v0.8.13](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.12...v0.8.13) - 2025-01-09
 
 ### Fixed

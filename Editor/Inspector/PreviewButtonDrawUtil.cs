@@ -1,9 +1,4 @@
 using System;
-using UnityEngine;
-using UnityEditor;
-using System.Linq;
-using net.rs64.TexTransCore.BlendTexture;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.Preview.RealTime;
 using net.rs64.TexTransTool.Preview;
 
@@ -11,8 +6,8 @@ namespace net.rs64.TexTransTool.Editor
 {
     internal static class PreviewButtonDrawUtil
     {
-        internal static Action<TexTransBehavior> ExternalPreviewDrawer = null;
-        public static void Draw(TexTransBehavior target)
+        internal static Action<TexTransMonoBase> ExternalPreviewDrawer = null;
+        public static void Draw(TexTransMonoBase target)
         {
             if (target == null) { return; }
 
@@ -22,5 +17,13 @@ namespace net.rs64.TexTransTool.Editor
             { TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior); }
             else { OneTimePreviewContext.instance.DrawApplyAndRevert(target); }
         }
+
+        internal static Action ExternalUnlitButton = null;
+        public static void DrawUnlitButton()
+        {
+            if (ExternalUnlitButton is null) { return; }
+            ExternalUnlitButton.Invoke();
+        }
+
     }
 }

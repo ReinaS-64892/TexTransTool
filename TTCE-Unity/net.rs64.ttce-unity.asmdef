@@ -1,0 +1,19 @@
+{
+    "name": "net.rs64.ttce-unity",
+    "rootNamespace": "",
+    "references": [
+        "net.rs64.tex-trans-core",
+        "net.rs64.ttce-unity.unsafe",
+        "Unity.Burst",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

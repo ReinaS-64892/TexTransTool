@@ -1,0 +1,58 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float InputFloor;
+    float InputCeiling;
+    float Gamma;
+    float OutputFloor;
+    float OutputCeiling;
+    float R;
+    float G;
+    float B;
+}
+RWTexture2D<float4> Tex;
+
+float FncGamma(float input, float y)
+{
+    return pow(abs(input), 1 / y);
+}
+
+float Level(float input)
+{
+    float normalized = (clamp(input, InputFloor, InputCeiling) - InputFloor) / (InputCeiling - InputFloor);
+    return lerp(OutputFloor, OutputCeiling, FncGamma(normalized, Gamma));
+}
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+
+    if (R > 0.5)
+    {
+        col.r = Level(col.r);
+    }
+
+    if (G > 0.5)
+    {
+        col.g = Level(col.g);
+    }
+
+    if (B > 0.5)
+    {
+        col.b = Level(col.b);
+    }
+
+    Tex[id.xy] = col;
+}

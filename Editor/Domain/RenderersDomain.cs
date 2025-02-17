@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.TextureStack;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Pool;
-using static net.rs64.TexTransCore.BlendTexture.TextureBlend;
 using Object = UnityEngine.Object;
+using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool
 {
@@ -28,7 +26,8 @@ namespace net.rs64.TexTransTool
 
         [CanBeNull] protected readonly IAssetSaver _saver;
         protected readonly ITextureManager _textureManager;
-        protected readonly StackManager<ImmediateTextureStack> _textureStacks;
+        protected readonly ImmediateStackManager _textureStacks;
+        protected readonly ITexTransToolForUnity _ttce4U;
 
         protected Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
 
@@ -42,17 +41,19 @@ namespace net.rs64.TexTransTool
             Previewing = previewing;
             _saver = assetSaver;
             _textureManager = textureManager;
-            _textureStacks = new StackManager<ImmediateTextureStack>(_textureManager);
+            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));//TODO : コンストラクタの引数にとることができるようにする必要がある
+
+            _textureStacks = new ImmediateStackManager(_ttce4U, _textureManager);
         }
 
-        public virtual void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : IBlendTexturePair
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
+        public virtual void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
         {
-            _textureStacks.AddTextureStack(dist as Texture2D, setTex);
+            _textureStacks.AddTextureStack(dist as Texture2D, addTex, blendKey);
         }
 
-        private void AddPropertyModification(Object component, string property, Object value)
+        private static void AddPropertyModification(Object component, string property, Object value)
         {
-            if (!Previewing) return;
             AnimationMode.AddPropertyModification(
                 EditorCurveBinding.PPtrCurve("", component.GetType(), property),
                 new PropertyModification
@@ -64,53 +65,52 @@ namespace net.rs64.TexTransTool
                 true);
         }
 
-        private void SetSerializedProperty(SerializedProperty property, Object value)
+        public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
         {
-            AddPropertyModification(property.serializedObject.targetObject, property.propertyPath,
-                property.objectReferenceValue);
-            property.objectReferenceValue = value;
-        }
+            foreach (var renderer in _renderers) { ReplaceMaterial(renderer, mapping, Previewing); }
 
-        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true)
-        {
-            foreach (var replacement in mapping.Values)
-                TransferAsset(replacement);
-
-            foreach (var renderer in _renderers)
-            {
-                if (renderer == null) { continue; }
-                if (!renderer.sharedMaterials.Any()) { continue; }
-                using (var serialized = new SerializedObject(renderer))
-                {
-                    foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
-                        if (property.objectReferenceValue is Material material &&
-                            mapping.TryGetValue(material, out var replacement))
-                            SetSerializedProperty(property, replacement);
-
-                    serialized.ApplyModifiedPropertiesWithoutUndo();
-                }
-            }
-
-            if (one2one)
-            { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
+            if (one2one) { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
             this.transferAssets(mapping.Values);
         }
 
-        public virtual void SetMesh(Renderer renderer, Mesh mesh)
+        internal static void ReplaceMaterial(Renderer renderer, Dictionary<Material, Material> mapping, bool previewing = false)
+        {
+            if (renderer == null) { return; }
+            if (!renderer.sharedMaterials.Any()) { return; }
+            using (var serialized = new SerializedObject(renderer))
+            {
+                foreach (SerializedProperty property in serialized.FindProperty("m_Materials"))
+                    if (property.objectReferenceValue is Material material && mapping.TryGetValue(material, out var replacement))
+                    {
+                        if (previewing) AddPropertyModification(property.serializedObject.targetObject, property.propertyPath, property.objectReferenceValue);
+                        property.objectReferenceValue = replacement;
+                    }
+
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        public void SetMesh(Renderer renderer, Mesh mesh)
+        {
+            var preMesh = ReplaceMesh(renderer, mesh, Previewing);
+            RegisterReplace(preMesh, mesh);
+        }
+
+        private static Mesh ReplaceMesh(Renderer renderer, Mesh mesh, bool previewing = false)
         {
             var preMesh = renderer.GetMesh();
             switch (renderer)
             {
                 case SkinnedMeshRenderer skinnedRenderer:
                     {
-                        AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
+                        if (previewing) AddPropertyModification(renderer, "m_Mesh", skinnedRenderer.sharedMesh);
                         skinnedRenderer.sharedMesh = mesh;
                         break;
                     }
                 case MeshRenderer meshRenderer:
                     {
                         var meshFilter = meshRenderer.GetComponent<MeshFilter>();
-                        AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
+                        if (previewing) AddPropertyModification(meshFilter, "m_Mesh", meshFilter.sharedMesh);
                         meshFilter.sharedMesh = mesh;
                         break;
                     }
@@ -118,15 +118,9 @@ namespace net.rs64.TexTransTool
                     throw new ArgumentException($"Unexpected Renderer Type: {renderer.GetType()}", nameof(renderer));
             }
 
-            RegisterReplace(preMesh, mesh);
+            return preMesh;
         }
-        public virtual void SetTexture(Texture2D target, Texture2D setTex)
-        {
-            var mats = RendererUtility.GetFilteredMaterials(_renderers);
-            ReplaceMaterials(MaterialUtility.ReplaceTextureAll(mats, target, setTex));
-            RegisterReplace(target, setTex);
-        }
-
+        public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
 
@@ -154,14 +148,14 @@ namespace net.rs64.TexTransTool
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
         }
 
-        public virtual void MergeStack()
+        public void MergeStack()
         {
             var MergedStacks = _textureStacks.MergeStacks();
 
             foreach (var mergeResult in MergedStacks)
             {
                 if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
-                SetTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
+                this.ReplaceTexture(mergeResult.FirstTexture, mergeResult.MergeTexture);
                 TransferAsset(mergeResult.MergeTexture);
             }
         }
@@ -170,6 +164,5 @@ namespace net.rs64.TexTransTool
         public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
         public bool IsPreview() => Previewing;
         public ITextureManager GetTextureManager() => _textureManager;
-
     }
 }

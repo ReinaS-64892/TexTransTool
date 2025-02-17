@@ -1,10 +1,13 @@
-using net.rs64.TexTransTool.Utils;
+#nullable enable
+using System;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
+using net.rs64.TexTransCoreEngineForUnity;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class UnityGradationMapLayer : AbstractGrabLayer
+    public class UnityGradationMapLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT UnityGradationMapLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
@@ -12,12 +15,39 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         public Gradient Gradation = new();
 
 
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
-            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.LuminanceMappingShader);
-            mat.SetTexture("_MapTex", GradientTempTexture.Get(Gradation, 1));
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
 
-            Graphics.Blit(grabSource, writeTarget, mat);
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
+
+            var lm = GetAlphaMaskObject(ctx);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var lumMap = new LuminanceMapping(new UnityGradationWrapper(Gradation));
+
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(Visible, lm, Clipping, blKey, lumMap);
+        }
+    }
+
+    public class UnityGradationWrapper : ILuminanceMappingGradient
+    {
+        Gradient _gradient;
+
+        public UnityGradationWrapper(Gradient gradient)
+        {
+            _gradient = gradient;
+        }
+        public int RecommendedResolution => 256;
+
+        public void WriteGradient(Span<TexTransCore.Color> writeSpan)
+        {
+            float maxValue = writeSpan.Length - 1;
+            for (var i = 0; writeSpan.Length > i; i += 1)
+            {
+                writeSpan[i] = _gradient.Evaluate(i / maxValue).ToTTCore();
+            }
         }
     }
 }

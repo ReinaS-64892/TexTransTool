@@ -1,9 +1,9 @@
+#nullable enable
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -13,13 +13,13 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT RendererIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
-        public List<Renderer> RendererList;
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        public List<Renderer> RendererList = new();
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
-            var bitArray = new BitArray(islands.Length);
-            var hash = RendererList.ToHashSet();
+            var selectRendererHash = ctx.OriginEqual.GetDomainsRenderers(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), RendererList).ToHashSet();
+            var bitArray = new BitArray(ctx.Islands.Length);
 
-            for (int i = 0; i < islands.Length; i += 1) { bitArray[i] = hash.Contains(islandDescription[i].Renderer); }
+            for (int i = 0; i < ctx.Islands.Length; i += 1) { bitArray[i] = selectRendererHash.Contains(ctx.IslandDescription[i].Renderer); }
 
             return bitArray;
         }

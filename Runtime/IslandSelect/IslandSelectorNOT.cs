@@ -1,9 +1,7 @@
+#nullable enable
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransCore.Island;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -13,20 +11,22 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string ComponentName = "TTT IslandSelectorNOT";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
 
-        internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector().LookAtCalling(looker); }
-        internal AbstractIslandSelector GetIslandSelector()
+        internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector()?.LookAtCalling(looker); }
+        internal AbstractIslandSelector? GetIslandSelector() { return GetFirstChilde(transform); }
+        internal static AbstractIslandSelector? GetFirstChilde(Transform tf)
         {
-            var childeCount = transform.childCount;
+            var childeCount = tf.childCount;
             if (childeCount <= 0) { return null; }
-            return transform.GetChild(0).GetComponent<AbstractIslandSelector>();
+            return tf.GetChild(0).GetComponent<AbstractIslandSelector>();
         }
 
-        internal override BitArray IslandSelect(Island[] islands, IslandDescription[] islandDescription)
+        internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             var islandSelector = GetIslandSelector();
-            return islandSelector != null ? islandSelector.IslandSelect(islands, islandDescription).Not() : new BitArray(islands.Length, true);
+            return islandSelector != null ? islandSelector.IslandSelect(ctx).Not() : new BitArray(ctx.Islands.Length, true);
         }
 
         internal override void OnDrawGizmosSelected() { GetIslandSelector()?.OnDrawGizmosSelected(); }
+        internal override bool IsExperimental => false;
     }
 }

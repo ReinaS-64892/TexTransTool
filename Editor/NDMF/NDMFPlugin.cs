@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using nadena.dev.ndmf.preview;
 using System;
 using System.Linq;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 #if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
 #endif
@@ -35,18 +35,12 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(NegotiateAAOPass.Instance).Then
 #endif
 
-            .Run(BeforeUVModificationPass.Instance).Then
-            .Run(TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning.Instance).Then
-
-            .Run(MidwayMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.BeforeUVModification }))
-            .Then
-
-            .Run(UVModificationPass.Instance).Then
-            .Run(AfterUVModificationPass.Instance).Then
-            .Run(UnDefinedPass.Instance).Then
-            .Run(BeforeOptimizingMergeStackPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.UVModification, TexTransPhase.AfterUVModification, TexTransPhase.UnDefined }));
+            .Run(MaterialModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.MaterialModification)).Then
+            .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
+            .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
+            .Run(AfterUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.AfterUVModification)).Then
+            .Run(PostProcessingPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.PostProcessing)).Then
+            .Run(UnDefinedPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UnDefined));
 
 
             InPhase(BuildPhase.Optimizing)
@@ -56,17 +50,17 @@ namespace net.rs64.TexTransTool.NDMF
             .Run(ReFindRenderersPass.Instance).Then
 
             .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance)
-            .PreviewingWith(new TexTransDomainFilter(new List<TexTransPhase>() { TexTransPhase.Optimizing }))
-            .Then
+            .Run(TTTSessionEndPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.Optimizing), new EverythingUnlitTexture(), new PreviewIslandSelector()).Then
 
             .Run(TTTComponentPurgePass.Instance);
-
-
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
+            { TexTransPhase.MaterialModification,  TogglablePreviewNode.Create(() => "MaterialModification-Phase", "MaterialModification", true) },
             { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
-            { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-to-UnDefined-Phase", "UVModificationToUnDefined",  true) },
+            { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-Phase", "UVModification",  true) },
+            { TexTransPhase.AfterUVModification,  TogglablePreviewNode.Create(() => "AfterUVModification-Phase", "AfterUVModification",  true) },
+            { TexTransPhase.PostProcessing,  TogglablePreviewNode.Create(() => "PostProcessing-Phase", "AfterUVModification",  true) },
+            { TexTransPhase.UnDefined,  TogglablePreviewNode.Create(() => "UnDefined-Phase", "UnDefined",  true) },
             { TexTransPhase.Optimizing,  TogglablePreviewNode.Create(() => "Optimizing-Phase", "Optimizing", false) },
         };
     }

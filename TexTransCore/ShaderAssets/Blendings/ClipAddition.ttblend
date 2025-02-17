@@ -1,0 +1,31 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key Clip/Addition
+KeyName ja クリスタ/加算-覆い焼き(リニア)
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+    if (BaseColor.a <= 0.0)
+    {
+        return AddColor;
+    }
+    if (AddColor.a <= 0.0)
+    {
+        return BaseColor;
+    }
+
+    float3 BlendColor = AdditionComposite(BaseColor.rgb, AddColor.rgb);
+    return ClipAlphaBlending(BaseColor, AddColor, BlendColor);
+}

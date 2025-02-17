@@ -1,16 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using net.rs64.TexTransTool.Editor;
 using System.Collections.Generic;
-using net.rs64.TexTransCore.Utils;
 using System;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransCore.BlendTexture;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -360,19 +357,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public VisualElement GetVisualElement => _viRoot;
     }
 
-    class NotWorkDomain : IDomain, IDisposable
+    internal class NotWorkDomain : IDomain, IDisposable
     {
         IEnumerable<Renderer> _domainRenderers;
         HashSet<UnityEngine.Object> _transferredObject = new();
         protected readonly ITextureManager _textureManager;
+        private readonly TTCEUnityWithTTT4Unity _ttce4U;
 
         public NotWorkDomain(IEnumerable<Renderer> renderers, TextureManager textureManager)
         {
             _domainRenderers = renderers;
             _textureManager = textureManager;
+            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
         }
 
-        public void AddTextureStack<BlendTex>(Texture dist, BlendTex setTex) where BlendTex : TextureBlend.IBlendTexturePair { }
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }
         public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
         public ITextureManager GetTextureManager() { return _textureManager; }
         public bool IsPreview() { return true; }
@@ -382,6 +381,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
         public void Dispose() { foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); } }
+        public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
+
     }
 
 

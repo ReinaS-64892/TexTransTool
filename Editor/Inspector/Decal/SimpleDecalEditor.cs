@@ -14,13 +14,48 @@ namespace net.rs64.TexTransTool.Editor.Decal
     [CustomEditor(typeof(SimpleDecal))]
     internal class SimpleDecalEditor : UnityEditor.Editor
     {
+        CanBehaveAsLayerEditorUtil behaveLayerUtil;
+        void BehaveUtilInit() { behaveLayerUtil = new(target as Component); }
+        void OnEnable() { BehaveUtilInit(); EditorApplication.hierarchyChanged += BehaveUtilInit; }
+        void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
         public override void OnInspectorGUI()
         {
+            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var thisSObject = serializedObject;
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;
 
-            DrawerDecalEditor(thisSObject);
+
+            if (behaveLayerUtil.IsLayerMode is false)
+            {
+                EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
+                EditorGUI.indentLevel += 1;
+
+                var sRendererSelector = thisSObject.FindProperty("RendererSelector");
+                EditorGUILayout.PropertyField(sRendererSelector, "Common:RendererSelectMode".Glc());
+
+                EditorGUI.indentLevel -= 1;
+            }
+
+            EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+
+            if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null || behaveLayerUtil.IsLayerMode)
+            {
+                var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+                EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
+
+                var sColor = thisSObject.FindProperty("Color");
+                EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
+            }
+
+            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
+            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
+
+            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
+            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
+            EditorGUI.indentLevel -= 1;
+
 
             if (!isMultiEdit)
             {
@@ -33,12 +68,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUILayout.LabelField("SimpleDecal:label:CullingSettings".Glc(), EditorStyles.boldLabel);
             EditorGUI.indentLevel += 1;
 
-            var sPolygonCulling = thisSObject.FindProperty("PolygonOutOfCulling");
-            EditorGUILayout.PropertyField(sPolygonCulling, "SimpleDecal:prop:PolygonCulling".Glc());
+            var sSideCulling = thisSObject.FindProperty("BackCulling");
+            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:BackCulling".Glc());
 
-            var sSideCulling = thisSObject.FindProperty("SideCulling");
-            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:SideCulling".Glc());
-
+            var sIslandSelector = thisSObject.FindProperty("IslandSelector");
+            EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:IslandSelector".Glc());
 
             EditorGUI.indentLevel -= 1;
 
@@ -47,13 +81,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             if (s_ExperimentalFutureOption)
             {
-                var sIslandSelector = thisSObject.FindProperty("IslandSelector");
-                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:ExperimentalFuture:IslandSelector".Glc());
-
                 var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
-                EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
+                if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
 
-                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is RayCastIslandSelector)
+                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is PinIslandSelector)
                 {
                     var sIslandCulling = thisSObject.FindProperty("IslandCulling");
                     if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
@@ -71,40 +102,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             }
 
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
+            if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
+            behaveLayerUtil.DrawAddLayerButton(target as Component);
 
             thisSObject.ApplyModifiedProperties();
-        }
-        public static void DrawerDecalEditor(SerializedObject thisSObject)
-        {
-            EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-
-            var sTargetRenderers = thisSObject.FindProperty("TargetRenderers");
-            var sMultiRendererMode = thisSObject.FindProperty("MultiRendererMode");
-            TextureTransformerEditor.DrawerRenderer(sTargetRenderers, "CommonDecal:prop:TargetRenderer".Glc(), sMultiRendererMode.boolValue);
-            EditorGUILayout.PropertyField(sMultiRendererMode, "CommonDecal:prop:MultiRendererMode".Glc());
-
-
-            EditorGUI.indentLevel -= 1;
-            EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-
-            if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null)
-            {
-                var sDecalTexture = thisSObject.FindProperty("DecalTexture");
-                EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
-
-                var sColor = thisSObject.FindProperty("Color");
-                EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
-            }
-
-            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
-
-            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-            EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
-            EditorGUI.indentLevel -= 1;
         }
         static bool s_ExperimentalFutureOption = false;
 
@@ -194,7 +195,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
         {
             if (simpleDecal.IslandSelector != null)
             {
-                if (simpleDecal.IslandSelector is not RayCastIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
+                if (simpleDecal.IslandSelector is not PinIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
                 else { if (!EditorUtility.DisplayDialog("Migrate IslandCulling To IslandSelector", "IslandSelector に RayCastIslandSelector が既に割り当てられています。 \n 割り当てられている RayCastIslandSelector を編集する形でマイグレーションしますか？", "実行")) { return; } }
             }
             Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
@@ -212,4 +213,26 @@ namespace net.rs64.TexTransTool.Editor.Decal
     }
 
 
+    internal static class DecalEditorUtil
+    {
+        static bool FoldoutAdvancedOption;
+        public static void DrawerAdvancedOption(SerializedObject sObject)
+        {
+            FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "CommonDecal:label:AdvancedOption".Glc());
+            if (FoldoutAdvancedOption)
+            {
+                EditorGUI.indentLevel += 1;
+
+                var sHighQualityPadding = sObject.FindProperty("HighQualityPadding");
+                EditorGUILayout.PropertyField(sHighQualityPadding, "CommonDecal:prop:HighQualityPadding".Glc());
+
+                var sPadding = sObject.FindProperty("Padding");
+                EditorGUILayout.PropertyField(sPadding, "CommonDecal:prop:Padding".Glc());
+
+                EditorGUI.indentLevel -= 1;
+            }
+
+        }
+
+    }
 }

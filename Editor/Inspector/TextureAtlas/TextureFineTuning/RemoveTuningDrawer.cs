@@ -15,15 +15,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sSelect = property.FindPropertyRelative("Select");
             var sIsRemove = property.FindPropertyRelative("IsRemove");
 
-            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:IsRemove".Glc());
+            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:IsRemove".GlcV());
             position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sPropertyNames);
-            EditorGUI.PropertyField(position, sPropertyNames, "TextureFineTuning:prop:TargetPropertyName".Glc());
+            EditorGUI.PropertyField(position, sPropertyNames, "TextureFineTuning:prop:TargetPropertyName".GlcV());
             position.y += position.height;
             position.height = 18f;
 
-            EditorGUI.PropertyField(position, sSelect, "TextureFineTuning:prop:Select".Glc());
+            EditorGUI.PropertyField(position, sSelect, "TextureFineTuning:prop:Select".GlcV());
             position.y += 18;
 
         }

@@ -3,7 +3,7 @@ using System;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransTool.Utils;
 namespace net.rs64.TexTransTool
 {
     [Serializable]
@@ -48,29 +48,66 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        internal void LookThis(ILookingObject lookingObject) { if (Mode == SelectMode.Relative) { lookingObject.LookAt(RendererAsPath); } }
-        internal IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal Texture GetTextureWithLookAt<TObj>(IRendererTargeting targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        where TObj : UnityEngine.Object
         {
-            var targetTex = GetTexture();
-            var targetTextures = RendererUtility.GetAllTexture<Texture>(domainRenderers).Where(m => replaceTracking(m, targetTex));
-            return FindModificationTargetRenderers(domainRenderers, targetTextures);
-        }
-
-        private static IEnumerable<Renderer> FindModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, IEnumerable<Texture> targetTex)
-        {
-            if (targetTex.Any() is false) { return Array.Empty<Renderer>(); }
-            var targetTexHash = new HashSet<Texture>(targetTex);
-            var mats = RendererUtility.GetFilteredMaterials(domainRenderers);
-            var targetMatHash = new HashSet<Material>();
-
-            foreach (var mat in mats)
+            var mode = targeting.LookAtGet(thisObject, i => getThis(i).Mode);
+            switch (mode)
             {
-                if (targetMatHash.Contains(mat)) { continue; }
-                var dict = mat.GetAllTexture<Texture>();
-                if (dict.Values.Any(t => targetTexHash.Contains(t))) { targetMatHash.Add(mat); }
+                case SelectMode.Absolute:
+                    {
+                        return targeting.LookAtGet(thisObject, i => getThis(i).SelectTexture);
+                    }
+                case SelectMode.Relative:
+                    {
+                        var rendererAsPath = targeting.LookAtGet(thisObject, i => getThis(i).RendererAsPath);
+                        if (rendererAsPath == null) return null;
+                        var domainsRendererAsPath = targeting.GetDomainsRenderers(rendererAsPath).FirstOrDefault();
+                        if (domainsRendererAsPath == null) return null;
+                        var distMaterials = targeting.GetMaterials(domainsRendererAsPath);
+
+                        var slotAsPath = targeting.LookAtGet(thisObject, i => getThis(i).SlotAsPath);
+                        if (distMaterials.Length <= slotAsPath) return null;
+                        var distMat = distMaterials[slotAsPath];
+
+                        var propertyNameAsPath = targeting.LookAtGet(thisObject, i => getThis(i).PropertyNameAsPath);
+                        if (targeting.LookAtGet(distMat, m => m.HasProperty(propertyNameAsPath)) is false) return null;
+                        return targeting.LookAtGet(distMat, m => m.GetTexture(propertyNameAsPath));
+                    }
+                default: { return null; }
             }
-            return domainRenderers.Where(i => i.sharedMaterials.Any(targetMatHash.Contains));
         }
-        internal void LookAtCalling(ILookingObject lookingObject) { lookingObject.LookAt(GetTexture()); }
+        internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IRendererTargeting rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        where TObj : UnityEngine.Object
+        {
+            var targetTex = GetTextureWithLookAt(rendererTargeting, thisObject, getThis);
+            var targetTextures = rendererTargeting.GetAllTextures().Where(t => rendererTargeting.OriginEqual(t, targetTex)).ToHashSet();
+
+            if (targetTextures.Any() is false) { yield break; }
+
+            var containedHash = new Dictionary<Material, bool>();
+            foreach (var r in rendererTargeting.EnumerateRenderer())
+            {
+                var mats = rendererTargeting.GetMaterials(r).Where(i => i != null);
+                if (mats.Any(containedHash.GetValueOrDefault)) // キャッシュに true になるものがあったら、調査をすべてスキップしてあった事にする。
+                {
+                    yield return r;
+                    continue;
+                }
+
+                foreach (var m in mats)
+                {
+                    if (containedHash.ContainsKey(m)) { continue; }//このコードパスに来るってことは キャッシュにあるものが true であることはない。
+
+                    if (rendererTargeting.GetMaterialTexture(m).Any(targetTextures.Contains))
+                    {
+                        containedHash.Add(m, true);
+                        yield return r;
+                        break;
+                    }
+                    else { containedHash.Add(m, false); }
+                }
+            }
+        }
     }
 }

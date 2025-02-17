@@ -1,60 +1,74 @@
+#nullable enable
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using UnityEngine.Profiling;
+using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace net.rs64.TexTransTool.Build
 {
     internal class TexTransBuildSession
     {
+        protected GameObject? _domainRoot;
         protected RenderersDomain _domain;
-        protected Dictionary<TexTransPhase, List<TexTransBehavior>> _phaseAtList;
-
+        protected Dictionary<TexTransPhase, List<TexTransBehavior>> _phase2Behaviors;
 
         public bool DisplayEditorProgressBar { get; set; } = false;
 
         public RenderersDomain Domain => _domain;
-        public IReadOnlyDictionary<TexTransPhase, List<TexTransBehavior>> PhaseAtList => _phaseAtList;
+        public IReadOnlyDictionary<TexTransPhase, List<TexTransBehavior>> PhaseAtList => _phase2Behaviors;
 
 
-        public TexTransBuildSession(RenderersDomain renderersDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseAtList)
+        public TexTransBuildSession(GameObject? domainRoot, RenderersDomain renderersDomain, Dictionary<TexTransPhase, List<TexTransBehavior>> phase2Behaviors)
         {
+            _domainRoot = domainRoot;
             _domain = renderersDomain;
-            _phaseAtList = phaseAtList;
+            _phase2Behaviors = phase2Behaviors;
         }
 
 
         public void ApplyFor(TexTransPhase texTransPhase)
         {
             if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), "", 0f);
+            Profiler.BeginSample("ApplyFor-" + texTransPhase);
             var count = 0;
             var timer = new System.Diagnostics.Stopwatch();
-            foreach (var tf in _phaseAtList[texTransPhase])
+            var behaviors = _phase2Behaviors[texTransPhase];
+            var behaviorsCount = behaviors.Count;
+            foreach (var tf in behaviors)
             {
-                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), $"{tf.name} - Apply", (float)count / _phaseAtList[texTransPhase].Count);
+                if (AvatarBuildUtils.CheckIsActiveBehavior(tf, _domainRoot) is false) { continue; }
+                if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), $"{tf.name} - Apply", (float)count / behaviorsCount);
+                Profiler.BeginSample("Apply-" + tf.gameObject.name, tf);
 
                 timer.Restart();
-                ApplyImpl(tf);
+                ApplyImpl(tf, _domain);
                 timer.Stop();
                 count += 1;
                 Debug.Log($"{texTransPhase} : {tf.GetType().Name}:{tf.name} for Apply : {timer.ElapsedMilliseconds}ms");
+                Profiler.EndSample();
             }
-            if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
-        }
 
-        protected virtual void ApplyImpl(TexTransBehavior tf)
-        {
-            TTTLog.ReportingObject(tf, () => { tf.Apply(_domain); });
-        }
-
-        public void MidwayMergeStack()
-        {
             if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("MidwayMergeStack", "", 0.0f);
+
+            Profiler.BeginSample("MidwayMergeStack");
             _domain.MergeStack();
+            Profiler.EndSample();
+
             if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
+
+            Profiler.EndSample();
+            if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
+        }
+
+        protected virtual void ApplyImpl(TexTransBehavior tf, IDomain domain)
+        {
+            TTTLog.ReportingObject(tf, () => { tf.Apply(domain); });
         }
 
         public void TTTSessionEnd()
@@ -67,17 +81,19 @@ namespace net.rs64.TexTransTool.Build
     internal static class AvatarBuildUtils
     {
 
-        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object OverrideAssetContainer = null, bool DisplayProgressBar = false)
+        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object? OverrideAssetContainer = null, bool DisplayProgressBar = false)
         {
             try
             {
                 var timer = Stopwatch.StartNew();
 
                 var domain = new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer));
-                var session = new TexTransBuildSession(domain, FindAtPhase(avatarGameObject));
+                var domain2Phase = FindAtPhase(avatarGameObject);
+                var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;
 
-                ExecuteAllPhase(session);
+                ExecuteAllPhaseAndEnd(session);
+
                 DestroyITexTransToolTags(avatarGameObject);
                 timer.Stop(); Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
                 return true;
@@ -88,125 +104,223 @@ namespace net.rs64.TexTransTool.Build
                 return false;
             }
         }
-        public static void ExecuteAllPhase(TexTransBuildSession session)
+        public static void ExecuteAllPhaseAndEnd(TexTransBuildSession session)
         {
-            session.ApplyFor(TexTransPhase.BeforeUVModification);
-
-            session.MidwayMergeStack();
-
-            session.ApplyFor(TexTransPhase.UVModification);
-            session.ApplyFor(TexTransPhase.AfterUVModification);
-            session.ApplyFor(TexTransPhase.UnDefined);
-
-            session.MidwayMergeStack();
-
-            session.ApplyFor(TexTransPhase.Optimizing);
-
+            ExeCuteAllPhase(session);
             session.TTTSessionEnd();
         }
 
-
-        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject avatarGameObject) { return FindAtPhase(avatarGameObject.GetComponentsInChildren<TexTransBehavior>()); }
-        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(IEnumerable<TexTransBehavior> behaviors)
+        public static void ExeCuteAllPhase(TexTransBuildSession session)
         {
-            var phaseDict = new Dictionary<TexTransPhase, List<TexTransBehavior>>(){
-                    {TexTransPhase.BeforeUVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.UVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.AfterUVModification,new List<TexTransBehavior>()},
-                    {TexTransPhase.UnDefined,new List<TexTransBehavior>()},
-                    {TexTransPhase.Optimizing,new List<TexTransBehavior>()},
-                };
-            behaviors = behaviors.Where(behavior => behavior.ThisEnable);
+            foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+                session.ApplyFor(phase);
+        }
+        public interface IGameObjectWakingTool
+        {
+            C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component;
+            C GetComponent<C>(GameObject gameObject) where C : Component;
+            int GetChilesCount(GameObject gameObject);
+            GameObject? GetChilde(GameObject gameObject, int index);
+        }
+        public interface IGameObjectActivenessWakingTool
+        {
+            C GetComponent<C>(GameObject gameObject) where C : Component;
+            GameObject? GetParent(GameObject gameObject);
+            bool ActiveSelf(GameObject gameObject);
+        }
+        public struct DefaultGameObjectWakingTool : IGameObjectWakingTool, IGameObjectActivenessWakingTool
+        {
 
-            var phaseDefinitions = behaviors.OfType<PhaseDefinition>();
-            var definedChildren = FindChildren(phaseDefinitions);
-            var ContainsBy = new HashSet<TexTransBehavior>(definedChildren);
-
-            // var chileExcluders = avatarGameObject.GetComponentsInChildren<ITTTChildExclusion>();
-            // foreach (var ce in chileExcluders)
-            // {
-            //     var cec = ce as Component;
-            //     foreach (var tf in cec.GetComponentsInChildren<TexTransBehavior>(true))
-            //     {
-            //         if (cec == tf) { continue; }
-            //         ContainsBy.Add(tf);
-            //     }
-            // }
-
-            foreach (var pd in phaseDefinitions)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public GameObject? GetChilde(GameObject gameObject, int index)
             {
-                if (!definedChildren.Contains(pd)) { phaseDict[pd.TexTransPhase].Add(pd); ContainsBy.Add(pd); }
+                return gameObject.transform.GetChild(index)?.gameObject;
             }
 
-            foreach (var absTTG in behaviors.OfType<TexTransGroup>().Where(I => !ContainsBy.Contains(I)))
-            { PhaseRegister(absTTG, phaseDict, ContainsBy); }
-
-            foreach (var tf in TexTransGroup.TextureTransformerFilter(behaviors.OfType<TexTransBehavior>()))
-            { if (!ContainsBy.Contains(tf)) { phaseDict[tf.PhaseDefine].Add(tf); } }
-
-            return phaseDict;
-        }
-        static void PhaseRegister(TexTransGroup absTTG, Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict, HashSet<TexTransBehavior> containsBy)
-        {
-            if (containsBy.Contains(absTTG)) { return; }
-            containsBy.Add(absTTG);
-            foreach (var tf in TexTransGroup.TextureTransformerFilter(absTTG.Targets))
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int GetChilesCount(GameObject gameObject)
             {
+                return gameObject.transform.childCount;
+            }
 
-                if (tf is TexTransGroup abstractTexTransGroup) { PhaseRegister(abstractTexTransGroup, phaseDict, containsBy); }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public C GetComponent<C>(GameObject gameObject) where C : Component
+            {
+                return gameObject.GetComponent<C>();
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
+            {
+                return gameObject.GetComponentsInChildren<C>(includeInactive);
+            }
+
+            public GameObject? GetParent(GameObject gameObject)
+            {
+                return gameObject.transform.parent?.gameObject;
+            }
+            public bool ActiveSelf(GameObject gameObject)
+            {
+                return gameObject.activeSelf;
+            }
+        }
+        /*
+        基本としてグループアノテーションは一番上にいる存在が一番強く、その配下のグループアノテーションは効果を発揮できない
+
+        アバタールートにつけたら破綻することは当然なのでしないように。
+
+        あと無効なTTBがこの時点では消えないから注意ね
+
+        それと TexTransSequencing を継承する存在、その影響は配下すべて(再帰的)に影響する。
+        */
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject rootDomainObject)
+        { return FindAtPhase(rootDomainObject, new DefaultGameObjectWakingTool()); }
+        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase<WakingTool>(GameObject rootDomainObject, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
+        {
+            var behavior = new CorrectingResult();
+            Correct(behavior, rootDomainObject, wakingTool);
+
+            var phasedBehaviour = TexTransPhaseUtility.GeneratePhaseDictionary<List<TexTransBehavior>>();
+
+            foreach (var pd in behavior.PhaseDefinitions)
+                GroupedComponentsCorrect(phasedBehaviour[pd.TexTransPhase], pd.gameObject, wakingTool);
+
+
+            var ttbList = new List<TexTransBehavior>();
+            foreach (var ttg in behavior.TexTransGroups)
+            {
+                ttbList.Clear();
+                GroupedComponentsCorrect(ttbList, ttg.gameObject, wakingTool);
+
+                foreach (var ttb in ttbList)
+                    phasedBehaviour[ttb.PhaseDefine].Add(ttb);
+            }
+
+
+            foreach (var ttb in behavior.OtherBehaviors)
+                phasedBehaviour[ttb.PhaseDefine].Add(ttb);
+
+            return phasedBehaviour;
+        }
+        class CorrectingResult
+        {
+            public List<PhaseDefinition> PhaseDefinitions = new();
+            public List<TexTransGroup> TexTransGroups = new();
+            public List<TexTransBehavior> OtherBehaviors = new();
+        }
+
+        static void Correct<WakingTool>(CorrectingResult wakingResult, GameObject wakingPoint, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
+        {
+            var chilesCount = wakingTool.GetChilesCount(wakingPoint);
+            for (var i = 0; chilesCount > i; i += 1)
+            {
+                var cObject = wakingTool.GetChilde(wakingPoint, i)!;
+                var ownedComponent = wakingTool.GetComponent<TexTransMonoBaseGameObjectOwned>(cObject);
+
+                if (ownedComponent != null)
+                    switch (ownedComponent)
+                    {
+                        default: { break; }
+
+                        case PhaseDefinition pd:
+                            {
+                                wakingResult.PhaseDefinitions.Add(pd);
+                                break;
+                            }
+                        case TexTransGroup ttg:
+                            {
+                                wakingResult.TexTransGroups.Add(ttg);
+                                break;
+                            }
+                        case TexTransBehavior ttb:
+                            {
+                                wakingResult.OtherBehaviors.Add(ttb);
+                                break;
+                            }
+                    }
                 else
-                {
-                    if (containsBy.Contains(tf)) { continue; }
-                    phaseDict[tf.PhaseDefine].Add(tf);
-                    containsBy.Add(tf);
-                }
+                    Correct(wakingResult, cObject, wakingTool);
             }
         }
-        public static void WhiteList(Dictionary<TexTransPhase, List<TexTransBehavior>> phase, HashSet<TexTransBehavior> whitelist)
-        {
-            foreach (var kv in phase) { kv.Value.RemoveAll(i => !whitelist.Contains(i)); }
-        }
-        public static IEnumerable<TexTransBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> phaseDict)
-        {
-            return PhaseFlatten(phaseDict[TexTransPhase.BeforeUVModification]).Concat(
-            PhaseFlatten(phaseDict[TexTransPhase.UVModification])).Concat(
-            PhaseFlatten(phaseDict[TexTransPhase.AfterUVModification])).Concat(
-            PhaseFlatten(phaseDict[TexTransPhase.UnDefined])).Concat(
-            PhaseFlatten(phaseDict[TexTransPhase.Optimizing]));
-        }
-        public static IEnumerable<TexTransBehavior> PhaseFlatten(List<TexTransBehavior> phaseList)
-        {
-            foreach (var ttb in phaseList) { if (ttb is PhaseDefinition pd) { foreach (var c in FindChildren(pd)) { yield return c; } } else { yield return ttb; } }
-        }
 
-        public static HashSet<TexTransBehavior> FindChildren(IEnumerable<TexTransGroup> abstractTexTransGroups)
+        internal static void GroupedComponentsCorrect<WakingTool>(List<TexTransBehavior> behaviors, GameObject wakingPoint, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
         {
-            var children = new HashSet<TexTransBehavior>();
-            foreach (var abstractTTG in abstractTexTransGroups)
+            var chilesCount = wakingTool.GetChilesCount(wakingPoint);
+            for (var i = 0; chilesCount > i; i += 1)
             {
-                children.UnionWith(FindChildren(abstractTTG));
+                var cObject = wakingTool.GetChilde(wakingPoint, i)!;
+                var component = wakingTool.GetComponent<TexTransBehavior>(cObject);
+
+                if (component != null) behaviors.Add(component);
+                else GroupedComponentsCorrect(behaviors, cObject, wakingTool);
             }
-            return children;
         }
-        public static HashSet<TexTransBehavior> FindChildren(TexTransGroup abstractTexTransGroup)
+        public static bool CheckIsActiveBehavior(TexTransBehavior behavior, GameObject? domainRoot = null)
+        { return CheckIsActiveBehavior(behavior, new DefaultGameObjectWakingTool(), domainRoot); }
+        public static bool CheckIsActiveBehavior<WakingTool>(TexTransBehavior behavior, WakingTool wakingTool, GameObject? domainRoot = null)
+        where WakingTool : IGameObjectActivenessWakingTool
         {
-            var children = new HashSet<TexTransBehavior>();
-            children.UnionWith(abstractTexTransGroup.Targets);
-            foreach (var tf in abstractTexTransGroup.Targets)
+            var wakingPoint = behavior.gameObject;
+            while (wakingPoint != domainRoot)
             {
-                if (tf is TexTransGroup abstractTexTransGroupC) { children.UnionWith(FindChildren(abstractTexTransGroupC)); }
+                if (wakingTool.ActiveSelf(wakingPoint) is false) { return false; }
+                if (wakingTool.GetComponent<IsActiveInheritBreaker>(wakingPoint) != null) { return true; }
+
+                wakingPoint = wakingTool.GetParent(wakingPoint);
+
+                if (wakingPoint == null) { break; }// safety
             }
-            return children;
+            return true;
         }
-
-
         public static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
             foreach (var itttTag in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
             {
                 if (itttTag is not MonoBehaviour mb) { continue; }
+                if (mb == null) { continue; }
+                RemoveDependent(mb.gameObject, mb);
                 MonoBehaviour.DestroyImmediate(mb);
             }
+        }
+
+        static Dictionary<Type, HashSet<Type>> s_requireComponentCache = new();
+        private static void RemoveDependent(GameObject gameObject, Component component)
+        {
+            var removeTargetType = component.GetType();
+            foreach (var mayDependent in gameObject.GetComponents<Component>())
+            {
+                if (mayDependent == component) { continue; }
+                if (GetRequireComponent(mayDependent.GetType()).Any(t => t.IsAssignableFrom(removeTargetType)) is false) { continue; }
+                var dependent = mayDependent;
+
+                if (dependent is not ITexTransToolTag dpTTTComponent) { continue; }
+                if (dependent is not Component dpTTTComponent2) { continue; }
+                if (dpTTTComponent2 == null) { continue; }
+                RemoveDependent(gameObject, dpTTTComponent2);
+                Component.DestroyImmediate(dpTTTComponent2);
+            }
+
+        }
+        private static HashSet<Type> GetRequireComponent(Type type)
+        {
+            if (s_requireComponentCache.TryGetValue(type, out var rqTypes)) { return rqTypes; }
+            s_requireComponentCache[type] = rqTypes = new();
+            foreach (var rc in type.GetCustomAttributes<RequireComponent>(true))
+            {
+                if (rc.m_Type0 != null) rqTypes.Add(rc.m_Type0);
+                if (rc.m_Type1 != null) rqTypes.Add(rc.m_Type1);
+                if (rc.m_Type2 != null) rqTypes.Add(rc.m_Type2);
+            }
+            return rqTypes;
+        }
+
+        internal static IEnumerable<TexTransRuntimeBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> behaviors)
+        {
+            foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+                foreach (var behavior in behaviors[phase].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
         }
     }
 

@@ -1,0 +1,30 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key Luminosity
+KeyName ja 輝度
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = LuminosityComposite(BaseColor.rgb, AddColor.rgb);
+  return AlphaBlending(BaseColor, AddColor, BlendColor);
+}

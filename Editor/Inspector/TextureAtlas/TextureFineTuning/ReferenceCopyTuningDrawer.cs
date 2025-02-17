@@ -13,11 +13,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var sSourcePropertyName = property.FindPropertyRelative("SourcePropertyName");
             var sTargetPropertyName = property.FindPropertyRelative("TargetPropertyNameList");
-            EditorGUI.PropertyField(position, sSourcePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".Glc());
+            EditorGUI.PropertyField(position, sSourcePropertyName, "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName".GlcV());
             position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sTargetPropertyName);
-            EditorGUI.PropertyField(position, sTargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".Glc());
+            EditorGUI.PropertyField(position, sTargetPropertyName, "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName".GlcV());
             position.y += position.height;
             position.height = 18f;
 

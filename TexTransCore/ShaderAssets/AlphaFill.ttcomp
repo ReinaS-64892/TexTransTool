@@ -1,0 +1,27 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+cbuffer gv
+{
+    float Alpha;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+    float AlimentPadding3;
+}
+RWTexture2D<float4> Tex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+    col.a = Alpha;
+    Tex[id.xy] = col;
+}

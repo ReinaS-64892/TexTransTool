@@ -1,5 +1,5 @@
+#nullable enable
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -12,8 +12,14 @@ namespace net.rs64.TexTransTool
         /// You MUST NOT modify state of this component.
         /// </summary>
         /// <param name="domain">The domain</param>
-        internal abstract void Apply([NotNull] IDomain domain);
+        internal abstract void Apply(IDomain domain);
 
-        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
+        internal abstract IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting);
+    }
+
+    internal interface IRendererTargetingAffecter { }
+    internal interface IRendererTargetingAffecterWithRuntime : IRendererTargetingAffecter
+    {
+        void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification);
     }
 }

@@ -22,9 +22,13 @@ namespace net.rs64.TexTransTool.EditorProcessor
     internal interface IEditorProcessor
     {
         void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain);
-        IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking);
+        IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting);
     }
 
+    internal interface IRendererTargetingAffecterWithEditorCall
+    {
+        void AffectingRendererTargeting(TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting rendererTargetingModification);
+    }
     internal static class EditorProcessorUtility
     {
         static Dictionary<Type, IEditorProcessor> s_processor;
@@ -71,9 +75,15 @@ namespace net.rs64.TexTransTool.EditorProcessor
             GetPresserType(texTransCallEditorBehavior.GetType()).Process(texTransCallEditorBehavior, editorCallDomain);
         }
 
-        public static IEnumerable<Renderer> CallProcessorModificationTargetRenderers(this TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        public static IEnumerable<Renderer> CallProcessorModificationTargetRenderers(this TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting)
         {
-            return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, domainRenderers, replaceTracking);
+            return GetPresserType(texTransCallEditorBehavior.GetType()).ModificationTargetRenderers(texTransCallEditorBehavior, rendererTargeting);
+        }
+        public static bool CallProcessorAffectingRendererTargeting(this TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting affectingRendererTargeting)
+        {
+            if (GetPresserType(texTransCallEditorBehavior.GetType()) is not IRendererTargetingAffecterWithEditorCall rendererTargetingAffecterWithEditorCall) { return false; }
+            rendererTargetingAffecterWithEditorCall.AffectingRendererTargeting(texTransCallEditorBehavior, affectingRendererTargeting);
+            return true;
         }
 
     }

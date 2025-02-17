@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System;
 using UnityEditor.UIElements;
 using net.rs64.TexTransTool.Preview;
+using net.rs64.TexTransTool.Build;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -37,26 +39,22 @@ namespace net.rs64.TexTransTool.Editor
                 rootVE.hierarchy.Add(previewButton);
                 rootVE.styleSheets.Add(s_style);
 
-                CreateGroupElements(rootVE, (target as TexTransGroup).Targets, false);
+                var groupBehaviors = new List<TexTransBehavior>();
+                AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, (target as TexTransGroup).gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
+                CreateGroupElements(rootVE, groupBehaviors);
             }
         }
 
         internal static void LoadStyle() { s_style ??= AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("9d80dcf21bff21f4cb110fff304f5622")); }
 
-        internal static void CreateGroupElements(VisualElement rootVE, IEnumerable<TexTransBehavior> group, bool addPhaseDefinition = false)
+        internal static void CreateGroupElements(VisualElement rootVE, List<TexTransBehavior> group)
         {
-            if (group == null) { return; }
+            if (group.Any() is false) { return; }
+
             foreach (var ttb in group)
             {
                 var ttbSummaryElement = CreateSummaryBase(ttb);
-
-                if (ttb is TexTransGroup texTransGroup)
-                {
-                    if (texTransGroup is PhaseDefinition && !addPhaseDefinition) { continue; }
-                    CreateNestedTexTransGroupSummary(ttbSummaryElement, texTransGroup, addPhaseDefinition);
-                }
-                else { CreateSummary(ttbSummaryElement, ttb); }
-
+                CreateSummary(ttbSummaryElement, ttb);
                 rootVE.hierarchy.Add(ttbSummaryElement);
             }
         }
@@ -67,14 +65,6 @@ namespace net.rs64.TexTransTool.Editor
             ttbSummaryElement.AddToClassList("SummaryElementRoot");
             ttbSummaryElement.hierarchy.Add(SummaryBase(ttb, v => ttbSummaryElement.style.opacity = v ? 1 : 0.5f));
             return ttbSummaryElement;
-        }
-
-        internal static void CreateNestedTexTransGroupSummary(VisualElement ttbSummaryElement, TexTransGroup texTransGroup, bool addPhaseDefinition = false)
-        {
-            var nextGroup = new VisualElement();
-            nextGroup.style.paddingLeft = 8f;
-            CreateGroupElements(nextGroup, texTransGroup.Targets, addPhaseDefinition);
-            ttbSummaryElement.hierarchy.Add(nextGroup);
         }
 
         internal static void CreateSummary(VisualElement ttbSummaryElement, TexTransBehavior ttb)

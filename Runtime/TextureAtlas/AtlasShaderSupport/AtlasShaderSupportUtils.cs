@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine;
 
@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public static void Initialize()
         {
             SupporterInit();
-            TexTransCoreRuntime.NewAssetListen[typeof(AtlasShaderSupportScriptableObject)] = SupporterInit;
+            TexTransCoreRuntime.AssetModificationListen[typeof(AtlasShaderSupportScriptableObject)] = SupporterInit;
 
             static void SupporterInit()
             {

@@ -1,0 +1,27 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key Dissolve
+KeyName ja ディザ合成
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#include "./AlphaBlending.hlsl"
+
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+    float seed = BaseColor.r + BaseColor.g + BaseColor.b + BaseColor.a + AddColor.r + AddColor.g + AddColor.b + AddColor.a;
+    float sAddAlpha = AddColor.a;
+    AddColor.a = step(frac(sin(dot(seed, float2(12.9898f, 78.233f))) * 43758.5453f), AddColor.a);
+    float4 BlendColor = sAddAlpha <= 0.0 ? BaseColor : AlphaBlending(BaseColor, AddColor, AddColor.rgb);
+
+    return BlendColor;
+}

@@ -2,20 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Island;
-using Island = net.rs64.TexTransCore.Island.Island;
-using static net.rs64.TexTransCore.TransTexture;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
 using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
 using UnityEngine.Profiling;
-using net.rs64.TexTransCore.MipMap;
 using Unity.Mathematics;
-using net.rs64.TexTransCore.BlendTexture;
+using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
+using static net.rs64.TexTransTool.TransTexture;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -33,15 +31,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
         [Obsolete("V0SaveData", true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
         [Obsolete("V0SaveData", true)] public List<MatSelectorV0> MatSelectors = new List<MatSelectorV0>();
-        [Serializable]
-        [Obsolete("V0SaveData", true)]
-        public class MatSelectorV0
-        {
-            public Material Material;
-            public bool IsTarget = false;
-            public int AtlasChannel = 0;
-            public float TextureSizeOffSet = 1;
-        }
         [Obsolete("V0SaveData", true)][SerializeField] internal List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
         [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
         #endregion
@@ -323,7 +312,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var propName in containsProperty)
             {
                 var targetRT = TTRt.G(atlasSetting.AtlasTextureSize, atlasSetting.AtlasTextureSize, true, true, true, true);
-                TextureBlend.ColorBlit(targetRT, atlasSetting.BackGroundColor);
+                TextureUtility.FillColor(targetRT, atlasSetting.BackGroundColor);
                 targetRT.name = "AtlasTex" + propName;
                 Profiler.BeginSample("Draw:" + targetRT.name);
                 foreach (var gTex in groupedTextures)
@@ -355,7 +344,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
                             var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
 
-                            var transData = new TransData<Vector2>(triangles, subSetMovedUV[subSetIndex], originUV);
+                            var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
                             ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
 
                             triangles.Dispose();
@@ -530,7 +519,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (atlasShaderTexture.Texture is Texture2D tex) texManage.PreloadOriginalTexture(tex);
                 }
             }
-            
+
             bakePropMaxValue = null;
             var downScalingAlgorithm = atlasSetting.DownScalingAlgorithm;
             switch (propertyBakeSetting)
@@ -681,42 +670,42 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 switch (atlasTex)
                 {
                     default:
-                    {
-                        var originSize = atlasTex.width;
-                        Profiler.BeginSample("TTTRt.G");
-                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                        Profiler.EndSample();
-                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                        rt.CopyFilWrap(atlasTex);
-                        rt.filterMode = FilterMode.Trilinear;
-                        Profiler.BeginSample("Graphics.Blit");
-                        Graphics.Blit(atlasTex, rt);
-                        Profiler.EndSample();
-                        return rt;
-                    }
+                        {
+                            var originSize = atlasTex.width;
+                            Profiler.BeginSample("TTTRt.G");
+                            var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                            Profiler.EndSample();
+                            rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                            rt.CopyFilWrap(atlasTex);
+                            rt.filterMode = FilterMode.Trilinear;
+                            Profiler.BeginSample("Graphics.Blit");
+                            Graphics.Blit(atlasTex, rt);
+                            Profiler.EndSample();
+                            return rt;
+                        }
                     case Texture2D atlasTex2D:
-                    {
-                        Profiler.BeginSample("GetOriginalTextureSize");
-                        var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
-                        Profiler.EndSample();
-                        
-                        Profiler.BeginSample("TTTRt.G");
-                        var rt = TTRt.G(originSize, originSize, true, false, true, true);
-                        Profiler.EndSample();
-                        rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
-                        rt.CopyFilWrap(atlasTex);
-                        rt.filterMode = FilterMode.Trilinear;
-                        Profiler.BeginSample("Graphics.Blit");
-                        texManage.WriteOriginalTexture(atlasTex2D, rt);
-                        Profiler.EndSample();
-                        return rt;
-                    }
+                        {
+                            Profiler.BeginSample("GetOriginalTextureSize");
+                            var originSize = texManage.GetOriginalTextureSize(atlasTex2D);
+                            Profiler.EndSample();
+
+                            Profiler.BeginSample("TTTRt.G");
+                            var rt = TTRt.G(originSize, originSize, true, false, true, true);
+                            Profiler.EndSample();
+                            rt.name = $"{atlasTex.name}:GetOriginAtUseMip-TempRt-{rt.width}x{rt.height}";
+                            rt.CopyFilWrap(atlasTex);
+                            rt.filterMode = FilterMode.Trilinear;
+                            Profiler.BeginSample("Graphics.Blit");
+                            texManage.WriteOriginalTexture(atlasTex2D, rt);
+                            Profiler.EndSample();
+                            return rt;
+                        }
 
                 }
             }
             finally
             {
-                
+
                 Profiler.EndSample();
             }
         }
@@ -803,7 +792,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = AtlasSetting.ForceSetTexture, TextureScaleOffsetReset = AtlasSetting.TextureScaleOffsetReset };
             if (AtlasSetting.UnsetTextures.Any())
             {
-                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTexture().Select(i => i.Value));
+                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
                 atlasMatOption.UnsetTextures = AtlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
             if (AtlasSetting.MergeMaterials)
@@ -910,7 +899,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
 
-                TransTexture.ForTrans(targetRT, sourceTex, new TransData<Vector2>(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
+                TransTexture.ForTrans(targetRT, sourceTex, new TransData(triangles, tUV, sUV), argTexWrap: TextureWrap.Loop, NotTileNormalize: true);
             }
         }
 
@@ -927,7 +916,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (option.ForceSetTexture is false && tex == null) { continue; }
                 if (tex is not Texture2D && tex is not RenderTexture && tex is not null) { continue; }
-                if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false) { continue; }
+                if (tex is RenderTexture rt && TTRt.IsTemp(rt) is false && TTRt2.IsTemp(rt) is false) { continue; }
 
                 if (option.UnsetTextures is not null && option.UnsetTextures.Contains(tex)) { continue; }
 
@@ -970,7 +959,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal static bool AtlasAllowedRenderer(Renderer item, bool includeDisabledRenderer)
         {
-            if (includeDisabledRenderer is false) { if (item.gameObject.activeInHierarchy is false) { return false; } }
+            if (includeDisabledRenderer is false) { if (item.gameObject.activeInHierarchy is false || item.enabled is false) { return false; } }
             if (item.tag == "EditorOnly") return false;
             if (item.GetMesh() == null) return false;
             if (item.GetMesh().uv.Any() == false) return false;
@@ -979,11 +968,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(GetTargetAllowedFilter(domainRenderers)).Where(i => i != null));
-            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => replaceTracking(smat.Material, mat))).ToHashSet();
-            return domainRenderers.Where(r => r.sharedMaterials.Any(targetMaterials.Contains));
+            var nowContainsMatSet = new HashSet<Material>(GetTargetAllowedFilter(rendererTargeting.EnumerateRenderer()).SelectMany(r => rendererTargeting.GetMaterials(r)).Where(i => i != null));
+            var selectedMaterials = rendererTargeting.LookAtGet(this, at => at.SelectMatList.Select(sMat => sMat.Material).ToArray(), (l, r) => l.SequenceEqual(r));
+            var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginEqual(sMat, mat))).ToHashSet();
+            return rendererTargeting.RendererFilterForMaterial(targetMaterials);
         }
     }
 }

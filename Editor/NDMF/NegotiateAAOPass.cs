@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Anatawa12.AvatarOptimizer.API;
 using nadena.dev.ndmf;
-using net.rs64.TexTransCore.Island;
-using net.rs64.TexTransCore.Utils;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransTool.UVIsland;
 using Unity.Collections;
 using UnityEngine;
 
@@ -28,7 +27,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
             var overrideEvacuationIndex = (config?.OverrideEvacuationUVChannel ?? false) ? config?.OverrideEvacuationUVChannelIndex : null;
 
             var uvEditTarget = tttComponents.Where(i => i is AtlasTexture)//後々 UV いじる系でありどの UV をいじるかを示す形が必要になる。今は AtlasTexture しかないから問題ないけど
-                .SelectMany(i => i.ModificationTargetRenderers(tttCtx.Domain.EnumerateRenderer(), tttCtx.Domain.OriginEqual)).OfType<SkinnedMeshRenderer>().Distinct();
+                .SelectMany(i => i.ModificationTargetRenderers(tttCtx.Domain)).OfType<SkinnedMeshRenderer>().Distinct();
 
             List<Vector4> uvBuf = null;
             foreach (var smr in uvEditTarget)

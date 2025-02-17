@@ -7,14 +7,20 @@ using net.rs64.TexTransTool.Preview.RealTime;
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TexTransBehavior), true)]
+    [CustomEditor(typeof(TexTransMonoBase), true)]
     internal class TextureTransformerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             DrawerWarning(target.GetType().Name);
             base.OnInspectorGUI();
-            OneTimePreviewContext.instance.DrawApplyAndRevert(target as TexTransBehavior);
+            PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
+        }
+        public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
+        {
+            if ((ttMonoBase as ITexTransToolTag).SaveDataVersion < TexTransMonoBase.TTTDataVersion)
+                if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
+                    Migration.MigratorWindow.ShowWindow();
         }
         public static void DrawerWarning(string typeName)
         {
@@ -34,53 +40,9 @@ namespace net.rs64.TexTransTool.Editor
 
             return FilteredRenderer;
         }
-        public static void DrawerArrayResizeButton(SerializedProperty arrayProperty, bool allowZero = false)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+")) arrayProperty.arraySize += 1;
-            EditorGUI.BeginDisabledGroup(arrayProperty.arraySize <= (allowZero ? 0 : 1));
-            if (GUILayout.Button("-")) arrayProperty.arraySize -= 1;
-            EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
-        }
-
-        public static void DrawerRenderer(SerializedProperty sRendererList, GUIContent label, bool multiRendererMode)
-        {
-
-            if (!multiRendererMode)
-            {
-                sRendererList.arraySize = 1;
-                var sArrayElement = sRendererList.GetArrayElementAtIndex(0);
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sArrayElement, label);
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    Renderer flatlingRenderer = TextureTransformerEditor.RendererFiltering(sArrayElement.objectReferenceValue as Renderer);
-                    sArrayElement.objectReferenceValue = flatlingRenderer;
-                }
-            }
-            else
-            {
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(sRendererList, label);
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    foreach (SerializedProperty sTargetRendererValue in sRendererList)
-                    {
-                        Renderer filteredRenderer = TextureTransformerEditor.RendererFiltering(sTargetRendererValue.objectReferenceValue as Renderer);
-                        sTargetRendererValue.objectReferenceValue = filteredRenderer;
-                    }
-                }
-
-            }
-        }
-
-
         public static void DrawerRealTimePreviewEditorButton(TexTransRuntimeBehavior texTransRuntimeBehavior)
         {
-            if(texTransRuntimeBehavior == null){return;}
+            if (texTransRuntimeBehavior == null) { return; }
             var rpm = RealTimePreviewContext.instance;
             if (!rpm.IsPreview())
             {

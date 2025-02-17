@@ -32,6 +32,8 @@ using net.rs64.TexTransTool.Migration.V1;
 using net.rs64.TexTransTool.Migration.V2;
 using net.rs64.TexTransTool.Migration.V3;
 using net.rs64.TexTransTool.Migration.V4;
+using net.rs64.TexTransTool.Migration.V5;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.SceneManagement;
@@ -278,87 +280,56 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
         [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Project")]
         internal static void MigrateEverything()
         {
+            var migrators = GetMigrators();
             PreMigration();
             for (var version = MigrationUtility.GetSaveDataVersion.SaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
-                switch (version)
+                if (version is 5) { MigratorWindow.ReflectCallPSDMigration(); }
+                if (migrators.TryGetValue(version, out var migrator))
                 {
-                    case 0:
-                        {
-                            MigrateEverythingFor<TTTV0Migrator>(true);
-                            break;
-                        }
-                    case 1:
-                        {
-                            MigrateEverythingFor<TTTV1Migrator>(true);
-                            break;
-                        }
-                    case 2:
-                        {
-                            MigrateEverythingFor<TTTV2Migrator>(true);
-                            break;
-                        }
-                    case 3:
-                        {
-                            MigrateEverythingFor<TTTV3Migrator>(true);
-                            break;
-                        }
-                    case 4:
-                        {
-                            MigrateEverythingFor<TTTV4Migrator>(true);
-                            break;
-                        }
+                    MigrateEverythingFor(migrator, true);
                 }
+                else { Debug.LogError($"migrator not found {version}"); }
             }
             PostMigration();
         }
         internal static void MigratePartial(int minimumSaveDataVersion, HashSet<GameObject> targetPrefabs, HashSet<string> targetScenePath)
         {
+            var migrators = GetMigrators();
             PreMigration();
             for (var version = minimumSaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
-                switch (version)
+                if (migrators.TryGetValue(version, out var migrator))
                 {
-                    case 0:
-                        {
-                            MigratePartialFor<TTTV0Migrator>(targetPrefabs, targetScenePath, true);
-                            break;
-                        }
-                    case 1:
-                        {
-                            MigratePartialFor<TTTV1Migrator>(targetPrefabs, targetScenePath, true);
-                            break;
-                        }
-                    case 2:
-                        {
-                            MigratePartialFor<TTTV2Migrator>(targetPrefabs, targetScenePath, true);
-                            break;
-                        }
-                    case 3:
-                        {
-                            MigratePartialFor<TTTV3Migrator>(targetPrefabs, targetScenePath, true);
-                            break;
-                        }
-                    case 4:
-                        {
-                            MigratePartialFor<TTTV4Migrator>(targetPrefabs, targetScenePath, true);
-                            break;
-                        }
+                    MigratePartialFor(migrator, targetPrefabs, targetScenePath, true);
                 }
+                else { Debug.LogError($"migrator not found {version}"); }
             }
             PostMigration();
         }
+
+        private static Dictionary<int, IMigrator> GetMigrators()
+        {
+            return InterfaceUtility.GetInterfaceInstance<IMigrator>().ToDictionary(i => i.MigrateTarget, i => i);
+        }
+        const string PACKAGES = "Packages";
+        internal static IEnumerable<string> GetMigratableScenes()
+        {
+            return AssetDatabase.FindAssets("t:scene")
+             .Select(AssetDatabase.GUIDToAssetPath)
+             .Where(path => !IsReadOnlyPath(path))
+             .Where(path => path.StartsWith(PACKAGES) is false)
+             ;
+        }
 #pragma warning restore CS0612
-        private static void MigratePartialFor<Migrator>(HashSet<GameObject> targetPrefabs, HashSet<string> targetScenePath, bool continuesMigrate = false)
-        where Migrator : IMigrator, new()
+        private static void MigratePartialFor(IMigrator migrator, HashSet<GameObject> targetPrefabs, HashSet<string> targetScenePath, bool continuesMigrate = false)
         {
             try
             {
                 if (!continuesMigrate) PreMigration();
 
-                var migrator = new Migrator();
                 var prefabs = GetPrefabs().Where(targetPrefabs.Contains).ToList();
-                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).Where(targetScenePath.Contains).ToList();
+                var scenePaths = GetMigratableScenes().Where(targetScenePath.Contains).ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
 
                 MigratePrefabsImpl(prefabs, (name, i) => EditorUtility.DisplayProgressBar(
@@ -403,16 +374,14 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
                 if (!continuesMigrate) PostMigration();
             }
         }
-        private static void MigrateEverythingFor<Migrator>(bool continuesMigrate = false)
-        where Migrator : IMigrator, new()
+        private static void MigrateEverythingFor(IMigrator migrator, bool continuesMigrate = false)
         {
             try
             {
                 if (!continuesMigrate) PreMigration();
 
-                var migrator = new Migrator();
                 var prefabs = GetPrefabs();
-                var scenePaths = AssetDatabase.FindAssets("t:scene").Select(AssetDatabase.GUIDToAssetPath).ToList();
+                var scenePaths = GetMigratableScenes().ToList();
                 float totalCount = prefabs.Count + scenePaths.Count;
 
                 MigratePrefabsImpl(prefabs, (name, i) => EditorUtility.DisplayProgressBar(

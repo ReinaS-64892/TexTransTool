@@ -44,6 +44,24 @@ msgstr "(NDMF) {0} のプレビューを無効化する"
 msgid "Common:ndmf:EnableThisComponentPhasePreview"
 msgstr "(NDMF) {0} のプレビューを有効化する"
 
+msgid "Common:RendererSelectMode"
+msgstr "レンダラー選択モード"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "自動"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "手動"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat"
+msgstr "アルファの存在する可能性のあるテクスチャーが、アルファのないフォーマットに圧縮されています。"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
+msgstr "判定が誤っている可能性もあり、意図的である場合や問題がない場合は完全に無視してください。"
+
+msgid "Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow"
+msgstr "このコンポーネントのセーブデータは古いバージョンです! Migrator を開く"
+
 #  AtlasTexture
 
 msgid "AtlasTexture:error:TTTNotExecutable"
@@ -354,8 +372,17 @@ msgstr "優先度の値"
 msgid "CommonDecal:label:RenderersSettings"
 msgstr "レンダラー設定"
 
-msgstr "ターゲットレンダラー"
+msgid "CommonDecal:prop:UseMaterialFiltering"
+msgstr "マテリアルでフィルタリング"
+
+msgid "CommonDecal:prop:AutoSelectFilterMaterials"
+msgstr "自動選択時にフィルタリングするマテリアル"
+
+msgid "CommonDecal:prop:IncludingDisableRenderers"
+msgstr "適用時に非アクティブなレンダラーを含める"
+
 msgid "CommonDecal:prop:TargetRenderer"
+msgstr "ターゲットレンダラー"
 
 msgid "CommonDecal:prop:TargetRenderer:tooltip"
 msgstr "デカールが張られるレンダラーを設定する項目"
@@ -408,6 +435,15 @@ msgstr "パディング"
 msgid "CommonDecal:prop:Padding:tooltip"
 msgstr "パディングの生成する幅の設定"
 
+msgid "CommonDecal:label:GradationSettings"
+msgstr "グラデーション設定"
+
+msgid "CommonDecal:label:DecalSettings"
+msgstr "デカール設定"
+
+msgid "CommonDecal:prop:IslandSelector"
+msgstr "アイランドセレクター"
+
 #  SimpleDecal
 
 msgid "SimpleDecal:error:TTTNotExecutable"
@@ -452,17 +488,14 @@ msgstr "ポリゴンカリング"
 msgid "SimpleDecal:prop:PolygonCulling:tooltip"
 msgstr "ポリゴンのカリングをどの基準で行うかの設定"
 
-msgid "SimpleDecal:prop:SideCulling"
-msgstr "サイドカリング"
+msgid "SimpleDecal:prop:BackCulling"
+msgstr "背面カリング"
 
-msgid "SimpleDecal:prop:SideCulling:tooltip"
-msgstr "ポリゴンがデカールから見て裏面のポリゴンにデカールを貼らない設定"
+msgid "SimpleDecal:prop:BackCulling:tooltip"
+msgstr "ポリゴンがデカールから見て背面のポリゴンにデカールを貼らない設定"
 
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector"
+msgid "SimpleDecal:prop:IslandSelector"
 msgstr "アイランド選択"
-
-msgid "SimpleDecal:prop:ExperimentalFuture:IslandSelector:tooltip"
-msgstr "アイランドで選択を指定しその範囲にデカールを張る機能"
 
 msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
 msgstr "深度デカール"
@@ -508,37 +541,41 @@ msgstr "概要はありません"
 msgid "TexTransGroup:label:GroupChildren"
 msgstr "グループの子"
 
-# SingleGradationDecal
+# GradationDecal
 
-msgid "SingleGradationDecal:info:TargetNotSet"
+msgid "GradationDecal:info:TargetNotSet"
 msgstr "適用対象が設定されていません！"
 
-msgid "SingleGradationDecal:info:TargetNotFound"
+msgid "GradationDecal:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
 
-msgid "SingleGradationDecal:prop:SelectedMaterialView"
-msgstr "選択済みマテリアル"
+msgid "GradationDecal:prop:Gradient"
+msgstr "グラデーション"
+
+msgid "GradationDecal:prop:Alpha"
+msgstr "透明度"
+
+msgid "GradationDecal:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+msgid "GradationDecal:prop:TargetPropertyName"
+msgstr "ターゲットプロパティネーム"
+
+msgid "GradationDecal:prop:GradientClamp"
+msgstr "グラデーションのクランプ"
+
+# SingleGradationDecal
 
 msgid "SingleGradationDecal:prop:GradationLength"
 msgstr "グラデーションの長さ"
 
-msgid "SingleGradationDecal:prop:Gradient"
-msgstr "グラデーション"
+# DistanceGradationDecal
 
-msgid "SingleGradationDecal:prop:Alpha"
-msgstr "透明度"
+msgid "DistanceGradationDecal:prop:GradationMinDistance"
+msgstr "グラデーション最小距離"
 
-msgid "SingleGradationDecal:prop:IslandSelector"
-msgstr "アイランドセレクター"
-
-msgid "SingleGradationDecal:prop:BlendTypeKey"
-msgstr "ブレンドタイプキー"
-
-msgid "SingleGradationDecal:prop:TargetPropertyName"
-msgstr "ターゲットプロパティネーム"
-
-msgid "SingleGradationDecal:prop:GradientClamp"
-msgstr "グラデーションのクランプ"
+msgid "DistanceGradationDecal:prop:GradationMaxDistance"
+msgstr "グラデーション最大距離"
 
 # TextureBlender
 
@@ -555,6 +592,17 @@ msgstr "適用対象が設定されていません！"
 
 msgid "TextureConfigurator:info:TargetNotFound"
 msgstr "適用対象が存在しません！"
+
+# MaterialModifier
+
+msgid "MaterialModifier:info:TargetNotSet"
+msgstr "適用対象が設定されていません！"
+
+msgid "MaterialModifier:info:TargetNotFound"
+msgstr "適用対象が存在しません！"
+
+msgid "MaterialModifier:info:NullShader"
+msgstr "適用するシェーダーが存在しません！"
 
 # MaterialOverrideTransfer
 
@@ -582,3 +630,50 @@ msgstr "UVチャンネルがすべて埋まっているため UV の退避に失
 
 msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
 msgstr "問題がない場合はこの警告は無視してください。"
+
+# IslandSelector
+
+msgid "IslandSelector:button:AimStart"
+msgstr "エイム開始"
+
+msgid "IslandSelector:button:AimExit"
+msgstr "エイム終了"
+
+# AsLayer
+
+msgid "AsLayer:button:AddLayer"
+msgstr "AsLayer を追加してレイヤーにする"
+
+# TextureBlender
+
+msgid "TextureBlender:prop:TargetTexture"
+msgstr "ターゲットテクスチャー"
+
+msgid "TextureBlender:prop:BlendTexture"
+msgstr "ブレンドテクスチャー"
+
+msgid "TextureBlender:prop:Color"
+msgstr "カラー"
+
+msgid "TextureBlender:prop:BlendTypeKey"
+msgstr "ブレンドタイプキー"
+
+# TextureSelector
+
+msgid "TextureSelector:prop:OpenSelector"
+msgstr "セレクターを開く"
+
+msgid "TextureSelector:prop:SelectTexture"
+msgstr "選択テクスチャー"
+
+msgid "TextureSelector:prop:RendererAsPath"
+msgstr "パスとなるレンダラー"
+
+msgid "TextureSelector:prop:SlotAsPath"
+msgstr "パスとなるスロット"
+
+msgid "TextureSelector:prop:PropertyNameAsPath"
+msgstr "パスとなるプロパティネーム"
+
+msgid "TextureSelector:prop:SelectTexturePreview"
+msgstr "選択テクスチャーのプレビュー"

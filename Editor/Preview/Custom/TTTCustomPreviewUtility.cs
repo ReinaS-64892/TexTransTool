@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.Preview.Custom
@@ -18,7 +19,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
     }
     internal interface ITTTCustomPreview
     {
-        void Preview(TexTransBehavior texTransBehavior, IDomain editorCallDomain);
+        void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, RenderersDomain editorCallDomain);
     }
     internal static class TTTCustomPreviewUtility
     {
@@ -52,14 +53,14 @@ namespace net.rs64.TexTransTool.Preview.Custom
         }
 
 
-        internal static bool TryExecutePreview(TexTransBehavior texTransBehavior, IDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
+        internal static bool TryExecutePreview(TexTransMonoBase texTransBehavior, GameObject domainRoot, RenderersDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
         {
             if (s_processor is null) { InitProcessor(); }
 
             var targetType = texTransBehavior.GetType();
             if (!s_processor.ContainsKey(targetType)) { return false; }
 
-            s_processor[targetType].Preview(texTransBehavior, editorCallDomain);
+            s_processor[targetType].Preview(texTransBehavior, domainRoot, editorCallDomain);
             return true;
         }
     }

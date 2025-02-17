@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.13...HEAD)
 
+### Added
+
+- TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
+- BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
+- ~~テクスチャやマテリアルの範囲を切り分けることができる~~ DomainDefinition が追加されました (#626 #802)
+- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
+- AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670)
+- AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
+- SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
+- 一部の場合で Material が一時アセットだった場合に複製せずにテクスチャを置き換えるようになりました (#744)
+- SimpleDecal に Select Mode が追加され 既存の方法は Manual に そして新規に、範囲内であれば自動で選択され、マテリアルでフィルタリングも可能な Auto が追加されました (#753)
+- TexTransTool の内部処理で使用される RenderTexture の Format を指定できる設定 InternalTextureFormat が `Tools/TexTransTool` に追加されました (#774)
+- NDMF Preview にて 同一フェーズ に限り、 MaterialOverrideTransfer などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#806 #828 #830)
+- 色合成をしない特殊な色合成、 ExtraColorBlending に属するいくつかの色合成が追加されました (#812)
+- MaterialModificationPhase と PostProcessingPhase が追加されました (#826)
+- VRAM容量 (テクスチャーメモリやメッシュ) に影響を与えうる設定項目に対して、アイコンが表示されるようになりました (#839)
+- SingleGradationDecal が Experimental ではなく、 Stable としてマークされました (#848)
+- IslandSelectorAND(NOT,OR,XOR) と Box(Sphere,Pin)IslandSelector が Experimental ではなく、 Stable としてマークされました (#848 #865)
+- TextureBlender が Experimental ではなく、 Stable としてマークされました (#857)
+- SimpleDecal の IslandSelector が Experimental ではなく、Stable としてマークされました (#865)
+
+### Removed
+
+- SimpleDecal の MultiRendererMode は削除され、デフォルトで複数レンダラーを選択可能になりました (#753)
+- SimpleDecal の PolygonCulling は修正に伴い削除されました (#856)
+
+### Changed
+
+- TexTransGroup や PhaseDefine がお互いどちらかが子になるような条項が発生した場合、一番上段に存在するほうの効果が優先されるようになりました (#626)
+- SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
+- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
+- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
+- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
+- TexTransGroup や PhaseDefine が 子の一段目までを保証していたのが、再帰的にすべての子まで保証するようになりました (#802)
+
+### Fixed
+
+- AtlasTexture が誤って Renderer.enabled が無効なレンダラーを IncludeDisableRenderer が無効な場合に含めてしまっていた問題を修正 (#756)
+- Migrator ウィンドウにて、マイグレーションする必要のない Prefab が選択できたり、実行対象に含まれてしまう問題を修正 (#779)
+- Packages 配下にある Scene を誤ってマイグレーションしてしまっていた問題を修正 (#779)
+- SimpleDecal がポリゴンに対して非常に小さい場合に、PolygonCulling が有効な場合正しく張り付けることができない問題が修正されました (#851)
+- SingleGradationDecal のインスペクターのインデントが一部正しくなかった問題が修正されました (#868)
+
 ## [v0.8.13](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.12...v0.8.13) - 2025-01-09
 
 ### Fixed

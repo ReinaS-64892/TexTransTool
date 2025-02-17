@@ -2,9 +2,6 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System;
-using net.rs64.TexTransTool.TextureStack;
-using net.rs64.TexTransCore.Island;
 
 namespace net.rs64.TexTransTool
 {

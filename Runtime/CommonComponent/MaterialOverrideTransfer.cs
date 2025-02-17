@@ -1,21 +1,15 @@
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-using net.rs64.TexTransCore.Utils;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialOverrideTransfer : TexTransCallEditorBehavior
+    public sealed class MaterialOverrideTransfer : TexTransCallEditorBehavior, IRendererTargetingAffecter
     {
-        internal const string Name = "TTT MaterialOverrideTransfer";
-        internal const string FoldoutName = "Other";
-        internal const string MenuPath = FoldoutName + "/" + Name;
-        internal override TexTransPhase PhaseDefine => TexTransPhase.UnDefined;
+        internal const string ComponentName = "TTT MaterialOverrideTransfer";
+        internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.MaterialModification;
 
-        public Material TargetMaterial;
-        public Material MaterialVariantSource;
+        [AffectVRAM] public Material TargetMaterial;
+        [AffectVRAM] public Material MaterialVariantSource;
     }
 }

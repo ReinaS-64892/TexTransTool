@@ -1,0 +1,60 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType GrabBlend
+
+ColorSpace Gamma
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#include "../Blendings/HSV.hlsl"
+
+cbuffer gv
+{
+    float Hue;
+    float Saturation;
+    float Lightness;
+    
+    float AlimentPadding1;
+}
+RWTexture2D<float4> Tex;
+
+[numthreads(32, 32, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float4 col = Tex[id.xy];
+
+    // Hue は単純なシフト
+    float3 hsvCol = RGBtoHSV(col.rgb);
+    hsvCol.r = frac(hsvCol.r + (Hue * 0.5));
+    col.rgb = HSVtoRGB(hsvCol);
+
+    float cMin = min(col.r, min(col.g, col.b));
+    float cMax = max(col.r, max(col.g, col.b));
+    float delta = cMax - cMin;
+    float value = cMax + cMin;
+    float lightness = value * 0.5;
+    float saturation = delta / (1 - abs(value - 1)); // 色の彩度を計算(円柱モデル)
+
+    if (Saturation >= 0.0)
+    {
+        // 合計が1を超えない場合 Saturationの値が反転して出てくる-合計が1を超えた瞬間色の saturation がそのまま出てくる
+        // Saturationが値大きくなってくるとがたつくような見た目になるのはここが原因だが、これが参考とされる実装ゆえこれが正しい。 (ref ps)
+        float moveVal = (saturation + Saturation) >= 1.0 ? saturation : 1.000001 - Saturation;
+        moveVal = 1.0 / moveVal - 1.0;
+        col.rgb = saturate(col.rgb + ((col.rgb - lightness) * moveVal));
+    }
+    else
+    {
+        // 減らす場合は単純に中央値から見た差分の大きさを倍率賭けるだけで単純
+        col.rgb = saturate(lightness + ((col.rgb - lightness) * (1 + Saturation)));
+    }
+
+    // 雑に見えるけど、ただの線形保管で正しいのよね...
+    col.rgb = Lightness > 0 ? lerp(col.rgb, 1, Lightness) : lerp(col.rgb, 0, -1 * Lightness);
+
+    Tex[id.xy] = col;
+}

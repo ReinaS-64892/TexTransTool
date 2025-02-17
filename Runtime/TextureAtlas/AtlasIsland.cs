@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
-using net.rs64.TexTransCore.Island;
-using System;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {

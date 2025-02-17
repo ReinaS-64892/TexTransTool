@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using net.rs64.TexTransCore.Utils;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace net.rs64.TexTransTool.EditorProcessor
 {
     [EditorProcessor(typeof(MaterialOverrideTransfer))]
-    internal class MaterialOverrideTransferProcessor : IEditorProcessor
+    internal class MaterialOverrideTransferProcessor : IEditorProcessor, IRendererTargetingAffecterWithEditorCall
     {
 
         public void Process(TexTransCallEditorBehavior texTransCallEditorBehavior, IDomain domain)
@@ -21,10 +21,22 @@ namespace net.rs64.TexTransTool.EditorProcessor
             if (isValid is false) { return; }
 
             var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
-            var mats = GetTargetMaterials(domain.EnumerateRenderer(), domain.OriginEqual, materialOverrideTransfer.TargetMaterial);
+            var mats = GetTargetMaterials(domain, materialOverrideTransfer.TargetMaterial);
 
             if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotFound"); return; }
 
+            var overridePropertyDict = GetOverrides(materialVariantSource);
+
+            foreach (var unEditableMat in mats)
+            {
+                var mutableMat = unEditableMat;
+                domain.GetMutable(ref mutableMat);
+                TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
+            }
+        }
+
+        private static Dictionary<string, ShaderPropertyType> GetOverrides(Material materialVariantSource)
+        {
             var overridePropertyDict = new Dictionary<string, ShaderPropertyType>();
             var shader = materialVariantSource.shader;
             var pCount = shader.GetPropertyCount();
@@ -34,64 +46,70 @@ namespace net.rs64.TexTransTool.EditorProcessor
                 if (materialVariantSource.IsPropertyOverriden(propertyName)) { overridePropertyDict.Add(propertyName, shader.GetPropertyType(i)); }
             }
 
-            var materialSwapDict = new Dictionary<Material, Material>();
-            foreach (var unEditableMat in mats)
-            {
-                var mat = materialSwapDict[unEditableMat] = Material.Instantiate(unEditableMat);
-                foreach (var overrideProperty in overridePropertyDict)
-                {
-                    if (!mat.HasProperty(overrideProperty.Key)) { continue; }
-                    if (mat.shader.GetPropertyType(mat.shader.FindPropertyIndex(overrideProperty.Key)) != overrideProperty.Value) { continue; }
+            return overridePropertyDict;
+        }
 
-                    switch (overrideProperty.Value)
-                    {
-                        case ShaderPropertyType.Texture:
-                            {
-                                mat.SetTexture(overrideProperty.Key, materialVariantSource.GetTexture(overrideProperty.Key));
-                                mat.SetTextureOffset(overrideProperty.Key, materialVariantSource.GetTextureOffset(overrideProperty.Key));
-                                mat.SetTextureScale(overrideProperty.Key, materialVariantSource.GetTextureScale(overrideProperty.Key));
-                                break;
-                            }
-                        case ShaderPropertyType.Color:
-                            {
-                                mat.SetColor(overrideProperty.Key, materialVariantSource.GetColor(overrideProperty.Key));
-                                break;
-                            }
-                        case ShaderPropertyType.Vector:
-                            {
-                                mat.SetVector(overrideProperty.Key, materialVariantSource.GetVector(overrideProperty.Key));
-                                break;
-                            }
-                        case ShaderPropertyType.Int:
-                            {
-                                mat.SetInt(overrideProperty.Key, materialVariantSource.GetInt(overrideProperty.Key));
-                                break;
-                            }
-                        case ShaderPropertyType.Float:
-                        case ShaderPropertyType.Range:
-                            {
-                                mat.SetFloat(overrideProperty.Key, materialVariantSource.GetFloat(overrideProperty.Key));
-                                break;
-                            }
-                    }
+        private static void TransferOverrides(Material mutableMat, Material materialVariantSource, Dictionary<string, ShaderPropertyType> overridePropertyDict)
+        {
+            foreach (var overrideProperty in overridePropertyDict)
+            {
+                if (!mutableMat.HasProperty(overrideProperty.Key)) { continue; }
+                if (mutableMat.shader.GetPropertyType(mutableMat.shader.FindPropertyIndex(overrideProperty.Key)) != overrideProperty.Value) { continue; }
+
+                switch (overrideProperty.Value)
+                {
+                    case ShaderPropertyType.Texture:
+                        {
+                            mutableMat.SetTexture(overrideProperty.Key, materialVariantSource.GetTexture(overrideProperty.Key));
+                            mutableMat.SetTextureOffset(overrideProperty.Key, materialVariantSource.GetTextureOffset(overrideProperty.Key));
+                            mutableMat.SetTextureScale(overrideProperty.Key, materialVariantSource.GetTextureScale(overrideProperty.Key));
+                            break;
+                        }
+                    case ShaderPropertyType.Color:
+                        {
+                            mutableMat.SetColor(overrideProperty.Key, materialVariantSource.GetColor(overrideProperty.Key));
+                            break;
+                        }
+                    case ShaderPropertyType.Vector:
+                        {
+                            mutableMat.SetVector(overrideProperty.Key, materialVariantSource.GetVector(overrideProperty.Key));
+                            break;
+                        }
+                    case ShaderPropertyType.Int:
+                        {
+                            mutableMat.SetInt(overrideProperty.Key, materialVariantSource.GetInt(overrideProperty.Key));
+                            break;
+                        }
+                    case ShaderPropertyType.Float:
+                    case ShaderPropertyType.Range:
+                        {
+                            mutableMat.SetFloat(overrideProperty.Key, materialVariantSource.GetFloat(overrideProperty.Key));
+                            break;
+                        }
                 }
             }
-
-            domain.ReplaceMaterials(materialSwapDict);
         }
 
-        private static IEnumerable<Material> GetTargetMaterials(IEnumerable<Renderer> domainRenderer, OriginEqual originEqual, Material target)
-        {
-            return RendererUtility.GetFilteredMaterials(domainRenderer).Where(m => originEqual(m, target));
-        }
-
-        public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IEnumerable<Renderer> domainRenderers, OriginEqual replaceTracking)
+        public IEnumerable<Renderer> ModificationTargetRenderers(TexTransCallEditorBehavior texTransCallEditorBehavior, IRendererTargeting rendererTargeting)
         {
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
-            if (materialOverrideTransfer.TargetMaterial == null) { return Array.Empty<Renderer>(); }
+            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(materialOverrideTransfer, mot => mot.TargetMaterial));
+        }
+        private static IEnumerable<Material> GetTargetMaterials(IRendererTargeting rendererTargeting, Material target)
+        {
+            return rendererTargeting.GetDomainsMaterialsHashSet(target);
+        }
 
-            var modTarget = GetTargetMaterials(domainRenderers, replaceTracking, materialOverrideTransfer.TargetMaterial).ToHashSet();
-            return domainRenderers.Where(i => i.sharedMaterials.Any(mat => modTarget.Contains(mat)));
+        public void AffectingRendererTargeting(TexTransCallEditorBehavior texTransCallEditorBehavior, IAffectingRendererTargeting rendererTargetingModification)
+        {
+            var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
+            var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
+            if (isValid is false) return;
+            var materialVariantSource = rendererTargetingModification.LookAtGet(materialOverrideTransfer, mot => mot.MaterialVariantSource);
+            _ = rendererTargetingModification.LookAtGet(materialVariantSource, mv => GetOverrides(mv).Where(kv => kv.Value is ShaderPropertyType.Texture), (l, r) => l.SequenceEqual(r));
+            var overridePropertyDict = GetOverrides(materialVariantSource);
+            foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, materialOverrideTransfer.TargetMaterial))
+                TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
         }
     }
 }

@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using net.rs64.TexTransCore.Island;
 using net.rs64.TexTransTool.IslandSelector;
+using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
 {
@@ -18,7 +16,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         {
             if (IslandSelector == null) { return; }
 
-            var targetBit = IslandSelector.IslandSelect(islands, islandDescriptions);
+            var targetBit = IslandSelector.IslandSelect(new(islands, islandDescriptions, replaceTracking.OriginEqual));
 
             for (var i = 0; sizePriority.Length > i; i += 1)
             {

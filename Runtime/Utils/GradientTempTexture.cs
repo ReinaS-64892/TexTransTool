@@ -9,7 +9,11 @@ namespace net.rs64.TexTransTool.Utils
         static Texture2D s_GradientTempTexture;
         internal static Texture2D Get(Gradient gradient, float alpha)
         {
-            if (s_GradientTempTexture == null) { s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false); }
+            if (s_GradientTempTexture == null)
+            {
+                s_GradientTempTexture = new Texture2D(256, 1, TextureFormat.RGBA32, false);
+                s_GradientTempTexture.wrapMode = TextureWrapMode.Clamp;
+            }
 
 
             using (var colorArray = new NativeArray<Color32>(256, Allocator.Temp, NativeArrayOptions.UninitializedMemory))

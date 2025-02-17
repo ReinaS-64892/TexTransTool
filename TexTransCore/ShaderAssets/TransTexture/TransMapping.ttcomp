@@ -1,0 +1,125 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType General
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#define PARALLEL_COUNT 256
+// #define PARALLEL_COUNT 1
+
+cbuffer gv
+{
+    uint2 TransTargetMapSize;
+    uint2 TransSourceMapSize;
+    float MaxDistance;
+    uint DispatchIndexOffset;
+
+    float AlimentPadding1;
+    float AlimentPadding2;
+}
+
+RWTexture2D<float2> TransMap;
+#if USE_DEPTH
+RWTexture2D<float> DepthMap;
+#endif
+
+RWTexture2D<float> DistanceMap; // MaxDistance の値を先に書き込んで初期化しておく必要がある。
+RWTexture2D<float> ScalingMap;
+
+StructuredBuffer<int> PolygonIndex;
+// from to と 三つづつ三角形が並んでいる形、xy が 位置を意味し 0~1 の正規化された空間を想定するが、zw は何らかの情報の扱いとなる。(つまり AdditionalData ってこと)
+StructuredBuffer<float2> FromVertex;
+StructuredBuffer<float2> ToVertex;
+
+#if USE_DEPTH
+StructuredBuffer<float> FromDepthVertex;
+#endif
+
+#include "./TransMappingHelper.hlsl"
+
+float4 MinMax(float2 tri[3])
+{
+    float2 minVal = min(min(tri[0], tri[1]), tri[2]);
+    float2 maxVal = max(max(tri[0], tri[1]), tri[2]);
+    return float4(minVal - MaxDistance, maxVal + MaxDistance);
+}
+
+[numthreads(1, PARALLEL_COUNT, 1)] void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint thisID = id.y;
+    uint idMax = PARALLEL_COUNT;
+    uint polygonID = DispatchIndexOffset + id.x;
+    uint polygonIndex = polygonID * 3;
+
+    float2 fromPolygonWithNormalizeScale[3];
+    float2 fromPolygon[3];
+    float2 toPolygon[3];
+    fromPolygonWithNormalizeScale[0].xy = FromVertex[PolygonIndex[polygonIndex + 0]].xy;
+    fromPolygonWithNormalizeScale[1].xy = FromVertex[PolygonIndex[polygonIndex + 1]].xy;
+    fromPolygonWithNormalizeScale[2].xy = FromVertex[PolygonIndex[polygonIndex + 2]].xy;
+    fromPolygon[0].xy = FromVertex[PolygonIndex[polygonIndex + 0]].xy * float2(TransSourceMapSize);
+    fromPolygon[1].xy = FromVertex[PolygonIndex[polygonIndex + 1]].xy * float2(TransSourceMapSize);
+    fromPolygon[2].xy = FromVertex[PolygonIndex[polygonIndex + 2]].xy * float2(TransSourceMapSize);
+#if USE_DEPTH
+    float2 fromPolygonWithDepth[3];
+    fromPolygonWithDepth[0].xy = FromDepthVertex[PolygonIndex[polygonIndex + 0]].xx;
+    fromPolygonWithDepth[1].xy = FromDepthVertex[PolygonIndex[polygonIndex + 1]].xx;
+    fromPolygonWithDepth[2].xy = FromDepthVertex[PolygonIndex[polygonIndex + 2]].xx;
+#endif
+
+
+    toPolygon[0].xy = ToVertex[PolygonIndex[polygonIndex + 0]].xy * float2(TransTargetMapSize);
+    toPolygon[1].xy = ToVertex[PolygonIndex[polygonIndex + 1]].xy * float2(TransTargetMapSize);
+    toPolygon[2].xy = ToVertex[PolygonIndex[polygonIndex + 2]].xy * float2(TransTargetMapSize);
+
+    float4 rect = MinMax(toPolygon);
+    int2 minVal = max( int2(floor(rect.xy)), int2(0,0));
+    int2 maxVal = min( int2(ceil(rect.zw)), TransTargetMapSize);
+
+    int ySize = maxVal.y - minVal.y;
+    for (int yID = thisID; ySize > yID; yID += idMax)
+    {
+        int y = minVal.y + yID;
+        for (int x = minVal.x; maxVal.x > x; x += 1)
+        {
+            float2 pos = float2(x + 0.5, y + 0.5);
+            int2 posIndex = int2(x, y);
+
+            float fromArea = abs( TriangleArea(fromPolygon) / 2 );
+            float toArea = abs( TriangleArea(toPolygon) / 2 );
+            float scaling = clamp( fromArea / toArea ,0 ,64);// safety
+
+            if(toArea <= 0.00001){return;} // Nan が生成されるような 面積の存在しない triangle を回避する
+
+            float3 toBC = Barycentric(toPolygon, pos);
+            float distance = Distance(toPolygon, pos);
+            if (InsideBarycentric(toBC) > 0.5)
+            {
+                distance = -1;
+            }
+
+            float2 transSourcePos = CalculatePositionFromBarycentric(fromPolygonWithNormalizeScale, toBC);
+#if USE_DEPTH
+            float depth = CalculatePositionFromBarycentric(fromPolygonWithDepth, toBC).x;
+#endif
+
+            bool isWrite = DistanceMap[posIndex] > distance && MaxDistance > distance;
+
+            if (isWrite)
+            {
+                DistanceMap[posIndex] = distance;
+                ScalingMap[posIndex] = scaling;
+                TransMap[posIndex] = transSourcePos;
+#if USE_DEPTH
+                DepthMap[posIndex]= depth;
+#endif
+            }
+        }
+    }
+
+}

@@ -1,0 +1,14 @@
+{
+    "name": "net.rs64.multi-layer-image-data",
+    "rootNamespace": "",
+    "references": [ "net.rs64.tex-trans-core" ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

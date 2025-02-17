@@ -1,0 +1,30 @@
+/*
+BEGIN__TT_COMPUTE_SHADER_HEADER
+
+Language HLSL
+LanguageVersion 2018
+
+TTComputeType Blending
+
+ColorSpace Gamma
+
+Key Clip/LinearLight
+KeyName ja クリスタ/リニアライト
+
+END__TT_COMPUTE_SHADER_HEADER
+*/
+
+#include "./BlendColor.hlsl"
+float4 ColorBlend(float4 BaseColor, float4 AddColor)
+{
+  if (BaseColor.a <= 0.0)
+  {
+    return AddColor;
+  }
+  if (AddColor.a <= 0.0)
+  {
+    return BaseColor;
+  }
+  float3 BlendColor = LinearLightComposite(BaseColor.rgb, AddColor.rgb);
+  return ClipAlphaBlending(BaseColor, AddColor, BlendColor);
+}

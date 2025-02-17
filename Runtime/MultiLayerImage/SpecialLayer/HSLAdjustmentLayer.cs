@@ -1,23 +1,31 @@
+#nullable enable
+using System;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 using UnityEngine;
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
 
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class HSLAdjustmentLayer : AbstractGrabLayer
+    public class HSLAdjustmentLayer : AbstractLayer
     {
         internal const string ComponentName = "TTT HSLAdjustmentLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         [Range(-1, 1)] public float Hue;
         [Range(-1, 1)] public float Saturation;
         [Range(-1, 1)] public float Lightness;
-        public override void GetImage(RenderTexture grabSource, RenderTexture writeTarget, IOriginTexture originTexture)
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
-            var mat = MatTemp.GetTempMatShader(SpecialLayerShaders.HSLAdjustmentShader);
-            mat.SetFloat("_Hue", Hue);
-            mat.SetFloat("_Saturation", Saturation);
-            mat.SetFloat("_Lightness", Lightness);
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
 
-            Graphics.Blit(grabSource, writeTarget, mat);
+            domain.LookAt(this);
+            domain.LookAt(gameObject);
+
+            var lm = GetAlphaMaskObject(ctx);
+            var blKey = engine.QueryBlendKey(BlendTypeKey);
+            var hsla = new HSLAdjustment(Hue, Saturation, Lightness);
+
+            return new GrabBlendingAsLayer<ITexTransToolForUnity>(Visible, lm, Clipping, blKey, hsla);
         }
     }
 }

@@ -1,7 +1,6 @@
+#nullable enable
 using net.rs64.TexTransCore;
-using net.rs64.TexTransCore.Utils;
-using UnityEngine;
-using static net.rs64.TexTransTool.MultiLayerImage.MultiLayerImageCanvas;
+using net.rs64.TexTransCore.MultiLayerImageCanvas;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -15,23 +14,37 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     /// </summary>
     public abstract class AbstractImageLayer : AbstractLayer
     {
-        public abstract void GetImage(RenderTexture renderTexture, IOriginTexture originTexture);
-        internal override void EvaluateTexture(CanvasContext canvasContext)
+        public abstract void GetImage(ITexTransToolForUnity engine, ITTRenderTexture renderTexture);
+
+        internal override LayerObject<ITexTransToolForUnity> GetLayerObject(GenerateLayerObjectContext ctx)
         {
-            if (!Visible) { canvasContext.LayerCanvas.AddHiddenLayer(Clipping, false); return; }
+            var domain = ctx.Domain;
+            var engine = ctx.Engine;
+            domain.LookAt(this);// 個別にやるべきか ... 否か ... ?
+            domain.LookAt(gameObject);
 
-            var canvasSize = canvasContext.CanvasSize;
-            var rTex = TTRt.G(canvasSize, canvasSize, true);
-            rTex.name = $"AbstractImageLayer.EvaluateTextureTempRt-{rTex.width}x{rTex.height}";
+            var alphaMask = GetAlphaMaskObject(ctx);
+            var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
+            var blendTypeKey = engine.QueryBlendKey(BlendTypeKey);
 
-
-            GetImage(rTex, canvasContext.TextureManager);
-
-            var mask = GetLayerAlphaMod(canvasContext);
-            canvasContext.LayerCanvas.AddLayer(new(rTex, BlendTypeKey), mask, Clipping);
-
+            return new TTTAbstractImageWarper(Visible, alphaMask, alphaOperator, Clipping, blendTypeKey, this);
         }
 
+        class TTTAbstractImageWarper : ImageLayer<ITexTransToolForUnity>
+        {
+            private AbstractImageLayer _imageLayer;
+            public TTTAbstractImageWarper(
+                bool visible
+                , AlphaMask<ITexTransToolForUnity> alphaMask
+                , AlphaOperation alphaOperation
+                , bool preBlendToLayerBelow
+                , ITTBlendKey blendTypeKey
+                , AbstractImageLayer imageLayer
+                ) : base(visible, alphaMask, alphaOperation, preBlendToLayerBelow, blendTypeKey)
+            { _imageLayer = imageLayer; }
+
+            public override void GetImage(ITexTransToolForUnity engine, ITTRenderTexture writeTarget) { _imageLayer.GetImage(engine, writeTarget); }
+        }
 
     }
 }

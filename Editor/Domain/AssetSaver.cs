@@ -1,3 +1,4 @@
+#nullable enable
 using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -16,7 +17,7 @@ namespace net.rs64.TexTransTool
             if (!Directory.Exists(SaveDirectory)) { Directory.CreateDirectory(SaveDirectory); }
         }
 
-        public AssetSaver(Object container = null)
+        public AssetSaver(Object? container = null)
         {
             if (container == null)
             {
