@@ -163,13 +163,10 @@ namespace net.rs64.TexTransTool.Decal
 
         internal JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] GetFilter()
         {
-            var filters = new List<JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>>
-            {
-                TriangleFilterUtility.FarStruct.GetJobChain(1, true),
-                TriangleFilterUtility.NearStruct.GetJobChain(0, true)
-            };
+            var filters = new List<JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>>(2);
+
             if (BackCulling) filters.Add(TriangleFilterUtility.SideStruct.GetJobChain(false));
-            filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(new TexTransUnityAABB(Vector2.zero).AddVertex(Vector2.one)));
+            filters.Add(TriangleFilterUtility.OutOfPolygonStruct.GetJobChain(new TexTransUnityAABB(Vector3.zero).AddVertex(Vector3.one)));
 
             return filters.ToArray();
         }

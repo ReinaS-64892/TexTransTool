@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.0...HEAD)
 
+### Fixed
+
+- SimpleDecal の ポリゴンカリング の実装が誤っていて、意図しないポリゴンにデカールが描画されてしまいちらつくことがある問題を修正しました (#885)
+
 ## [v0.9.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.13...v0.9.0) - 2025-02-17
 
 ### Added

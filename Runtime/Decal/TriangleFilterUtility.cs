@@ -156,16 +156,13 @@ namespace net.rs64.TexTransTool.Decal
             private TexTransUnityAABB AABB;
 
             [ReadOnly] public NativeArray<TriangleIndex> Triangle;
-            [ReadOnly] public NativeArray<Vector3> WorldVerticals;
+            [ReadOnly] public NativeArray<Vector3> PolygonVerticals;
             public NativeArray<bool> FilteringBit;
 
             public void Execute(int index)
             {
                 if (FilteringBit[index]) { return; }
-                var targetTri = Triangle[index];
-
-                var result = OutOfPolygonVertexBase(targetTri, WorldVerticals, AABB);
-                FilteringBit[index] = result;
+                FilteringBit[index] = OutOfPolygonVertexBase(Triangle[index], PolygonVerticals, AABB);
             }
 
             internal static JobChain<FilterTriangleJobInput<NativeArray<Vector3>>> GetJobChain(TexTransUnityAABB aabb)
@@ -177,17 +174,17 @@ namespace net.rs64.TexTransTool.Decal
                         AABB = aabb,
                         Triangle = input.Triangle,
                         FilteringBit = input.FilteredBit,
-                        WorldVerticals = input.InternalSpace
+                        PolygonVerticals = input.InternalSpace
                     };
                     return job.Schedule(input.FilteredBit.Length, 32, jobHandle);
                 };
             }
             public static bool OutOfPolygonVertexBase(TriangleIndex targetTri, NativeArray<Vector3> vertex, TexTransUnityAABB aabb)
             {
-                var triAABB = new TexTransUnityAABB(vertex[targetTri.zero]);
-                triAABB.AddVertex(vertex[targetTri.one]);
-                triAABB.AddVertex(vertex[targetTri.two]);
-                return aabb.IsIntersect(triAABB);
+                var triAABB = new TexTransUnityAABB(vertex[targetTri.zero])
+                .AddVertex(vertex[targetTri.one])
+                .AddVertex(vertex[targetTri.two]);
+                return aabb.IsIntersect(triAABB) is false;
             }
 
         }
