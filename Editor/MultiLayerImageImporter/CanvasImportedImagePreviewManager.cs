@@ -34,6 +34,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             CheckDirectory();
 
             PlaceHolderOrErrorTexture = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+            PlaceHolderOrErrorTexture.name = nameof(PlaceHolderOrErrorTexture);
             PlaceHolderOrErrorTexture.filterMode = FilterMode.Point;
             PlaceHolderOrErrorTexture.wrapMode = TextureWrapMode.Repeat;
 
@@ -190,6 +191,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
             var needResizing = Math.Max(importedImage.CanvasDescription.Width, importedImage.CanvasDescription.Height) > 1024;
             var previewTex = new Texture2D(needResizing ? 1024 : importedImage.CanvasDescription.Width, needResizing ? 1024 : importedImage.CanvasDescription.Height, TextureFormat.BC7, false, false);
+            previewTex.name = "LoadPreviewFromFileCash-" + importedImage.name;
             var dataNa = previewTex.GetRawTextureData<byte>();
 
             var task = Task.Run(() =>

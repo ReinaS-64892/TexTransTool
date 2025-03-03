@@ -41,8 +41,12 @@ namespace net.rs64.TexTransTool
             Previewing = previewing;
             _saver = assetSaver;
             _textureManager = textureManager;
+#if TTT_TTCE_TRACING
+            _ttce4U = new TTCEUnityWithTTT4Unity(new TTDiskUtilInterfaceDebug(new UnityDiskUtil(_textureManager), Debug.LogWarning));
+            _ttce4U = new TTCEWithTTT4UInterfaceDebug(_ttce4U, Debug.LogWarning);
+#else
             _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));//TODO : コンストラクタの引数にとることができるようにする必要がある
-
+#endif
             _textureStacks = new ImmediateStackManager(_ttce4U, _textureManager);
         }
 
@@ -144,8 +148,8 @@ namespace net.rs64.TexTransTool
         public virtual void EditFinish()
         {
             MergeStack();
-            _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
+            _textureManager.Dispose();
         }
 
         public void MergeStack()

@@ -18,6 +18,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
     , ITexTransComputeKeyQuery
     , ITexTransGetComputeHandler
     , ITexTransDriveStorageBufferHolder
+    , ITexTransRenderTextureIO
     {
         public ITTRenderTexture CreateRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
@@ -28,11 +29,39 @@ namespace net.rs64.TexTransCoreEngineForUnity
         {
             if (source.Width != target.Width || source.Hight != target.Hight) { throw new ArgumentException("Texture size is not equal!"); }
             if (target.ContainsChannel != source.ContainsChannel) { throw new ArgumentException("Texture channel is not equal!"); }
-            Graphics.CopyTexture(source.Unwrap(), target.Unwrap());
+
+            if (source is not UnityRenderTexture urtS) { throw new InvalidOperationException(); }
+            if (target is not UnityRenderTexture urtT) { throw new InvalidOperationException(); }
+            Graphics.CopyTexture(urtS.RenderTexture, urtT.RenderTexture);
         }
 
+        public void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
+        {
+            var tex = new Texture2D(uploadTarget.Width, uploadTarget.Hight, format.ToUnityTextureFormat(uploadTarget.ContainsChannel), false, false);
 
+            using var na = new NativeArray<T>(bytes.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            bytes.CopyTo(na);
+            tex.LoadRawTextureData(na);
 
+            tex.Apply();
+            if (uploadTarget is not UnityRenderTexture uploadTargetUrt) { throw new InvalidOperationException(); }
+            Graphics.CopyTexture(tex, uploadTargetUrt.RenderTexture);
+            UnityEngine.Object.DestroyImmediate(tex);
+        }
+        public void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged
+        {
+            if (renderTexture is not UnityRenderTexture urt) { throw new InvalidOperationException(); }
+            if (urt.RenderTexture.graphicsFormat == format.ToUnityGraphicsFormat(renderTexture.ContainsChannel))
+            {
+                urt.RenderTexture.DownloadFromRenderTexture(dataDist);
+            }
+            else
+            {
+                var cfRt = new RenderTexture(renderTexture.Width, renderTexture.Hight, 0, format.ToUnityGraphicsFormat(renderTexture.ContainsChannel));
+                Graphics.Blit(urt.RenderTexture, cfRt);
+                cfRt.DownloadFromRenderTexture(dataDist);
+            }
+        }
         public ITTComputeHandler GetComputeHandler(ITTComputeKey computeKey)
         {
             switch (computeKey)
@@ -117,25 +146,18 @@ namespace net.rs64.TexTransCoreEngineForUnity
             if (ComputeObjectUtility.UStdHolder is not TExKeyQ exKeyQ) { throw new ComputeKeyInterfaceIsNotImplementException($"{GetType().Name} is not supported {typeof(TExKeyQ).GetType().Name}."); }
             return exKeyQ;
         }
+
     }
 
 
     internal class UnityRenderTexture : ITTRenderTexture
     {
-        bool _isOwned;
         internal RenderTexture RenderTexture;
         internal TexTransCoreTextureChannel Channel;
         public UnityRenderTexture(int width, int height, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
-            _isOwned = true;
             Channel = channel;
             RenderTexture = TTRt2.Get(width, height, channel);
-        }
-        private UnityRenderTexture(RenderTexture renderTexture)
-        {
-            _isOwned = false;
-            RenderTexture = renderTexture;
-            Channel = renderTexture.graphicsFormat.ToTTCTextureFormat().channel;
         }
         public bool IsDepthAndStencil => RenderTexture.depth != 0;
 
@@ -147,13 +169,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public TexTransCoreTextureChannel ContainsChannel => Channel;
 
-        public void Dispose() { if (_isOwned) TTRt2.Rel(RenderTexture); }
-
-        internal static UnityRenderTexture? RefFromTTRt2(RenderTexture renderTexture)
-        {
-            if (TTRt2.Contains(renderTexture) is false) { return null; }
-            return new UnityRenderTexture(renderTexture);
-        }
+        public void Dispose() { TTRt2.Rel(RenderTexture); }
     }
     internal static class TTCoreEnginTypeUtil
     {
@@ -166,14 +182,6 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
         public static System.Numerics.Vector3 ToTTCore(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
         public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToTTCore(), Direction = ray.direction.ToTTCore() }; }
-
-        public static RenderTexture Unwrap(this ITTRenderTexture renderTexture) { return ((UnityRenderTexture)renderTexture).RenderTexture; }
-        public static TTBlendingComputeShader Unwrap(this ITTBlendKey key) { return (TTBlendingComputeShader)key; }
-        public static TTBlendingComputeShader Wrapping(this string key) { return ComputeObjectUtility.BlendingObject[key]; }
-        public static float[] ToArray(this System.Numerics.Vector4 vec) { return new[] { vec.X, vec.Y, vec.Z, vec.W }; }
-        public static float[] ToArray(this System.Numerics.Vector3 vec) { return new[] { vec.X, vec.Y, vec.Z }; }
-
-
 
         internal static TextureFormat ToUnityTextureFormat(this TexTransCoreTextureFormat format, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {
@@ -264,6 +272,17 @@ namespace net.rs64.TexTransCoreEngineForUnity
             }
         }
 
+
+
+        public static void DownloadFromRenderTexture<T>(this RenderTexture rt, Span<T> dataSpan) where T : unmanaged
+        {
+            var (format, channel) = rt.graphicsFormat.ToTTCTextureFormat();
+            if (EnginUtil.GetPixelParByte(format, channel) * rt.width * rt.height != dataSpan.Length) { throw new ArgumentException(); }
+
+            var request = AsyncGPUReadback.Request(rt, 0);
+            request.WaitForCompletion();
+            request.GetData<T>().AsSpan().CopyTo(dataSpan);
+        }
 
     }
 }

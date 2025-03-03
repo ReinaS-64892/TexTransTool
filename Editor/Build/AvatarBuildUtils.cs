@@ -75,6 +75,12 @@ namespace net.rs64.TexTransTool.Build
         {
             if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar("TTTSessionEnd", "EditFinisher", 0.0f);
             _domain.EditFinish();
+#if TTT_TTCE_TRACING
+            if (_domain.GetTexTransCoreEngineForUnity() is TTCEWithTTT4UInterfaceDebug debug)
+            {
+                debug.Dispose();
+            }
+#endif
             if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
         }
     }

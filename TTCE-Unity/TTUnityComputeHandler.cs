@@ -27,6 +27,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
             }
         }
 
+        public string Name { get => _compute.name; set => _compute.name = value; }
+
         public void Dispatch(uint x, uint y, uint z)
         {
             _compute.Dispatch(0, (int)x, (int)y, (int)z);
@@ -37,7 +39,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
 
         public void SetTexture(int id, ITTRenderTexture tex)
         {
-            _compute.SetTexture(0, id, tex.Unwrap());
+            if (tex is not UnityRenderTexture urtS) { throw new InvalidOperationException(); }
+            _compute.SetTexture(0, id, urtS.RenderTexture);
         }
 
         public void UploadConstantsBuffer<T>(int id, ReadOnlySpan<T> bytes) where T : unmanaged

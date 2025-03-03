@@ -7,7 +7,7 @@ namespace net.rs64.TexTransCore
     ///  ComputeShader を実行できるハンドラー、キーを基にエンジンから与えられる。
     ///  使用し終えたら解放すること
     /// </summary>
-    public interface ITTComputeHandler : IDisposable
+    public interface ITTComputeHandler : ITTObject
     {
         /// <summary>
         /// 環境によってサイズが増減する可能性があるので必ずこれを見るように

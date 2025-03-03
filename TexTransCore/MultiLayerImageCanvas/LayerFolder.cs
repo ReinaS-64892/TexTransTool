@@ -23,5 +23,11 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
         {
             new CanvasContext<TTCE>(engine).EvaluateForFlattened(writeTarget, null, CanvasContext<TTCE>.ToBelowFlattened(Layers));
         }
+        public override void Dispose()
+        {
+            base.Dispose();
+            foreach (var layer in Layers) { layer.Dispose(); }
+
+        }
     }
 }

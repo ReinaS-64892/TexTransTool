@@ -111,8 +111,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 NearDistanceFadeWrite = GenealCompute[nameof(NearDistanceFadeWrite)];
             }
 
-
-            class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => key.Unwrap(); }
+            class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => (TTBlendingComputeShader)key; }
             class GrabBlendQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => GrabBlendObjects[key]; }
             class GenealComputeQuery : ITexTransComputeKeyDictionary<string> { public ITTComputeKey this[string key] => GeneralComputeObjects[key]; }
             class SamplerKeyQuery : IKeyValueStore<string, ITTSamplerKey> { public ITTSamplerKey this[string key] => SamplerComputeShaders[key]; }
