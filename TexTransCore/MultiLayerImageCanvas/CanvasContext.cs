@@ -189,7 +189,10 @@ namespace net.rs64.TexTransCore.MultiLayerImageCanvas
             RootLayers = rootLayers;
         }
 
-        public void Dispose() { foreach (var l in RootLayers) { l.Dispose(); } }
+        public void Dispose()
+        {
+            foreach (var l in RootLayers) { l.Dispose(); }
+        }
     }
     public class EvaluateContext<TTCE> : IDisposable
     where TTCE : ITexTransCreateTexture
