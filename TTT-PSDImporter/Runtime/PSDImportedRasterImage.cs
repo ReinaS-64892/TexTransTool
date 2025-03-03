@@ -97,8 +97,8 @@ namespace net.rs64.TexTransTool.PSDImporter
             }
 
             computeHandler.UploadConstantsBuffer<uint>(gvID, gvBuf);
-            engine.SetStorageBufferFromUpload<TTCE, uint>(computeHandler, spanBufferID, spanBuf);
-            engine.SetStorageBufferFromUpload<TTCE, byte>(computeHandler, rleBufferID, dSpan);
+            using var spStBuf = engine.SetStorageBufferFromUpload<TTCE, uint>(computeHandler, spanBufferID, spanBuf);
+            using var rleStBuf = engine.SetStorageBufferFromUpload<TTCE, byte>(computeHandler, rleBufferID, dSpan);
 
             computeHandler.SetTexture(texID, writeTarget);
 
