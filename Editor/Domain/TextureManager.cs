@@ -20,7 +20,7 @@ using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool
 {
-    internal class TextureManager : ITextureManager
+    internal class TextureManager : ITextureManager, IDisposable
     {
         IDeferredDestroyTexture _deferDestroyTextureManager;
         IOriginTexture _originTexture;
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool
 
 
         public void DeferredDestroyOf(Texture2D texture2D) { _deferDestroyTextureManager?.DeferredDestroyOf(texture2D); }
-        public void DestroyDeferred() { _deferDestroyTextureManager?.DestroyDeferred(); }
+        public void DestroyDeferred() { Dispose(); }
 
         public void DeferredInheritTextureCompress(Texture2D source, Texture2D target) { _textureCompressManager?.DeferredInheritTextureCompress(source, target); }
         public void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target) { _textureCompressManager?.DeferredTextureCompress(compressFormat, target); }
@@ -64,6 +64,11 @@ namespace net.rs64.TexTransTool
         {
             var size = _originTexture.GetOriginalTextureSize(diskTexture);
             return (size, size);
+        }
+
+        public void Dispose()
+        {
+            _deferDestroyTextureManager.Dispose();
         }
     }
 
@@ -84,6 +89,11 @@ namespace net.rs64.TexTransTool
                 UnityEngine.Object.DestroyImmediate(tex);
             }
             DestroyList.Clear();
+        }
+
+        public void Dispose()
+        {
+            DestroyDeferred();
         }
     }
 
@@ -324,7 +334,7 @@ namespace net.rs64.TexTransTool
             {
                 case UnityDiskTexture tex2DWrapper:
                     {
-                        _texManage.WriteOriginalTexture(tex2DWrapper.Texture, writeTarget.Unwrap());
+                        _texManage.WriteOriginalTexture(tex2DWrapper.Texture, ttce4u.GetReferenceRenderTexture(writeTarget));
                         // sRGB なフォーマットだった場合は、(Unityが)勝手にリニア変換するお節介を逆補正する
                         // Texture.isDataSRGB は 16bit 等の SRGB ではないやつであっても、
                         // テクスチャ作成時の引数の isLiner が false だった場合に true になることがあるから この場合は 信用してはならない。
@@ -337,7 +347,7 @@ namespace net.rs64.TexTransTool
                         if (_texManage.IsPreview)
                         {
                             CopyFromGammaTexture2D.SetTexture(0, "Source", CanvasImportedImagePreviewManager.GetPreview(texture));
-                            CopyFromGammaTexture2D.SetTexture(0, "Dist", writeTarget.Unwrap());
+                            CopyFromGammaTexture2D.SetTexture(0, "Dist", ttce4u.GetReferenceRenderTexture(writeTarget));
                             CopyFromGammaTexture2D.Dispatch(0, (writeTarget.Width + 31) / 32, (writeTarget.Hight + 31) / 32, 1);
                         }
                         else
@@ -347,24 +357,6 @@ namespace net.rs64.TexTransTool
                         }
                         break;
                     }
-            }
-        }
-        public ITexTransLoadTexture GetLoader(ITexTransToolForUnity ttce4u) => new DiskLoaderFor(ttce4u, this);
-
-        internal class DiskLoaderFor : ITexTransLoadTexture
-        {
-            ITexTransToolForUnity _texTransToolForUnity;
-            UnityDiskUtil _texTransUnityDiskUtil;
-
-            public DiskLoaderFor(ITexTransToolForUnity texTransToolForUnity, UnityDiskUtil texTransUnityDiskUtil)
-            {
-                _texTransToolForUnity = texTransToolForUnity;
-                _texTransUnityDiskUtil = texTransUnityDiskUtil;
-            }
-
-            public void LoadTexture(ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
-            {
-                _texTransUnityDiskUtil.LoadTexture(_texTransToolForUnity, writeTarget, diskTexture);
             }
         }
         internal class UnityDiskTexture : ITTDiskTexture

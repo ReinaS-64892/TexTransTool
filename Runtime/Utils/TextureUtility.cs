@@ -61,15 +61,6 @@ namespace net.rs64.TexTransTool.Utils
 
             return texture;
         }
-        public static void DownloadFromRenderTexture<T>(this RenderTexture rt, Span<T> dataSpan) where T : unmanaged
-        {
-            var (format, channel) = rt.graphicsFormat.ToTTCTextureFormat();
-            if (EnginUtil.GetPixelParByte(format, channel) * rt.width * rt.height != dataSpan.Length) { throw new ArgumentException(); }
-
-            var request = AsyncGPUReadback.Request(rt, 0);
-            request.WaitForCompletion();
-            request.GetData<T>().AsSpan().CopyTo(dataSpan);
-        }
 
         public static void Clear(this RenderTexture rt)
         {

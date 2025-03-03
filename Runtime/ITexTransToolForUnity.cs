@@ -44,6 +44,13 @@ namespace net.rs64.TexTransTool
             return UploadTexture<byte>(renderTexture.width, renderTexture.height, channel, na.AsSpan(), format);
         }
 
+        // インターフェースから中身の RenderTexture を引き出す。
+        // 何度も引き出しても同じものである必要がある、基本的に Unity ベッタリな場所でしか使用してはならず、使用できない実装があっても良い。
+        RenderTexture GetReferenceRenderTexture(ITTRenderTexture renderTexture)
+        {
+            throw new NotSupportedException();
+        }
+
         // できる場合はいい感じに 内部で使用されている物を雑に投げつけて
         public TexTransCoreTextureFormat PrimaryTextureFormat { get => TexTransCoreTextureFormat.Byte; }
 

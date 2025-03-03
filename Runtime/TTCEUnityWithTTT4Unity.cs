@@ -20,40 +20,12 @@ namespace net.rs64.TexTransTool
             _diskUtil = diskUtil;
         }
 
-        public void UploadTexture<T>(ITTRenderTexture uploadTarget, ReadOnlySpan<T> bytes, TexTransCoreTextureFormat format) where T : unmanaged
-        {
-            var tex = new Texture2D(uploadTarget.Width, uploadTarget.Hight, format.ToUnityTextureFormat(uploadTarget.ContainsChannel), false, false);
-
-            using var na = new NativeArray<T>(bytes.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            bytes.CopyTo(na);
-            tex.LoadRawTextureData(na);
-
-            tex.Apply();
-            Graphics.CopyTexture(tex, uploadTarget.Unwrap());
-            UnityEngine.Object.DestroyImmediate(tex);
-        }
-
         public virtual ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
             var rt = CreateRenderTexture(renderTexture.width, renderTexture.height);
-            Graphics.CopyTexture(renderTexture, rt.Unwrap());
+            Graphics.CopyTexture(renderTexture, GetReferenceRenderTexture(rt));
             return rt;
         }
-
-        public void DownloadTexture<T>(Span<T> dataDist, TexTransCoreTextureFormat format, ITTRenderTexture renderTexture) where T : unmanaged
-        {
-            if (renderTexture.Unwrap().graphicsFormat == format.ToUnityGraphicsFormat(renderTexture.ContainsChannel))
-            {
-                renderTexture.Unwrap().DownloadFromRenderTexture(dataDist);
-            }
-            else
-            {
-                var cfRt = new RenderTexture(renderTexture.Width, renderTexture.Hight, 0, format.ToUnityGraphicsFormat(renderTexture.ContainsChannel));
-                Graphics.Blit(renderTexture.Unwrap(), cfRt);
-                cfRt.DownloadFromRenderTexture(dataDist);
-            }
-        }
-
 
         public ITTBlendKey QueryBlendKey(string blendKeyName)
         {
@@ -73,6 +45,12 @@ namespace net.rs64.TexTransTool
         public void LoadTexture(ITTRenderTexture writeTarget, ITTDiskTexture diskTexture)
         {
             _diskUtil.LoadTexture(this, writeTarget, diskTexture);
+        }
+
+        public RenderTexture GetReferenceRenderTexture(ITTRenderTexture renderTexture)
+        {
+            if (renderTexture is not UnityRenderTexture urt) { throw new InvalidOperationException(); }
+            return urt.RenderTexture;
         }
     }
 }

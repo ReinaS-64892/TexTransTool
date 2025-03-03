@@ -96,6 +96,12 @@ namespace net.rs64.TexTransTool.Build
 
                 DestroyITexTransToolTags(avatarGameObject);
                 timer.Stop(); Debug.Log($"ProcessAvatarTime : {timer.ElapsedMilliseconds}ms");
+#if TTT_TTCE_TRACING
+                if (domain.GetTexTransCoreEngineForUnity() is TTCEWithTTT4UInterfaceDebug debug)
+                {
+                    debug.Dispose();
+                }
+#endif
                 return true;
             }
             catch (Exception e)

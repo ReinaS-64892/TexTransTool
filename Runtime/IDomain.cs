@@ -107,10 +107,9 @@ namespace net.rs64.TexTransTool
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
-    public interface IDeferredDestroyTexture
+    public interface IDeferredDestroyTexture : IDisposable
     {
         void DeferredDestroyOf(Texture2D texture2D);
-        void DestroyDeferred();
     }
     public interface IOriginTexture
     {
