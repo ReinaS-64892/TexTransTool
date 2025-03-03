@@ -130,25 +130,26 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
         private AtlasTexture.AtlasData GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
         {
-            using (var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TextureManager(true)))
-            {
-
-                var nowRenderers = atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer());
-                var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers);
-                if (targetMaterials.Any() is false) { return null; }
-
-                var result = atlasTexture.TryCompileAtlasTextures(
-                    atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer()), targetMaterials,
-                    previewDomain,
-                    out var atlasData
-                    );
-
-                if (result is false) { return null; }//TODO : ここ返す値何とかする
+            var texManage = new TextureManager(true);
+            using var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), texManage, new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManage)));
 
 
-                foreach (var mesh in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(mesh.AtlasMesh); }
-                return atlasData;
-            }
+            var nowRenderers = atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer());
+            var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers);
+            if (targetMaterials.Any() is false) { return null; }
+
+            var result = atlasTexture.TryCompileAtlasTextures(
+                atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer()), targetMaterials,
+                previewDomain,
+                out var atlasData
+                );
+
+            if (result is false) { return null; }//TODO : ここ返す値何とかする
+
+
+            foreach (var mesh in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(mesh.AtlasMesh); }
+            return atlasData;
+
         }
     }
 
@@ -362,13 +363,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         IEnumerable<Renderer> _domainRenderers;
         HashSet<UnityEngine.Object> _transferredObject = new();
         protected readonly ITextureManager _textureManager;
-        private readonly TTCEUnityWithTTT4Unity _ttce4U;
+        private readonly ITexTransToolForUnity _ttce4U;
 
-        public NotWorkDomain(IEnumerable<Renderer> renderers, TextureManager textureManager)
+        public NotWorkDomain(IEnumerable<Renderer> renderers, TextureManager textureManager, ITexTransToolForUnity iTexTransToolForUnity)
         {
             _domainRenderers = renderers;
             _textureManager = textureManager;
-            _ttce4U = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(_textureManager));
+            _ttce4U = iTexTransToolForUnity;
         }
 
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }
@@ -380,7 +381,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true) { }
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
-        public void Dispose() { foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); } }
+        public void Dispose() { foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); } _textureManager.Dispose(); }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
 
     }

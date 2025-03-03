@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.NDMF
 
         Dictionary<Renderer, Action<Renderer>> _rendererApplyRecaller = new();//origin 2 apply call
         private IObjectRegistry _objectRegistry;
-        private TTCEUnityWithTTT4Unity _ttce4U;
+        private TTCEUnityWithTTT4UnityOnNDMFPreview _ttce4U;
 
         public bool UsedTextureStack { get; private set; } = false;
         public bool UsedMaterialReplace { get; private set; } = false;
@@ -126,8 +126,8 @@ namespace net.rs64.TexTransTool.NDMF
         public void DomainFinish()
         {
             MargeStack();
-            _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
+            _textureManager.Dispose();
         }
 
         private void MargeStack()
@@ -135,12 +135,12 @@ namespace net.rs64.TexTransTool.NDMF
             foreach (var mergeResult in _textureStacks.StackDict)
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
-                this.ReplaceTexture(mergeResult.Key, mergeResult.Value.Unwrap());
+                this.ReplaceTexture(mergeResult.Key, _ttce4U.GetReferenceRenderTexture(mergeResult.Value));
                 _ttce4U.GammaToLinear(mergeResult.Value);
             }
 
-            _textureManager.DestroyDeferred();
             _textureManager.CompressDeferred(EnumerateRenderer(), OriginEqual);
+            _textureManager.Dispose();
         }
 
         public void Dispose()
@@ -204,10 +204,10 @@ namespace net.rs64.TexTransTool.NDMF
 
     class NDMFPreviewStackManager : IDisposable
     {
-        ITexTransToolForUnity _ttce4u;
+        TTCEUnityWithTTT4UnityOnNDMFPreview _ttce4u;
         Dictionary<Texture, ITTRenderTexture> _stackDict = new();
         public IReadOnlyDictionary<Texture, ITTRenderTexture> StackDict => _stackDict;
-        public NDMFPreviewStackManager(ITexTransToolForUnity ttce4u)
+        public NDMFPreviewStackManager(TTCEUnityWithTTT4UnityOnNDMFPreview ttce4u)
         {
             _ttce4u = ttce4u;
         }
@@ -218,9 +218,9 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 var stackTexture = _ttce4u.CreateRenderTexture(dist.width, dist.height);
                 stackTexture.Name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
-                stackTexture.Unwrap().CopyFilWrap(dist);
+                _ttce4u.GetReferenceRenderTexture(stackTexture).CopyFilWrap(dist);
 
-                Graphics.Blit(dist, stackTexture.Unwrap());
+                Graphics.Blit(dist, _ttce4u.GetReferenceRenderTexture(stackTexture));
                 _ttce4u.LinearToGamma(stackTexture);
 
                 _stackDict.Add(dist, stackTexture);

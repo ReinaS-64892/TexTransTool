@@ -98,7 +98,6 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         public void NewPreviewTextureRegister(Texture2D texture2D, ITTRenderTexture previewTexture)
         {
-            if (previewTexture is not UnityRenderTexture unityRtHolder) { throw new NotSupportedException(); }
             foreach (var m in _previewMaterialMap.Values)
             {
                 var shader = m.shader;
@@ -106,7 +105,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 {
                     if (shader.GetPropertyType(i) != UnityEngine.Rendering.ShaderPropertyType.Texture) { continue; }
                     var nameID = shader.GetPropertyNameId(i);
-                    if (m.GetTexture(nameID) == texture2D) { m.SetTexture(nameID, unityRtHolder.Unwrap()); }
+                    if (m.GetTexture(nameID) == texture2D) { m.SetTexture(nameID, _ttce4U.GetReferenceRenderTexture(previewTexture)); }
                 }
             }
         }

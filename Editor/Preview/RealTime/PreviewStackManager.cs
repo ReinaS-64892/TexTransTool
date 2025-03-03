@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         Dictionary<Texture2D, ITTRenderTexture> _previewTextureMap = new();
         Dictionary<RenderTexture, PrioritizedDeferredStack> _stackMap = new();
 
-        ITexTransToolForUnity _ttce4U;
+        TTCEUnityWithTTT4Unity _ttce4U;
         Action<Texture2D, ITTRenderTexture> _newPreviewTexture;
 
         public PreviewStackManager(TTCEUnityWithTTT4Unity ttce4U, Action<Texture2D, ITTRenderTexture> newPreviewTextureRegister)
@@ -34,12 +34,12 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                     }
                 case Texture2D tex2D:
                     {
-                        if (_previewTextureMap.ContainsKey(tex2D)) { _stackMap[_previewTextureMap[tex2D].Unwrap()].AddTextureStack(priority, addTex, blendKey); }
+                        if (_previewTextureMap.ContainsKey(tex2D)) { _stackMap[_ttce4U.GetReferenceRenderTexture(_previewTextureMap[tex2D])].AddTextureStack(priority, addTex, blendKey); }
                         else
                         {
                             var newStack = new PrioritizedDeferredStack(_ttce4U, tex2D);
                             _previewTextureMap[tex2D] = newStack.StackView;
-                            _stackMap[newStack.StackView.Unwrap()] = newStack;
+                            _stackMap[_ttce4U.GetReferenceRenderTexture(newStack.StackView)] = newStack;
                             _newPreviewTexture?.Invoke(tex2D, newStack.StackView);
                             newStack.AddTextureStack(priority, addTex, blendKey);
                         }
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                         if (!_previewTextureMap.ContainsKey(tex2D)) { return; }
                         var rt = _previewTextureMap[tex2D];
 
-                        _stackMap.Remove(rt.Unwrap(), out var stack);
+                        _stackMap.Remove(_ttce4U.GetReferenceRenderTexture(rt), out var stack);
                         stack.Dispose();
 
                         _previewTextureMap.Remove(tex2D);
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                         _stackMap.Remove(rt, out var stack);
                         stack.Dispose();
 
-                        _previewTextureMap.Remove(_previewTextureMap.First(kv => kv.Value.Unwrap() == rt).Key);
+                        _previewTextureMap.Remove(_previewTextureMap.First(kv => _ttce4U.GetReferenceRenderTexture(kv.Value) == rt).Key);
                         break;
                     }
             }
@@ -89,7 +89,8 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         {
             if (texture == null) { return null; }
             if (!_previewTextureMap.ContainsKey(texture)) { return null; }
-            return _previewTextureMap[texture].Unwrap();
+
+            return _ttce4U.GetReferenceRenderTexture(_previewTextureMap[texture]);
         }
 
 
@@ -107,14 +108,14 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             ITTRenderTexture _initialTexture;
             ITTRenderTexture _stackViewTexture;
 
-            ITexTransToolForUnity _ttce4U;
+            TTCEUnityWithTTT4Unity _ttce4U;
 
             public bool UpdateNeeded { get; private set; } = false;
             SortedList<int, List<(ITTRenderTexture addTex, ITTBlendKey blendKey)>> _stack = new();
 
             public ITTRenderTexture StackView => _stackViewTexture;
 
-            public PrioritizedDeferredStack(ITexTransToolForUnity ttce4U, Texture2D initialTexture)
+            public PrioritizedDeferredStack(TTCEUnityWithTTT4Unity ttce4U, Texture2D initialTexture)
             {
                 _ttce4U = ttce4U;
 
@@ -122,19 +123,18 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                 _initialTexture = _ttce4U.CreateRenderTexture(initialDiskTex.Width, initialDiskTex.Hight);
                 _ttce4U.LoadTexture(_initialTexture, initialDiskTex);
 
-                _stackViewTexture = _ttce4U.CloneRenderTexture(_initialTexture);
+                _stackViewTexture = (_ttce4U as ITexTransToolForUnity).CloneRenderTexture(_initialTexture);
                 _stackViewTexture.Name = $"{initialTexture.name}:PrioritizedDeferredStack-{_stackViewTexture.Width}x{_stackViewTexture.Hight}";
 
-                //あまり この if に意味はないけど ...
-                if (_stackViewTexture is UnityRenderTexture urt) { urt.Unwrap().CopyFilWrap(initialTexture); }
-                if (_initialTexture is UnityRenderTexture urt2) { urt2.Unwrap().CopyFilWrap(initialTexture); }
+                _ttce4U.GetReferenceRenderTexture(_stackViewTexture).CopyFilWrap(initialTexture);
+                _ttce4U.GetReferenceRenderTexture(_initialTexture).CopyFilWrap(initialTexture);
             }
 
             public void AddTextureStack(int priority, ITTRenderTexture addTex, ITTBlendKey blendKey)
             {
                 if (!_stack.ContainsKey(priority)) { _stack.Add(priority, new()); }
 
-                _stack[priority].Add((_ttce4U.CloneRenderTexture(addTex), blendKey));// addTex は基本的に借用。だから所有権を増やす必要がある。
+                _stack[priority].Add(((_ttce4U as ITexTransToolForUnity).CloneRenderTexture(addTex), blendKey));// addTex は基本的に借用。だから所有権を増やす必要がある。
                 UpdateNeeded = true;
             }
             public void ReleaseStackOfPriority(int priority)
