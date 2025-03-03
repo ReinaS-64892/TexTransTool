@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.1...HEAD)
 
+### Fixed
+
+- PSD のビルドや Preview の生成時にメモリリークが発生していた問題を修正 (#887)
+
 ## [v0.9.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.0...v0.9.1) - 2025-03-02
 
 ## [v0.9.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.8.13...v0.9.0) - 2025-02-17
