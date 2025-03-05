@@ -3,7 +3,7 @@
 Texture2D<float4> Source;
 RWTexture2D<float4> Dist;
 
-#include "../../TexTransCore/ShaderAssets/GammaLinear.hlsl"
+#include "./GammaLinear.hlsl"
 
 [numthreads(32,32,1)]
 void Copy (uint3 id : SV_DispatchThreadID)
