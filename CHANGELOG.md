@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...HEAD)
 
+### Fixed
+
+- ShaderKeywords に影響を受けるシェーダーがプレビューの対象となったとき、マテリアルの複製時に ShaderKeywords がコピーされず表示がおかしくなってしまっていた問題を修正 (#893)
+
 ## [v0.9.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.1...v0.9.2) - 2025-03-03
 
 ## [v0.9.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.0...v0.9.1) - 2025-03-02
