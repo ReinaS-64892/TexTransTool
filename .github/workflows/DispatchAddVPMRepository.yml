@@ -1,0 +1,16 @@
+name: Dispatch-Add-VPM-Repository
+on:
+    release:
+      types: [published]
+
+jobs:
+  SendVpmRS64Net:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VPM_REPO_TOKEN }}
+          repository: ReinaS-64892/vpm.rs64.net
+          event-type: add_new_version
+          client-payload: '{"repository": "TexTransTool", "tag": "${{ github.event.release.tag_name }}"}'
