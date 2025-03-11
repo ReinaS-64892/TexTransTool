@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.NDMF
             var pooledMat = GetFromShaderWithUninitialized(source.shader);
             MaterialUtility.PropertyCopy(source, pooledMat);
             pooledMat.renderQueue = source.renderQueue;
+            pooledMat.shaderKeywords = source.shaderKeywords;
             return pooledMat;
         }
         public static Material GetFromShaderWithUninitialized(Shader shader)
