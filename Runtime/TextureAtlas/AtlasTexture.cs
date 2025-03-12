@@ -292,7 +292,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (atlasSetting.WriteOriginalUV)
                 {
                     var writeTarget = math.clamp(atlasSetting.OriginalUVWriteTargetChannel, 1, 7);
-                    if (newMesh.HasUV(writeTarget)) { TTTRuntimeLog.Info("AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV", writeTarget, newMesh); }
+                    if (newMesh.HasUV(writeTarget)) { TTTRuntimeLog.Info("AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV", writeTarget, distMesh); }
                     newMesh.SetUVs(writeTarget, meshData.VertexUV);
                 }
 
