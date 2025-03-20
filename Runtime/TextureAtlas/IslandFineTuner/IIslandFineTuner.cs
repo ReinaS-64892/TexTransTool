@@ -1,5 +1,5 @@
+using net.rs64.TexTransCore.UVIsland;
 using net.rs64.TexTransTool.IslandSelector;
-using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
 {

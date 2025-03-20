@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool
     internal static class DomainUtility
     {
         public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);
-        public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
+        public static void TransferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
             foreach (var unityObject in unityObjects)
             {

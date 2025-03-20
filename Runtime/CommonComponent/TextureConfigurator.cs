@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
-        public TextureSelector TargetTexture;
+        public TextureSelector TargetTexture = new();
 
         public bool OverrideTextureSetting = false;
         [PowerOfTwo] public int TextureSize = 2048;

@@ -74,45 +74,46 @@ namespace net.rs64.TexTransTool.Utils
 
         public static Texture2D ResizeTexture(Texture2D source, Vector2Int size, bool forceRegenerateMipMap = false)
         {
-            Profiler.BeginSample("ResizeTexture");
-            using (new RTActiveSaver())
-            {
-                var useMip = source.mipmapCount > 1;
-                if (forceRegenerateMipMap) { useMip = false; }
+            throw new NotImplementedException();
+            // Profiler.BeginSample("ResizeTexture");
+            // using (new RTActiveSaver())
+            // {
+            //     var useMip = source.mipmapCount > 1;
+            //     if (forceRegenerateMipMap) { useMip = false; }
 
-                var rt = TTRt.G(size.x, size.y, true);
-                if (useMip)
-                {
-                    Graphics.Blit(source, rt);
-                }
-                else
-                {
-                    var mipRt = TTRt.G(source.width, source.height, false, false, true, true);
+            //     var rt = TTRt.G(size.x, size.y, true);
+            //     if (useMip)
+            //     {
+            //         Graphics.Blit(source, rt);
+            //     }
+            //     else
+            //     {
+            //         var mipRt = TTRt.G(source.width, source.height, false, false, true, true);
 
-                    Graphics.Blit(source, mipRt);
-                    MipMapUtility.GenerateMips(mipRt, DownScalingAlgorithm.Average);
-                    Graphics.Blit(mipRt, rt);
+            //         Graphics.Blit(source, mipRt);
+            //         MipMapUtility.GenerateMips(mipRt, DownScalingAlgorithm.Average);
+            //         Graphics.Blit(mipRt, rt);
 
-                    TTRt.R(mipRt);
-                }
+            //         TTRt.R(mipRt);
+            //     }
 
-                var resizedTexture = rt.CopyTexture2D(overrideUseMip: useMip);
-                resizedTexture.name = source.name + "_Resized_" + size.x.ToString();
+            //     var resizedTexture = rt.CopyTexture2D(overrideUseMip: useMip);
+            //     resizedTexture.name = source.name + "_Resized_" + size.x.ToString();
 
-                TTRt.R(rt);
-                Profiler.EndSample();
+            //     TTRt.R(rt);
+            //     Profiler.EndSample();
 
-                return resizedTexture;
-            }
+            //     return resizedTexture;
+            // }
         }
 
 
         public static int NormalizePowerOfTwo(int v) => Mathf.IsPowerOfTwo(v) ? v : Mathf.NextPowerOfTwo(v);
 
-        public static RenderTexture CloneTemp(this RenderTexture renderTexture)
-        {
-            return TTRt.G(renderTexture, true);
-        }
+        // public static RenderTexture CloneTemp(this RenderTexture renderTexture)
+        // {
+        //     return TTRt.G(renderTexture, true);
+        // }
 
         internal static void CopyFilWrap2D(this Texture2D tex, Texture2D copySource)
         {
@@ -140,27 +141,27 @@ namespace net.rs64.TexTransTool.Utils
 
         static Material s_TempMat;
 
-        public static void ApplyTextureST(Texture source, Vector2 s, Vector2 t, RenderTexture write)
-        {
-            using (new RTActiveSaver())
-            {
-                if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
-                s_TempMat.shader = s_stApplyShader;
+        // public static void ApplyTextureST(Texture source, Vector2 s, Vector2 t, RenderTexture write)
+        // {
+        //     using (new RTActiveSaver())
+        //     {
+        //         if (s_TempMat == null) { s_TempMat = new Material(s_stApplyShader); }
+        //         s_TempMat.shader = s_stApplyShader;
 
-                s_TempMat.SetTexture("_OffSetTex", source);
-                s_TempMat.SetTextureScale("_OffSetTex", s);
-                s_TempMat.SetTextureOffset("_OffSetTex", t);
+        //         s_TempMat.SetTexture("_OffSetTex", source);
+        //         s_TempMat.SetTextureScale("_OffSetTex", s);
+        //         s_TempMat.SetTextureOffset("_OffSetTex", t);
 
-                Graphics.Blit(null, write, s_TempMat);
-            }
-        }
-        public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
-        {
-            var tmp = rt.CloneTemp();
-            if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorithm.Average); }
-            ApplyTextureST(tmp, s, t, rt);
-            TTRt.R(tmp);
-        }
+        //         Graphics.Blit(null, write, s_TempMat);
+        //     }
+        // }
+        // public static void ApplyTextureST(this RenderTexture rt, Vector2 s, Vector2 t)
+        // {
+        //     var tmp = rt.CloneTemp();
+        //     if (tmp.useMipMap) { MipMapUtility.GenerateMips(tmp, DownScalingAlgorithm.Average); }
+        //     ApplyTextureST(tmp, s, t, rt);
+        //     TTRt.R(tmp);
+        // }
 
 
     }

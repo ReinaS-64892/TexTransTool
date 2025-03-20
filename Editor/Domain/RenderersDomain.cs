@@ -74,7 +74,7 @@ namespace net.rs64.TexTransTool
             foreach (var renderer in _renderers) { ReplaceMaterial(renderer, mapping, Previewing); }
 
             if (one2one) { foreach (var keyValuePair in mapping) { RegisterReplace(keyValuePair.Key, keyValuePair.Value); } }
-            this.transferAssets(mapping.Values);
+            this.TransferAssets(mapping.Values);
         }
 
         internal static void ReplaceMaterial(Renderer renderer, Dictionary<Material, Material> mapping, bool previewing = false)

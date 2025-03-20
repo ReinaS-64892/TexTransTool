@@ -104,6 +104,15 @@ namespace net.rs64.TexTransTool
                 default: { throw new InvalidOperationException(); }
             }
         }
+        public static ITTTexture WrappingOrUpload(this ITexTransToolForUnity engine, Texture texture)
+        {
+            switch (texture)
+            {
+                case Texture2D texture2D: { return engine.Wrapping(texture2D); }
+                case RenderTexture rt: { return engine.UploadTexture(rt); }
+                default: { throw new InvalidOperationException(); }
+            }
+        }
 
 
         internal static Texture2D DownloadToTexture2D<TTT4U>(this TTT4U engine, ITTRenderTexture renderTexture, bool useMipMap, TexTransCoreTextureFormat? overrideFormat = null, bool isLiner = false)

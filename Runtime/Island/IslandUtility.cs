@@ -21,5 +21,11 @@ namespace net.rs64.TexTransTool.UVIsland
             var uvVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(meshData.VertexUV.AsSpan());
             return IslandUtility.UVtoIsland(triangle, uvVertex);
         }
+
+        public static List<Island> UVtoIsland(Span<TriangleIndex> triangle, Span<Vector2> span)
+        {
+            var uvVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(span);
+            return IslandUtility.UVtoIsland(triangle, uvVertex);
+        }
     }
 }

@@ -2,6 +2,8 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using net.rs64.TexTransCore;
+
 
 
 
@@ -22,6 +24,10 @@ namespace net.rs64.TexTransTool
             TTTRuntimeLog.InfoCall += Info;
             TTTRuntimeLog.WarningCall += Warning;
             TTTRuntimeLog.ErrorCall += Error;
+            TTLog.LogCall += Info;
+            TTLog.WarningCall += Warning;
+            TTLog.ErrorCall += Error;
+            TTLog.ExceptionCall += Exception;
         }
 
 
