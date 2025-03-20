@@ -7,6 +7,7 @@ using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Decal;
 using System;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {

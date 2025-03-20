@@ -191,7 +191,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             // var normMeshes = atlasContext.Meshes.Select(m => atlasContext.NormalizeMeshes[m]).ToArray();
             var aspectScale = 1 / (atlasedTextureSize.y / (float)atlasedTextureSize.x);// 高さの比率を逆数にして 縦長だったら小さくなるような感じになる。
             var atlasSubSets = AtlasSubMeshIndexSetCtx.AtlasSubSets;
-            var writeDefaultUVChannel = (int)atlasSetting.AtlasTargetUVChannel - 1;
+            var writeDefaultUVChannel = (int)atlasSetting.AtlasTargetUVChannel;
             var compiledMeshes = new Mesh[atlasSubSets.Count];
 
             if (atlasSetting.WriteOriginalUV)

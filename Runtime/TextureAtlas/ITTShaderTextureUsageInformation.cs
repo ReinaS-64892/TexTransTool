@@ -24,9 +24,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         Vector4 GetVector(string propertyName);
         bool IsShaderKeywordEnabled(string keywordName);
 
-        void WriteTextureUVUsage(string propertyName, UVChannel uVChannel);
+        void WriteTextureUVUsage(string propertyName, UsageUVChannel uVChannel);
     }
-    public enum UVChannel
+    public enum UsageUVChannel
     {
         Unknown = 0,
 
@@ -79,15 +79,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var ttUVChannel = (int)uvChannels switch
             {
-                1 => UVChannel.UV0,
-                2 => UVChannel.UV1,
-                4 => UVChannel.UV2,
-                8 => UVChannel.UV3,
-                16 => UVChannel.UV4,
-                32 => UVChannel.UV5,
-                64 => UVChannel.UV6,
-                128 => UVChannel.UV7,
-                _ => UVChannel.Unknown,
+                1 => UsageUVChannel.UV0,
+                2 => UsageUVChannel.UV1,
+                4 => UsageUVChannel.UV2,
+                8 => UsageUVChannel.UV3,
+                16 => UsageUVChannel.UV4,
+                32 => UsageUVChannel.UV5,
+                64 => UsageUVChannel.UV6,
+                128 => UsageUVChannel.UV7,
+                _ => UsageUVChannel.Unknown,
             };
             _uvUsageWriter.WriteTextureUVUsage(textureMaterialPropertyName, ttUVChannel);
         }
@@ -105,7 +105,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     internal static class TTShaderTextureUsageInformationUtil
     {
         static ITTShaderTextureUsageInformation[]? s_information;
-        public static IReadOnlyDictionary<string, UVChannel> GetContainsUVUsage(Material material)
+        public static IReadOnlyDictionary<string, UsageUVChannel> GetContainsUVUsage(Material material)
         {
             if (s_information is null)
             {
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var shader = material.shader;
             var info = s_information.FirstOrDefault(i => i.IsSupportShader(shader));
 
-            if (info is null) { return new Dictionary<string, UVChannel>(); }
+            if (info is null) { return new Dictionary<string, UsageUVChannel>(); }
 
             var provider = new MaterialUVUsageProvider(material);
             info.GetMaterialTextureUVUsage(provider);
@@ -131,14 +131,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public void GetMaterialTextureUVUsage(ITTTextureUVUsageWriter writer)
         {
-            writer.WriteTextureUVUsage("_MainTex", UVChannel.UV0);
+            writer.WriteTextureUVUsage("_MainTex", UsageUVChannel.UV0);
         }
     }
     class MaterialUVUsageProvider : ITTTextureUVUsageWriter
     {
         Material _material;
-        Dictionary<string, UVChannel> _uvUsage = new();
-        public IReadOnlyDictionary<string, UVChannel> UVUSage => _uvUsage;
+        Dictionary<string, UsageUVChannel> _uvUsage = new();
+        public IReadOnlyDictionary<string, UsageUVChannel> UVUSage => _uvUsage;
         public MaterialUVUsageProvider(Material material)
         {
             _material = material;
@@ -168,7 +168,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return _material.IsKeywordEnabled(keywordName);
         }
 
-        public void WriteTextureUVUsage(string propertyName, UVChannel uVChannel)
+        public void WriteTextureUVUsage(string propertyName, UsageUVChannel uVChannel)
         {
             if (_material.HasTexture(propertyName) is false) { return; }
             _uvUsage[propertyName] = uVChannel;

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.Unsafe;
+using net.rs64.TexTransTool.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -65,7 +66,7 @@ namespace net.rs64.TexTransTool.Decal
             VertexUV = new NativeArray<Vector2>(vertexCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             mainMesh.GetVertices(_vertices);
-            mainMesh.GetUVs((int)atlasTargetUVChannel - 1, VertexUV);
+            mainMesh.GetUVs((int)atlasTargetUVChannel, VertexUV);
 
             SubMeshCount = mainMesh.subMeshCount;
             TriangleIndex = new NativeArray<TriangleIndex>[SubMeshCount];

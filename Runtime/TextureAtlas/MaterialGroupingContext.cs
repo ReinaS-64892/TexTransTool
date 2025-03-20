@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 using System;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -19,7 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 .Select(m => (m, TTShaderTextureUsageInformationUtil.GetContainsUVUsage(m)))
                 .Select(kv => (
                     kv.m,
-                    kv.Item2.Where(u => u.Value == atlasingTargetUVChannel)
+                    kv.Item2.Where(u => (((int)u.Value) - 1) == (int)atlasingTargetUVChannel)
                         .Select(u => (u.Key, kv.m.GetTexture(u.Key)))
                         .Where(u => u.Item2 != null)
                         .ToDictionary(
