@@ -1,19 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System;
-using net.rs64.TexTransCoreEngineForUnity;
-using net.rs64.TexTransTool.TextureAtlas.FineTuning;
-using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using UnityEngine.Serialization;
-using Unity.Collections;
-// using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
-using UnityEngine.Profiling;
-using Unity.Mathematics;
-using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransCore;
-// using static net.rs64.TexTransTool.TransTexture;
-using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
