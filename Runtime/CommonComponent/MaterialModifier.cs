@@ -3,8 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using JetBrains.Annotations;
-using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool
 {

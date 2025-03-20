@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Editor
 {
