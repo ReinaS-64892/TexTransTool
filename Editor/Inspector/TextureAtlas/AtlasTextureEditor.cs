@@ -49,7 +49,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUI.indentLevel -= 1;
 
 
-            DrawAtlasSettings(sAtlasSetting, sMatSelectors);
+            var sMergeMaterialGroups = thisSObject.FindProperty("MergeMaterialGroups");
+            var sAllMaterialMergeReference = thisSObject.FindProperty("AllMaterialMergeReference");
+            EditorGUILayout.LabelField("AtlasTexture:label:MaterialSettings".Glc(), EditorStyles.boldLabel);
+            EditorGUI.indentLevel += 1;
+            DrawMaterialMergeGroup(sMatSelectors, sMergeMaterialGroups);
+            EditorGUILayout.PropertyField(sMergeMaterialGroups, "AtlasTexture:prop:MergeMaterialGroups".GlcV());
+            EditorGUILayout.PropertyField(sAllMaterialMergeReference, "AtlasTexture:prop:AllMaterialMergeReference".GlcV());
+            EditorGUI.indentLevel -= 1;
+
+
+            DrawAtlasSettings(sAtlasSetting);
 
             PreviewButtonDrawUtil.Draw(thisTarget);
 
@@ -57,7 +67,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         }
 
-        private void DrawAtlasSettings(SerializedProperty sAtlasSettings, SerializedProperty sMatSelectors)
+        private void DrawAtlasSettings(SerializedProperty sAtlasSettings)
         {
             var thisTarget = target as AtlasTexture;
             EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
@@ -102,52 +112,42 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             // EditorGUI.BeginChangeCheck();
             // EditorGUILayout.PropertyField(sMergeMaterials, "AtlasTexture:prop:MaterialMerge".GlcV());
-            // if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
-            // if (sMergeMaterials.boolValue)
-            // {
-            //     EditorGUI.BeginChangeCheck();
-            //     EditorGUILayout.PropertyField(sPropertyBakeSetting, "AtlasTexture:prop:PropertyBakeSetting".GlcV());
-            //     if (EditorGUI.EndChangeCheck()) { RefreshMaterials(thisTarget, sLimitCandidateMaterials.objectReferenceValue as GameObject, sIncludeDisabledRenderer.boolValue); }
-            //     EditorGUILayout.PropertyField(sMergeReferenceMaterial, "AtlasTexture:prop:MergeReferenceMaterial".GlcV());
-            // }
-            // EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".GlcV());
+            EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".GlcV());
+            EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".GlcV());
+            EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".GlcV());
 
-            // EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".GlcV());
+            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
+            if (s_ExperimentalFutureOption)
+            {
+                EditorGUI.indentLevel += 1;
+                // EditorGUILayout.PropertyField(sHeightDenominator, "AtlasTexture:prop:HeightDenominator".GlcV());
+                EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".GlcV());
+                // EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".GlcV());
+                EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".GlcV());
+                if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".GlcV()); }
+                // if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
 
-            // EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".GlcV());
+                // EditorGUILayout.PropertyField(sTextureScaleOffsetReset, "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset".Glc());
+                // if (sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
+                // { EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc()); }
 
-            // s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
-            // if (s_ExperimentalFutureOption)
-            // {
-            //     EditorGUI.indentLevel += 1;
-            //     EditorGUILayout.PropertyField(sHeightDenominator, "AtlasTexture:prop:HeightDenominator".GlcV());
-            //     EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".GlcV());
-            //     EditorGUILayout.PropertyField(sAtlasIslandRelocator, "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator".GlcV());
-            //     EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".GlcV());
-            //     if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".GlcV()); }
-            //     if (sMergeMaterials.boolValue) { DrawMaterialMergeGroup(sMatSelectors, sMaterialMergeGroups); }
+                EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
 
-            //     EditorGUILayout.PropertyField(sTextureScaleOffsetReset, "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset".Glc());
-            //     if (sMergeMaterials.boolValue && (PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex != PropertyBakeSetting.NotBake)
-            //     { EditorGUILayout.PropertyField(sBakedPropertyWriteMaxValue, "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue".Glc()); }
+                // EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
+                EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".GlcV());
+                EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".GlcV());
 
-            //     EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
+                EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".GlcV());
+                // if (PreviewUtility.IsPreviewContains is false)
+                // {
+                //     if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".GlcV(), GUILayout.Height(18f)))
+                //     { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
+                // }
 
-            //     EditorGUILayout.PropertyField(sDownScalingAlgorithm, "AtlasTexture:prop:DownScalingAlgorithm".Glc());
-            //     if ((PropertyBakeSetting)sPropertyBakeSetting.enumValueIndex == PropertyBakeSetting.NotBake) { EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".GlcV()); }
-            //     EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".GlcV());
+                EditorGUI.indentLevel -= 1;
+            }
 
-            //     EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".GlcV());
-            //     if (PreviewUtility.IsPreviewContains is false)
-            //     {
-            //         if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".GlcV(), GUILayout.Height(18f)))
-            //         { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
-            //     }
-
-            //     EditorGUI.indentLevel -= 1;
-            // }
-
-            // EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());
+            EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());
 
 
             EditorGUI.indentLevel -= 1;
