@@ -144,7 +144,7 @@ namespace net.rs64.TexTransTool.Editor
 
             void ProcessReplaceTexture()
             {
-                if (_sourceTexture == null || _destinationTexture == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+                if (_sourceTexture == null || _destinationTexture == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
                 _recordingMaterial.ReplaceTextureInPlace(_sourceTexture, _destinationTexture);
                 ApplyOverridesToComponent();
@@ -155,7 +155,7 @@ namespace net.rs64.TexTransTool.Editor
 
             void ProcessMaterialDiff()
             {
-                if (_originalMaterial == null || _overrideMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+                if (_originalMaterial == null || _overrideMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
                 var overrideProperties = MaterialModifier.GetOverrideProperties(_originalMaterial, _overrideMaterial).ToList();
                 MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);
@@ -167,7 +167,7 @@ namespace net.rs64.TexTransTool.Editor
 
             void ProcessMaterialVariantDiff()
             {
-                if (_variantMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+                if (_variantMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
                 MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);

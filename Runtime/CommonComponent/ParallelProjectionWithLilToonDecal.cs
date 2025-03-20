@@ -70,7 +70,7 @@ namespace net.rs64.TexTransTool
 
             var writeTargetVertexAttribute = GetUnityTexCord();
             var isUVContained = targetMaterialContainedRenderers.Where(r => domain.GetMesh(r)?.HasVertexAttribute(writeTargetVertexAttribute) ?? false).ToArray();
-            if (isUVContained.Length is not 0) { TTTRuntimeLog.Info("ParallelProjectionWithLilToonDecal:info:UVHasContained", isUVContained); }
+            if (isUVContained.Length is not 0) { TTLog.Info("ParallelProjectionWithLilToonDecal:info:UVHasContained", isUVContained); }
 
             // UV Writing
             {

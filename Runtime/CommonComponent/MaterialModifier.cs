@@ -26,10 +26,10 @@ namespace net.rs64.TexTransTool
         {
             domain.LookAt(this);
 
-            if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Any() is false) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
             {
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool
         {
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialModifier:info:NullShader"); }
+                if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
                 else { editableMat.shader = overrideShader; }
             }
             foreach (var overrideProperty in overrideProperties)

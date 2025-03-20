@@ -58,12 +58,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             domain.LookAt(this);
 
-            if (SelectMatList.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotSet"); return; }
+            if (SelectMatList.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotSet"); return; }
 
             var nowRenderers = GetTargetAllowedFilter(domain.EnumerateRenderer());
             var targetMaterials = GetTargetMaterials(domain, nowRenderers).ToHashSet();
 
-            if (targetMaterials.Any() is false) { TTTRuntimeLog.Info("AtlasTexture:info:TargetNotFound"); return; }
+            if (targetMaterials.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotFound"); return; }
 
             foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
             if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
@@ -127,7 +127,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasTargeSize.y, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
             Debug.Assert(Mathf.IsPowerOfTwo(atlasTextureHeightSize));
 
-            TTLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, relocationTime);
+            TexTransCore.TTLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, relocationTime);
             var atlasedTextureSize = new Vector2Int(atlasTargeSize.x, atlasTextureHeightSize);
 
             //新しいUVを持つMeshを生成するフェーズ

@@ -31,10 +31,10 @@ namespace net.rs64.TexTransTool
             if (OverrideTextureSetting is false && OverrideCompression is false) { return; }
 
             var target = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (target == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
+            if (target == null) { TTLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
             var targetTex2Ds = domain.GetDomainsTextures(target).OfType<Texture2D>().ToArray();
-            if (targetTex2Ds.Any() is false) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
+            if (targetTex2Ds.Any() is false) { TTLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             var engine = domain.GetTexTransCoreEngineForUnity();
             var textureManager = domain.GetTextureManager();

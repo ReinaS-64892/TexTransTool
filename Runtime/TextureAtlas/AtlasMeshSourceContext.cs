@@ -194,7 +194,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var mesh in Origin2NormalizedMesh.Values) { UnityEngine.Object.DestroyImmediate(mesh); }
             Origin2NormalizedMesh.Clear();
 
-            foreach (var md in Normalized2MeshData.Values) { try { md.Dispose(); } catch (Exception e) { TTLog.Exception(e); } }
+            foreach (var md in Normalized2MeshData.Values) { try { md.Dispose(); } catch (Exception e) { TexTransCore.TTLog.Exception(e); } }
             Normalized2MeshData.Clear();
 
             foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }

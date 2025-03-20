@@ -16,14 +16,14 @@ namespace net.rs64.TexTransTool.EditorProcessor
             var materialOverrideTransfer = texTransCallEditorBehavior as MaterialOverrideTransfer;
 
             var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
-            if (materialOverrideTransfer.TargetMaterial == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotSet"); }
-            if (materialOverrideTransfer.MaterialVariantSource == null) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:VariantNotSet"); }
+            if (materialOverrideTransfer.TargetMaterial == null) { TTLog.Info("MaterialOverrideTransfer:info:TargetNotSet"); }
+            if (materialOverrideTransfer.MaterialVariantSource == null) { TTLog.Info("MaterialOverrideTransfer:info:VariantNotSet"); }
             if (isValid is false) { return; }
 
             var materialVariantSource = materialOverrideTransfer.MaterialVariantSource;
             var mats = GetTargetMaterials(domain, materialOverrideTransfer.TargetMaterial);
 
-            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialOverrideTransfer:info:TargetNotFound"); return; }
+            if (mats.Any() is false) { TTLog.Info("MaterialOverrideTransfer:info:TargetNotFound"); return; }
 
             var overridePropertyDict = GetOverrides(materialVariantSource);
 
