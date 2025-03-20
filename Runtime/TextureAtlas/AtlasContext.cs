@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using System.Collections;
-using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
-using UnityEngine.Profiling;
-using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransCore.UVIsland;
-using net.rs64.TexTransTool.UVIsland;
 using Vector2Sys = System.Numerics.Vector2;
 using net.rs64.TexTransCore;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCore.AtlasTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -273,7 +269,100 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             return compiledMeshes;
         }
+        public Dictionary<string, ITTRenderTexture> GenerateAtlasedTextures<TTT4U>(
+            TTT4U engine
+            , AtlasSetting atlasSetting
+            , Vector2Int atlasedTextureSize
+            , bool IsRectangleMove
+            , Dictionary<IslandTransform, IslandTransform> source2MovedVirtualIsland
+        ) where TTT4U : ITexTransToolForUnity
+        {
+            //アトラス化したテクスチャーを生成するフェーズ
+            var compiledAtlasTextures = new Dictionary<string, ITTRenderTexture>();
 
+            var groupedTextures = GetGroupedDiskOrRenderTextures(engine);
+            var containsProperty = MaterialGroupingCtx.GetContainsAllProperties();
+
+            var loadedDiskTextures = new Dictionary<ITTDiskTexture, ITTRenderTexture>();
+            try
+            {
+                foreach (var propName in containsProperty)
+                {
+                    var targetRT = engine.CreateRenderTexture(atlasedTextureSize.x, atlasedTextureSize.y);
+                    engine.ColorFill(targetRT, atlasSetting.BackGroundColor.ToTTCore());
+
+                    targetRT.Name = "AtlasTex" + propName;
+                    // Profiler.BeginSample("Draw:" + targetRT.name);
+                    foreach (var group in groupedTextures.GroupedTextures)
+                    {
+                        if (!group.Value.TryGetValue(propName, out var sourceTexture)) { continue; }
+                        var sourceRenderTexture = sourceTexture switch
+                        {
+                            ITTRenderTexture rt => rt,
+                            ITTDiskTexture dt => loadedDiskTextures.ContainsKey(dt) ? loadedDiskTextures[dt] : LoadFullScale(dt),
+                            _ => throw new InvalidCastException(),
+                        };
+                        ITTRenderTexture LoadFullScale(ITTDiskTexture diskTexture)
+                        {
+                            var loaded = engine.LoadTextureWidthFullScale(diskTexture);
+                            loadedDiskTextures[diskTexture] = loaded;
+                            return loaded;
+                        }
+
+                        var findMaterialID = group.Key;
+                        if (IsRectangleMove)
+                        {
+                            var findSubIDHash = AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash
+                                                    .Where(i => i.MaterialGroupID == findMaterialID).ToHashSet();
+
+                            var drawTargetSourceVirtualIslandsHash = new HashSet<IslandTransform>();
+                            foreach (var subID in findSubIDHash)
+                            {
+                                drawTargetSourceVirtualIslandsHash.UnionWith(
+                                    AtlasIslandCtx.OriginIslandDict[subID]
+                                        .Select(i => AtlasIslandCtx.Origin2VirtualIsland[i])
+                                    );
+                            }
+                            var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
+                            var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
+
+
+                            AtlasingUtility.TransMoveRectangle(engine
+                                , targetRT
+                                , sourceRenderTexture
+                                , drawTargetSourceVirtualIslands
+                                , drawTargetMovedVirtualIslands
+                                , atlasSetting.IslandPadding
+                            );
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                            // for (var subSetIndex = 0; atlasContext.AtlasSubSets.Count > subSetIndex; subSetIndex += 1)
+                            // {
+                            //     var transTargets = atlasContext.AtlasSubSets[subSetIndex].Where(i => i.HasValue).Where(i => i.Value.MaterialGroupID == findMaterialID).Select(i => i.Value);
+                            //     if (!transTargets.Any()) { continue; }
+
+                            //     var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
+                            //     var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
+
+                            //     var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
+                            //     ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
+
+                            //     triangles.Dispose();
+                            // }preMesh
+                        }
+
+                    }
+                    compiledAtlasTextures.Add(propName, targetRT);
+                }
+            }
+            finally
+            {
+                foreach (var dt in loadedDiskTextures.Values) { dt.Dispose(); }
+            }
+            return compiledAtlasTextures;
+        }
         internal GroupedDiskOrRenderTextures GetGroupedDiskOrRenderTextures(ITexTransToolForUnity texTransToolForUnity)
         {
             var groupedTextures = new Dictionary<int, Dictionary<string, ITTTexture>>();

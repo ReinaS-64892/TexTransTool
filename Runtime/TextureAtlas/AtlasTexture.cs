@@ -10,9 +10,6 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.UVIsland;
-using System.Runtime.InteropServices;
-using System.Buffers.Binary;
-using net.rs64.TexTransCore.AtlasTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -136,106 +133,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasedMeshes = atlasContext.GenerateAtlasedMesh(atlasSetting, source2MovedVirtualIsland, atlasedTextureSize);
 
 
-            //アトラス化したテクスチャーを生成するフェーズ
-            var compiledAtlasTextures = new Dictionary<string, ITTRenderTexture>();
-
-            // Profiler.BeginSample("GetGroupedTextures");
             var engine = domain.GetTexTransCoreEngineForUnity();
-            using var groupedTextures = atlasContext.GetGroupedDiskOrRenderTextures(engine);
-            var containsProperty = atlasContext.MaterialGroupingCtx.GetContainsAllProperties();
-
-            // Profiler.EndSample();
-            var loadedDiskTextures = new Dictionary<ITTDiskTexture, ITTRenderTexture>();
-
-            // Profiler.BeginSample("Texture synthesis");
-            foreach (var propName in containsProperty)
-            {
-                var targetRT = engine.CreateRenderTexture(atlasedTextureSize.x, atlasedTextureSize.y);
-                engine.ColorFill(targetRT, atlasSetting.BackGroundColor.ToTTCore());
-                // TextureUtility.FillColor(targetRT, atlasSetting.BackGroundColor);
-                targetRT.Name = "AtlasTex" + propName;
-                // Profiler.BeginSample("Draw:" + targetRT.name);
-                foreach (var group in groupedTextures.GroupedTextures)
-                {
-                    if (!group.Value.TryGetValue(propName, out var sourceTexture)) { continue; }
-                    var sourceRenderTexture = sourceTexture switch
-                    {
-                        ITTRenderTexture rt => rt,
-                        ITTDiskTexture dt => loadedDiskTextures.ContainsKey(dt) ? loadedDiskTextures[dt] : LoadFullScale(dt),
-                        _ => throw new InvalidCastException(),
-                    };
-                    ITTRenderTexture LoadFullScale(ITTDiskTexture diskTexture)
-                    {
-                        var loaded = engine.LoadTextureWidthFullScale(diskTexture);
-                        loadedDiskTextures[diskTexture] = loaded;
-                        return loaded;
-                    }
-
-                    var findMaterialID = group.Key;
-                    if (relocateResult.IslandRelocationResult.IsRectangleMove)
-                    {
-                        var findSubIDHash = atlasContext.AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash
-                                                .Where(i => i.MaterialGroupID == findMaterialID).ToHashSet();
-
-                        var drawTargetSourceVirtualIslandsHash = new HashSet<IslandTransform>();
-                        foreach (var subID in findSubIDHash)
-                        {
-                            drawTargetSourceVirtualIslandsHash.UnionWith(
-                                atlasContext.AtlasIslandCtx.OriginIslandDict[subID]
-                                    .Select(i => atlasContext.AtlasIslandCtx.Origin2VirtualIsland[i])
-                                );
-                        }
-                        var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
-                        var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
-
-
-                        AtlasingUtility.TransMoveRectangle(engine
-                            , targetRT
-                            , sourceRenderTexture
-                            , drawTargetSourceVirtualIslands
-                            , drawTargetMovedVirtualIslands
-                            , atlasSetting.IslandPadding
-                        );
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                        // for (var subSetIndex = 0; atlasContext.AtlasSubSets.Count > subSetIndex; subSetIndex += 1)
-                        // {
-                        //     var transTargets = atlasContext.AtlasSubSets[subSetIndex].Where(i => i.HasValue).Where(i => i.Value.MaterialGroupID == findMaterialID).Select(i => i.Value);
-                        //     if (!transTargets.Any()) { continue; }
-
-                        //     var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
-                        //     var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
-
-                        //     var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
-                        //     ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
-
-                        //     triangles.Dispose();
-                        // }preMesh
-                    }
-
-                }
-                // Profiler.EndSample();
-
-                // if (atlasSetting.AtlasTextureSize != atlasTextureHeightSize)
-                // {
-                //     var heightClampRt = TTRt.G(atlasSetting.AtlasTextureSize, atlasTextureHeightSize);
-                //     heightClampRt.name = $"{targetRT.name}-heightClamp-TempRt-{heightClampRt.width}x{heightClampRt.height}";
-                //     Graphics.CopyTexture(targetRT, 0, 0, 0, 0, heightClampRt.width, heightClampRt.height, heightClampRt, 0, 0, 0, 0);
-                //     TTRt.R(targetRT);
-                //     targetRT = heightClampRt;
-                // }
-
-                // var containsNormalMap = atlasContext.MaterialGroupToAtlasShaderTexDict.SelectMany(i => i.Value).Where(i => i.Key == propName).Any(i => i.Value.IsNormalMap);
-                // MipMapUtility.GenerateMips(targetRT, atlasSetting.DownScalingAlgorithm, containsNormalMap);
-
-                // Profiler.BeginSample("Readback");
-                compiledAtlasTextures.Add(propName, targetRT);
-                // Profiler.EndSample();
-
-                // TTRt.R(targetRT);
-            }
+            var compiledAtlasTextures = atlasContext.GenerateAtlasedTextures(
+                engine
+                , atlasSetting
+                , atlasedTextureSize
+                , relocateResult.IslandRelocationResult.IsRectangleMove
+                , source2MovedVirtualIsland
+            );
 
             // Profiler.EndSample();
 
