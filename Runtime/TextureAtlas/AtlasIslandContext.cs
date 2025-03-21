@@ -60,8 +60,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             // Profiler.BeginSample("Cross SubMesh Island Merge");
             //Cross SubMesh Island Merge
             SomeVertexCrossSubMeshUsedIslandMerge(atlasSubMeshIndexIDHash, getMeshDataFromMeshID, OriginIslandDict, Origin2VirtualIsland);
-            // うまく動いてないから一旦退避
-            // OverCrossIslandMerge(atlasSubMeshIndexIDHash, OriginIslandDict, Origin2VirtualIsland);
+            OverCrossIslandMerge(atlasSubMeshIndexIDHash, OriginIslandDict, Origin2VirtualIsland);
 
             // Profiler.EndSample();
 
@@ -98,7 +97,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         static void SomeVertexCrossSubMeshUsedIslandMerge(
             HashSet<AtlasSubMeshIndexID> atlasSubMeshIndexIDHash
-            , Func<int,MeshData> getMeshDataFromMeshID
+            , Func<int, MeshData> getMeshDataFromMeshID
             , Dictionary<AtlasSubMeshIndexID, List<Island>> originIslandDict
             , Dictionary<Island, IslandTransform> origin2VirtualIsland
             )
@@ -253,7 +252,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                         var increaseArea = mergedArea - (area1 + area2 - intersectedArea);
                         if (intersectedArea <= increaseArea) { continue; }
-                        origin2VirtualIsland[island1] = origin2VirtualIsland[island2] = merged;
+
+                        foreach (var r in origin2VirtualIsland.Where(i => i.Value == vIsland1 || i.Value == vIsland2).ToArray())
+                        {
+                            origin2VirtualIsland[r.Key] = merged;
+                        }
                     }
                 }
                 return false;
