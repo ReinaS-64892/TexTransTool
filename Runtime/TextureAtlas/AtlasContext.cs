@@ -57,19 +57,29 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Dictionary<IslandTransform, List<Island>> ReverseSourceVirtualIsland2OriginIslands;
         public Dictionary<IslandTransform, IslandReferences> SourceVirtualIsland2OriginRefaces;
         public Dictionary<IslandTransform, Texture?> SourceVirtualIslands2PrimaryTexture;
+        public class AtlasContextOption
+        {
+            public string? PrimaryTexturePropertyOrMaximum = "_MainTex";
+            public UVChannel AtlasTargetUVChannel = UVChannel.UV0;
 
+            public AtlasIslandContextOption AtlasIslandContextOption = new();
+        }
+        public class AtlasIslandContextOption
+        {
+            public bool CrossSubMeshUsedIslandMerge = true;
+            public bool OverCrossIslandMerge = true;
+        }
         public AtlasContext(
             IRendererTargeting targeting
             , Renderer[] targetRenderers
             , HashSet<Material> targetMaterials
-            , string? PrimaryTexturePropertyOrMaximum
-            , UVChannel atlasTargetUVChannel
+            , AtlasContextOption atlasContextOption
             )
         {
-            MaterialGroupingCtx = new(targetMaterials, atlasTargetUVChannel, PrimaryTexturePropertyOrMaximum);
-            NormalizedMeshCtx = new(targeting, targetRenderers, atlasTargetUVChannel);
+            MaterialGroupingCtx = new(targetMaterials, atlasContextOption.AtlasTargetUVChannel, atlasContextOption.PrimaryTexturePropertyOrMaximum);
+            NormalizedMeshCtx = new(targeting, targetRenderers, atlasContextOption.AtlasTargetUVChannel);
             AtlasSubMeshIndexSetCtx = new(targeting, targetRenderers, targetMaterials, NormalizedMeshCtx, MaterialGroupingCtx);
-            AtlasIslandCtx = new(AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash, NormalizedMeshCtx.GetMeshDataFromMeshID);
+            AtlasIslandCtx = new(AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash, NormalizedMeshCtx.GetMeshDataFromMeshID, atlasContextOption.AtlasIslandContextOption);
 
 
             SourceVirtualIslands = AtlasIslandCtx.Origin2VirtualIsland.Values.Distinct().ToArray();
@@ -280,7 +290,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //アトラス化したテクスチャーを生成するフェーズ
             var compiledAtlasTextures = new Dictionary<string, ITTRenderTexture>();
 
-            var groupedTextures = GetGroupedDiskOrRenderTextures(engine);
+            using var groupedTextures = GetGroupedDiskOrRenderTextures(engine);
             var containsProperty = MaterialGroupingCtx.GetContainsAllProperties();
 
             var loadedDiskTextures = new Dictionary<ITTDiskTexture, ITTRenderTexture>();

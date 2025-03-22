@@ -96,8 +96,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 targeting
                 , targetRenderers
                 , targetMaterials
-                , atlasSetting.UsePrimaryMaximumTexture ? null : atlasSetting.PrimaryTextureProperty
-                , atlasSetting.AtlasTargetUVChannel
+                , new()
+                {
+                    AtlasTargetUVChannel = atlasSetting.AtlasTargetUVChannel,
+                    PrimaryTexturePropertyOrMaximum = atlasSetting.UsePrimaryMaximumTexture ? null : atlasSetting.PrimaryTextureProperty,
+                    AtlasIslandContextOption = new(),
+                }
                 );
 
 

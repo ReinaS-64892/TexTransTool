@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         */
 
 
-        public AtlasIslandContext(HashSet<AtlasSubMeshIndexID> atlasSubMeshIndexIDHash, Func<int, MeshData> getMeshDataFromMeshID)
+        public AtlasIslandContext(HashSet<AtlasSubMeshIndexID> atlasSubMeshIndexIDHash, Func<int, MeshData> getMeshDataFromMeshID, AtlasContext.AtlasIslandContextOption atlasIslandContextOption)
         {
             // Profiler.BeginSample("UVtoIsland");
             OriginIslandDict = new();
@@ -59,8 +59,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var i in OriginIslandDict.SelectMany(kv => kv.Value)) { Origin2VirtualIsland[i] = i.Transform.Clone(); }
             // Profiler.BeginSample("Cross SubMesh Island Merge");
             //Cross SubMesh Island Merge
-            SomeVertexCrossSubMeshUsedIslandMerge(atlasSubMeshIndexIDHash, getMeshDataFromMeshID, OriginIslandDict, Origin2VirtualIsland);
-            OverCrossIslandMerge(atlasSubMeshIndexIDHash, OriginIslandDict, Origin2VirtualIsland);
+            if (atlasIslandContextOption.CrossSubMeshUsedIslandMerge) SomeVertexCrossSubMeshUsedIslandMerge(atlasSubMeshIndexIDHash, getMeshDataFromMeshID, OriginIslandDict, Origin2VirtualIsland);
+            if (atlasIslandContextOption.OverCrossIslandMerge) OverCrossIslandMerge(atlasSubMeshIndexIDHash, OriginIslandDict, Origin2VirtualIsland);
 
             // Profiler.EndSample();
 
