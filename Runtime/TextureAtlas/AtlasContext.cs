@@ -172,7 +172,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var refTex = SourceVirtualIslands2PrimaryTexture[SourceVirtualIslands[i]];
                 if (refTex != null)
                 {
-                    var scaling = atlasTargeSize.x / (float)refTex.width;
+                    var scaling = (float)refTex.width / atlasTargeSize.x;
                     virtualIslandArray[i].Size *= scaling;
 
                     if (refTex.width != refTex.height)
