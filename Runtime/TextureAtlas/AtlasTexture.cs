@@ -108,9 +108,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //アイランドまわり
             if (atlasSetting.PixelNormalize)
-            {
                 atlasContext.SourceVirtualIslandNormalize();
-            }
 
 
             var (movedVirtualIslandArray, relocateResult) = IslandProcessing(domain, atlasSetting, atlasContext, sizePriorityDict, out var relocationTime);
@@ -128,7 +126,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasTargeSize.y, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
             Debug.Assert(Mathf.IsPowerOfTwo(atlasTextureHeightSize));
 
-            TexTransCore.TTLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, relocationTime);
+            TTLog.Info("AtlasTexture:info:RelocateResult", 1 - height, relocateResult.PriorityDownScale, relocateResult.OverallDownScale, relocateResult.TotalRelocateCount, relocationTime);
             var atlasedTextureSize = new Vector2Int(atlasTargeSize.x, atlasTextureHeightSize);
 
             //新しいUVを持つMeshを生成するフェーズ
@@ -147,7 +145,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             );
 
             // Profiler.EndSample();
-
             //     if (atlasSetting.AutoReferenceCopySetting && propertyBakeSetting == PropertyBakeSetting.NotBake)
             //     {
             //         Profiler.BeginSample("AutoReferenceCopySetting");
@@ -240,26 +237,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //         Profiler.EndSample();
             //     }
 
-            //     Profiler.BeginSample("ReleaseGroupeTextures");
-            //     foreach (var kv in groupedTextures.Values) { foreach (var tex in kv) { TTRt.R(tex.Value); } }
-            //     groupedTextures = null;
-            //     Profiler.EndSample();
-
-            //     Profiler.BeginSample("TextureMaxSize");
-            //     var texMaxDict = new Dictionary<string, int>();
-            //     foreach (var atlasTexKV in atlasContext.MaterialToAtlasShaderTexDict.SelectMany(x => x.Value))
-            //     {
-            //         if (compiledAtlasTextures.ContainsKey(atlasTexKV.Key) is false) { continue; }
-            //         if (texMaxDict.ContainsKey(atlasTexKV.Key) is false) { texMaxDict[atlasTexKV.Key] = 2; }
-            //         if (atlasTexKV.Value.Texture == null) { continue; }
-            //         texMaxDict[atlasTexKV.Key] = math.max(texMaxDict[atlasTexKV.Key], atlasTexKV.Value.Texture.width);
-            //     }
-            //     atlasData.SourceTextureMaxSize = texMaxDict;
-            //     Profiler.EndSample();
-
-            //     Profiler.BeginSample("Async Readback");
-            //     atlasData.Textures = compiledAtlasTextures.ToDictionary(kv => kv.Key, kv => kv.Value.GetTexture2D());
-            //     Profiler.EndSample();
 
             //     atlasData.MaterialID = atlasContext.MaterialGroup.Select(i => i.ToHashSet()).ToArray();
             //     atlasContext.Dispose();
@@ -269,10 +246,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //     return true;
 
-
-            // Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
-            // var shaderSupport = new AtlasShaderSupportUtils();
-            // Profiler.EndSample();
 
             //Mesh Change
             foreach (var renderer in targetRenderers)
@@ -291,12 +264,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     if (matID is -1) { subSet[i] = null; }
                     else { subSet[i] = new AtlasSubMeshIndexID(meshID, i, matID); }
                 }
-                // var atlasMeshHolder = atlasData.Meshes.FindAll(I => I.DistMesh == mesh).Find(I => I.MatIDs.SequenceEqual(matIDs));
-                // if (atlasMeshHolder.AtlasMesh == null) { continue; }
+
 
 
                 var identicalSubSetID = GetIdenticalSubSet(atlasContext.AtlasSubMeshIndexSetCtx.AtlasSubSets, subSet);
-
                 int GetIdenticalSubSet(List<AtlasSubMeshIndexID?[]> atlasSubSetAll, AtlasSubMeshIndexID?[] findSource)
                 {
                     return atlasSubSetAll.FindIndex(subSet =>
@@ -345,6 +316,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             // var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
             // domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
             var tex = compiledAtlasTextures.ToDictionary(i => i.Key, i => engine.DownloadToTexture2D(i.Value, true));
+            foreach (var kv in compiledAtlasTextures) { tex[kv.Key].name = kv.Value.Name + "_Downloaded"; }
             foreach (var rt in compiledAtlasTextures.Values) { rt.Dispose(); }
             foreach (var t in tex.Values) { t.Apply(true); }
 
@@ -355,37 +327,66 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
                 atlasMatOption.UnsetTextures = atlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
-            // if (AtlasSetting.MergeMaterials)
-            // {
-            //     if (AtlasSetting.PropertyBakeSetting != PropertyBakeSetting.NotBake) { atlasMatOption.BakedPropertyReset = AtlasSetting.BakedPropertyWriteMaxValue; }
-            //     var mergeMat = AtlasSetting.MergeReferenceMaterial != null ? AtlasSetting.MergeReferenceMaterial : atlasData.AtlasInMaterials.First();
-            //     Material generateMat = GenerateAtlasMat(mergeMat, atlasTexture, shaderSupport, atlasData.BakePropMaxValue, atlasMatOption);
-            //     var matGroupGenerate = AtlasSetting.MaterialMergeGroups.Where(m => m.GroupMaterials.Any()).ToDictionary(m => m, m => GenerateAtlasMat(m.MergeReferenceMaterial != null ? m.MergeReferenceMaterial : m.GroupMaterials.First(), atlasTexture, shaderSupport, atlasData.BakePropMaxValue, atlasMatOption));
 
-            //     domain.ReplaceMaterials(atlasData.AtlasInMaterials.ToDictionary(x => x, m => FindGroup(m)), false);
 
-            //     Material FindGroup(Material material)
-            //     {
-            //         foreach (var matGroup in AtlasSetting.MaterialMergeGroups)
-            //         {
-            //             var index = matGroup.GroupMaterials.FindIndex(m => domain.OriginEqual(m, material));
-            //             if (index != -1) { return matGroupGenerate[matGroup]; }
-            //         }
-            //         return generateMat;
-            //     }
-            // }
-            // else
+            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, MergeMaterialGroups, AllMaterialMergeReference);
+            var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tex, atlasMatOption, mergeReferenceMaterial);
+            domain.ReplaceMaterials(materialMap, false);
+            foreach (var matMap in domainsMaterial2ReplaceMaterial)
+                domain.RegisterReplace(matMap.Key, matMap.Value);
+
+        }
+
+        private static (Dictionary<Material, Material> materialMap, Dictionary<Material, Material> domainsMaterial2ReplaceMaterial) GenerateAtlasedMaterials(HashSet<Material> targetMaterials, Dictionary<string, Texture2D> tex, AtlasMatGenerateOption atlasMatOption, NowMaterialGroup[] mergeReferenceMaterial)
+        {
+            var materialMap = new Dictionary<Material, Material>();
+            var domainsMaterial2ReplaceMaterial = new Dictionary<Material, Material>();
+            var mergeRef2MergedMaterial = new Dictionary<Material, Material>();
+            foreach (var distMat in targetMaterials)
             {
-                var materialMap = new Dictionary<Material, Material>();
-                foreach (var distMat in targetMaterials)
+                var referenceMaterial = mergeReferenceMaterial.FirstOrDefault(g => g.GroupMaterial.Contains(distMat))?.MergeReference;
+                if (referenceMaterial == null)
                 {
-                    var generateMat = GenerateAtlasMat(distMat, tex, atlasMatOption);
-                    materialMap.Add(distMat, generateMat);
+                    domainsMaterial2ReplaceMaterial[distMat] = GenerateAtlasMat(distMat, tex, atlasMatOption);
+                    materialMap.Add(distMat, domainsMaterial2ReplaceMaterial[distMat]);
                 }
-                domain.ReplaceMaterials(materialMap);
+                else
+                {
+                    if (mergeRef2MergedMaterial.ContainsKey(referenceMaterial) is false)
+                        mergeRef2MergedMaterial[referenceMaterial] = GenerateAtlasMat(referenceMaterial, tex, atlasMatOption);
+                    materialMap.Add(distMat, mergeRef2MergedMaterial[referenceMaterial]);
+                }
             }
+            return (materialMap, domainsMaterial2ReplaceMaterial);
+        }
 
-            // foreach (var atlasMeshHolder in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(atlasMeshHolder.NormalizedMesh); }
+        private NowMaterialGroup[] GenerateMergeReference(OriginEqual originEqual, HashSet<Material> targetMaterials, List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference)
+        {
+            var matGroupList = new List<NowMaterialGroup>();
+            foreach (var mmg in mergeMaterialGroups)
+            {
+                var domainMaterialGroup = originEqual.GetDomainsMaterialsHashSet(targetMaterials, mmg.Group);
+                var domainMaterialMergeRef = mmg.Reference != null ? originEqual.GetDomainsMaterial(targetMaterials, mmg.Reference) ?? mmg.Reference : null;
+
+                matGroupList.Add(new()
+                {
+                    GroupMaterial = domainMaterialGroup,
+                    MergeReference = domainMaterialMergeRef,
+                });
+            }
+            var domainAllMaterialMergeRef = allMaterialMergeReference != null ? originEqual.GetDomainsMaterial(targetMaterials, allMaterialMergeReference) ?? allMaterialMergeReference : null;
+
+            matGroupList.Add(new()
+            {
+                GroupMaterial = targetMaterials,
+                MergeReference = domainAllMaterialMergeRef,
+            });
+            return matGroupList.ToArray();
+        }
+        record NowMaterialGroup
+        {
+            public HashSet<Material> GroupMaterial;
+            public Material? MergeReference;
         }
 
         private static int GetNormalizedMinHeightSize(int atlasTextureSize, float height)

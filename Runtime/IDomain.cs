@@ -199,7 +199,15 @@ namespace net.rs64.TexTransTool
             return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginEqual(m, material)).ToHashSet();
         }
 
-
+        public static Material? GetDomainsMaterial(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, Material material)
+        {
+            return domainsMaterial.FirstOrDefault(m => originEqual(m, material));
+        }
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, IEnumerable<Material> material)
+        {
+            if (material.Any() is false) { return new(); }
+            return domainsMaterial.Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
+        }
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
