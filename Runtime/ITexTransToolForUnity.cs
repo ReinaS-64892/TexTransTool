@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool
     {
         public const string BL_KEY_DEFAULT = "Normal";
         public const string BL_KEY_NOT_BLEND = "NotBlend";
+        public const string DS_ALGORITHM_DEFAULT = "AverageSampling";
 
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う

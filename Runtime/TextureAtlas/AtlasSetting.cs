@@ -20,27 +20,36 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public UVChannel AtlasTargetUVChannel = UVChannel.UV0;
 
+
         public bool UsePrimaryMaximumTexture;
         public PropertyName PrimaryTextureProperty = PropertyName.DefaultValue;
 
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool ForceSizePriority = false;
+        public Color BackGroundColor = Color.white;
         [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners = new();
+
 
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture = false;
         public bool PixelNormalize = true;
 
-        public IIslandRelocatorProvider AtlasIslandRelocator = null;
+
+        [SerializeReference, SubclassSelector] public IIslandRelocatorProvider AtlasIslandRelocator = null;
         public bool WriteOriginalUV = false;
         [Range(0, 7)] public int OriginalUVWriteTargetChannel = 1;
-        public Color BackGroundColor = Color.white;
-        // [FormerlySerializedAs("DownScalingAlgorism")] public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
+
+
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
+
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
+
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
+
+        public List<TextureSelector> UnsetTextures = new();
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
     }
     public interface IIslandRelocatorProvider
@@ -64,6 +73,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public bool OverrideResize = false;
         [PowerOfTwo] public int TextureSize = 512;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
         public bool OverrideCompression = false;
         public TextureCompressionData CompressionData = new();

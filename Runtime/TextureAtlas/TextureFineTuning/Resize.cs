@@ -9,12 +9,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public class Resize : ITextureFineTuning
     {
         [PowerOfTwo] public int Size = 512;
-        [Obsolete("V4SaveData",true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
+        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.NotEqual;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
         public Resize() { }
-        [Obsolete("V4SaveData",true)]
+        [Obsolete("V4SaveData", true)]
         public Resize(int size, PropertyName propertyNames, PropertySelect select)
         {
             Size = size;
