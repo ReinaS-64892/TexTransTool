@@ -42,10 +42,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
         public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
-        public bool TextureScaleOffsetReset = false;
-        public bool BakedPropertyWriteMaxValue = false;
-        public List<TextureSelector> UnsetTextures = new();
-
     }
     public interface IIslandRelocatorProvider
     {

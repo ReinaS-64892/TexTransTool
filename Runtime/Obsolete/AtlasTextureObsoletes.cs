@@ -20,12 +20,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool TextureScaleOffsetReset = false;
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool BakedPropertyWriteMaxValue = false;
         [Obsolete("V6SaveData", true)][SerializeField][PowerOfTwo] internal int HeightDenominator = 1;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool MergeMaterials = false;
         [Obsolete("V6SaveData", true)][SerializeField] internal Material MergeReferenceMaterial = null;
         [Obsolete("V6SaveData", true)][SerializeField][FormerlySerializedAs("MaterialMargeGroups")] internal List<MaterialMergeGroup> MaterialMergeGroups = new();
 
-        [Serializable][Obsolete("V6SaveData", true)]
+        [Serializable]
+        [Obsolete("V6SaveData", true)]
         public class MaterialMergeGroup
         {
             [FormerlySerializedAs("MargeReferenceMaterial")] public Material MergeReferenceMaterial;
