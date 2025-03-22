@@ -248,6 +248,62 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             //Mesh Change
+            ReplaceMesh(domain, targetRenderers, atlasContext, atlasedMeshes);
+            domain.TransferAssets(atlasedMeshes);
+
+            // //Texture Fine Tuning
+            // var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuning(atlasData.Textures);
+            // SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasData.SourceTextureMaxSize);
+            // DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasData.MargeTextureDict);
+            // DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasData.ReferenceCopyDict);
+            // foreach (var fineTuning in AtlasSetting.TextureFineTuning)
+            // {
+            //     fineTuning?.AddSetting(atlasTexFineTuningTargets);
+            // }
+            // var individualApplied = new HashSet<string>();
+            // foreach (var individualTuning in AtlasSetting.TextureIndividualFineTuning)
+            // {
+            //     if (atlasTexFineTuningTargets.ContainsKey(individualTuning.TuningTarget) is false) { continue; }
+            //     if (individualApplied.Contains(individualTuning.TuningTarget)) { continue; }
+            //     individualApplied.Add(individualTuning.TuningTarget);
+
+            //     var tuningTarget = atlasTexFineTuningTargets[individualTuning.TuningTarget];
+
+            //     if (individualTuning.OverrideReferenceCopy) { tuningTarget.Get<ReferenceCopyData>().CopySource = individualTuning.CopyReferenceSource; }
+            //     if (individualTuning.OverrideResize) { tuningTarget.Get<SizeData>().TextureSize = individualTuning.TextureSize; }
+            //     if (individualTuning.OverrideCompression) { tuningTarget.Set(individualTuning.CompressionData); }
+            //     if (individualTuning.OverrideMipMapRemove) { tuningTarget.Get<MipMapData>().UseMipMap = individualTuning.UseMipMap; }
+            //     if (individualTuning.OverrideColorSpace) { tuningTarget.Get<ColorSpaceData>().Linear = individualTuning.Linear; }
+            //     if (individualTuning.OverrideRemove) { tuningTarget.Get<RemoveData>().IsRemove = individualTuning.IsRemove; }
+            //     if (individualTuning.OverrideMargeTexture) { tuningTarget.Get<MergeTextureData>().MargeParent = individualTuning.MargeRootProperty; }
+            // }
+            // TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets, domain.GetTextureManager());
+            // var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
+            // domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
+
+            // temporary
+            var tex = compiledAtlasTextures.ToDictionary(i => i.Key, i => engine.DownloadToTexture2D(i.Value, true));
+            foreach (var kv in compiledAtlasTextures) { tex[kv.Key].name = kv.Value.Name + "_Downloaded"; }
+            foreach (var rt in compiledAtlasTextures.Values) { rt.Dispose(); }
+            foreach (var t in tex.Values) { t.Apply(true); }
+
+            //MaterialGenerate And Change
+            var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = atlasSetting.ForceSetTexture };
+            if (atlasSetting.UnsetTextures.Any())
+            {
+                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
+                atlasMatOption.UnsetTextures = atlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
+            }
+
+            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, MergeMaterialGroups, AllMaterialMergeReference);
+            var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tex, atlasMatOption, mergeReferenceMaterial);
+            domain.ReplaceMaterials(materialMap, false);
+            domain.RegisterReplaces(domainsMaterial2ReplaceMaterial);
+
+        }
+
+        private static void ReplaceMesh(IDomain domain, Renderer[] targetRenderers, AtlasContext atlasContext, Mesh[] atlasedMeshes)
+        {
             foreach (var renderer in targetRenderers)
             {
                 var mesh = domain.GetMesh(renderer);
@@ -284,57 +340,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var atlasMesh = atlasedMeshes[identicalSubSetID];
                 domain.SetMesh(renderer, atlasMesh);
             }
-            domain.TransferAssets(atlasedMeshes);
-
-            // //Texture Fine Tuning
-            // var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuning(atlasData.Textures);
-            // SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasData.SourceTextureMaxSize);
-            // DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasData.MargeTextureDict);
-            // DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasData.ReferenceCopyDict);
-            // foreach (var fineTuning in AtlasSetting.TextureFineTuning)
-            // {
-            //     fineTuning?.AddSetting(atlasTexFineTuningTargets);
-            // }
-            // var individualApplied = new HashSet<string>();
-            // foreach (var individualTuning in AtlasSetting.TextureIndividualFineTuning)
-            // {
-            //     if (atlasTexFineTuningTargets.ContainsKey(individualTuning.TuningTarget) is false) { continue; }
-            //     if (individualApplied.Contains(individualTuning.TuningTarget)) { continue; }
-            //     individualApplied.Add(individualTuning.TuningTarget);
-
-            //     var tuningTarget = atlasTexFineTuningTargets[individualTuning.TuningTarget];
-
-            //     if (individualTuning.OverrideReferenceCopy) { tuningTarget.Get<ReferenceCopyData>().CopySource = individualTuning.CopyReferenceSource; }
-            //     if (individualTuning.OverrideResize) { tuningTarget.Get<SizeData>().TextureSize = individualTuning.TextureSize; }
-            //     if (individualTuning.OverrideCompression) { tuningTarget.Set(individualTuning.CompressionData); }
-            //     if (individualTuning.OverrideMipMapRemove) { tuningTarget.Get<MipMapData>().UseMipMap = individualTuning.UseMipMap; }
-            //     if (individualTuning.OverrideColorSpace) { tuningTarget.Get<ColorSpaceData>().Linear = individualTuning.Linear; }
-            //     if (individualTuning.OverrideRemove) { tuningTarget.Get<RemoveData>().IsRemove = individualTuning.IsRemove; }
-            //     if (individualTuning.OverrideMargeTexture) { tuningTarget.Get<MergeTextureData>().MargeParent = individualTuning.MargeRootProperty; }
-            // }
-            // TexFineTuningUtility.FinalizeTexFineTuning(atlasTexFineTuningTargets, domain.GetTextureManager());
-            // var atlasTexture = atlasTexFineTuningTargets.ToDictionary(i => i.Key, i => i.Value.Texture2D);
-            // domain.transferAssets(atlasTexture.Select(PaT => PaT.Value));
-            var tex = compiledAtlasTextures.ToDictionary(i => i.Key, i => engine.DownloadToTexture2D(i.Value, true));
-            foreach (var kv in compiledAtlasTextures) { tex[kv.Key].name = kv.Value.Name + "_Downloaded"; }
-            foreach (var rt in compiledAtlasTextures.Values) { rt.Dispose(); }
-            foreach (var t in tex.Values) { t.Apply(true); }
-
-            //MaterialGenerate And Change
-            var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = atlasSetting.ForceSetTexture };
-            if (atlasSetting.UnsetTextures.Any())
-            {
-                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
-                atlasMatOption.UnsetTextures = atlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
-            }
-
-
-            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, MergeMaterialGroups, AllMaterialMergeReference);
-            var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tex, atlasMatOption, mergeReferenceMaterial);
-            domain.ReplaceMaterials(materialMap, false);
-            foreach (var matMap in domainsMaterial2ReplaceMaterial)
-                domain.RegisterReplace(matMap.Key, matMap.Value);
-
         }
 
         private static (Dictionary<Material, Material> materialMap, Dictionary<Material, Material> domainsMaterial2ReplaceMaterial) GenerateAtlasedMaterials(HashSet<Material> targetMaterials, Dictionary<string, Texture2D> tex, AtlasMatGenerateOption atlasMatOption, NowMaterialGroup[] mergeReferenceMaterial)

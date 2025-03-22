@@ -140,6 +140,13 @@ namespace net.rs64.TexTransTool
                 domain.TransferAsset(unityObject);
             }
         }
+        public static void RegisterReplaces<TOld, TNew>(this IReplaceRegister domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
+        where TOld : UnityEngine.Object
+        where TNew : UnityEngine.Object
+        {
+            foreach (var unityObject in unityObjects)
+                domain.RegisterReplace(unityObject.Key, unityObject.Value);
+        }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
         {
             if (renderer == null) { return Array.Empty<Renderer>(); }
