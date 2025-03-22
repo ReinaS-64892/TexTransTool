@@ -4,6 +4,7 @@ using Unity.Collections;
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using System;
+using net.rs64.TexTransCore.UVIsland;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {

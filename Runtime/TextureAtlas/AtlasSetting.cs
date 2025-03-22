@@ -6,62 +6,57 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.TextureAtlas.IslandRelocator;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.IslandFineTuner;
+using net.rs64.TexTransCore.UVIsland;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [Serializable]
-    public class AtlasSetting
+    public partial class AtlasSetting
     {
         [PowerOfTwo] public int AtlasTextureSize = 2048;
-        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
-        [PowerOfTwo] public int HeightDenominator = 1;
 
+        public bool CustomAspect = false;
+        [PowerOfTwo] public int AtlasTextureHeightSize = 2048;
+
+        public UVChannel AtlasTargetUVChannel = UVChannel.UV0;
+
+
+        public bool UsePrimaryMaximumTexture;
+        public PropertyName PrimaryTextureProperty = PropertyName.DefaultValue;
+
+        [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
         public bool ForceSizePriority = false;
+        public Color BackGroundColor = Color.white;
         [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners = new();
 
-        public bool MergeMaterials = false;
-        public Material MergeReferenceMaterial = null;
+
         public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         public bool ForceSetTexture = false;
         public bool PixelNormalize = true;
 
-        [FormerlySerializedAs("MaterialMargeGroups")] public List<MaterialMergeGroup> MaterialMergeGroups = new();
-        public List<(Material, Material)> MaterialReplacedReference = new();
 
-        public AtlasIslandRelocatorObject AtlasIslandRelocator = null;
+        [SerializeReference, SubclassSelector] public IIslandRelocatorProvider AtlasIslandRelocator = null;
         public bool WriteOriginalUV = false;
-        [Range(1, 7)] public int OriginalUVWriteTargetChannel = 1;
-        public Color BackGroundColor = Color.white;
-        [FormerlySerializedAs("DownScalingAlgorism")] public DownScalingAlgorithm DownScalingAlgorithm = DownScalingAlgorithm.Average;
+        [Range(0, 7)] public int OriginalUVWriteTargetChannel = 1;
+
+
         [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
         public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
+
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
+
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
-        public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
-        public bool TextureScaleOffsetReset = false;
-        public bool BakedPropertyWriteMaxValue = false;
+
         public List<TextureSelector> UnsetTextures = new();
-
-        #region V3SaveData
-        public bool UseUpScaling = false;
-        #endregion
-        #region V2SaveData
-        [Obsolete("V2SaveData", true)][SerializeField] internal List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
-        [Obsolete("V2SaveData", true)][SerializeField] internal float Padding;
-        #endregion
-        #region V1SaveData
-        [Obsolete("V1SaveData", true)][SerializeField] internal bool UseIslandCache = true;
-        #endregion
-
+        public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
     }
-
-    [Serializable]
-    public class MaterialMergeGroup
+    public interface IIslandRelocatorProvider
     {
-        [FormerlySerializedAs("MargeReferenceMaterial")] public Material MergeReferenceMaterial;
-        public List<Material> GroupMaterials;
+        IIslandRelocator GetIslandRelocator();
     }
+
     public enum PropertyBakeSetting
     {
         NotBake,
@@ -78,6 +73,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public bool OverrideResize = false;
         [PowerOfTwo] public int TextureSize = 512;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
         public bool OverrideCompression = false;
         public TextureCompressionData CompressionData = new();

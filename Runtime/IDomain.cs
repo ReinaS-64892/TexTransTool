@@ -133,12 +133,19 @@ namespace net.rs64.TexTransTool
     internal static class DomainUtility
     {
         public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);
-        public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
+        public static void TransferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
             foreach (var unityObject in unityObjects)
             {
                 domain.TransferAsset(unityObject);
             }
+        }
+        public static void RegisterReplaces<TOld, TNew>(this IReplaceRegister domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
+        where TOld : UnityEngine.Object
+        where TNew : UnityEngine.Object
+        {
+            foreach (var unityObject in unityObjects)
+                domain.RegisterReplace(unityObject.Key, unityObject.Value);
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
         {
@@ -199,7 +206,15 @@ namespace net.rs64.TexTransTool
             return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginEqual(m, material)).ToHashSet();
         }
 
-
+        public static Material? GetDomainsMaterial(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, Material material)
+        {
+            return domainsMaterial.FirstOrDefault(m => originEqual(m, material));
+        }
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, IEnumerable<Material> material)
+        {
+            if (material.Any() is false) { return new(); }
+            return domainsMaterial.Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
+        }
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 

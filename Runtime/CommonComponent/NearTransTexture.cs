@@ -40,35 +40,35 @@ namespace net.rs64.TexTransTool
         internal override void Apply(IDomain domain)
         {
             if (TransSourceRenderer == null || TransTargetRenderer == null)
-            { TTTRuntimeLog.Info("NearTransTexture:info:TargetNotSet"); return; }
+            { TTLog.Info("NearTransTexture:info:TargetNotSet"); return; }
 
             var sourceRenderers = domain.GetDomainsRenderers(TransSourceRenderer);
             var targetRenderers = domain.GetDomainsRenderers(TransTargetRenderer);
             if (sourceRenderers.Count() > 1 || targetRenderers.Count() > 1)
-            { TTTRuntimeLog.Info("NearTransTexture:info:FoundTargetIsMultiple"); }
+            { TTLog.Info("NearTransTexture:info:FoundTargetIsMultiple"); }
 
             var sourceRenderer = sourceRenderers.FirstOrDefault();
             var targetRenderer = targetRenderers.FirstOrDefault();
             if (sourceRenderer == null || targetRenderer == null)
-            { TTTRuntimeLog.Info("NearTransTexture:info:TargetNotFound"); return; }
+            { TTLog.Info("NearTransTexture:info:TargetNotFound"); return; }
 
             var sourceMeshData = domain.GetMeshData(sourceRenderer);
             var targetMeshData = domain.GetMeshData(targetRenderer);
             if (sourceMeshData.SubMeshCount <= SourceMaterialSlot || targetMeshData.SubMeshCount <= TargetMaterialSlot)
-            { TTTRuntimeLog.Error("NearTransTexture:error:SubMeshOverSlotSelected"); return; }
+            { TTLog.Error("NearTransTexture:error:SubMeshOverSlotSelected"); return; }
 
 
             var sourceMatArray = domain.GetMaterials(sourceRenderer);
-            if (sourceMatArray.Length <= SourceMaterialSlot) { TTTRuntimeLog.Error("NearTransTexture:error:SourceRendererIsSmilerMaterialSlots"); return; }
+            if (sourceMatArray.Length <= SourceMaterialSlot) { TTLog.Error("NearTransTexture:error:SourceRendererIsSmilerMaterialSlots"); return; }
             var sourceMaterial = sourceMatArray[SourceMaterialSlot];
             var targetMatArray = domain.GetMaterials(targetRenderer);
-            if (targetMatArray.Length <= TargetMaterialSlot) { TTTRuntimeLog.Error("NearTransTexture:error:TargetRendererIsSmilerMaterialSlots"); return; }
+            if (targetMatArray.Length <= TargetMaterialSlot) { TTLog.Error("NearTransTexture:error:TargetRendererIsSmilerMaterialSlots"); return; }
             var targetMaterial = targetMatArray[TargetMaterialSlot];
-            if (sourceMaterial == null || targetMaterial == null) { TTTRuntimeLog.Error("NearTransTexture:error:MaterialIsNull"); return; }
+            if (sourceMaterial == null || targetMaterial == null) { TTLog.Error("NearTransTexture:error:MaterialIsNull"); return; }
 
             var sourceTexture = sourceMaterial.GetTexture(SourcePropertyName);
             var targetTexture = targetMaterial.GetTexture(TargetPropertyName);
-            if (sourceTexture == null || targetTexture == null) { TTTRuntimeLog.Error("NearTransTexture:error:TextureIsNull"); return; }
+            if (sourceTexture == null || targetTexture == null) { TTLog.Error("NearTransTexture:error:TextureIsNull"); return; }
             domain.LookAt(this);
 
             using var sourceVertArray = new NativeArray<Vector4>(sourceMeshData.Vertices.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);

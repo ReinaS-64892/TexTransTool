@@ -32,10 +32,10 @@ namespace net.rs64.TexTransTool
             domain.LookAt(this);
 
             var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (distTex == null) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotSet"); return; }
+            if (distTex == null) { TTLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
-            if (targetTextures.Any() is false) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotFound"); return; }
+            if (targetTextures.Any() is false) { TTLog.Info("TextureBlender:info:TargetNotFound"); return; }
 
             domain.LookAt(targetTextures);
 

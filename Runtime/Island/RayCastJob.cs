@@ -5,7 +5,7 @@ using Unity.Collections;
 using net.rs64.TexTransCoreEngineForUnity;
 using Unity.Burst;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.TTMathUtil;
+using net.rs64.TexTransCore.TTMathUtil;
 
 namespace net.rs64.TexTransTool.UVIsland
 {
@@ -35,11 +35,7 @@ namespace net.rs64.TexTransTool.UVIsland
             // var IsIn = VectorUtility.IsInCal(CrossT.X, CrossT.Y, CrossT.Z);
             // HitResult[index] = IsIn;
             // Distance[index] = tri.FromBCS(tbc).Z;
-
         }
-
-
-
     }
     [BurstCompile]
     internal struct RayCastJob2 : IJobParallelFor
@@ -58,13 +54,11 @@ namespace net.rs64.TexTransTool.UVIsland
         public void Execute(int index)
         {
             var trIndex = Triangles[index];
-            var tri = new Triangle() { zero = Position[trIndex[0]].ToTTCore(), one = Position[trIndex[1]].ToTTCore(), two = Position[trIndex[2]].ToTTCore() };
+            var tri = new Triangle() { zero = Position[trIndex[0]].ToSysNum(), one = Position[trIndex[1]].ToSysNum(), two = Position[trIndex[2]].ToSysNum() };
 
             HitResult[index] = RayIntersect.Intersect(ray, tri, out var result);
             Distance[index] = result.Distance;
         }
-
-
 
     }
 }

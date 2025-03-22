@@ -1,6 +1,6 @@
 using System;
+using net.rs64.TexTransCore.UVIsland;
 using net.rs64.TexTransTool.IslandSelector;
-using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.TTMathUtil;
+using net.rs64.TexTransCore.TTMathUtil;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -179,9 +179,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static UnityEngine.Vector2 ToUnity(this System.Numerics.Vector2 vec) { return new(vec.X, vec.Y); }
         public static UnityEngine.Vector3 ToUnity(this System.Numerics.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
         public static UnityEngine.Vector4 ToUnity(this System.Numerics.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
-        public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
-        public static System.Numerics.Vector3 ToTTCore(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
-        public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToTTCore(), Direction = ray.direction.ToTTCore() }; }
+        public static System.Numerics.Vector4 ToSysNum(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
+        public static System.Numerics.Vector3 ToSysNum(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
+        public static System.Numerics.Vector2 ToSysNum(this UnityEngine.Vector2 vec) { return new(vec.x, vec.y); }
+        public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToSysNum(), Direction = ray.direction.ToSysNum() }; }
 
         internal static TextureFormat ToUnityTextureFormat(this TexTransCoreTextureFormat format, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {

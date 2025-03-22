@@ -264,7 +264,7 @@ namespace net.rs64.TexTransTool
             var alphaContainsFormatNeedTextures = needAlphaInfoTarget.Where(i => i.Value.GetResult()).ToArray();
             if (alphaContainsFormatNeedTextures.Any())
             {
-                TTTRuntimeLog.Info("Common:info:AlphaContainsTextureCompressToAlphaMissingFormat", alphaContainsFormatNeedTextures.Select(i => i.Key));
+                TTLog.Info("Common:info:AlphaContainsTextureCompressToAlphaMissingFormat", alphaContainsFormatNeedTextures.Select(i => i.Key));
             }
         }
         public static ITTTextureFormat GetTTTextureFormat(Texture2D texture2D)

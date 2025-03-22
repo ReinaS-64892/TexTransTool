@@ -13,32 +13,19 @@ namespace net.rs64.TexTransTool
     [ScriptedImporter(1, new string[] { "ttcomp", "ttblend" }, new string[] { }, AllowCaching = false)]
     public class TTComputeShaderImporter : ScriptedImporter
     {
+        private static string FindTemplate(string fileName)
+        {
+            var candidates = Directory.GetFiles("./", fileName, SearchOption.AllDirectories);
+            return candidates.First(s => s.Contains("TexTransCore"));
+        }
         static string? _textureResizingTemplatePath;
-        static string TextureResizingTemplatePath
-        {
-            get
-            {
-                if (_textureResizingTemplatePath is null)
-                {
-                    var candidates = Directory.GetFiles("./", "TextureResizingTemplate.hlsl", SearchOption.AllDirectories);
-                    _textureResizingTemplatePath = candidates.First(s => s.Contains("TexTransCore"));
-                }
-                return _textureResizingTemplatePath;
-            }
-        }
+        static string TextureResizingTemplatePath => _textureResizingTemplatePath ??= FindTemplate("TextureResizingTemplate.hlsl");
+
         static string? _transSamplingTemplatePath;
-        static string TransSamplingTemplatePath
-        {
-            get
-            {
-                if (_transSamplingTemplatePath is null)
-                {
-                    var candidates = Directory.GetFiles("./", "TransSamplingTemplate.hlsl", SearchOption.AllDirectories);
-                    _transSamplingTemplatePath = candidates.First(s => s.Contains("TexTransCore"));
-                }
-                return _transSamplingTemplatePath;
-            }
-        }
+        static string TransSamplingTemplatePath => _transSamplingTemplatePath ??= FindTemplate("TransSamplingTemplate.hlsl");
+
+        static string? _atlasSamplingTemplatePath;
+        static string AtlasSamplingTemplatePath => _atlasSamplingTemplatePath ??= FindTemplate("AtlasSamplingTemplate.hlsl");
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var srcText = File.ReadAllText(ctx.assetPath);
@@ -110,14 +97,18 @@ namespace net.rs64.TexTransTool
 
                         var resizeTemplate = File.ReadAllText(TextureResizingTemplatePath);
                         var transSamplerTemplate = File.ReadAllText(TransSamplingTemplatePath);
+                        var atlasSamplingTemplate = File.ReadAllText(AtlasSamplingTemplatePath);
 
                         var resizingCode = TTComputeUnityObject.KernelDefine + resizeTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
                         var transSamplerCode = TTComputeUnityObject.KernelDefine + transSamplerTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
+                        var atlasSamplerCode = TTComputeUnityObject.KernelDefine + atlasSamplingTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
 
                         var csr = op.ResizingCompute = ShaderUtil.CreateComputeShaderAsset(ctx, resizingCode);
                         var cst = op.TransSamplerCompute = ShaderUtil.CreateComputeShaderAsset(ctx, transSamplerCode);
+                        var csa = op.AtlasSamplerCompute = ShaderUtil.CreateComputeShaderAsset(ctx, atlasSamplerCode);
                         ctx.AddObjectToAsset("ResizingCompute", csr);
                         ctx.AddObjectToAsset("TransSamplerCompute", cst);
+                        ctx.AddObjectToAsset("AtlasSamplerCompute", csa);
                         ctx.AddObjectToAsset("TTSamplerComputeShader", op);
                         ctx.SetMainObject(op);
                         break;

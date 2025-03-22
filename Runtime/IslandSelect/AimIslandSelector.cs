@@ -1,15 +1,12 @@
 #nullable enable
 using UnityEngine;
-using Unity.Collections;
 using System.Collections;
-using Unity.Jobs;
 using net.rs64.TexTransTool.Utils;
 using System.Linq;
 using net.rs64.TexTransTool.UVIsland;
-using net.rs64.TexTransCore;
 using System;
-using net.rs64.TexTransTool.TTMathUtil;
 using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCore.TTMathUtil;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {

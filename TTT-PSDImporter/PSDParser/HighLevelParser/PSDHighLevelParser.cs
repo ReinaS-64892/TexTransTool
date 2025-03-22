@@ -273,7 +273,7 @@ namespace net.rs64.TexTransTool.PSDParser
                 }
                 else
                 {
-                    TTDebug.Log("AnyOther???" + PeekRecord.LayerName);
+                    TTLog.Log("AnyOther???" + PeekRecord.LayerName);
                 }
 
             }

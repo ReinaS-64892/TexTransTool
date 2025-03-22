@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.NDMF
     internal class NodeExecuteDomain : IDomain, IDisposable
     {
         HashSet<UnityEngine.Object> _transferredObject = new();
-        HashSet<RenderTexture> _neededReleaseTempRt = new();
+        // HashSet<RenderTexture> _neededReleaseTempRt = new();
         protected readonly NDMFPreviewStackManager _textureStacks;
         protected readonly ITextureManager _textureManager;
 
@@ -95,7 +95,7 @@ namespace net.rs64.TexTransTool.NDMF
                 RendererUtility.SwapMaterials(dr, mapping);
             }
             if (one2one) foreach (var matKV in mapping) { RegisterReplace(matKV.Key, matKV.Value); }
-            this.transferAssets(mapping.Values);
+            this.TransferAssets(mapping.Values);
             UsedMaterialReplace = true;
         }
 
@@ -150,7 +150,7 @@ namespace net.rs64.TexTransTool.NDMF
                 if (obj is Material mat) { _ = NDMFPreviewMaterialPool.Ret(mat); continue; }
                 UnityEngine.Object.DestroyImmediate(obj, true);
             }
-            foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
+            // foreach (var tRt in _neededReleaseTempRt) { TTRt.R(tRt); }
             _transferredObject.Clear();
             _textureStacks.Dispose();
 

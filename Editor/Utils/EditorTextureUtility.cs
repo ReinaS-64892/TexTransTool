@@ -212,22 +212,22 @@ namespace net.rs64.TexTransTool.Utils
         /// </summary>
         /// <param name="texture2D"></param>
         /// <returns></returns>
-        public static Texture2D CloneTexture2D(this Texture2D texture2D)
-        {
-            if (texture2D.isReadable)
-            {
-                return UnityEngine.Object.Instantiate(texture2D);
-            }
-            else
-            {
-                var newRt = TTRt.G(texture2D.width, texture2D.height);
-                newRt.name = $"{texture2D.name}:CloneTexture2D-{newRt.width}x{newRt.height}";
-                Graphics.Blit(texture2D, newRt);
-                var cloneTex = newRt.CopyTexture2D().CopySetting(texture2D);
-                TTRt.R(newRt);
-                return cloneTex;
-            }
-        }
+        // public static Texture2D CloneTexture2D(this Texture2D texture2D)
+        // {
+        //     if (texture2D.isReadable)
+        //     {
+        //         return UnityEngine.Object.Instantiate(texture2D);
+        //     }
+        //     else
+        //     {
+        //         var newRt = TTRt.G(texture2D.width, texture2D.height);
+        //         newRt.name = $"{texture2D.name}:CloneTexture2D-{newRt.width}x{newRt.height}";
+        //         Graphics.Blit(texture2D, newRt);
+        //         var cloneTex = newRt.CopyTexture2D().CopySetting(texture2D);
+        //         TTRt.R(newRt);
+        //         return cloneTex;
+        //     }
+        // }
         public static Texture2D ConvertNormalMap(this Texture2D tex)
         {
             throw new NotImplementedException();

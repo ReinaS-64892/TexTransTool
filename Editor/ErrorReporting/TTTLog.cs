@@ -1,10 +1,7 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 using System.Linq;
-
-
-
+using net.rs64.TexTransCore;
 
 
 #if CONTAINS_NDMF
@@ -19,9 +16,10 @@ namespace net.rs64.TexTransTool
         [InitializeOnLoadMethod]
         static void RegisterCall()
         {
-            TTTRuntimeLog.InfoCall += Info;
-            TTTRuntimeLog.WarningCall += Warning;
-            TTTRuntimeLog.ErrorCall += Error;
+            TTLog.LogCall += Info;
+            TTLog.WarningCall += Warning;
+            TTLog.ErrorCall += Error;
+            TTLog.ExceptionCall += Exception;
         }
 
 

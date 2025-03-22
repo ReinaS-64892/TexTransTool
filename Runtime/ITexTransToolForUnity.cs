@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool
     {
         public const string BL_KEY_DEFAULT = "Normal";
         public const string BL_KEY_NOT_BLEND = "NotBlend";
+        public const string DS_ALGORITHM_DEFAULT = "AverageSampling";
 
         /// <summary>
         /// キーを文字列ベースで取得してくるやつ、MLIC とかいろいろ便利なタイミングは多いと思う
@@ -100,6 +101,15 @@ namespace net.rs64.TexTransTool
                         using var diskTex = engine.Wrapping(texture2D);
                         return engine.LoadTextureWidthFullScale(diskTex);
                     }
+                case RenderTexture rt: { return engine.UploadTexture(rt); }
+                default: { throw new InvalidOperationException(); }
+            }
+        }
+        public static ITTTexture WrappingOrUpload(this ITexTransToolForUnity engine, Texture texture)
+        {
+            switch (texture)
+            {
+                case Texture2D texture2D: { return engine.Wrapping(texture2D); }
                 case RenderTexture rt: { return engine.UploadTexture(rt); }
                 default: { throw new InvalidOperationException(); }
             }
