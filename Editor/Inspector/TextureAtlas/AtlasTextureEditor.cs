@@ -28,7 +28,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         private SerializedProperty sIncludeDisabledRenderer;
         private SerializedProperty sPixelNormalize;
         private SerializedProperty sTextureFineTuning, sIslandFineTuners, sTextureIndividualFineTuning;
-        private SerializedProperty sAutoReferenceCopySetting, sAutoMergeTextureSetting;
+        private SerializedProperty sAutoTextureSizeSetting, sAutoReferenceCopySetting, sAutoMergeTextureSetting;
         private SerializedProperty sBackGroundColor;
         private SerializedProperty sUnsetTextures;
 
@@ -65,8 +65,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             sIslandFineTuners = sAtlasSetting.FindPropertyRelative("IslandFineTuners");
             sForceSizePriority = sAtlasSetting.FindPropertyRelative("ForceSizePriority");
             sTextureIndividualFineTuning = sAtlasSetting.FindPropertyRelative("TextureIndividualFineTuning");
+
+            sAutoTextureSizeSetting = sAtlasSetting.FindPropertyRelative("AutoTextureSizeSetting");
             sAutoReferenceCopySetting = sAtlasSetting.FindPropertyRelative("AutoReferenceCopySetting");
             sAutoMergeTextureSetting = sAtlasSetting.FindPropertyRelative("AutoMergeTextureSetting");
+
             sBackGroundColor = sAtlasSetting.FindPropertyRelative("BackGroundColor");
             sUnsetTextures = sAtlasSetting.FindPropertyRelative("UnsetTextures");
 
@@ -168,6 +171,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
                     EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
 
+                    EditorGUILayout.PropertyField(sAutoTextureSizeSetting, "AtlasTexture:prop:ExperimentalFuture:AutoTextureSizeSetting".GlcV());
                     EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".GlcV());
                     EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".GlcV());
 
