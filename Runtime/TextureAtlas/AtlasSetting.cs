@@ -46,11 +46,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
+        public bool AutoTextureSizeSetting = false;
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
 
         public List<TextureSelector> UnsetTextures = new();
-        public float GetTexScalePadding => IslandPadding * AtlasTextureSize;
     }
     public interface IIslandRelocatorProvider
     {
@@ -82,7 +82,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool UseMipMap = true;
 
         public bool OverrideColorSpace = false;
-        public bool Linear = false;
+        [FormerlySerializedAs("Linear")] public bool AsLinear = false;
 
         public bool OverrideRemove = false;
         public bool IsRemove = false;

@@ -30,6 +30,7 @@ namespace net.rs64.TexTransTool.Decal
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
         public AbstractIslandSelector? IslandSelector;

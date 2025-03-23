@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 if (!texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder)) { continue; }
                 if (copyTargetTextureHolder == null)
                 {
-                    copyTargetTextureHolder = new TexFineTuningHolder(null);
+                    copyTargetTextureHolder = new();
                     texFineTuningTargets.Add(tpn, copyTargetTextureHolder);
                 }
 
@@ -38,25 +39,25 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal class ReferenceCopyData : ITuningData
     {
-        public string CopySource;
+        public string? CopySource;
     }
 
-    internal class ReferenceCopyApplicant : ITuningApplicant
+    internal class ReferenceCopyApplicant : ITuningProcessor
     {
 
         public int Order => 32;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var texKv in texFineTuningTargets.ToArray())
+            foreach (var tuning in ctx.TuningHolder)
             {
-                var referenceCopyData = texKv.Value.Find<ReferenceCopyData>();
+                var tuningHolder = tuning.Value;
+                var referenceCopyData = tuningHolder.Find<ReferenceCopyData>();
                 if (referenceCopyData == null) { continue; }
+                if (referenceCopyData.CopySource is null) { continue; }
 
-                if (texFineTuningTargets.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
-                {
-                    texKv.Value.Texture2D = sourceTextureHolder.Texture2D;
-                }
+                if (ctx.ProcessingHolder.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
+                    ctx.ProcessingHolder[tuning.Key].RenderTextureProperty = sourceTextureHolder.RenderTextureProperty;
             }
         }
     }

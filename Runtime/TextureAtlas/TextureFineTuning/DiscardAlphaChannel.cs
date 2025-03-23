@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
@@ -33,28 +35,30 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public bool DiscardFrag;
     }
 
-    internal class DiscardAlphaChannelApplicant : ITuningApplicant
+    internal class DiscardAlphaChannelApplicant : ITuningProcessor
     {
-        public int Order => 0;
+        public int Order => 128;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var texKv in texFineTuningTargets)
+            foreach (var tuning in ctx.TuningHolder)
             {
-                var discardFragData = texKv.Value.Find<DiscardAlphaChannelData>();
+                var tuningHolder = tuning.Value;
+                var discardFragData = tuningHolder.Find<DiscardAlphaChannelData>();
                 if (discardFragData == null) { continue; }
                 if (discardFragData.DiscardFrag is false) { continue; }
 
-                var texDataNativeArray = texKv.Value.Texture2D.GetRawTextureData<Color32>();
-                var texDataSpan = texDataNativeArray.AsSpan();
-                for (var i = 0; texDataSpan.Length > i; i += 1)
-                {
-                    texDataSpan[i].a = byte.MaxValue;
-                }
-                texKv.Value.Texture2D.LoadRawTextureData(texDataNativeArray);
-                texKv.Value.Texture2D.Apply(false);
+                if (ctx.ProcessingHolder[tuning.Key].RTOwned is false) { continue; }
+
+                var targetProperty = ctx.ProcessingHolder[tuning.Key].RenderTextureProperty!;
+                var rt = ctx.RenderTextures[targetProperty];
+
+                var newRt = ctx.Engine.CloneRenderTexture(rt);
+                ctx.Engine.AlphaFill(newRt, 1.0f);
+
+                ctx.RenderTextures[targetProperty] = newRt;
+                ctx.NewRenderTextures.Add(newRt);
             }
         }
-
     }
 }

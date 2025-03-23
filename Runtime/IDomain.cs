@@ -11,14 +11,14 @@ using net.rs64.TexTransTool.Decal;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting
+    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting, ITexturePostProcessor
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         // TransferAsset と one2one の場合は RegisterReplace を適切に実行するように。
         void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
-        ITextureManager GetTextureManager();
+        // ITextureManager GetTextureManager();
 
         void GetMutable(ref Material material)
         {
@@ -106,30 +106,45 @@ namespace net.rs64.TexTransTool
         }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
-    internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
-    public interface IDeferredDestroyTexture : IDisposable
+    internal interface ITexturePostProcessor
     {
-        void DeferredDestroyOf(Texture2D texture2D);
-    }
-    public interface IOriginTexture
-    {
-        int GetOriginalTextureSize(Texture2D texture2D);
-        void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
-        void PreloadOriginalTexture(Texture2D texture2D);
-
-
-        (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture);
-        bool IsPreview { get; }
-    }
-    public interface IDeferTextureCompress
-    {
-        void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target);
-        void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
-        void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual);
+        // ここ渡す Descriptor は複製したものを渡すように
+        TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture);
+        void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor);
     }
 
-    public interface ITTTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
+    internal interface ITexTransToolTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
 
+    internal class TexTransToolTextureDescriptor
+    {
+        public bool UseMipMap = true;
+        public string MipMapGenerateAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
+        public ITexTransToolTextureFormat TextureFormat = new TextureCompressionData();
+        public bool AsLinear = false;
+
+        public FilterMode filterMode = FilterMode.Bilinear;
+        public int anisoLevel = 1;
+        public float mipMapBias = 0;
+        public TextureWrapMode wrapModeU = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapModeV = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapModeW = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapMode = TextureWrapMode.Repeat;
+
+        public void CopyFrom(TexTransToolTextureDescriptor descriptor)
+        {
+            UseMipMap = descriptor.UseMipMap;
+            MipMapGenerateAlgorithm = descriptor.MipMapGenerateAlgorithm;
+            TextureFormat = descriptor.TextureFormat;
+            AsLinear = descriptor.AsLinear;
+            filterMode = descriptor.filterMode;
+            anisoLevel = descriptor.anisoLevel;
+            mipMapBias = descriptor.mipMapBias;
+            wrapModeU = descriptor.wrapModeU;
+            wrapModeV = descriptor.wrapModeV;
+            wrapModeW = descriptor.wrapModeW;
+            wrapMode = descriptor.wrapMode;
+        }
+    }
     internal static class DomainUtility
     {
         public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);

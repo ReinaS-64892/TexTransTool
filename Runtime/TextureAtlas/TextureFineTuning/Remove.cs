@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
@@ -40,18 +42,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public bool IsRemove = true;
     }
 
-    internal class RemoveApplicant : ITuningApplicant
+    internal class RemoveApplicant : ITuningProcessor
     {
 
         public int Order => 64;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var removeTarget in texFineTuningTargets.Where(i => i.Value.Find<RemoveData>() is not null).ToArray())
+            foreach (var removeTarget in ctx.TuningHolder.Where(i => i.Value.Find<RemoveData>() is not null).ToArray())
             {
-                if (removeTarget.Value.Find<RemoveData>().IsRemove) { texFineTuningTargets.Remove(removeTarget.Key); }
+                if (removeTarget.Value.Find<RemoveData>()!.IsRemove)
+                {
+                    var pHolder = ctx.ProcessingHolder[removeTarget.Key];
+                    pHolder.RTOwned = false;
+                    pHolder.RenderTextureProperty = null;
+                }
             }
-
         }
     }
 

@@ -52,6 +52,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             return Array.FindIndex(GroupMaterials, i => i.Contains(material));
         }
+        public int GetMaterialGroupID(GroupMaterial group)
+        {
+            return Array.IndexOf(GroupMaterials, group);
+        }
         public Texture? GetPrimaryTexture(int groupID)
         {
             return GroupMaterials[groupID].GetPrimaryTexture(PrimaryTexturePropertyOrMaximum);
