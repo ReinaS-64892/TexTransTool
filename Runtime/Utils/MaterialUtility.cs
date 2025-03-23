@@ -47,8 +47,9 @@ namespace net.rs64.TexTransTool.Utils
             }
             return false;
         }
-        public static void ReplaceTextureInPlace<Tex>(this Material mat, Tex target, Tex set)
-        where Tex : Texture
+        public static void ReplaceTextureInPlace<TexDist, TexNew>(this Material mat, TexDist dist, TexNew newTexture)
+        where TexDist : Texture
+        where TexNew : Texture
         {
             var shader = mat.shader;
             var pc = shader.GetPropertyCount();
@@ -60,10 +61,10 @@ namespace net.rs64.TexTransTool.Utils
                     default: break;
                     case UnityEngine.Rendering.ShaderPropertyType.Texture:
                         {
-                            var dTex = mat.GetTexture(NameID) as Tex;
+                            var dTex = mat.GetTexture(NameID) as TexDist;
                             if (dTex == null) { break; }
-                            if (dTex != target) { break; }
-                            mat.SetTexture(NameID, set);
+                            if (dTex != dist) { break; }
+                            mat.SetTexture(NameID, newTexture);
                             break;
                         }
                 }
@@ -124,7 +125,7 @@ namespace net.rs64.TexTransTool.Utils
                 }
             }
         }
-        public static IEnumerable<Tex> GetAllTexture<Tex>(this Material material, Func<Material,Shader> GetShader,Func<Material, int, Tex> GetTex) where Tex : Texture
+        public static IEnumerable<Tex> GetAllTexture<Tex>(this Material material, Func<Material, Shader> GetShader, Func<Material, int, Tex> GetTex) where Tex : Texture
         {
             if (material == null || material.shader == null) { yield break; }
             var shader = GetShader(material);

@@ -102,13 +102,17 @@ namespace net.rs64.TexTransTool.Preview
             {
                 EditorUtility.DisplayProgressBar("TexTransBehaviorApply", "", 0f);
                 Profiler.BeginSample("TexTransBehaviorApply: " + targetTTBehavior.GetType() + " " + targetTTBehavior.gameObject.name);
-                RenderersDomain previewDomain = null;
+                UnityAnimationPreviewDomain previewDomain = null;
                 EditorUtility.DisplayProgressBar("FindMarker", "", 0.01f);
                 Profiler.BeginSample("FindMarker");
                 var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
-                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
+                if (marker != null)
+                {
+                    var targets = marker.GetComponentsInChildren<Renderer>(true);
+                    previewDomain = new UnityAnimationPreviewDomain(targets);
+                }
                 else { Debug.LogError("Domainが見つかりません!!!"); return; }
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
@@ -116,7 +120,7 @@ namespace net.rs64.TexTransTool.Preview
                 if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, marker, previewDomain)) { if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomain); }
 
                 EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
-                previewDomain.EditFinish();
+                previewDomain.DomainFinish();
             }
             finally
             {

@@ -58,6 +58,7 @@ namespace net.rs64.TexTransTool.Build
 
             Profiler.BeginSample("MidwayMergeStack");
             _domain.MergeStack();
+            _domain.ReadBackToTexture2D();
             Profiler.EndSample();
 
             if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
@@ -93,7 +94,7 @@ namespace net.rs64.TexTransTool.Build
             {
                 var timer = Stopwatch.StartNew();
 
-                var domain = new AvatarDomain(avatarGameObject, false, new AssetSaver(OverrideAssetContainer));
+                var domain = new AvatarDomain(avatarGameObject, new AssetSaver(OverrideAssetContainer));
                 var domain2Phase = FindAtPhase(avatarGameObject);
                 var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;

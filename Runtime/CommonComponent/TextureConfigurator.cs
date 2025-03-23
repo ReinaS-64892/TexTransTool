@@ -41,13 +41,12 @@ namespace net.rs64.TexTransTool
             var engine = domain.GetTexTransCoreEngineForUnity();
             domain.LookAt(targetTextures);
 
-            foreach (var tex in targetTextures)
+            foreach (var originTexture in targetTextures)
             {
-                var originTexture = tex;
                 ITTRenderTexture resultTexture;
                 var textureDescription = domain.GetTextureDescriptor(originTexture);
 
-                using var originalFullScaleTexture = engine.WrappingToLoadFullScaleOrUpload(originTexture);
+                using var originalFullScaleTexture = engine.WrappingOrUploadToLoadFullScale(originTexture);
 
                 if (OverrideTextureSetting)
                 {
@@ -61,8 +60,9 @@ namespace net.rs64.TexTransTool
                 if (OverrideCompression) { textureDescription.TextureFormat = CompressionSetting; }
                 resultTexture.Name = originTexture.name + "_Configured";
 
-
-                domain.ReplaceTexture(originTexture, engine.GetReferenceRenderTexture(resultTexture));
+                var refRt = engine.GetReferenceRenderTexture(resultTexture);
+                domain.ReplaceTexture(originTexture, refRt);
+                domain.RegisterReplace(originTexture, refRt);
                 domain.RegisterPostProcessingAndLazyGPUReadBack(resultTexture, textureDescription);
             }
         }

@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool
 
             var engine = domain.GetTexTransCoreEngineForUnity();
 
-            using var sourceTexRt = engine.WrappingToLoadFullScaleOrUpload(sourceTexture);
+            using var sourceTexRt = engine.WrappingOrUploadToLoadFullScale(sourceTexture);
             using var targetTexRt = engine.CreateRenderTexture(targetTexture.width, targetTexture.height);
 
             expandJobHandler.Complete();

@@ -89,7 +89,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(_isOverrideShader);
                 EditorGUILayout.PropertyField(_overrideShader);
-                EditorGUILayout.PropertyField(_overrideProperties,"OverrideProperties".GlcV());
+                EditorGUILayout.PropertyField(_overrideProperties, "OverrideProperties".GlcV());
                 OverrideUtilityGUI();
                 EditorGUI.indentLevel--;
             }
@@ -147,7 +147,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (_sourceTexture == null || _destinationTexture == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
-                _recordingMaterial.ReplaceTextureInPlace(_sourceTexture, _destinationTexture);
+                _recordingMaterial.ReplaceTextureInPlace(_destinationTexture, _sourceTexture);
                 ApplyOverridesToComponent();
 
                 _sourceTexture = null;

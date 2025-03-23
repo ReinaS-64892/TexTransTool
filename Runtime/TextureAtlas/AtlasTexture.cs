@@ -146,8 +146,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //Mesh Change
             ReplaceMesh(domain, targetRenderers, atlasContext, atlasedMeshes);
-            domain.TransferAssets(atlasedMeshes);
-
             //Texture Fine Tuning
             var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuningHolders(compiledAtlasTextures.Keys);
 
@@ -192,7 +190,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, MergeMaterialGroups, AllMaterialMergeReference);
             var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption, mergeReferenceMaterial);
-            domain.ReplaceMaterials(materialMap, false);
+            domain.ReplaceMaterials(materialMap);
             domain.RegisterReplaces(domainsMaterial2ReplaceMaterial);
 
             foreach (var t in compiledAtlasTextures.Values) { if (usedRT.Contains(t) is false) t.Dispose(); }
@@ -203,6 +201,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         private static void ReplaceMesh(IDomain domain, Renderer[] targetRenderers, AtlasContext atlasContext, Mesh[] atlasedMeshes)
         {
+            var registered = new HashSet<Mesh>();
             foreach (var renderer in targetRenderers)
             {
                 var mesh = domain.GetMesh(renderer);
@@ -238,7 +237,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 var atlasMesh = atlasedMeshes[identicalSubSetID];
                 domain.SetMesh(renderer, atlasMesh);
+
+                if (registered.Contains(atlasMesh) is false)
+                {
+                    domain.RegisterReplace(mesh, atlasMesh);
+                    registered.Add(atlasMesh);
+                }
             }
+            domain.TransferAssets(atlasedMeshes);
         }
 
         private static

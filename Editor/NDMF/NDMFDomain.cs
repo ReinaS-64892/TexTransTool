@@ -37,11 +37,11 @@ namespace net.rs64.TexTransTool.NDMF
             }
         }
 
-        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, false, new NDMFAssetSaver(b)) { }
+        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b)) { }
 
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
-            if (_replaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
+            if ( _genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
 
             base.RegisterReplace(oldObject, nowObject);
             ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);

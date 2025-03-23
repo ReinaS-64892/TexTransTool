@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool
 
     public static class TTT4UnityUtility
     {
-        public static ITTRenderTexture WrappingToLoadFullScaleOrUpload(this ITexTransToolForUnity engine, Texture texture)
+        public static ITTRenderTexture WrappingOrUploadToLoadFullScale(this ITexTransToolForUnity engine, Texture texture)
         {
             switch (texture)
             {
@@ -102,6 +102,25 @@ namespace net.rs64.TexTransTool
                         return engine.LoadTextureWidthFullScale(diskTex);
                     }
                 case RenderTexture rt: { return engine.UploadTexture(rt); }
+                default: { throw new InvalidOperationException(); }
+            }
+        }
+        public static void WrappingOrUploadToLoad(this ITexTransToolForUnity engine, ITTRenderTexture write, Texture texture)
+        {
+            switch (texture)
+            {
+                case Texture2D texture2D:
+                    {
+                        using var diskTex = engine.Wrapping(texture2D);
+                        engine.LoadTextureWidthAnySize(write, diskTex);
+                        break;
+                    }
+                case RenderTexture rt:
+                    {
+                        using var uploaded = engine.UploadTexture(rt);
+                        engine.CopyTextureWidthAnySize(write, uploaded);
+                        break;
+                    }
                 default: { throw new InvalidOperationException(); }
             }
         }

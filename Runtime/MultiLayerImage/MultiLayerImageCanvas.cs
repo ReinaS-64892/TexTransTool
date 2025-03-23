@@ -33,11 +33,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
-            if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
+            if (domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false)
+                canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh);
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh),targetContainsMaterials));
+            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
             var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");

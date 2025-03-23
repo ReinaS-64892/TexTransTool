@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var targetTex in targetTextures)
             {
-                using var rt = engine.WrappingToLoadFullScaleOrUpload(targetTex);
+                using var rt = engine.WrappingOrUploadToLoadFullScale(targetTex);
 
                 WriteColorDifferenceChange(engine, gcQuay, rt);
 

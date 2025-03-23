@@ -109,7 +109,8 @@ namespace net.rs64.TexTransTool.Decal
                 (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
             decalContext.IsTextureStretch = false;
             decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
+            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
             return decalContext;
         }

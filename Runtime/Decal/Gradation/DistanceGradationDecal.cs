@@ -75,7 +75,8 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = new DecalContext<DistanceGradationConvertor, DistanceGradationSpace, DistanceGradationDecalIslandSelectFilter, DistanceGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
+            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             return decalContext;
         }
 
@@ -117,7 +118,7 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(transform.GetParents().Append(transform));
 
             var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
-            using var gradDiskTex = engine.WrappingToLoadFullScaleOrUpload(GradientTempTexture.Get(Gradient, Alpha));
+            using var gradDiskTex = engine.WrappingOrUploadToLoadFullScale(GradientTempTexture.Get(Gradient, Alpha));
 
             var decalContext = GenerateDecalCtx(domain, engine);
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;

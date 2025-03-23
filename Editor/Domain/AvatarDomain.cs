@@ -15,13 +15,8 @@ namespace net.rs64.TexTransTool
     /// </summary>
     internal class AvatarDomain : RenderersDomain
     {
-        public AvatarDomain(GameObject avatarRoot, bool previewing, bool saveAsset = false, bool? useCompress = null)
-        : this(avatarRoot, previewing, saveAsset ? new AssetSaver() : null, useCompress) { }
-        public AvatarDomain(GameObject avatarRoot, bool previewing, IAssetSaver assetSaver, bool? useCompress = null)
-        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, assetSaver, useCompress)
-        { _avatarRoot = avatarRoot; }
-        public AvatarDomain(GameObject avatarRoot, bool previewing, ITextureManager textureManager, IAssetSaver assetSaver)
-        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), previewing, textureManager, assetSaver)
+        public AvatarDomain(GameObject avatarRoot, IAssetSaver assetSaver)
+        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), assetSaver)
         { _avatarRoot = avatarRoot; }
 
         [SerializeField] GameObject _avatarRoot;
