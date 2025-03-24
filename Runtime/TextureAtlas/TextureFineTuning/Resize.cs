@@ -69,6 +69,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                     sizeData.TextureSize
                     , (int)((rt.Hight / (float)rt.Width) * sizeData.TextureSize)
                     );
+                newRt.Name = rt.Name;
                 ctx.Engine.DefaultResizing(newRt, rt);
 
                 ctx.RenderTextures[targetProperty] = newRt;
