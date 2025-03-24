@@ -41,14 +41,23 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
             var mergeDict = new Dictionary<string, List<string>>();
+            var alreadyMerge = new HashSet<string>();
             foreach (var kv in ctx.TuningHolder)
             {
                 var mtData = kv.Value.Find<MergeTextureData>();
                 if (mtData is null) { continue; }
                 if (mtData.MargeParent is null) { continue; }
+                if (alreadyMerge.Contains(kv.Key)) { continue; }//TODO :waning or info
 
-                if (mergeDict.ContainsKey(mtData.MargeParent) is false) { mergeDict[mtData.MargeParent] = new(); }
+                if (mergeDict.ContainsKey(mtData.MargeParent) is false)
+                {
+                    if (alreadyMerge.Contains(mtData.MargeParent)) { continue; }//TODO :waning or info
+                    mergeDict[mtData.MargeParent] = new();
+                }
                 mergeDict[mtData.MargeParent].Add(kv.Key);
+
+                alreadyMerge.Add(mtData.MargeParent);
+                alreadyMerge.Add(kv.Key);
             }
             foreach (var ftMarge in mergeDict)
             {
@@ -59,6 +68,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
                 var parentRT = ctx.RenderTextures[parentFTHolder.RenderTextureProperty!];
                 var newRT = ctx.Engine.CloneRenderTexture(parentRT);
+                var children = string.Join(":", ftMarge.Value);
+                newRT.Name += $"-ParentOf({ftMarge.Key})-ChildrenOf({children})";
 
                 foreach (var childe in ftMarge.Value)
                 {
@@ -70,13 +81,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                     MergePixels(ctx.Engine, newRT, cRt);
 
                     tfHolder.RTOwned = false;
-                    tfHolder.RenderTextureProperty = ftMarge.Key;
+                    tfHolder.RenderTextureProperty = parentFTHolder.RenderTextureProperty!;
                 }
+
+                ctx.RenderTextures[parentFTHolder.RenderTextureProperty!] = newRT;
+                ctx.NewRenderTextures.Add(newRT);
             }
         }
         public static void MergePixels(ITexTransToolForUnity engine, ITTRenderTexture parent, ITTRenderTexture childe)
         {
-            throw new NotImplementedException();
+            using var ch = engine.GetComputeHandler(engine.GetExKeyQuery<IAtlasComputeKey>().MergeAtlasedTextures);
+            var distTexID = ch.NameToID("DistTex");
+            var addTexID = ch.NameToID("AddTex");
+            ch.SetTexture(distTexID, parent);
+            ch.SetTexture(addTexID, childe);
+
+            ch.DispatchWithTextureSize(parent);
         }
 
     }

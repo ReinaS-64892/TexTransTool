@@ -81,8 +81,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTComputeKey NearDistanceFadeWrite { get; private set; }
 
             public ITTComputeKey RectangleTransMapping { get; private set; }
+            public ITTComputeKey MergeAtlasedTextures { get; private set; }
 
             public ITexTransComputeKeyDictionary<ITTSamplerKey> AtlasSamplerKey { get; } = new SamplerKeyToAtlasSampler();
+
 
             public UnityStandardComputeKeyHolder()
             {
@@ -118,6 +120,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 NearDistanceFadeWrite = GenealCompute[nameof(NearDistanceFadeWrite)];
 
                 RectangleTransMapping = GenealCompute[nameof(RectangleTransMapping)];
+                MergeAtlasedTextures = GenealCompute[nameof(MergeAtlasedTextures)];
             }
 
             class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => (TTBlendingComputeShader)key; }
