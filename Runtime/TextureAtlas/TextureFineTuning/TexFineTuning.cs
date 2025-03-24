@@ -70,6 +70,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
             RenderTextures = new(renderTextures);
             ProcessingHolder = RenderTextures.ToDictionary(rt => rt.Key, rt => new TextureProcessingHolder(rt.Key, new TexTransToolTextureDescriptor()));
+            foreach (var prop in TuningHolder.Keys)
+            {
+                if (ProcessingHolder.ContainsKey(prop)) { continue; }
+                ProcessingHolder.Add(prop, new("", new()) { RTOwned = false, RenderTextureProperty = null });// ReferenceCopy で増えたやつ用に
+            }
 
             OriginRenderTextures = renderTextures;
         }

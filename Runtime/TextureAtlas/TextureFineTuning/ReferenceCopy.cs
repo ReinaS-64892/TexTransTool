@@ -25,7 +25,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             foreach (var tpn in TargetPropertyNameList)
             {
-                if (!texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder)) { continue; }
+                if (string.IsNullOrWhiteSpace(tpn)) { continue; }
+                // コピーする先がない場合は新しく作る
+                texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder);
                 if (copyTargetTextureHolder == null)
                 {
                     copyTargetTextureHolder = new();
@@ -54,10 +56,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 var tuningHolder = tuning.Value;
                 var referenceCopyData = tuningHolder.Find<ReferenceCopyData>();
                 if (referenceCopyData == null) { continue; }
-                if (referenceCopyData.CopySource is null) { continue; }
 
+                var thisTuning = ctx.ProcessingHolder[tuning.Key];
+
+                //  Copy する元がない場合は何もしない
+                if (referenceCopyData.CopySource is null || string.IsNullOrWhiteSpace(referenceCopyData.CopySource)) { continue; }
                 if (ctx.ProcessingHolder.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
-                    ctx.ProcessingHolder[tuning.Key].RenderTextureProperty = sourceTextureHolder.RenderTextureProperty;
+                {
+                    if (thisTuning.RenderTextureProperty == sourceTextureHolder.RenderTextureProperty) { continue; }// 同一だった場合何もできないから何もしない
+
+                    thisTuning.RenderTextureProperty = sourceTextureHolder.RenderTextureProperty;
+                    thisTuning.RTOwned = false;
+                }
             }
         }
     }

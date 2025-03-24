@@ -67,13 +67,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             var engine = domain.GetTexTransCoreEngineForUnity();
             var targeting = domain as IRendererTargeting;
-            var targetRenderers = nowRenderers
-                .Where(r => targeting.GetMesh(r) != null)
-                .Where(r => targeting.GetMaterials(r)
-                    .Where(i => i != null)
-                    .Cast<Material>()
-                    .Any(targetMaterials.Contains)
-                ).ToArray();
+            var targetRenderers = FilterTargetRenderers(targeting, nowRenderers, targetMaterials);
             var atlasSetting = AtlasSetting;
 
             // Do Atlasing!
@@ -100,7 +94,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 domain.RegisterPostProcessingAndLazyGPUReadBack(aTex.Key, aTex.Value);
         }
 
-        private static AtlasResult DoAtlasTexture(
+        internal static Renderer[] FilterTargetRenderers(IRendererTargeting targeting, List<Renderer> nowRenderers, HashSet<Material> targetMaterials)
+        {
+            return nowRenderers
+                .Where(r => targeting.GetMesh(r) != null)
+                .Where(r => targeting.GetMaterials(r)
+                    .Where(i => i != null)
+                    .Cast<Material>()
+                    .Any(targetMaterials.Contains)
+                ).ToArray();
+        }
+
+        internal static AtlasResult DoAtlasTexture(
             IDomain domain
             , ITexTransToolForUnity engine
 
@@ -189,7 +194,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 CompiledAtlasTextures = compiledAtlasTextures;
             }
         }
-        private static TexFineTuningResult DoTextureFinTuning(ITexTransToolForUnity engine, AtlasContext atlasContext, AtlasSetting atlasSetting, Dictionary<string, ITTRenderTexture> compiledAtlasTextures)
+        internal static TexFineTuningResult DoTextureFinTuning(ITexTransToolForUnity engine, AtlasContext atlasContext, AtlasSetting atlasSetting, Dictionary<string, ITTRenderTexture> compiledAtlasTextures)
         {
             var atlasTexFineTuningTargets = TexFineTuningUtility.InitTexFineTuningHolders(compiledAtlasTextures.Keys);
 
@@ -205,7 +210,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return tunedAtlasTextures;
         }
 
-        private static void ReplaceMesh(IDomain domain, Renderer[] targetRenderers, AtlasContext atlasContext, Mesh[] atlasedMeshes)
+        internal static void ReplaceMesh(IDomain domain, Renderer[] targetRenderers, AtlasContext atlasContext, Mesh[] atlasedMeshes)
         {
             var registered = new HashSet<Mesh>();
             foreach (var renderer in targetRenderers)
@@ -253,7 +258,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             domain.TransferAssets(atlasedMeshes);
         }
 
-        private static void ReplaceAtlasedMaterials(
+        internal static void ReplaceAtlasedMaterials(
             IDomain domain
             , HashSet<Material> targetMaterials
             , AtlasSetting atlasSetting
@@ -454,7 +459,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return islandDescription;
         }
 
-        private static void PostVirtualIslandProcessing(IslandTransform[] virtualIslandArray, Vector2Int atlasTargeSize, bool pixelNormalize)
+        internal static void PostVirtualIslandProcessing(IslandTransform[] virtualIslandArray, Vector2Int atlasTargeSize, bool pixelNormalize)
         {
             if (pixelNormalize)
             {
@@ -469,7 +474,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (virtualIslandArray[i].Size.X <= 0.0001f) { virtualIslandArray[i].Size.X = 0.0001f; }
                 if (virtualIslandArray[i].Size.Y <= 0.0001f) { virtualIslandArray[i].Size.Y = 0.0001f; }
             }//Islandが小さすぎると RectTangleMoveのコピーがうまくいかない
-        }        private static void SetSizeDataMaxSize(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
+        }
+        internal static void SetSizeDataMaxSize(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
         {
             foreach (var tuningTarget in atlasTexFineTuningTargets)
             {
@@ -478,7 +484,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 sizeData.TextureSize = maxSize;
             }
         }
-        private static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
+        internal static void DefaultRefCopyTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
         {
 
 
@@ -531,7 +537,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private static void DefaultMargeTextureDictTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
+        internal static void DefaultMargeTextureDictTuning(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, MaterialGroupingContext materialGroupingCtx)
         {
 
             var prop = atlasTexFineTuningTargets.Keys.ToArray();
@@ -579,7 +585,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
         }
 
-        private static void IndividualTuningAddSettings(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, List<TextureIndividualTuning> individualTunings)
+        internal static void IndividualTuningAddSettings(Dictionary<string, TexFineTuningHolder> atlasTexFineTuningTargets, List<TextureIndividualTuning> individualTunings)
         {
             var individualApplied = new HashSet<string>();
             foreach (var individualTuning in individualTunings)

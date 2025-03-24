@@ -176,11 +176,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".GlcV());
 
                     EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".GlcV());
-                    // if (PreviewUtility.IsPreviewContains is false)
-                    // {
-                    //     if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".GlcV(), GUILayout.Height(18f)))
-                    //     { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
-                    // }
+                    if (PreviewUtility.IsPreviewContains is false)
+                    {
+                        if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".GlcV(), GUILayout.Height(18f)))
+                        { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
+                    }
                 }
 
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());

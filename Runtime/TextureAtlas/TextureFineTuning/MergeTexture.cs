@@ -52,11 +52,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 if (mergeDict.ContainsKey(mtData.MargeParent) is false)
                 {
                     if (alreadyMerge.Contains(mtData.MargeParent)) { continue; }//TODO :waning or info
+                    if (ctx.ProcessingHolder.ContainsKey(mtData.MargeParent) is false) { continue; } //マージ親がない場合は何もできないこと
+                    alreadyMerge.Add(mtData.MargeParent);
                     mergeDict[mtData.MargeParent] = new();
                 }
                 mergeDict[mtData.MargeParent].Add(kv.Key);
-
-                alreadyMerge.Add(mtData.MargeParent);
                 alreadyMerge.Add(kv.Key);
             }
             foreach (var ftMarge in mergeDict)
