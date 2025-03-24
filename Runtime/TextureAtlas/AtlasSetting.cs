@@ -52,6 +52,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 },
                 Select = PropertySelect.NotEqual
             },
+            new FineTuning.ReferenceCopy(){
+                SourcePropertyName = new("_MainTex"),
+                TargetPropertyNameList = new(){
+                    new PropertyName("_BaseColorMap").AsUnknown(),
+                    new PropertyName("_BaseMap").AsUnknown(),
+                },
+            },
             new FineTuning.ColorSpace(){
                 PropertyNameList = new(){
                     new PropertyName("_BumpMap").AsLilToon(),
@@ -60,12 +67,15 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 Select = PropertySelect.Equal,
                 AsLinear = true,
             },
-            new FineTuning.ReferenceCopy(){
-                SourcePropertyName = new("_MainTex"),
-                TargetPropertyNameList = new(){
-                    new PropertyName("_BaseColorMap").AsUnknown(),
-                    new PropertyName("_BaseMap").AsUnknown(),
+            new FineTuning.Compress(){// NormalMap は BC5(RG) のものが良いが、ASTCなどの環境でデフォルトで壊れてしまうから仕方がなく High(PCだと BC7 )にすることで誤魔化す
+                PropertyNameList = new(){
+                    new PropertyName("_BumpMap").AsLilToon(),
+                    new PropertyName("_Bump2ndMap").AsLilToon(),
                 },
+                Select = PropertySelect.Equal,
+                FormatQualityValue = FormatQuality.High,
+                CompressionQuality = 100,
+                UseOverride = false,
             },
             };
         public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
