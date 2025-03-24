@@ -41,7 +41,33 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [Range(0, 7)] public int OriginalUVWriteTargetChannel = 1;
 
 
-        [SerializeReference, SubclassSelector] public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> { new Resize() };
+        [SerializeReference, SubclassSelector]
+        public List<ITextureFineTuning> TextureFineTuning = new List<ITextureFineTuning> {
+            new FineTuning.Resize(){
+                Size = 512,
+                PropertyNameList = new(){
+                    new("_MainTex"),
+                    new PropertyName("_BumpMap").AsLilToon(),
+                    new PropertyName("_Bump2ndMap").AsLilToon(),
+                },
+                Select = PropertySelect.NotEqual
+            },
+            new FineTuning.ColorSpace(){
+                PropertyNameList = new(){
+                    new PropertyName("_BumpMap").AsLilToon(),
+                    new PropertyName("_Bump2ndMap").AsLilToon(),
+                },
+                Select = PropertySelect.Equal,
+                AsLinear = true,
+            },
+            new FineTuning.ReferenceCopy(){
+                SourcePropertyName = new("_MainTex"),
+                TargetPropertyNameList = new(){
+                    new PropertyName("_BaseColorMap").AsUnknown(),
+                    new PropertyName("_BaseMap").AsUnknown(),
+                },
+            },
+            };
         public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
 
         public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
