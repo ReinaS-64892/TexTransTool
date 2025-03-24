@@ -223,7 +223,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var moveTargetIndexes = atlasedTextureSize.x != atlasedTextureSize.y ? new HashSet<int>() : null;
 
                 var originalUV = meshData.VertexUV;
-                var movedUV = new NativeArray<Vector2>(originalUV, Allocator.TempJob);
+                using var movedUVNativeArray = new NativeArray<Vector2>(originalUV, Allocator.TempJob);
+                var movedUV = movedUVNativeArray.AsSpan();
 
                 foreach (var (island, sourceVirtualIsland) in moveTargetIslands)
                 {
@@ -265,7 +266,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         movedUV[vi] = uvPos;
                     }
                 }
-                newMesh.SetUVs(writeDefaultUVChannel, movedUV);
+                newMesh.SetUVs(writeDefaultUVChannel, movedUVNativeArray);
 
                 if (atlasSetting.WriteOriginalUV)
                 {
