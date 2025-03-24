@@ -180,24 +180,25 @@ namespace net.rs64.TexTransTool
     internal class GenericReplaceRegistry : IReplaceRegister, IReplaceTracking
     {
         Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
-        public IReadOnlyDictionary<UnityEngine.Object,UnityEngine.Object> ReplaceMap => _replaceMap;
+        public IReadOnlyDictionary<UnityEngine.Object, UnityEngine.Object> ReplaceMap => _replaceMap;
 
         public virtual bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
         {
             if (l == r) { return true; }
-            return GetOrigin(_replaceMap, l) == GetOrigin(_replaceMap, r);
-        }
-
-        public static T? GetOrigin<T>(Dictionary<T, T> replaceMap, T obj)
-        {
-            if (obj == null) { return default; }
-            while (replaceMap.ContainsKey(obj)) { obj = replaceMap[obj]; }
-            return obj;
+            var originL = _replaceMap.TryGetValue(l, out var oL) ? oL : l;
+            var originR = _replaceMap.TryGetValue(r, out var oR) ? oR : r;
+            return originL == originR;
         }
 
         public virtual void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
         {
-            _replaceMap[nowObject] = oldObject;
+            var originL = _replaceMap.TryGetValue(oldObject, out var oObj) ? oObj : oldObject;
+            _replaceMap[nowObject] = originL;
+        }
+        public virtual KeyValuePair<UnityEngine.Object, UnityEngine.Object>? ReplacePooledRenderTexture(RenderTexture pooledRt, UnityEngine.Object nowObject)
+        {
+            if (_replaceMap.Remove(pooledRt, out var origin) is false) { return null; }
+            return new(origin, nowObject);
         }
     }
     internal static class DomainUtility

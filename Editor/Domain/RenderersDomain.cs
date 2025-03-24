@@ -70,7 +70,12 @@ namespace net.rs64.TexTransTool
         {
             var (textureDescriptors, replaceMap, originRt) = _renderTextureDescriptorManager.DownloadTexture2D();
             foreach (var r in replaceMap)
-            { this.ReplaceTexture(r.Key, r.Value); RegisterReplace(r.Key, r.Value); }
+            {
+                this.ReplaceTexture(r.Key, r.Value);
+
+                var replace = _genericReplaceRegistry.ReplacePooledRenderTexture(r.Key, r.Value);
+                if (replace.HasValue) RegisterReplace(replace.Value.Key, replace.Value.Value);
+            }
             foreach (var rt in originRt) { rt.Dispose(); }
 
             foreach (var kv in textureDescriptors)

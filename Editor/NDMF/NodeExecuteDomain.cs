@@ -120,7 +120,9 @@ namespace net.rs64.TexTransTool.NDMF
             if (l == r) { return true; }
             if (l is Renderer lRen && r is Renderer rRen)
             {
-                if (GenericReplaceRegistry.GetOrigin(_proxy2OriginRendererDict, lRen) == GenericReplaceRegistry.GetOrigin(_proxy2OriginRendererDict, rRen)) { return true; }
+                var originLRen = _proxy2OriginRendererDict.TryGetValue(lRen, out var oLRen) ? oLRen : lRen;
+                var originRRen = _proxy2OriginRendererDict.TryGetValue(rRen, out var oRRen) ? oRRen : rRen;
+                if (originLRen == originRRen) { return true; }
             }
             return _objectRegistry.GetReference(l).Equals(_objectRegistry.GetReference(r));
         }

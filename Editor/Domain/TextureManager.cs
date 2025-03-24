@@ -128,6 +128,7 @@ namespace net.rs64.TexTransTool
                 descDict[tex2D] = descriptor;
                 descriptor.WriteFillWarp(tex2D);
                 tex2D.Apply(true);
+                tex2D.name = rt.Name + "_Downloaded";
             }
             var sourceRenderTextures = _descriptorRtDict.Keys.ToArray();
 
@@ -334,7 +335,10 @@ namespace net.rs64.TexTransTool
 
         public void Dispose()
         {
-            foreach (var originTex in _originDict.Values) { UnityEngine.Object.DestroyImmediate(originTex); }
+            foreach (var originTex in _originDict.Values)
+                if (AssetDatabase.Contains(originTex) is false)
+                    UnityEngine.Object.DestroyImmediate(originTex);
+
             _originDict.Clear();
             _originLoadInfoDict.Clear();
 #if SYSTEM_DRAWING
