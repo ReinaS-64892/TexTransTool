@@ -614,6 +614,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var texKV in atlasTex)
             {
+                if (editableTMat.HasTexture(texKV.Key) is false) { continue; }
                 var tex = editableTMat.GetTexture(texKV.Key);
                 if (tex == null) { tex = null; }//これは Unity側の Null を C# の Null にしてるやつ
 
