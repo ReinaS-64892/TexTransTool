@@ -89,13 +89,17 @@ namespace net.rs64.TexTransTool.Build
     internal static class AvatarBuildUtils
     {
 
-        public static bool ProcessAvatar(GameObject avatarGameObject, UnityEngine.Object? OverrideAssetContainer = null, bool DisplayProgressBar = false)
+        public static bool ProcessAvatar(GameObject avatarGameObject, bool DisplayProgressBar = false)
+        {
+            return ProcessAvatar(avatarGameObject, new AssetSaver(), DisplayProgressBar);
+        }
+        public static bool ProcessAvatar(GameObject avatarGameObject, IAssetSaver assetSaver, bool DisplayProgressBar = false)
         {
             try
             {
                 var timer = Stopwatch.StartNew();
 
-                var domain = new AvatarDomain(avatarGameObject, new AssetSaver(OverrideAssetContainer));
+                var domain = new AvatarDomain(avatarGameObject, assetSaver);
                 var domain2Phase = FindAtPhase(avatarGameObject);
                 var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;

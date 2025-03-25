@@ -1,0 +1,485 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7825133284622650521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1544776056166901142}
+  - component: {fileID: 6540972767877417942}
+  m_Layer: 0
+  m_Name: AtlasTexture
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1544776056166901142
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7825133284622650521}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4113342747345939561}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6540972767877417942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7825133284622650521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae1d1b9de0f6d54f94e6d13f5b17274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _saveDataVersion: 6
+  MigrationV0ObsoleteChannelsRef: []
+  SelectReferenceMat: []
+  MatSelectors: []
+  AtlasSettings:
+  - TextureScaleOffsetReset: 0
+    BakedPropertyWriteMaxValue: 0
+    HeightDenominator: 1
+    MergeMaterials: 0
+    MergeReferenceMaterial: {fileID: 0}
+    MaterialMergeGroups: []
+    UseUpScaling: 0
+    TextureFineTuningDataList:
+    - Select: 0
+      Resize_Size: 512
+      Resize_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Resize_Select: 1
+      Compress_FormatQuality: 3
+      Compress_UseOverride: 0
+      Compress_OverrideTextureFormat: 12
+      Compress_CompressionQuality: 50
+      Compress_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Compress_Select: 0
+      ReferenceCopy_SourcePropertyName:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      ReferenceCopy_TargetPropertyName:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Remove_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Remove_Select: 1
+      MipMapRemove_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      MipMapRemove_Select: 0
+      ColorSpace_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      ColorSpace_Select: 0
+      ColorSpace_Linear: 0
+    Padding: 0
+    UseIslandCache: 1
+    AtlasTextureSize: 2048
+    CustomAspect: 0
+    AtlasTextureHeightSize: 2048
+    AtlasTargetUVChannel: 0
+    UsePrimaryMaximumTexture: 0
+    PrimaryTextureProperty:
+      _propertyName: _MainTex
+      _useCustomProperty: 0
+      _shaderName: DefaultShader
+    IslandPadding: 0.01
+    IncludeDisabledRenderer: 0
+    ForceSizePriority: 0
+    BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
+    IslandFineTuners: []
+    PropertyBakeSetting: 0
+    ForceSetTexture: 0
+    PixelNormalize: 1
+    AtlasIslandRelocator:
+      rid: -2
+    WriteOriginalUV: 0
+    OriginalUVWriteTargetChannel: 1
+    TextureFineTuning:
+    - rid: 5298573494560227328
+    - rid: 5298573494560227329
+    - rid: 5298573494560227330
+    - rid: 5298573494560227331
+    TextureIndividualFineTuning: []
+    DownScaleAlgorithm: AverageSampling
+    AutoTextureSizeSetting: 0
+    AutoReferenceCopySetting: 0
+    AutoMergeTextureSetting: 0
+    UnsetTextures: []
+  UseIslandCache: 1
+  LimitCandidateMaterials: {fileID: 0}
+  SelectMatList:
+  - Material: {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
+    MaterialFineTuningValue: 1
+    AdditionalTextureSizeOffSet: 0
+    TextureSizeOffSet: 0
+  - Material: {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
+    MaterialFineTuningValue: 1
+    AdditionalTextureSizeOffSet: 0
+    TextureSizeOffSet: 0
+  MergeMaterialGroups: []
+  AllMaterialMergeReference: {fileID: 0}
+  AtlasSetting:
+    TextureScaleOffsetReset: 0
+    BakedPropertyWriteMaxValue: 0
+    HeightDenominator: 1
+    MergeMaterials: 0
+    MergeReferenceMaterial: {fileID: 0}
+    MaterialMergeGroups: []
+    UseUpScaling: 0
+    TextureFineTuningDataList:
+    - Select: 0
+      Resize_Size: 512
+      Resize_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Resize_Select: 1
+      Compress_FormatQuality: 3
+      Compress_UseOverride: 0
+      Compress_OverrideTextureFormat: 12
+      Compress_CompressionQuality: 50
+      Compress_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Compress_Select: 0
+      ReferenceCopy_SourcePropertyName:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      ReferenceCopy_TargetPropertyName:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Remove_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      Remove_Select: 1
+      MipMapRemove_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      MipMapRemove_Select: 0
+      ColorSpace_PropertyNames:
+        _propertyName: _MainTex
+        _useCustomProperty: 0
+        _shaderName: DefaultShader
+      ColorSpace_Select: 0
+      ColorSpace_Linear: 0
+    Padding: 0
+    UseIslandCache: 1
+    AtlasTextureSize: 64
+    CustomAspect: 0
+    AtlasTextureHeightSize: 2048
+    AtlasTargetUVChannel: 0
+    UsePrimaryMaximumTexture: 0
+    PrimaryTextureProperty:
+      _propertyName: _MainTex
+      _useCustomProperty: 0
+      _shaderName: DefaultShader
+    IslandPadding: 0.01
+    IncludeDisabledRenderer: 0
+    ForceSizePriority: 0
+    BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
+    IslandFineTuners: []
+    PropertyBakeSetting: 0
+    ForceSetTexture: 0
+    PixelNormalize: 1
+    AtlasIslandRelocator:
+      rid: -2
+    WriteOriginalUV: 0
+    OriginalUVWriteTargetChannel: 1
+    TextureFineTuning:
+    - rid: 5298573494560227332
+    - rid: 5298573494560227333
+    - rid: 5298573494560227334
+    - rid: 5298573494560227335
+    TextureIndividualFineTuning: []
+    DownScaleAlgorithm: AverageSampling
+    AutoTextureSizeSetting: 0
+    AutoReferenceCopySetting: 0
+    AutoMergeTextureSetting: 0
+    UnsetTextures: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5298573494560227328
+      type: {class: Resize, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning, asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Size: 512
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 1
+        DownScaleAlgorithm: AverageSampling
+    - rid: 5298573494560227329
+      type: {class: ReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        SourcePropertyName:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        TargetPropertyName:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        TargetPropertyNameList:
+        - _propertyName: _BaseColorMap
+          _useCustomProperty: 0
+          _shaderName: 
+        - _propertyName: _BaseMap
+          _useCustomProperty: 0
+          _shaderName: 
+    - rid: 5298573494560227330
+      type: {class: ColorSpace, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AsLinear: 1
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 0
+    - rid: 5298573494560227331
+      type: {class: Compress, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning, asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        FormatQualityValue: 3
+        UseOverride: 0
+        OverrideTextureFormat: 25
+        CompressionQuality: 100
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 0
+    - rid: 5298573494560227332
+      type: {class: Resize, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning, asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        Size: 512
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 1
+        DownScaleAlgorithm: AverageSampling
+    - rid: 5298573494560227333
+      type: {class: ReferenceCopy, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        SourcePropertyName:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        TargetPropertyName:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        TargetPropertyNameList:
+        - _propertyName: _BaseColorMap
+          _useCustomProperty: 0
+          _shaderName: 
+        - _propertyName: _BaseMap
+          _useCustomProperty: 0
+          _shaderName: 
+    - rid: 5298573494560227334
+      type: {class: ColorSpace, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        AsLinear: 1
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 0
+    - rid: 5298573494560227335
+      type: {class: Compress, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning, asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        FormatQualityValue: 3
+        UseOverride: 0
+        OverrideTextureFormat: 25
+        CompressionQuality: 100
+        PropertyNames:
+          _propertyName: _MainTex
+          _useCustomProperty: 0
+          _shaderName: DefaultShader
+        PropertyNameList:
+        - _propertyName: _BumpMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        - _propertyName: _Bump2ndMap
+          _useCustomProperty: 0
+          _shaderName: lilToon
+        Select: 0
+--- !u!1001 &4512393598951918466
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      propertyPath: m_Name
+      value: SomeVerTexCrossSubMeshUseIslandMesh-F
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1544776056166901142}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4878945251409133800}
+  m_SourcePrefab: {fileID: 100100000, guid: 952555a3c544fcc3ba03c6bfc2be99ee, type: 3}
+--- !u!1 &3629434848836040403 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+    type: 3}
+  m_PrefabInstance: {fileID: 4512393598951918466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4878945251409133800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3629434848836040403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c505736ce98d90443807418ec293c31f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _saveDataVersion: 6
+--- !u!4 &4113342747345939561 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 952555a3c544fcc3ba03c6bfc2be99ee,
+    type: 3}
+  m_PrefabInstance: {fileID: 4512393598951918466}
+  m_PrefabAsset: {fileID: 0}
