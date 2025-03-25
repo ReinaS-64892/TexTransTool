@@ -5,22 +5,28 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
+using System;
 
 namespace net.rs64.TexTransTool
 {
     /// <summary>
     /// This is an IDomain implementation that applies to specified renderers.
     /// </summary>
-    internal class RenderersDomain : IDomain
+    internal class RenderersDomain : IDomain, IDisposable
     {
         protected List<Renderer> _renderers;
-        protected readonly IAssetSaver _saver;
-        private readonly UnityDiskUtil _diskUtil;
-        protected readonly ImmediateStackManager _textureStacks;
-        protected readonly ITexTransToolForUnity _ttce4U;
-        protected readonly RenderTextureDescriptorManager _renderTextureDescriptorManager;
+
         protected readonly GenericReplaceRegistry _genericReplaceRegistry = new();
+        protected readonly IAssetSaver _saver;
+
+        protected readonly ITexTransUnityDiskUtil _diskUtil;
+        protected readonly ITexTransToolForUnity _ttce4U;
+
+        protected readonly ImmediateStackManager _textureStacks;
+
+        protected readonly RenderTextureDescriptorManager _renderTextureDescriptorManager;
         protected readonly Dictionary<Texture2D, TexTransToolTextureDescriptor> _textureDescriptors = new();
+
         public RenderersDomain(List<Renderer> previewRenderers, IAssetSaver assetSaver)
         {
             _renderers = previewRenderers;
@@ -35,6 +41,15 @@ namespace net.rs64.TexTransTool
             _renderTextureDescriptorManager = new(_ttce4U);
             _textureStacks = new ImmediateStackManager(_ttce4U);
         }
+        public RenderersDomain(List<Renderer> previewRenderers, IAssetSaver assetSaver, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u)
+        {
+            _renderers = previewRenderers;
+            _saver = assetSaver;
+            _diskUtil = diskUtil;
+            _ttce4U = ttt4u;
+            _renderTextureDescriptorManager = new(_ttce4U);
+            _textureStacks = new ImmediateStackManager(_ttce4U);
+        }
 
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
         public virtual void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey)
@@ -42,9 +57,9 @@ namespace net.rs64.TexTransTool
             _textureStacks.AddTextureStack(dist, addTex, blendKey);
         }
 
-        public void ReplaceMaterials(Dictionary<Material, Material> mapping)
+        public virtual void ReplaceMaterials(Dictionary<Material, Material> mapping)
         { RendererUtility.SwapMaterials(_renderers, mapping); }
-        public void SetMesh(Renderer renderer, Mesh mesh) { renderer.SetMesh(mesh); }
+        public virtual void SetMesh(Renderer renderer, Mesh mesh) { renderer.SetMesh(mesh); }
 
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
@@ -71,6 +86,7 @@ namespace net.rs64.TexTransTool
             var (textureDescriptors, replaceMap, originRt) = _renderTextureDescriptorManager.DownloadTexture2D();
             foreach (var r in replaceMap)
             {
+                TransferAsset(r.Value);
                 this.ReplaceTexture(r.Key, r.Value);
 
                 var replace = _genericReplaceRegistry.ReplacePooledRenderTexture(r.Key, r.Value);
@@ -81,14 +97,6 @@ namespace net.rs64.TexTransTool
             foreach (var kv in textureDescriptors)
                 _textureDescriptors[kv.Key] = kv.Value;
         }
-        public virtual void EditFinish()
-        {
-            MergeStack();
-            ReadBackToTexture2D();
-
-            new Texture2DCompressor(_textureDescriptors).CompressDeferred(this);
-            _diskUtil.Dispose();
-        }
 
         public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
 
@@ -97,6 +105,21 @@ namespace net.rs64.TexTransTool
         public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
         { _renderTextureDescriptorManager.RegisterPostProcessingAndLazyGPUReadBack(rt, textureDescriptor); }
 
-        T? IDomainCustomContext.GetCustomContext<T>() where T : class { return null; }
+        T? IDomainCustomContext.GetCustomContext<T>() where T : class
+        {
+            return GetCustomContext<T>();
+        }
+        protected virtual T? GetCustomContext<T>() where T : class { return null; }
+
+        public virtual void Dispose()
+        {
+            MergeStack();
+            ReadBackToTexture2D();
+
+            new Texture2DCompressor(_textureDescriptors).CompressDeferred(this);
+
+            if (_diskUtil is IDisposable dd) dd.Dispose();
+            if (_ttce4U is IDisposable t4uD) t4uD.Dispose();
+        }
     }
 }

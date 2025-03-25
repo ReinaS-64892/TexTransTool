@@ -154,6 +154,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
                         _ttce4U.BlendingWithAnySize(_stackViewTexture, l.addTex, l.blendKey);
                     }
                 UpdateNeeded = false;
+                _ttce4U.GammaToLinear(_stackViewTexture);
             }
 
             public bool ContainedPriority(int priority) => _stack.ContainsKey(priority);

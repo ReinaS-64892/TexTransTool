@@ -59,6 +59,7 @@ namespace net.rs64.TexTransTool
     }
     internal interface IRendererTargeting : IReplaceTracking, ILookingObject
     {
+        // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
         IEnumerable<Renderer> EnumerateRenderer();
         Material?[] GetMaterials(Renderer renderer)
         {
@@ -67,6 +68,8 @@ namespace net.rs64.TexTransTool
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
         Mesh? GetMesh(Renderer renderer) { return renderer.GetMesh(); }
+
+        // ここで得られる Material は Renderer に存在するもの以外も入りうる
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();

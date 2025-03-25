@@ -17,7 +17,6 @@ namespace net.rs64.TexTransTool.Preview.RealTime
         Action<TexTransRuntimeBehavior, int> _lookAtCallBack;
         private UnityDiskUtil _diskUtil;
         private TTCEUnityWithTTT4Unity _ttce4U;
-        readonly HashSet<ITTRenderTexture> _registeredRenderTextures = new();
 
 
         public RealTimePreviewDomain(GameObject domainRoot, Action<TexTransRuntimeBehavior, int> lookAtCallBack)
@@ -28,7 +27,6 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _diskUtil = new UnityDiskUtil(true);
             _ttce4U = new TTCEUnityWithTTT4Unity(_diskUtil);
             _stackManager = new(_ttce4U, NewPreviewTextureRegister);
-            // _stackManager.NewPreviewTexture += NewPreviewTextureRegister;
 
             _domainRenderers.Clear();
             _domainRenderers.UnionWith(_domainRoot.GetComponentsInChildren<Renderer>(true));
