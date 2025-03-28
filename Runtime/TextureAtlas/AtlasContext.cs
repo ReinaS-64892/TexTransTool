@@ -206,8 +206,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             for (int subSetIndex = 0; compiledMeshes.Length > subSetIndex; subSetIndex += 1)
             {
                 var subSet = atlasSubSets[subSetIndex];
-                var firstID = subSet.First();
+                var firstID = subSet.First(i => i != null);
                 var meshID = firstID.HasValue ? firstID.Value.MeshID : -1;
+
+                Debug.Assert(meshID is not -1);
 
                 var nmMesh = NormalizedMeshCtx.MeshID2Normalized[meshID];
                 var distMesh = NormalizedMeshCtx.Normalized2OriginMesh[nmMesh];
