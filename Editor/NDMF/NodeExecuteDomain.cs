@@ -136,13 +136,14 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
                 this.ReplaceTexture(mergeResult.Key, _ttce4U.GetReferenceRenderTexture(mergeResult.Value));
-                _ttce4U.GammaToLinear(mergeResult.Value);
                 _transferredRenderTextures.Add(mergeResult.Value);
             }
         }
         public void DomainFinish()
         {
             MargeStack();
+            foreach (var tfRT in _transferredRenderTextures)
+                _ttce4U.GammaToLinear(tfRT);
         }
 
 
