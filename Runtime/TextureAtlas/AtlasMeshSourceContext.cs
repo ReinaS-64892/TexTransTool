@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var materialSlotCount = 0;
                 foreach (var r in MkR) { materialSlotCount = Mathf.Max(targeting.GetMaterials(r).Length, materialSlotCount); }
 
-                var isOverSubMesh = materialSlotCount >= mesh.subMeshCount;
+                var isOverSubMesh = materialSlotCount > mesh.subMeshCount;
                 var isCrossSubMesh = IsCrossSubMesh(mesh);
 
                 if (isOverSubMesh is false && isCrossSubMesh is false) { normalizedMesh[mesh] = UnityEngine.Object.Instantiate(mesh); continue; }
