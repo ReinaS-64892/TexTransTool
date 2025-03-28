@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         public AtlasMeshSourceContext(IRendererTargeting targeting, Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
         {
+            using var pf = new PFScope("ctr");
             var meshGroupedRenderers = targetRenderers.GroupBy(r => targeting.GetMesh(r)).Cast<IGrouping<Mesh, Renderer>>().ToArray();
             var meshArray = meshGroupedRenderers.Select(k => k.Key).ToArray();
             Origin2NormalizedMesh = CrossSubMeshNormalizingAndExpandMaterialSlot(targeting, meshGroupedRenderers);
@@ -29,6 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             Normalized2MeshID = Origin2NormalizedMesh.ToDictionary(kv => kv.Value, kv => Array.IndexOf(meshArray, kv.Key));
             MeshID2Normalized = Normalized2MeshID.ToDictionary(kv => kv.Value, kv => kv.Key);
 
+            pf.Split("generate mesh data");
             Normalized2MeshData = new Dictionary<Mesh, MeshData>();
             foreach (var mkr in meshGroupedRenderers)
             {
@@ -57,9 +59,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
         }
         private Dictionary<Mesh, Mesh> CrossSubMeshNormalizingAndExpandMaterialSlot(IRendererTargeting targeting, IGrouping<Mesh, Renderer>[] targetRenderers)
         {
+            using var pf = new PFScope("init");
             var normalizedMesh = new Dictionary<Mesh, Mesh>();
             foreach (var MkR in targetRenderers)
             {
+                pf.Split(MkR.Key.name);
                 var mesh = MkR.Key;
                 var materialSlotCount = 0;
                 foreach (var r in MkR) { materialSlotCount = Mathf.Max(targeting.GetMaterials(r).Length, materialSlotCount); }
@@ -70,7 +74,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 if (isOverSubMesh is false && isCrossSubMesh is false) { normalizedMesh[mesh] = UnityEngine.Object.Instantiate(mesh); continue; }
 
                 // Profiler.BeginSample(MkR.Key.name + "-Normalize");
-                normalizedMesh[mesh] = Normalizing(mesh, materialSlotCount);
+                using (new PFScope("Normalizing"))
+                    normalizedMesh[mesh] = Normalizing(mesh, materialSlotCount);
                 // Profiler.EndSample();
             }
             return normalizedMesh;

@@ -53,41 +53,54 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal override void Apply(IDomain domain)
         {
+            using var rpf = new PFScope("AtlasTexture");
+            using var pf = new PFScope("init");
             domain.LookAt(this);
 
             if (SelectMatList.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotSet"); return; }
+
+            pf.Split("targeting");
 
             var nowRenderers = GetTargetAllowedFilter(domain.EnumerateRenderer());
             var targetMaterials = GetTargetMaterials(domain, nowRenderers).ToHashSet();
 
             if (targetMaterials.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotFound"); return; }
 
+            pf.Split("looking");
+
             foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
             if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
+
+            pf.Split("prepare");
 
             var engine = domain.GetTexTransCoreEngineForUnity();
             var targeting = domain as IRendererTargeting;
             var targetRenderers = FilterTargetRenderers(targeting, nowRenderers, targetMaterials);
             var atlasSetting = AtlasSetting;
 
+            pf.Split("Atlasing!");
             // Do Atlasing!
             var atlasResult = DoAtlasTexture(domain, engine, targetMaterials, targetRenderers, atlasSetting, SelectMatList);
             using var atlasContext = atlasResult.AtlasContext;
             var atlasedMeshes = atlasResult.AtlasedMeshes;
             var compiledAtlasTextures = atlasResult.CompiledAtlasTextures;
 
+            pf.Split("tex fine tuning");
             //Texture Fine Tuning
             var tunedAtlasTextures = DoTextureFinTuning(engine, atlasContext, atlasSetting, compiledAtlasTextures);
 
             var tunedAtlasUnityTextures = tunedAtlasTextures.RenderTextures.ToDictionary(i => i.Key, i => engine.GetReferenceRenderTexture(i.Value));
             var usedRT = new HashSet<ITTRenderTexture>(tunedAtlasTextures.TextureDescriptors.Keys);
 
+            pf.Split("replace mesh");
             //Mesh Change
             ReplaceMesh(domain, targetRenderers, atlasContext, atlasedMeshes);
 
+            pf.Split("gen and replace material");
             //MaterialGenerate And Change
             ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, (MergeMaterialGroups, AllMaterialMergeReference), tunedAtlasUnityTextures);
 
+            pf.Split("register textures");
             // Register AtlasedTextures
             foreach (var t in compiledAtlasTextures.Values) { if (usedRT.Contains(t) is false) t.Dispose(); }
             foreach (var aTex in tunedAtlasTextures.TextureDescriptors)
@@ -116,6 +129,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             , List<MatSelector> selectMatList
         )
         {
+            using var pf = new PFScope("init");
             var targeting = domain as IRendererTargeting;
             var sizePriorityDict = targetMaterials
                 .ToDictionary(
@@ -127,8 +141,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                         )
                 );
 
-
             var atlasTargeSize = GetAtlasTextureSize(atlasSetting);
+            pf.Split("AtlasContext ctr");
             var atlasContext = new AtlasContext(
                                targeting
                                , targetRenderers
@@ -143,11 +157,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
 
+            pf.Split("PixelNormalize");
             //アイランドまわり
             if (atlasSetting.PixelNormalize)
                 atlasContext.SourceVirtualIslandNormalize();
 
 
+            pf.Split("IslandProcessing");
             var (movedVirtualIslandArray, relocateResult) = IslandProcessing(domain, atlasSetting, atlasContext, sizePriorityDict, out var relocationTime);
             if (relocateResult.IslandRelocationResult is null) { throw new Exception(); }
             if (relocateResult.IslandRelocationResult.IsSuccess is false) { throw new Exception(); }
@@ -158,6 +174,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
 
 
+            pf.Split("check hight");
             //上側を削れるかを見る
             var height = IslandRelocationManager.CalculateIslandsMaxHeight(movedVirtualIslandArray) + atlasSetting.IslandPadding;
             var atlasTextureHeightSize = Mathf.Max(GetNormalizedMinHeightSize(atlasTargeSize.y, height), 4);//4以下はちょっと怪しい挙動しそうだからクランプ
@@ -168,8 +185,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             //新しいUVを持つMeshを生成するフェーズ
 
+            pf.Split("GenerateAtlasedMesh");
             // SubSetIndex と対応する
             var atlasedMeshes = atlasContext.GenerateAtlasedMesh(atlasSetting, source2MovedVirtualIsland, atlasedTextureSize);
+            pf.Split("GenerateAtlasedTextures");
             var compiledAtlasTextures = atlasContext.GenerateAtlasedTextures(
                   engine
                   , atlasSetting
@@ -177,6 +196,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                   , relocateResult.IslandRelocationResult.IsRectangleMove
                   , source2MovedVirtualIsland
               );
+            pf.Split("exit");
             return new(atlasContext, atlasedMeshes, compiledAtlasTextures);
         }
         internal record AtlasResult

@@ -130,6 +130,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
         private void DrawAtlasSettings()
         {
+            using var pf = new PFScope("DrawAtlasSettings");
             EditorGUILayout.LabelField("AtlasTexture:label:AtlasSettings".Glc(), EditorStyles.boldLabel);
             using var t = new EditorGUI.IndentLevelScope(1);
 
@@ -160,7 +161,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".GlcV());
             EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".GlcV());
             EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".GlcV());
-
+            pf.Split("Experimental");
             s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
             using (new EditorGUI.IndentLevelScope(1))
                 if (s_ExperimentalFutureOption)
@@ -183,6 +184,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                     }
                 }
 
+            pf.Split("TextureFineTuning");
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());
         }
 

@@ -76,12 +76,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
             , AtlasContextOption atlasContextOption
             )
         {
+            using var pf = new PFScope("MaterialGroupingCtx ctr");
             MaterialGroupingCtx = new(targetMaterials, atlasContextOption.AtlasTargetUVChannel, atlasContextOption.PrimaryTexturePropertyOrMaximum);
+            pf.Split("NormalizedMeshCtx ctr");
             NormalizedMeshCtx = new(targeting, targetRenderers, atlasContextOption.AtlasTargetUVChannel);
+            pf.Split("AtlasSubMeshIndexSetCtx ctr");
             AtlasSubMeshIndexSetCtx = new(targeting, targetRenderers, targetMaterials, NormalizedMeshCtx, MaterialGroupingCtx);
+            pf.Split("AtlasIslandCtx ctr");
             AtlasIslandCtx = new(AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash, NormalizedMeshCtx.GetMeshDataFromMeshID, atlasContextOption.AtlasIslandContextOption);
 
 
+            pf.Split("source virtual island generate");
             SourceVirtualIslands = AtlasIslandCtx.Origin2VirtualIsland.Values.Distinct().ToArray();
 
 
@@ -290,6 +295,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             , Dictionary<IslandTransform, IslandTransform> source2MovedVirtualIsland
         ) where TTT4U : ITexTransToolForUnity
         {
+            using var pf = new PFScope("init");
             //アトラス化したテクスチャーを生成するフェーズ
             var compiledAtlasTextures = new Dictionary<string, ITTRenderTexture>();
 
@@ -301,6 +307,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 foreach (var propName in containsProperty)
                 {
+                    pf.Split(propName);
+                    using var ppf = new PFScope("init");
                     var targetRT = engine.CreateRenderTexture(atlasedTextureSize.x, atlasedTextureSize.y);
                     engine.ColorFill(targetRT, atlasSetting.BackGroundColor.ToTTCore());
 
@@ -309,6 +317,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     foreach (var group in groupedTextures.GroupedTextures)
                     {
                         if (!group.Value.TryGetValue(propName, out var sourceTexture)) { continue; }
+                        ppf.Split(sourceTexture.Name);
                         var sourceRenderTexture = sourceTexture switch
                         {
                             ITTRenderTexture rt => rt,
