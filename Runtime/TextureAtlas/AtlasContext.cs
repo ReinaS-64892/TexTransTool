@@ -205,9 +205,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var writeDefaultUVChannel = (int)atlasSetting.AtlasTargetUVChannel;
             var compiledMeshes = new Mesh[atlasSubSets.Count];
 
-            if (atlasSetting.WriteOriginalUV)
-                if (writeDefaultUVChannel == Math.Clamp(atlasSetting.OriginalUVWriteTargetChannel, 0, 7)) { TexTransCore.TTLog.Error("AtlasTexture:warn:OriginalUVWriteTargetForAtlasTargetUV"); }
-
             for (int subSetIndex = 0; compiledMeshes.Length > subSetIndex; subSetIndex += 1)
             {
                 var subSet = atlasSubSets[subSetIndex];
@@ -274,13 +271,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     }
                 }
                 newMesh.SetUVs(writeDefaultUVChannel, movedUVNativeArray);
-
-                if (atlasSetting.WriteOriginalUV)
-                {
-                    var writeTarget = Math.Clamp(atlasSetting.OriginalUVWriteTargetChannel, 0, 7);
-                    if (newMesh.HasUV(writeTarget)) { TexTransCore.TTLog.Info("AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV", writeTarget, distMesh); }
-                    newMesh.SetUVs(writeTarget, meshData.VertexUV);
-                }
 
                 compiledMeshes[subSetIndex] = newMesh;
                 newMesh.UploadMeshData(false);

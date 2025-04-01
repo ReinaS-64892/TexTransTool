@@ -36,9 +36,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool PixelNormalize = true;
 
 
-        [SerializeReference, SubclassSelector] public IIslandRelocatorProvider AtlasIslandRelocator = null;
-        public bool WriteOriginalUV = false;
-        [Range(0, 7)] public int OriginalUVWriteTargetChannel = 1;
+        public List<TextureSelector> UnsetTextures = new();
 
 
         [SerializeReference, SubclassSelector]
@@ -86,7 +84,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool AutoReferenceCopySetting = false;
         public bool AutoMergeTextureSetting = false;
 
-        public List<TextureSelector> UnsetTextures = new();
     }
     public interface IIslandRelocatorProvider
     {
