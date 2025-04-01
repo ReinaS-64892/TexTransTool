@@ -20,6 +20,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool WriteOriginalUV = false;
+        [Range(0, 7)][Obsolete("V6SaveData", true)][SerializeField] internal int OriginalUVWriteTargetChannel = 1;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool TextureScaleOffsetReset = false;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool BakedPropertyWriteMaxValue = false;
         [Obsolete("V6SaveData", true)][SerializeField][PowerOfTwo] internal int HeightDenominator = 1;
