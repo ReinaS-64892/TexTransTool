@@ -24,19 +24,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool UsePrimaryMaximumTexture;
         public PropertyName PrimaryTextureProperty = PropertyName.DefaultValue;
 
+
+        public bool ForceSizePriority = false;
         [Range(0f, 0.05f)] public float IslandPadding = 0.01f;
         [FormerlySerializedAs("IncludeDisableRenderer")] public bool IncludeDisabledRenderer = false;
-        public bool ForceSizePriority = false;
         public Color BackGroundColor = Color.white;
-        [SerializeReference] internal List<IIslandFineTuner> IslandFineTuners = new();
-
-
-        public PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
-        public bool ForceSetTexture = false;
         public bool PixelNormalize = true;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
 
+        public bool ForceSetTexture = false;
         public List<TextureSelector> UnsetTextures = new();
+
+
+        [SerializeReference, SubclassSelector] internal IIslandRelocatorProvider AtlasIslandRelocator = null;
 
 
         [SerializeReference, SubclassSelector]
@@ -78,7 +79,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             };
         public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
 
-        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
         public bool AutoTextureSizeSetting = false;
         public bool AutoReferenceCopySetting = false;
