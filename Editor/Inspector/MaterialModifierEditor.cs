@@ -314,12 +314,12 @@ namespace net.rs64.TexTransTool.Editor
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                var propertyIndex = i;
+                var propertyNameID = shader.GetPropertyNameId(i);
 
-                if (!variant.IsPropertyOverriden(propertyName)) continue;
+                if (!variant.IsPropertyOverriden(propertyNameID)) continue;
 
-                if (!MaterialProperty.TryGet(variant, propertyName, propertyType, out var overrideProperty)) continue;
+                if (!MaterialProperty.TryGet(variant, propertyIndex, out var overrideProperty)) continue;
 
                 yield return overrideProperty;
             }
