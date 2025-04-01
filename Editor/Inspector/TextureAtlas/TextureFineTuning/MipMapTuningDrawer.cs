@@ -5,9 +5,8 @@ using System;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
-    [CustomPropertyDrawer(typeof(MipMapRemove))]
-    [Obsolete]
-    internal class MipMapRemoveTuningDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(MipMap))]
+    internal class MipMapTuningDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -15,9 +14,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var sPropertyNames = property.FindPropertyRelative("PropertyNameList");
             var sSelect = property.FindPropertyRelative("Select");
-            var sIsRemove = property.FindPropertyRelative("IsRemove");
+            var sIsRemove = property.FindPropertyRelative("UseMipMap");
 
-            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:IsRemove".GlcV());
+            EditorGUI.PropertyField(position, sIsRemove, "TextureFineTuning:prop:UseMipMap".GlcV());
             position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sPropertyNames);

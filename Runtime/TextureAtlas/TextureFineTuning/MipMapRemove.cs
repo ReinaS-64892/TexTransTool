@@ -7,6 +7,8 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
+    [Obsolete]
+    [AddTypeMenu("(this is Obsolete, place use MipMap) Mip Map Remove")]// TODO : Migration
     public class MipMapRemove : ITextureFineTuning
     {
         public bool IsRemove = true;
@@ -40,26 +42,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         }
     }
 
-    internal class MipMapData : ITuningData
-    {
-        public bool UseMipMap = true;
-    }
 
-    internal class MipMapApplicant : ITuningProcessor
-    {
-        public int Order => 0;
-
-        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
-        {
-            foreach (var tuning in ctx.TuningHolder)
-            {
-                var tuningHolder = tuning.Value;
-                var mipMapData = tuningHolder.Find<MipMapData>();
-                if (mipMapData == null) { continue; }
-
-                ctx.ProcessingHolder[tuning.Key].TextureDescriptor.UseMipMap = mipMapData.UseMipMap;
-            }
-        }
-    }
 
 }
