@@ -320,7 +320,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
             public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
-            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
             {
                 if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
                 if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
@@ -375,7 +375,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _textureHashOnMaterial = new();
             }
             public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
-            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
+            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
 
             public Material?[] GetMaterials(Renderer renderer)
             {

@@ -47,10 +47,10 @@ namespace net.rs64.TexTransTool
         bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
         void TransferAsset(UnityEngine.Object asset);
     }
-    public delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+    public delegate bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
     internal interface IReplaceTracking
     {
-        bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+        bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
     }
     internal interface IReplaceRegister
     {
@@ -185,8 +185,9 @@ namespace net.rs64.TexTransTool
         Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
         public IReadOnlyDictionary<UnityEngine.Object, UnityEngine.Object> ReplaceMap => _replaceMap;
 
-        public virtual bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+        public virtual bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
         {
+            if (l == null || r == null) { return l == r; }
             if (l == r) { return true; }
             var originL = _replaceMap.TryGetValue(l, out var oL) ? oL : l;
             var originR = _replaceMap.TryGetValue(r, out var oR) ? oR : r;

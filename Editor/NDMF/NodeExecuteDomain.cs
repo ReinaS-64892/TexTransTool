@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.NDMF
         {
             _objectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
-        public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == r) { return true; }
             if (l is Renderer lRen && r is Renderer rRen)

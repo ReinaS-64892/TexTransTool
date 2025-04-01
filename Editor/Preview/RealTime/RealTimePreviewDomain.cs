@@ -130,7 +130,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
 
-        public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == r) { return true; }
             if (l is Material lm && r is Material rm)

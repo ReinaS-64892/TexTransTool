@@ -64,7 +64,10 @@ namespace net.rs64.TexTransTool
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
-        public virtual bool OriginEqual(Object l, Object r) { return _genericReplaceRegistry.OriginEqual(l, r); }
+        public virtual bool OriginEqual(Object? l, Object? r)
+        {
+            return _genericReplaceRegistry.OriginEqual(l, r);
+        }
         public virtual void RegisterReplace(Object oldObject, Object nowObject) { _genericReplaceRegistry.RegisterReplace(oldObject, nowObject); }
 
 
