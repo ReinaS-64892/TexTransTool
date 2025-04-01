@@ -25,18 +25,18 @@ namespace net.rs64.TexTransTool.TextureAtlas
         [FormerlySerializedAs("TargetRoot")] public GameObject? LimitCandidateMaterials;
         public List<Material?> AtlasTargetMaterials = new List<Material?>();
 
-        // material merge
-        // public List<MaterialMergeGroup> MergeMaterialGroups = new();
-        // [Serializable]
-        // public class MaterialMergeGroup
-        // {
-        //     public List<Material> Group = new();
-        //     public Material? Reference;
-        // }
-        // public Material? AllMaterialMergeReference;
-
         // IslandSizePriorityTuner
         [SerializeReference, SubclassSelector] internal List<IIslandSizePriorityTuner?> IslandSizePriorityTuner = new();
+
+        // material merge
+        public List<MaterialMergeGroup> MergeMaterialGroups = new();
+        [Serializable]
+        public class MaterialMergeGroup
+        {
+            public List<Material> Group = new();
+            public Material? Reference;
+        }
+        public Material? AllMaterialMergeReference;
 
         // Other atlasing Settings
         public AtlasSetting AtlasSetting = new AtlasSetting();
@@ -59,8 +59,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("looking");
 
-            // foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
-            // if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
+            foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
+            if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
 
             pf.Split("prepare");
 
@@ -89,7 +89,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("gen and replace material");
             //MaterialGenerate And Change
-            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, tunedAtlasUnityTextures);
+            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, (MergeMaterialGroups, AllMaterialMergeReference), tunedAtlasUnityTextures);
 
             pf.Split("register textures");
             // Register AtlasedTextures
@@ -265,6 +265,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             IDomain domain
             , HashSet<Material> targetMaterials
             , AtlasSetting atlasSetting
+            , (List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference) atlasMergeSettings
             , Dictionary<string, RenderTexture> tunedAtlasUnityTextures
             )
         {
@@ -274,23 +275,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
                 atlasMatOption.UnsetTextures = atlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
-            var materialMap = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption);
+            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, atlasMergeSettings.mergeMaterialGroups, atlasMergeSettings.allMaterialMergeReference);
+            var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption, mergeReferenceMaterial);
 
             domain.ReplaceMaterials(materialMap);
-            domain.RegisterReplaces(materialMap);
+            domain.RegisterReplaces(domainsMaterial2ReplaceMaterial);
         }
 
-        private static Dictionary<Material, Material> GenerateAtlasedMaterials<Tex>(HashSet<Material> targetMaterials, Dictionary<string, Tex> tex, AtlasMatGenerateOption atlasMatOption)
-        where Tex : Texture
-        {
-            var materialMap = new Dictionary<Material, Material>();
-            foreach (var distMat in targetMaterials)
-            {
-                materialMap[distMat] = GenerateAtlasMat(distMat, tex, atlasMatOption);
-            }
-            return materialMap;
-        }
-        /*
         private static (Dictionary<Material, Material> materialMap, Dictionary<Material, Material> domainsMaterial2ReplaceMaterial)
             GenerateAtlasedMaterials<Tex>(HashSet<Material> targetMaterials, Dictionary<string, Tex> tex, AtlasMatGenerateOption atlasMatOption, NowMaterialGroup[] mergeReferenceMaterial)
             where Tex : Texture
@@ -331,7 +322,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return matGroupList.ToArray();
         }
-        */
         record NowMaterialGroup
         {
             public HashSet<Material> GroupMaterial;

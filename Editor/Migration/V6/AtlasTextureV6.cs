@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.Migration.V6
                 if (atlasTexture.MigrationTemporarylilToonMaterialNormalizerReference == null)
                 {
                     var lnuGameObject = new GameObject("lilToonMaterialNormalizer (generate from AtlasTexture migration)");
-                    lnuGameObject.transform.SetParent(atlasTexture.transform.parent, false);
+                    lnuGameObject.transform.SetParent(atlasTexture.transform.parent != null ? atlasTexture.transform.parent : atlasTexture.transform, false);
                     lnuGameObject.transform.SetSiblingIndex(atlasTexture.transform.GetSiblingIndex());
                     if (lilToonNDMFUtility.lilToonMaterialNormalizerPublicAPI.TryAddComponent(lnuGameObject, out var lnuMn))
                         atlasTexture.MigrationTemporarylilToonMaterialNormalizerReference = lnuMn as Behaviour;
@@ -59,8 +59,23 @@ namespace net.rs64.TexTransTool.Migration.V6
             }
 #endif
 
+            if (atlasTexture.AtlasSetting.MergeMaterials)
+            {
+                var mergeRef = atlasTexture.AtlasSetting.MergeReferenceMaterial;
+                if (mergeRef == null) { mergeRef = atlasTexture.AtlasTargetMaterials.FirstOrDefault(); }
+                atlasTexture.AllMaterialMergeReference = mergeRef;
+            }
+            else
+            {
+                atlasTexture.MergeMaterialGroups = new();
+                atlasTexture.AllMaterialMergeReference = null;
+            }
 
-
+            atlasTexture.MergeMaterialGroups = atlasTexture.AtlasSetting.MaterialMergeGroups.Select(i => new AtlasTexture.MaterialMergeGroup()
+            {
+                Group = i.GroupMaterials,
+                Reference = i.MergeReferenceMaterial,
+            }).ToList();
 
             EditorUtility.SetDirty(atlasTexture);
             MigrationUtility.SetSaveDataVersion(atlasTexture, 7);

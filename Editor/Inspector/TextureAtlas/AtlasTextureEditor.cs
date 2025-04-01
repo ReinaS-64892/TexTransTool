@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             sIslandSizePriorityTuner = thisSObject.FindProperty(nameof(AtlasTexture.IslandSizePriorityTuner));
 
 
-            sMergeMaterialGroups = thisSObject.FindProperty("MergeMaterialGroups");
+            sMergeMaterialGroups = thisSObject.FindProperty(nameof(AtlasTexture.MergeMaterialGroups));
             sAllMaterialMergeReference = thisSObject.FindProperty("AllMaterialMergeReference");
 
 
@@ -121,16 +121,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             {
                 EditorGUILayout.PropertyField(sIslandSizePriorityTuner, "AtlasTexture:prop:IslandSizePriorityTuner".GlcV());
             }
-            // EditorGUILayout.LabelField("AtlasTexture:label:MaterialSettings".Glc(), EditorStyles.boldLabel);
-            // using (new EditorGUI.IndentLevelScope(1))
-            // using (new PFScope("MaterialSettings"))
-            // {
-            //     using (new PFScope("DrawMaterialMergeGroup"))
-            //         DrawMaterialMergeGroup(sAtlasTargetMaterials, sMergeMaterialGroups);
-            //     using (new EditorGUI.IndentLevelScope(1))
-            //         EditorGUILayout.PropertyField(sMergeMaterialGroups, "AtlasTexture:prop:MergeMaterialGroups".GlcV());
-            //     EditorGUILayout.PropertyField(sAllMaterialMergeReference, "AtlasTexture:prop:AllMaterialMergeReference".GlcV());
-            // }
+
+            EditorGUILayout.LabelField("AtlasTexture:label:MaterialSettings".Glc(), EditorStyles.boldLabel);
+            using (new EditorGUI.IndentLevelScope(1))
+            using (new PFScope("MaterialSettings"))
+            {
+                using (new PFScope("DrawMaterialMergeGroup"))
+                    DrawMaterialMergeGroup(sAtlasTargetMaterials, sMergeMaterialGroups);
+                EditorGUILayout.PropertyField(sAllMaterialMergeReference, "AtlasTexture:prop:AllMaterialMergeReference".GlcV());
+            }
 
             using (new PFScope("DrawAtlasSettings"))
                 DrawAtlasSettings();
@@ -197,44 +196,35 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());
         }
 
-        private static void DrawMaterialMergeGroup(SerializedProperty sMatSelectors, SerializedProperty sMaterialMergeGroups)
+        private static void DrawMaterialMergeGroup(SerializedProperty sTargetMaterials, SerializedProperty MergeMaterialGroups)
         {
-            var headerRect = EditorGUILayout.GetControlRect();
-            var guiContent = EditorGUI.BeginProperty(headerRect, "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups".GlcV(), sMaterialMergeGroups);
+            EditorGUILayout.PropertyField(MergeMaterialGroups, "AtlasTexture:prop:MergeMaterialGroups".GlcV());
+            if (MergeMaterialGroups.isExpanded) { return; }
 
-            s_MaterialMergeGroupsFoldout = EditorGUI.Foldout(headerRect, s_MaterialMergeGroupsFoldout, guiContent);
-            if (s_MaterialMergeGroupsFoldout)
+            using (new EditorGUILayout.HorizontalScope())
             {
-
-                var buttonWidth = headerRect.width * 0.125f;
-                headerRect.x += headerRect.width - buttonWidth * 2;
-                headerRect.width = buttonWidth;
-                if (GUI.Button(headerRect, "+"))
+                if (GUILayout.Button("+"))
                 {
-                    var newIndex = sMaterialMergeGroups.arraySize;
-                    sMaterialMergeGroups.arraySize += 1;
+                    var newIndex = MergeMaterialGroups.arraySize;
+                    MergeMaterialGroups.arraySize += 1;
 
-                    var mmg = sMaterialMergeGroups.GetArrayElementAtIndex(newIndex);
+                    var mmg = MergeMaterialGroups.GetArrayElementAtIndex(newIndex);
                     mmg.FindPropertyRelative("Reference").objectReferenceValue = null;
                     mmg.FindPropertyRelative("Group").arraySize = 0;
                 }
-                headerRect.x += headerRect.width;
-                if (GUI.Button(headerRect, "-")) { sMaterialMergeGroups.arraySize += -1; }
+                if (GUILayout.Button("-")) { MergeMaterialGroups.arraySize += -1; }
             }
 
-            EditorGUI.EndProperty();
-
-            if (!s_MaterialMergeGroupsFoldout) { return; }
-
             s_targetMatHash.Clear();
-            for (var i = 0; sMatSelectors.arraySize > i; i += 1) { s_targetMatHash.Add(sMatSelectors.GetArrayElementAtIndex(i).FindPropertyRelative("Material").objectReferenceValue as Material); }
+            for (var i = 0; sTargetMaterials.arraySize > i; i += 1)
+                s_targetMatHash.Add(sTargetMaterials.GetArrayElementAtIndex(i).objectReferenceValue as Material);
 
             using var vs = new EditorGUILayout.VerticalScope(EditorStyles.helpBox);
 
-            for (var i = 0; sMaterialMergeGroups.arraySize > i; i += 1)
+            for (var i = 0; MergeMaterialGroups.arraySize > i; i += 1)
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
-                    var mmg = sMaterialMergeGroups.GetArrayElementAtIndex(i);
+                    var mmg = MergeMaterialGroups.GetArrayElementAtIndex(i);
                     var mRef = mmg.FindPropertyRelative("Reference");
                     var mg = mmg.FindPropertyRelative("Group");
                     var mgGUIContent = "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials".Glc();
@@ -282,7 +272,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
 
         static bool s_ExperimentalFutureOption = false;
-        static bool s_MaterialMergeGroupsFoldout = false;
         static HashSet<Material> s_targetMatHash = new();
 
 
