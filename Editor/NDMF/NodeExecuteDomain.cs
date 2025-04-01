@@ -10,6 +10,7 @@ using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -109,7 +110,13 @@ namespace net.rs64.TexTransTool.NDMF
 
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { return new(); }
 
-        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { _transferredRenderTextures.Add(rt); }
+        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)
+        {
+            _transferredRenderTextures.Add(rt);
+
+            if (textureDescriptor.AsLinear)
+                TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Add(_ttce4U.GetReferenceRenderTexture(rt));
+        }
 
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
         {
@@ -137,13 +144,17 @@ namespace net.rs64.TexTransTool.NDMF
                 if (mergeResult.Key == null || mergeResult.Value == null) continue;
                 this.ReplaceTexture(mergeResult.Key, _ttce4U.GetReferenceRenderTexture(mergeResult.Value));
                 _transferredRenderTextures.Add(mergeResult.Value);
+
+                if (GraphicsFormatUtility.IsSRGBFormat(mergeResult.Key.graphicsFormat) is false)
+                    TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Add(_ttce4U.GetReferenceRenderTexture(mergeResult.Value));
             }
         }
         public void DomainFinish()
         {
             MargeStack();
             foreach (var tfRT in _transferredRenderTextures)
-                _ttce4U.GammaToLinear(tfRT);
+                if (TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Contains(_ttce4U.GetReferenceRenderTexture(tfRT)) is false)
+                    _ttce4U.GammaToLinear(tfRT);
         }
 
 
@@ -154,7 +165,12 @@ namespace net.rs64.TexTransTool.NDMF
                 if (obj is Material mat) { _ = NDMFPreviewMaterialPool.Ret(mat); continue; }
                 UnityEngine.Object.DestroyImmediate(obj, true);
             }
-            foreach (var rt in _transferredRenderTextures) { rt.Dispose(); }
+            foreach (var rt in _transferredRenderTextures)
+            {
+                TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Remove(_ttce4U.GetReferenceRenderTexture(rt));
+                rt.Dispose();
+            }
+            _transferredRenderTextures.Clear();
             _transferredObject.Clear();
             _textureStacks.Dispose();
 
@@ -177,6 +193,7 @@ namespace net.rs64.TexTransTool.NDMF
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
 
         DomainPreviewCtx DomainPreviewCtx = new(true);
+
         T? IDomainCustomContext.GetCustomContext<T>() where T : class
         {
             if (DomainPreviewCtx is T dpc) { return dpc; }
@@ -220,12 +237,14 @@ namespace net.rs64.TexTransTool.NDMF
 
     class TTCEUnityWithTTT4UnityOnNDMFPreview : TTCEUnityWithTTT4Unity
     {
+        // あまり嬉しくない ... だがそれ以外の良い手段が思いつかなかったがゆえ
+        internal static HashSet<RenderTexture> s_AsLinearMarked = new();
         public TTCEUnityWithTTT4UnityOnNDMFPreview(ITexTransUnityDiskUtil diskUtil) : base(diskUtil) { }
 
         public override ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
             var newRt = base.UploadTexture(renderTexture);
-            if (TTRt2.Contains(renderTexture)) { this.LinearToGamma(newRt); }
+            if (TTRt2.Contains(renderTexture) && s_AsLinearMarked.Contains(renderTexture) is false) { this.LinearToGamma(newRt); }
             return newRt;
         }
     }
