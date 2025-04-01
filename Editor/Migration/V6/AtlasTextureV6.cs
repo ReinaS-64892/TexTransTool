@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransTool.TextureAtlas;
+using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 using UnityEditor;
 using UnityEngine;
@@ -25,6 +26,20 @@ namespace net.rs64.TexTransTool.Migration.V6
                     PriorityValue = i.MaterialFineTuningValue
                 }
             ).ToList<IIslandSizePriorityTuner>();
+
+            for (var i = 0; atlasTexture.AtlasSetting.TextureFineTuning.Count > i; i += 1)
+            {
+                var texFT = atlasTexture.AtlasSetting.TextureFineTuning[i];
+                if (texFT is MipMapRemove mmr)
+                {
+                    atlasTexture.AtlasSetting.TextureFineTuning[i] = new MipMap()
+                    {
+                        UseMipMap = mmr.IsRemove is false,
+                        PropertyNameList = mmr.PropertyNameList,
+                        Select = mmr.Select
+                    };
+                }
+            }
 
 #if CONTAINS_LNU
             if (atlasTexture.AtlasSetting.PropertyBakeSetting == PropertyBakeSetting.NotBake)
@@ -81,14 +96,14 @@ namespace net.rs64.TexTransTool.Migration.V6
                 || atlasTexture.AtlasSetting.AutoReferenceCopySetting
                 || atlasTexture.AtlasSetting.UnsetTextures.Any()
                 || atlasTexture.AtlasSetting.TextureIndividualFineTuning.Any();
-            if(usedExperimentalOption)
+            if (usedExperimentalOption)
             {
                 var exp = atlasTexture.GetComponent<AtlasTextureExperimentalFeature>();
-               if(exp == null) exp = atlasTexture.gameObject.AddComponent<AtlasTextureExperimentalFeature>();
-               exp.AutoMergeTextureSetting = atlasTexture.AtlasSetting.AutoMergeTextureSetting;
-               exp.AutoReferenceCopySetting = atlasTexture.AtlasSetting.AutoReferenceCopySetting;
-               exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures;
-               exp.TextureIndividualFineTuning = atlasTexture.AtlasSetting.TextureIndividualFineTuning;
+                if (exp == null) exp = atlasTexture.gameObject.AddComponent<AtlasTextureExperimentalFeature>();
+                exp.AutoMergeTextureSetting = atlasTexture.AtlasSetting.AutoMergeTextureSetting;
+                exp.AutoReferenceCopySetting = atlasTexture.AtlasSetting.AutoReferenceCopySetting;
+                exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures;
+                exp.TextureIndividualFineTuning = atlasTexture.AtlasSetting.TextureIndividualFineTuning;
             }
 
             EditorUtility.SetDirty(atlasTexture);
