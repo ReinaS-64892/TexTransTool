@@ -37,8 +37,13 @@ namespace net.rs64.TexTransTool.Migration.V6
             else
             {
                 if (atlasTexture.MigrationTemporarylilToonMaterialNormalizerReference == null)
-                    if (lilToonNDMFUtility.lilToonMaterialNormalizerPublicAPI.TryAddComponent(atlasTexture.gameObject, out var lnuMn))
+                {
+                    var lnuGameObject = new GameObject("lilToonMaterialNormalizer (generate from AtlasTexture migration)");
+                    lnuGameObject.transform.SetParent(atlasTexture.transform.parent, false);
+                    lnuGameObject.transform.SetSiblingIndex(atlasTexture.transform.GetSiblingIndex());
+                    if (lilToonNDMFUtility.lilToonMaterialNormalizerPublicAPI.TryAddComponent(lnuGameObject, out var lnuMn))
                         atlasTexture.MigrationTemporarylilToonMaterialNormalizerReference = lnuMn as Behaviour;
+                }
 
                 if (atlasTexture.MigrationTemporarylilToonMaterialNormalizerReference != null)
                 {
