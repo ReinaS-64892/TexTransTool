@@ -6,6 +6,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
 {
     [Serializable]
+    [Obsolete("V6SaveData", true)]
     internal class SizePriority : IIslandFineTuner
     {
         [Range(0, 1)] public float PriorityValue = 1f;

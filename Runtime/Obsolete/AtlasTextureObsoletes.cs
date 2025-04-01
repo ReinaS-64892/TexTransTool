@@ -8,6 +8,24 @@ namespace net.rs64.TexTransTool.TextureAtlas
     public sealed partial class AtlasTexture
     {
 
+        #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal List<MatSelector> SelectMatList = new List<MatSelector>();
+        [Serializable]
+        [Obsolete("V6SaveData", true)]
+        internal struct MatSelector
+        {
+            public Material Material;
+            public float MaterialFineTuningValue;
+
+            #region V3SaveData
+            [Obsolete("V3SaveData", true)][SerializeField] internal float AdditionalTextureSizeOffSet;
+            #endregion
+            #region V1SaveData
+            [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
+            #endregion
+        }
+        [Obsolete("V6SaveData", true)][SerializeField] internal Behaviour MigrationTemporarylilToonMaterialNormalizerReference = null;
+        #endregion
         #region V0SaveData
         [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
         [Obsolete("V0SaveData", true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
@@ -20,6 +38,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeReference] internal List<IslandFineTuner.IIslandFineTuner> IslandFineTuners = new();
         [Obsolete("V6SaveData", true)][SerializeField] internal PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool WriteOriginalUV = false;
         [Range(0, 7)][Obsolete("V6SaveData", true)][SerializeField] internal int OriginalUVWriteTargetChannel = 1;

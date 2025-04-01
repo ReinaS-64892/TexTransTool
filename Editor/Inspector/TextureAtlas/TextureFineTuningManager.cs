@@ -169,8 +169,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 , previewDomain.GetTexTransCoreEngineForUnity()
                 , targetMaterials
                 , AtlasTexture.FilterTargetRenderers(previewDomain, nowRenderers, targetMaterials)
+                , atlasTexture.IslandSizePriorityTuner
                 , atlasTexture.AtlasSetting
-                , atlasTexture.SelectMatList
                 );
 
             if (result is null) { return null; }//TODO : ここ返す値何とかする

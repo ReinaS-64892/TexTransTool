@@ -1,8 +1,10 @@
+using System;
 using net.rs64.TexTransCore.UVIsland;
 using net.rs64.TexTransTool.IslandSelector;
 
 namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
 {
+    [Obsolete("V6SaveData", true)]
     internal interface IIslandFineTuner
     {
         //islands と islandDescriptions は書き込みしないように、

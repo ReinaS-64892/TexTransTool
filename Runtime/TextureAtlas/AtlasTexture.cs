@@ -10,6 +10,7 @@ using UnityEngine.Serialization;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.UVIsland;
+using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
@@ -20,36 +21,26 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal const string MenuPath = ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
-
+        // targeting
         [FormerlySerializedAs("TargetRoot")] public GameObject? LimitCandidateMaterials;
+        public List<Material?> AtlasTargetMaterials = new List<Material?>();
 
-        public List<MatSelector> SelectMatList = new List<MatSelector>();
-        [Serializable]
-        public struct MatSelector
-        {
-            public Material Material;
-            public float MaterialFineTuningValue;
+        // material merge
+        // public List<MaterialMergeGroup> MergeMaterialGroups = new();
+        // [Serializable]
+        // public class MaterialMergeGroup
+        // {
+        //     public List<Material> Group = new();
+        //     public Material? Reference;
+        // }
+        // public Material? AllMaterialMergeReference;
 
-            #region V3SaveData
-            [Obsolete("V3SaveData", true)][SerializeField] internal float AdditionalTextureSizeOffSet;
-            #endregion
-            #region V1SaveData
-            [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
-            #endregion
-        }
+        // IslandSizePriorityTuner
+        [SerializeReference, SubclassSelector] internal List<IIslandSizePriorityTuner?> IslandSizePriorityTuner = new();
 
-        public List<MaterialMergeGroup> MergeMaterialGroups = new();
-        [Serializable]
-        public class MaterialMergeGroup
-        {
-            public List<Material> Group = new();
-            public Material? Reference;
-        }
-        public Material? AllMaterialMergeReference;
-
-
-
+        // Other atlasing Settings
         public AtlasSetting AtlasSetting = new AtlasSetting();
+
 
         internal override void Apply(IDomain domain)
         {
@@ -57,7 +48,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             using var pf = new PFScope("init");
             domain.LookAt(this);
 
-            if (SelectMatList.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotSet"); return; }
+            if (AtlasTargetMaterials.Where(i => i != null).Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotSet"); return; }
 
             pf.Split("targeting");
 
@@ -68,8 +59,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("looking");
 
-            foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
-            if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
+            // foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
+            // if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
 
             pf.Split("prepare");
 
@@ -80,7 +71,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("Atlasing!");
             // Do Atlasing!
-            var atlasResult = DoAtlasTexture(domain, engine, targetMaterials, targetRenderers, atlasSetting, SelectMatList);
+            var atlasResult = DoAtlasTexture(domain, engine, targetMaterials, targetRenderers, IslandSizePriorityTuner, atlasSetting);
             using var atlasContext = atlasResult.AtlasContext;
             var atlasedMeshes = atlasResult.AtlasedMeshes;
             var compiledAtlasTextures = atlasResult.CompiledAtlasTextures;
@@ -98,7 +89,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("gen and replace material");
             //MaterialGenerate And Change
-            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, (MergeMaterialGroups, AllMaterialMergeReference), tunedAtlasUnityTextures);
+            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, tunedAtlasUnityTextures);
 
             pf.Split("register textures");
             // Register AtlasedTextures
@@ -125,21 +116,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
             , HashSet<Material> targetMaterials
             , Renderer[] targetRenderers
 
+            , List<IIslandSizePriorityTuner?> islandSizePriorityTuner
+
             , AtlasSetting atlasSetting
-            , List<MatSelector> selectMatList
         )
         {
             using var pf = new PFScope("init");
             var targeting = domain as IRendererTargeting;
-            var sizePriorityDict = targetMaterials
-                .ToDictionary(
-                    i => i,
-                    i => TTMath.Saturate(
-                            selectMatList.First(
-                                m => domain.OriginEqual(m.Material, i)
-                            ).MaterialFineTuningValue
-                        )
-                );
 
             var atlasTargeSize = GetAtlasTextureSize(atlasSetting);
             pf.Split("AtlasContext ctr");
@@ -164,7 +147,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
 
             pf.Split("IslandProcessing");
-            var (movedVirtualIslandArray, relocateResult) = IslandProcessing(domain, atlasSetting, atlasContext, sizePriorityDict, out var relocationTime);
+            var (movedVirtualIslandArray, relocateResult) = IslandProcessing(domain, atlasSetting, atlasContext, islandSizePriorityTuner, out var relocationTime);
             if (relocateResult.IslandRelocationResult is null) { throw new Exception(); }
             if (relocateResult.IslandRelocationResult.IsSuccess is false) { throw new Exception(); }
             var source2MovedVirtualIsland = new Dictionary<IslandTransform, IslandTransform>();
@@ -282,24 +265,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
             IDomain domain
             , HashSet<Material> targetMaterials
             , AtlasSetting atlasSetting
-            , (List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference) atlasMergeSettings
             , Dictionary<string, RenderTexture> tunedAtlasUnityTextures
             )
         {
-            var (mergeMaterialGroups, allMaterialMergeReference) = atlasMergeSettings;
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = atlasSetting.ForceSetTexture };
             if (atlasSetting.UnsetTextures.Any())
             {
                 var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
                 atlasMatOption.UnsetTextures = atlasSetting.UnsetTextures.Select(i => i.GetTexture()).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
-            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, mergeMaterialGroups, allMaterialMergeReference);
-            var (materialMap, domainsMaterial2ReplaceMaterialOnlyMap) = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption, mergeReferenceMaterial);
+            var materialMap = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption);
 
             domain.ReplaceMaterials(materialMap);
-            domain.RegisterReplaces(domainsMaterial2ReplaceMaterialOnlyMap);
+            domain.RegisterReplaces(materialMap);
         }
 
+        private static Dictionary<Material, Material> GenerateAtlasedMaterials<Tex>(HashSet<Material> targetMaterials, Dictionary<string, Tex> tex, AtlasMatGenerateOption atlasMatOption)
+        where Tex : Texture
+        {
+            var materialMap = new Dictionary<Material, Material>();
+            foreach (var distMat in targetMaterials)
+            {
+                materialMap[distMat] = GenerateAtlasMat(distMat, tex, atlasMatOption);
+            }
+            return materialMap;
+        }
+        /*
         private static (Dictionary<Material, Material> materialMap, Dictionary<Material, Material> domainsMaterial2ReplaceMaterial)
             GenerateAtlasedMaterials<Tex>(HashSet<Material> targetMaterials, Dictionary<string, Tex> tex, AtlasMatGenerateOption atlasMatOption, NowMaterialGroup[] mergeReferenceMaterial)
             where Tex : Texture
@@ -340,6 +331,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return matGroupList.ToArray();
         }
+        */
         record NowMaterialGroup
         {
             public HashSet<Material> GroupMaterial;
@@ -374,7 +366,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             IReplaceTracking domain
             , AtlasSetting atlasSetting
             , AtlasContext atlasContext
-            , Dictionary<Material, float> sizePriorityDict
+            , List<IIslandSizePriorityTuner?> islandSizePriorityTuner
             , out long relocationTime
         )
         {
@@ -391,37 +383,17 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var refOriginIslands = GetSourceVirtualIslandForRefOriginIslands(atlasContext);
             var islandDescription = GenerateIslandDescription(atlasContext, refOriginIslands);
 
-            var sizePriority = new float[virtualIslandArray.Length]; for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = 1f; }
-            for (var i = 0; virtualIslandArray.Length > i; i += 1)
-            {
-                var refOriginIsland = refOriginIslands[i];
-                var atlasSubMeshIndexID = atlasContext.AtlasIslandCtx.ReverseOriginDict[refOriginIsland];
-                var group = atlasContext.MaterialGroupingCtx.GroupMaterials[atlasSubMeshIndexID.MaterialGroupID];
+            var sizePriority = new float[virtualIslandArray.Length];
+            for (var i = 0; sizePriority.Length > i; i += 1) { sizePriority[i] = 1f; }
 
-                var materialFineTuningValue = 0f;
-                var count = 0;
-                foreach (var gm in group)
-                    if (sizePriorityDict.TryGetValue(gm, out var priorityValue))
-                    {
-                        materialFineTuningValue += priorityValue;
-                        count += 1;
-                    }
-
-                materialFineTuningValue /= count;
-                sizePriority[i] = materialFineTuningValue;
-            }
-
-            foreach (var islandFineTuner in atlasSetting.IslandFineTuners)
-                islandFineTuner?.IslandFineTuning(sizePriority, refOriginIslands, islandDescription, domain);
-
+            foreach (var islandFineTuner in islandSizePriorityTuner)
+                islandFineTuner?.Tuning(sizePriority, refOriginIslands, islandDescription, domain);
 
             for (var i = 0; sizePriority.Length > i; i += 1)
                 sizePriority[i] = TTMath.Saturate(sizePriority[i]);
 
-
             if (atlasSetting.AtlasIslandRelocator != null) { throw new NotImplementedException(); }
             var islandRelocator = new NFDHPlasFC() as IIslandRelocator;
-
 
 
             var relocateManage = new IslandRelocationManager(islandRelocator);
@@ -465,6 +437,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var islandDescription = new IslandSelector.IslandDescription[atlasContext.SourceVirtualIslands.Length];
 
+            var sharedMaterialsCache = new Dictionary<Renderer, Material[]>();
             for (var i = 0; atlasContext.SourceVirtualIslands.Length > i; i += 1)
             {
                 var refOriginIsland = refOriginIslands[i];
@@ -474,7 +447,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var vertex = md.Vertices;
                 var uv = md.VertexUV;
                 var renderer = md.ReferenceRenderer;
-                islandDescription[i] = new IslandSelector.IslandDescription(vertex, uv, renderer, atlasSubMeshIndexID.SubMeshIndex);
+
+                if (sharedMaterialsCache.TryGetValue(renderer, out var rMats) is false)
+                    rMats = sharedMaterialsCache[renderer] = renderer.sharedMaterials;
+
+                islandDescription[i] = new IslandSelector.IslandDescription(vertex, uv, renderer, rMats, atlasSubMeshIndexID.SubMeshIndex);
             }
             return islandDescription;
         }
@@ -553,7 +530,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var fineTuning in copyRefResult.Select(i => new ReferenceCopy(new(i.Key), i.Value.Select(i => new PropertyName(i)).ToList())))
             {
-                fineTuning.AddSetting(atlasTexFineTuningTargets);
+                (fineTuning as ITextureFineTuning).AddSetting(atlasTexFineTuningTargets);
             }
         }
 
@@ -601,7 +578,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var fineTuning in margeSettingDict.Select(i => new MergeTexture(new(i.Key), i.Value.Select(i => new PropertyName(i)).ToList())))
             {
-                fineTuning.AddSetting(atlasTexFineTuningTargets);
+                (fineTuning as ITextureFineTuning).AddSetting(atlasTexFineTuningTargets);
             }
         }
 
@@ -660,7 +637,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal List<Material> GetTargetMaterials(IDomain domain, List<Renderer> nowRenderers)
         {
             var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(nowRenderers).Where(i => i != null));
-            var targetMaterials = nowContainsMatSet.Where(mat => SelectMatList.Any(smat => domain.OriginEqual(smat.Material, mat))).ToList();
+            var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginEqual(sMat, mat))).ToList();
             return targetMaterials;
         }
         internal static List<Renderer> FilteredRenderers(GameObject targetRoot, bool includeDisabledRenderer)
@@ -689,7 +666,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 );
             var selectedMaterials = rendererTargeting.LookAtGet(
                     this
-                    , at => at.SelectMatList.Select(sMat => sMat.Material).ToArray()
+                    , at => at.AtlasTargetMaterials.ToArray()
                     , (l, r) => l.SequenceEqual(r)
                 );
             var targetMaterials = nowContainsMatSet
