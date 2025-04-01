@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             TargetPropertyNameList = targetPropertyNameList;
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var tpn in TargetPropertyNameList)
             {
@@ -36,6 +36,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
                 copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
             }
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 

@@ -7,7 +7,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     public interface ITextureFineTuning
     {
-        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
+        internal void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
     }
     internal interface ITuningProcessor
     {
@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal static class FineTuningUtil
     {
-        public static IEnumerable<KeyValuePair<string,TexFineTuningHolder>> FilteredTarget(List<PropertyName> propertyNames, PropertySelect select, Dictionary<string,TexFineTuningHolder> targets)
+        public static IEnumerable<KeyValuePair<string, TexFineTuningHolder>> FilteredTarget(List<PropertyName> propertyNames, PropertySelect select, Dictionary<string, TexFineTuningHolder> targets)
         {
             var propertyNameList = propertyNames.Select(i => i.ToString()).ToHashSet();
             switch (select)

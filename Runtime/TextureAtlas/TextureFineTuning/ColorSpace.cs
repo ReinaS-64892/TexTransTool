@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             Select = select;
             AsLinear = linear;
         }
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
@@ -38,6 +38,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 tuningDataHolder.Get<ColorSpaceData>().AsLinear = AsLinear;
             }
 
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 

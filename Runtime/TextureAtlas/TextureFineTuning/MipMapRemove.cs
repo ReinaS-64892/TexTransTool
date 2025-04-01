@@ -32,13 +32,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 target.Value.Get<MipMapData>().UseMipMap = IsRemove is false;
             }
 
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 

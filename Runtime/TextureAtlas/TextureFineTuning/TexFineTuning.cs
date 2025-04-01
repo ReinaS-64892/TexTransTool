@@ -26,7 +26,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     */
 
-    public class TexFineTuningHolder
+    internal class TexFineTuningHolder
     {
         Dictionary<Type, ITuningData> _tuningDataDict;
         internal TexFineTuningHolder() { _tuningDataDict = new(); }
@@ -154,7 +154,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
             return new(resultTextures, resultTextureDescriptor);
         }
-
     }
 
 }

@@ -21,12 +21,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             MargeChildren = margeChildren;
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(MargeChildren, PropertySelect.Equal, texFineTuningTargets))
             {
                 target.Value.Get<MergeTextureData>().MargeParent = MargeParent;
             }
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 
