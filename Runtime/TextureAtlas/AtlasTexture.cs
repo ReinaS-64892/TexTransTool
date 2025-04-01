@@ -318,7 +318,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 else
                 {
                     if (mergeRef2MergedMaterial.ContainsKey(referenceMaterial) is false)
-                        mergeRef2MergedMaterial[referenceMaterial] = GenerateAtlasMat(referenceMaterial, tex, atlasMatOption);
+                    { domainsMaterial2ReplaceMaterial[referenceMaterial] = mergeRef2MergedMaterial[referenceMaterial] = GenerateAtlasMat(referenceMaterial, tex, atlasMatOption); }
                     materialMap.Add(distMat, mergeRef2MergedMaterial[referenceMaterial]);
                 }
             }
@@ -631,6 +631,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         where Tex : Texture
         {
             var editableTMat = UnityEngine.Object.Instantiate(targetMat);
+            editableTMat.name = targetMat.name + "(TTT AtlasedMaterial)";
 
             foreach (var texKV in atlasTex)
             {
