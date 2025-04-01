@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool
                     return IntValue == other.IntValue;
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
-                    return strict ? Math.Abs(FloatValue - other.FloatValue) < Mathf.Epsilon : FloatValue == other.FloatValue;
+                    return strict ? FloatValue == other.FloatValue : Mathf.Approximately(FloatValue, other.FloatValue);
                 default:
                     return false;
             }
