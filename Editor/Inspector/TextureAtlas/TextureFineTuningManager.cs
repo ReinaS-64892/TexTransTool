@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         {
             if (PreviewUtility.IsPreviewContains) { return null; }
             if (atlasTexture is null) { return null; }
-            var atlasTextureSerializeObject = new SerializedObject(atlasTexture.Value.Item2);
+            var atlasTextureExperimentalFeatureSerializeObject = new SerializedObject(atlasTexture.Value.Item2);
 
             var domainRoot = DomainMarkerFinder.FindMarker(atlasTexture.Value.Item2.gameObject);
             if (domainRoot == null) { return null; }//TODO : ここ返す値何とかする
@@ -87,12 +87,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (_previewedAtlasTexture == null) { return null; }
 
             AutoGenerateTextureIndividualTuning(atlasTexture.Value, _previewedAtlasTexture.CompiledAtlasTextures.Keys);
-            atlasTextureSerializeObject.Update();
+            atlasTextureExperimentalFeatureSerializeObject.Update();
 
             var viRoot = new ScrollView();
             var content = viRoot.Q<VisualElement>("unity-content-container");
 
-            CreateManagerUIElement(content, atlasTexture.Value, _previewedAtlasTexture, atlasTextureSerializeObject);
+            CreateManagerUIElement(content, atlasTexture.Value, _previewedAtlasTexture, atlasTextureExperimentalFeatureSerializeObject);
 
             return viRoot;
         }
@@ -108,7 +108,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _previewedAtlasTexture = null;
         }
 
-        private void CreateManagerUIElement(VisualElement content, (AtlasTexture,AtlasTextureExperimentalFeature) atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureSerializeObject)
+        private void CreateManagerUIElement(VisualElement content, (AtlasTexture, AtlasTextureExperimentalFeature) atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureExperimentalFeatureSerializeObject)
         {
             content.hierarchy.Clear();
 
@@ -123,8 +123,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
 
-            var sAtlasSetting = atlasTextureSerializeObject.FindProperty("AtlasSetting");
-            var individualTuningSerializedProperty = sAtlasSetting.FindPropertyRelative("TextureIndividualFineTuning");
+            var individualTuningSerializedProperty = atlasTextureExperimentalFeatureSerializeObject.FindProperty("TextureIndividualFineTuning");
             var targetPropName2SerializedProperty = GetProp2Dict(individualTuningSerializedProperty);
 
 
