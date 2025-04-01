@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...HEAD)
 
+### Added
+
+- AtlasTexture に アトラス化対象のテクスチャの最大サイズを割り当てる AutoTextureSizeSetting が追加されました (#900)
+- AtlasShaderSupport の代わりに ITTShaderTextureUsageInformation が追加されました (#900)
+
+### Changed
+
+- AtlasTexture の持つ実験的機能のほぼすべてが AtlasTextureExperimentalFeature に移動しました (#900)
+
+### Removed
+
+- AtlasShaderSupport は削除されました (#900)
+- AtlasTexture WriteOriginalUV と OriginalUVWriteTargetChannel は削除されました (#900)
+- AtlasTexture MergeMaterialGroup は削除されました (#900)
+
 ## [v0.9.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.1...v0.9.2) - 2025-03-03
 
 ### Fixed

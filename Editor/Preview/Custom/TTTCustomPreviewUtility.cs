@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
     }
     internal interface ITTTCustomPreview
     {
-        void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, RenderersDomain editorCallDomain);
+        void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, UnityAnimationPreviewDomain editorCallDomain);
     }
     internal static class TTTCustomPreviewUtility
     {
@@ -53,7 +53,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
         }
 
 
-        internal static bool TryExecutePreview(TexTransMonoBase texTransBehavior, GameObject domainRoot, RenderersDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
+        internal static bool TryExecutePreview(TexTransMonoBase texTransBehavior, GameObject domainRoot, UnityAnimationPreviewDomain editorCallDomain)//trueだったらカスタムプレビューしたよってこと、そうでなければカスタムプレビューはないってこと。
         {
             if (s_processor is null) { InitProcessor(); }
 

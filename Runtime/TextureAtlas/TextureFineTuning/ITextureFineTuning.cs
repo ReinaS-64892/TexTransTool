@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -6,14 +7,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     public interface ITextureFineTuning
     {
-        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
+        internal void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets);
     }
-    public interface ITuningApplicant
+    internal interface ITuningProcessor
     {
         int Order { get; }
-        void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress);
+        void ProcessingTuning(TexFineTuningProcessingContext ctx);
     }
-    public interface ITuningData
+    internal interface ITuningData
     {
     }
     public enum PropertySelect
@@ -24,7 +25,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
     internal static class FineTuningUtil
     {
-        public static IEnumerable<KeyValuePair<string,TexFineTuningHolder>> FilteredTarget(List<PropertyName> propertyNames, PropertySelect select, Dictionary<string,TexFineTuningHolder> targets)
+        public static IEnumerable<KeyValuePair<string, TexFineTuningHolder>> FilteredTarget(List<PropertyName> propertyNames, PropertySelect select, Dictionary<string, TexFineTuningHolder> targets)
         {
             var propertyNameList = propertyNames.Select(i => i.ToString()).ToHashSet();
             switch (select)

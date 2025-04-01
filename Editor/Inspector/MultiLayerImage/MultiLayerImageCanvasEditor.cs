@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     [CustomEditor(typeof(MultiLayerImageCanvas))]
     internal class MultiLayerImageCanvasEditor : UnityEditor.Editor
     {
-        (NotWorkDomain domain, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
+        (NotWorkDomain domain, UnityDiskUtil diskUtil, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
 
         void OnEnable() { GenerateImageLayerPreview(); }
         void GenerateImageLayerPreview()
@@ -26,6 +26,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             if (_imageLayerPreviewResult != null)
             {
                 _imageLayerPreviewResult.Value.previewRt.Dispose();
+                _imageLayerPreviewResult.Value.diskUtil.Dispose();
                 _imageLayerPreviewResult.Value.domain.Dispose();
                 _imageLayerPreviewResult = null;
             }
@@ -34,14 +35,14 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             if (mlic is null) { return; }
 
             var previewCanvasSize = (1024, 1024);
-            var texManage = new TextureManager(true);
-            var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), texManage, new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManage)));
+            var diskUtil = new UnityDiskUtil(true);
+            var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), new TTCEUnityWithTTT4Unity(diskUtil));
             var previewRt = mlic.EvaluateCanvas(new(domain, previewCanvasSize));
 
             // これをそのままインスペクターに描画しようとすると薄くなってしまうから Linear 空間にすることでごまかす。
             domain.GetTexTransCoreEngineForUnity().GammaToLinear(previewRt);
 
-            _imageLayerPreviewResult = (domain, previewRt);
+            _imageLayerPreviewResult = (domain, diskUtil, previewRt);
         }
         void OnDisable()
         {

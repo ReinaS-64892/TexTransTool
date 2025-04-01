@@ -88,14 +88,14 @@ namespace net.rs64.TexTransTool.NDMF.AAO
 
                 for (var subMeshIndex = 0; mesh.subMeshCount > subMeshIndex; subMeshIndex += 1)
                 {
-                    var islands = IslandUtility.UVtoIsland(mesh.GetSubTriangleIndex(subMeshIndex), uv.AsList());
+                    var islands = UnityIslandUtility.UVtoIsland(mesh.GetSubTriangleIndex(subMeshIndex).ToArray().AsSpan(), uv.AsSpan());
 
                     var triangles = new List<Vertex>();
                     var vanishTriangles = new List<Vertex>();
 
                     foreach (var island in islands)
                     {
-                        foreach (var tri in island.triangles)
+                        foreach (var tri in island.Triangles)
                         {
                             triangleBuffer[0] = tri[0];
                             triangleBuffer[1] = tri[1];

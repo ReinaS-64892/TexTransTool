@@ -4,6 +4,7 @@ using Unity.Collections;
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using System;
+using net.rs64.TexTransCore.UVIsland;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -58,13 +59,15 @@ namespace net.rs64.TexTransTool.IslandSelector
         public readonly NativeArray<Vector3> Position;//ワールドスペース
         public readonly NativeArray<Vector2> UV;
         public readonly Renderer Renderer;
+        public readonly Material?[] Materials;
         public readonly int MaterialSlot;// SubMeshIndex でもある
 
-        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, int materialSlot)
+        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, Material?[] materials,int materialSlot)
         {
             Position = position;
             UV = uV;
             Renderer = renderer;
+            Materials = materials;
             MaterialSlot = materialSlot;
         }
 

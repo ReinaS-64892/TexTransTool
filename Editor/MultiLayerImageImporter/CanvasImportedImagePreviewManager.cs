@@ -259,7 +259,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 #if !CONTAINS_TTCE_WGPU
 
                 var destroyHash = new HashSet<Texture2D>();
-                var ttce4u = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(new GetOriginTexture(false, t => destroyHash.Add(t))));
+                var ttce4u = new TTCEUnityWithTTT4Unity(new UnityDiskUtil(false));
 
                 Profiler.BeginSample("CreatePreviewImage");
                 CreatePreviewImage(ttce4u, importedImage, canvasSource, dataNa);

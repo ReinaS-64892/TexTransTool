@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Linq;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransTool.UVIsland;
+using net.rs64.TexTransCore.UVIsland;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.IslandSelector
@@ -34,7 +34,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             return bitArray;
             bool All(Island island, IslandDescription description)
             {
-                foreach (var tri in island.triangles)
+                foreach (var tri in island.Triangles)
                 {
                     for (var vi = 0; 3 > vi; vi += 1)
                     {
@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             }
             bool Some(Island island, IslandDescription description)
             {
-                foreach (var tri in island.triangles)
+                foreach (var tri in island.Triangles)
                 {
                     for (var vi = 0; 3 > vi; vi += 1)
                     {

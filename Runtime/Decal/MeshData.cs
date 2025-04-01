@@ -3,7 +3,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.Unsafe;
+using net.rs64.TexTransTool.Utils;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -52,7 +54,7 @@ namespace net.rs64.TexTransTool.Decal
             foreach (var triangle in TriangleIndex) { triangle.Dispose(); }
         }
 
-        internal MeshData(Renderer renderer, Mesh mesh, Matrix4x4 worldSpaceTransform)
+        internal MeshData(Renderer renderer, Mesh mesh, Matrix4x4 worldSpaceTransform, UVChannel atlasTargetUVChannel = UVChannel.UV0)
         {
             ReferenceRenderer = renderer;
             using var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh);
@@ -64,7 +66,7 @@ namespace net.rs64.TexTransTool.Decal
             VertexUV = new NativeArray<Vector2>(vertexCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             mainMesh.GetVertices(_vertices);
-            mainMesh.GetUVs(0, VertexUV);
+            mainMesh.GetUVs((int)atlasTargetUVChannel, VertexUV);
 
             SubMeshCount = mainMesh.subMeshCount;
             TriangleIndex = new NativeArray<TriangleIndex>[SubMeshCount];

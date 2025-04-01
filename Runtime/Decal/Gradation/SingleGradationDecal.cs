@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(this);
             domain.LookAt(transform.GetParents().Append(transform));
 
-            if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("GradationDecal:info:TargetNotSet"); return; }
+            if (RendererSelector.IsTargetNotSet()) { TTLog.Info("GradationDecal:info:TargetNotSet"); return; }
             var ttce = domain.GetTexTransCoreEngineForUnity();
 
             using var gradDiskTex = ttce.Wrapping(GradientTempTexture.Get(Gradient, Alpha));
@@ -56,7 +56,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
             foreach (var w in result) { w.Value.Dispose(); }
-            if (result.Keys.Any() is false) { TTTRuntimeLog.Info("GradationDecal:info:TargetNotFound"); }
+            if (result.Keys.Any() is false) { TTLog.Info("GradationDecal:info:TargetNotFound"); }
         }
 
         private DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder> GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
@@ -70,7 +70,8 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = new DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
+            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             return decalContext;
         }
 
@@ -101,7 +102,7 @@ namespace net.rs64.TexTransTool.Decal
 
             if (ctx.TargetContainedMaterials is null)
             {
-                TTTRuntimeLog.Error("GradationDecal:error:CanNotAsLayerWhenUnsupportedContext");
+                TTLog.Error("GradationDecal:error:CanNotAsLayerWhenUnsupportedContext");
                 return new EmptyLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey);
             }
 
@@ -111,7 +112,7 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(transform.GetParents().Append(transform));
 
             var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
-            using var gradDiskTex = engine.WrappingToLoadFullScaleOrUpload(GradientTempTexture.Get(Gradient, Alpha));
+            using var gradDiskTex = engine.WrappingOrUploadToLoadFullScale(GradientTempTexture.Get(Gradient, Alpha));
 
             var decalContext = GenerateDecalCtx(domain, engine);
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;

@@ -30,6 +30,7 @@ namespace net.rs64.TexTransTool.Decal
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
         public bool HighQualityPadding = false;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
         public AbstractIslandSelector? IslandSelector;
@@ -66,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
-            if (RendererSelector.IsTargetNotSet()) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotSet"); return; }
+            if (RendererSelector.IsTargetNotSet()) { TTLog.Info("SimpleDecal:info:TargetNotSet"); return; }
             var decalCompiledTextures = CompileDecal(domain);
 
             domain.LookAt(transform.GetParents().Append(transform));
@@ -80,7 +81,7 @@ namespace net.rs64.TexTransTool.Decal
                 domain.AddTextureStack(matAndTex.Key, matAndTex.Value.Texture, blKey);
             }
 
-            if (decalCompiledTextures.Keys.Any() is false) { TTTRuntimeLog.Info("SimpleDecal:info:TargetNotFound"); }
+            if (decalCompiledTextures.Keys.Any() is false) { TTLog.Info("SimpleDecal:info:TargetNotFound"); }
             foreach (var t in decalCompiledTextures.Values) { t.Dispose(); }
         }
         internal Dictionary<Texture, TTRenderTexWithPaddingDistance> CompileDecal(IDomain domain)
@@ -108,7 +109,8 @@ namespace net.rs64.TexTransTool.Decal
                 (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
             decalContext.IsTextureStretch = false;
             decalContext.DecalPadding = Padding;
-            decalContext.HighQualityPadding = domain.IsPreview() is false && HighQualityPadding;
+            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
+            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
             return decalContext;
         }
@@ -226,7 +228,7 @@ namespace net.rs64.TexTransTool.Decal
 
             if (ctx.TargetContainedMaterials is null)
             {
-                TTTRuntimeLog.Error("SimpleDecal:error:CanNotAsLayerWhenUnsupportedContext");
+                TTLog.Error("SimpleDecal:error:CanNotAsLayerWhenUnsupportedContext");
                 return new EmptyLayer<ITexTransToolForUnity>(asLayer.Visible, alphaMask, alphaOp, asLayer.Clipping, blKey);
             }
 

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...HEAD)
 
+### Added
+
+- AtlasTexture の MergeReference に対して割り当てられていた場合にも置き換えが登録されるようになり、アトラス化後のマテリアルを対象にコンポーネントが動作可能になりました (#900)
+- AtlasTexture がアトラス化するとき、大幅に重なったアイランドが、結合可能なときは結合されて扱われるようになりました (#900)
+- AtlasTexture TextureFineTuning の MipMapRemove は廃止され、 MiMap が追加されました (#900)
+- AtlasTexture MargeMaterialGroup が stable としてマークされました (#900)
+
+### Changed
+
+- AtlasTexture の TextureFineTuning の初期設定が NormalMap などを考慮に入れた設定になりました (#900)
+- AtlasTexture MergeMaterial は削除され、割り当てたときに、すべてのマテリアルをそれに結合する AllMaterialMergeReference に変更されました (#900)
+
+### Removed
+
+- AtlasTexture BakeProperty は削除されました。代わりとなる機能は ドキュメントを参照してください。 (#900)
+- AtlasTexture の "_MainTex" 以外のプロパティに自動的に最大サイズを割り当てる機能は削除されました (#900)
+
+### Fixed
+
+- AtlasTexture が非正方形なテクスチャを対象にアトラス化したときに Padding の計算が正しく行えていない問題を修正しました (#900)
+
 ### Dependency
 
 - TexTransTool のコードの Core である部分が TexTransCore に移動し、TexTransCore に依存するようになりました。 (#888)

@@ -3,8 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using JetBrains.Annotations;
-using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool
 {
@@ -26,10 +25,10 @@ namespace net.rs64.TexTransTool
         {
             domain.LookAt(this);
 
-            if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Any() is false) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
             {
@@ -49,7 +48,7 @@ namespace net.rs64.TexTransTool
         {
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialModifier:info:NullShader"); }
+                if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
                 else { editableMat.shader = overrideShader; }
             }
             foreach (var overrideProperty in overrideProperties)
@@ -73,11 +72,10 @@ namespace net.rs64.TexTransTool
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                var propertyIndex = i;
 
-                if (!MaterialProperty.TryGet(overrideMaterial, propertyName, propertyType, out var overrideProperty)) continue;
-                if (MaterialProperty.TryGet(originalMaterial, propertyName, propertyType, out var originalProperty))
+                if (!MaterialProperty.TryGet(overrideMaterial, propertyIndex, out var overrideProperty)) continue;
+                if (MaterialProperty.TryGet(originalMaterial, propertyIndex, out var originalProperty))
                 {
                     // 元のマテリアルから値を転送したりすると編集せずともなんか浮動小数点誤差が生じてfalseを返すっぽい？ので厳密な比較を行わない
                     if (overrideProperty.Equals(originalProperty, false))
@@ -107,10 +105,9 @@ namespace net.rs64.TexTransTool
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                var propertyIndex = i;
 
-                if (!MaterialProperty.TryGet(material, propertyName, propertyType, out var overrideProperty)) continue;
+                if (!MaterialProperty.TryGet(material, propertyIndex, out var overrideProperty)) continue;
 
                 yield return overrideProperty;
             }

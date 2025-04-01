@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
 using UnityEngine;
@@ -12,94 +14,94 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public PropertyName MargeParent;
         public List<PropertyName> MargeChildren;
-        public MergeTexture() { }
+        public MergeTexture() { MargeParent = new(); MargeChildren = new(); }
         public MergeTexture(PropertyName margeParent, List<PropertyName> margeChildren)
         {
             MargeParent = margeParent;
             MargeChildren = margeChildren;
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(MargeChildren, PropertySelect.Equal, texFineTuningTargets))
             {
                 target.Value.Get<MergeTextureData>().MargeParent = MargeParent;
             }
         }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
+        }
     }
 
     internal class MergeTextureData : ITuningData
     {
-        public string MargeParent;
+        public string? MargeParent;
     }
 
-    internal class MergeTextureApplicant : ITuningApplicant
+    internal class MergeTextureApplicant : ITuningProcessor
     {
-        public int Order => 30;
-
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public int Order => 16;
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
             var mergeDict = new Dictionary<string, List<string>>();
-            foreach (var kv in texFineTuningTargets)
+            var alreadyMerge = new HashSet<string>();
+            foreach (var kv in ctx.TuningHolder)
             {
                 var mtData = kv.Value.Find<MergeTextureData>();
                 if (mtData is null) { continue; }
+                if (mtData.MargeParent is null) { continue; }
+                if (alreadyMerge.Contains(kv.Key)) { continue; }//TODO :waning or info
 
-                if (mergeDict.ContainsKey(mtData.MargeParent) is false) { mergeDict[mtData.MargeParent] = new(); }
+                if (mergeDict.ContainsKey(mtData.MargeParent) is false)
+                {
+                    if (alreadyMerge.Contains(mtData.MargeParent)) { continue; }//TODO :waning or info
+                    if (ctx.ProcessingHolder.ContainsKey(mtData.MargeParent) is false) { continue; } //マージ親がない場合は何もできないこと
+                    alreadyMerge.Add(mtData.MargeParent);
+                    mergeDict[mtData.MargeParent] = new();
+                }
                 mergeDict[mtData.MargeParent].Add(kv.Key);
+                alreadyMerge.Add(kv.Key);
             }
-
             foreach (var ftMarge in mergeDict)
             {
-                if (texFineTuningTargets.ContainsKey(ftMarge.Key) is false) { continue; }
-                var parentFTHolder = texFineTuningTargets[ftMarge.Key];
+                if (ctx.ProcessingHolder.ContainsKey(ftMarge.Key) is false) { continue; }
+                var parentFTHolder = ctx.ProcessingHolder[ftMarge.Key];
 
-                using (var taxNa = new NativeArray<Color32>(parentFTHolder.OriginTexture2D.GetPixelData<Color32>(0), Allocator.Temp))
+                Debug.Assert(parentFTHolder.RTOwned);//順序的に常に Owned なやつしか存在しない。
+
+                var parentRT = ctx.RenderTextures[parentFTHolder.RenderTextureProperty!];
+                var newRT = ctx.Engine.CloneRenderTexture(parentRT);
+                var children = string.Join(":", ftMarge.Value);
+                newRT.Name += $"-ParentOf({ftMarge.Key})-ChildrenOf({children})";
+
+                foreach (var childe in ftMarge.Value)
                 {
-                    var writeSpan = taxNa.AsSpan();
-                    foreach (var c in ftMarge.Value)
-                    {
-                        var tfHolder = texFineTuningTargets[c];
-                        var cNa = tfHolder.OriginTexture2D.GetPixelData<Color32>(0);
-                        MergePixels(writeSpan, cNa);
-                    }
+                    var tfHolder = ctx.ProcessingHolder[childe];
+                    Debug.Assert(tfHolder.RTOwned);
 
+                    var cRt = ctx.RenderTextures[tfHolder.RenderTextureProperty!];
 
-                    var mergedTex2D = new Texture2D(parentFTHolder.OriginTexture2D.width, parentFTHolder.OriginTexture2D.height, parentFTHolder.OriginTexture2D.format, parentFTHolder.Texture2D.mipmapCount > 1, !parentFTHolder.Texture2D.isDataSRGB);
-                    mergedTex2D.SetPixelData(taxNa, 0);
-                    mergedTex2D.Apply();
-                    if (parentFTHolder.Texture2D.width != parentFTHolder.OriginTexture2D.width)
-                    {
-                        var resized = TextureUtility.ResizeTexture(mergedTex2D, new Vector2Int(parentFTHolder.Texture2D.width, parentFTHolder.Texture2D.height), true);
-                        UnityEngine.Object.DestroyImmediate(mergedTex2D);
-                        mergedTex2D = resized;
-                    }
-                    mergedTex2D.name = $"Merged-AtRoot-{ftMarge.Key}-Children-{string.Join("and", ftMarge.Value)}";
-                    parentFTHolder.Texture2D = mergedTex2D;
+                    MergePixels(ctx.Engine, newRT, cRt);
 
-                    foreach (var c in ftMarge.Value)
-                    {
-                        var tfHolder = texFineTuningTargets[c];
-                        tfHolder.Texture2D = parentFTHolder.Texture2D;
-                    }
-
-                    var compressSetting = parentFTHolder.Find<TextureCompressionData>();
-                    if (compressSetting is not null) compress.DeferredTextureCompress(compressSetting, parentFTHolder.Texture2D);
+                    tfHolder.RTOwned = false;
+                    tfHolder.RenderTextureProperty = parentFTHolder.RenderTextureProperty!;
                 }
+
+                ctx.RenderTextures[parentFTHolder.RenderTextureProperty!] = newRT;
+                ctx.NewRenderTextures.Add(newRT);
             }
-
         }
-
-        public static void MergePixels(Span<Color32> write, Span<Color32> c)
+        public static void MergePixels(ITexTransToolForUnity engine, ITTRenderTexture parent, ITTRenderTexture childe)
         {
-            if (write.Length != c.Length) { throw new ArgumentException("is write.Length != c.Length"); }
-            for (var index = 0; write.Length > index; index += 1)
-            {
-                if (write[index].a <= c[index].a)
-                {
-                    write[index] = c[index];
-                }
-            }
+            using var ch = engine.GetComputeHandler(engine.GetExKeyQuery<IAtlasComputeKey>().MergeAtlasedTextures);
+            var distTexID = ch.NameToID("DistTex");
+            var addTexID = ch.NameToID("AddTex");
+            ch.SetTexture(distTexID, parent);
+            ch.SetTexture(addTexID, childe);
+
+            ch.DispatchWithTextureSize(parent);
         }
+
     }
 }

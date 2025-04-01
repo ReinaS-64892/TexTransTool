@@ -24,20 +24,21 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal override void Apply(IDomain domain)
         {
             var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
+            if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
-            if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
+            if (nowDomainsTargets.Any() is false) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
 
             var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.GetAllTexture<Texture>().Any(nowDomainsTargets.Contains)).ToHashSet();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
-            if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
+            if (domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false)
+                canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh);
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh),targetContainsMaterials));
+            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
             var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");

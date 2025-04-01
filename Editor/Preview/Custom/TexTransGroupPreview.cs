@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
     [TTTCustomPreview(typeof(PhaseDefinition))]
     internal class TexTransGroupPreview : ITTTCustomPreview
     {
-        public void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, RenderersDomain domain)
+        public void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, UnityAnimationPreviewDomain domain)
         {
             if (texTransBehavior is not TexTransGroup texTransGroup) { return; }
 
@@ -22,6 +22,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
             {
                 foreach (var ttb in list) { ttb.Apply(domain); }
                 domain.MergeStack();
+                domain.ReadBackToTexture2D();
             }
             else
             {
@@ -29,6 +30,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
                 {
                     foreach (var ttb in list.Where(i => i.PhaseDefine == phase).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
                     domain.MergeStack();
+                    domain.ReadBackToTexture2D();
                 }
             }
         }

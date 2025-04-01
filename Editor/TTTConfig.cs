@@ -54,9 +54,6 @@ namespace net.rs64.TexTransTool
 
         #endregion
 
-        [MenuItem(DEBUG_MENU_PATH + "/ForceTempRtRelease")]
-        static void ForceTempRtRelease() { TTRt.ForceLeakedRelease(); }
-
         public const string INTERNAL_TEXTURE_FORMAT_PREFKEY = "net.rs64.tex-trans-tool.internal-texture-format";
         public const string INTERNAL_TEXTURE_FORMAT_PATH = TTTConfig.TTT_MENU_PATH + "/InternalTextureFormat";
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using net.rs64.TexTransTool.Preview.Custom;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -12,6 +13,7 @@ namespace net.rs64.TexTransTool.Preview
     {
         [SerializeField]
         private Object previweing = null;
+        private IDisposable previweingAssets = null;
 
         public event Action<Object> OnPreviewEnter;
         public event Action OnPreviewExit;
@@ -36,7 +38,7 @@ namespace net.rs64.TexTransTool.Preview
         public static bool IsPreviewing(TexTransMonoBase transformer) => transformer == instance.previweing;
         public static bool IsPreviewContains => instance.previweing != null;
 
-        private void DrawApplyAndRevert<T>(T target, Action<T> apply)
+        private void DrawApplyAndRevert<T>(T target, Func<T, IDisposable> apply)
             where T : Object
         {
             if (target == null) return;
@@ -78,14 +80,16 @@ namespace net.rs64.TexTransTool.Preview
             StartPreview(target, TexTransBehaviorApply);
         }
 
-        void StartPreview<T>(T target, Action<T> applyAction) where T : Object
+        void StartPreview<T>(T target, Func<T, IDisposable> applyAction) where T : Object
         {
             previweing = target;
+            previweingAssets?.Dispose();
+            previweingAssets = null;
             OnPreviewEnter?.Invoke(previweing);
             AnimationMode.StartAnimationMode();
             try
             {
-                applyAction(target);
+                previweingAssets = applyAction(target);
             }
             catch
             {
@@ -95,28 +99,38 @@ namespace net.rs64.TexTransTool.Preview
                 throw;
             }
         }
-        static void TexTransBehaviorApply(TexTransMonoBase targetTTBehavior)
+        static IDisposable TexTransBehaviorApply(TexTransMonoBase targetTTBehavior)
         {
             AnimationMode.BeginSampling();
             try
             {
                 EditorUtility.DisplayProgressBar("TexTransBehaviorApply", "", 0f);
                 Profiler.BeginSample("TexTransBehaviorApply: " + targetTTBehavior.GetType() + " " + targetTTBehavior.gameObject.name);
-                RenderersDomain previewDomain = null;
+                (UnityAnimationPreviewDomain domain, TempAssetHolder holder) previewDomainHolder = (null, null);
                 EditorUtility.DisplayProgressBar("FindMarker", "", 0.01f);
                 Profiler.BeginSample("FindMarker");
                 var marker = DomainMarkerFinder.FindMarker(targetTTBehavior.gameObject);
                 Profiler.EndSample();
                 EditorUtility.DisplayProgressBar("Create Domain", "", 0.1f);
-                if (marker != null) { previewDomain = new AvatarDomain(marker, true, false, true); }
-                else { Debug.LogError("Domainが見つかりません!!!"); return; }
+                if (marker != null)
+                { previewDomainHolder = UnityAnimationPreviewDomain.Create(marker.GetComponentsInChildren<Renderer>(true).ToList()); }
+                else { Debug.LogError("Domainが見つかりません!!!"); return null; }
 
                 EditorUtility.DisplayProgressBar("Preview Apply", "", 0.2f);
                 //カスタムプレビューとエディターコールビヘイビアは違うから注意
-                if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, marker, previewDomain)) { if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomain); }
-
-                EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
-                previewDomain.EditFinish();
+                try
+                {
+                    if (!TTTCustomPreviewUtility.TryExecutePreview(targetTTBehavior, marker, previewDomainHolder.domain))
+                    {
+                        if (targetTTBehavior is TexTransBehavior ttb) ttb.Apply(previewDomainHolder.domain);
+                    }
+                }
+                finally
+                {
+                    EditorUtility.DisplayProgressBar("Edit Finish", "", 0.95f);
+                    previewDomainHolder.domain.Dispose();
+                }
+                return previewDomainHolder.holder;
             }
             finally
             {
@@ -131,6 +145,8 @@ namespace net.rs64.TexTransTool.Preview
         {
             if (previweing == null) { return; }
             previweing = null;
+            previweingAssets?.Dispose();
+            previweingAssets = null;
             AnimationMode.StopAnimationMode();
             OnPreviewExit?.Invoke();
         }

@@ -1,15 +1,15 @@
 #nullable enable
 using UnityEngine;
-using net.rs64.TexTransCoreEngineForUnity;
 using net.rs64.TexTransTool.IslandSelector;
 using UnityEngine.Profiling;
 using Unity.Collections;
 using System.Collections;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.UVIsland;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using net.rs64.TexTransCore.UVIsland;
+using net.rs64.TexTransTool.UVIsland;
 
 namespace net.rs64.TexTransTool.Decal
 {
@@ -123,7 +123,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 var md = meshData[i];
                 var mi = allMeshIslands[i] = new Island[md.TriangleIndex.Length][];
-                for (var s = 0; mi.Length > s; s += 1) { mi[s] = IslandUtility.UVtoIsland(md, s).ToArray(); }
+                for (var s = 0; mi.Length > s; s += 1) { mi[s] = UnityIslandUtility.UVtoIsland(md, s).ToArray(); }
             }
 
             var flattenIslands = allMeshIslands.SelectMany(i => i.SelectMany(i2 => i2)).ToArray();
@@ -142,13 +142,19 @@ namespace net.rs64.TexTransTool.Decal
 
             Profiler.BeginSample("CreateIslandDescription");
             var flattenIslandDescriptions = new IslandDescription[meshData.Length][];
+
+            var sharedMaterialsCache = new Dictionary<Renderer, Material[]>();
+
             for (var i = 0; flattenIslandDescriptions.Length > i; i += 1)
             {
                 var md = meshData[i];
                 var id = flattenIslandDescriptions[i] = new IslandDescription[md.TriangleIndex.Length];
                 for (var s = 0; id.Length > s; s += 1)
                 {
-                    id[s] = new IslandDescription(md.Vertices, md.VertexUV, md.ReferenceRenderer, s);
+                    if (sharedMaterialsCache.TryGetValue(md.ReferenceRenderer, out var rMats) is false)
+                        rMats = sharedMaterialsCache[md.ReferenceRenderer] = md.ReferenceRenderer.sharedMaterials;
+
+                    id[s] = new IslandDescription(md.Vertices, md.VertexUV, md.ReferenceRenderer, rMats, s);
                 }
             }
 
@@ -186,7 +192,7 @@ namespace net.rs64.TexTransTool.Decal
                 for (var s = 0; sm.Length > s; s += 1)
                 {
                     var selectedIslands = mi[s].Where(island => bitArray[islandToIndex[island]]).ToArray();
-                    var triCount = selectedIslands.Sum(i => i.triangles.Count);
+                    var triCount = selectedIslands.Sum(i => i.Triangles.Count);
 
                     if (triCount == 0) { sm[s] = new NativeArray<TriangleIndex>(0, Allocator.TempJob); continue; }
 
@@ -195,7 +201,7 @@ namespace net.rs64.TexTransTool.Decal
                     var wPos = 0;
                     foreach (var island in selectedIslands)
                     {
-                        foreach (var tri in island.triangles)
+                        foreach (var tri in island.Triangles)
                         {
                             triangles[wPos] = tri;
                             wPos += 1;

@@ -31,10 +31,10 @@ namespace net.rs64.TexTransTool
         internal override void Apply(IDomain domain)
         {
             var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (distTex == null) { TTTRuntimeLog.Info("ColorDifferenceChanger:info:TargetNotSet"); return; }
+            if (distTex == null) { TTLog.Info("ColorDifferenceChanger:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
-            if (targetTextures.Any() is false) { TTTRuntimeLog.Info("ColorDifferenceChanger:info:TargetNotFound"); return; }
+            if (targetTextures.Any() is false) { TTLog.Info("ColorDifferenceChanger:info:TargetNotFound"); return; }
 
             domain.LookAt(this);
             var engine = domain.GetTexTransCoreEngineForUnity();
@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var targetTex in targetTextures)
             {
-                using var rt = engine.WrappingToLoadFullScaleOrUpload(targetTex);
+                using var rt = engine.WrappingOrUploadToLoadFullScale(targetTex);
 
                 WriteColorDifferenceChange(engine, gcQuay, rt);
 

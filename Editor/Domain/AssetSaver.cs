@@ -1,4 +1,6 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -44,5 +46,13 @@ namespace net.rs64.TexTransTool
         {
             Asset.AddSubObject(unityObject);
         }
+    }
+    internal class TempAssetHolder : IAssetSaver, IDisposable
+    {
+        HashSet<UnityEngine.Object> Transferred = new();
+        public TempAssetHolder() { }
+
+        public void TransferAsset(UnityEngine.Object unityObject) { Transferred.Add(unityObject); }
+        public void Dispose() { foreach (var obj in Transferred) { UnityEngine.Object.DestroyImmediate(obj); } }
     }
 }

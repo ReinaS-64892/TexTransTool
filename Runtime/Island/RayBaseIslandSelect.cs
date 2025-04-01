@@ -2,9 +2,10 @@ using System;
 using Unity.Jobs;
 using Unity.Collections;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.TTMathUtil;
 using System.Collections;
 using net.rs64.TexTransTool.IslandSelector;
+using net.rs64.TexTransCore.TTMathUtil;
+using net.rs64.TexTransCore.UVIsland;
 
 namespace net.rs64.TexTransTool.UVIsland
 {
@@ -81,9 +82,9 @@ namespace net.rs64.TexTransTool.UVIsland
             var distances = new NativeArray<float>[islands.Length];
             for (var i = 0; jobs.Length > i; i += 1)
             {
-                var triCount = islands[i].triangles.Count;
+                var triCount = islands[i].Triangles.Count;
                 var nativeTriangleIndex = new NativeArray<TriangleIndex>(triCount, Allocator.TempJob);
-                for (var triIndex = 0; triCount > triIndex; triIndex += 1) { nativeTriangleIndex[triIndex] = islands[i].triangles[triIndex]; }
+                for (var triIndex = 0; triCount > triIndex; triIndex += 1) { nativeTriangleIndex[triIndex] = islands[i].Triangles[triIndex]; }
                 var hitResult = hitResults[i] = new NativeArray<bool>(triCount, Allocator.TempJob);
                 var distance = distances[i] = new NativeArray<float>(triCount, Allocator.TempJob);
 

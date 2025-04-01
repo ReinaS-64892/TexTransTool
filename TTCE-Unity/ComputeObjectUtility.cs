@@ -39,6 +39,8 @@ namespace net.rs64.TexTransCoreEngineForUnity
         , IBlendingComputeKey
         , ISamplerComputeKey
         , INearTransComputeKey
+        , IAtlasComputeKey
+        , IAtlasSamplerComputeKey
         {
             public ITTComputeKey AlphaFill { get; private set; }
             public ITTComputeKey AlphaCopy { get; private set; }
@@ -78,6 +80,12 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public ITTComputeKey FilleFloat4StorageBuffer { get; private set; }
             public ITTComputeKey NearDistanceFadeWrite { get; private set; }
 
+            public ITTComputeKey RectangleTransMapping { get; private set; }
+            public ITTComputeKey MergeAtlasedTextures { get; private set; }
+
+            public ITexTransComputeKeyDictionary<ITTSamplerKey> AtlasSamplerKey { get; } = new SamplerKeyToAtlasSampler();
+
+
             public UnityStandardComputeKeyHolder()
             {
                 AlphaFill = GeneralComputeObjects[nameof(AlphaFill)];
@@ -95,6 +103,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 Swizzling = GeneralComputeObjects[nameof(Swizzling)];
 
                 DefaultSampler = SamplerComputeShaders["AverageSampling"];
+                // DefaultSampler = SamplerComputeShaders["BilinearSampling"];
 
                 TransMapping = GeneralComputeObjects[nameof(TransMapping)];
                 TransMappingWithDepth = GeneralComputeObjects[nameof(TransMappingWithDepth)];
@@ -109,6 +118,9 @@ namespace net.rs64.TexTransCoreEngineForUnity
                 PositionMapper = GenealCompute[nameof(PositionMapper)];
                 FilleFloat4StorageBuffer = GenealCompute[nameof(FilleFloat4StorageBuffer)];
                 NearDistanceFadeWrite = GenealCompute[nameof(NearDistanceFadeWrite)];
+
+                RectangleTransMapping = GenealCompute[nameof(RectangleTransMapping)];
+                MergeAtlasedTextures = GenealCompute[nameof(MergeAtlasedTextures)];
             }
 
             class BlendKeyUnWrapper : ITexTransComputeKeyDictionary<ITTBlendKey> { public ITTComputeKey this[ITTBlendKey key] => (TTBlendingComputeShader)key; }
@@ -117,6 +129,7 @@ namespace net.rs64.TexTransCoreEngineForUnity
             class SamplerKeyQuery : IKeyValueStore<string, ITTSamplerKey> { public ITTSamplerKey this[string key] => SamplerComputeShaders[key]; }
             class SamplerKeyToResizing : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetResizingComputeKey; }
             class SamplerKeyToTransSampler : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetTransSamplerComputeKey; }
+            class SamplerKeyToAtlasSampler : ITexTransComputeKeyDictionary<ITTSamplerKey> { public ITTComputeKey this[ITTSamplerKey key] => ((TTSamplerComputeShader)key).GetAtlasSamplerComputeKey; }
         }
 
     }

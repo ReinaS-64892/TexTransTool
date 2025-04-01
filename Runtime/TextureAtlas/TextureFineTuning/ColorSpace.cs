@@ -1,14 +1,16 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 {
     [Serializable]
     public class ColorSpace : ITextureFineTuning
     {
-        public bool Linear = true;
+        [FormerlySerializedAs("Linear")] public bool AsLinear = true;
 
         [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
@@ -20,51 +22,56 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         {
             PropertyNames = propertyNames;
             Select = select;
-            Linear = linear;
+            AsLinear = linear;
         }
         public ColorSpace(List<PropertyName> propertyNames, PropertySelect select, bool linear)
         {
             PropertyNameList = propertyNames;
             Select = select;
-            Linear = linear;
+            AsLinear = linear;
         }
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 var tuningDataHolder = target.Value;
-                tuningDataHolder.Get<ColorSpaceData>().Linear = Linear;
+                tuningDataHolder.Get<ColorSpaceData>().AsLinear = AsLinear;
             }
 
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 
     internal class ColorSpaceData : ITuningData
     {
-        public bool Linear = true;
+        public bool AsLinear = false;
     }
 
-    internal class ColorSpaceApplicant : ITuningApplicant
+    internal class ColorSpaceApplicant : ITuningProcessor
     {
         public int Order => -34;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var texf in texFineTuningTargets)
+            foreach (var tuning in ctx.TuningHolder)
             {
-                var tuningHolder = texf.Value;
+                var tuningHolder = tuning.Value;
                 var colorSpaceData = tuningHolder.Find<ColorSpaceData>();
                 if (colorSpaceData == null) { continue; }
-                if (colorSpaceData.Linear == !tuningHolder.Texture2D.isDataSRGB) { continue; }
                 // GraphicsFormatUtility.GetLinearFormat()
                 // GraphicsFormatUtility.IsSRGBFormat()
 
-                var newTex = new Texture2D(tuningHolder.Texture2D.width, tuningHolder.Texture2D.height, TextureFormat.RGBA32, tuningHolder.Texture2D.mipmapCount > 1, colorSpaceData.Linear);
-                var pixelData = tuningHolder.Texture2D.GetPixelData<Color32>(0);
-                newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
-                newTex.Apply();
-                newTex.name = tuningHolder.Texture2D.name;
-                tuningHolder.Texture2D = newTex;
+                ctx.ProcessingHolder[tuning.Key].TextureDescriptor.AsLinear = colorSpaceData.AsLinear;
+
+                // var newTex = new Texture2D(tuningHolder.Texture2D.width, tuningHolder.Texture2D.height, TextureFormat.RGBA32, tuningHolder.Texture2D.mipmapCount > 1, colorSpaceData.AsLinear);
+                // var pixelData = tuningHolder.Texture2D.GetPixelData<Color32>(0);
+                // newTex.SetPixelData(pixelData, 0); pixelData.Dispose();
+                // newTex.Apply();
+                // newTex.name = tuningHolder.Texture2D.name;
+                // tuningHolder.Texture2D = newTex;
             }
         }
     }

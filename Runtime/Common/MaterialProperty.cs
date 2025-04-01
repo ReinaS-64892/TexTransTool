@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool
                     return IntValue == other.IntValue;
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
-                    return strict ? Math.Abs(FloatValue - other.FloatValue) < Mathf.Epsilon : FloatValue == other.FloatValue;
+                    return strict ? FloatValue == other.FloatValue : Mathf.Approximately(FloatValue, other.FloatValue);
                 default:
                     return false;
             }
@@ -95,11 +95,19 @@ namespace net.rs64.TexTransTool
             return true;
         }
 
-        public static bool TryGet(Material mat, string propertyName, ShaderPropertyType propertyType, out MaterialProperty materialProperty)
+        public static bool TryGet(Material mat, string propertyName, out MaterialProperty materialProperty)
+        {
+            return TryGet(mat, mat.shader.FindPropertyIndex(propertyName), out materialProperty);
+        }
+        public static bool TryGet(Material mat, int propertyIndex, out MaterialProperty materialProperty)
         {
             materialProperty = default;
+            var shader = mat.shader;
 
-            if (!Validate(mat, propertyName, propertyType)) return false;
+            if (!ValidateIndex(shader, propertyIndex)) return false;
+            var propertyNameID = shader.GetPropertyNameId(propertyIndex);
+            var propertyName = shader.GetPropertyName(propertyIndex);
+            var propertyType = shader.GetPropertyType(propertyIndex);
 
             materialProperty = new MaterialProperty
             {
@@ -111,30 +119,30 @@ namespace net.rs64.TexTransTool
             {
                 case ShaderPropertyType.Texture:
                     {
-                        materialProperty.TextureValue = mat.GetTexture(propertyName);
-                        materialProperty.TextureOffsetValue = mat.GetTextureOffset(propertyName);
-                        materialProperty.TextureScaleValue = mat.GetTextureScale(propertyName);
+                        materialProperty.TextureValue = mat.GetTexture(propertyNameID);
+                        materialProperty.TextureOffsetValue = mat.GetTextureOffset(propertyNameID);
+                        materialProperty.TextureScaleValue = mat.GetTextureScale(propertyNameID);
                         break;
                     }
                 case ShaderPropertyType.Color:
                     {
-                        materialProperty.ColorValue = mat.GetColor(propertyName);
+                        materialProperty.ColorValue = mat.GetColor(propertyNameID);
                         break;
                     }
                 case ShaderPropertyType.Vector:
                     {
-                        materialProperty.VectorValue = mat.GetVector(propertyName);
+                        materialProperty.VectorValue = mat.GetVector(propertyNameID);
                         break;
                     }
                 case ShaderPropertyType.Int:
                     {
-                        materialProperty.IntValue = mat.GetInt(propertyName);
+                        materialProperty.IntValue = mat.GetInt(propertyNameID);
                         break;
                     }
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
                     {
-                        materialProperty.FloatValue = mat.GetFloat(propertyName);
+                        materialProperty.FloatValue = mat.GetFloat(propertyNameID);
                         break;
                     }
             }
@@ -154,6 +162,10 @@ namespace net.rs64.TexTransTool
             }
 
             return true;
+        }
+        private static bool ValidateIndex(Shader shader, int propertyIndex)
+        {
+            return 0 <= propertyIndex && propertyIndex < shader.GetPropertyCount();
         }
         public bool Equals(MaterialProperty other) { return Equals(other, true); }
         public override bool Equals(object other)

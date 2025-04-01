@@ -10,9 +10,9 @@ namespace net.rs64.TexTransTool.Editor
         public static void Draw(TexTransMonoBase target)
         {
             if (target == null) { return; }
-
+#if !TTT_DISABLE_EXTERNAL_PREVIEW_DRAWER
             if (ExternalPreviewDrawer is not null) { ExternalPreviewDrawer(target); return; }
-
+#endif
             if (target is TexTransRuntimeBehavior ttr && RealTimePreviewContext.IsPreviewPossibleType(ttr))
             { TextureTransformerEditor.DrawerRealTimePreviewEditorButton(target as TexTransRuntimeBehavior); }
             else { OneTimePreviewContext.instance.DrawApplyAndRevert(target); }

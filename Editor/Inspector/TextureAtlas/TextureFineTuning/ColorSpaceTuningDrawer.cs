@@ -14,8 +14,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             var sSelect = property.FindPropertyRelative("Select");
             var sPropertyNames = property.FindPropertyRelative("PropertyNameList");
-            var sLinear = property.FindPropertyRelative("Linear");
-            EditorGUI.PropertyField(position, sLinear, "TextureFineTuning:prop:Linear".Glc());
+            var sLinear = property.FindPropertyRelative("AsLinear");
+            EditorGUI.PropertyField(position, sLinear, "TextureFineTuning:prop:AsLinear".Glc());
             position.y += 18;
 
             position.height = EditorGUI.GetPropertyHeight(sPropertyNames);

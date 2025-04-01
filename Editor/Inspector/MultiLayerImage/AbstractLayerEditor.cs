@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
     [CanEditMultipleObjects]
     internal class AbstractLayerEditor : UnityEditor.Editor
     {
-        (NotWorkDomain domain, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
+        (NotWorkDomain domain, UnityDiskUtil diskUtil, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
         private bool _needUpdate;
 
         void OnEnable() { _needUpdate = true; GenerateImageLayerPreview(); }
@@ -29,6 +29,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             if (_imageLayerPreviewResult != null)
             {
                 _imageLayerPreviewResult.Value.previewRt.Dispose();
+                _imageLayerPreviewResult.Value.diskUtil.Dispose();
                 _imageLayerPreviewResult.Value.domain.Dispose();
                 _imageLayerPreviewResult = null;
             }
@@ -37,8 +38,8 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             if (layer is null) { return; }
 
             var previewCanvasSize = (1024, 1024);
-            var texManage = new TextureManager(true);
-            var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), texManage, new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManage)));
+            var diskUtil = new UnityDiskUtil(true);
+            var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), new TTCEUnityWithTTT4Unity(diskUtil));
             var engine = domain.GetTexTransCoreEngineForUnity();
 
             var layerObject = layer.GetLayerObject(new(domain, previewCanvasSize));
@@ -54,7 +55,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
                     // これをそのままインスペクターに描画しようとすると薄くなってしまうから Linear 空間にすることでごまかす。
                     engine.GammaToLinear(previewTex);
 
-                    _imageLayerPreviewResult = (domain, previewTex);
+                    _imageLayerPreviewResult = (domain, diskUtil, previewTex);
                 }
                 finally { imageLayer.Dispose(); }
             else layerObject.Dispose();

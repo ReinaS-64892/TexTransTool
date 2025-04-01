@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
@@ -8,23 +9,39 @@ using UnityEditor.UIElements;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransCore;
+using net.rs64.TexTransCoreEngineForUnity;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     internal class TextureFineTuningManager : EditorWindow
     {
-        [SerializeField] AtlasTexture _fineTuningManageTarget;
-        public AtlasTexture FineTuningManageTarget => _fineTuningManageTarget;
+        [SerializeField] (AtlasTexture, AtlasTextureExperimentalFeature)? _fineTuningManageTarget;
+        public (AtlasTexture, AtlasTextureExperimentalFeature)? FineTuningManageTarget
+        {
+            get
+            {
+                var at = _fineTuningManageTarget;
+                if (at == null) { at = null; }
+                return at;
+            }
+        }
 
-        AtlasTexture.AtlasData _previewedAtlasTexture;
-        internal static void OpenAtlasTexture(AtlasTexture thisTarget)
+        AtlasTexture.AtlasResult? _previewedAtlasTexture;
+        internal static void OpenAtlasTexture((AtlasTexture, AtlasTextureExperimentalFeature) thisTarget)
         {
             var window = GetWindow<TextureFineTuningManager>();
             window.SetTarget(thisTarget);
         }
 
-        private void SetTarget(AtlasTexture thisTarget) { _fineTuningManageTarget = thisTarget; InitializeGUI(); }
-        private void SetTarget(ChangeEvent<UnityEngine.Object> evt) { SetTarget(evt.newValue as AtlasTexture); }
+        private void SetTarget((AtlasTexture, AtlasTextureExperimentalFeature)? thisTarget) { _fineTuningManageTarget = thisTarget; InitializeGUI(); }
+        private void SetTarget(ChangeEvent<UnityEngine.Object> evt)
+        {
+            var atTex = evt.newValue as AtlasTexture;
+            if (atTex == null) { return; }
+            var atTexExp = atTex.GetComponent<AtlasTextureExperimentalFeature>();
+            if (atTexExp == null) { return; }
+            SetTarget((atTex, atTexExp));
+        }
 
         public void InitializeGUI()
         {
@@ -42,7 +59,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var targetView = new ObjectField("TuningManageTarget");
             targetView.style.flexGrow = 1;
             targetView.objectType = typeof(AtlasTexture);
-            targetView.value = _fineTuningManageTarget;
+            targetView.value = _fineTuningManageTarget?.Item1;
             targetView.RegisterValueChangedCallback(SetTarget);
             topBar.hierarchy.Add(targetView);
 
@@ -57,48 +74,65 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (rootVisualElement.childCount == 0) { rootVisualElement.Add(GenerateTopBar()); }
         }
 
-        VisualElement AtlasCalculateAndCreateManagerUIElement(AtlasTexture atlasTexture)
+        VisualElement? AtlasCalculateAndCreateManagerUIElement((AtlasTexture, AtlasTextureExperimentalFeature)? atlasTexture)
         {
             if (PreviewUtility.IsPreviewContains) { return null; }
-            if (atlasTexture == null) { return null; }
-            var atlasTextureSerializeObject = new SerializedObject(atlasTexture);
+            if (atlasTexture is null) { return null; }
+            var atlasTextureExperimentalFeatureSerializeObject = new SerializedObject(atlasTexture.Value.Item2);
 
-            var domainRoot = DomainMarkerFinder.FindMarker(atlasTexture.gameObject);
+            var domainRoot = DomainMarkerFinder.FindMarker(atlasTexture.Value.Item2.gameObject);
             if (domainRoot == null) { return null; }//TODO : ここ返す値何とかする
-            _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture, domainRoot);
+            if (_previewedAtlasTexture is not null) { DisposingPreviousAtlasResult(); }
+            _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture.Value.Item1, domainRoot);
             if (_previewedAtlasTexture == null) { return null; }
 
-            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.Textures.Keys);
-            atlasTextureSerializeObject.Update();
+            AutoGenerateTextureIndividualTuning(atlasTexture.Value, _previewedAtlasTexture.CompiledAtlasTextures!.Keys);
+            atlasTextureExperimentalFeatureSerializeObject.Update();
 
             var viRoot = new ScrollView();
             var content = viRoot.Q<VisualElement>("unity-content-container");
 
-            CreateManagerUIElement(content, atlasTexture, atlasTextureSerializeObject);
+            CreateManagerUIElement(content, atlasTexture.Value, _previewedAtlasTexture, atlasTextureExperimentalFeatureSerializeObject);
 
             return viRoot;
         }
 
-        private void CreateManagerUIElement(VisualElement content, AtlasTexture atlasTexture, SerializedObject atlasTextureSerializeObject)
+        private void DisposingPreviousAtlasResult()
+        {
+            if (_previewedAtlasTexture is null) { return; }
+            _previewedAtlasTexture.AtlasContext?.Dispose();
+            foreach (var mesh in _previewedAtlasTexture.AtlasedMeshes ?? Array.Empty<Mesh>())
+                UnityEngine.Object.DestroyImmediate(mesh);
+            if (_previewedAtlasTexture.CompiledAtlasTextures is not null)
+                foreach (var rt in _previewedAtlasTexture.CompiledAtlasTextures.Values)
+                    rt.Dispose();
+            _previewedAtlasTexture = null;
+        }
+
+        private void CreateManagerUIElement(VisualElement content, (AtlasTexture, AtlasTextureExperimentalFeature) atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureExperimentalFeatureSerializeObject)
         {
             content.hierarchy.Clear();
+            if (previewedAtlasTexture is null || previewedAtlasTexture.IsSuccess is false) { return; }
 
-            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuning(_previewedAtlasTexture.Textures);
-            AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, _previewedAtlasTexture.SourceTextureMaxSize);
-            AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.MargeTextureDict);
-            AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, _previewedAtlasTexture.ReferenceCopyDict);
-            foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
+            var atlasContext = previewedAtlasTexture.AtlasContext!;
+            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuningHolders(previewedAtlasTexture.CompiledAtlasTextures!.Keys);
+
+            if (atlasTexture.Item2.AutoTextureSizeSetting) AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+            if (atlasTexture.Item2.AutoMergeTextureSetting) AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+            if (atlasTexture.Item2.AutoReferenceCopySetting) AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+
+            foreach (var fineTuning in atlasTexture.Item1.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
-            var sAtlasSetting = atlasTextureSerializeObject.FindProperty("AtlasSetting");
-            var individualTuningSerializedProperty = sAtlasSetting.FindPropertyRelative("TextureIndividualFineTuning");
-            var targetPropName2SerializedProperty = GetProp2Dict(individualTuningSerializedProperty);
 
+            var individualTuningSerializedProperty = atlasTextureExperimentalFeatureSerializeObject.FindProperty("TextureIndividualFineTuning");
+            var targetPropName2SerializedProperty = GetProp2Dict(individualTuningSerializedProperty);
 
 
             foreach (var tuningHolderKV in atlasTexFineTuningTargets)
             {
-                var wrapper = new IndividualTuningUIElementWrapper(tuningHolderKV.Key, tuningHolderKV.Value, targetPropName2SerializedProperty[tuningHolderKV.Key]);
+                var rt = (UnityRenderTexture)previewedAtlasTexture.CompiledAtlasTextures[tuningHolderKV.Key];
+                var wrapper = new IndividualTuningUIElementWrapper(tuningHolderKV.Key, tuningHolderKV.Value, rt.RenderTexture, targetPropName2SerializedProperty[tuningHolderKV.Key]);
                 content.hierarchy.Add(wrapper.GetVisualElement);
             }
         }
@@ -117,38 +151,43 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             return dict;
         }
 
-        internal static void AutoGenerateTextureIndividualTuning(AtlasTexture atlasTexture, IEnumerable<string> property)
+        internal static void AutoGenerateTextureIndividualTuning((AtlasTexture, AtlasTextureExperimentalFeature) atlasTexture, IEnumerable<string> property)
         {
-            Undo.RecordObject(atlasTexture, "Add-TextureIndividualTuning");
+            Undo.RecordObject(atlasTexture.Item2, "Add-TextureIndividualTuning");
 
             var generateTarget = property.ToHashSet();
-            foreach (var prop in atlasTexture.AtlasSetting.TextureIndividualFineTuning.Select(i => i.TuningTarget))
+            foreach (var prop in atlasTexture.Item2.TextureIndividualFineTuning.Select(i => i.TuningTarget))
             { generateTarget.Remove(prop); }
 
             foreach (var propertyName in generateTarget)
-            { atlasTexture.AtlasSetting.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
+            { atlasTexture.Item2.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
         }
-        private AtlasTexture.AtlasData GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
+        private AtlasTexture.AtlasResult? GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
         {
-            var texManage = new TextureManager(true);
-            using var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), texManage, new TTCEUnityWithTTT4Unity(new UnityDiskUtil(texManage)));
+            using var diskUtil = new UnityDiskUtil(true);
+            using var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TTCEUnityWithTTT4Unity(diskUtil));
 
 
             var nowRenderers = atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer());
-            var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers);
+            var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers).ToHashSet();
             if (targetMaterials.Any() is false) { return null; }
 
-            var result = atlasTexture.TryCompileAtlasTextures(
-                atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer()), targetMaterials,
-                previewDomain,
-                out var atlasData
+            var result = AtlasTexture.DoAtlasTexture(
+                previewDomain
+                , previewDomain.GetTexTransCoreEngineForUnity()
+                , targetMaterials
+                , AtlasTexture.FilterTargetRenderers(previewDomain, nowRenderers, targetMaterials)
+                , atlasTexture.IslandSizePriorityTuner
+                , atlasTexture.AtlasSetting
                 );
 
-            if (result is false) { return null; }//TODO : ここ返す値何とかする
+            //TODO : ここ返す値何とかする
+            if (result is null) { return null; }
+            if (result.IsSuccess is false) { return null; }
 
-
-            foreach (var mesh in atlasData.Meshes) { UnityEngine.Object.DestroyImmediate(mesh.AtlasMesh); }
-            return atlasData;
+            // TempJob で Allocate したものが基本なので MeshData を事前に破棄する必要がある。
+            result.AtlasContext!.NormalizedMeshCtx.Dispose();
+            return result;
 
         }
     }
@@ -157,14 +196,14 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     {
         VisualElement _viRoot;
         string _propertyName;
-        Texture2D _previewTexture2D;
+        RenderTexture _previewRenderTexture;
         FineTuning.TexFineTuningHolder _texFineTuningHolder;
         SerializedProperty _textureIndividualTuning;
 
-        public IndividualTuningUIElementWrapper(string propertyName, FineTuning.TexFineTuningHolder texFineTuningHolder, SerializedProperty textureIndividualTuning)
+        public IndividualTuningUIElementWrapper(string propertyName, FineTuning.TexFineTuningHolder texFineTuningHolder, RenderTexture rt, SerializedProperty textureIndividualTuning)
         {
             _propertyName = propertyName;
-            _previewTexture2D = texFineTuningHolder.Texture2D;
+            _previewRenderTexture = rt;
             _texFineTuningHolder = texFineTuningHolder;
             _textureIndividualTuning = textureIndividualTuning;
 
@@ -179,7 +218,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _viRoot.style.flexDirection = FlexDirection.Row;
             _viRoot.style.unityTextAlign = TextAnchor.MiddleLeft;
 
-            var previewImage = new Image { image = _previewTexture2D };
+            var previewImage = new Image { image = _previewRenderTexture };
             previewImage.style.width = previewImage.style.height = 140;
             _viRoot.hierarchy.Add(previewImage);
 
@@ -204,11 +243,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             pfOverrideResize.BindProperty(_textureIndividualTuning.FindPropertyRelative("TextureSize"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<SizeData>("TextureSize",
                 _textureIndividualTuning.FindPropertyRelative("OverrideResize"), pfOverrideResize,
-                d => inheritStr + (d?.TextureSize.ToString() ?? _texFineTuningHolder.Texture2D.width.ToString())));
+                d => inheritStr + (d?.TextureSize.ToString() ?? _previewRenderTexture.width.ToString())));
 
             var pfCompressionData = new PropertyField();
             pfCompressionData.BindProperty(_textureIndividualTuning.FindPropertyRelative("CompressionData"));
-            overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<TextureCompressionData>("CompressionFormat",
+            overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<TextureCompressionTuningData>("CompressionFormat",
                 _textureIndividualTuning.FindPropertyRelative("OverrideCompression"), pfCompressionData,
                 d => inheritStr + (d is not null ? (d.UseOverride ? "UseOverride-" + d.OverrideTextureFormat.ToString() : d.FormatQualityValue.ToString()) : "None")));
 
@@ -219,10 +258,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 d => inheritStr + (d?.UseMipMap.ToString() ?? "None")));
 
             var pfLinear = new PropertyField();
-            pfLinear.BindProperty(_textureIndividualTuning.FindPropertyRelative("Linear"));
+            pfLinear.BindProperty(_textureIndividualTuning.FindPropertyRelative("AsLinear"));
             overrideDescriptionsRoot.hierarchy.Add(CreateFineTuningDataElement<ColorSpaceData>("ColorSpace",
                 _textureIndividualTuning.FindPropertyRelative("OverrideColorSpace"), pfLinear,
-                d => inheritStr + "Linear-is-" + (d?.Linear.ToString() ?? (!_texFineTuningHolder.Texture2D.isDataSRGB).ToString())));
+                d => inheritStr + "Linear-is-" + (d?.AsLinear.ToString() ?? false.ToString())));
 
             _viRoot.hierarchy.Add(overrideDescriptionsRoot);
         }
@@ -246,14 +285,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             topHorizontal.hierarchy.Add(topHorizontalCol);
 
 
-
             var refCpData = _texFineTuningHolder.Find<ReferenceCopyData>();
             var refCopyInherit = refCpData?.CopySource;
 
             var sCopyReferenceSource = _textureIndividualTuning.FindPropertyRelative("CopyReferenceSource");
             var refCpOverrideBoolSProperty = _textureIndividualTuning.FindPropertyRelative("OverrideReferenceCopy");
 
-            topHorizontalCol.hierarchy.Add(NewMethod(" <-- Copy-from ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
+            topHorizontalCol.hierarchy.Add(GenerateCopyOrMergeVisualElementFromProperties(" <-- Copy-from ", refCopyInherit, "ReferenceCopyOverride", sCopyReferenceSource, refCpOverrideBoolSProperty));
 
 
             var mergeTexData = _texFineTuningHolder.Find<MergeTextureData>();
@@ -262,16 +300,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var sMargeRootProperty = _textureIndividualTuning.FindPropertyRelative("MargeRootProperty");
             var sOverrideAsMargeTexture = _textureIndividualTuning.FindPropertyRelative("OverrideMargeTexture");
 
-            topHorizontalCol.hierarchy.Add(NewMethod(" --> MergeParent-as ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
-
-
-
-
+            topHorizontalCol.hierarchy.Add(GenerateCopyOrMergeVisualElementFromProperties(" --> MergeParent-as ", mergeTexInherit, "MergeTextureOverride", sMargeRootProperty, sOverrideAsMargeTexture));
 
             return topHorizontal;
         }
 
-        private VisualElement NewMethod(string arrowLabelStr, string inheritValueStr, string overrideButtonText, SerializedProperty strInputSerializedProperty, SerializedProperty boolOverrideSerializedProperty)
+        private VisualElement GenerateCopyOrMergeVisualElementFromProperties(string arrowLabelStr, string? inheritValueStr, string overrideButtonText, SerializedProperty strInputSerializedProperty, SerializedProperty boolOverrideSerializedProperty)
         {
             var topHorizontalRefCopRow = new VisualElement();
             topHorizontalRefCopRow.style.flexDirection = FlexDirection.Row;
@@ -325,7 +359,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             root.style.flexDirection = FlexDirection.Row;
             root.style.justifyContent = Justify.SpaceBetween;
 
-            var data = _texFineTuningHolder.Find<TuningData>();
+            var data = _texFineTuningHolder.Find<TuningData>()!;
             var dataNameLabel = new Label(dataName);
             dataNameLabel.style.width = 120;
             var inheritLabel = new Label(getInheritString(data));
@@ -362,28 +396,33 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     {
         IEnumerable<Renderer> _domainRenderers;
         HashSet<UnityEngine.Object> _transferredObject = new();
-        protected readonly ITextureManager _textureManager;
+        HashSet<ITTRenderTexture> _transferredRT = new();
+
         private readonly ITexTransToolForUnity _ttce4U;
 
-        public NotWorkDomain(IEnumerable<Renderer> renderers, TextureManager textureManager, ITexTransToolForUnity iTexTransToolForUnity)
+        public NotWorkDomain(IEnumerable<Renderer> renderers, ITexTransToolForUnity iTexTransToolForUnity)
         {
             _domainRenderers = renderers;
-            _textureManager = textureManager;
             _ttce4U = iTexTransToolForUnity;
         }
 
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }
         public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
-        public ITextureManager GetTextureManager() { return _textureManager; }
         public bool IsPreview() { return true; }
-        public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
+        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
         public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
-        public void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true) { }
+        public void ReplaceMaterials(Dictionary<Material, Material> mapping) { }
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
-        public void Dispose() { foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); } _textureManager.Dispose(); }
+        public void Dispose()
+        {
+            foreach (var obj in _transferredObject) { UnityEngine.Object.DestroyImmediate(obj); }
+            foreach (var rt in _transferredRT) { rt.Dispose(); }
+        }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
-
+        public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { return new(); }
+        public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor) { _transferredRT.Add(rt); }
+        T? IDomainCustomContext.GetCustomContext<T>() where T : class { return null; }
     }
 
 

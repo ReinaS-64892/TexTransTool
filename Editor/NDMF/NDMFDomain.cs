@@ -1,6 +1,7 @@
 using nadena.dev.ndmf;
 using System;
 using UnityEditor;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 
@@ -37,14 +38,14 @@ namespace net.rs64.TexTransTool.NDMF
             }
         }
 
-        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, false, new NDMFAssetSaver(b)) { }
+        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b)) { }
 
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
-            if (_replaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
+            if (_genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
 
             base.RegisterReplace(oldObject, nowObject);
-            ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
+            if (oldObject is not RenderTexture && nowObject is not RenderTexture) ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
         public override bool OriginEqual(Object l, Object r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
 

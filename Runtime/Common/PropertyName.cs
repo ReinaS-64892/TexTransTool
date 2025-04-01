@@ -30,5 +30,18 @@ namespace net.rs64.TexTransTool
         }
 
         public static implicit operator string(PropertyName p) => p._propertyName;
+        internal PropertyName AsLilToon()
+        {
+            var lv = this;
+            lv._shaderName = "lilToon";
+            return lv;
+        }
+
+        internal PropertyName AsUnknown()
+        {
+            var lv = this;
+            lv._shaderName = "";
+            return lv;
+        }
     }
 }

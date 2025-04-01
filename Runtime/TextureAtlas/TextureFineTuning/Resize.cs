@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine;
 
@@ -9,12 +11,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     public class Resize : ITextureFineTuning
     {
         [PowerOfTwo] public int Size = 512;
-        [Obsolete("V4SaveData",true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
+        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.NotEqual;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
         public Resize() { }
-        [Obsolete("V4SaveData",true)]
+        [Obsolete("V4SaveData", true)]
         public Resize(int size, PropertyName propertyNames, PropertySelect select)
         {
             Size = size;
@@ -29,12 +32,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var target in FineTuningUtil.FilteredTarget(PropertyNameList, Select, texFineTuningTargets))
             {
                 target.Value.Get<SizeData>().TextureSize = Size;
             }
+        }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
         }
     }
 
@@ -43,18 +50,34 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
         public int TextureSize = 2048;
     }
 
-    internal class ResizeApplicant : ITuningApplicant
+    internal class ResizeApplicant : ITuningProcessor
     {
-        public int Order => -64;
+        public int Order => 129;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var texKv in texFineTuningTargets)
+            foreach (var tuning in ctx.TuningHolder)
             {
-                var sizeData = texKv.Value.Find<SizeData>();
+                var tuningHolder = tuning.Value;
+                var sizeData = tuningHolder.Find<SizeData>();
                 if (sizeData == null) { continue; }
-                if (sizeData.TextureSize >= texKv.Value.Texture2D.width) { continue; }
-                texKv.Value.Texture2D = TextureUtility.ResizeTexture(texKv.Value.Texture2D, new Vector2Int(sizeData.TextureSize, (int)((texKv.Value.Texture2D.height / (float)texKv.Value.Texture2D.width) * sizeData.TextureSize)));
+
+                var pHolder = ctx.ProcessingHolder[tuning.Key];
+                if (pHolder.RTOwned is false) { continue; }
+
+                var targetProperty = pHolder.RenderTextureProperty!;
+                var rt = ctx.RenderTextures[targetProperty];
+                if (sizeData.TextureSize >= rt.Width) { continue; }
+
+                var newRt = ctx.Engine.CreateRenderTexture(
+                    sizeData.TextureSize
+                    , (int)((rt.Hight / (float)rt.Width) * sizeData.TextureSize)
+                    );
+                newRt.Name = rt.Name;
+                ctx.Engine.DefaultResizing(newRt, rt);
+
+                ctx.RenderTextures[targetProperty] = newRt;
+                ctx.NewRenderTextures.Add(newRt);
             }
         }
     }
