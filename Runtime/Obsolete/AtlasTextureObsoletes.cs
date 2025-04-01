@@ -38,6 +38,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal List<TextureSelector> UnsetTextures = new();
+        [Obsolete("V6SaveData", true)][SerializeField] internal List<TextureIndividualTuning> TextureIndividualFineTuning = new();
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool AutoReferenceCopySetting = false;
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool AutoMergeTextureSetting = false;
+
         [Obsolete("V6SaveData", true)][SerializeReference] internal List<IslandFineTuner.IIslandFineTuner> IslandFineTuners = new();
         [Obsolete("V6SaveData", true)][SerializeField] internal PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool WriteOriginalUV = false;

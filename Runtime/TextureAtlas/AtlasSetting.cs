@@ -32,9 +32,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public bool PixelNormalize = true;
         public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
 
-
         public bool ForceSetTexture = false;
-        public List<TextureSelector> UnsetTextures = new();
 
 
         [SerializeReference, SubclassSelector] internal IIslandRelocatorProvider AtlasIslandRelocator = null;
@@ -77,13 +75,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 UseOverride = false,
             },
             };
-        public List<TextureIndividualTuning> TextureIndividualFineTuning = new();
-
-
-        public bool AutoTextureSizeSetting = false;
-        public bool AutoReferenceCopySetting = false;
-        public bool AutoMergeTextureSetting = false;
-
     }
     public interface IIslandRelocatorProvider
     {

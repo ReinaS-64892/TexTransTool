@@ -77,6 +77,20 @@ namespace net.rs64.TexTransTool.Migration.V6
                 Reference = i.MergeReferenceMaterial,
             }).ToList();
 
+            var usedExperimentalOption = atlasTexture.AtlasSetting.AutoMergeTextureSetting
+                || atlasTexture.AtlasSetting.AutoReferenceCopySetting
+                || atlasTexture.AtlasSetting.UnsetTextures.Any()
+                || atlasTexture.AtlasSetting.TextureIndividualFineTuning.Any();
+            if(usedExperimentalOption)
+            {
+                var exp = atlasTexture.GetComponent<AtlasTextureExperimentalFeature>();
+               if(exp == null) exp = atlasTexture.gameObject.AddComponent<AtlasTextureExperimentalFeature>();
+               exp.AutoMergeTextureSetting = atlasTexture.AtlasSetting.AutoMergeTextureSetting;
+               exp.AutoReferenceCopySetting = atlasTexture.AtlasSetting.AutoReferenceCopySetting;
+               exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures;
+               exp.TextureIndividualFineTuning = atlasTexture.AtlasSetting.TextureIndividualFineTuning;
+            }
+
             EditorUtility.SetDirty(atlasTexture);
             MigrationUtility.SetSaveDataVersion(atlasTexture, 7);
         }

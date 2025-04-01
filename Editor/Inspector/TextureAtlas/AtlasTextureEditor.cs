@@ -27,12 +27,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         private SerializedProperty sUsePrimaryMaximumTexture, sPrimaryTextureProperty;
         private SerializedProperty sPadding;
         private SerializedProperty sForceSetTexture;
-        private SerializedProperty sUnsetTextures;
         private SerializedProperty sForceSizePriority;
         private SerializedProperty sIncludeDisabledRenderer;
         private SerializedProperty sPixelNormalize;
-        private SerializedProperty sTextureFineTuning, sIslandFineTuners, sTextureIndividualFineTuning;
-        private SerializedProperty sAutoTextureSizeSetting, sAutoReferenceCopySetting, sAutoMergeTextureSetting;
+        private SerializedProperty sTextureFineTuning;
         private SerializedProperty sBackGroundColor;
 
         public void OnEnable()
@@ -66,16 +64,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             sIncludeDisabledRenderer = sAtlasSetting.FindPropertyRelative("IncludeDisabledRenderer");
             sPixelNormalize = sAtlasSetting.FindPropertyRelative("PixelNormalize");
             sTextureFineTuning = sAtlasSetting.FindPropertyRelative("TextureFineTuning");
-            sIslandFineTuners = sAtlasSetting.FindPropertyRelative("IslandFineTuners");
             sForceSizePriority = sAtlasSetting.FindPropertyRelative("ForceSizePriority");
-            sTextureIndividualFineTuning = sAtlasSetting.FindPropertyRelative("TextureIndividualFineTuning");
-
-            sAutoTextureSizeSetting = sAtlasSetting.FindPropertyRelative("AutoTextureSizeSetting");
-            sAutoReferenceCopySetting = sAtlasSetting.FindPropertyRelative("AutoReferenceCopySetting");
-            sAutoMergeTextureSetting = sAtlasSetting.FindPropertyRelative("AutoMergeTextureSetting");
 
             sBackGroundColor = sAtlasSetting.FindPropertyRelative("BackGroundColor");
-            sUnsetTextures = sAtlasSetting.FindPropertyRelative("UnsetTextures");
 
         }
         public override void OnInspectorGUI()
@@ -171,26 +162,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             EditorGUILayout.PropertyField(sForceSetTexture, "AtlasTexture:prop:ForceSetTexture".GlcV());
             EditorGUILayout.PropertyField(sBackGroundColor, "AtlasTexture:prop:BackGroundColor".GlcV());
             EditorGUILayout.PropertyField(sPixelNormalize, "AtlasTexture:prop:PixelNormalize".GlcV());
-            pf.Split("Experimental");
-            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
-            using (new EditorGUI.IndentLevelScope(1))
-                if (s_ExperimentalFutureOption)
-                {
-                    // EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".GlcV());
-
-                    EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
-
-                    EditorGUILayout.PropertyField(sAutoTextureSizeSetting, "AtlasTexture:prop:ExperimentalFuture:AutoTextureSizeSetting".GlcV());
-                    EditorGUILayout.PropertyField(sAutoReferenceCopySetting, "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting".GlcV());
-                    EditorGUILayout.PropertyField(sAutoMergeTextureSetting, "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting".GlcV());
-
-                    EditorGUILayout.PropertyField(sTextureIndividualFineTuning, "AtlasTexture:prop:TextureIndividualFineTuning".GlcV());
-                    if (PreviewUtility.IsPreviewContains is false)
-                    {
-                        if (GUILayout.Button("AtlasTexture:prop:OpenTextureFineTuningManager".GlcV(), GUILayout.Height(18f)))
-                        { TextureFineTuningManager.OpenAtlasTexture(thisTarget); }
-                    }
-                }
 
             pf.Split("TextureFineTuning");
             EditorGUILayout.PropertyField(sTextureFineTuning, "AtlasTexture:prop:TextureFineTuning".GlcV());
@@ -271,7 +242,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             return -1;
         }
 
-        static bool s_ExperimentalFutureOption = false;
         static HashSet<Material> s_targetMatHash = new();
 
 

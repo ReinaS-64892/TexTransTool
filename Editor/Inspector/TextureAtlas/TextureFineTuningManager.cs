@@ -15,8 +15,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     internal class TextureFineTuningManager : EditorWindow
     {
-        [SerializeField] AtlasTexture? _fineTuningManageTarget;
-        public AtlasTexture? FineTuningManageTarget
+        [SerializeField] (AtlasTexture, AtlasTextureExperimentalFeature)? _fineTuningManageTarget;
+        public (AtlasTexture, AtlasTextureExperimentalFeature)? FineTuningManageTarget
         {
             get
             {
@@ -27,14 +27,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         }
 
         AtlasTexture.AtlasResult? _previewedAtlasTexture;
-        internal static void OpenAtlasTexture(AtlasTexture thisTarget)
+        internal static void OpenAtlasTexture((AtlasTexture, AtlasTextureExperimentalFeature) thisTarget)
         {
             var window = GetWindow<TextureFineTuningManager>();
             window.SetTarget(thisTarget);
         }
 
-        private void SetTarget(AtlasTexture? thisTarget) { _fineTuningManageTarget = thisTarget; InitializeGUI(); }
-        private void SetTarget(ChangeEvent<UnityEngine.Object> evt) { SetTarget(evt.newValue as AtlasTexture); }
+        private void SetTarget((AtlasTexture, AtlasTextureExperimentalFeature)? thisTarget) { _fineTuningManageTarget = thisTarget; InitializeGUI(); }
+        private void SetTarget(ChangeEvent<UnityEngine.Object> evt)
+        {
+            var atTex = evt.newValue as AtlasTexture;
+            if (atTex == null) { return; }
+            var atTexExp = atTex.GetComponent<AtlasTextureExperimentalFeature>();
+            if (atTexExp == null) { return; }
+            SetTarget((atTex, atTexExp));
+        }
 
         public void InitializeGUI()
         {
@@ -52,7 +59,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var targetView = new ObjectField("TuningManageTarget");
             targetView.style.flexGrow = 1;
             targetView.objectType = typeof(AtlasTexture);
-            targetView.value = _fineTuningManageTarget;
+            targetView.value = _fineTuningManageTarget?.Item1;
             targetView.RegisterValueChangedCallback(SetTarget);
             topBar.hierarchy.Add(targetView);
 
@@ -67,25 +74,25 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             if (rootVisualElement.childCount == 0) { rootVisualElement.Add(GenerateTopBar()); }
         }
 
-        VisualElement? AtlasCalculateAndCreateManagerUIElement(AtlasTexture? atlasTexture)
+        VisualElement? AtlasCalculateAndCreateManagerUIElement((AtlasTexture, AtlasTextureExperimentalFeature)? atlasTexture)
         {
             if (PreviewUtility.IsPreviewContains) { return null; }
-            if (atlasTexture == null) { return null; }
-            var atlasTextureSerializeObject = new SerializedObject(atlasTexture);
+            if (atlasTexture is null) { return null; }
+            var atlasTextureSerializeObject = new SerializedObject(atlasTexture.Value.Item2);
 
-            var domainRoot = DomainMarkerFinder.FindMarker(atlasTexture.gameObject);
+            var domainRoot = DomainMarkerFinder.FindMarker(atlasTexture.Value.Item2.gameObject);
             if (domainRoot == null) { return null; }//TODO : ここ返す値何とかする
             if (_previewedAtlasTexture is not null) { DisposingPreviousAtlasResult(); }
-            _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture, domainRoot);
+            _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture.Value.Item1, domainRoot);
             if (_previewedAtlasTexture == null) { return null; }
 
-            AutoGenerateTextureIndividualTuning(atlasTexture, _previewedAtlasTexture.CompiledAtlasTextures.Keys);
+            AutoGenerateTextureIndividualTuning(atlasTexture.Value, _previewedAtlasTexture.CompiledAtlasTextures.Keys);
             atlasTextureSerializeObject.Update();
 
             var viRoot = new ScrollView();
             var content = viRoot.Q<VisualElement>("unity-content-container");
 
-            CreateManagerUIElement(content, atlasTexture, _previewedAtlasTexture, atlasTextureSerializeObject);
+            CreateManagerUIElement(content, atlasTexture.Value, _previewedAtlasTexture, atlasTextureSerializeObject);
 
             return viRoot;
         }
@@ -101,18 +108,18 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _previewedAtlasTexture = null;
         }
 
-        private void CreateManagerUIElement(VisualElement content, AtlasTexture atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureSerializeObject)
+        private void CreateManagerUIElement(VisualElement content, (AtlasTexture,AtlasTextureExperimentalFeature) atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureSerializeObject)
         {
             content.hierarchy.Clear();
 
             var atlasContext = previewedAtlasTexture.AtlasContext;
             var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuningHolders(previewedAtlasTexture.CompiledAtlasTextures.Keys);
 
-            if (atlasTexture.AtlasSetting.AutoTextureSizeSetting) AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
-            if (atlasTexture.AtlasSetting.AutoMergeTextureSetting) AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
-            if (atlasTexture.AtlasSetting.AutoReferenceCopySetting) AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+            if (atlasTexture.Item2.AutoTextureSizeSetting) AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+            if (atlasTexture.Item2.AutoMergeTextureSetting) AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
+            if (atlasTexture.Item2.AutoReferenceCopySetting) AtlasTexture.DefaultRefCopyTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
 
-            foreach (var fineTuning in atlasTexture.AtlasSetting.TextureFineTuning)
+            foreach (var fineTuning in atlasTexture.Item1.AtlasSetting.TextureFineTuning)
             { fineTuning?.AddSetting(atlasTexFineTuningTargets); }
 
 
@@ -143,16 +150,16 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             return dict;
         }
 
-        internal static void AutoGenerateTextureIndividualTuning(AtlasTexture atlasTexture, IEnumerable<string> property)
+        internal static void AutoGenerateTextureIndividualTuning((AtlasTexture, AtlasTextureExperimentalFeature) atlasTexture, IEnumerable<string> property)
         {
-            Undo.RecordObject(atlasTexture, "Add-TextureIndividualTuning");
+            Undo.RecordObject(atlasTexture.Item2, "Add-TextureIndividualTuning");
 
             var generateTarget = property.ToHashSet();
-            foreach (var prop in atlasTexture.AtlasSetting.TextureIndividualFineTuning.Select(i => i.TuningTarget))
+            foreach (var prop in atlasTexture.Item2.TextureIndividualFineTuning.Select(i => i.TuningTarget))
             { generateTarget.Remove(prop); }
 
             foreach (var propertyName in generateTarget)
-            { atlasTexture.AtlasSetting.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
+            { atlasTexture.Item2.TextureIndividualFineTuning.Add(new TextureIndividualTuning() { TuningTarget = propertyName }); }
         }
         private AtlasTexture.AtlasResult? GetAtlasTextureResult(AtlasTexture atlasTexture, GameObject domainRoot)
         {
