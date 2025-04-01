@@ -44,12 +44,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aae1d1b9de0f6d54f94e6d13f5b17274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _saveDataVersion: 6
+  _saveDataVersion: 7
+  SelectMatList:
+  - Material: {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
+    MaterialFineTuningValue: 1
+    AdditionalTextureSizeOffSet: 0
+    TextureSizeOffSet: 0
+  - Material: {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
+    MaterialFineTuningValue: 1
+    AdditionalTextureSizeOffSet: 0
+    TextureSizeOffSet: 0
+  MigrationTemporarylilToonMaterialNormalizerReference: {fileID: 0}
   MigrationV0ObsoleteChannelsRef: []
   SelectReferenceMat: []
   MatSelectors: []
   AtlasSettings:
-  - TextureScaleOffsetReset: 0
+  - UnsetTextures: []
+    TextureIndividualFineTuning: []
+    AutoReferenceCopySetting: 0
+    AutoMergeTextureSetting: 0
+    IslandFineTuners: []
+    PropertyBakeSetting: 0
+    WriteOriginalUV: 0
+    OriginalUVWriteTargetChannel: 1
+    TextureScaleOffsetReset: 0
     BakedPropertyWriteMaxValue: 0
     HeightDenominator: 1
     MergeMaterials: 0
@@ -108,43 +126,39 @@ MonoBehaviour:
       _propertyName: _MainTex
       _useCustomProperty: 0
       _shaderName: DefaultShader
+    ForceSizePriority: 0
     IslandPadding: 0.01
     IncludeDisabledRenderer: 0
-    ForceSizePriority: 0
     BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
-    IslandFineTuners: []
-    PropertyBakeSetting: 0
-    ForceSetTexture: 0
     PixelNormalize: 1
+    DownScaleAlgorithm: AverageSampling
+    ForceSetTexture: 0
     AtlasIslandRelocator:
       rid: -2
-    WriteOriginalUV: 0
-    OriginalUVWriteTargetChannel: 1
     TextureFineTuning:
     - rid: 5298573494560227328
     - rid: 5298573494560227329
     - rid: 5298573494560227330
     - rid: 5298573494560227331
-    TextureIndividualFineTuning: []
-    DownScaleAlgorithm: AverageSampling
-    AutoTextureSizeSetting: 0
-    AutoReferenceCopySetting: 0
-    AutoMergeTextureSetting: 0
-    UnsetTextures: []
   UseIslandCache: 1
   LimitCandidateMaterials: {fileID: 0}
-  SelectMatList:
-  - Material: {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
-    MaterialFineTuningValue: 1
-    AdditionalTextureSizeOffSet: 0
-    TextureSizeOffSet: 0
-  - Material: {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
-    MaterialFineTuningValue: 1
-    AdditionalTextureSizeOffSet: 0
-    TextureSizeOffSet: 0
+  AtlasTargetMaterials:
+  - {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
+  - {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
+  IslandSizePriorityTuner:
+  - rid: 4293191621667192832
+  - rid: 4293191621667192833
   MergeMaterialGroups: []
   AllMaterialMergeReference: {fileID: 0}
   AtlasSetting:
+    UnsetTextures: []
+    TextureIndividualFineTuning: []
+    AutoReferenceCopySetting: 0
+    AutoMergeTextureSetting: 0
+    IslandFineTuners: []
+    PropertyBakeSetting: 0
+    WriteOriginalUV: 0
+    OriginalUVWriteTargetChannel: 1
     TextureScaleOffsetReset: 0
     BakedPropertyWriteMaxValue: 0
     HeightDenominator: 1
@@ -204,34 +218,39 @@ MonoBehaviour:
       _propertyName: _MainTex
       _useCustomProperty: 0
       _shaderName: DefaultShader
+    ForceSizePriority: 0
     IslandPadding: 0.01
     IncludeDisabledRenderer: 0
-    ForceSizePriority: 0
     BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
-    IslandFineTuners: []
-    PropertyBakeSetting: 0
-    ForceSetTexture: 0
     PixelNormalize: 1
+    DownScaleAlgorithm: AverageSampling
+    ForceSetTexture: 0
     AtlasIslandRelocator:
       rid: -2
-    WriteOriginalUV: 0
-    OriginalUVWriteTargetChannel: 1
     TextureFineTuning:
     - rid: 5298573494560227332
     - rid: 5298573494560227333
     - rid: 5298573494560227334
     - rid: 5298573494560227335
-    TextureIndividualFineTuning: []
-    DownScaleAlgorithm: AverageSampling
-    AutoTextureSizeSetting: 0
-    AutoReferenceCopySetting: 0
-    AutoMergeTextureSetting: 0
-    UnsetTextures: []
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 4293191621667192832
+      type: {class: SetFromMaterial, ns: net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PriorityValue: 1
+        Materials:
+        - {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
+    - rid: 4293191621667192833
+      type: {class: SetFromMaterial, ns: net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner,
+        asm: net.rs64.tex-trans-tool.runtime}
+      data:
+        PriorityValue: 1
+        Materials:
+        - {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
     - rid: 5298573494560227328
       type: {class: Resize, ns: net.rs64.TexTransTool.TextureAtlas.FineTuning, asm: net.rs64.tex-trans-tool.runtime}
       data:
@@ -482,4 +501,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c505736ce98d90443807418ec293c31f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _saveDataVersion: 6
+  _saveDataVersion: 7

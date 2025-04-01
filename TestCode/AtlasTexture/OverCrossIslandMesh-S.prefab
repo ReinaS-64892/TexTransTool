@@ -66,8 +66,58 @@ PrefabInstance:
     - target: {fileID: 1944012148697277012, guid: 96c9e4fc411af126c81bc29fc8f11e62,
         type: 3}
       propertyPath: m_Name
-      value: OverCrossIslandMesh-S Variant
+      value: OverCrossIslandMesh-S
       objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: IslandSizePriorityTuner.Array.data[0]
+      value: 4293191621667192885
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: IslandSizePriorityTuner.Array.data[1]
+      value: 4293191621667192886
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192885]
+      value: net.rs64.tex-trans-tool.runtime net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner.SetFromMaterial
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192886]
+      value: net.rs64.tex-trans-tool.runtime net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner.SetFromMaterial
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192885].PriorityValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192886].PriorityValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192885].Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192886].Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192885].Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
+    - target: {fileID: 2578830923061372173, guid: 96c9e4fc411af126c81bc29fc8f11e62,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192886].Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2316f38ee0bacd4d3b1ed8be0c66c0b7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: 2628138312737786465, guid: 9e69fbe6b7fb9a231907409747b62c2c,
         type: 3}
       propertyPath: m_Name
-      value: SomeMeshSomeAtlasSubSet Variant
+      value: SomeMeshSomeAtlasSubSet
       objectReference: {fileID: 0}
     - target: {fileID: 5850884122300097633, guid: 9e69fbe6b7fb9a231907409747b62c2c,
         type: 3}
@@ -68,6 +68,31 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8956860297036642307, guid: 9e69fbe6b7fb9a231907409747b62c2c,
+        type: 3}
+      propertyPath: IslandSizePriorityTuner.Array.data[0]
+      value: 4293191621667192895
+      objectReference: {fileID: 0}
+    - target: {fileID: 8956860297036642307, guid: 9e69fbe6b7fb9a231907409747b62c2c,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192895]
+      value: net.rs64.tex-trans-tool.runtime net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner.SetFromMaterial
+      objectReference: {fileID: 0}
+    - target: {fileID: 8956860297036642307, guid: 9e69fbe6b7fb9a231907409747b62c2c,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192895].PriorityValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8956860297036642307, guid: 9e69fbe6b7fb9a231907409747b62c2c,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192895].Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8956860297036642307, guid: 9e69fbe6b7fb9a231907409747b62c2c,
+        type: 3}
+      propertyPath: managedReferences[4293191621667192895].Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1aa661405586ebfcbb8a2bb26e7bd679, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
