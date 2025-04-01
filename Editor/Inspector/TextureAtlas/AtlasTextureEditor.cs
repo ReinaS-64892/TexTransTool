@@ -24,7 +24,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         private SerializedProperty sPadding;
         private SerializedProperty sForceSetTexture;
         private SerializedProperty sForceSizePriority;
-        private SerializedProperty sWriteOriginalUV, sOriginalUVWriteTargetChannel;
         private SerializedProperty sIncludeDisabledRenderer;
         private SerializedProperty sPixelNormalize;
         private SerializedProperty sTextureFineTuning, sIslandFineTuners, sTextureIndividualFineTuning;
@@ -57,8 +56,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             sForceSetTexture = sAtlasSetting.FindPropertyRelative("ForceSetTexture");
             sPadding = sAtlasSetting.FindPropertyRelative("IslandPadding");
-            sWriteOriginalUV = sAtlasSetting.FindPropertyRelative("WriteOriginalUV");
-            sOriginalUVWriteTargetChannel = sAtlasSetting.FindPropertyRelative("OriginalUVWriteTargetChannel");
             sIncludeDisabledRenderer = sAtlasSetting.FindPropertyRelative("IncludeDisabledRenderer");
             sPixelNormalize = sAtlasSetting.FindPropertyRelative("PixelNormalize");
             sTextureFineTuning = sAtlasSetting.FindPropertyRelative("TextureFineTuning");
@@ -167,8 +164,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 if (s_ExperimentalFutureOption)
                 {
                     EditorGUILayout.PropertyField(sIslandFineTuners, "AtlasTexture:prop:IslandFineTuners".GlcV());
-                    EditorGUILayout.PropertyField(sWriteOriginalUV, "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV".GlcV());
-                    if (sWriteOriginalUV.boolValue) { EditorGUILayout.PropertyField(sOriginalUVWriteTargetChannel, "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel".GlcV()); }
 
                     EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
 
