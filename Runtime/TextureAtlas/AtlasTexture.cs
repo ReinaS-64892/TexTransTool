@@ -74,9 +74,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             pf.Split("Atlasing!");
             // Do Atlasing!
             var atlasResult = DoAtlasTexture(domain, engine, targetMaterials, targetRenderers, IslandSizePriorityTuner, atlasSetting);
-            using var atlasContext = atlasResult.AtlasContext;
-            var atlasedMeshes = atlasResult.AtlasedMeshes;
-            var compiledAtlasTextures = atlasResult.CompiledAtlasTextures;
+            if (atlasResult.IsSuccess is false) { return; }
+            using var atlasContext = atlasResult.AtlasContext!;
+            var atlasedMeshes = atlasResult.AtlasedMeshes!;
+            var compiledAtlasTextures = atlasResult.CompiledAtlasTextures!;
 
             pf.Split("tex fine tuning");
             //Texture Fine Tuning
@@ -91,7 +92,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("gen and replace material");
             //MaterialGenerate And Change
-            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, (MergeMaterialGroups, AllMaterialMergeReference,experimentalOptions), tunedAtlasUnityTextures);
+            ReplaceAtlasedMaterials(domain, targetMaterials, atlasSetting, (MergeMaterialGroups, AllMaterialMergeReference, experimentalOptions), tunedAtlasUnityTextures);
 
             pf.Split("register textures");
             // Register AtlasedTextures
@@ -150,8 +151,13 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("IslandProcessing");
             var (movedVirtualIslandArray, relocateResult) = IslandProcessing(domain, atlasSetting, atlasContext, islandSizePriorityTuner, out var relocationTime);
-            if (relocateResult.IslandRelocationResult is null) { throw new Exception(); }
-            if (relocateResult.IslandRelocationResult.IsSuccess is false) { throw new Exception(); }
+            if (relocateResult.IslandRelocationResult is null || relocateResult.IslandRelocationResult.IsSuccess is false)
+            {
+                // Abort!!!
+                TTLog.Error("AtlasTexture:error:RelocationFailed");
+                atlasContext.Dispose();
+                return new(false, null, null, null);
+            }
             var source2MovedVirtualIsland = new Dictionary<IslandTransform, IslandTransform>();
             for (var i = 0; movedVirtualIslandArray.Length > i; i += 1)
             {
@@ -182,18 +188,20 @@ namespace net.rs64.TexTransTool.TextureAtlas
                   , source2MovedVirtualIsland
               );
             pf.Split("exit");
-            return new(atlasContext, atlasedMeshes, compiledAtlasTextures);
+            return new(true, atlasContext, atlasedMeshes, compiledAtlasTextures);
         }
         internal record AtlasResult
         {
+            public readonly bool IsSuccess;
             // Dispose はきちんとする必要がある。
             // Mesh や RT は後に渡したりとかになるが AtlasContext には気をつけるようにね
-            public readonly AtlasContext AtlasContext;
-            public readonly Mesh[] AtlasedMeshes;
-            public readonly Dictionary<string, ITTRenderTexture> CompiledAtlasTextures;
+            public readonly AtlasContext? AtlasContext;
+            public readonly Mesh[]? AtlasedMeshes;
+            public readonly Dictionary<string, ITTRenderTexture>? CompiledAtlasTextures;
 
-            public AtlasResult(AtlasContext atlasContext, Mesh[] atlasedMesh, Dictionary<string, ITTRenderTexture> compiledAtlasTextures)
+            public AtlasResult(bool isSuccess, AtlasContext? atlasContext, Mesh[]? atlasedMesh, Dictionary<string, ITTRenderTexture>? compiledAtlasTextures)
             {
+                IsSuccess = isSuccess;
                 AtlasContext = atlasContext;
                 AtlasedMeshes = atlasedMesh;
                 CompiledAtlasTextures = compiledAtlasTextures;
@@ -267,7 +275,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             IDomain domain
             , HashSet<Material> targetMaterials
             , AtlasSetting atlasSetting
-            , (List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference,AtlasTextureExperimentalFeature? experimentalOptions) atlasMergeSettings
+            , (List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference, AtlasTextureExperimentalFeature? experimentalOptions) atlasMergeSettings
             , Dictionary<string, RenderTexture> tunedAtlasUnityTextures
             )
         {

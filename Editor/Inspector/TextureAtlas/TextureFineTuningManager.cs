@@ -86,7 +86,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             _previewedAtlasTexture = GetAtlasTextureResult(atlasTexture.Value.Item1, domainRoot);
             if (_previewedAtlasTexture == null) { return null; }
 
-            AutoGenerateTextureIndividualTuning(atlasTexture.Value, _previewedAtlasTexture.CompiledAtlasTextures.Keys);
+            AutoGenerateTextureIndividualTuning(atlasTexture.Value, _previewedAtlasTexture.CompiledAtlasTextures!.Keys);
             atlasTextureExperimentalFeatureSerializeObject.Update();
 
             var viRoot = new ScrollView();
@@ -100,20 +100,22 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         private void DisposingPreviousAtlasResult()
         {
             if (_previewedAtlasTexture is null) { return; }
-            _previewedAtlasTexture.AtlasContext.Dispose();
-            foreach (var mesh in _previewedAtlasTexture.AtlasedMeshes)
+            _previewedAtlasTexture.AtlasContext?.Dispose();
+            foreach (var mesh in _previewedAtlasTexture.AtlasedMeshes ?? Array.Empty<Mesh>())
                 UnityEngine.Object.DestroyImmediate(mesh);
-            foreach (var rt in _previewedAtlasTexture.CompiledAtlasTextures.Values)
-                rt.Dispose();
+            if (_previewedAtlasTexture.CompiledAtlasTextures is not null)
+                foreach (var rt in _previewedAtlasTexture.CompiledAtlasTextures.Values)
+                    rt.Dispose();
             _previewedAtlasTexture = null;
         }
 
         private void CreateManagerUIElement(VisualElement content, (AtlasTexture, AtlasTextureExperimentalFeature) atlasTexture, AtlasTexture.AtlasResult previewedAtlasTexture, SerializedObject atlasTextureExperimentalFeatureSerializeObject)
         {
             content.hierarchy.Clear();
+            if (previewedAtlasTexture is null || previewedAtlasTexture.IsSuccess is false) { return; }
 
-            var atlasContext = previewedAtlasTexture.AtlasContext;
-            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuningHolders(previewedAtlasTexture.CompiledAtlasTextures.Keys);
+            var atlasContext = previewedAtlasTexture.AtlasContext!;
+            var atlasTexFineTuningTargets = FineTuning.TexFineTuningUtility.InitTexFineTuningHolders(previewedAtlasTexture.CompiledAtlasTextures!.Keys);
 
             if (atlasTexture.Item2.AutoTextureSizeSetting) AtlasTexture.SetSizeDataMaxSize(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
             if (atlasTexture.Item2.AutoMergeTextureSetting) AtlasTexture.DefaultMargeTextureDictTuning(atlasTexFineTuningTargets, atlasContext.MaterialGroupingCtx);
@@ -179,10 +181,12 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 , atlasTexture.AtlasSetting
                 );
 
-            if (result is null) { return null; }//TODO : ここ返す値何とかする
+            //TODO : ここ返す値何とかする
+            if (result is null) { return null; }
+            if (result.IsSuccess is false) { return null; }
 
             // TempJob で Allocate したものが基本なので MeshData を事前に破棄する必要がある。
-            result.AtlasContext.NormalizedMeshCtx.Dispose();
+            result.AtlasContext!.NormalizedMeshCtx.Dispose();
             return result;
 
         }
