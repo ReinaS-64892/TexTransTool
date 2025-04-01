@@ -142,13 +142,19 @@ namespace net.rs64.TexTransTool.Decal
 
             Profiler.BeginSample("CreateIslandDescription");
             var flattenIslandDescriptions = new IslandDescription[meshData.Length][];
+
+            var sharedMaterialsCache = new Dictionary<Renderer, Material[]>();
+
             for (var i = 0; flattenIslandDescriptions.Length > i; i += 1)
             {
                 var md = meshData[i];
                 var id = flattenIslandDescriptions[i] = new IslandDescription[md.TriangleIndex.Length];
                 for (var s = 0; id.Length > s; s += 1)
                 {
-                    id[s] = new IslandDescription(md.Vertices, md.VertexUV, md.ReferenceRenderer, s);
+                    if (sharedMaterialsCache.TryGetValue(md.ReferenceRenderer, out var rMats) is false)
+                        rMats = sharedMaterialsCache[md.ReferenceRenderer] = md.ReferenceRenderer.sharedMaterials;
+
+                    id[s] = new IslandDescription(md.Vertices, md.VertexUV, md.ReferenceRenderer, rMats, s);
                 }
             }
 

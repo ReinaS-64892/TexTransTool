@@ -16,15 +16,14 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
-            var selectRendererHash = ctx.OriginEqual.GetDomainsMaterialsHashSet(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), Materials);
+            var selectMaterialsHash = ctx.OriginEqual.GetDomainsMaterialsHashSet(ctx.IslandDescription.SelectMany(i => i.Materials).Distinct().Where(m => m != null).Cast<Material>(), Materials);
             var bitArray = new BitArray(ctx.Islands.Length);
-            var sharedMaterialsCache = new Dictionary<Renderer, Material[]>();
 
             for (int i = 0; i < ctx.Islands.Length; i += 1)
             {
-                if (sharedMaterialsCache.TryGetValue(ctx.IslandDescription[i].Renderer, out var rMats) is false)
-                { rMats = sharedMaterialsCache[ctx.IslandDescription[i].Renderer] = ctx.IslandDescription[i].Renderer.sharedMaterials; }
-                bitArray[i] = selectRendererHash.Contains(rMats[ctx.IslandDescription[i].MaterialSlot]);
+                var mat = ctx.IslandDescription[i].Materials[ctx.IslandDescription[i].MaterialSlot];
+                if (mat == null) { continue; }
+                bitArray[i] = selectMaterialsHash.Contains(mat);
             }
 
             return bitArray;
