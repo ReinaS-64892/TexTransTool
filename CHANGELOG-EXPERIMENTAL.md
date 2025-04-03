@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - AtlasTexture に アトラス化対象のテクスチャの最大サイズを割り当てる AutoTextureSizeSetting が追加されました (#900)
 - AtlasShaderSupport の代わりに ITTShaderTextureUsageInformation が追加されました (#900)
 - MaterialModifier が RenderQueue をオーバーライドできるようになりました (#922)
+- TTT UVCopy という UV をコピーすることが可能なコンポーネントが追加されました (#926)
 
 ### Changed
 
