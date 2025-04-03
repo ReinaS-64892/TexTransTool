@@ -274,7 +274,8 @@ namespace net.rs64.TexTransTool.Editor
         private void UpdateRecordingMaterial()
         {
             if (_target.TargetMaterial == null || _recordingMaterial == null) return;
-            MaterialModifier.TransferValues(_target.TargetMaterial, _recordingMaterial);
+            // TargetMaterialの状態に_recordingMaterialを初期化(差分を適用)した上で差分を適用
+            MaterialModifier.GetAllOverridesAndApply(_recordingMaterial, _target.TargetMaterial, _recordingMaterial);
             MaterialModifier.ConfigureMaterial(_recordingMaterial, _target);
         }
 
