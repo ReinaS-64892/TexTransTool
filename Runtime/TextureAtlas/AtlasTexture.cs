@@ -60,7 +60,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
             if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
-            var experimentalOptions = domain.LookAtGet(this, a => a.GetComponent<AtlasTextureExperimentalFeature>());
+            domain.LookAtGetComponent<AtlasTextureExperimentalFeature>(gameObject);
+            var experimentalOptions = GetComponent<AtlasTextureExperimentalFeature>();
             if (experimentalOptions == null) { experimentalOptions = null; }// UnityNull を潰す
 
             pf.Split("prepare");

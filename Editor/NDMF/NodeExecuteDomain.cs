@@ -56,7 +56,10 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx?.Observe(obj);
             UsedLookAt = true;
         }
-
+        public void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
+        {
+            _ctx.GetComponent<LookTargetComponent>(gameObject);
+        }
         public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
         {
             _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true);

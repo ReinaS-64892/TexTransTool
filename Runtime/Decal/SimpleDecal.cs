@@ -21,6 +21,8 @@ namespace net.rs64.TexTransTool.Decal
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
+        internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
+
         public DecalRendererSelector RendererSelector = new();
 
         [ExpandTexture2D] public Texture2D? DecalTexture;
@@ -34,9 +36,14 @@ namespace net.rs64.TexTransTool.Decal
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
         public AbstractIslandSelector? IslandSelector;
-        public MultiLayerImageCanvas? OverrideDecalTextureWithMultiLayerImageCanvas;
-        public bool UseDepth;
-        public bool DepthInvert;
+
+
+        #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal SimpleDecalExperimentalFeature? MigrationTemporaryExperimentalFeature;
+        [Obsolete("V6SaveData", true)][SerializeField] internal MultiLayerImageCanvas? OverrideDecalTextureWithMultiLayerImageCanvas;
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool UseDepth;
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool DepthInvert;
+        #endregion V6SaveData
 #nullable disable
         #region V5SaveData
         [Obsolete("V5SaveData", true)][SerializeField] internal List<Renderer> TargetRenderers = new List<Renderer> { null };
@@ -62,8 +69,6 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
         #endregion
 #nullable enable
-        internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
-        internal bool? GetUseDepthOrInvert => UseDepth ? new bool?(DepthInvert) : null;
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
@@ -73,6 +78,9 @@ namespace net.rs64.TexTransTool.Decal
             domain.LookAt(transform.GetParents().Append(transform));
             domain.LookAt(decalCompiledTextures.Keys);
             if (IslandSelector != null) { IslandSelector.LookAtCalling(domain); }
+            domain.LookAtGetComponent<SimpleDecalExperimentalFeature>(gameObject);
+            if (GetExperimentalFeature != null) domain.LookAt(GetExperimentalFeature);
+
 
             var blKey = domain.GetTexTransCoreEngineForUnity().QueryBlendKey(BlendTypeKey);
 
@@ -101,8 +109,18 @@ namespace net.rs64.TexTransTool.Decal
             return decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, mulDecalTexture, TargetPropertyName) ?? new();
 
         }
+        internal SimpleDecalExperimentalFeature? ExperimentalFeatureCash;
+        internal SimpleDecalExperimentalFeature? GetExperimentalFeature
+        {
+            get
+            {
+                if (ExperimentalFeatureCash == null) ExperimentalFeatureCash = GetComponent<SimpleDecalExperimentalFeature>();
+                return ExperimentalFeatureCash;
+            }
+        }
 
-        private DecalContext<ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder> GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
+        private DecalContext<ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
+            GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
         {
             var decalContext = new DecalContext
                 <ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
@@ -111,14 +129,14 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.DecalPadding = Padding;
             var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
             decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
-            decalContext.UseDepthOrInvert = GetUseDepthOrInvert;
+            decalContext.UseDepthOrInvert = GetExperimentalFeature?.DepthInvert ?? null;
             return decalContext;
         }
 
         private ITTRenderTexture GetDecalSourceTexture(IDomain domain, ITexTransToolForUnity ttce)
         {
-            if (OverrideDecalTextureWithMultiLayerImageCanvas != null)
-                return OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(new(domain, (2048, 2048), null));
+            if (GetExperimentalFeature?.OverrideDecalTextureWithMultiLayerImageCanvas != null)
+                return GetExperimentalFeature.OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(new(domain, (2048, 2048), null));
 
             if (DecalTexture == null)
             {

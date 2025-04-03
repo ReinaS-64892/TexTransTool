@@ -78,36 +78,11 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             DecalEditorUtil.DrawerAdvancedOption(thisSObject);
 
-            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
-            if (s_ExperimentalFutureOption)
-            {
-                var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
-                if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
-
-                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is PinIslandSelector)
-                {
-                    var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                    if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
-                    {
-#pragma warning disable CS0612
-                        MigrateIslandCullingToIslandSelector(targets);
-#pragma warning restore CS0612
-                    }
-                }
-
-                var sUseDepth = thisSObject.FindProperty("UseDepth");
-                var sDepthInvert = thisSObject.FindProperty("DepthInvert");
-                EditorGUILayout.PropertyField(sUseDepth, "SimpleDecal:prop:ExperimentalFuture:UseDepth".Glc());
-                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, "SimpleDecal:prop:ExperimentalFuture:DepthInvert".Glc()); }
-
-            }
-
             if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
             behaveLayerUtil.DrawAddLayerButton(target as Component);
 
             thisSObject.ApplyModifiedProperties();
         }
-        static bool s_ExperimentalFutureOption = false;
 
         public static void DrawerScale(SerializedObject thisSObject, SerializedObject tf_sObg, Texture2D decalTexture)
         {
@@ -178,37 +153,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 return ve;
             };
         }
-
-        [Obsolete]
-        public void MigrateIslandCullingToIslandSelector(IEnumerable<UnityEngine.Object> simpleDecals)
-        {
-            foreach (var uo in simpleDecals)
-            {
-                if (uo is SimpleDecal simpleDecal)
-                {
-                    MigrateIslandCullingToIslandSelector(simpleDecal);
-                }
-            }
-        }
-        [Obsolete]
-        public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
-        {
-            if (simpleDecal.IslandSelector != null)
-            {
-                if (simpleDecal.IslandSelector is not PinIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
-                else { if (!EditorUtility.DisplayDialog("Migrate IslandCulling To IslandSelector", "IslandSelector に RayCastIslandSelector が既に割り当てられています。 \n 割り当てられている RayCastIslandSelector を編集する形でマイグレーションしますか？", "実行")) { return; } }
-            }
-            Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
-
-            simpleDecal.IslandCulling = false;
-            var islandSelector = Migration.V3.SimpleDecalV3.GenerateIslandSelector(simpleDecal);
-
-            Undo.RecordObject(islandSelector, "MigrateIslandCullingToIslandSelector - islandSelectorEdit");
-
-            Migration.V3.SimpleDecalV3.SetIslandSelectorTransform(simpleDecal, islandSelector);
-
-        }
-
 
     }
 
