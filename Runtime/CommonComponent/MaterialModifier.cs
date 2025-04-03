@@ -63,6 +63,13 @@ namespace net.rs64.TexTransTool
             ConfigureMaterial(target, true, source.shader, properties);
         }
 
+        public static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
+        {
+            var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
+            var overrideProperties = GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, overrideProperties);
+        }
+
         public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
         {
             if (overrideMaterial == null) yield break;

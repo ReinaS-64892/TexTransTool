@@ -158,8 +158,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (_originalMaterial == null || _overrideMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
-                var overrideProperties = MaterialModifier.GetOverrideProperties(_originalMaterial, _overrideMaterial).ToList();
-                MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);
+                MaterialModifier.GetAllOverridesAndApply(_originalMaterial, _overrideMaterial, _recordingMaterial);
                 ApplyOverridesToComponent();
 
                 _originalMaterial = null;
