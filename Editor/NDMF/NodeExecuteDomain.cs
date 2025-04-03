@@ -148,8 +148,9 @@ namespace net.rs64.TexTransTool.NDMF
                 this.ReplaceTexture(mergeResult.Key, _ttce4U.GetReferenceRenderTexture(mergeResult.Value));
                 _transferredRenderTextures.Add(mergeResult.Value);
 
-                if (GraphicsFormatUtility.IsSRGBFormat(mergeResult.Key.graphicsFormat) is false)
-                    TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Add(_ttce4U.GetReferenceRenderTexture(mergeResult.Value));
+                if (mergeResult.Key is Texture2D || (mergeResult.Key is RenderTexture drt && TTRt2.Contains(drt) is false))
+                    if (GraphicsFormatUtility.IsSRGBFormat(mergeResult.Key.graphicsFormat) is false)
+                        TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Add(_ttce4U.GetReferenceRenderTexture(mergeResult.Value));
             }
         }
         public void DomainFinish()
@@ -221,10 +222,8 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 var stackTexture = _ttce4u.CreateRenderTexture(dist.width, dist.height);
                 stackTexture.Name = $"{dist.name}:StackTexture-{dist.width}x{dist.height}";
+                _ttce4u.WrappingOrUploadToLoad(stackTexture, dist);
                 _ttce4u.GetReferenceRenderTexture(stackTexture).CopyFilWrap(dist);
-
-                Graphics.Blit(dist, _ttce4u.GetReferenceRenderTexture(stackTexture));
-                _ttce4u.LinearToGamma(stackTexture);
 
                 _stackDict.Add(dist, stackTexture);
             }
@@ -247,7 +246,8 @@ namespace net.rs64.TexTransTool.NDMF
         public override ITTRenderTexture UploadTexture(RenderTexture renderTexture)
         {
             var newRt = base.UploadTexture(renderTexture);
-            if (TTRt2.Contains(renderTexture) && s_AsLinearMarked.Contains(renderTexture) is false) { this.LinearToGamma(newRt); }
+            if (TTRt2.Contains(renderTexture) && s_AsLinearMarked.Contains(renderTexture) is false)
+                this.LinearToGamma(newRt);
             return newRt;
         }
     }
