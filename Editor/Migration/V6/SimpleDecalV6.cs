@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.Migration.V6
 
             var usedExperimentalOption = simpleDecal.OverrideDecalTextureWithMultiLayerImageCanvas != null || simpleDecal.UseDepth;
 
-            if (simpleDecal.MigrationTemporaryExperimentalFeature == null || usedExperimentalOption)
+            if (simpleDecal.MigrationTemporaryExperimentalFeature == null && usedExperimentalOption)
                 simpleDecal.MigrationTemporaryExperimentalFeature = simpleDecal.gameObject.AddComponent<SimpleDecalExperimentalFeature>();
             if (simpleDecal.MigrationTemporaryExperimentalFeature != null)
             {

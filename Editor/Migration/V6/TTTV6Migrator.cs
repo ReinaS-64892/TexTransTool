@@ -19,6 +19,11 @@ namespace net.rs64.TexTransTool.Migration.V6
                         AtlasTextureV6.MigrationAtlasTextureV6ToV7(atlasTexture);
                         return true;
                     }
+                case SimpleDecal simpleDecal:
+                    {
+                        SimpleDecalV6.MigrationSimpleDecalV6ToV7(simpleDecal);
+                        return true;
+                    }
                 default:
                     {
                         MigrationUtility.SetSaveDataVersion(texTransToolTag, 7);
