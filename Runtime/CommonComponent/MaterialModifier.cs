@@ -18,6 +18,8 @@ namespace net.rs64.TexTransTool
 
         [AffectVRAM] public bool IsOverrideShader = false;
         [AffectVRAM] public Shader? OverrideShader = null;
+        public bool IsOverrideRenderQueue = false;
+        public int OverrideRenderQueue = 2000;
         //[AffectVRAM]
         public List<MaterialProperty> OverrideProperties = new();
 
@@ -41,15 +43,19 @@ namespace net.rs64.TexTransTool
 
         public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
-            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
+            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.IsOverrideRenderQueue, config.OverrideRenderQueue, config.OverrideProperties);
         }
 
-        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
+        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
         {
             if (isOverrideShader)
             {
                 if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
                 else { editableMat.shader = overrideShader; }
+            }
+            if (isOverrideRenderQueue)
+            {
+                editableMat.renderQueue = overrideRenderQueue;
             }
             foreach (var overrideProperty in overrideProperties)
             {
@@ -60,8 +66,9 @@ namespace net.rs64.TexTransTool
         public static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
         {
             var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
+            var (isOverrideRenderQueue, overrideRenderQueue) = GetOverrideRenderQueue(originalMaterial, overrideMaterial);
             var overrideProperties = GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
-            ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, overrideProperties);
+            ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, isOverrideRenderQueue, overrideRenderQueue, overrideProperties);
         }
 
         public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
@@ -96,6 +103,14 @@ namespace net.rs64.TexTransTool
             if (originalMaterial == null) return (false, null);
             if (originalMaterial.shader == overrideMaterial.shader) return (false, null);
             return (true, overrideMaterial.shader);
+        }
+
+        public static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
+        {
+            if (overrideMaterial == null) return (false, 0);
+            if (originalMaterial == null) return (false, 0);
+            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
+            return (true, overrideMaterial.renderQueue);
         }
 
         public static IEnumerable<MaterialProperty> GetProperties(Material material)
