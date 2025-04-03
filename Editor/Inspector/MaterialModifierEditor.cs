@@ -17,6 +17,8 @@ namespace net.rs64.TexTransTool.Editor
         private SerializedProperty _isOverrideShader;
         private SerializedProperty _overrideShader;
         private SerializedProperty _overrideProperties;
+        private SerializedProperty _isOverrideRenderQueue;
+        private SerializedProperty _overrideRenderQueue;
 
         // recoding UI fields
         private Material _recordingMaterial;
@@ -32,6 +34,8 @@ namespace net.rs64.TexTransTool.Editor
             _isOverrideShader = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideShader));
             _overrideShader = serializedObject.FindProperty(nameof(MaterialModifier.OverrideShader));
             _overrideProperties = serializedObject.FindProperty(nameof(MaterialModifier.OverrideProperties));
+            _isOverrideRenderQueue = serializedObject.FindProperty(nameof(MaterialModifier.IsOverrideRenderQueue));
+            _overrideRenderQueue = serializedObject.FindProperty(nameof(MaterialModifier.OverrideRenderQueue));
 
             _recordingMaterial = new Material(Shader.Find("Standard"));
             _recordingMaterial.name = "Modified Material";
@@ -82,13 +86,15 @@ namespace net.rs64.TexTransTool.Editor
 
         private void OverridesGUI()
         {
-            var count = (_isOverrideShader.boolValue ? 1 : 0) + _overrideProperties.arraySize;
+            var count = (_isOverrideShader.boolValue ? 1 : 0) + (_isOverrideRenderQueue.boolValue ? 1 : 0) + _overrideProperties.arraySize;
             _showOverrides = EditorGUILayout.Foldout(_showOverrides, $"Overrides: {count}", true);
             if (_showOverrides)
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(_isOverrideShader);
                 EditorGUILayout.PropertyField(_overrideShader);
+                EditorGUILayout.PropertyField(_isOverrideRenderQueue);
+                EditorGUILayout.PropertyField(_overrideRenderQueue);
                 EditorGUILayout.PropertyField(_overrideProperties, "OverrideProperties".GlcV());
                 OverrideUtilityGUI();
                 EditorGUI.indentLevel--;
@@ -170,7 +176,7 @@ namespace net.rs64.TexTransTool.Editor
                 if (_variantMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
                 var overrideProperties = GetVariantOverrideProperties(_variantMaterial).ToList();
-                MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, overrideProperties);
+                MaterialModifier.ConfigureMaterial(_recordingMaterial, false, null, false, 0, overrideProperties);
                 ApplyOverridesToComponent();
 
                 _variantMaterial = null;
@@ -188,6 +194,9 @@ namespace net.rs64.TexTransTool.Editor
             var (isOverideShader, overrideShader) = MaterialModifier.GetOverrideShader(originalMaterial, overrideMaterial);
             ApplyShaderOverrideToComponent(isOverideShader, overrideShader);
 
+            var (isOverrideRenderQueue, overrideRenderQueue) = MaterialModifier.GetOverrideRenderQueue(originalMaterial, overrideMaterial);
+            ApplyRenderQueueOverrideToComponent(isOverrideRenderQueue, overrideRenderQueue);
+
             var overrideProperties = MaterialModifier.GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
             ApplyPropertyOverridesToComponent(overrideProperties);
         }
@@ -196,6 +205,12 @@ namespace net.rs64.TexTransTool.Editor
         {
             _isOverrideShader.boolValue = isOverrideShader;
             if (isOverrideShader) { _overrideShader.objectReferenceValue = overrideShader; }
+        }
+
+        private void ApplyRenderQueueOverrideToComponent(bool isOverrideRenderQueue, int overrideRenderQueue)
+        {
+            _isOverrideRenderQueue.boolValue = isOverrideRenderQueue;
+            if (isOverrideRenderQueue) { _overrideRenderQueue.intValue = overrideRenderQueue; }
         }
 
         private void ApplyPropertyOverridesToComponent(List<MaterialProperty> overrides)
@@ -274,7 +289,6 @@ namespace net.rs64.TexTransTool.Editor
         private void UpdateRecordingMaterial()
         {
             if (_target.TargetMaterial == null || _recordingMaterial == null) return;
-            // TargetMaterialの状態に_recordingMaterialを初期化(差分を適用)した上で差分を適用
             MaterialModifier.GetAllOverridesAndApply(_recordingMaterial, _target.TargetMaterial, _recordingMaterial);
             MaterialModifier.ConfigureMaterial(_recordingMaterial, _target);
         }
