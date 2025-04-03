@@ -115,8 +115,11 @@ msgstr "Invert"
 msgid "AtlasTexture:label:Target"
 msgstr "Target"
 
-msgid "AtlasTexture:label:SizePriority"
-msgstr "(SizePriority)"
+msgid "AtlasTexture:label:IslandSizePriority"
+msgstr "IslandSizePriority"
+
+msgid "AtlasTexture:prop:IslandSizePriorityTuner"
+msgstr "IslandSizePriorityTuner"
 
 msgid "AtlasTexture:label:Material"
 msgstr "Material"
@@ -139,23 +142,29 @@ msgstr "AtlasTextureSize"
 msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
 msgstr "Size of atlas texture, square."
 
-msgid "AtlasTexture:prop:MaterialMerge"
-msgstr "MaterialMerge"
+msgid "AtlasTexture:prop:AtlasTextureHeightSize"
+msgstr "AtlasTextureHeightSize"
 
-msgid "AtlasTexture:prop:MaterialMerge:tooltip"
-msgstr "Force material to merge when applying atlas. Note quality may not be maintenance."
+msgid "AtlasTexture:prop:CustomAspect"
+msgstr "CustomAspect"
 
-msgid "AtlasTexture:prop:PropertyBakeSetting"
-msgstr "PropertyBakeSetting"
+msgid "AtlasTexture:prop:AtlasTargetUVChannel"
+msgstr "AtlasTargetUVChannel"
 
-msgid "AtlasTexture:prop:PropertyBakeSetting:tooltip"
-msgstr "Feature bake some of the material property to texture when material merge."
+msgid "AtlasTexture:prop:UsePrimaryMaximumTexture"
+msgstr "UsePrimaryMaximumTexture"
 
-msgid "AtlasTexture:prop:MergeReferenceMaterial"
-msgstr "MergeReferenceMaterial"
+msgid "AtlasTexture:prop:PrimaryTextureProperty"
+msgstr "PrimaryTextureProperty"
 
-msgid "AtlasTexture:prop:MergeReferenceMaterial:tooltip"
-msgstr "If there nothing in reference Material, use an indeterminate in atlas targets Material."
+msgid "AtlasTexture:label:MaterialSettings"
+msgstr "MaterialSettings"
+
+msgid "AtlasTexture:prop:MergeMaterialGroups"
+msgstr "MergeMaterialGroups"
+
+msgid "AtlasTexture:prop:AllMaterialMergeReference"
+msgstr "AllMaterialMergeReference"
 
 msgid "AtlasTexture:prop:ForceSetTexture"
 msgstr "ForceSetTexture"
@@ -196,13 +205,13 @@ msgstr "AtlasIslandRelocator"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "Feature of pixel normalize on island move."
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups"
+msgid "AtlasTexture:prop:MaterialMergeGroups"
 msgstr "MaterialMergeGroups"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:MergeReferenceMaterial"
+msgid "AtlasTexture:prop:MaterialMergeGroups:MergeReferenceMaterial"
 msgstr "MergeReferenceMaterial"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials"
+msgid "AtlasTexture:prop:MaterialMergeGroups:GroupMaterials"
 msgstr "GroupMaterials"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
@@ -243,6 +252,15 @@ msgstr "TextureIndividualFineTuning"
 
 msgid "AtlasTexture:prop:OpenTextureFineTuningManager"
 msgstr "OpenTextureFineTuningManager"
+
+msgid "IslandSizePriorityTuner:prop:PriorityValue"
+msgstr "PriorityValue"
+
+msgid "IslandSizePriorityTuner:prop:Materials"
+msgstr "Materials"
+
+msgid "IslandSizePriorityTuner:prop:IslandSelector"
+msgstr "IslandSelector"
 
 msgid "TextureFineTuning:prop:TargetPropertyName"
 msgstr "TargetPropertyName"
