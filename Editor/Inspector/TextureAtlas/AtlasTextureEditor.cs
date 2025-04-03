@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
     internal class AtlasTextureEditor : UnityEditor.Editor
     {
         private AtlasTexture thisTarget;
-        private SerializedProperty sLimitCandidateMaterials;
+        // private SerializedProperty sLimitCandidateMaterials;
         private SerializedProperty sAtlasTargetMaterials;
 
         private SerializedProperty sIslandSizePriorityTuner;
@@ -39,7 +39,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var thisSObject = serializedObject;
             sAtlasSetting = thisSObject.FindProperty("AtlasSetting");
 
-            sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
+            // sLimitCandidateMaterials = thisSObject.FindProperty("LimitCandidateMaterials");
             sAtlasTargetMaterials = thisSObject.FindProperty(nameof(AtlasTexture.AtlasTargetMaterials));
             sAtlasTargetUVChannel = sAtlasSetting.FindPropertyRelative("AtlasTargetUVChannel");
 
@@ -76,11 +76,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             thisSObject.Update();
 
 
-            using (var cc = new EditorGUI.ChangeCheckScope())
-            {
-                EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
-                if (cc.changed) RefreshMaterials();
-            }
+            // using (var cc = new EditorGUI.ChangeCheckScope())
+            // {
+            //     EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
+            //     if (cc.changed) RefreshMaterials();
+            // }
 
             using (new EditorGUI.IndentLevelScope(1))
                 EditorGUILayout.PropertyField(sAtlasTargetMaterials, "AtlasTexture:prop:SelectedMaterialView".GlcV());
@@ -251,7 +251,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         void RefreshMaterials()
         {
             var domainFindPoint = target as AtlasTexture;
-            var limitRoot = sLimitCandidateMaterials.objectReferenceValue as GameObject;
+            // var limitRoot = sLimitCandidateMaterials.objectReferenceValue as GameObject;
             var includeDisabledRenderer = thisTarget.AtlasSetting.IncludeDisabledRenderer;
             var uvChannel = (UVChannel)sAtlasTargetUVChannel.enumValueIndex;
 
@@ -264,12 +264,15 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             var domainRenderers = AtlasTexture.FilteredRenderers(domainRoot, includeDisabledRenderer);
 
             List<Material> filteredMaterials;
-            if (limitRoot != null)
+            // if (limitRoot != null)
+            // {
+            //     var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
+            //     filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().Where(m => m != null).ToList();
+            // }
+            // else
             {
-                var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
-                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().Where(m => m != null).ToList();
+                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList();
             }
-            else { filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList(); }
 
             // var atlasSSupport = new AtlasShaderSupportUtils();
             // var supportDict = filteredMaterials.ToDictionary(m => m, m => AtlasShaderSupportUtils.GetAtlasShaderSupporter(m));
