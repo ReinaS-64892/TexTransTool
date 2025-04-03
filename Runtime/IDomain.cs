@@ -108,6 +108,7 @@ namespace net.rs64.TexTransTool
         {
             return getAction(obj);
         }
+        void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
     internal interface ITexturePostProcessor
@@ -207,7 +208,11 @@ namespace net.rs64.TexTransTool
     }
     internal static class DomainUtility
     {
-        public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);
+        public static OriginEqual ObjectEqual = (l, r) =>
+        {
+            if (l == null) { return r == null; }
+            return l.Equals(r);
+        };
         public static void TransferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
             foreach (var unityObject in unityObjects)

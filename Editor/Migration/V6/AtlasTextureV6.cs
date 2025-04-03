@@ -104,6 +104,7 @@ namespace net.rs64.TexTransTool.Migration.V6
                 exp.AutoReferenceCopySetting = atlasTexture.AtlasSetting.AutoReferenceCopySetting;
                 exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures;
                 exp.TextureIndividualFineTuning = atlasTexture.AtlasSetting.TextureIndividualFineTuning;
+                EditorUtility.SetDirty(exp);
             }
 
             EditorUtility.SetDirty(atlasTexture);
