@@ -47,6 +47,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         [Obsolete("V6SaveData", true)][SerializeReference] internal List<IslandFineTuner.IIslandFineTuner> IslandFineTuners = new();
         [Obsolete("V6SaveData", true)][SerializeField] internal PropertyBakeSetting PropertyBakeSetting = PropertyBakeSetting.NotBake;
+
+        [Range(0, 7)][Obsolete("V6SaveData", true)][SerializeField] internal UVCopy MigrationTemporaryUVCopyReference = null;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool WriteOriginalUV = false;
         [Range(0, 7)][Obsolete("V6SaveData", true)][SerializeField] internal int OriginalUVWriteTargetChannel = 1;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool TextureScaleOffsetReset = false;
