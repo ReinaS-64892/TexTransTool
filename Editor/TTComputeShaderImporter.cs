@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool
         private static string FindTemplate(string fileName)
         {
             var candidates = Directory.GetFiles("./", fileName, SearchOption.AllDirectories);
-            return candidates.First(s => s.Contains("TexTransCore"));
+            return candidates.First(s => (s.Contains("Tex") && s.Contains("Trans")) || (s.Contains("tex") && s.Contains("trans")));
         }
         static string? _textureResizingTemplatePath;
         static string TextureResizingTemplatePath => _textureResizingTemplatePath ??= FindTemplate("TextureResizingTemplate.hlsl");
