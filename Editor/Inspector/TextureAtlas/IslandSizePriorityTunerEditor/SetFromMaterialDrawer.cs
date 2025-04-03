@@ -3,6 +3,7 @@ using UnityEditor;
 using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 using net.rs64.TexTransTool.Editor.Decal;
 using System.Collections.Generic;
+using net.rs64.TexTransTool.Editor;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
@@ -36,18 +37,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
 
             EditorGUILayout.PropertyField(sPriorityValue, "IslandSizePriorityTuner:prop:PriorityValue".GlcV());
 
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-                foreach (var mat in DecalRendererSelectorEditor.EnumPair(materials))
-                {
-                    using var hs = new EditorGUILayout.HorizontalScope();
-
-                    var rect = EditorGUILayout.GetControlRect();
-
-                    rect.width *= 0.5f;
-                    DecalRendererSelectorEditor.DrawAtMaterial(sMaterials, mat.Item1, rect);
-                    rect.x += rect.width;
-                    DecalRendererSelectorEditor.DrawAtMaterial(sMaterials, mat.Item2, rect);
-                }
+            TargetObjectSelector.DrawTargetSelectionSlimLayout(sMaterials, materials);
         }
 
     }

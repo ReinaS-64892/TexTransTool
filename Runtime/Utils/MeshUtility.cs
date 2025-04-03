@@ -31,12 +31,6 @@ namespace net.rs64.TexTransTool.Utils
             return output;
         }
 
-        public static List<Vector2> GetUVList(this Mesh mesh, int channel = 0, List<Vector2> uvOutput = null)
-        {
-            uvOutput?.Clear(); uvOutput ??= new();
-            mesh.GetUVs(channel, uvOutput);
-            return uvOutput;
-        }
 
         public static bool HasUV(this Mesh mesh, int channel = 0)
         {

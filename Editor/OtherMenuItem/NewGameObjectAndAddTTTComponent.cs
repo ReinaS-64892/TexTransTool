@@ -80,6 +80,9 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + ColorDifferenceChanger.MenuPath)] static void CDC() => C<ColorDifferenceChanger>();
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
+        [M(BP + UVCopy.MenuPath)] static void UC() => C<UVCopy>();
+
+
 
         [M(BP + ParallelProjectionWithLilToonDecal.MenuPath)]
         static void PPWLD()

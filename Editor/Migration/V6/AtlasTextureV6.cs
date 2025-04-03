@@ -4,6 +4,7 @@ using System.Linq;
 using net.rs64.TexTransTool.TextureAtlas;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
+using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -39,6 +40,42 @@ namespace net.rs64.TexTransTool.Migration.V6
                         Select = mmr.Select
                     };
                 }
+            }
+
+            if (atlasTexture.AtlasSetting.HeightDenominator != 1)
+            {
+                atlasTexture.AtlasSetting.CustomAspect = true;
+                atlasTexture.AtlasSetting.AtlasTextureHeightSize = atlasTexture.AtlasSetting.AtlasTextureSize / atlasTexture.AtlasSetting.HeightDenominator;
+            }
+            else { atlasTexture.AtlasSetting.CustomAspect = false; }
+
+            if (atlasTexture.AtlasSetting.WriteOriginalUV)
+            {
+                var uvCopy = atlasTexture.AtlasSetting.MigrationTemporaryUVCopyReference;
+                if (uvCopy == null)
+                {
+                    var uvCopyGameObject = new GameObject("TTT UVCopy (generate from AtlasTexture migration)");
+                    uvCopyGameObject.transform.SetParent(atlasTexture.transform.parent != null ? atlasTexture.transform.parent : atlasTexture.transform, false);
+                    uvCopyGameObject.transform.SetSiblingIndex(atlasTexture.transform.GetSiblingIndex());
+                    uvCopy = uvCopyGameObject.AddComponent<UVCopy>();
+                }
+                uvCopy.gameObject.SetActive(true);
+                uvCopy.CopySource = Utils.UVChannel.UV0;
+                uvCopy.CopyTarget = (Utils.UVChannel)atlasTexture.AtlasSetting.OriginalUVWriteTargetChannel;
+                var marker = DomainMarkerFinder.FindMarker(atlasTexture.gameObject);
+                if (marker != null)
+                    uvCopy.TargetMeshes = marker
+                        .GetComponentsInChildren<Renderer>(true)
+                        .Where(r => r.sharedMaterials.Intersect(atlasTexture.AtlasTargetMaterials).Any())
+                        .Select(r => r.GetMesh())
+                        .Where(m => m != null)
+                        .Distinct()
+                        .ToList();
+            }
+            else
+            {
+                var uvCopy = atlasTexture.AtlasSetting.MigrationTemporaryUVCopyReference;
+                if (uvCopy != null) uvCopy.gameObject.SetActive(false);
             }
 
 #if CONTAINS_LNU
