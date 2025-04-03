@@ -115,8 +115,11 @@ msgstr "反転"
 msgid "AtlasTexture:label:Target"
 msgstr "対象"
 
-msgid "AtlasTexture:label:SizePriority"
-msgstr "(大きさの優先度)"
+msgid "AtlasTexture:label:IslandSizePriority"
+msgstr "アイランド大きさ優先度"
+
+msgid "AtlasTexture:prop:IslandSizePriorityTuner"
+msgstr "アイランド大きさ優先度調整"
 
 msgid "AtlasTexture:label:Material"
 msgstr "マテリアル"
@@ -139,23 +142,29 @@ msgstr "アトラステクスチャーサイズ"
 msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
 msgstr "アトラス化したテクスチャーの大きさ、正方形になります。"
 
-msgid "AtlasTexture:prop:MaterialMerge"
-msgstr "マテリアルの結合"
+msgid "AtlasTexture:prop:AtlasTextureHeightSize"
+msgstr "アトラステクスチャーの縦のサイズ"
 
-msgid "AtlasTexture:prop:MaterialMerge:tooltip"
-msgstr "アトラス化を適用するときにマテリアルを強制的に結合、見た目を維持できない可能性が高いので注意"
+msgid "AtlasTexture:prop:CustomAspect"
+msgstr "カスタムアスペクト"
 
-msgid "AtlasTexture:prop:PropertyBakeSetting"
-msgstr "プロパティベイク設定"
+msgid "AtlasTexture:prop:AtlasTargetUVChannel"
+msgstr "アトラス対象のUVチャンネル"
 
-msgid "AtlasTexture:prop:PropertyBakeSetting:tooltip"
-msgstr "マテリアル結合時に、マテリアルのプロパティの一部をテクスチャに焼きこむ機能"
+msgid "AtlasTexture:prop:UsePrimaryMaximumTexture"
+msgstr "プライマリーテクスチャに最大サイズを使用する"
 
-msgid "AtlasTexture:prop:MergeReferenceMaterial"
-msgstr "結合時マテリアルの参照"
+msgid "AtlasTexture:prop:PrimaryTextureProperty"
+msgstr "プライマリーテクスチャのプロパティ"
 
-msgid "AtlasTexture:prop:MergeReferenceMaterial:tooltip"
-msgstr "何も設定されていない場合、アトラス化対象のマテリアルの不定などれか一つが使用されます。"
+msgid "AtlasTexture:label:MaterialSettings"
+msgstr "マテリアル設定"
+
+msgid "AtlasTexture:prop:MergeMaterialGroups"
+msgstr "マテリアル結合グループ"
+
+msgid "AtlasTexture:prop:AllMaterialMergeReference"
+msgstr "すべてのマテリアル結合時参照"
 
 msgid "AtlasTexture:prop:ForceSetTexture"
 msgstr "テクスチャーを強制的にセット"
@@ -197,13 +206,13 @@ msgstr "アトラスアイランドリロケーター"
 msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
 msgstr "アイランドの移動をピクセル単位にノーマライズする機能"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups"
+msgid "AtlasTexture:prop:MaterialMergeGroups"
 msgstr "マテリアル統合グループ"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:MergeReferenceMaterial"
+msgid "AtlasTexture:prop:MaterialMergeGroups:MergeReferenceMaterial"
 msgstr "結合時マテリアルの参照"
 
-msgid "AtlasTexture:prop:ExperimentalFuture:MaterialMergeGroups:GroupMaterials"
+msgid "AtlasTexture:prop:MaterialMergeGroups:GroupMaterials"
 msgstr "グループのマテリアル"
 
 msgid "AtlasTexture:prop:IncludeDisabledRenderer"
@@ -244,6 +253,15 @@ msgstr "テクスチャ個別詳細設定"
 
 msgid "AtlasTexture:prop:OpenTextureFineTuningManager"
 msgstr "テクスチャ詳細設定管理画面を開く"
+
+msgid "IslandSizePriorityTuner:prop:PriorityValue"
+msgstr "優先度の値"
+
+msgid "IslandSizePriorityTuner:prop:Materials"
+msgstr "マテリアル"
+
+msgid "IslandSizePriorityTuner:prop:IslandSelector"
+msgstr "アイランドセレクター"
 
 msgid "TextureFineTuning:prop:TargetPropertyName"
 msgstr "ターゲットプロパティネーム"

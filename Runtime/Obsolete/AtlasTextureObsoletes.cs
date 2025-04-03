@@ -9,6 +9,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
     {
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField][FormerlySerializedAs("TargetRoot")] internal GameObject LimitCandidateMaterials;
+
         [Obsolete("V6SaveData", true)][SerializeField] internal List<MatSelector> SelectMatList = new List<MatSelector>();
         [Serializable]
         [Obsolete("V6SaveData", true)]

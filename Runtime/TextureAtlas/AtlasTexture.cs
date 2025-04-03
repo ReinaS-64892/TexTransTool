@@ -22,7 +22,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
         // targeting
-        [FormerlySerializedAs("TargetRoot")] public GameObject? LimitCandidateMaterials;
         public List<Material?> AtlasTargetMaterials = new List<Material?>();
 
         // IslandSizePriorityTuner

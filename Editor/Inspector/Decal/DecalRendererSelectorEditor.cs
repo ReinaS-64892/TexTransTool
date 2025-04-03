@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             _materialSelectionCandidates = RendererUtility.GetFilteredMaterials(marker.GetComponentsInChildren<Renderer>(true).Where(r => r is SkinnedMeshRenderer or MeshRenderer));
         }
 
-        private static IEnumerable<(T?, T?)> EnumPair<T>(IEnumerable<T> values)
+        internal static IEnumerable<(T?, T?)> EnumPair<T>(IEnumerable<T> values)
         {
             T? bv = default;
             bool isBv = false;
@@ -142,9 +142,9 @@ namespace net.rs64.TexTransTool.Editor.Decal
             if (isBv) { yield return (bv, default); }
         }
 
-        private void DrawAtMaterial(SerializedProperty sTargetMaterials, Material? mat, Rect rect)
+        internal static bool DrawAtMaterial(SerializedProperty sTargetMaterials, Material? mat, Rect rect)
         {
-            if (mat == null) { return; }
+            if (mat == null) { return false; }
             var fullWidth = rect.width;
             var val = FindMaterial(sTargetMaterials, mat);
             rect.width = rect.height;
@@ -156,9 +156,10 @@ namespace net.rs64.TexTransTool.Editor.Decal
             rect.x += rect.width;
             rect.width = fullWidth - rect.width - rect.width;
             EditorGUI.ObjectField(rect, mat, typeof(Material), false);
+            return editVal;
         }
 
-        bool FindMaterial(SerializedProperty matList, Material material)
+        static bool FindMaterial(SerializedProperty matList, Material material)
         {
             for (var i = 0; matList.arraySize > i; i += 1)
             {
@@ -166,7 +167,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }
             return false;
         }
-        void EditMaterial(SerializedProperty matList, Material material, bool val)
+        static void EditMaterial(SerializedProperty matList, Material material, bool val)
         {
             if (val)
             {
