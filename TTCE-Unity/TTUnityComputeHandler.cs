@@ -78,9 +78,9 @@ namespace net.rs64.TexTransCoreEngineForUnity
             public string Name { get; set; } = "TTUnityStorageBufferHolder";
             internal bool _downloadable;
 
-            public TTUnityStorageBuffer(int length, bool downloadable)
+            public TTUnityStorageBuffer(int length,int stride, bool downloadable)
             {
-                _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TTMath.NormalizeOf4Multiple(length) / 4, 4);
+                _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, length, stride);
                 _downloadable = downloadable;
             }
             public void Dispose()
