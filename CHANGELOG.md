@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture が非正方形なテクスチャを対象にアトラス化したときに Padding の計算が正しく行えていない問題を修正しました (#900)
+- DirectX11 環境で GTX10 や GTX9 系で様々なコンポーネントが正常に動作しない問題を修正しました (#929)
 
 ### Dependency
 
