@@ -1,3 +1,4 @@
+#nullable enable
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,9 @@ namespace net.rs64.TexTransTool
     {
         public AvatarDomain(GameObject avatarRoot, IAssetSaver assetSaver)
         : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), assetSaver)
+        { _avatarRoot = avatarRoot; }
+        public AvatarDomain(GameObject avatarRoot, IAssetSaver assetSaver, ITexTransUnityDiskUtil? diskUtil, ITexTransToolForUnity ttt4u)
+        : base(avatarRoot.GetComponentsInChildren<Renderer>(true).ToList(), assetSaver, diskUtil, ttt4u)
         { _avatarRoot = avatarRoot; }
 
         [SerializeField] GameObject _avatarRoot;

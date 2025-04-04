@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-        private DecalContext<ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
+        internal DecalContext<ParallelProjectionSpaceConvertor, ParallelProjectionSpace, ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder>, IFilteredTriangleHolder>
             GenerateDecalCtx(IDomain domain, ITexTransToolForUnity ttce)
         {
             var decalContext = new DecalContext
@@ -133,7 +133,7 @@ namespace net.rs64.TexTransTool.Decal
             return decalContext;
         }
 
-        private ITTRenderTexture GetDecalSourceTexture(IDomain domain, ITexTransToolForUnity ttce)
+        internal ITTRenderTexture GetDecalSourceTexture(IDomain domain, ITexTransToolForUnity ttce)
         {
             if (GetExperimentalFeature?.OverrideDecalTextureWithMultiLayerImageCanvas != null)
                 return GetExperimentalFeature.OverrideDecalTextureWithMultiLayerImageCanvas.EvaluateCanvas(new(domain, (2048, 2048), null));

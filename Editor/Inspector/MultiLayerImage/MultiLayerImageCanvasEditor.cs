@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var previewCanvasSize = (1024, 1024);
             var diskUtil = new UnityDiskUtil(true);
-            var domain = new TextureAtlas.Editor.NotWorkDomain(Array.Empty<Renderer>(), new TTCEUnityWithTTT4Unity(diskUtil));
+            var domain = new NotWorkDomain(Array.Empty<Renderer>(), new TTCEUnityWithTTT4Unity(diskUtil));
             var previewRt = mlic.EvaluateCanvas(new(domain, previewCanvasSize));
 
             // これをそのままインスペクターに描画しようとすると薄くなってしまうから Linear 空間にすることでごまかす。

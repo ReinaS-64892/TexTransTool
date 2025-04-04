@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool
         protected readonly GenericReplaceRegistry _genericReplaceRegistry = new();
         protected readonly IAssetSaver _saver;
 
-        protected readonly ITexTransUnityDiskUtil _diskUtil;
+        protected readonly ITexTransUnityDiskUtil? _diskUtil;
         protected readonly ITexTransToolForUnity _ttce4U;
 
         protected readonly ImmediateStackManager _textureStacks;
@@ -41,7 +41,7 @@ namespace net.rs64.TexTransTool
             _renderTextureDescriptorManager = new(_ttce4U);
             _textureStacks = new ImmediateStackManager(_ttce4U);
         }
-        public RenderersDomain(List<Renderer> previewRenderers, IAssetSaver assetSaver, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u)
+        public RenderersDomain(List<Renderer> previewRenderers, IAssetSaver assetSaver, ITexTransUnityDiskUtil? diskUtil, ITexTransToolForUnity ttt4u)
         {
             _renderers = previewRenderers;
             _saver = assetSaver;
