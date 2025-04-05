@@ -10,14 +10,27 @@ using net.rs64.TexTransCore;
 using net.rs64.TexTransCoreEngineForWgpu;
 using net.rs64.TexTransTool.MultiLayerImage;
 using UnityEditor;
-
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace net.rs64.TexTransTool
 {
+    public class TTCEWgpuDeviceWithTTT4Unity : TTCEWgpuDeviceWidthShaderDictionary
+    {
+        internal Dictionary<TTWgpuRenderTexture, RenderTexture> _referenceRenderTexture = new();
+        public TTCEWgpuDeviceWithTTT4Unity(
+                RequestDevicePreference preference = RequestDevicePreference.Auto
+                , TexTransCore.TexTransCoreTextureFormat format = TexTransCore.TexTransCoreTextureFormat.Byte
+            ) : base(preference, format) { }
 
+        public new TTCEWgpuWithTTT4Unity GetTTCEWgpuContext()
+        {
+            return CreateContext<TTCEWgpuWithTTT4Unity>();
+        }
+    }
     public class TTCEWgpuWithTTT4Unity : TTCEWgpuContextWithShaderDictionary, ITexTransToolForUnity
     {
+
         public ITTBlendKey QueryBlendKey(string blendKeyName) => ShaderDictionary.QueryBlendKey[blendKeyName];
         private readonly Dictionary<TTTImportedCanvasDescription, ITTImportedCanvasSource> _canvasSource = new();
 
@@ -64,6 +77,26 @@ namespace net.rs64.TexTransTool
 
             public void Dispose() { }
         }
+
+        public RenderTexture GetReferenceRenderTexture(ITTRenderTexture renderTexture)
+        {
+            var wgpuTTCE4U = (TTCEWgpuDeviceWithTTT4Unity)_device;
+            var wgpuRt = (TTWgpuRenderTexture)renderTexture;
+
+            if (wgpuTTCE4U._referenceRenderTexture.TryGetValue(wgpuRt, out var rt) is false)
+            {
+                wgpuTTCE4U._referenceRenderTexture[wgpuRt] = rt = new RenderTexture(wgpuRt.Width, wgpuRt.Hight, 0);
+                rt.name = wgpuRt.Name + "(TTCE-Wgpu ReferenceRenderTexture)";
+                wgpuRt.DisposeCall += (wrt) =>
+                {
+                    if (wgpuTTCE4U._referenceRenderTexture.Remove(wrt, out var urt))
+                        UnityEngine.Object.DestroyImmediate(urt);
+                };
+            }
+            return rt;
+
+        }
+
     }
 
 #if UNITY_EDITOR

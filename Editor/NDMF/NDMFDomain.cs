@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool.NDMF
         }
 
         public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b)) { }
+        public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u) { }
 
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
