@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using net.rs64.TexTransCoreEngineForUnity;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static net.rs64.TexTransTool.TTTConfig;
 
 namespace net.rs64.TexTransTool
 {
@@ -12,22 +9,30 @@ namespace net.rs64.TexTransTool
     {
         const string JA_GUID = "42db3dbd5755c844984648836a49629f";
         const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
-        [TexTransInitialize]
-        internal static void LocalizeInitializer()
-        {
-            Language = (LanguageEnum)EditorPrefs.GetInt(TTTConfig.LANGUAGE_PREFKEY);
-        }
         public static void LoadLocalize()
         {
-            LocalizationAssets[LanguageEnum.JA] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JA_GUID));
-            LocalizationAssets[LanguageEnum.EN] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
-        }
-        internal static readonly Dictionary<LanguageEnum, LocalizationAsset> LocalizationAssets = new();
+            LocalizationAssets ??= new();
+            LocalizationAssets["ja-JP"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JA_GUID));
+            LocalizationAssets["en-US"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
 
+            Languages = LocalizationAssets.Keys.ToArray();
+        }
+        internal static Dictionary<string, LocalizationAsset> LocalizationAssets = null;
+        internal static string[] Languages = null;
+
+
+        static TTTGlobalConfig s_config;
         public static string GetLocalize(this string str)
         {
-            if (!LocalizationAssets.ContainsKey(Language)) { LoadLocalize(); }
-            return LocalizationAssets[Language].GetLocalizedString(str);
+            s_config ??= TTTGlobalConfig.instance;
+            var lang = s_config.Language;
+
+            if (LocalizationAssets is null) { LoadLocalize(); }
+
+            if (LocalizationAssets.TryGetValue(lang, out var langAssets))
+                return langAssets.GetLocalizedString(str);
+            else
+                return str;
         }
         public static GUIContent GlcV(this string str)
         {
