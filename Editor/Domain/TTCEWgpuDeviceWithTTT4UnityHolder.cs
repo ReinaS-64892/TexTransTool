@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool
         public static TTCEWgpuDeviceWithTTT4Unity Device()
         {
             if (s_wgpuDevice is not null) { return s_wgpuDevice; }
-            s_wgpuDevice = new(format: TTTConfig.InternalTextureFormat);
+            s_wgpuDevice = new(format: TTTProjectConfig.instance.InternalRenderTextureFormat);
             return s_wgpuDevice;
         }
         [InitializeOnLoadMethod]

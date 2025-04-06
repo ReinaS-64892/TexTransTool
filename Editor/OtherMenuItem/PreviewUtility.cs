@@ -8,13 +8,13 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
     internal class PreviewUtility
     {
         static Action s_rePreviewActin;
-        [MenuItem("Tools/TexTransTool/Exit Previews")]
+        [MenuItem("Tools/TexTransTool/PreviewUtility/Exit Previews")]
         public static void ExitPreviews()
         {
             if (RealTimePreviewContext.instance.IsPreview()) { RealTimePreviewContext.instance.ExitRealTimePreview(); return; }
             if (OneTimePreviewContext.IsPreviewContains) { OneTimePreviewContext.instance.ExitPreview(); }
         }
-        [MenuItem("Tools/TexTransTool/RePreview")]
+        [MenuItem("Tools/TexTransTool/PreviewUtility/RePreview")]
         public static void RePreview()
         {
             ExitPreviews();

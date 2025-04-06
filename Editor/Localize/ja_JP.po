@@ -2,6 +2,26 @@ msgid ""
 msgstr ""
 "Language: ja-JP\n"
 
+# TTT Menu
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat"
+msgstr "内部レンダーテクスチャーフォーマット";
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Byte"
+msgstr "Byte : 8bit - 符号なし整数"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:UShort"
+msgstr "UShort : 16bit - 符号なし整数"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Half"
+msgstr "Half : 16bit - 符号あり浮動小数点"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Float"
+msgstr "Float : 32bit - 符号あり浮動小数点"
+
+msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
+msgstr "TexTransCoreEngine バックエンド"
+
 
 #  Commons
 

@@ -6,8 +6,7 @@ namespace net.rs64.TexTransTool.Build
 {
     internal static class ManualBake
     {
-        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/TexTransTool Only Manual Bake Avatar")]
-        private static void ManualBakeSelected()
+        internal static void ManualBakeSelected()
         {
             var targetAvatar = Selection.activeGameObject;
             if (targetAvatar == null)

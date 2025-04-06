@@ -12,7 +12,7 @@ namespace net.rs64.TexTransTool.Editor
     [CustomPropertyDrawer(typeof(BlendTypeKeyAttribute))]
     internal class BlendTypeKeyDrawer : PropertyDrawer
     {
-        static TTTConfig.LanguageEnum s_nowLangCode;
+        static string s_nowLangCode;
         static GUIContent[] s_blendTypeKeyContents;
         static string[] s_blendTypeKeys;
         public override void OnGUI(Rect rect, SerializedProperty serializedProperty, GUIContent label)
@@ -22,11 +22,11 @@ namespace net.rs64.TexTransTool.Editor
 
         public static void DrawBlendModeKey(Rect rect, SerializedProperty serializedProperty, GUIContent label)
         {
-            if (s_blendTypeKeyContents == null || s_nowLangCode != TTTConfig.Language)
+            if (s_blendTypeKeyContents == null || s_nowLangCode != TTTGlobalConfig.instance.Language)
             {
                 if (ComputeObjectUtility.BlendingObject == null) { return; }//次フレームを待つ
-                s_nowLangCode = TTTConfig.Language;
-                var langCode = TTTConfig.Language.ToString().ToLower();
+                s_nowLangCode = TTTGlobalConfig.instance.Language;
+                var langCode = s_nowLangCode.ToString().ToLower();
 
                 var stdKeys = new string[]{
                 "Clip/Normal",
@@ -123,10 +123,10 @@ namespace net.rs64.TexTransTool.Editor
             var propLabel = EditorGUI.BeginProperty(rect, label, serializedProperty);
 
             var keyName = sTarget.stringValue;
-            var shaderSelectIndex = Array.IndexOf(s_blendTypeKeys, keyName);
-            if (sTarget.hasMultipleDifferentValues) { shaderSelectIndex = -1; }
-            shaderSelectIndex = EditorGUI.Popup(rect, propLabel, shaderSelectIndex, s_blendTypeKeyContents);
-            if (0 <= shaderSelectIndex && shaderSelectIndex < s_blendTypeKeyContents.Length) { sTarget.stringValue = s_blendTypeKeys[shaderSelectIndex]; }
+            var blKeySelectIndex = Array.IndexOf(s_blendTypeKeys, keyName);
+            if (sTarget.hasMultipleDifferentValues) { blKeySelectIndex = -1; }
+            blKeySelectIndex = EditorGUI.Popup(rect, propLabel, blKeySelectIndex, s_blendTypeKeyContents);
+            if (0 <= blKeySelectIndex && blKeySelectIndex < s_blendTypeKeyContents.Length) { sTarget.stringValue = s_blendTypeKeys[blKeySelectIndex]; }
 
             EditorGUI.EndProperty();
         }

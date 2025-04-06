@@ -425,9 +425,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             s_guid2Images.Remove(guid);
         }
 
-        const string MenuPath = "Tools/" + TexTransBehavior.TTTName + "/Debug/ReInitializeCanvasImportedImagePreview";
-        [MenuItem(MenuPath)]
-        static void Reinitialize()
+        internal static void Reinitialize()
         {
             ReleaseManager();
             CanvasImportedImagePreviewInitialize();

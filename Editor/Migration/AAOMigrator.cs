@@ -277,7 +277,6 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
             }
         }
 #pragma warning disable CS0612
-        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/Migration/Migrate Project")]
         internal static void MigrateEverything()
         {
             var migrators = GetMigrators();
