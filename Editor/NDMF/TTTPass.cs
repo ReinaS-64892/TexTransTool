@@ -2,6 +2,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
+using net.rs64.TexTransTool.Utils;
 using UnityEngine.Profiling;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
@@ -13,12 +14,17 @@ namespace net.rs64.TexTransTool.NDMF
         {
             return context.GetState(b =>
             {
-                Profiler.BeginSample("FindAtPhase");
+                using var pf = new PFScope("FindAtPhase");
+
                 var p2b = FindAtPhase(context.AvatarRootObject);
-                Profiler.EndSample();
-                Profiler.BeginSample("TexTransBuildSession.ctr");
+
+                pf.Split("TexTransBuildSession.ctr");
+// #if CONTAINS_TTCE_WGPU
+//                 var wgpuCtx = TTCEWgpuDeviceWithTTT4UnityHolder.Device().GetTTCEWgpuContext();
+//                 var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b, null, wgpuCtx), p2b);
+// #else
                 var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
-                Profiler.EndSample();
+// #endif
                 return bs;
             });
         }
