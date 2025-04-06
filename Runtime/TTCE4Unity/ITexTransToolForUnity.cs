@@ -27,8 +27,9 @@ namespace net.rs64.TexTransTool
         {
             var unityRt = TTRt2.Get(texture2D.width, texture2D.height);
             Graphics.Blit(texture2D, unityRt);
-            // TextureBlend.ToGamma(unityRt);
-            var discTex = new RenderTextureAsDiskTexture(UploadTexture(unityRt));
+            var uploadTex = UploadTexture(unityRt);
+            this.LinearToGamma(uploadTex);
+            var discTex = new RenderTextureAsDiskTexture(uploadTex);
             TTRt2.Rel(unityRt);
             return discTex;
         }

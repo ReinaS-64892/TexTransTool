@@ -97,15 +97,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             Profiler.BeginSample("Init TTCE-Wgpu Device");
             try
             {
-                s_ttceWgpuDevice = new TTCEWgpuDevice();
-                s_ttceWgpuDevice.SetDefaultTextureFormat(TexTransCoreTextureFormat.Byte);
-                s_shaderDictionary = ShaderFinder.RegisterShaders(s_ttceWgpuDevice, ShaderFinder.GetAllShaderPathWithCurrentDirectory(), ShaderFinder.CurrentDirectoryFind);
+                s_ttceWgpuDevice = new(format: TexTransCoreTextureFormat.Byte);
             }
             catch (Exception e)
             {
                 s_ttceWgpuDevice?.Dispose();
                 s_ttceWgpuDevice = null;
-                s_shaderDictionary = null;
                 Debug.LogException(e);
                 tryDeviceCreateLimiter = true;
             }
@@ -138,9 +135,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
             Directory.CreateDirectory(CachePath);
         }
 #if CONTAINS_TTCE_WGPU
-        static TTCEWgpuDevice? s_ttceWgpuDevice = null;
-
-        static ShaderFinder.ShaderDictionary? s_shaderDictionary = null;
+        static TTCEWgpuDeviceWithTTT4Unity? s_ttceWgpuDevice = null;
 #endif
         public static Texture2D PlaceHolderOrErrorTexture { get; private set; } = null!;
 
@@ -288,8 +283,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                 var task = Task.Run(() =>
                 {
-                    using var ttceWgpu = s_ttceWgpuDevice.GetContext<TTCEWgpuWithTTT4Unity>();
-                    ttceWgpu.ShaderDictionary = s_shaderDictionary;
+                    using var ttceWgpu = s_ttceWgpuDevice.GetTTCEWgpuContext();
                     var ttce4u = ttceWgpu;
 
                     Profiler.BeginSample("CreatePreviewImage", importedImage);
@@ -306,7 +300,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage.Importer
 
                     Func<Texture2D?> tex2DResult = () =>
                     {
-                        if(previewTex == null){ return null; }
+                        if (previewTex == null) { return null; }
                         Profiler.BeginSample("CompressAndFinalize");
                         EditorUtility.CompressTexture(previewTex, TextureFormat.BC7, 100);
                         previewTex.Apply(true);
