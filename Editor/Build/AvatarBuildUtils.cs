@@ -99,7 +99,27 @@ namespace net.rs64.TexTransTool.Build
             {
                 var timer = Stopwatch.StartNew();
 
-                var domain = new AvatarDomain(avatarGameObject, assetSaver);
+                AvatarDomain domain;
+                switch (TTTProjectConfig.instance.TexTransCoreEngineBackend)
+                {
+
+#if CONTAINS_TTCE_WGPU
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Wgpu:
+                        {
+                            var wgpuCtx = TTCEWgpuDeviceWithTTT4UnityHolder.Device().GetTTCEWgpuContext();
+                            domain = new AvatarDomain(avatarGameObject, assetSaver, null, wgpuCtx);
+                            break;
+                        }
+#endif
+
+                    default:
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Unity:
+                        {
+                            domain = new AvatarDomain(avatarGameObject, assetSaver);
+                            break;
+                        }
+                }
+                
                 var domain2Phase = FindAtPhase(avatarGameObject);
                 var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;

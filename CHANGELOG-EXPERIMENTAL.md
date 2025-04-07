@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - AtlasShaderSupport の代わりに ITTShaderTextureUsageInformation が追加されました (#900)
 - MaterialModifier が RenderQueue をオーバーライドできるようになりました (#922)
 - TTT UVCopy という UV をコピーすることが可能なコンポーネントが追加されました (#926)
+- TTCE-Wgpu がプロジェクトに存在する時に TTT の ConfigMenu から Backend として Wgpu を選択することが可能になりました (#934)
 
 ### Changed
 
