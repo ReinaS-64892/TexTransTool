@@ -33,10 +33,15 @@ namespace net.rs64.TexTransTool
                         GetInternalRenderTextureFormatOption()
                     );
 
-                projectSettings.TexTransCoreEngineBackend = (TTTProjectConfig.TexTransCoreEngineBackendEnum)EditorGUILayout.EnumPopup(
-                        "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend".Glc(),
-                        projectSettings.TexTransCoreEngineBackend
-                    );
+
+                EditorGUILayout.LabelField("Experimental");
+                using (new EditorGUI.IndentLevelScope(1))
+                {
+                    projectSettings.TexTransCoreEngineBackend = (TTTProjectConfig.TexTransCoreEngineBackendEnum)EditorGUILayout.EnumPopup(
+                            "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend".Glc(),
+                            projectSettings.TexTransCoreEngineBackend
+                        );
+                }
             }
         }
 

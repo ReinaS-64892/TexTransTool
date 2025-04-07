@@ -19,13 +19,23 @@ namespace net.rs64.TexTransTool.NDMF
                 var p2b = FindAtPhase(context.AvatarRootObject);
 
                 pf.Split("TexTransBuildSession.ctr");
-// #if CONTAINS_TTCE_WGPU
-//                 var wgpuCtx = TTCEWgpuDeviceWithTTT4UnityHolder.Device().GetTTCEWgpuContext();
-//                 var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b, null, wgpuCtx), p2b);
-// #else
-                var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
-// #endif
-                return bs;
+                switch (TTTProjectConfig.instance.TexTransCoreEngineBackend)
+                {
+
+#if CONTAINS_TTCE_WGPU
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Wgpu:
+                        {
+                            var wgpuCtx = TTCEWgpuDeviceWithTTT4UnityHolder.Device().GetTTCEWgpuContext();
+                            return new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b, null, wgpuCtx), p2b);
+                        }
+#endif
+
+                    default:
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Unity:
+                        {
+                            return new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
+                        }
+                }
             });
         }
     }
