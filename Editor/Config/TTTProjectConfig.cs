@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    [FilePath("TexTransTool/TTTProjectConfig.asset", FilePathAttribute.Location.ProjectFolder)]
+    [FilePath("ProjectSettings/TexTransTool/TTTProjectConfig.asset", FilePathAttribute.Location.ProjectFolder)]
     internal sealed class TTTProjectConfig : ScriptableSingleton<TTTProjectConfig>
     {
         [SerializeField] TexTransCoreTextureFormat internalRenderTextureFormat = TexTransCoreTextureFormat.Byte;
