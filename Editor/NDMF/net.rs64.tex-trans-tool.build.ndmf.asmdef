@@ -42,6 +42,11 @@
             "name": "nadena.dev.ndmf",
             "expression": "1.6.8",
             "define": "NDMF_1_6_8_OR_NEWER"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.8.0-alpha.0",
+            "define": "NDMF_1_8_0_OR_NEWER"
         }
     ],
     "noEngineReferences": false
