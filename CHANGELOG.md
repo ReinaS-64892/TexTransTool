@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.3...HEAD)
 
 ### Added
 
@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependency
 
 - TexTransTool のコードの Core である部分が TexTransCore に移動し、TexTransCore に依存するようになりました。 (#888)
+
+## [v0.9.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...v0.9.3) - 2025-03-11
+
+### Fixed
+
+- ShaderKeywords に影響を受けるシェーダーがプレビューの対象となったとき、マテリアルの複製時に ShaderKeywords がコピーされず表示がおかしくなってしまっていた問題を修正 (#893)
 
 ## [v0.9.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.1...v0.9.2) - 2025-03-03
 

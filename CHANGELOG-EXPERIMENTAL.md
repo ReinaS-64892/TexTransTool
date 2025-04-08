@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.3...HEAD)
 
 ### Added
 
@@ -34,6 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - PSD のビルドや Preview の生成時にメモリリークが発生していた問題を修正 (#887)
+
+## [v0.9.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...v0.9.3) - 2025-03-11
 
 ## [v0.9.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.0...v0.9.1) - 2025-03-02
 

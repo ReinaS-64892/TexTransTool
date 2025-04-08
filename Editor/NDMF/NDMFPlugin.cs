@@ -1,12 +1,8 @@
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.NDMF;
-using net.rs64.TexTransTool.Build;
 using UnityEngine;
 using System.Collections.Generic;
 using nadena.dev.ndmf.preview;
-using System;
-using System.Linq;
-using net.rs64.TexTransCoreEngineForUnity;
 #if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
 #endif
@@ -16,6 +12,9 @@ using net.rs64.TexTransTool.NDMF.AAO;
 namespace net.rs64.TexTransTool.NDMF
 {
 
+    #if NDMF_1_8_0_OR_NEWER
+    [RunsOnAllPlatforms]
+    #endif
     internal class NDMFPlugin : Plugin<NDMFPlugin>
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
