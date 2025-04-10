@@ -31,7 +31,7 @@
     },
     {
       "name": "net.rs64.ttce-wgpu",
-      "expression": "[0.0.0]",
+      "expression": "[0.1.0-beta.0]",
       "define": "CONTAINS_TTCE_WGPU"
     },
     {
@@ -50,9 +50,9 @@
       "define": "NDMF_1_6_8_OR_NEWER"
     },
     {
-        "name": "nadena.dev.ndmf",
-        "expression": "1.8.0-alpha.0",
-        "define": "NDMF_1_8_0_OR_NEWER"
+      "name": "nadena.dev.ndmf",
+      "expression": "1.8.0-alpha.0",
+      "define": "NDMF_1_8_0_OR_NEWER"
     }
   ],
   "noEngineReferences": false
