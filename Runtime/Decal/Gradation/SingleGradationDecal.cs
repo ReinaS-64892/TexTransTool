@@ -25,9 +25,11 @@ namespace net.rs64.TexTransTool.Decal
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
-        public bool HighQualityPadding = false;
 
 
+        #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool HighQualityPadding = false;
+        #endregion V6SaveData
         #region V5SaveData
         [Obsolete("V5SaveData", true)][SerializeField] internal List<Material> TargetMaterials = new();
         #endregion V5SaveData
@@ -70,8 +72,6 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = new DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
-            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
-            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             return decalContext;
         }
 
