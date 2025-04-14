@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の "_MainTex" 以外のプロパティに自動的に最大サイズを割り当てる機能は削除されました (#900)
 - AtlasTexture の LimitCandidateMaterials は削除されました (#923)
 - TextureBlender などの テクスチャ選択の部分での選択モード Relative は削除され Absolute だけになりました (#938)
+- Decal系の HighQualityPadding は削除されました (#939)
 
 ### Fixed
 

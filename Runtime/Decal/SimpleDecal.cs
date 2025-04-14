@@ -31,7 +31,6 @@ namespace net.rs64.TexTransTool.Decal
         public UnityEngine.Color Color = UnityEngine.Color.white;
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public float Padding = 5;
-        public bool HighQualityPadding = false;
         public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public bool FixedAspect = true;
         [FormerlySerializedAs("SideChek")][FormerlySerializedAs("SideCulling")] public bool BackCulling = true;
@@ -39,6 +38,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
         #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool HighQualityPadding = false;
         [Obsolete("V6SaveData", true)][SerializeField] internal SimpleDecalExperimentalFeature? MigrationTemporaryExperimentalFeature;
         [Obsolete("V6SaveData", true)][SerializeField] internal MultiLayerImageCanvas? OverrideDecalTextureWithMultiLayerImageCanvas;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool UseDepth;
@@ -127,8 +127,6 @@ namespace net.rs64.TexTransTool.Decal
                 (ttce, GetSpaceConverter(), GetTriangleFilter(domain.OriginEqual));
             decalContext.IsTextureStretch = false;
             decalContext.DecalPadding = Padding;
-            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
-            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             decalContext.UseDepthOrInvert = GetExperimentalFeature?.DepthInvert ?? null;
             return decalContext;
         }

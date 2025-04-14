@@ -32,8 +32,10 @@ namespace net.rs64.TexTransTool.Decal
         public PropertyName TargetPropertyName = PropertyName.DefaultValue;
 
         public float Padding = 5;
-        public bool HighQualityPadding = false;
 
+        #region V6SaveData
+        [Obsolete("V6SaveData", true)][SerializeField] internal bool HighQualityPadding = false;
+        #endregion V6SaveData
 
         internal override void Apply(IDomain domain)
         {
@@ -75,8 +77,6 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = new DecalContext<DistanceGradationConvertor, DistanceGradationSpace, DistanceGradationDecalIslandSelectFilter, DistanceGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;
             decalContext.DecalPadding = Padding;
-            var isPreview = domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false;
-            decalContext.HighQualityPadding = isPreview is false && HighQualityPadding;
             return decalContext;
         }
 
