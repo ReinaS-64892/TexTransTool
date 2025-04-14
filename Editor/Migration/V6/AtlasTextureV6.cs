@@ -139,7 +139,7 @@ namespace net.rs64.TexTransTool.Migration.V6
                 if (exp == null) exp = atlasTexture.gameObject.AddComponent<AtlasTextureExperimentalFeature>();
                 exp.AutoMergeTextureSetting = atlasTexture.AtlasSetting.AutoMergeTextureSetting;
                 exp.AutoReferenceCopySetting = atlasTexture.AtlasSetting.AutoReferenceCopySetting;
-                exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures;
+                exp.UnsetTextures = atlasTexture.AtlasSetting.UnsetTextures.Select(TextureSelectorV6.MigrateTextureSelector).ToList();
                 exp.TextureIndividualFineTuning = atlasTexture.AtlasSetting.TextureIndividualFineTuning;
                 EditorUtility.SetDirty(exp);
             }
