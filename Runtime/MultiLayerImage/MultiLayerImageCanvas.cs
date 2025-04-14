@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -17,13 +18,13 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public TextureSelector TextureSelector = new();
+        [FormerlySerializedAs("TextureSelector")] public TextureSelector TargetTexture = new();
 
         [SerializeField, HideInInspector] public TTTImportedCanvasDescription? tttImportedCanvasDescription;
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var replaceTarget = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
             if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
@@ -65,9 +66,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return TextureSelector.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
-        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TextureSelector; }
+        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TargetTexture; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }

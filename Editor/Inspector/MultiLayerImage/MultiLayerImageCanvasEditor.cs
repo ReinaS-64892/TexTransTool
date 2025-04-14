@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 
             var sTarget = serializedObject;
 
-            EditorGUILayout.PropertyField(sTarget.FindProperty("TextureSelector"));
+            EditorGUILayout.PropertyField(sTarget.FindProperty(nameof(MultiLayerImageCanvas.TargetTexture)));
 
             PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
 
