@@ -40,8 +40,6 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        [SerializeField] bool ShowDebugItems = false;
-
         private void Save()
         {
             Save(true);
