@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の TextureFineTuning の初期設定が NormalMap などを考慮に入れた設定になりました (#900)
 - AtlasTexture MergeMaterial は削除され、割り当てたときに、すべてのマテリアルをそれに結合する AllMaterialMergeReference に変更されました (#900)
 - TexTransTool の Project に対する設定 (例えば言語設定など) が `Tools/TexTransTool/Menu` から開くことが可能な Window に移動しました (#932)
+- TexTransGroup の削除に伴い、PhaseDefine 配下にないコンポーネントは上から順にフェーズごとに実行される、TexTransGroup が存在するときと同様の実行順になるように変更されました (#941)
 
 ### Removed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture の LimitCandidateMaterials は削除されました (#923)
 - TextureBlender などの テクスチャ選択の部分での選択モード Relative は削除され Absolute だけになりました (#938)
 - Decal系の HighQualityPadding は削除されました (#939)
+- TexTransGroup は削除されました (#941)
 
 ### Fixed
 
