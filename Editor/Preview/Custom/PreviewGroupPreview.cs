@@ -16,9 +16,8 @@ namespace net.rs64.TexTransTool.Preview.Custom
             foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
             {
                 foreach (var ttb in phaseOnTf[phase].Where(i => i.PhaseDefine == phase).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot)))
-                {
                     ttb.Apply(domain);
-                }
+
                 domain.MergeStack();
                 domain.ReadBackToTexture2D();
             }

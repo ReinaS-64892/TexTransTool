@@ -5,6 +5,7 @@ using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using System;
 using net.rs64.TexTransCore.UVIsland;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -24,7 +25,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal static int LookAtChildren(AbstractIslandSelector abstractIslandSelector, ILookingObject lookingObject)
         {
             var hash = 0;
-            var chiles = TexTransGroup.GetChildeComponent<AbstractIslandSelector>(abstractIslandSelector.transform);
+            var chiles = abstractIslandSelector.transform.GetChildeComponent<AbstractIslandSelector>();
             foreach (var chile in chiles) { chile.LookAtCalling(lookingObject); }
             lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;

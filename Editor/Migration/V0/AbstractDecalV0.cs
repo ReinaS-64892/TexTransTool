@@ -57,21 +57,15 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void FinalizeMigrationAbstractDecalV0ToV1(SimpleDecal abstractDecal)
         {
             if (abstractDecal.MigrationV0ClearTarget)
-            {
-                var go = abstractDecal.gameObject;
                 UnityEngine.Object.DestroyImmediate(abstractDecal);
-                go.AddComponent<TexTransGroup>();
-            }
-            else
-            {
-                MigrationUtility.SetSaveDataVersion(abstractDecal, 1);
-            }
+            else { MigrationUtility.SetSaveDataVersion(abstractDecal, 1); }
         }
 
 
         static void CopyFromDecal(this SimpleDecal target, SimpleDecal copySource)
         {
-            if (target.GetType() != copySource.GetType()) { return; };
+            if (target.GetType() != copySource.GetType()) { return; }
+            ;
             var fieldInfos = target.GetType().GetFields();
 
             foreach (var fieldInfo in fieldInfos)

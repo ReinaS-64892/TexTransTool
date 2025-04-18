@@ -128,32 +128,6 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             EditorGUI.indentLevel -= 1;
         }
-
-
-        [InitializeOnLoadMethod]
-        internal static void RegisterSummary()
-        {
-            TexTransGroupEditor.s_summary[typeof(SimpleDecal)] = at =>
-            {
-                var ve = new VisualElement();
-                var serializedObject = new SerializedObject(at);
-                var sTargetRenderers = serializedObject.FindProperty("TargetRenderers");
-                var sAtlasTextureSize = serializedObject.FindProperty("DecalTexture");
-
-                var targetRoot = new PropertyField();
-                targetRoot.label = "CommonDecal:prop:TargetRenderer".GetLocalize();
-                targetRoot.BindProperty(sTargetRenderers.GetArrayElementAtIndex(0));
-                ve.hierarchy.Add(targetRoot);
-
-                var atlasTextureSize = new ObjectField();
-                atlasTextureSize.label = "CommonDecal:prop:DecalTexture".GetLocalize();
-                atlasTextureSize.BindProperty(sAtlasTextureSize);
-                ve.hierarchy.Add(atlasTextureSize);
-
-                return ve;
-            };
-        }
-
     }
 
 

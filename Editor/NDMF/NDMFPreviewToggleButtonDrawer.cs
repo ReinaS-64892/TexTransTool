@@ -22,7 +22,6 @@ namespace net.rs64.TexTransTool.NDMF
             switch (texTransMonoBase)
             {
                 case PreviewGroup:
-                case TexTransGroup:
                     { return; }
 #if NDMF_1_6_8_OR_NEWER
                 case AbstractIslandSelector islandSelector:

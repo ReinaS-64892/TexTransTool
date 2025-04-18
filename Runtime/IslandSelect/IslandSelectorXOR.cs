@@ -1,5 +1,6 @@
 #nullable enable
 using System.Collections;
+using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.UVIsland;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -15,7 +16,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             BitArray? bitArray = null;
-            foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform))
+            foreach (var islandSelector in transform.GetChildeComponent<AbstractIslandSelector>())
             {
                 Profiler.BeginSample(islandSelector.GetType().Name);
                 var selectBit = islandSelector.IslandSelect(ctx);
@@ -26,7 +27,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             bitArray ??= new(ctx.Islands.Length);
             return bitArray;
         }
-        internal override void OnDrawGizmosSelected() { foreach (var islandSelector in TexTransGroup.GetChildeComponent<AbstractIslandSelector>(transform)) { islandSelector.OnDrawGizmosSelected(); } }
+        internal override void OnDrawGizmosSelected() { foreach (var islandSelector in transform.GetChildeComponent<AbstractIslandSelector>()) { islandSelector.OnDrawGizmosSelected(); } }
         internal override bool IsExperimental => false;
     }
 }
