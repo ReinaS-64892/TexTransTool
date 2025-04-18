@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool.Build
                             break;
                         }
                 }
-                
+
                 var domain2Phase = FindAtPhase(avatarGameObject);
                 var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;
@@ -198,51 +198,35 @@ namespace net.rs64.TexTransTool.Build
             }
         }
         /*
-        基本としてグループアノテーションは一番上にいる存在が一番強く、その配下のグループアノテーションは効果を発揮できない
-
-        アバタールートにつけたら破綻することは当然なのでしないように。
-
-        あと無効なTTBがこの時点では消えないから注意ね
-
-        それと TexTransSequencing を継承する存在、その影響は配下すべて(再帰的)に影響する。
+            PhaseDefinition は常に最上段にあるものが有効な扱いになる。
+            後は上から順。
         */
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject rootDomainObject)
         { return FindAtPhase(rootDomainObject, new DefaultGameObjectWakingTool()); }
         public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase<WakingTool>(GameObject rootDomainObject, WakingTool wakingTool)
         where WakingTool : IGameObjectWakingTool
         {
-            var behavior = new CorrectingResult();
-            Correct(behavior, rootDomainObject, wakingTool);
-
+            var behavior = Correct(rootDomainObject, wakingTool);
             var phasedBehaviour = TexTransPhaseUtility.GeneratePhaseDictionary<List<TexTransBehavior>>();
 
-            foreach (var pd in behavior.PhaseDefinitions)
-                GroupedComponentsCorrect(phasedBehaviour[pd.TexTransPhase], pd.gameObject, wakingTool);
-
-
-            var ttbList = new List<TexTransBehavior>();
-            foreach (var ttg in behavior.TexTransGroups)
-            {
-                ttbList.Clear();
-                GroupedComponentsCorrect(ttbList, ttg.gameObject, wakingTool);
-
-                foreach (var ttb in ttbList)
-                    phasedBehaviour[ttb.PhaseDefine].Add(ttb);
-            }
-
-
-            foreach (var ttb in behavior.OtherBehaviors)
-                phasedBehaviour[ttb.PhaseDefine].Add(ttb);
+            foreach (var pd in behavior.PhaseDefinitions) GroupedComponentsCorrect(phasedBehaviour[pd.TexTransPhase], pd.gameObject, wakingTool);
+            foreach (var ttb in behavior.OtherBehaviors) phasedBehaviour[ttb.PhaseDefine].Add(ttb);
 
             return phasedBehaviour;
         }
         class CorrectingResult
         {
             public List<PhaseDefinition> PhaseDefinitions = new();
-            public List<TexTransGroup> TexTransGroups = new();
             public List<TexTransBehavior> OtherBehaviors = new();
         }
 
+        static CorrectingResult Correct<WakingTool>(GameObject wakingPoint, WakingTool wakingTool)
+        where WakingTool : IGameObjectWakingTool
+        {
+            var wakingResult = new CorrectingResult();
+            Correct(wakingResult, wakingPoint, wakingTool);
+            return wakingResult;
+        }
         static void Correct<WakingTool>(CorrectingResult wakingResult, GameObject wakingPoint, WakingTool wakingTool)
         where WakingTool : IGameObjectWakingTool
         {
@@ -255,23 +239,9 @@ namespace net.rs64.TexTransTool.Build
                 if (ownedComponent != null)
                     switch (ownedComponent)
                     {
-                        default: { break; }
-
-                        case PhaseDefinition pd:
-                            {
-                                wakingResult.PhaseDefinitions.Add(pd);
-                                break;
-                            }
-                        case TexTransGroup ttg:
-                            {
-                                wakingResult.TexTransGroups.Add(ttg);
-                                break;
-                            }
-                        case TexTransBehavior ttb:
-                            {
-                                wakingResult.OtherBehaviors.Add(ttb);
-                                break;
-                            }
+                        default: break;
+                        case PhaseDefinition pd: wakingResult.PhaseDefinitions.Add(pd); break;
+                        case TexTransBehavior ttb: wakingResult.OtherBehaviors.Add(ttb); break;
                     }
                 else
                     Correct(wakingResult, cObject, wakingTool);

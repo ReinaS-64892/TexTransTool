@@ -5,6 +5,16 @@ namespace net.rs64.TexTransTool.Utils
 {
     internal static class TransformUtility
     {
+        internal static IEnumerable<Behavior> GetChildeComponent<Behavior>(this Transform transform)
+        {
+            foreach (var tf in transform.GetChildren())
+            {
+                var c = tf.GetComponent<Behavior>();
+                if (c == null) { continue; }
+
+                yield return c;
+            }
+        }
         public static IEnumerable<Transform> GetChildren(this Transform Parent)
         {
             foreach (Transform child in Parent) { yield return child; }

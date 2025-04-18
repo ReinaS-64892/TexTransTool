@@ -1,34 +1,30 @@
+using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
-using net.rs64.TexTransTool.Preview;
 using System.Collections.Generic;
+using System;
+using UnityEditor.UIElements;
+using net.rs64.TexTransTool.Preview;
 using net.rs64.TexTransTool.Build;
+using System.Linq;
 
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(PhaseDefinition))]
-    internal class PhaseDefinitionEditor : TexTransGroupEditor
+    internal class PhaseDefinitionEditor : UnityEditor.Editor
     {
-        public override VisualElement CreateInspectorGUI()
+        public override VisualElement CreateInspectorGUI() { return CrateGroupElements(target as PhaseDefinition); }
+        internal static VisualElement CrateGroupElements(PhaseDefinition pd)
         {
-            LoadStyle();
-
             var rootVE = new VisualElement();
-            var previewButton = new IMGUIContainer(() =>
-            {
-                serializedObject.Update();
-                PreviewButtonDrawUtil.Draw(target as PreviewGroup);
-                var sTexTransPhase = serializedObject.FindProperty("TexTransPhase");
-                EditorGUILayout.PropertyField(sTexTransPhase, sTexTransPhase.name.Glc());
-                serializedObject.ApplyModifiedProperties();
-            });
+            rootVE.hierarchy.Clear();
 
+            var previewButton = new IMGUIContainer(() => { PreviewButtonDrawUtil.Draw(pd); });
             rootVE.hierarchy.Add(previewButton);
-            rootVE.styleSheets.Add(s_style);
 
             var groupBehaviors = new List<TexTransBehavior>();
-            AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, (target as PhaseDefinition).gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
-            CreateGroupElements(rootVE, groupBehaviors);
+            AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, pd.gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
+            foreach (var ttb in groupBehaviors) rootVE.hierarchy.Add(PreviewGroupEditor.Summary(ttb));
 
             return rootVE;
         }

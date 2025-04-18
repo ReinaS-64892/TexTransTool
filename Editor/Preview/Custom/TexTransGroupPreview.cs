@@ -6,33 +6,21 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Preview.Custom
 
 {
-    [TTTCustomPreview(typeof(TexTransGroup))]
     [TTTCustomPreview(typeof(PhaseDefinition))]
     internal class TexTransGroupPreview : ITTTCustomPreview
     {
         public void Preview(TexTransMonoBase texTransBehavior, GameObject domainRoot, UnityAnimationPreviewDomain domain)
         {
-            if (texTransBehavior is not TexTransGroup texTransGroup) { return; }
-
+            if (texTransBehavior is not PhaseDefinition _) { return; }
 
             var list = new List<TexTransBehavior>();
             AvatarBuildUtils.GroupedComponentsCorrect(list, texTransBehavior.gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
 
-            if (texTransBehavior is PhaseDefinition)
-            {
-                foreach (var ttb in list) { ttb.Apply(domain); }
-                domain.MergeStack();
-                domain.ReadBackToTexture2D();
-            }
-            else
-            {
-                foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
-                {
-                    foreach (var ttb in list.Where(i => i.PhaseDefine == phase).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot))) { ttb.Apply(domain); }
-                    domain.MergeStack();
-                    domain.ReadBackToTexture2D();
-                }
-            }
+            foreach (var ttb in list)
+                ttb.Apply(domain);
+
+            domain.MergeStack();
+            domain.ReadBackToTexture2D();
         }
     }
 }

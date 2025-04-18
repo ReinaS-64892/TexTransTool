@@ -6,6 +6,6 @@ namespace net.rs64.TexTransTool
     public sealed class IsActiveInheritBreaker : TexTransAnnotation
     {
         internal const string Name = "TTT IsActiveInheritBreaker";
-        internal const string MenuPath = TexTransGroup.FoldoutName + "/" + Name;
+        internal const string MenuPath = PhaseDefinition.FoldoutName + "/" + Name;
     }
 }
