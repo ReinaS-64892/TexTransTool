@@ -127,6 +127,7 @@ namespace net.rs64.TexTransTool
         public string MipMapGenerateAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public ITexTransToolTextureFormat TextureFormat = new TextureCompressionData();
         public bool AsLinear = false;
+        public bool IsNormalMap = false;// このテクスチャが確定で NormalMap であることを保証しない。 (AtlasTexture などで発生する)
 
         public FilterMode filterMode = FilterMode.Bilinear;
         public int anisoLevel = 1;
@@ -144,6 +145,7 @@ namespace net.rs64.TexTransTool
             MipMapGenerateAlgorithm = descriptor.MipMapGenerateAlgorithm;
             TextureFormat = descriptor.TextureFormat;
             AsLinear = descriptor.AsLinear;
+            IsNormalMap = descriptor.IsNormalMap;
             filterMode = descriptor.filterMode;
             anisoLevel = descriptor.anisoLevel;
             mipMapBias = descriptor.mipMapBias;
