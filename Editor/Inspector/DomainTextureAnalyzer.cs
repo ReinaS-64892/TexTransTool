@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.Editor
     {
         public GameObject DomainRoot;
         public bool IncludeDisableRenderers;
-        [MenuItem("Tools/TexTransTool/DomainTextureAnalyzer")]
+        [MenuItem("Tools/TexTransTool/DomainTextureAnalyzer (Experimental)")]
         internal static void OpenDomainTextureAnalyzer()
         {
             var selectedGameObject = Selection.activeGameObject;
