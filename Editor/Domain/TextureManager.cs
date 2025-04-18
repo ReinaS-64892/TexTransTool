@@ -18,6 +18,7 @@ using UnityEngine.Experimental.Rendering;
 using Unity.Jobs;
 using Unity.Collections;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
+using System.Runtime.InteropServices;
 
 namespace net.rs64.TexTransTool
 {
@@ -31,8 +32,7 @@ namespace net.rs64.TexTransTool
 
             if (desc.TextureFormat is RefAtImporterFormat refAt)
                 if (refAt.TextureImporter.textureType is TextureImporterType.NormalMap)
-                    if (refAt.TextureFormat is TextureFormat.DXT5 or TextureFormat.DXT5Crunched)
-                        refAt.TextureFormat = TextureFormat.BC5;
+                    desc.IsNormalMap = true;
 
             desc.AsLinear = texture.isDataSRGB is false;
 
@@ -167,7 +167,16 @@ namespace net.rs64.TexTransTool
                     if (compressKV.TryGetValue(tex, out var compression)) return compression.TextureFormat.Get(tex);
                     else return fallBackCompressing.Get(tex);
                 }
+                bool GetIsNormalMap(Texture2D tex, bool fallBackIsNormalMap)
+                {
+                    if (compressKV.TryGetValue(tex, out var compression)) return compression.IsNormalMap;
+                    else return fallBackIsNormalMap;
+                }
                 var compressFormat = GetCompressFormat(tex, fallBackCompressing.TextureFormat);
+                var isNormalMap = GetIsNormalMap(tex, fallBackCompressing.IsNormalMap);
+
+                if (isNormalMap)
+                    if (compressFormat.CompressFormat is TextureFormat.DXT5 or TextureFormat.DXT5Crunched) ResolveNormalMapPacking(tex);
 
                 if (GraphicsFormatUtility.HasAlphaChannel(compressFormat.CompressFormat) is false)
                     needAlphaInfoTarget[tex] = TextureCompressionData.HasAlphaChannel(tex);
@@ -196,9 +205,58 @@ namespace net.rs64.TexTransTool
                 TTLog.Info("Common:info:AlphaContainsTextureCompressToAlphaMissingFormat", alphaContainsFormatNeedTextures.Select(i => i.Key));
             }
         }
+
+        private void ResolveNormalMapPacking(Texture2D tex)
+        {
+            switch (tex.format)
+            {
+                default: return;
+
+                case TextureFormat.RGBA32:
+                    {
+                        var rawSpan = tex.GetRawTextureData<Color32>();
+                        for (var i = 0; rawSpan.Length > i; i += 1)
+                        {
+                            var col = rawSpan[i];
+                            (col.r, col.a) = (col.a, col.r);
+                            rawSpan[i] = col;
+                        }
+                        break;
+                    }
+                case TextureFormat.RGBA64:
+                case TextureFormat.RGBAHalf:// bit の stride は同一だから問題ない
+                    {
+                        var rawSpan = tex.GetRawTextureData<Color64>();
+                        for (var i = 0; rawSpan.Length > i; i += 1)
+                        {
+                            var col = rawSpan[i];
+                            (col.r, col.a) = (col.a, col.r);
+                            rawSpan[i] = col;
+                        }
+                        break;
+                    }
+                case TextureFormat.RGBAFloat:
+                    {
+                        var rawSpan = tex.GetRawTextureData<UnityEngine.Color>();
+                        for (var i = 0; rawSpan.Length > i; i += 1)
+                        {
+                            var col = rawSpan[i];
+                            (col.r, col.a) = (col.a, col.r);
+                            rawSpan[i] = col;
+                        }
+                        break;
+                    }
+            }
+        }
     }
-
-
+    [StructLayout(LayoutKind.Sequential, Pack = 2)]
+    struct Color64
+    {
+        public ushort r;
+        public ushort g;
+        public ushort b;
+        public ushort a;
+    }
     internal class UnityDiskUtil : ITexTransUnityDiskUtil, IDisposable
     {
         private readonly bool IsPreview;
@@ -248,6 +306,18 @@ namespace net.rs64.TexTransTool
                         // Texture.isDataSRGB は 16bit 等の SRGB ではないやつであっても、
                         // テクスチャ作成時の引数の isLiner が false だった場合に true になることがあるから この場合は 信用してはならない。
                         if (GraphicsFormatUtility.IsSRGBFormat(tex2DWrapper.Texture.graphicsFormat)) ttce4u.LinearToGamma(writeTarget);
+                        if (TryGetLoadedOriginInfo(tex2DWrapper.Texture, out var info))
+                        {
+                            if (info.isLoadableOrigin is true && info.IsNormalMap && tex2DWrapper.Texture.format is not TextureFormat.BC5)
+                            {
+                                ttce4u.Swizzling(writeTarget,
+                                RenderTextureOperator.SwizzlingChannel.A,
+                                RenderTextureOperator.SwizzlingChannel.G,
+                                RenderTextureOperator.SwizzlingChannel.B,
+                                RenderTextureOperator.SwizzlingChannel.R
+                                );
+                            }
+                        }
                         break;
                     }
                 case UnityImportedDiskTexture importedWrapper:
@@ -292,8 +362,10 @@ namespace net.rs64.TexTransTool
 #endif
         }
 
-
-
+        public bool TryGetLoadedOriginInfo(Texture2D texture2D, out (bool isLoadableOrigin, bool IsNormalMap) info)
+        {
+            return _originLoadInfoDict.TryGetValue(texture2D, out info);
+        }
         public Texture2D GetOriginalTexture(Texture2D texture2D)
         {
             if (IsPreview)
