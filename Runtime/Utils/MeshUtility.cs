@@ -30,8 +30,6 @@ namespace net.rs64.TexTransTool.Utils
             ListPool<int>.Release(triList);
             return output;
         }
-
-
         public static bool HasUV(this Mesh mesh, int channel = 0)
         {
             if (channel < 0 || channel > 7) { throw new IndexOutOfRangeException(); }
