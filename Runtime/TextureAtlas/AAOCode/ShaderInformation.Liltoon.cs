@@ -20,21 +20,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
     }
     internal class LiltoonShaderInformation
     {
-        [TexTransCoreEngineForUnity.TexTransInitialize]
-        internal static void liltoonShaderInformationRegistering()
-        {
-            var lilOutLine = new LiltoonShaderInformationWithOutline();
-            var lil = new LiltoonShaderInformationWithOutOutline();
-            foreach (var shader in TexTransCoreEngineForUnity.TexTransCoreRuntime.LoadAssetsAtType(typeof(Shader)).Cast<Shader>())
-            {
-                if (shader.name.Contains("lilToon"))
-                {
-                    if (shader.name.Contains("Outline")) { TTShaderTextureUsageInformationRegistry.RegisterTTShaderTextureUsageInformation(shader, lilOutLine); }
-                    else { TTShaderTextureUsageInformationRegistry.RegisterTTShaderTextureUsageInformation(shader, lil); }
-                }
-            }
-        }
-
+        // https://github.com/anatawa12/AvatarOptimizer/blob/6a63910a423d5b7d73e726fcccb4940716f5ee0d/Editor/APIInternal/ShaderInformation.Liltoon.cs#L116-L829
         public static void GetMaterialInformation(IMaterialInformationCallbackAbstractionInterface matInfo, bool isOutline)
         {
             var uvMain = UsingUVChannels.UV0;
