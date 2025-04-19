@@ -6,37 +6,21 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
 {
     internal class LiltoonShaderInformationWithOutline : ITTShaderTextureUsageInformation
     {
-
-        public int Priority => 0;
-
         public void GetMaterialTextureUVUsage(ITTTextureUVUsageWriter writer)
         {
             LiltoonShaderInformation.GetMaterialInformation(new MaterialInformationTranslator(writer), true);
         }
-
-        public bool IsSupportShader(Shader shader)
-        {
-            return shader.name.Contains("lilToon") && shader.name.Contains("Outline");
-        }
     }
     internal class LiltoonShaderInformationWithOutOutline : ITTShaderTextureUsageInformation
     {
-
-        public int Priority => 0;
-
         public void GetMaterialTextureUVUsage(ITTTextureUVUsageWriter writer)
         {
             LiltoonShaderInformation.GetMaterialInformation(new MaterialInformationTranslator(writer), false);
         }
-
-        public bool IsSupportShader(Shader shader)
-        {
-            return shader.name.Contains("lilToon") && shader.name.Contains("Outline") is false;
-        }
     }
     internal class LiltoonShaderInformation
     {
-
+        // https://github.com/anatawa12/AvatarOptimizer/blob/6a63910a423d5b7d73e726fcccb4940716f5ee0d/Editor/APIInternal/ShaderInformation.Liltoon.cs#L116-L829
         public static void GetMaterialInformation(IMaterialInformationCallbackAbstractionInterface matInfo, bool isOutline)
         {
             var uvMain = UsingUVChannels.UV0;
