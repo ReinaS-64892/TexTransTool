@@ -69,7 +69,12 @@ namespace net.rs64.TexTransTool.Editor
             }
 
             var domainRenderers = DomainRoot.GetComponentsInChildren<Renderer>(true);
-            domainRenderers = domainRenderers.Where(i => i is SkinnedMeshRenderer || i is MeshRenderer).Where(i => AtlasTexture.AtlasAllowedRenderer(i, IncludeDisableRenderers)).ToArray();
+            var nwDomain = new NotWorkDomain(domainRenderers, null);
+            domainRenderers = domainRenderers
+                .Where(i => i is SkinnedMeshRenderer || i is MeshRenderer)
+                .Where(AtlasTexture.IsAtlasAllowedRenderer)
+                .Where(i => AtlasTexture.CheckRendererActive(nwDomain, i, IncludeDisableRenderers))
+                .ToArray();
 
             if (domainRenderers.Length == 0)
             {

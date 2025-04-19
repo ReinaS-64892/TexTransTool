@@ -17,10 +17,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
         public List<Material> Materials;
 
         void LookAtCalling(ILookingObject lookingObject) { }
-        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
         {
             if (Materials == null) { return; }
-            OriginEqual originEqual = replaceTracking.OriginEqual;
+            OriginEqual originEqual = targeting.OriginEqual;
             var selectMaterialsHash = originEqual.GetDomainsMaterialsHashSet(islandDescriptions.SelectMany(i => i.Materials).Distinct().Where(m => m != null).Cast<Material>(), Materials);
             var setValue = TTMath.Saturate(PriorityValue);
 
@@ -36,9 +36,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
 
         }
 
-        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
         {
-            Tuning(sizePriority, islands, islandDescriptions, replaceTracking);
+            Tuning(sizePriority, islands, islandDescriptions, targeting);
         }
 
         void IIslandSizePriorityTuner.LookAtCalling(ILookingObject looker)

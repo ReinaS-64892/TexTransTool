@@ -12,11 +12,11 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
         public AbstractIslandSelector IslandSelector;
 
         void LookAtCalling(ILookingObject lookingObject) { if (IslandSelector != null) { IslandSelector.LookAtCalling(lookingObject); } }
-        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+        void Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
         {
             if (IslandSelector == null) { return; }
 
-            var targetBit = IslandSelector.IslandSelect(new(islands, islandDescriptions, replaceTracking.OriginEqual));
+            var targetBit = IslandSelector.IslandSelect(new(islands, islandDescriptions, targeting));
 
             for (var i = 0; sizePriority.Length > i; i += 1)
             {
@@ -25,9 +25,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
             }
         }
 
-        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+        void IIslandSizePriorityTuner.Tuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IRendererTargeting targeting)
         {
-            Tuning(sizePriority, islands, islandDescriptions, replaceTracking);
+            Tuning(sizePriority, islands, islandDescriptions, targeting);
         }
 
         void IIslandSizePriorityTuner.LookAtCalling(ILookingObject looker)

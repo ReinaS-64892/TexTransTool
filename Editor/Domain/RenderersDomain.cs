@@ -70,6 +70,19 @@ namespace net.rs64.TexTransTool
         }
         public virtual void RegisterReplace(Object oldObject, Object nowObject) { _genericReplaceRegistry.RegisterReplace(oldObject, nowObject); }
 
+        public virtual bool IsActive(GameObject gameObject)
+        {
+            return TexTransBehaviorSearch.CheckIsActive(gameObject);
+        }
+        public virtual bool IsEnable(Component component)
+        {
+            return component switch
+            {
+                Behaviour bh => bh.enabled,
+                Renderer bh => bh.enabled,
+                _ => true,
+            };
+        }
 
         public void MergeStack()
         {

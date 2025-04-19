@@ -131,8 +131,8 @@ namespace net.rs64.TexTransTool
             var wakingPoint = entry;
             while (wakingPoint != domainRoot)
             {
-                if (wakingTool.ActiveSelf(wakingPoint) is false) { return false; }
                 if (wakingTool.GetComponent<IsActiveInheritBreaker>(wakingPoint) != null) { return true; }
+                if (wakingTool.ActiveSelf(wakingPoint) is false) { return false; }
 
                 wakingPoint = wakingTool.GetParent(wakingPoint);
 

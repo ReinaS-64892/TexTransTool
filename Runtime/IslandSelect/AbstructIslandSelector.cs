@@ -18,7 +18,11 @@ namespace net.rs64.TexTransTool.IslandSelector
 
 
         internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
-        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) => IslandSelect(ctx);
+        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx)
+        {
+            if (ctx.Targeting.IsActive(gameObject) is false) { return new BitArray(ctx.Islands.Length); }
+            return IslandSelect(ctx);
+        }
 
         internal abstract void OnDrawGizmosSelected();
 
@@ -46,13 +50,13 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         public Island[] Islands;
         public IslandDescription[] IslandDescription;
-        public OriginEqual OriginEqual;
+        public IRendererTargeting Targeting;
 
-        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, OriginEqual originEqual)
+        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, IRendererTargeting targeting)
         {
             Islands = islands;
             IslandDescription = islandDescription;
-            OriginEqual = originEqual;
+            Targeting = targeting;
         }
     }
     internal readonly struct IslandDescription
@@ -63,7 +67,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         public readonly Material?[] Materials;
         public readonly int MaterialSlot;// SubMeshIndex でもある
 
-        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, Material?[] materials,int materialSlot)
+        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, Material?[] materials, int materialSlot)
         {
             Position = position;
             UV = uV;

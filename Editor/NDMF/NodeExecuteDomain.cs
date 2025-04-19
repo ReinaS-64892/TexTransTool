@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.NDMF
         private UnityDiskUtil _diskUtil;
 
         ComputeContext _ctx;
-
+        private TexTransDomainFilter.NDMFGameObjectObservedWaker _NDMFObservedWaker;
         List<Renderer> _proxyDomainRenderers;
         Dictionary<Renderer, Renderer> _proxy2OriginRendererDict;
 
@@ -47,6 +47,7 @@ namespace net.rs64.TexTransTool.NDMF
             _ttce4U = new TTCEUnityWithTTT4UnityOnNDMFPreview(_diskUtil);
             _textureStacks = new(_ttce4U);
             _ctx = computeContext;
+            _NDMFObservedWaker = new TexTransDomainFilter.NDMFGameObjectObservedWaker(_ctx);
             _objectRegistry = objectRegistry;
         }
 
@@ -138,7 +139,19 @@ namespace net.rs64.TexTransTool.NDMF
         }
 
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
-
+        public bool IsActive(GameObject gameObject)
+        {
+            return TexTransBehaviorSearch.CheckIsActive(gameObject, _NDMFObservedWaker, null);
+        }
+        public bool IsEnable(Component component)
+        {
+            return component switch
+            {
+                Behaviour bh => _ctx.Observe(bh, b => b.enabled),
+                Renderer bh => _ctx.Observe(bh, b => b.enabled),
+                _ => true,
+            };
+        }
 
         private void MargeStack()
         {

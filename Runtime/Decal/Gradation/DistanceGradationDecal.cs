@@ -72,7 +72,7 @@ namespace net.rs64.TexTransTool.Decal
             if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
             var space = new DistanceGradationConvertor(transform.worldToLocalMatrix, (GradationMinDistance, GradationMaxDistance));
-            var filter = new DistanceGradationDecalIslandSelectFilter(islandSelector, domain.OriginEqual);
+            var filter = new DistanceGradationDecalIslandSelectFilter(islandSelector, domain);
 
             var decalContext = new DecalContext<DistanceGradationConvertor, DistanceGradationSpace, DistanceGradationDecalIslandSelectFilter, DistanceGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;

@@ -17,20 +17,20 @@ namespace net.rs64.TexTransTool.Decal
     {
         JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] _filters;
         IIslandSelector _islandSelector;
-        OriginEqual _originEqual;
+        IRendererTargeting _targeting;
 
 
-        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters, OriginEqual originEqual)
+        public IslandSelectToPPFilter(IIslandSelector islandSelector, JobChain<FilterTriangleJobInput<NativeArray<Vector3>>>[] filters, IRendererTargeting targeting)
         {
             _islandSelector = islandSelector;
 
             _filters = filters;
-            _originEqual = originEqual;
+            _targeting = targeting;
         }
 
         public IFilteredTriangleHolder Filtering(ParallelProjectionSpace space)
         {
-            var islandSelectedTriangles = IslandSelectExecute(_islandSelector, space._meshData, _originEqual).Take();
+            var islandSelectedTriangles = IslandSelectExecute(_islandSelector, space._meshData, _targeting).Take();
 
             var filteredBitJobs = new JobResult<NativeArray<bool>>[space._meshData.Length][];
             for (var i = 0; filteredBitJobs.Length > i; i += 1)
@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.Decal
             }
             return new IslandSelectedJobChainedFilteredTrianglesHolder(islandSelectedTriangles, filteredBitJobs);
         }
-        internal static IslandSelectedTriangleHolder IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, OriginEqual originEqual)
+        internal static IslandSelectedTriangleHolder IslandSelectExecute(IIslandSelector? islandSelector, MeshData[] meshData, IRendererTargeting targeting)
         {
             if (islandSelector == null)
             {
@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
             var islandsArray = IslandsArrayFromMeshData(meshData);
 
             Profiler.BeginSample("IslandSelect");
-            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, originEqual));
+            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, targeting));
             Profiler.EndSample();
 
             Profiler.BeginSample("FilterTriangle");

@@ -18,7 +18,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             foreach (var islandSelector in transform.GetChildeComponent<AbstractIslandSelector>())
             {
                 Profiler.BeginSample(islandSelector.GetType().Name);
-                var selectBit = islandSelector.IslandSelect(ctx);
+                var selectBit = (islandSelector as IIslandSelector).IslandSelect(ctx);
                 Profiler.EndSample();
                 if (bitArray is null) { bitArray = selectBit; continue; }
                 bitArray.Or(selectBit);
