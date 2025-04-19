@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using net.rs64.TexTransTool.Build;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.Preview.Custom
@@ -14,7 +12,7 @@ namespace net.rs64.TexTransTool.Preview.Custom
             if (texTransBehavior is not PhaseDefinition _) { return; }
 
             var list = new List<TexTransBehavior>();
-            AvatarBuildUtils.GroupedComponentsCorrect(list, texTransBehavior.gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
+            TexTransBehaviorSearch.GroupedComponentsCorrect(list, texTransBehavior.gameObject, new TexTransBehaviorSearch.DefaultGameObjectWakingTool());
 
             foreach (var ttb in list)
                 ttb.Apply(domain);

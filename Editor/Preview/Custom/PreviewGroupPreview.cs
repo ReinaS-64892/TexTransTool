@@ -11,11 +11,11 @@ namespace net.rs64.TexTransTool.Preview.Custom
         {
             if (texTransBehavior is not PreviewGroup previewGroup) { return; }
 
-            var phaseOnTf = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
+            var phaseOnTf = TexTransBehaviorSearch.FindAtPhase(previewGroup.gameObject);
 
             foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
             {
-                foreach (var ttb in phaseOnTf[phase].Where(i => i.PhaseDefine == phase).Where(b => AvatarBuildUtils.CheckIsActiveBehavior(b, domainRoot)))
+                foreach (var ttb in phaseOnTf[phase].Where(i => i.PhaseDefine == phase).Where(b => TexTransBehaviorSearch.CheckIsActiveBehavior(b, domainRoot)))
                     ttb.Apply(domain);
 
                 domain.MergeStack();

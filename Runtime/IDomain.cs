@@ -89,6 +89,11 @@ namespace net.rs64.TexTransTool
         {
             return mat.GetAllTexture<Texture>().ToHashSet();
         }
+
+        bool IsActive(GameObject gameObject)
+        {
+            return TexTransBehaviorSearch.CheckIsActive(gameObject);
+        }
     }
     internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
     {

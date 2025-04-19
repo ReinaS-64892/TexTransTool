@@ -6,8 +6,6 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEngine.Profiling;
-using System.Runtime.CompilerServices;
 using System.Reflection;
 using net.rs64.TexTransTool.Utils;
 
@@ -44,7 +42,7 @@ namespace net.rs64.TexTransTool.Build
                 var behaviorsCount = behaviors.Count;
                 foreach (var tf in behaviors)
                 {
-                    if (AvatarBuildUtils.CheckIsActiveBehavior(tf, _domainRoot) is false) { continue; }
+                    if (TexTransBehaviorSearch.CheckIsActiveBehavior(tf, _domainRoot) is false) { continue; }
                     if (DisplayEditorProgressBar) EditorUtility.DisplayProgressBar(texTransPhase.ToString(), $"{tf.name} - Apply", (float)count / behaviorsCount);
                     using var apf = new PFScope("Apply-" + tf.gameObject.name, tf);
 
@@ -120,7 +118,7 @@ namespace net.rs64.TexTransTool.Build
                         }
                 }
 
-                var domain2Phase = FindAtPhase(avatarGameObject);
+                var domain2Phase = TexTransBehaviorSearch.FindAtPhase(avatarGameObject);
                 var session = new TexTransBuildSession(avatarGameObject, domain, domain2Phase);
                 session.DisplayEditorProgressBar = DisplayProgressBar;
 
@@ -148,136 +146,7 @@ namespace net.rs64.TexTransTool.Build
             foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
                 session.ApplyFor(phase);
         }
-        public interface IGameObjectWakingTool
-        {
-            C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component;
-            C GetComponent<C>(GameObject gameObject) where C : Component;
-            int GetChilesCount(GameObject gameObject);
-            GameObject? GetChilde(GameObject gameObject, int index);
-        }
-        public interface IGameObjectActivenessWakingTool
-        {
-            C GetComponent<C>(GameObject gameObject) where C : Component;
-            GameObject? GetParent(GameObject gameObject);
-            bool ActiveSelf(GameObject gameObject);
-        }
-        public struct DefaultGameObjectWakingTool : IGameObjectWakingTool, IGameObjectActivenessWakingTool
-        {
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public GameObject? GetChilde(GameObject gameObject, int index)
-            {
-                return gameObject.transform.GetChild(index)?.gameObject;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public int GetChilesCount(GameObject gameObject)
-            {
-                return gameObject.transform.childCount;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public C GetComponent<C>(GameObject gameObject) where C : Component
-            {
-                return gameObject.GetComponent<C>();
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public C[] GetComponentsInChildren<C>(GameObject gameObject, bool includeInactive) where C : Component
-            {
-                return gameObject.GetComponentsInChildren<C>(includeInactive);
-            }
-
-            public GameObject? GetParent(GameObject gameObject)
-            {
-                return gameObject.transform.parent?.gameObject;
-            }
-            public bool ActiveSelf(GameObject gameObject)
-            {
-                return gameObject.activeSelf;
-            }
-        }
-        /*
-            PhaseDefinition は常に最上段にあるものが有効な扱いになる。
-            後は上から順。
-        */
-        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase(GameObject rootDomainObject)
-        { return FindAtPhase(rootDomainObject, new DefaultGameObjectWakingTool()); }
-        public static Dictionary<TexTransPhase, List<TexTransBehavior>> FindAtPhase<WakingTool>(GameObject rootDomainObject, WakingTool wakingTool)
-        where WakingTool : IGameObjectWakingTool
-        {
-            var behavior = Correct(rootDomainObject, wakingTool);
-            var phasedBehaviour = TexTransPhaseUtility.GeneratePhaseDictionary<List<TexTransBehavior>>();
-
-            foreach (var pd in behavior.PhaseDefinitions) GroupedComponentsCorrect(phasedBehaviour[pd.TexTransPhase], pd.gameObject, wakingTool);
-            foreach (var ttb in behavior.OtherBehaviors) phasedBehaviour[ttb.PhaseDefine].Add(ttb);
-
-            return phasedBehaviour;
-        }
-        class CorrectingResult
-        {
-            public List<PhaseDefinition> PhaseDefinitions = new();
-            public List<TexTransBehavior> OtherBehaviors = new();
-        }
-
-        static CorrectingResult Correct<WakingTool>(GameObject wakingPoint, WakingTool wakingTool)
-        where WakingTool : IGameObjectWakingTool
-        {
-            var wakingResult = new CorrectingResult();
-            Correct(wakingResult, wakingPoint, wakingTool);
-            return wakingResult;
-        }
-        static void Correct<WakingTool>(CorrectingResult wakingResult, GameObject wakingPoint, WakingTool wakingTool)
-        where WakingTool : IGameObjectWakingTool
-        {
-            var chilesCount = wakingTool.GetChilesCount(wakingPoint);
-            for (var i = 0; chilesCount > i; i += 1)
-            {
-                var cObject = wakingTool.GetChilde(wakingPoint, i)!;
-                var ownedComponent = wakingTool.GetComponent<TexTransMonoBaseGameObjectOwned>(cObject);
-
-                if (ownedComponent != null)
-                    switch (ownedComponent)
-                    {
-                        default: break;
-                        case PhaseDefinition pd: wakingResult.PhaseDefinitions.Add(pd); break;
-                        case TexTransBehavior ttb: wakingResult.OtherBehaviors.Add(ttb); break;
-                    }
-                else
-                    Correct(wakingResult, cObject, wakingTool);
-            }
-        }
-
-        internal static void GroupedComponentsCorrect<WakingTool>(List<TexTransBehavior> behaviors, GameObject wakingPoint, WakingTool wakingTool)
-        where WakingTool : IGameObjectWakingTool
-        {
-            var chilesCount = wakingTool.GetChilesCount(wakingPoint);
-            for (var i = 0; chilesCount > i; i += 1)
-            {
-                var cObject = wakingTool.GetChilde(wakingPoint, i)!;
-                var component = wakingTool.GetComponent<TexTransBehavior>(cObject);
-
-                if (component != null) behaviors.Add(component);
-                else GroupedComponentsCorrect(behaviors, cObject, wakingTool);
-            }
-        }
-        public static bool CheckIsActiveBehavior(TexTransBehavior behavior, GameObject? domainRoot = null)
-        { return CheckIsActiveBehavior(behavior, new DefaultGameObjectWakingTool(), domainRoot); }
-        public static bool CheckIsActiveBehavior<WakingTool>(TexTransBehavior behavior, WakingTool wakingTool, GameObject? domainRoot = null)
-        where WakingTool : IGameObjectActivenessWakingTool
-        {
-            var wakingPoint = behavior.gameObject;
-            while (wakingPoint != domainRoot)
-            {
-                if (wakingTool.ActiveSelf(wakingPoint) is false) { return false; }
-                if (wakingTool.GetComponent<IsActiveInheritBreaker>(wakingPoint) != null) { return true; }
-
-                wakingPoint = wakingTool.GetParent(wakingPoint);
-
-                if (wakingPoint == null) { break; }// safety
-            }
-            return true;
-        }
         public static void DestroyITexTransToolTags(GameObject avatarGameObject)
         {
             foreach (var itttTag in avatarGameObject.GetComponentsInChildren<ITexTransToolTag>(true))
