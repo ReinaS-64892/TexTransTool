@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MaterialModifier が RenderQueue をオーバーライドできるようになりました (#922)
 - TTT UVCopy という UV をコピーすることが可能なコンポーネントが追加されました (#926)
 - TTCE-Wgpu がプロジェクトに存在する時に TTT の ConfigMenu から Backend として Wgpu を選択することが可能になりました (#934)
+- IslandSelector や AtlasTexture のターゲティングに IsActiveInheritBreaker が干渉できるようになりました (#945)
 
 ### Changed
 
@@ -50,6 +51,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#676)
 - クリスタの `色相・彩度・明度` 色調調整レイヤーを再現する HSVAdjustmentLayer が追加されました(#678)
 - PSD の ImportMode が ClipStudioPaint に自動決定またはオーバライドされていた場合 HSLAdjustmentLayer が HSVAdjustmentLayer としてインポートされるようになりました (#678)
+- ~~テクスチャやマテリアルの範囲を切り分けることができる~~ DomainDefinition が追加されました (#694 #802)
+- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#694)
 - TTT PSD Importer はインポートのタイミングでプレビューを生成せず、必要になったタイミングで生成するようなりインポート自体の速度は大幅に高速化しました。(#727)
 - PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
 - TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)

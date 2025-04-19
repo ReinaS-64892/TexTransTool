@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture が非正方形なテクスチャを対象にアトラス化したときに Padding の計算が正しく行えていない問題を修正しました (#900)
 - DirectX11 環境で GTX10 や GTX9 系で様々なコンポーネントが正常に動作しない問題を修正しました (#929)
+- IslandSelector は、実行化時に無効化されていた場合に、無効化されるようになりました (#945)
 
 ### Dependency
 
@@ -60,8 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
 - BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
-- ~~テクスチャやマテリアルの範囲を切り分けることができる~~ DomainDefinition が追加されました (#626 #802)
-- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
 - AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670)
 - AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
 - SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
@@ -84,11 +83,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- TexTransGroup や PhaseDefine がお互いどちらかが子になるような条項が発生した場合、一番上段に存在するほうの効果が優先されるようになりました (#626)
+- TexTransGroup や PhaseDefine がお互いどちらかが子になるような条項が発生した場合、一番上段に存在するほうの効果が優先されるようになりました (#694)
 - SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
-- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
-- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
-- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
+- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#694)
+- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#694)
+- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#694)
 - TexTransGroup や PhaseDefine が 子の一段目までを保証していたのが、再帰的にすべての子まで保証するようになりました (#802)
 
 ### Fixed
