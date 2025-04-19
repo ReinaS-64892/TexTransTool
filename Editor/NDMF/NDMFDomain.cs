@@ -50,5 +50,15 @@ namespace net.rs64.TexTransTool.NDMF
         }
         public override bool OriginEqual(Object l, Object r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
 
+        public override bool IsActive(GameObject gameObject)
+        {
+            // TODO : Animation parse
+            return base.IsActive(gameObject);
+        }
+        public override bool IsEnable(Component component)
+        {
+            // TODO : Animation parse
+            return base.IsEnable(component);
+        }
     }
 }

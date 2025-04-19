@@ -1,9 +1,7 @@
-using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
 using net.rs64.TexTransTool.Utils;
-using UnityEngine.Profiling;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -16,7 +14,7 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 using var pf = new PFScope("FindAtPhase");
 
-                var p2b = FindAtPhase(context.AvatarRootObject);
+                var p2b = TexTransBehaviorSearch.FindAtPhase(context.AvatarRootObject);
 
                 pf.Split("TexTransBuildSession.ctr");
                 switch (TTTProjectConfig.instance.TexTransCoreEngineBackend)

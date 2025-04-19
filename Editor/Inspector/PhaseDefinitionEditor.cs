@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool.Editor
             rootVE.hierarchy.Add(previewButton);
 
             var groupBehaviors = new List<TexTransBehavior>();
-            AvatarBuildUtils.GroupedComponentsCorrect(groupBehaviors, pd.gameObject, new AvatarBuildUtils.DefaultGameObjectWakingTool());
+            TexTransBehaviorSearch.GroupedComponentsCorrect(groupBehaviors, pd.gameObject, new TexTransBehaviorSearch.DefaultGameObjectWakingTool());
             foreach (var ttb in groupBehaviors) rootVE.hierarchy.Add(PreviewGroupEditor.Summary(ttb));
 
             return rootVE;

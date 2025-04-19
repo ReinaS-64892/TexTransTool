@@ -92,18 +92,18 @@ namespace net.rs64.TexTransTool.Decal
     internal class DistanceGradationDecalIslandSelectFilter : ITrianglesFilter<DistanceGradationSpace, DistanceGradationFilteredTrianglesHolder>
     {
         IIslandSelector? _islandSelector;
-        OriginEqual _originEqual;
+        IRendererTargeting _targeting;
 
-        public DistanceGradationDecalIslandSelectFilter(IIslandSelector? islandSelector, OriginEqual originEqual)
+        public DistanceGradationDecalIslandSelectFilter(IIslandSelector? islandSelector, IRendererTargeting targeting)
         {
             _islandSelector = islandSelector;
-            _originEqual = originEqual;
+            _targeting = targeting;
         }
 
 
         public DistanceGradationFilteredTrianglesHolder Filtering(DistanceGradationSpace space)
         {
-            return new(IslandSelectToPPFilter.IslandSelectExecute(_islandSelector, space._meshData, _originEqual).Take());
+            return new(IslandSelectToPPFilter.IslandSelectExecute(_islandSelector, space._meshData, _targeting).Take());
         }
     }
     internal class DistanceGradationFilteredTrianglesHolder : IFilteredTriangleHolder

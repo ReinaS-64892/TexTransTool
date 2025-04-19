@@ -167,7 +167,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             using var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TTCEUnityWithTTT4Unity(diskUtil));
 
 
-            var nowRenderers = atlasTexture.GetTargetAllowedFilter(previewDomain.EnumerateRenderer());
+            var nowRenderers = AtlasTexture.GetAtlasAllowedRenderers(previewDomain.EnumerateRenderer());
             var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers).ToHashSet();
             if (targetMaterials.Any() is false) { return null; }
 
@@ -175,7 +175,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
                 previewDomain
                 , previewDomain.GetTexTransCoreEngineForUnity()
                 , targetMaterials
-                , AtlasTexture.FilterTargetRenderers(previewDomain, nowRenderers, targetMaterials)
+                , AtlasTexture.FilterTargetRenderers(previewDomain, nowRenderers, targetMaterials,atlasTexture.AtlasSetting.IncludeDisabledRenderer)
                 , atlasTexture.IslandSizePriorityTuner
                 , atlasTexture.AtlasSetting
                 );

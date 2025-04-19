@@ -77,7 +77,7 @@ namespace net.rs64.TexTransTool
                 var meshData = targetMaterialContainedRenderers.Select(r => domain.GetMeshData(r)).ToArray();
 
                 var spaceConvertor = GetSpaceConverter();
-                var triangleFilter = GetTriangleFilter(domain.OriginEqual);
+                var triangleFilter = GetTriangleFilter(domain);
 
                 using var convertedSpace = spaceConvertor.ConvertSpace(meshData);
                 using var filteredTriangleHolder = triangleFilter.Filtering(convertedSpace);
@@ -221,9 +221,9 @@ namespace net.rs64.TexTransTool
         }
 
         internal ParallelProjectionSpaceConvertor GetSpaceConverter() { return new(transform.worldToLocalMatrix); }
-        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(OriginEqual originEqual)
+        internal ITrianglesFilter<ParallelProjectionSpace, IFilteredTriangleHolder> GetTriangleFilter(IRendererTargeting targeting)
         {
-            if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), originEqual); }
+            if (IslandSelector != null) { return new IslandSelectToPPFilter(IslandSelector, GetFilter(), targeting); }
             return new ParallelProjectionFilter(GetFilter());
         }
 

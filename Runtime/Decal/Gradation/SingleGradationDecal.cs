@@ -67,7 +67,7 @@ namespace net.rs64.TexTransTool.Decal
             if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
             var space = new SingleGradationConvertor(transform.worldToLocalMatrix);
-            var filter = new SingleGradationDecalIslandSelectFilter(islandSelector, domain.OriginEqual);
+            var filter = new SingleGradationDecalIslandSelectFilter(islandSelector, domain);
 
             var decalContext = new DecalContext<SingleGradationConvertor, SingleGradationSpace, SingleGradationDecalIslandSelectFilter, SingleGradationFilteredTrianglesHolder>(ttce, space, filter);
             decalContext.IsTextureStretch = GradientClamp is false;

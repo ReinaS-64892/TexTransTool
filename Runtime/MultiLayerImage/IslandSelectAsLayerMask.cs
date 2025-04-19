@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                 .ToArray();
 
             var islandsArray = IslandSelectToPPFilter.IslandsArrayFromMeshData(meshData);
-            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, domain.OriginEqual));
+            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, domain));
             using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             var islandSelectedTriangles = islandSelectedTrianglesHolder.Ref();
 

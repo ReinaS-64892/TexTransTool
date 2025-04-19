@@ -250,33 +250,20 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
         void RefreshMaterials()
         {
             var domainFindPoint = target as AtlasTexture;
-            // var limitRoot = sLimitCandidateMaterials.objectReferenceValue as GameObject;
             var includeDisabledRenderer = thisTarget.AtlasSetting.IncludeDisabledRenderer;
             var uvChannel = (UVChannel)sAtlasTargetUVChannel.enumValueIndex;
 
             _displayMaterial = null;
-            // if (AtlasShaderSupportUtils.s_atlasShaderSupportList is null) { return; }
 
             var domainRoot = DomainMarkerFinder.FindMarker(domainFindPoint.gameObject);
             if (domainRoot == null) { return; }
 
-            var domainRenderers = AtlasTexture.FilteredRenderers(domainRoot, includeDisabledRenderer);
+            var nwDomain = new NotWorkDomain(Array.Empty<Renderer>(), null);
+            var domainRenderers = domainRoot.GetComponentsInChildren<Renderer>(true)
+                .Where(AtlasTexture.IsAtlasAllowedRenderer)
+                .Where(r => AtlasTexture.CheckRendererActive(nwDomain, r, domainFindPoint.AtlasSetting.IncludeDisabledRenderer));
 
-            List<Material> filteredMaterials;
-            // if (limitRoot != null)
-            // {
-            //     var limitedRenderers = AtlasTexture.FilteredRenderers(limitRoot, includeDisabledRenderer);
-            //     filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Intersect(RendererUtility.GetMaterials(limitedRenderers)).Distinct().Where(m => m != null).ToList();
-            // }
-            // else
-            {
-                filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList();
-            }
-
-            // var atlasSSupport = new AtlasShaderSupportUtils();
-            // var supportDict = filteredMaterials.ToDictionary(m => m, m => AtlasShaderSupportUtils.GetAtlasShaderSupporter(m));
-
-            // var atlasTexDict = filteredMaterials.ToDictionary(m => m, m => TTShaderTextureUsageInformationUtil.GetContainsUVUsage(m));
+            List<Material> filteredMaterials = RendererUtility.GetMaterials(domainRenderers).Distinct().Where(m => m != null).ToList();
 
             _displayMaterial = new MaterialGroupingContext(filteredMaterials.ToHashSet(), uvChannel, null).GroupMaterials.Select(i => new List<Material>(i)).ToList();
         }

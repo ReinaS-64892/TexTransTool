@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Editor
 
             rootVE.hierarchy.Add(previewButton);
 
-            var atPhase = AvatarBuildUtils.FindAtPhase(previewGroup.gameObject);
+            var atPhase = TexTransBehaviorSearch.FindAtPhase(previewGroup.gameObject);
 
             var label = new Label(TexTransPhase.MaterialModification.ToString());
             label.style.fontSize = 16f;

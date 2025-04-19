@@ -47,7 +47,7 @@ namespace net.rs64.TexTransTool
         bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
         void TransferAsset(UnityEngine.Object asset);
     }
-    public delegate bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
+    internal delegate bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
     internal interface IReplaceTracking
     {
         bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking, ILookingObject
+    internal interface IRendererTargeting : IReplaceTracking, ILookingObject , IActiveness
     {
         // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
         IEnumerable<Renderer> EnumerateRenderer();
@@ -96,7 +96,7 @@ namespace net.rs64.TexTransTool
         // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
         Material?[] GetMutableMaterials(Renderer renderer);
     }
-    public interface ILookingObject
+    internal interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
         /// <summary>
@@ -110,6 +110,22 @@ namespace net.rs64.TexTransTool
         }
         void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
+    }
+    internal interface IActiveness
+    {
+        bool IsActive(GameObject gameObject)
+        {
+            return TexTransBehaviorSearch.CheckIsActive(gameObject);
+        }
+        bool IsEnable(Component component)
+        {
+            return component switch
+            {
+                Behaviour bh => bh.enabled,
+                Renderer bh => bh.enabled,
+                _ => true,
+            };
+        }
     }
     internal interface ITexturePostProcessor
     {
