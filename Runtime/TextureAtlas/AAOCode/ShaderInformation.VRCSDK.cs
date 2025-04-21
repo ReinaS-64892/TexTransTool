@@ -1,7 +1,6 @@
 // https://github.com/anatawa12/AvatarOptimizer/blob/6a63910a423d5b7d73e726fcccb4940716f5ee0d/Editor/APIInternal/ShaderInformation.VRCSDK.cs
 
 using net.rs64.TexTransCoreEngineForUnity;
-using UnityEditor;
 using UnityEngine;
 
 

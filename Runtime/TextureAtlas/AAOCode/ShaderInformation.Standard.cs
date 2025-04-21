@@ -1,6 +1,4 @@
 // https://github.com/anatawa12/AvatarOptimizer/blob/6a63910a423d5b7d73e726fcccb4940716f5ee0d/Editor/APIInternal/ShaderInformation.Standard.cs
-
-using UnityEditor;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
@@ -12,11 +10,13 @@ namespace net.rs64.TexTransTool.TextureAtlas.AAOCode
     {
         internal static void Register()
         {
+#if UNITY_EDITOR
             var information = new StandardShaderInformation();
-            if (!GlobalObjectId.TryParse("GlobalObjectId_V1-4-0000000000000000f000000000000000-46-0", out var id)) return;
-            var shader = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) as Shader;
+            if (!UnityEditor.GlobalObjectId.TryParse("GlobalObjectId_V1-4-0000000000000000f000000000000000-46-0", out var id)) return;
+            var shader = UnityEditor.GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) as Shader;
             if (shader == null) return;
             TTShaderTextureUsageInformationRegistry.RegisterTTShaderTextureUsageInformation(shader, information);
+#endif
         }
         public void GetMaterialTextureUVUsage(ITTTextureUVUsageWriter writer)
         {
