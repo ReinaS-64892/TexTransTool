@@ -25,7 +25,6 @@ namespace net.rs64.TexTransTool
         protected readonly ImmediateStackManager _textureStacks;
 
         protected readonly RenderTextureDescriptorManager _renderTextureDescriptorManager;
-        protected readonly Dictionary<Texture2D, TexTransToolTextureDescriptor> _textureDescriptors = new();
 
         public RenderersDomain(List<Renderer> previewRenderers, IAssetSaver assetSaver)
         {
@@ -99,7 +98,7 @@ namespace net.rs64.TexTransTool
         }
         public void ReadBackToTexture2D()
         {
-            var (textureDescriptors, replaceMap, originRt) = _renderTextureDescriptorManager.DownloadTexture2D();
+            var (replaceMap, originRt) = _renderTextureDescriptorManager.DownloadTexture2D();
             foreach (var r in replaceMap)
             {
                 TransferAsset(r.Value);
@@ -109,9 +108,6 @@ namespace net.rs64.TexTransTool
                 if (replace.HasValue) RegisterReplace(replace.Value.Key, replace.Value.Value);
             }
             foreach (var rt in originRt) { rt.Dispose(); }
-
-            foreach (var kv in textureDescriptors)
-                _textureDescriptors[kv.Key] = kv.Value;
         }
 
         public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
@@ -132,7 +128,7 @@ namespace net.rs64.TexTransTool
             MergeStack();
             ReadBackToTexture2D();
 
-            new Texture2DCompressor(_textureDescriptors).CompressDeferred(this);
+            Texture2DCompressor.CompressDeferred(this, _renderTextureDescriptorManager.DownloadedDescriptors);
 
             if (_diskUtil is IDisposable dd) dd.Dispose();
             if (_ttce4U is IDisposable t4uD) t4uD.Dispose();

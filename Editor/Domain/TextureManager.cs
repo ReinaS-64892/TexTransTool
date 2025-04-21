@@ -82,6 +82,9 @@ namespace net.rs64.TexTransTool
         private protected Dictionary<RenderTexture, ITTRenderTexture> _ref2RenderTexture = new();
         private protected Dictionary<ITTRenderTexture, TexTransToolTextureDescriptor> _descriptorRtDict = new();
         private readonly ITexTransToolForUnity _ttt4U;
+        private readonly Dictionary<Texture2D, TexTransToolTextureDescriptor> _textureDescriptors = new();
+
+        public IReadOnlyDictionary<Texture2D, TexTransToolTextureDescriptor> DownloadedDescriptors => _textureDescriptors;
 
         public RenderTextureDescriptorManager(ITexTransToolForUnity ttt4u)
         {
@@ -94,7 +97,11 @@ namespace net.rs64.TexTransTool
             {
                 default: throw new NotImplementedException();
 
-                case Texture2D texture2D: { return TextureManagerUtility.GetTextureDescriptor(texture2D); }
+                case Texture2D texture2D:
+                    {
+                        if (_textureDescriptors.TryGetValue(texture2D, out var val)) { return new(val); }
+                        return TextureManagerUtility.GetTextureDescriptor(texture2D);
+                    }
                 case RenderTexture rt:
                     {
                         var ttRenderTexture = _ref2RenderTexture[rt];
@@ -109,11 +116,7 @@ namespace net.rs64.TexTransTool
             _descriptorRtDict[rt] = textureDescriptor;
         }
 
-        public (
-            Dictionary<Texture2D, TexTransToolTextureDescriptor> texDescDict
-            , Dictionary<RenderTexture, Texture2D> textureReplace
-            , IEnumerable<ITTRenderTexture> renderTextures
-            ) DownloadTexture2D()
+        public (Dictionary<RenderTexture, Texture2D> textureReplace, IEnumerable<ITTRenderTexture> renderTextures) DownloadTexture2D()
         {
             // TODO : 並列 ReadBack
             // TODO : MipMap の生成
@@ -132,19 +135,19 @@ namespace net.rs64.TexTransTool
             }
             var sourceRenderTextures = _descriptorRtDict.Keys.ToArray();
 
+            foreach (var kv in descDict)
+                _textureDescriptors[kv.Key] = kv.Value;
+
             _descriptorRtDict.Clear();
             _ref2RenderTexture.Clear();
 
-            return (descDict, replace, sourceRenderTextures);
+            return (replace, sourceRenderTextures);
         }
 
     }
-    internal class Texture2DCompressor
+    internal static class Texture2DCompressor
     {
-        public readonly Dictionary<Texture2D, TexTransToolTextureDescriptor> TextureDescriptors;
-        public Texture2DCompressor() { TextureDescriptors = new(); }
-        public Texture2DCompressor(Dictionary<Texture2D, TexTransToolTextureDescriptor> td) { TextureDescriptors = td; }
-        public void CompressDeferred(IRendererTargeting targeting)
+        public static void CompressDeferred(IRendererTargeting targeting, IReadOnlyDictionary<Texture2D, TexTransToolTextureDescriptor> TextureDescriptors)
         {
             var compressKV = TextureDescriptors.Where(i => i.Key != null).ToDictionary(i => i.Key, i => i.Value);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 
@@ -196,8 +199,6 @@ namespace net.rs64.TexTransTool
                 sTexture.ApplyModifiedPropertiesWithoutUndo();
             }
 
-            TextureDescriptors.Clear();
-
             // アルファが存在するがフォーマット的に消えたやつら
             var alphaContainsFormatNeedTextures = needAlphaInfoTarget.Where(i => i.Value.GetResult()).ToArray();
             if (alphaContainsFormatNeedTextures.Any())
@@ -206,7 +207,7 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        private void ResolveNormalMapPacking(Texture2D tex)
+        private static void ResolveNormalMapPacking(Texture2D tex)
         {
             switch (tex.format)
             {
