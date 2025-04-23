@@ -8,10 +8,12 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class BoxIslandSelector : AbstractIslandSelector
+    public class BoxIslandSelector : AbstractIslandSelector , ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT BoxIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
+
 
         public bool IsAll;
 

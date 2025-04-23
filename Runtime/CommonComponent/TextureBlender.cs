@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer
+    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer ,ITexTransToolStableComponent
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
@@ -26,6 +26,8 @@ namespace net.rs64.TexTransTool
         [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
+
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
 
         internal override void Apply(IDomain domain)
         {

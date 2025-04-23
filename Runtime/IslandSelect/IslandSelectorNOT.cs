@@ -6,10 +6,11 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class IslandSelectorNOT : AbstractIslandSelector
+    public class IslandSelectorNOT : AbstractIslandSelector, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT IslandSelectorNOT";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
 
         internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector()?.LookAtCalling(looker); }
         internal AbstractIslandSelector? GetIslandSelector() { return GetFirstChilde(transform); }

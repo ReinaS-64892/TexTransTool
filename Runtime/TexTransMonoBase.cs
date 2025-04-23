@@ -15,6 +15,8 @@ namespace net.rs64.TexTransTool
         //v0.7.x == 4
         //v0.8.x == 5
         //v0.9.x == 6
+        //v0.10.x == 7
+        internal const int TTTDataVersion_0_10_X = 7;
         internal const int TTTDataVersion = 7;
 
         [HideInInspector, SerializeField] int _saveDataVersion = TTTDataVersion;

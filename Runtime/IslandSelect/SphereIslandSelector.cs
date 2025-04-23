@@ -8,10 +8,12 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class SphereIslandSelector : AbstractIslandSelector
+    public class SphereIslandSelector : AbstractIslandSelector, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT SphereIslandSelector";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
+
         public bool IsAll;
         internal override void LookAtCalling(ILookingObject looker)
         {
