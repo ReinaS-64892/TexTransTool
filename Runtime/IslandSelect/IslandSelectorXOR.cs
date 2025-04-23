@@ -8,10 +8,12 @@ using UnityEngine.Profiling;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class IslandSelectorXOR : AbstractIslandSelector
+    public class IslandSelectorXOR : AbstractIslandSelector, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT IslandSelectorXOR";
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
+
         internal override void LookAtCalling(ILookingObject looker) { LookAtChildren(this, looker); }
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {

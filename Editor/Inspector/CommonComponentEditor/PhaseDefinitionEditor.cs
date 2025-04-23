@@ -1,12 +1,6 @@
-using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using System;
-using UnityEditor.UIElements;
-using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransTool.Build;
-using System.Linq;
 
 namespace net.rs64.TexTransTool.Editor
 {

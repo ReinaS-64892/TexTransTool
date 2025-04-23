@@ -17,10 +17,11 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SimpleDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
+    public sealed class SimpleDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer , ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
         internal override TexTransPhase PhaseDefine => TexTransPhase.AfterUVModification;
 
         public DecalRendererSelector RendererSelector = new();

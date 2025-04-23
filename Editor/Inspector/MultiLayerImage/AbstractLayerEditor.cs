@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(AbstractLayer), true)]
     [CanEditMultipleObjects]
-    internal class AbstractLayerEditor : UnityEditor.Editor
+    internal class AbstractLayerEditor : TexTransMonoBaseEditor
     {
         (NotWorkDomain domain, UnityDiskUtil diskUtil, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
         private bool _needUpdate;
@@ -67,14 +67,10 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             _imageLayerPreviewResult.Value.domain.Dispose();
             _imageLayerPreviewResult = null;
         }
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            var isMultiple = targets.Length != 1;
-            var targetName = isMultiple is false ? target.GetType().Name : "MultiImageLayer";
-            TextureTransformerEditor.DrawerWarning(targetName.GetLocalize());
             EditorGUI.BeginChangeCheck();
-            base.OnInspectorGUI();
+            base.OnTexTransComponentInspectorGUI();
             _needUpdate |= EditorGUI.EndChangeCheck();
         }
 

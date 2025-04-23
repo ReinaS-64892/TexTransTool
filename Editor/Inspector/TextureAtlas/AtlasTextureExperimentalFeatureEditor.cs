@@ -6,22 +6,20 @@ using net.rs64.TexTransTool.Editor.OtherMenuItem;
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     [CustomEditor(typeof(AtlasTextureExperimentalFeature), true)]
-    internal class AtlasTextureExperimentalFeatureEditor : UnityEditor.Editor
+    internal class AtlasTextureExperimentalFeatureEditor : TexTransMonoBaseEditor
     {
 
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var thisTarget = target as AtlasTextureExperimentalFeature;
             var thisSObj = serializedObject;
-            thisSObj.Update();
 
-            var sTextureIndividualFineTuning = thisSObj.FindProperty("TextureIndividualFineTuning");
-            var sUnsetTextures = thisSObj.FindProperty("UnsetTextures");
+            var sTextureIndividualFineTuning = thisSObj.FindProperty(nameof(AtlasTextureExperimentalFeature.TextureIndividualFineTuning));
+            var sUnsetTextures = thisSObj.FindProperty(nameof(AtlasTextureExperimentalFeature.UnsetTextures));
 
-            var sAutoTextureSizeSetting = thisSObj.FindProperty("AutoTextureSizeSetting");
-            var sAutoReferenceCopySetting = thisSObj.FindProperty("AutoReferenceCopySetting");
-            var sAutoMergeTextureSetting = thisSObj.FindProperty("AutoMergeTextureSetting");
+            var sAutoTextureSizeSetting = thisSObj.FindProperty(nameof(AtlasTextureExperimentalFeature.AutoTextureSizeSetting));
+            var sAutoReferenceCopySetting = thisSObj.FindProperty(nameof(AtlasTextureExperimentalFeature.AutoReferenceCopySetting));
+            var sAutoMergeTextureSetting = thisSObj.FindProperty(nameof(AtlasTextureExperimentalFeature.AutoMergeTextureSetting));
 
             EditorGUILayout.PropertyField(sUnsetTextures, "AtlasTexture:prop:ExperimentalFuture:UnsetTextures".GlcV());
 
