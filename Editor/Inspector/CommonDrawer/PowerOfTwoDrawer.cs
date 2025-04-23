@@ -1,7 +1,5 @@
-using System;
 using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor
 {

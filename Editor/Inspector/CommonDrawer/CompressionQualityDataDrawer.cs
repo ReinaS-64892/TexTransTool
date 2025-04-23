@@ -1,10 +1,6 @@
-using System;
 using UnityEngine;
 using UnityEditor;
-using System.Linq;
-using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransTool.TextureAtlas.Editor;
-using net.rs64.TexTransTool.TextureAtlas.FineTuning;
 
 namespace net.rs64.TexTransTool.Editor
 {

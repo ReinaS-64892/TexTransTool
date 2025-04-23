@@ -1,13 +1,7 @@
 using UnityEditor;
-using net.rs64.TexTransTool.Editor;
-using net.rs64.TexTransTool;
 using UnityEngine.UIElements;
-using net.rs64.TexTransTool.Build;
 using System.Collections.Generic;
-using net.rs64.TexTransTool.Preview;
-using System;
 using UnityEditor.UIElements;
-using System.ComponentModel;
 
 namespace net.rs64.TexTransTool.Editor
 {
@@ -23,7 +17,7 @@ namespace net.rs64.TexTransTool.Editor
 
             var previewButton = new IMGUIContainer(() =>
             {
-                TextureTransformerEditor.DrawerWarning(nameof(PreviewGroup));
+                TexTransMonoBaseEditor.DrawerWarning(previewGroup);
                 PreviewButtonDrawUtil.Draw(previewGroup);
             });
 

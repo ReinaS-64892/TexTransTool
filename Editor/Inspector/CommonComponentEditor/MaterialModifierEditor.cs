@@ -3,14 +3,13 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 using net.rs64.TexTransTool.Utils;
 using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(MaterialModifier))]
-    public class MaterialModifierEditor : UnityEditor.Editor
+    internal class MaterialModifierEditor : TexTransMonoBaseEditor
     {
         private MaterialModifier _target;
         private SerializedProperty _targetMaterial;
@@ -55,19 +54,11 @@ namespace net.rs64.TexTransTool.Editor
             _materialEditor.OnShaderChangedPublic -= OnShaderChanged;
             ObjectChangeEvents.changesPublished -= OnObjectChanged;
         }
-
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            TextureTransformerEditor.DrawerWarning(nameof(MaterialModifier));
-            serializedObject.Update();
-
             EditorGUILayout.PropertyField(_targetMaterial);
             RecordingMaterialGUI();
             OverridesGUI();
-
-            serializedObject.ApplyModifiedProperties();
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
         }
 
         private void RecordingMaterialGUI()

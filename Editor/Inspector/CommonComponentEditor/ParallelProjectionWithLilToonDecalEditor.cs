@@ -1,19 +1,12 @@
-using UnityEngine;
 using UnityEditor;
-using net.rs64.TexTransTool.Preview;
-using net.rs64.TexTransTool.MultiLayerImage;
 namespace net.rs64.TexTransTool.Editor
 {
 
     [CustomEditor(typeof(ParallelProjectionWithLilToonDecal))]
-    internal class ParallelProjectionWithLilToonDecalEditor : UnityEditor.Editor
+    internal class ParallelProjectionWithLilToonDecalEditor : TexTransMonoBaseEditor
     {
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            TextureTransformerEditor.DrawerWarning("ParallelProjectionWith lilToon Decal");
-
-            var thisTarget = target as ParallelProjectionWithLilToonDecal;
             var thisSObject = serializedObject;
 
             var sTargetMaterial = thisSObject.FindProperty(nameof(ParallelProjectionWithLilToonDecal.TargetMaterial));
@@ -51,13 +44,7 @@ namespace net.rs64.TexTransTool.Editor
                 EditorGUILayout.PropertyField(sReplaceTextureTarget, "ReplaceTextureTarget".GlcV());
                 EditorGUILayout.PropertyField(sIslandSelector, "IslandSelector".GlcV());
             }
-
-            PreviewButtonDrawUtil.Draw(thisTarget);
-            thisSObject.ApplyModifiedProperties();
         }
-
-
-
     }
 
 }

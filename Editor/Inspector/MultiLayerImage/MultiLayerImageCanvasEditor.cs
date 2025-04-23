@@ -10,7 +10,7 @@ using net.rs64.TexTransTool.TextureAtlas.Editor;
 namespace net.rs64.TexTransTool.Editor.MultiLayerImage
 {
     [CustomEditor(typeof(MultiLayerImageCanvas))]
-    internal class MultiLayerImageCanvasEditor : UnityEditor.Editor
+    internal class MultiLayerImageCanvasEditor : TexTransMonoBaseEditor
     {
         (NotWorkDomain domain, UnityDiskUtil diskUtil, ITTRenderTexture previewRt)? _imageLayerPreviewResult = null;
 
@@ -51,21 +51,11 @@ namespace net.rs64.TexTransTool.Editor.MultiLayerImage
             _imageLayerPreviewResult.Value.domain.Dispose();
             _imageLayerPreviewResult = null;
         }
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            TextureTransformerEditor.DrawerWarning("MultiLayerImageCanvas".GetLocalize());
-
             var sTarget = serializedObject;
-
             EditorGUILayout.PropertyField(sTarget.FindProperty(nameof(MultiLayerImageCanvas.TargetTexture)));
-
-            PreviewButtonDrawUtil.Draw(target as TexTransBehavior);
-
-
-            sTarget.ApplyModifiedProperties();
         }
-
         public override bool HasPreviewGUI() { return true; }
         public override void DrawPreview(Rect previewArea)
         {

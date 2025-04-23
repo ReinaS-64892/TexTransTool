@@ -15,10 +15,9 @@ using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     [CustomEditor(typeof(AtlasTexture), true)]
-    internal class AtlasTextureEditor : UnityEditor.Editor
+    internal class AtlasTextureEditor : TexTransMonoBaseEditor
     {
         private AtlasTexture thisTarget;
-        // private SerializedProperty sLimitCandidateMaterials;
         private SerializedProperty sAtlasTargetMaterials;
 
         private SerializedProperty sIslandSizePriorityTuner;
@@ -72,19 +71,8 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             sBackGroundColor = sAtlasSetting.FindPropertyRelative("BackGroundColor");
 
         }
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            var thisSObject = serializedObject;
-            thisSObject.Update();
-
-
-            // using (var cc = new EditorGUI.ChangeCheckScope())
-            // {
-            //     EditorGUILayout.PropertyField(sLimitCandidateMaterials, "AtlasTexture:prop:LimitCandidateMaterials".Glc());
-            //     if (cc.changed) RefreshMaterials();
-            // }
-
             using (new EditorGUI.IndentLevelScope(1))
                 EditorGUILayout.PropertyField(sAtlasTargetMaterials, "AtlasTexture:prop:SelectedMaterialView".GlcV());
 
@@ -139,8 +127,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             using (new PFScope("DrawAtlasSettings"))
                 DrawAtlasSettings();
 
-            PreviewButtonDrawUtil.Draw(thisTarget);
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void DrawIslandSizePriorityTunerWithAdvanced(SerializedProperty sIslandSizePriorityTuner, IEnumerable<Material> targetMaterials)
