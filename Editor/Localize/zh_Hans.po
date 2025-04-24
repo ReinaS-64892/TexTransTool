@@ -1,0 +1,716 @@
+msgid ""
+msgstr ""
+"Language: zh_Hans\n"
+
+# TTT Menu
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat"
+msgstr "内部渲染纹理格式";
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Byte"
+msgstr "Byte : 8位 - 无符号整数"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:UShort"
+msgstr "UShort : 16位 - 无符号整数"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Half"
+msgstr "Half : 16位 - 有符号浮点数"
+
+msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Float"
+msgstr "Float : 32位 - 有符号浮点数"
+
+msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
+msgstr "TexTransCoreEngine Backend"
+
+#  Commons
+
+msgid "Common:Preview"
+msgstr "预览"
+
+msgid "Common:ExitPreview"
+msgstr "退出预览"
+
+msgid "Common:PreviewNotAvailable"
+msgstr "(其他组件正在预览中或正在预览动画中)"
+
+msgid "Common:OverridePreviewThis"
+msgstr "其他组件正在预览中。覆盖预览此组件"
+
+msgid "Common:ExperimentalFuture"
+msgstr "实验性功能"
+
+msgid "Common:ExperimentalWarning"
+msgstr "是实验性功能，可能会在未来被修改或移除，并且不会有通知。"
+
+msgid "Common:error:BuildWasRunDuringPreviewing"
+msgstr "在预览中途启动构建。"
+
+msgid "Common:error:BuildWasRunDuringPreviewing:hint"
+msgstr "预览已自动退出，请重试一次。"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning"
+msgstr "组件被嵌套进了 TexTransTool 的非群组组件内！"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:description"
+msgstr "在下一个版本 v0.9.x，除群组组件(例如 TexTransGroup)以外的组件嵌套将不再有效。"
+
+msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
+msgstr "请不要嵌套此组件，将其放在别处。"
+
+msgid "Common:ndmf:DisableThisComponentPhasePreview"
+msgstr "(NDMF) 停止 {0} 预览"
+
+msgid "Common:ndmf:EnableThisComponentPhasePreview"
+msgstr "(NDMF) 启用 {0} 预览"
+
+msgid "Common:RendererSelectMode"
+msgstr "网格渲染器选择模式"
+
+msgid "Common:RendererSelectMode:Auto"
+msgstr "自动"
+
+msgid "Common:RendererSelectMode:Manual"
+msgstr "手动"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat"
+msgstr "纹理可能包含 alpha 通道，但是使用了不包含 alpha 通道的格式进行压缩。"
+
+msgid "Common:info:AlphaContainsTextureCompressToAlphaMissingFormat:description"
+msgstr "这可能是误报，如果是有意为之或没有问题，就请忽略此警告。"
+
+msgid "Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow"
+msgstr "此组件保存的数据来自旧版！打开迁移窗口。"
+
+#  AtlasTexture
+
+msgid "AtlasTexture:error:TTTNotExecutable"
+msgstr "AtlasTexture 无法执行。"
+
+msgid "AtlasTexture:error:TTTNotExecutable:hint"
+msgstr "请检查 目标根物体 和 已选择的材质。"
+
+msgid "AtlasTexture:info:TargetNotSet"
+msgstr "合并目标未设置！"
+
+msgid "AtlasTexture:info:TargetNotFound"
+msgstr "没有找到合并目标！"
+
+msgid "AtlasTexture:error:RelocationFailed"
+msgstr "孤立区域重定位失败！"
+
+msgid "AtlasTexture:error:RelocationFailed:hint"
+msgstr "间距值过大，或合并目标数量过多。\n请尝试减小间距值，或减少需要合并的目标数量。"
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed"
+msgstr "孤立区域间距为零且启用了像素标准化。\n请注意部分孤立区域可能发生重叠，将导致某些像素出现颜色异常。"
+
+msgid "AtlasTexture:warn:IslandPaddingIsZeroAndPixelNormalizeUsed:hint"
+msgstr "请尝试增大孤立区域间距值，或关闭像素标准化功能。"
+
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV"
+msgstr "原始 UV 写入目标通道已存在UV数据。"
+
+msgid "AtlasTexture:warn:OriginalUVWriteTargetForAlreadyUV:description"
+msgstr "如果是有意为之或没有问题，就请忽略此警告。"
+
+msgid "AtlasTexture:info:RelocateResult"
+msgstr "图集重定位结果\n顶部空闲空间: {0}\n优先级缩减比例: {1}x \n整体缩减比例: {2}x \n总重定位次数: {3} \n重定位耗时: {4} 毫秒"
+
+msgid "AtlasTexture:prop:LimitCandidateMaterials"
+msgstr "限定候选材质"
+
+msgid "AtlasTexture:prop:LimitCandidateMaterials:tooltip"
+msgstr "将候选材质限定为 GameObject 的子对象"
+
+msgid "AtlasTexture:button:RefreshMaterials"
+msgstr "刷新材质"
+
+msgid "AtlasTexture:button:SelectAll"
+msgstr "选择全部"
+
+msgid "AtlasTexture:button:Invert"
+msgstr "反转"
+
+msgid "AtlasTexture:label:Target"
+msgstr "目标"
+
+msgid "AtlasTexture:label:IslandSizePriority"
+msgstr "孤立区域尺寸优先级"
+
+msgid "AtlasTexture:prop:IslandSizePriorityTuner"
+msgstr "调整孤立区域尺寸优先级"
+
+msgid "AtlasTexture:label:Material"
+msgstr "材质"
+
+msgid "AtlasTexture:label:TSM-Header:tooltip"
+msgstr "图集目标(纹理缩放偏移)材质"
+
+msgid "AtlasTexture:prop:SelectedMaterialView"
+msgstr "已选择的材质"
+
+msgid "AtlasTexture:prop:SelectedMaterialView:tooltip"
+msgstr "特殊操作视图(如预制件覆盖设置)"
+
+msgid "AtlasTexture:label:AtlasSettings"
+msgstr "图集设置"
+
+msgid "AtlasTexture:prop:AtlasTextureSize"
+msgstr "最终纹理尺寸"
+
+msgid "AtlasTexture:prop:AtlasTextureSize:tooltip"
+msgstr "合并后的图集纹理总尺寸，正方形。"
+
+msgid "AtlasTexture:prop:AtlasTextureHeightSize"
+msgstr "图集纹理高度尺寸"
+
+msgid "AtlasTexture:prop:CustomAspect"
+msgstr "自定义宽高比"
+
+msgid "AtlasTexture:prop:AtlasTargetUVChannel"
+msgstr "图集目标 UV 通道"
+
+msgid "AtlasTexture:prop:UsePrimaryMaximumTexture"
+msgstr "启用主纹理最大尺寸"
+
+msgid "AtlasTexture:prop:PrimaryTextureProperty"
+msgstr "主纹理属性"
+
+msgid "AtlasTexture:label:MaterialSettings"
+msgstr "材质设置"
+
+msgid "AtlasTexture:prop:MergeMaterialGroups"
+msgstr "合并材质组"
+
+msgid "AtlasTexture:prop:AllMaterialMergeReference"
+msgstr "所有材质合并引用。"
+
+msgid "AtlasTexture:prop:ForceSetTexture"
+msgstr "强制设置纹理"
+
+msgid "AtlasTexture:prop:ForceSetTexture:tooltip"
+msgstr "即使材质中不存在该纹理属性时，仍将图集纹理强制赋予材质。"
+
+msgid "AtlasTexture:prop:BackGroundColor"
+msgstr "背景颜色"
+
+msgid "AtlasTexture:prop:Padding"
+msgstr "间距"
+
+msgid "AtlasTexture:prop:Padding:tooltip"
+msgstr "各区块之间的间隔距离。"
+
+msgid "AtlasTexture:prop:IslandSorterName"
+msgstr "区块排序器名称"
+
+msgid "AtlasTexture:prop:IslandSorterName:tooltip"
+msgstr "区块排序器的标识名称，不可修改。"
+
+msgid "AtlasTexture:prop:PixelNormalize"
+msgstr "像素标准化"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV"
+msgstr "写入原始 UV"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:WriteOriginalUV:tooltip"
+msgstr "将合并前的原始 UV 信息写入指定UV通道。"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:OriginalUVWriteTargetChannel"
+msgstr "原始 UV 写入通道"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AtlasIslandRelocator"
+msgstr "图集孤立区域重定位器"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:PixelNormalize:tooltip"
+msgstr "在移动孤立区域时进行像素标准化处理的功能。"
+
+msgid "AtlasTexture:prop:MaterialMergeGroups"
+msgstr "材质合并组"
+
+msgid "AtlasTexture:prop:MaterialMergeGroups:MergeReferenceMaterial"
+msgstr "合并引用材质"
+
+msgid "AtlasTexture:prop:MaterialMergeGroups:GroupMaterials"
+msgstr "组材质集合"
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer"
+msgstr "包含已禁用的网格渲染器"
+
+msgid "AtlasTexture:prop:IncludeDisabledRenderer:tooltip"
+msgstr "将已禁用的网格渲染器也进行合并操作。"
+
+msgid "AtlasTexture:prop:ForceSizePriority"
+msgstr "强制尺寸优先级"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:TextureScaleOffsetReset"
+msgstr "纹理缩放偏移重置"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:BakedPropertyWriteMaxValue"
+msgstr "烘焙属性写入最大值"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:UnsetTextures"
+msgstr "排除纹理"
+
+msgid "AtlasTexture:prop:TextureFineTuning"
+msgstr "图集纹理精细调整"
+
+msgid "AtlasTexture:prop:TextureFineTuning:tooltip"
+msgstr "图集纹理各项精细调整的设置选项。"
+
+msgid "AtlasTexture:prop:DownScalingAlgorithm"
+msgstr "降采样算法"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoReferenceCopySetting"
+msgstr "自动引用复制设置"
+
+msgid "AtlasTexture:prop:ExperimentalFuture:AutoMergeTextureSetting"
+msgstr "自动合并纹理设置"
+
+msgid "AtlasTexture:prop:TextureIndividualFineTuning"
+msgstr "各纹理独立精细调整"
+
+msgid "AtlasTexture:prop:OpenTextureFineTuningManager"
+msgstr "打开纹理精细调整管理器"
+
+msgid "IslandSizePriorityTuner:prop:PriorityValue"
+msgstr "优先级数值"
+
+msgid "IslandSizePriorityTuner:prop:Materials"
+msgstr "关联材质"
+
+msgid "IslandSizePriorityTuner:prop:IslandSelector"
+msgstr "孤立区域选择器"
+
+msgid "TextureFineTuning:prop:TargetPropertyName"
+msgstr "目标属性名称"
+
+msgid "TextureFineTuning:prop:Select"
+msgstr "选择条件"
+
+msgid "TextureFineTuning:prop:IsRemove"
+msgstr "是否移除"
+
+msgid "TextureFineTuning:prop:Select:tooltip"
+msgstr "属性选择条件。"
+
+msgid "TextureFineTuning:prop:Resize"
+msgstr "尺寸调整"
+
+msgid "TextureFineTuning:prop:Resize:tooltip"
+msgstr "对图集纹理尺寸进行调整"
+
+msgid "TextureFineTuning:prop:Resize:Size"
+msgstr "纹理尺寸"
+
+msgid "TextureFineTuning:prop:Resize:Size:tooltip"
+msgstr "设定纹理的最终输出尺寸"
+
+msgid "TextureFineTuning:prop:Compress"
+msgstr "显存压缩"
+
+msgid "TextureFineTuning:prop:Compress:tooltip"
+msgstr "调整图集纹理的显存压缩参数配置。"
+
+msgid "TextureFineTuning:prop:FormatQuality"
+msgstr "格式质量级别"
+
+msgid "TextureFineTuning:prop:FormatQuality:tooltip"
+msgstr "纹理格式的快速预设选择。"
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat"
+msgstr "启用格式覆写"
+
+msgid "TextureFineTuning:prop:UseOverrideTextureFormat:tooltip"
+msgstr "通过精确格式指定替代快速预设选择。"
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat"
+msgstr "覆写纹理格式"
+
+msgid "TextureFineTuning:prop:OverrideTextureFormat:tooltip"
+msgstr "精确指定的纹理格式参数。"
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices"
+msgstr "常用格式预设"
+
+msgid "TextureFineTuning:prop:SimpleFormatChoices:tooltip"
+msgstr "从高频使用的纹理格式预设中进行选择。"
+
+msgid "TextureFineTuning:prop:CompressionQuality"
+msgstr "压缩质量等级"
+
+msgid "TextureFineTuning:prop:CompressionQuality:tooltip"
+msgstr "当使用 Crunch 压缩格式时的压缩质量参数配置。"
+
+msgid "TextureFineTuning:prop:ReferenceCopy"
+msgstr "属性复制"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:tooltip"
+msgstr "在不同材质属性间复制图集生成的纹理引用。"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName"
+msgstr "源属性名称"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:SourcePropertyName:tooltip"
+msgstr "复制操作的来源属性。"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName"
+msgstr "目标属性名称"
+
+msgid "TextureFineTuning:prop:ReferenceCopy:TargetPropertyName:tooltip"
+msgstr "复制操作的目标属性。"
+
+msgid "TextureFineTuning:prop:Remove"
+msgstr "移除纹理分配"
+
+msgid "TextureFineTuning:prop:Remove:tooltip"
+msgstr "禁止将指定纹理分配到材质的配置。"
+
+msgid "TextureFineTuning:prop:MipMapRemove"
+msgstr "移除 MipMap"
+
+msgid "TextureFineTuning:prop:MipMapRemove:tooltip"
+msgstr "移除指定纹理的 MipMap 数据配置。"
+
+msgid "TextureFineTuning:prop:ColorSpace"
+msgstr "色彩空间模式"
+
+msgid "TextureFineTuning:prop:ColorSpace:tooltip"
+msgstr "指定纹理的色彩空间配置。"
+
+msgid "TextureFineTuning:prop:Linear"
+msgstr "Linear"
+
+msgid "AtlasTexture:prop:HeightDenominator"
+msgstr "高度分割系数    1 / "
+
+msgid "AtlasTexture:prop:IslandFineTuners"
+msgstr "孤立区域精细调节器"
+
+msgid "IIslandFineTuner:prop:IslandSelector"
+msgstr "孤立区域选择器"
+
+msgid "IIslandFineTuner:prop:SizeOffset"
+msgstr "尺寸偏移量"
+
+msgid "IIslandFineTuner:prop:OffsetValue"
+msgstr "偏移量数值"
+
+msgid "IIslandFineTuner:prop:SizePriority"
+msgstr "尺寸优先级"
+
+msgid "IIslandFineTuner:prop:PriorityValue"
+msgstr "优先级数值"
+
+#  CommonDecal
+
+msgid "CommonDecal:label:RenderersSettings"
+msgstr "网格渲染器设置"
+
+msgid "CommonDecal:prop:UseMaterialFiltering"
+msgstr "使用材质过滤"
+
+msgid "CommonDecal:prop:AutoSelectFilterMaterials"
+msgstr "自动选择过滤材质"
+
+msgid "CommonDecal:prop:IncludingDisableRenderers"
+msgstr "包含已禁用的网格渲染器"
+
+msgid "CommonDecal:prop:TargetRenderer"
+msgstr "目标网格渲染器"
+
+msgid "CommonDecal:prop:TargetRenderer:tooltip"
+msgstr "设置贴花将要应用到的网格渲染器对象。"
+
+msgid "CommonDecal:prop:MultiRendererMode"
+msgstr "多网格渲染器模式"
+
+msgid "CommonDecal:prop:MultiRendererMode:tooltip"
+msgstr "允许跨多个网格渲染器应用贴花的工作模式。"
+
+msgid "CommonDecal:label:TextureSettings"
+msgstr "纹理设置"
+
+msgid "CommonDecal:prop:DecalTexture"
+msgstr "贴花纹理"
+
+msgid "CommonDecal:prop:DecalTexture:tooltip"
+msgstr "指定要应用为贴花的纹理资源。"
+
+msgid "CommonDecal:prop:Color"
+msgstr "颜色混合"
+
+msgid "CommonDecal:prop:Color:tooltip"
+msgstr "应用贴花纹理时的颜色叠加参数。"
+
+msgid "CommonDecal:prop:BlendTypeKey"
+msgstr "混合类型键"
+
+msgid "CommonDecal:prop:BlendTypeKey:tooltip"
+msgstr "指定贴花应用到目标时的颜色混合模式。"
+
+msgid "CommonDecal:prop:TargetPropertyName"
+msgstr "目标属性名称"
+
+msgid "CommonDecal:prop:TargetPropertyName:tooltip"
+msgstr "指定贴花将要应用到的材质属性名称。"
+
+msgid "CommonDecal:label:AdvancedOption"
+msgstr "高级选项"
+
+msgid "CommonDecal:prop:HighQualityPadding"
+msgstr "高质量填充"
+
+msgid "CommonDecal:prop:HighQualityPadding:tooltip"
+msgstr "生成无锯齿边缘的高质量填充(需要较长的处理时间)"
+
+msgid "CommonDecal:prop:Padding"
+msgstr "填充宽度"
+
+msgid "CommonDecal:prop:Padding:tooltip"
+msgstr "设置生成填充区域的宽度参数。"
+
+msgid "CommonDecal:label:GradationSettings"
+msgstr "渐变设置"
+
+msgid "CommonDecal:label:DecalSettings"
+msgstr "贴花设置"
+
+msgid "CommonDecal:prop:IslandSelector"
+msgstr "孤立区域选择器"
+
+#  SimpleDecal
+
+msgid "SimpleDecal:error:TTTNotExecutable"
+msgstr "AtlasTexture 无法执行。"
+
+msgid "SimpleDecal:error:TTTNotExecutable:hint"
+msgstr "请检查目标网格渲染器是否存在。"
+
+msgid "SimpleDecal:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "SimpleDecal:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+msgid "SimpleDecal:label:ScaleSettings"
+msgstr "缩放设置"
+
+msgid "SimpleDecal:prop:Scale"
+msgstr "缩放比例"
+
+msgid "SimpleDecal:prop:Scale:tooltip"
+msgstr "贴花尺寸，X轴为宽度，Y轴为高度"
+
+msgid "SimpleDecal:prop:FixedAspect"
+msgstr "固定宽高比"
+
+msgid "SimpleDecal:prop:FixedAspect:tooltip"
+msgstr "根据纹理比例自动调整贴花高度的设置。"
+
+msgid "SimpleDecal:prop:MaxDistance"
+msgstr "最大距离"
+
+msgid "SimpleDecal:prop:MaxDistance:tooltip"
+msgstr "贴花投射生效的最大距离限制。"
+
+msgid "SimpleDecal:label:CullingSettings"
+msgstr "剔除设置"
+
+msgid "SimpleDecal:prop:PolygonCulling"
+msgstr "多边形剔除"
+
+msgid "SimpleDecal:prop:PolygonCulling:tooltip"
+msgstr "设置多边形剔除的判定条件。"
+
+msgid "SimpleDecal:prop:BackCulling"
+msgstr "背面剔除"
+
+msgid "SimpleDecal:prop:BackCulling:tooltip"
+msgstr "启用时将从贴花视角剔除背面多边形。"
+
+msgid "SimpleDecal:prop:IslandSelector"
+msgstr "独立区域选择"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth"
+msgstr "深度检测"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:UseDepth:tooltip"
+msgstr "设置独立区域选择器的最大作用深度。"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert"
+msgstr "深度反转"
+
+msgid "SimpleDecal:prop:ExperimentalFuture:DepthInvert:tooltip"
+msgstr "将「仅最前景」模式反转为「排除最前景」模式。"
+
+msgid "SimpleDecal:button:RealTimePreview"
+msgstr "实时预览"
+
+msgid "SimpleDecal:button:RealTimePreview:tooltip"
+msgstr "启用实时贴花预览功能(可同时预览多个贴花)。"
+
+msgid "SimpleDecal:button:ExitRealTimePreview"
+msgstr "退出实时预览"
+
+msgid "SimpleDecal:button:AllExit"
+msgstr "全部退出"
+
+msgid "SimpleDecal:button:AllExit:tooltip"
+msgstr "退出所有贴花的实时预览模式。"
+
+msgid "SimpleDecal:info:ScaleInvert"
+msgstr "贴花缩放值已反转！\n可能导致仅在背面显示贴花等异常行为！"
+
+# TexTransGroup
+
+msgid "SimpleDecal:label:DuringPreviewNoSummary"
+msgstr "预览模式暂不支持摘要显示。"
+
+msgid "TexTransGroup:prop:GOEnable"
+msgstr "启用状态"
+
+msgid "TexTransGroup:label:SummaryNone"
+msgstr "无摘要信息"
+
+msgid "TexTransGroup:label:GroupChildren"
+msgstr "子对象群组"
+
+# GradationDecal
+
+msgid "GradationDecal:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "GradationDecal:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+msgid "GradationDecal:prop:Gradient"
+msgstr "渐变曲线"
+
+msgid "GradationDecal:prop:Alpha"
+msgstr "透明度"
+
+msgid "GradationDecal:prop:BlendTypeKey"
+msgstr "混合模式键"
+
+msgid "GradationDecal:prop:TargetPropertyName"
+msgstr "目标属性名称"
+
+msgid "GradationDecal:prop:GradientClamp"
+msgstr "渐变限制"
+
+# SingleGradationDecal
+
+msgid "SingleGradationDecal:prop:SelectedMaterialView"
+msgstr "选中材质视图"
+
+msgid "SingleGradationDecal:prop:GradationLength"
+msgstr "渐变长度"
+
+# DistanceGradationDecal
+
+msgid "DistanceGradationDecal:prop:GradationMinDistance"
+msgstr "渐变最小距离"
+
+msgid "DistanceGradationDecal:prop:GradationMaxDistance"
+msgstr "渐变最大距离"
+
+# TextureBlender
+
+msgid "TextureBlender:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "TextureBlender:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+# TextureConfigurator
+
+msgid "TextureConfigurator:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "TextureConfigurator:error:TargetNotFound"
+msgstr "没有找到目标！"
+
+# MaterialModifier
+
+msgid "MaterialModifier:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "MaterialModifier:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+msgid "MaterialModifier:info:NullShader"
+msgstr "没有找到目标着色器！"
+
+# MaterialOverrideTransfer
+
+msgid "MaterialOverrideTransfer:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "MaterialOverrideTransfer:info:VariantNotSet"
+msgstr "材质变体未设置！"
+
+msgid "MaterialOverrideTransfer:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+# MultiLayerImageCanvas
+
+msgid "MultiLayerImageCanvas:info:TargetNotSet"
+msgstr "目标未设置！"
+
+msgid "MultiLayerImageCanvas:info:TargetNotFound"
+msgstr "没有找到目标！"
+
+# NegotiateAAO
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed"
+msgstr "无法释放 UV，所有 UV 通道已被占用！"
+
+msgid "NegotiateAAO:warn:UVEvacuationFailed:description"
+msgstr "如果不存在问题，请忽略此警告。"
+
+# IslandSelector
+
+msgid "IslandSelector:button:AimStart"
+msgstr "开始定位"
+
+msgid "IslandSelector:button:AimExit"
+msgstr "退出定位"
+
+# AsLayer
+
+msgid "AsLayer:button:AddLayer"
+msgstr "添加 AsLayer 使其成为图层"
+
+# TextureBlender
+
+msgid "TextureBlender:prop:TargetTexture"
+msgstr "目标纹理"
+
+msgid "TextureBlender:prop:BlendTexture"
+msgstr "混合纹理"
+
+msgid "TextureBlender:prop:Color"
+msgstr "颜色"
+
+msgid "TextureBlender:prop:BlendTypeKey"
+msgstr "混合类型键"
+
+# TextureSelector
+
+msgid "TextureSelector:prop:OpenSelector"
+msgstr "打开选择器"
+
+msgid "TextureSelector:prop:SelectTexture"
+msgstr "选择纹理"
+
+msgid "TextureSelector:prop:RendererAsPath"
+msgstr "网格渲染器作为路径"
+
+msgid "TextureSelector:prop:SlotAsPath"
+msgstr "插槽作为路径"
+
+msgid "TextureSelector:prop:PropertyNameAsPath"
+msgstr "属性名作为路径"
+
+msgid "TextureSelector:prop:SelectTexturePreview"
+msgstr "选择纹理预览"

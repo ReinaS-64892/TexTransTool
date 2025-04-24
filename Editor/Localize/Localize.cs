@@ -9,11 +9,13 @@ namespace net.rs64.TexTransTool
     {
         const string JA_GUID = "42db3dbd5755c844984648836a49629f";
         const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
+        const string ZH_HANS_GUID = "b949460256ce95a44b7a4ddee64e5823";
         public static void LoadLocalize()
         {
             LocalizationAssets ??= new();
             LocalizationAssets["ja-JP"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JA_GUID));
             LocalizationAssets["en-US"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
+            LocalizationAssets["zh-Hans"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(ZH_HANS_GUID));
 
             Languages = LocalizationAssets.Keys.ToArray();
         }
