@@ -11,12 +11,24 @@ namespace net.rs64.TexTransTool
         const string EN_GUID = "b6008be0d5fa3d242ba93f9a930df3c3";
         public static void LoadLocalize()
         {
-            LocalizationAssets ??= new();
+            LocalizationAssets = new();
             LocalizationAssets["ja-JP"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(JA_GUID));
             LocalizationAssets["en-US"] = AssetDatabase.LoadAssetAtPath<LocalizationAsset>(AssetDatabase.GUIDToAssetPath(EN_GUID));
 
+            foreach (var exLang in TexTransTool.PublicAPI.TexTransToolExternalLocalize.s_ExternalLocalizationAssets)
+            {
+                if (LocalizationAssets.ContainsKey(exLang.Key)) { continue; }//通常在りえないコードパス
+                LocalizationAssets[exLang.Key] = exLang.Value;
+            }
+
             Languages = LocalizationAssets.Keys.ToArray();
         }
+        [TexTransCoreEngineForUnity.TexTransInitialize]
+        public static void ListenExternalLocalizeAdded()
+        {
+            TexTransTool.PublicAPI.TexTransToolExternalLocalize.s_OnAddLocalization = LoadLocalize;
+        }
+
         internal static Dictionary<string, LocalizationAsset> LocalizationAssets = null;
         internal static string[] Languages = null;
 
