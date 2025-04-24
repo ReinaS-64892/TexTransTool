@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture がアトラス化するとき、大幅に重なったアイランドが、結合可能なときは結合されて扱われるようになりました (#900)
 - AtlasTexture TextureFineTuning の MipMapRemove は廃止され、 MiMap が追加されました (#900)
 - AtlasTexture MargeMaterialGroup が stable としてマークされました (#900)
+- TexTransTool に 日本語と英語 以外の言語を追加できる API が追加されました (#959)
 
 ### Changed
 
