@@ -393,9 +393,6 @@ msgstr "IslandSelector"
 msgid "IIslandFineTuner:prop:SizeOffset"
 msgstr "SizeOffset"
 
-msgid "IIslandFineTuner:prop:SizeOffset"
-msgstr "SizeOffset"
-
 msgid "IIslandFineTuner:prop:OffsetValue"
 msgstr "OffsetValue"
 
