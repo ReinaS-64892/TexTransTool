@@ -36,7 +36,7 @@ jobs:
         run: |
           rm -r ./.git
           rm -r ./.github
-          rm -r ./DependentUtil
+          rm -r ./DependentUpdater~
 
       - name: CreateZip
         run: |
