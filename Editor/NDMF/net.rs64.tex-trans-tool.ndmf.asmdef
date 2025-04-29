@@ -51,6 +51,11 @@
     },
     {
       "name": "nadena.dev.ndmf",
+      "expression": "1.7.0",
+      "define": "NDMF_1_7_0_OR_NEWER"
+    },
+    {
+      "name": "nadena.dev.ndmf",
       "expression": "1.8.0-alpha.0",
       "define": "NDMF_1_8_0_OR_NEWER"
     }

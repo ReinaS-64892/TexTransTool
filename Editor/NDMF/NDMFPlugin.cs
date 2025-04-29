@@ -1,8 +1,12 @@
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.NDMF;
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using nadena.dev.ndmf.preview;
+#if NDMF_1_7_0_OR_NEWER              
+using nadena.dev.ndmf.animator;
+#endif
 #if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
 #endif
@@ -30,28 +34,44 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
             .BeforePlugin("MantisLODEditor.ndmf")
-#if CONTAINS_AAO
-            .Run(NegotiateAAOPass.Instance).Then
+            .WithRequiredExtensions(new Type[]
+            {
+#if NDMF_1_7_0_OR_NEWER              
+                typeof(AnimatorServicesContext)
 #endif
-
-            .Run(MaterialModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.MaterialModification)).Then
-            .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
-            .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
-            .Run(AfterUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.AfterUVModification)).Then
-            .Run(PostProcessingPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.PostProcessing)).Then
-            .Run(UnDefinedPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UnDefined));
+            }, sequence =>
+            {
+                sequence
+#if CONTAINS_AAO
+                .Run(NegotiateAAOPass.Instance).Then
+#endif
+                .Run(MaterialModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.MaterialModification)).Then
+                .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
+                .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
+                .Run(AfterUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.AfterUVModification)).Then
+                .Run(PostProcessingPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.PostProcessing)).Then
+                .Run(UnDefinedPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UnDefined));
+            });
 
 
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
             .BeforePlugin("MantisLODEditor.ndmf")
+            .WithRequiredExtensions(new Type[]
+            {
+#if NDMF_1_7_0_OR_NEWER              
+                typeof(AnimatorServicesContext)
+#endif
+            }, sequence =>
+            {
+                sequence
+                .Run(ReFindRenderersPass.Instance).Then
 
-            .Run(ReFindRenderersPass.Instance).Then
+                .Run(OptimizingPass.Instance).Then
+                .Run(TTTSessionEndPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.Optimizing), new EverythingUnlitTexture(), new PreviewIslandSelector()).Then
 
-            .Run(OptimizingPass.Instance).Then
-            .Run(TTTSessionEndPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.Optimizing), new EverythingUnlitTexture(), new PreviewIslandSelector()).Then
-
-            .Run(TTTComponentPurgePass.Instance);
+                .Run(TTTComponentPurgePass.Instance);
+            });
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
             { TexTransPhase.MaterialModification,  TogglablePreviewNode.Create(() => "MaterialModification-Phase", "MaterialModification", true) },

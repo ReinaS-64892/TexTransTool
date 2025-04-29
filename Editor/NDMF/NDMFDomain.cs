@@ -1,4 +1,7 @@
 using nadena.dev.ndmf;
+#if NDMF_1_7_0_OR_NEWER              
+using nadena.dev.ndmf.animator;
+#endif
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +12,10 @@ namespace net.rs64.TexTransTool.NDMF
 {
     internal class NDMFDomain : AvatarDomain
     {
+
+#if NDMF_1_7_0_OR_NEWER
+        private readonly AnimatorServicesContext _animatorServicesContext;
+#endif
         private class NDMFAssetSaver : IAssetSaver
         {
             private readonly BuildContext _buildContext;
@@ -38,8 +45,18 @@ namespace net.rs64.TexTransTool.NDMF
             }
         }
 
-        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b)) { }
-        public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u) { }
+        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b))
+        {
+#if NDMF_1_7_0_OR_NEWER
+            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+#endif
+        }
+        public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u) 
+        {
+#if NDMF_1_7_0_OR_NEWER
+            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+#endif
+        }
 
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
