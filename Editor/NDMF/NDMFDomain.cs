@@ -3,6 +3,8 @@ using nadena.dev.ndmf;
 using nadena.dev.ndmf.animator;
 #endif
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -58,6 +60,18 @@ namespace net.rs64.TexTransTool.NDMF
 #endif
         }
 
+#if NDMF_1_7_0_OR_NEWER
+        public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
+        {
+            base.ReplaceMaterials(mapping);
+            _animatorServicesContext.AnimationIndex.RewriteObjectCurves(obj => {
+                if (obj is Material oldMat && mapping.TryGetValue(oldMat, out var newMat)) {
+                    return newMat;
+                }
+                return obj;
+            });
+        }
+#endif
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
             if (_genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
