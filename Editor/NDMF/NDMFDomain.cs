@@ -12,7 +12,7 @@ using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class NDMFDomain : AvatarDomain
+    internal class NDMFDomain : AvatarDomain, IRendererTargeting
     {
 
 #if NDMF_1_7_0_OR_NEWER
@@ -61,6 +61,19 @@ namespace net.rs64.TexTransTool.NDMF
         }
 
 #if NDMF_1_7_0_OR_NEWER
+        public HashSet<Material> GetAllMaterials()
+        {
+            var matHash = new HashSet<Material>();
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
+            
+            var animatedMaterials = _animatorServicesContext.AnimationIndex
+                .GetPPtrReferencedObjects
+                .OfType<Material>();
+            matHash.UnionWith(animatedMaterials);
+            return matHash;
+
+            Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
+        }
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
         {
             base.ReplaceMaterials(mapping);
