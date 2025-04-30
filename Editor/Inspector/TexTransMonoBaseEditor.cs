@@ -29,9 +29,13 @@ namespace net.rs64.TexTransTool.Editor
         {
             base.OnInspectorGUI();
         }
+        static TTTProjectConfig s_projectConfig;
         public static void DrawerWarning(TexTransMonoBase ttMonoBase)
         {
             if (ttMonoBase is ITexTransToolStableComponent) { return; }
+
+            s_projectConfig ??= TTTProjectConfig.instance;
+            if (s_projectConfig.DisplayExperimentalWarning is false) { return; }
 
             var typeName = ttMonoBase.GetType().Name;
             EditorGUILayout.HelpBox(typeName + " " + "Common:ExperimentalWarning".GetLocalize(), MessageType.Warning);

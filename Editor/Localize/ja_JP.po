@@ -25,6 +25,11 @@ msgstr "AffectVRAMIconを表示"
 msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage"
 msgstr "AffectVRAMIconはVRAM を減らすまたは増やしうる設定項目に対して、表示されるアイコンです。非表示にしますか？"
 
+msgid "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning"
+msgstr "実験的な機能に対する警告を表示"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning:DisableWarningMessage"
+msgstr "実験的な機能は通常の機能と取り扱いが異なります。実験的な機能に対する警告を非表示にしますか？"
 
 msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
 msgstr "TexTransCoreEngine バックエンド"

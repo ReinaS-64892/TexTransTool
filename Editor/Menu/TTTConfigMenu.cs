@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
                         (int)projectSettings.InternalRenderTextureFormat,
                         GetInternalRenderTextureFormatOption()
                     );
-
+                
                 var displayVRAMIcon = EditorGUILayout.Toggle(
                         "TTTMenu:TTTConfigMenu:DisplayVRAMIcon".Glc(),
                         projectSettings.DisplayVRAMIcon
@@ -59,6 +59,30 @@ namespace net.rs64.TexTransTool
                     }
                 }
 
+                var displayExperimentalWarning = EditorGUILayout.Toggle(
+                        "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning".Glc(),
+                        projectSettings.DisplayExperimentalWarning
+                    );
+                if (projectSettings.DisplayExperimentalWarning != displayExperimentalWarning)
+                {
+                    if (displayExperimentalWarning)
+                    {
+                        projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
+                    else
+                    {
+                        if (EditorUtility.DisplayDialog(
+                            "Warning",
+                            "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning:DisableWarningMessage".GetLocalize(),
+                            "OK", "Cancel"
+                        ))
+                        {
+                            projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
+                            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                        }
+                    }
+                }
 
                 EditorGUILayout.LabelField("Experimental");
                 using (new EditorGUI.IndentLevelScope(1))
