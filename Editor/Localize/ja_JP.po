@@ -19,6 +19,13 @@ msgstr "Half : 16bit - 符号あり浮動小数点"
 msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Float"
 msgstr "Float : 32bit - 符号あり浮動小数点"
 
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon"
+msgstr "AffectVRAMIconを表示"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage"
+msgstr "AffectVRAMIconはVRAM を減らすまたは増やしうる設定項目に対して、表示されるアイコンです。非表示にしますか？"
+
+
 msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
 msgstr "TexTransCoreEngine バックエンド"
 

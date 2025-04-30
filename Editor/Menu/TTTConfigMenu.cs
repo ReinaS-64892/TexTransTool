@@ -33,6 +33,32 @@ namespace net.rs64.TexTransTool
                         GetInternalRenderTextureFormatOption()
                     );
 
+                var displayVRAMIcon = EditorGUILayout.Toggle(
+                        "TTTMenu:TTTConfigMenu:DisplayVRAMIcon".Glc(),
+                        projectSettings.DisplayVRAMIcon
+                    );
+                if (projectSettings.DisplayVRAMIcon != displayVRAMIcon)
+                {
+                    if (displayVRAMIcon)
+                    {
+                        projectSettings.DisplayVRAMIcon = displayVRAMIcon;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
+                    else
+                    {
+                        if (EditorUtility.DisplayDialog(
+                            "Warning",
+                            "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage".GetLocalize(),
+                            "OK", "Cancel"
+                        ))
+                        {
+                            projectSettings.DisplayVRAMIcon = displayVRAMIcon;
+                            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                        }
+
+                    }
+                }
+
 
                 EditorGUILayout.LabelField("Experimental");
                 using (new EditorGUI.IndentLevelScope(1))

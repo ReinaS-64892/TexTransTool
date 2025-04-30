@@ -34,6 +34,7 @@ namespace net.rs64.TexTransTool
 
 
         static TTTGlobalConfig s_config;
+        static TTTProjectConfig s_projectConfig;
         public static string GetLocalize(this string str)
         {
             s_config ??= TTTGlobalConfig.instance;
@@ -48,8 +49,10 @@ namespace net.rs64.TexTransTool
         }
         public static GUIContent GlcV(this string str)
         {
+            s_projectConfig ??= TTTProjectConfig.instance;
+
             var c = str.Glc();
-            c.image = TTTImageAssets.VramICon;
+            if (s_projectConfig.DisplayVRAMIcon) c.image = TTTImageAssets.VramICon;
             return c;
         }
 

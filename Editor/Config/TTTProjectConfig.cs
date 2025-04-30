@@ -40,6 +40,19 @@ namespace net.rs64.TexTransTool
             }
         }
 
+        [SerializeField] bool displayVRAMIcon = true;
+        public bool DisplayVRAMIcon
+        {
+            get => displayVRAMIcon;
+            set
+            {
+                if (displayVRAMIcon == value) { return; }
+                displayVRAMIcon = value;
+                Save();
+            }
+        }
+
+
         private void Save()
         {
             Save(true);

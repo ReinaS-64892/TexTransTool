@@ -19,6 +19,13 @@ msgstr "Half : 16bit - signed floating point"
 msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Float"
 msgstr "Float : 32bit - signed floating point"
 
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon"
+msgstr "Display AffectVRAMIcon"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage"
+msgstr "AffectVRAMIcon is displayed for settings that may increase or decrease VRAM. Do you want to hide it?"
+
+
 msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
 msgstr "TexTransCoreEngine Backend"
 
