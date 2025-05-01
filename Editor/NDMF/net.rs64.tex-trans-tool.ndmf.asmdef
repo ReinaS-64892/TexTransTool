@@ -36,18 +36,8 @@
     },
     {
       "name": "nadena.dev.ndmf",
-      "expression": "1.5.0",
+      "expression": "1.7.0",
       "define": "CONTAINS_NDMF"
-    },
-    {
-      "name": "nadena.dev.ndmf",
-      "expression": "1.6.0",
-      "define": "NDMF_1_6_0_OR_NEWER"
-    },
-    {
-      "name": "nadena.dev.ndmf",
-      "expression": "1.6.8",
-      "define": "NDMF_1_6_8_OR_NEWER"
     },
     {
       "name": "nadena.dev.ndmf",

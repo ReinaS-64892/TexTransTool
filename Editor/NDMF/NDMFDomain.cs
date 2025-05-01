@@ -1,5 +1,9 @@
+#nullable enable
 using nadena.dev.ndmf;
+using nadena.dev.ndmf.animator;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -7,8 +11,9 @@ using Object = UnityEngine.Object;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class NDMFDomain : AvatarDomain
+    internal class NDMFDomain : AvatarDomain, IRendererTargeting
     {
+        private readonly AnimatorServicesContext _animatorServicesContext;
         private class NDMFAssetSaver : IAssetSaver
         {
             private readonly BuildContext _buildContext;
@@ -21,26 +26,46 @@ namespace net.rs64.TexTransTool.NDMF
             public void TransferAsset(Object asset)
             {
                 if (asset == null || AssetDatabase.Contains(asset)) return;
-
-#if NDMF_1_6_0_OR_NEWER
                 _buildContext.AssetSaver.SaveAsset(asset);
-#else
-                AssetDatabase.AddObjectToAsset(asset, _buildContext.AssetContainer);
-#endif
             }
             public bool IsTemporaryAsset(UnityEngine.Object asset)
             {
-#if NDMF_1_6_0_OR_NEWER
                 return _buildContext.AssetSaver.IsTemporaryAsset(asset);
-#else
-                return _buildContext.IsTemporaryAsset(asset);
-#endif
             }
         }
 
-        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b)) { }
-        public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u) { }
+        public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b))
+        {
+            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+        }
+        public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u)
+        {
+            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+        }
 
+        public HashSet<Material> GetAllMaterials()
+        {
+            var matHash = new HashSet<Material>();
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
+
+            var animatedMaterials = _animatorServicesContext.AnimationIndex
+                .GetPPtrReferencedObjects
+                .OfType<Material>();
+            matHash.UnionWith(animatedMaterials);
+            return matHash;
+
+            Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
+        }
+        public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
+        {
+            base.ReplaceMaterials(mapping);
+            _animatorServicesContext.AnimationIndex.RewriteObjectCurves(obj => {
+                if (obj is Material oldMat && mapping.TryGetValue(oldMat, out var newMat)) {
+                    return newMat;
+                }
+                return obj;
+            });
+        }
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {
             if (_genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
@@ -48,7 +73,7 @@ namespace net.rs64.TexTransTool.NDMF
             base.RegisterReplace(oldObject, nowObject);
             if (oldObject is not RenderTexture && nowObject is not RenderTexture) ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
-        public override bool OriginEqual(Object l, Object r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
+        public override bool OriginEqual(Object? l, Object? r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
 
         public override bool IsActive(GameObject gameObject)
         {

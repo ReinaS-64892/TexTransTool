@@ -23,7 +23,6 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 case PreviewGroup:
                     { return; }
-#if NDMF_1_6_8_OR_NEWER
                 case AbstractIslandSelector islandSelector:
                     {
                         if (PreviewIslandSelector.PreviewTarget.Value != islandSelector)
@@ -38,7 +37,6 @@ namespace net.rs64.TexTransTool.NDMF
                         }
                         return;
                     }
-#endif
                 case TexTransBehavior ttb:
                     {
                         var phase = ttb.PhaseDefine;
