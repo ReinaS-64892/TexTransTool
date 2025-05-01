@@ -7,13 +7,18 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-
+#if CONTAINS_MA
+using net.rs64.TexTransTool.NDMF.MA;
+#endif
 
 namespace net.rs64.TexTransTool.NDMF
 {
     internal class NDMFDomain : AvatarDomain, IRendererTargeting
     {
         private readonly AnimatorServicesContext _animatorServicesContext;
+#if CONTAINS_MA
+        private readonly NegotiateMAContext _negotiateMAContext;
+#endif
         private class NDMFAssetSaver : IAssetSaver
         {
             private readonly BuildContext _buildContext;
@@ -37,10 +42,16 @@ namespace net.rs64.TexTransTool.NDMF
         public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b))
         {
             _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+#if CONTAINS_MA
+            _negotiateMAContext = b.Extension<NegotiateMAContext>();
+#endif
         }
         public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u)
         {
             _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+#if CONTAINS_MA
+            _negotiateMAContext = b.Extension<NegotiateMAContext>();
+#endif
         }
 
         public HashSet<Material> GetAllMaterials()
@@ -52,6 +63,13 @@ namespace net.rs64.TexTransTool.NDMF
                 .GetPPtrReferencedObjects
                 .OfType<Material>();
             matHash.UnionWith(animatedMaterials);
+#if CONTAINS_MA
+            if (_negotiateMAContext.IsActive)
+            {
+                var maMaterials = _negotiateMAContext.ReferencedMaterials;
+                matHash.UnionWith(maMaterials);
+            }
+#endif
             return matHash;
 
             Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
@@ -65,6 +83,12 @@ namespace net.rs64.TexTransTool.NDMF
                 }
                 return obj;
             });
+#if CONTAINS_MA
+            if (_negotiateMAContext.IsActive)
+            {
+                _negotiateMAContext.ReplaceReferencedMaterials(mapping);
+            }
+#endif
         }
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {

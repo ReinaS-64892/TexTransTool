@@ -8,6 +8,9 @@ using nadena.dev.ndmf.animator;
 #if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
 #endif
+#if CONTAINS_MA
+using net.rs64.TexTransTool.NDMF.MA;
+#endif
 
 [assembly: ExportsPlugin(typeof(NDMFPlugin))]
 
@@ -32,7 +35,13 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
             .BeforePlugin("MantisLODEditor.ndmf")
-            .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
+            .WithRequiredExtensions(new Type[]
+            {
+                typeof(AnimatorServicesContext)
+#if CONTAINS_MA
+                , typeof(NegotiateMAContext)
+#endif
+            }, sequence =>
             {
                 sequence
 #if CONTAINS_AAO
