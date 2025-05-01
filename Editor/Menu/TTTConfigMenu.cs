@@ -33,6 +33,56 @@ namespace net.rs64.TexTransTool
                         GetInternalRenderTextureFormatOption()
                     );
 
+                var displayVRAMIcon = EditorGUILayout.Toggle(
+                        "TTTMenu:TTTConfigMenu:DisplayVRAMIcon".Glc(),
+                        projectSettings.DisplayVRAMIcon
+                    );
+                if (projectSettings.DisplayVRAMIcon != displayVRAMIcon)
+                {
+                    if (displayVRAMIcon is false)
+                    {
+                        if (EditorUtility.DisplayDialog(
+                            "Warning",
+                            "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage".GetLocalize(),
+                            "OK", "Cancel"
+                        ))
+                        {
+                            projectSettings.DisplayVRAMIcon = displayVRAMIcon;
+                            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                        }
+
+                    }
+                    else
+                    {
+                        projectSettings.DisplayVRAMIcon = displayVRAMIcon;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
+                }
+
+                var displayExperimentalWarning = EditorGUILayout.Toggle(
+                        "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning".Glc(),
+                        projectSettings.DisplayExperimentalWarning
+                    );
+                if (projectSettings.DisplayExperimentalWarning != displayExperimentalWarning)
+                {
+                    if (displayExperimentalWarning is false)
+                    {
+                        if (EditorUtility.DisplayDialog(
+                            "Warning",
+                            "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning:DisableWarningMessage".GetLocalize(),
+                            "OK", "Cancel"
+                        ))
+                        {
+                            projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
+                            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                        }
+                    }
+                    else
+                    {
+                        projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
+                }
 
                 EditorGUILayout.LabelField("Experimental");
                 using (new EditorGUI.IndentLevelScope(1))

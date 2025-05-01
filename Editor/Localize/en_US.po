@@ -19,6 +19,18 @@ msgstr "Half : 16bit - signed floating point"
 msgid "TTTMenu:TTTConfigMenu:InternalRenderTextureFormat:Float"
 msgstr "Float : 32bit - signed floating point"
 
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon"
+msgstr "Display AffectVRAMIcon"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayVRAMIcon:DisableWarningMessage"
+msgstr "AffectVRAMIcon is displayed for settings that may increase or decrease VRAM. Do you want to hide it?"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning"
+msgstr "Display warnings for experimental features"
+
+msgid "TTTMenu:TTTConfigMenu:DisplayExperimentalWarning:DisableWarningMessage"
+msgstr "Experimental features are handled differently from normal features. Do you want to hide warnings for experimental features?"
+
 msgid "TTTMenu:TTTConfigMenu:TexTransCoreEngineBackend"
 msgstr "TexTransCoreEngine Backend"
 
