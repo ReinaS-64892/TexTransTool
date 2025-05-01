@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture TextureFineTuning の MipMapRemove は廃止され、 MiMap が追加されました (#900)
 - AtlasTexture MargeMaterialGroup が stable としてマークされました (#900)
 - TexTransTool に 日本語と英語 以外の言語を追加できる API が追加されました (#959)
+- TexTransTool が NDMF によるビルドの場合に Animation によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#962)
 
 ### Changed
 
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TexTransTool の Project に対する設定 (例えば言語設定など) が `Tools/TexTransTool/Menu` から開くことが可能な Window に移動しました (#932)
 - TexTransGroup の削除に伴い、PhaseDefine 配下にないコンポーネントは上から順にフェーズごとに実行される、TexTransGroup が存在するときと同様の実行順になるように変更されました (#941)
 - NormalMap は TTT の内部では常に RG で扱われるようになりました (#943)
+- NDMF の対応バージョンが v1.7.0 以上に変更 (#962)
 
 ### Removed
 
