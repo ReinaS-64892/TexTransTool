@@ -32,19 +32,14 @@ namespace net.rs64.TexTransTool
                         (int)projectSettings.InternalRenderTextureFormat,
                         GetInternalRenderTextureFormatOption()
                     );
-                
+
                 var displayVRAMIcon = EditorGUILayout.Toggle(
                         "TTTMenu:TTTConfigMenu:DisplayVRAMIcon".Glc(),
                         projectSettings.DisplayVRAMIcon
                     );
                 if (projectSettings.DisplayVRAMIcon != displayVRAMIcon)
                 {
-                    if (displayVRAMIcon)
-                    {
-                        projectSettings.DisplayVRAMIcon = displayVRAMIcon;
-                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-                    }
-                    else
+                    if (displayVRAMIcon is false)
                     {
                         if (EditorUtility.DisplayDialog(
                             "Warning",
@@ -57,6 +52,11 @@ namespace net.rs64.TexTransTool
                         }
 
                     }
+                    else
+                    {
+                        projectSettings.DisplayVRAMIcon = displayVRAMIcon;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
                 }
 
                 var displayExperimentalWarning = EditorGUILayout.Toggle(
@@ -65,12 +65,7 @@ namespace net.rs64.TexTransTool
                     );
                 if (projectSettings.DisplayExperimentalWarning != displayExperimentalWarning)
                 {
-                    if (displayExperimentalWarning)
-                    {
-                        projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
-                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-                    }
-                    else
+                    if (displayExperimentalWarning is false)
                     {
                         if (EditorUtility.DisplayDialog(
                             "Warning",
@@ -81,6 +76,11 @@ namespace net.rs64.TexTransTool
                             projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
                             UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
                         }
+                    }
+                    else
+                    {
+                        projectSettings.DisplayExperimentalWarning = displayExperimentalWarning;
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
                     }
                 }
 
