@@ -4,9 +4,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using nadena.dev.ndmf.preview;
-#if NDMF_1_7_0_OR_NEWER              
 using nadena.dev.ndmf.animator;
-#endif
 #if CONTAINS_AAO
 using net.rs64.TexTransTool.NDMF.AAO;
 #endif
@@ -16,9 +14,9 @@ using net.rs64.TexTransTool.NDMF.AAO;
 namespace net.rs64.TexTransTool.NDMF
 {
 
-    #if NDMF_1_8_0_OR_NEWER
+#if NDMF_1_8_0_OR_NEWER
     [RunsOnAllPlatforms]
-    #endif
+#endif
     internal class NDMFPlugin : Plugin<NDMFPlugin>
     {
         public override string QualifiedName => "net.rs64.tex-trans-tool";
@@ -34,12 +32,7 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
             .BeforePlugin("MantisLODEditor.ndmf")
-            .WithRequiredExtensions(new Type[]
-            {
-#if NDMF_1_7_0_OR_NEWER              
-                typeof(AnimatorServicesContext)
-#endif
-            }, sequence =>
+            .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
             {
                 sequence
 #if CONTAINS_AAO
@@ -57,12 +50,7 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
             .BeforePlugin("MantisLODEditor.ndmf")
-            .WithRequiredExtensions(new Type[]
-            {
-#if NDMF_1_7_0_OR_NEWER              
-                typeof(AnimatorServicesContext)
-#endif
-            }, sequence =>
+            .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
             {
                 sequence
                 .Run(ReFindRenderersPass.Instance).Then
