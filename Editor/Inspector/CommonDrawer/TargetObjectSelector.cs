@@ -63,7 +63,9 @@ namespace net.rs64.TexTransTool.Editor
             rect.width = imgSize;
             rect.x = initX;
             rect.y += 18f;
-            EditorGUI.DrawPreviewTexture(rect, AssetPreview.GetAssetPreview(referenceObject), null, ScaleMode.ScaleToFit);
+            
+            var previewTex = AssetPreview.GetAssetPreview(referenceObject);
+            if (previewTex != null) EditorGUI.DrawPreviewTexture(rect, previewTex, null, ScaleMode.ScaleToFit);
         }
 
         internal static IEnumerable<IEnumerable<T?>> EnumPair<T>(IEnumerable<T> values, int count)
