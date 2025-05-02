@@ -1,19 +1,16 @@
 #nullable enable
 using nadena.dev.ndmf;
-using nadena.dev.ndmf.animator;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-
+using net.rs64.TexTransTool.NDMF.AdditionalMaterials;
 
 namespace net.rs64.TexTransTool.NDMF
 {
     internal class NDMFDomain : AvatarDomain, IRendererTargeting
     {
-        private readonly AnimatorServicesContext _animatorServicesContext;
         private class NDMFAssetSaver : IAssetSaver
         {
             private readonly BuildContext _buildContext;
@@ -34,24 +31,21 @@ namespace net.rs64.TexTransTool.NDMF
             }
         }
 
+        private readonly AdditionalMaterialsProvider _additionalMaterialsProvider;
         public NDMFDomain(BuildContext b) : base(b.AvatarRootObject, new NDMFAssetSaver(b))
         {
-            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+            _additionalMaterialsProvider = new AdditionalMaterialsProvider(b);
         }
         public NDMFDomain(BuildContext b, ITexTransUnityDiskUtil diskUtil, ITexTransToolForUnity ttt4u) : base(b.AvatarRootObject, new NDMFAssetSaver(b), diskUtil, ttt4u)
         {
-            _animatorServicesContext = b.Extension<AnimatorServicesContext>();
+            _additionalMaterialsProvider = new AdditionalMaterialsProvider(b);
         }
 
         public HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
             foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
-
-            var animatedMaterials = _animatorServicesContext.AnimationIndex
-                .GetPPtrReferencedObjects
-                .OfType<Material>();
-            matHash.UnionWith(animatedMaterials);
+            matHash.UnionWith(_additionalMaterialsProvider.GetReferencedMaterials());
             return matHash;
 
             Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
@@ -59,12 +53,7 @@ namespace net.rs64.TexTransTool.NDMF
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
         {
             base.ReplaceMaterials(mapping);
-            _animatorServicesContext.AnimationIndex.RewriteObjectCurves(obj => {
-                if (obj is Material oldMat && mapping.TryGetValue(oldMat, out var newMat)) {
-                    return newMat;
-                }
-                return obj;
-            });
+            _additionalMaterialsProvider.ReplaceReferencedMaterials(mapping);
         }
         public override void RegisterReplace(Object oldObject, Object nowObject)
         {

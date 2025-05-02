@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("io.github.azukimochi.light-limit-changer")
             .BeforePlugin("net.narazaka.vrchat.floor_adjuster")
             .BeforePlugin("MantisLODEditor.ndmf")
-            .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
+            .WithRequiredExtensions(new Type[] {typeof(AnimatorServicesContext)}, sequence =>
             {
                 sequence
 #if CONTAINS_AAO

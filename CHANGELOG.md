@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TexTransTool に 日本語と英語 以外の言語を追加できる API が追加されました (#959)
 - TexTransTool が NDMF によるビルドの場合に Animation によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#962)
 - インスペクターから 実験的機能の警告 や VRAMに影響を与えることを示すIcon などの表示を非表示にできる設定が追加されました(非表示にできるだけであり、実態には何ら影響しません) (#963)
+- TexTransTool が NDMF によるビルドの場合に MA MaterialSetter によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#965)
 
 ### Changed
 
