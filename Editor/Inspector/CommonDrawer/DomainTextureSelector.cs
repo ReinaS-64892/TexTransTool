@@ -9,7 +9,9 @@ namespace net.rs64.TexTransTool.Editor
 {
     internal class DomainTextureSelector : EditorWindow
     {
-        [SerializeField] StyleSheet styleSheet;
+        private const string UIAssetsRoot = "Packages/net.rs64.tex-trans-tool/Editor/Inspector/UIAssets/";
+        private const string UssPath = UIAssetsRoot + "DomainTextureSelector.uss";
+
         public static void OpenSelector(SerializedProperty textureProperty, Component component)
         {
             var window = GetWindow<DomainTextureSelector>();
@@ -21,13 +23,14 @@ namespace net.rs64.TexTransTool.Editor
         private void initialize(SerializedProperty textureProperty, Component component)
         {
             rootVisualElement.Clear();
-
+            
             TextureProperty = textureProperty;
             var domainObject = DomainMarkerFinder.FindMarker(component.gameObject);
             DomainContainsTextures = domainObject.GetComponentsInChildren<Renderer>(true)
             .SelectMany(i => i.sharedMaterials).SelectMany(i => i.GetAllTexture2DWithDictionary()).GroupBy(i => i.Key).ToDictionary(i => i.Key, i => i.Select(k => k.Value).Distinct().ToList());
 
-            rootVisualElement.styleSheets.Add(styleSheet);
+            var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(UssPath);
+            rootVisualElement.styleSheets.Add(uss);
 
             var button = new Button(Close);
             button.text = "Close";
