@@ -9,8 +9,7 @@ namespace net.rs64.TexTransTool.Editor
 {
     internal class DomainTextureSelector : EditorWindow
     {
-        private const string UIAssetsRoot = "Packages/net.rs64.tex-trans-tool/Editor/Inspector/UIAssets/";
-        private const string UssPath = UIAssetsRoot + "DomainTextureSelector.uss";
+        private const string USS_GUID = "bd819220d0758ca49b2e09633e5a778c";
 
         public static void OpenSelector(SerializedProperty textureProperty, Component component)
         {
@@ -29,7 +28,7 @@ namespace net.rs64.TexTransTool.Editor
             DomainContainsTextures = domainObject.GetComponentsInChildren<Renderer>(true)
             .SelectMany(i => i.sharedMaterials).SelectMany(i => i.GetAllTexture2DWithDictionary()).GroupBy(i => i.Key).ToDictionary(i => i.Key, i => i.Select(k => k.Value).Distinct().ToList());
 
-            var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(UssPath);
+            var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath(USS_GUID));
             rootVisualElement.styleSheets.Add(uss);
 
             var button = new Button(Close);
