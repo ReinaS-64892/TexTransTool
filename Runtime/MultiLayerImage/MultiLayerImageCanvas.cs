@@ -33,9 +33,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.GetAllTexture<Texture>().Any(nowDomainsTargets.Contains)).ToHashSet();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
-            var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
+            var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.height);
             if (domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false)
-                canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh);
+            {
+                canvasWidth = Mathf.Min(1024, canvasWidth);
+                canvasHeigh = Mathf.Min(1024, canvasHeigh);
+            }
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
