@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu(TTTName + "/" + MenuPath)]
-    public sealed partial class AtlasTexture : TexTransRuntimeBehavior , ITexTransToolStableComponent
+    public sealed partial class AtlasTexture : TexTransRuntimeBehavior, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT AtlasTexture";
         internal const string MenuPath = ComponentName;
@@ -312,7 +312,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 else
                 {
                     if (mergeRef2MergedMaterial.ContainsKey(referenceMaterial) is false)
-                    { domainsMaterial2ReplaceMaterial[referenceMaterial] = mergeRef2MergedMaterial[referenceMaterial] = GenerateAtlasMat(referenceMaterial, tex, atlasMatOption); }
+                    {
+                        domainsMaterial2ReplaceMaterial[referenceMaterial]
+                            = mergeRef2MergedMaterial[referenceMaterial]
+                            = GenerateAtlasMat(referenceMaterial, tex, atlasMatOption);
+                    }
                     materialMap.Add(distMat, mergeRef2MergedMaterial[referenceMaterial]);
                 }
             }
