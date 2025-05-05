@@ -24,7 +24,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - AtlasShaderSupport は削除されました (#900)
 - AtlasTexture WriteOriginalUV と OriginalUVWriteTargetChannel は削除されました (#900)
-- AtlasTexture MergeMaterialGroup は削除されました (#900)
 
 ### Fixed
 
