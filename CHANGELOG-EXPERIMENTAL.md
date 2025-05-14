@@ -6,13 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.3...HEAD)
 
-## [v0.9.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...v0.9.3) - 2025-03-11
+### Added
+
+- AtlasTexture に アトラス化対象のテクスチャの最大サイズを割り当てる AutoTextureSizeSetting が追加されました (#900)
+- AtlasShaderSupport の代わりに ITTShaderTextureUsageInformation が追加されました (#900)
+- MaterialModifier が RenderQueue をオーバーライドできるようになりました (#922)
+- TTT UVCopy という UV をコピーすることが可能なコンポーネントが追加されました (#926)
+- TTCE-Wgpu がプロジェクトに存在する時に TTT の ConfigMenu から Backend として Wgpu を選択することが可能になりました (#934)
+- IslandSelector や AtlasTexture のターゲティングに IsActiveInheritBreaker が干渉できるようになりました (#945)
+
+### Changed
+
+- AtlasTexture の持つ実験的機能のほぼすべてが AtlasTextureExperimentalFeature に移動しました (#900)
+- SimplDecal の持つ実験的機能のすべてが SimpleDecalExperimentalFeature に移動しました (#924)
+
+### Removed
+
+- AtlasShaderSupport は削除されました (#900)
+- AtlasTexture WriteOriginalUV と OriginalUVWriteTargetChannel は削除されました (#900)
+
+### Fixed
+
+- MaterialModifier の Utility などで Shader の変更が加味されていなかった問題が修正されました (#921)
 
 ## [v0.9.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.1...v0.9.2) - 2025-03-03
 
 ### Fixed
 
 - PSD のビルドや Preview の生成時にメモリリークが発生していた問題を修正 (#887)
+
+## [v0.9.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...v0.9.3) - 2025-03-11
 
 ## [v0.9.1](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.0...v0.9.1) - 2025-03-02
 
@@ -27,6 +50,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 実験的な機能として、HLSLで特定の関数を記述し `.ttblend` にすることで ScriptedImporter 経由で 合成モードの追加が可能になりました (#676)
 - クリスタの `色相・彩度・明度` 色調調整レイヤーを再現する HSVAdjustmentLayer が追加されました(#678)
 - PSD の ImportMode が ClipStudioPaint に自動決定またはオーバライドされていた場合 HSLAdjustmentLayer が HSVAdjustmentLayer としてインポートされるようになりました (#678)
+- ~~テクスチャやマテリアルの範囲を切り分けることができる~~ DomainDefinition が追加されました (#694 #802)
+- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#694)
 - TTT PSD Importer はインポートのタイミングでプレビューを生成せず、必要になったタイミングで生成するようなりインポート自体の速度は大幅に高速化しました。(#727)
 - PSD からインポートされたレイヤーは ComputeShader で解凍されるようになり、プレビューの生成やビルドが高速化しました (#727)
 - TTCE-Wgpu が プロジェクトに存在した場合、PSD からインポートされたレイヤーのプレビュー生成が並列で行われるようになり大幅に高速化するようになりました (#727)

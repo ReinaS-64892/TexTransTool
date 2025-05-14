@@ -6,8 +6,7 @@ namespace net.rs64.TexTransTool.Build
 {
     internal static class ManualBake
     {
-        [MenuItem(TTTConfig.DEBUG_MENU_PATH + "/TexTransTool Only Manual Bake Avatar")]
-        private static void ManualBakeSelected()
+        internal static void ManualBakeSelected()
         {
             var targetAvatar = Selection.activeGameObject;
             if (targetAvatar == null)
@@ -24,7 +23,7 @@ namespace net.rs64.TexTransTool.Build
 
             var duplicate = UnityEngine.Object.Instantiate(targetAvatar);
             duplicate.transform.position = new Vector3(duplicate.transform.position.x, duplicate.transform.position.y, duplicate.transform.position.z + 2);
-            AvatarBuildUtils.ProcessAvatar(duplicate, null, true);
+            AvatarBuildUtils.ProcessAvatar(duplicate, true);
         }
     }
 }

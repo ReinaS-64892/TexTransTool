@@ -32,15 +32,15 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var lm = GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var sca = new SelectiveColorAdjustment(
-                RedsCMYK.ToTTCore()
-                , YellowsCMYK.ToTTCore()
-                , GreensCMYK.ToTTCore()
-                , CyansCMYK.ToTTCore()
-                , BluesCMYK.ToTTCore()
-                , MagentasCMYK.ToTTCore()
-                , WhitesCMYK.ToTTCore()
-                , NeutralsCMYK.ToTTCore()
-                , BlacksCMYK.ToTTCore()
+                RedsCMYK.ToSysNum()
+                , YellowsCMYK.ToSysNum()
+                , GreensCMYK.ToSysNum()
+                , CyansCMYK.ToSysNum()
+                , BluesCMYK.ToSysNum()
+                , MagentasCMYK.ToSysNum()
+                , WhitesCMYK.ToSysNum()
+                , NeutralsCMYK.ToSysNum()
+                , BlacksCMYK.ToSysNum()
                 , IsAbsolute
                 );
 

@@ -4,6 +4,8 @@ using Unity.Collections;
 using System.Collections;
 using net.rs64.TexTransTool.UVIsland;
 using System;
+using net.rs64.TexTransCore.UVIsland;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.IslandSelector
 {
@@ -16,14 +18,18 @@ namespace net.rs64.TexTransTool.IslandSelector
 
 
         internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
-        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) => IslandSelect(ctx);
+        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx)
+        {
+            if (ctx.Targeting.IsActive(gameObject) is false) { return new BitArray(ctx.Islands.Length); }
+            return IslandSelect(ctx);
+        }
 
         internal abstract void OnDrawGizmosSelected();
 
         internal static int LookAtChildren(AbstractIslandSelector abstractIslandSelector, ILookingObject lookingObject)
         {
             var hash = 0;
-            var chiles = TexTransGroup.GetChildeComponent<AbstractIslandSelector>(abstractIslandSelector.transform);
+            var chiles = abstractIslandSelector.transform.GetChildeComponent<AbstractIslandSelector>();
             foreach (var chile in chiles) { chile.LookAtCalling(lookingObject); }
             lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
@@ -44,13 +50,13 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         public Island[] Islands;
         public IslandDescription[] IslandDescription;
-        public OriginEqual OriginEqual;
+        public IRendererTargeting Targeting;
 
-        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, OriginEqual originEqual)
+        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, IRendererTargeting targeting)
         {
             Islands = islands;
             IslandDescription = islandDescription;
-            OriginEqual = originEqual;
+            Targeting = targeting;
         }
     }
     internal readonly struct IslandDescription
@@ -58,13 +64,15 @@ namespace net.rs64.TexTransTool.IslandSelector
         public readonly NativeArray<Vector3> Position;//ワールドスペース
         public readonly NativeArray<Vector2> UV;
         public readonly Renderer Renderer;
+        public readonly Material?[] Materials;
         public readonly int MaterialSlot;// SubMeshIndex でもある
 
-        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, int materialSlot)
+        public IslandDescription(NativeArray<Vector3> position, NativeArray<Vector2> uV, Renderer renderer, Material?[] materials, int materialSlot)
         {
             Position = position;
             UV = uV;
             Renderer = renderer;
+            Materials = materials;
             MaterialSlot = materialSlot;
         }
 

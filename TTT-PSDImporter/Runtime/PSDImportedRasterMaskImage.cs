@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             var defaultValue = MaskImageData.DefaultValue / 255;
             ttce.ColorFill(writeTarget, new(defaultValue, defaultValue, defaultValue, defaultValue));
 
-            var size = ((uint)MaskImageData.RectTangle.GetWidth(), (uint)MaskImageData.RectTangle.GetHeight());
+            (uint x, uint y) size = ((uint)MaskImageData.RectTangle.GetWidth(), (uint)MaskImageData.RectTangle.GetHeight());
             var piv = ((uint)PivotT.x, (uint)PivotT.y);
 
             if (size.Item1 is 0 || size.Item2 is 0) { return; }
@@ -31,7 +31,9 @@ namespace net.rs64.TexTransTool.PSDImporter
             {
                 using var ch = ttce.GetComputeHandler(ttce.GetExKeyQuery<IQuayGeneraleComputeKey>().GenealCompute["Decompress8BitPSDRLE"]);
 
-                PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, psdBinary.PSDByteArray.AsSpan((int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
+                int heightDataLen = (int)(size.y * 2);
+                var mRLEBytes = PSDImportedRasterImage.GetSliceSafe(psdBinary.PSDByteArray, (int)MaskImageData.MaskImage.ImageDataAddress.StartAddress, PSDImportedRasterImage.HeightAndMultipleOf4(heightDataLen, (int)MaskImageData.MaskImage.ImageDataAddress.Length));
+                PSDImportedRasterImage.DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, (uint)SwizzlingChannel.A, ch, mRLEBytes);
                 ttce.Swizzling(writeTarget, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A, SwizzlingChannel.A);
             }
             else

@@ -3,8 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using JetBrains.Annotations;
-using net.rs64.TexTransTool.Utils;
+using net.rs64.TexTransCore;
 
 namespace net.rs64.TexTransTool
 {
@@ -19,6 +18,8 @@ namespace net.rs64.TexTransTool
 
         [AffectVRAM] public bool IsOverrideShader = false;
         [AffectVRAM] public Shader? OverrideShader = null;
+        public bool IsOverrideRenderQueue = false;
+        public int OverrideRenderQueue = 2000;
         //[AffectVRAM]
         public List<MaterialProperty> OverrideProperties = new();
 
@@ -26,10 +27,10 @@ namespace net.rs64.TexTransTool
         {
             domain.LookAt(this);
 
-            if (TargetMaterial == null) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotSet"); return; }
+            if (TargetMaterial == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
             var mats = GetTargetMaterials(domain, TargetMaterial);
-            if (mats.Any() is false) { TTTRuntimeLog.Info("MaterialModifier:info:TargetNotFound"); return; }
+            if (mats.Any() is false) { TTLog.Info("MaterialModifier:info:TargetNotFound"); return; }
 
             foreach (var mat in mats)
             {
@@ -42,15 +43,19 @@ namespace net.rs64.TexTransTool
 
         public static void ConfigureMaterial(Material editableMat, MaterialModifier config)
         {
-            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.OverrideProperties);
+            ConfigureMaterial(editableMat, config.IsOverrideShader, config.OverrideShader, config.IsOverrideRenderQueue, config.OverrideRenderQueue, config.OverrideProperties);
         }
 
-        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, IEnumerable<MaterialProperty> overrideProperties)
+        public static void ConfigureMaterial(Material editableMat, bool isOverrideShader, Shader? overrideShader, bool isOverrideRenderQueue, int overrideRenderQueue, IEnumerable<MaterialProperty> overrideProperties)
         {
             if (isOverrideShader)
             {
-                if (overrideShader == null) { TTTRuntimeLog.Info("MaterialModifier:info:NullShader"); }
+                if (overrideShader == null) { TTLog.Info("MaterialModifier:info:NullShader"); }
                 else { editableMat.shader = overrideShader; }
+            }
+            if (isOverrideRenderQueue)
+            {
+                editableMat.renderQueue = overrideRenderQueue;
             }
             foreach (var overrideProperty in overrideProperties)
             {
@@ -58,10 +63,12 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        public static void TransferValues(Material source, Material target)
+        public static void GetAllOverridesAndApply(Material originalMaterial, Material overrideMaterial, Material editableTargetMaterial)
         {
-            var properties = GetProperties(source);
-            ConfigureMaterial(target, true, source.shader, properties);
+            var (isOverideShader, overrideShader) = GetOverrideShader(originalMaterial, overrideMaterial);
+            var (isOverrideRenderQueue, overrideRenderQueue) = GetOverrideRenderQueue(originalMaterial, overrideMaterial);
+            var overrideProperties = GetOverrideProperties(originalMaterial, overrideMaterial).ToList();
+            ConfigureMaterial(editableTargetMaterial, isOverideShader, overrideShader, isOverrideRenderQueue, overrideRenderQueue, overrideProperties);
         }
 
         public static IEnumerable<MaterialProperty> GetOverrideProperties(Material originalMaterial, Material overrideMaterial)
@@ -73,11 +80,10 @@ namespace net.rs64.TexTransTool
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                var propertyIndex = i;
 
-                if (!MaterialProperty.TryGet(overrideMaterial, propertyName, propertyType, out var overrideProperty)) continue;
-                if (MaterialProperty.TryGet(originalMaterial, propertyName, propertyType, out var originalProperty))
+                if (!MaterialProperty.TryGet(overrideMaterial, propertyIndex, out var overrideProperty)) continue;
+                if (MaterialProperty.TryGet(originalMaterial, propertyIndex, out var originalProperty))
                 {
                     // 元のマテリアルから値を転送したりすると編集せずともなんか浮動小数点誤差が生じてfalseを返すっぽい？ので厳密な比較を行わない
                     if (overrideProperty.Equals(originalProperty, false))
@@ -99,6 +105,14 @@ namespace net.rs64.TexTransTool
             return (true, overrideMaterial.shader);
         }
 
+        public static (bool, int) GetOverrideRenderQueue(Material originalMaterial, Material overrideMaterial)
+        {
+            if (overrideMaterial == null) return (false, 0);
+            if (originalMaterial == null) return (false, 0);
+            if (originalMaterial.renderQueue == overrideMaterial.renderQueue) return (false, 0);
+            return (true, overrideMaterial.renderQueue);
+        }
+
         public static IEnumerable<MaterialProperty> GetProperties(Material material)
         {
             if (material == null) yield break;
@@ -107,10 +121,9 @@ namespace net.rs64.TexTransTool
             var propertyCount = shader.GetPropertyCount();
             for (var i = 0; propertyCount > i; i += 1)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var propertyType = shader.GetPropertyType(i);
+                var propertyIndex = i;
 
-                if (!MaterialProperty.TryGet(material, propertyName, propertyType, out var overrideProperty)) continue;
+                if (!MaterialProperty.TryGet(material, propertyIndex, out var overrideProperty)) continue;
 
                 yield return overrideProperty;
             }

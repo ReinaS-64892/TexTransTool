@@ -1,8 +1,7 @@
-using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
-using UnityEngine.Profiling;
+using net.rs64.TexTransTool.Utils;
 using static net.rs64.TexTransTool.Build.AvatarBuildUtils;
 
 namespace net.rs64.TexTransTool.NDMF
@@ -13,13 +12,28 @@ namespace net.rs64.TexTransTool.NDMF
         {
             return context.GetState(b =>
             {
-                Profiler.BeginSample("FindAtPhase");
-                var p2b = FindAtPhase(context.AvatarRootObject);
-                Profiler.EndSample();
-                Profiler.BeginSample("TexTransBuildSession.ctr");
-                var bs = new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
-                Profiler.EndSample();
-                return bs;
+                using var pf = new PFScope("FindAtPhase");
+
+                var p2b = TexTransBehaviorSearch.FindAtPhase(context.AvatarRootObject);
+
+                pf.Split("TexTransBuildSession.ctr");
+                switch (TTTProjectConfig.instance.TexTransCoreEngineBackend)
+                {
+
+#if CONTAINS_TTCE_WGPU
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Wgpu:
+                        {
+                            var wgpuCtx = TTCEWgpuDeviceWithTTT4UnityHolder.Device().GetTTCEWgpuContext();
+                            return new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b, null, wgpuCtx), p2b);
+                        }
+#endif
+
+                    default:
+                    case TTTProjectConfig.TexTransCoreEngineBackendEnum.Unity:
+                        {
+                            return new TexTransBuildSession(context.AvatarRootObject, new NDMFDomain(b), p2b);
+                        }
+                }
             });
         }
     }

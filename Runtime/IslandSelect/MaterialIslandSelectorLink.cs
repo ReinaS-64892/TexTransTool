@@ -21,22 +21,21 @@ namespace net.rs64.TexTransTool.IslandSelector
             if (islandSelector == null) { return new BitArray(ctx.Islands.Length); }
             var linkFrom = islandSelector.IslandSelect(ctx);
             var linkMaterialHash = new HashSet<Material>();
-            var sharedMaterialsCache = new Dictionary<Renderer, Material[]>();
 
             for (int i = 0; i < ctx.Islands.Length; i += 1)
             {
                 if (linkFrom[i] is false) { continue; }
-                if (sharedMaterialsCache.TryGetValue(ctx.IslandDescription[i].Renderer, out var rMats) is false)
-                { rMats = sharedMaterialsCache[ctx.IslandDescription[i].Renderer] = ctx.IslandDescription[i].Renderer.sharedMaterials; }
-                linkMaterialHash.Add(rMats[ctx.IslandDescription[i].MaterialSlot]);
+
+                var mat = ctx.IslandDescription[i].Materials[ctx.IslandDescription[i].MaterialSlot];
+                if (mat == null) { continue; }
+                linkMaterialHash.Add(mat);
             }
 
             var linkTo = new BitArray(ctx.Islands.Length);
             for (int i = 0; i < ctx.Islands.Length; i += 1)
             {
-                if (sharedMaterialsCache.TryGetValue(ctx.IslandDescription[i].Renderer, out var rMats) is false)
-                { rMats = sharedMaterialsCache[ctx.IslandDescription[i].Renderer] = ctx.IslandDescription[i].Renderer.sharedMaterials; }
-                linkTo[i] = linkMaterialHash.Contains(rMats[ctx.IslandDescription[i].MaterialSlot]);
+                var mat = ctx.IslandDescription[i].Materials[ctx.IslandDescription[i].MaterialSlot];
+                linkTo[i] = mat != null ? linkMaterialHash.Contains(mat) : false;
             }
 
             return linkTo;

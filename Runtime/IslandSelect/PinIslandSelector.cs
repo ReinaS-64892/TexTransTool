@@ -12,10 +12,12 @@ using net.rs64.TexTransCoreEngineForUnity;
 namespace net.rs64.TexTransTool.IslandSelector
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class PinIslandSelector : AbstractIslandSelector
+    public class PinIslandSelector : AbstractIslandSelector , ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT " + nameof(PinIslandSelector);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
+                public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
+                
         public float IslandSelectorRange = 0.1f;
         internal override void LookAtCalling(ILookingObject looker)
         {

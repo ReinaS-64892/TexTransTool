@@ -1,6 +1,7 @@
 using System;
 using System.Buffers.Binary;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using net.rs64.ParserUtility;
 using net.rs64.PSDParser;
@@ -22,7 +23,7 @@ namespace net.rs64.TexTransTool.PSDImporter
             var psdBinary = importSource as PSDImportedCanvasDescription.PSDBinaryHolder;
             var psdCanvasDesc = CanvasDescription as PSDImportedCanvasDescription;
 
-            var size = ((uint)RasterImageData.RectTangle.GetWidth(), (uint)RasterImageData.RectTangle.GetHeight());
+            (uint x, uint y) size = ((uint)RasterImageData.RectTangle.GetWidth(), (uint)RasterImageData.RectTangle.GetHeight());
             var piv = ((uint)PivotT.x, (uint)PivotT.y);
 
             if (size.Item1 is 0 || size.Item2 is 0) { return; }
@@ -38,10 +39,18 @@ namespace net.rs64.TexTransTool.PSDImporter
                 using var ch = ttce.GetComputeHandler(ttce.GetExKeyQuery<IQuayGeneraleComputeKey>().GenealCompute["Decompress8BitPSDRLE"]);
 
                 // コピーを避けるために 4の倍数に切り上げます、まぁ問題にはならないでしょうけど...ファイルの終端にぶち当たった場合は頭を抱え、コピーが走るようにします...
-                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 0, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.R.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.R.ImageDataAddress.Length)));
-                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 1, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.G.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.G.ImageDataAddress.Length)));
-                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 2, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.B.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.B.ImageDataAddress.Length)));
-                if (RasterImageData.A.ImageDataAddress.Length != 0) DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 3, ch, psdBinary.PSDByteArray.AsSpan((int)RasterImageData.A.ImageDataAddress.StartAddress, TTMath.NormalizeOf4Multiple((int)RasterImageData.A.ImageDataAddress.Length)));
+                int heightDataLen = (int)(size.y * 2);
+                var rRLEBytes = GetSliceSafe(psdBinary.PSDByteArray, (int)RasterImageData.R.ImageDataAddress.StartAddress, HeightAndMultipleOf4(heightDataLen, (int)RasterImageData.R.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 0, ch, rRLEBytes);
+                var gRLEBytes = GetSliceSafe(psdBinary.PSDByteArray, (int)RasterImageData.G.ImageDataAddress.StartAddress, HeightAndMultipleOf4(heightDataLen, (int)RasterImageData.G.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 1, ch, gRLEBytes);
+                var bRLEBytes = GetSliceSafe(psdBinary.PSDByteArray, (int)RasterImageData.B.ImageDataAddress.StartAddress, HeightAndMultipleOf4(heightDataLen, (int)RasterImageData.B.ImageDataAddress.Length));
+                DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 2, ch, bRLEBytes);
+                if (RasterImageData.A.ImageDataAddress.Length != 0)
+                {
+                    var aRLEBytes = GetSliceSafe(psdBinary.PSDByteArray, (int)RasterImageData.A.ImageDataAddress.StartAddress, HeightAndMultipleOf4(heightDataLen, (int)RasterImageData.A.ImageDataAddress.Length));
+                    DecompressRLE8BitPSDWithTTCE(ttce, size, piv, writeTarget, 3, ch, aRLEBytes);
+                }
                 else ttce.AlphaFill(writeTarget, 1f);
                 Profiler.EndSample();
             }
@@ -60,7 +69,7 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             Profiler.EndSample();
         }
-
+        // RLESource は4の倍数に丸めておくとよいが無理だった場合はこちらでコピーが走る
         public static void DecompressRLE8BitPSDWithTTCE<TTCE>(TTCE engine, (uint x, uint y) size, (uint x, uint y) pivot, ITTRenderTexture writeTarget, uint channel, ITTComputeHandler computeHandler, Span<byte> rleSource)
         where TTCE : ITexTransDriveStorageBufferHolder
         {
@@ -72,8 +81,20 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             var heightDataLen = (int)(size.y * 2);
 
+
             var hSpan = rleSource[..heightDataLen];
-            var dSpan = rleSource[heightDataLen..];
+            Span<byte> dSpan;
+            if (((rleSource.Length - heightDataLen) % 4) is not 0)
+            {
+                var paddedArray = new byte[TTMath.NormalizeOf4Multiple(rleSource.Length - heightDataLen)];
+
+                rleSource[heightDataLen..].CopyTo(paddedArray);
+                dSpan = paddedArray;
+            }
+            else
+            {
+                dSpan = rleSource[heightDataLen..];
+            }
 
             Span<uint> gvBuf = stackalloc uint[6];
             gvBuf[0] = channel;
@@ -98,7 +119,7 @@ namespace net.rs64.TexTransTool.PSDImporter
 
             computeHandler.UploadConstantsBuffer<uint>(gvID, gvBuf);
             using var spStBuf = engine.SetStorageBufferFromUpload<TTCE, uint>(computeHandler, spanBufferID, spanBuf);
-            using var rleStBuf = engine.SetStorageBufferFromUpload<TTCE, byte>(computeHandler, rleBufferID, dSpan);
+            using var rleStBuf = engine.SetStorageBufferFromUpload<TTCE, uint>(computeHandler, rleBufferID, MemoryMarshal.Cast<byte, uint>(dSpan));
 
             computeHandler.SetTexture(texID, writeTarget);
 
@@ -202,6 +223,19 @@ namespace net.rs64.TexTransTool.PSDImporter
         async static Task<NativeArray<byte>[]> WeightTask(Task<NativeArray<byte>>[] tasks)
         {
             return await Task.WhenAll(tasks.Where(i => i != null)).ConfigureAwait(false);
+        }
+
+
+        internal static int HeightAndMultipleOf4(int heightDataLen, int allDataLen)
+        {
+            var rleLen = allDataLen - heightDataLen;
+            var paddedLen = TTMath.NormalizeOf4Multiple(rleLen);
+            return heightDataLen + paddedLen;
+        }
+        internal static Span<T> GetSliceSafe<T>(T[] bytes, int start, int len)
+        {
+            var maxLen = bytes.Length - start;
+            return bytes.AsSpan(start, Math.Min(maxLen, len));
         }
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 using System.Linq;
-
-
-
+using net.rs64.TexTransCore;
+using UnityEngine;
 
 
 #if CONTAINS_NDMF
@@ -19,9 +17,10 @@ namespace net.rs64.TexTransTool
         [InitializeOnLoadMethod]
         static void RegisterCall()
         {
-            TTTRuntimeLog.InfoCall += Info;
-            TTTRuntimeLog.WarningCall += Warning;
-            TTTRuntimeLog.ErrorCall += Error;
+            TTLog.LogCall += Info;
+            TTLog.WarningCall += Warning;
+            TTLog.ErrorCall += Error;
+            TTLog.ExceptionCall += Exception;
         }
 
 
@@ -30,7 +29,7 @@ namespace net.rs64.TexTransTool
 #if CONTAINS_NDMF
             ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Information, code, objects);
 #else
-            Debug.Log(TTTRuntimeLog.LogPrefix + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
+            Debug.Log("[info]" + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
 #endif
         }
         public static void Warning(string code, params object[] objects)
@@ -38,7 +37,7 @@ namespace net.rs64.TexTransTool
 #if CONTAINS_NDMF
             ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.NonFatal, code, objects);
 #else
-            Debug.LogWarning(TTTRuntimeLog.LogPrefix + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
+            Debug.LogWarning("[Warning]" + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
 #endif
         }
         public static void Error(string code, params object[] objects)
@@ -46,7 +45,7 @@ namespace net.rs64.TexTransTool
 #if CONTAINS_NDMF
             ErrorReport.ReportError(NDMFLocalizer, ErrorSeverity.Error, code, objects);
 #else
-            Debug.LogError(TTTRuntimeLog.LogPrefix + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
+            Debug.LogError("[Error]" + code + ":" + string.Join('-', objects.Select(i => i.ToString())));
 #endif
         }
         public static void Exception(Exception e, string additionalStackTrace = "")

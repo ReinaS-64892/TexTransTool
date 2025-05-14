@@ -32,10 +32,11 @@ jobs:
         run: |
           cp .github/ImageAssets/Image/* ./Image/
 
-      - name: RemoveDotgitAndDotgithub
+      - name: RemoveDotGitAndMore
         run: |
           rm -r ./.git
           rm -r ./.github
+          rm -r ./DependentUpdater~
 
       - name: CreateZip
         run: |

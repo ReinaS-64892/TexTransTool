@@ -16,11 +16,13 @@ namespace net.rs64.TexTransTool
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.Optimizing;
 
-        public TextureSelector TargetTexture;
+        public TextureSelector TargetTexture = new();
 
         public bool OverrideTextureSetting = false;
         [PowerOfTwo] public int TextureSize = 2048;
+        public string DownScaleAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public bool MipMap = true;
+        public string MipMapGenerationAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public bool OverrideCompression = false;
         public TextureCompressionData CompressionSetting = new();
 
@@ -31,59 +33,51 @@ namespace net.rs64.TexTransTool
             if (OverrideTextureSetting is false && OverrideCompression is false) { return; }
 
             var target = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (target == null) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
+            if (target == null) { TTLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
-            var targetTex2Ds = domain.GetDomainsTextures(target).OfType<Texture2D>().ToArray();
-            if (targetTex2Ds.Any() is false) { TTTRuntimeLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
+            var targetTextures = domain.GetDomainsTextures(target).OfType<Texture>().ToArray();
+            if (targetTextures.Any() is false) { TTLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             var engine = domain.GetTexTransCoreEngineForUnity();
-            var textureManager = domain.GetTextureManager();
-            domain.LookAt(targetTex2Ds);
+            domain.LookAt(targetTextures);
 
-            foreach (var tex2D in targetTex2Ds)
+            foreach (var originTexture in targetTextures)
             {
-                var originTex2D = tex2D;
-                Texture2D resultTex2D;
+                ITTRenderTexture resultTexture;
+                var textureDescription = domain.GetTextureDescriptor(originTexture);
 
-                using var originalFullScaleTexture = engine.WrappingToLoadFullScaleOrUpload(originTex2D);
+                using var originalFullScaleTexture = engine.WrappingOrUploadToLoadFullScale(originTexture);
 
-                if (OverrideTextureSetting) { resultTex2D = TextureSettingsConfigure(engine, originalFullScaleTexture, TextureSize, MipMap); }
-                else { resultTex2D = TextureSettingsConfigure(engine, originalFullScaleTexture, originTex2D.width, originTex2D.mipmapCount > 1); }
+                if (OverrideTextureSetting)
+                {
+                    resultTexture = TextureSettingsConfigure(engine, originalFullScaleTexture, TextureSize);
+                    // MipMapGenerationAlgorithm
+                    textureDescription.UseMipMap = MipMap;
+                }
+                else { resultTexture = TextureSettingsConfigure(engine, originalFullScaleTexture, originTexture.width); }
 
-                if (OverrideCompression) { textureManager.DeferredTextureCompress(CompressionSetting, resultTex2D); }
-                else { textureManager.DeferredInheritTextureCompress(originTex2D, resultTex2D); }
 
-                resultTex2D.name = originTex2D.name + "_Configured";
-                resultTex2D.CopyFilWrap(originTex2D);
+                if (OverrideCompression) { textureDescription.TextureFormat = CompressionSetting; }
+                resultTexture.Name = originTexture.name + "_Configured";
 
-                domain.ReplaceTexture(originTex2D, resultTex2D);
-                domain.TransferAsset(resultTex2D);
+                var refRt = engine.GetReferenceRenderTexture(resultTexture);
+                domain.ReplaceTexture(originTexture, refRt);
+                domain.RegisterReplace(originTexture, refRt);
+                domain.RegisterPostProcessingAndLazyGPUReadBack(resultTexture, textureDescription);
             }
         }
 
-        private Texture2D TextureSettingsConfigure(ITexTransToolForUnity engine, ITTRenderTexture originFullSizeRenderTexture, int targetTextureSize, bool useMipMap)
+        private ITTRenderTexture TextureSettingsConfigure(ITexTransToolForUnity engine, ITTRenderTexture originFullSizeRenderTexture, int targetTextureSize)
         {
             var aspect = (float)originFullSizeRenderTexture.Hight / originFullSizeRenderTexture.Width;
-            using var targetSizeTexture = engine.CreateRenderTexture(targetTextureSize, (int)(targetTextureSize * aspect));
+            var targetSizeTexture = engine.CreateRenderTexture(targetTextureSize, (int)(targetTextureSize * aspect));
 
             // TODO : リサイズアルゴリズムを何とかする
+            // DownScaleAlgorithm
             if (targetTextureSize != originFullSizeRenderTexture.Width) engine.DefaultResizing(targetSizeTexture, originFullSizeRenderTexture);
             else engine.CopyRenderTexture(targetSizeTexture, originFullSizeRenderTexture);
 
-
-            if (useMipMap)
-            {
-                //TODO : TTCE を用いた MipMap の生成
-                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, true, TexTransCoreTextureFormat.Byte);// 個々のフォーマット指定は出力空間次第で変更できてもよい気がする。
-                resizedTexture2d.Apply(true);
-                return resizedTexture2d;
-            }
-            else
-            {
-                var resizedTexture2d = engine.DownloadToTexture2D(targetSizeTexture, false, TexTransCoreTextureFormat.Byte);
-                resizedTexture2d.Apply();
-                return resizedTexture2d;
-            }
+            return targetSizeTexture;
         }
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)

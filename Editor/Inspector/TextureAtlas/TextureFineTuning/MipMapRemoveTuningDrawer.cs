@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.TextureAtlas.FineTuning;
+using System;
 
 namespace net.rs64.TexTransTool.TextureAtlas.Editor
 {
     [CustomPropertyDrawer(typeof(MipMapRemove))]
+    [Obsolete]
     internal class MipMapRemoveTuningDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

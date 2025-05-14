@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,42 +21,56 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
             TargetPropertyNameList = targetPropertyNameList;
         }
 
-        public void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        void AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
         {
             foreach (var tpn in TargetPropertyNameList)
             {
-                if (!texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder)) { continue; }
+                if (string.IsNullOrWhiteSpace(tpn)) { continue; }
+                // コピーする先がない場合は新しく作る
+                texFineTuningTargets.TryGetValue(tpn, out var copyTargetTextureHolder);
                 if (copyTargetTextureHolder == null)
                 {
-                    copyTargetTextureHolder = new TexFineTuningHolder(null);
+                    copyTargetTextureHolder = new();
                     texFineTuningTargets.Add(tpn, copyTargetTextureHolder);
                 }
 
                 copyTargetTextureHolder.Get<ReferenceCopyData>().CopySource = SourcePropertyName;
             }
         }
+        void ITextureFineTuning.AddSetting(Dictionary<string, TexFineTuningHolder> texFineTuningTargets)
+        {
+            AddSetting(texFineTuningTargets);
+        }
     }
 
     internal class ReferenceCopyData : ITuningData
     {
-        public string CopySource;
+        public string? CopySource;
     }
 
-    internal class ReferenceCopyApplicant : ITuningApplicant
+    internal class ReferenceCopyApplicant : ITuningProcessor
     {
 
         public int Order => 32;
 
-        public void ApplyTuning(Dictionary<string, TexFineTuningHolder> texFineTuningTargets, IDeferTextureCompress compress)
+        public void ProcessingTuning(TexFineTuningProcessingContext ctx)
         {
-            foreach (var texKv in texFineTuningTargets.ToArray())
+            foreach (var tuning in ctx.TuningHolder)
             {
-                var referenceCopyData = texKv.Value.Find<ReferenceCopyData>();
+                var tuningHolder = tuning.Value;
+                var referenceCopyData = tuningHolder.Find<ReferenceCopyData>();
                 if (referenceCopyData == null) { continue; }
 
-                if (texFineTuningTargets.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
+                var thisTuning = ctx.ProcessingHolder[tuning.Key];
+
+                //  Copy する元がない場合は何もしない
+                if (referenceCopyData.CopySource is null || string.IsNullOrWhiteSpace(referenceCopyData.CopySource)) { continue; }
+                if (ctx.ProcessingHolder.TryGetValue(referenceCopyData.CopySource, out var sourceTextureHolder))
                 {
-                    texKv.Value.Texture2D = sourceTextureHolder.Texture2D;
+                    if (thisTuning.RenderTextureProperty == sourceTextureHolder.RenderTextureProperty) { continue; }// 同一だった場合何もできないから何もしない
+
+                    thisTuning.RenderTextureProperty = sourceTextureHolder.RenderTextureProperty;
+                    thisTuning.RTOwned = false;
                 }
             }
         }

@@ -11,14 +11,15 @@ using net.rs64.TexTransTool.Decal;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting
+    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting, ITexturePostProcessor, IDomainCustomContext
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
-        // TransferAsset と one2one の場合は RegisterReplace を適切に実行するように。
-        void ReplaceMaterials(Dictionary<Material, Material> mapping, bool one2one = true);
+        // 原則 RegisterReplace や TransferAssets は勝手に行わないこと
+        void ReplaceMaterials(Dictionary<Material, Material> mapping);
+
+        // Mesh の Transfer Assets や RegisterReplace は行われない
         void SetMesh(Renderer renderer, Mesh mesh);
-        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提
-        ITextureManager GetTextureManager();
+        public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提で、保持しておきたいなら Clone すること
 
         void GetMutable(ref Material material)
         {
@@ -30,34 +31,35 @@ namespace net.rs64.TexTransTool
 #if UNITY_EDITOR
             mutableMat.parent = null;
 #endif
-            ReplaceMaterials(new() { { origin, mutableMat } }, true);
-            // ReplaceMaterials が基本これらを実行するから必要がない。
-            // TransferAsset(mutableMat);
-            // RegisterReplace(origin, mutableMat);
+            ReplaceMaterials(new() { { origin, mutableMat } });
+
+            RegisterReplace(origin, mutableMat);
+            TransferAsset(mutableMat);
+
             mutableMat.name = origin.name + "(TTT GetMutable)";
 
             material = mutableMat;
             Profiler.EndSample();
         }
-        bool IsPreview();//極力使わない方針で、どうしようもないやつだけ使うこと。テクスチャとかはプレビューの場合は自動で切り替わるから、これを見るコードをできるだけ作りたくないという意図です。
     }
     internal interface IAssetSaver
     {
         bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
         void TransferAsset(UnityEngine.Object asset);
     }
+    internal delegate bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
     internal interface IReplaceTracking
     {
-        bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
+        bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
     }
-    public delegate bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r);
     internal interface IReplaceRegister
     {
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking, ILookingObject
+    internal interface IRendererTargeting : IReplaceTracking, ILookingObject , IActiveness
     {
+        // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
         IEnumerable<Renderer> EnumerateRenderer();
         Material?[] GetMaterials(Renderer renderer)
         {
@@ -66,6 +68,8 @@ namespace net.rs64.TexTransTool
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
         Mesh? GetMesh(Renderer renderer) { return renderer.GetMesh(); }
+
+        // ここで得られる Material は Renderer に存在するもの以外も入りうる
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
@@ -92,7 +96,7 @@ namespace net.rs64.TexTransTool
         // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
         Material?[] GetMutableMaterials(Renderer renderer);
     }
-    public interface ILookingObject
+    internal interface ILookingObject
     {
         void LookAt(UnityEngine.Object obj) { }
         /// <summary>
@@ -104,41 +108,142 @@ namespace net.rs64.TexTransTool
         {
             return getAction(obj);
         }
+        void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
         void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
-    internal interface ITextureManager : IOriginTexture, IDeferredDestroyTexture, IDeferTextureCompress { }
-    public interface IDeferredDestroyTexture : IDisposable
+    internal interface IActiveness
     {
-        void DeferredDestroyOf(Texture2D texture2D);
+        bool IsActive(GameObject gameObject)
+        {
+            return TexTransBehaviorSearch.CheckIsActive(gameObject);
+        }
+        bool IsEnable(Component component)
+        {
+            return component switch
+            {
+                Behaviour bh => bh.enabled,
+                Renderer bh => bh.enabled,
+                _ => true,
+            };
+        }
     }
-    public interface IOriginTexture
+    internal interface ITexturePostProcessor
     {
-        int GetOriginalTextureSize(Texture2D texture2D);
-        void WriteOriginalTexture(Texture2D texture2D, RenderTexture writeTarget);
-        void PreloadOriginalTexture(Texture2D texture2D);
-
-
-        (int x, int y) PreloadAndTextureSizeForTex2D(Texture2D diskTexture);
-        bool IsPreview { get; }
+        // ここ渡す Descriptor は複製したものを渡すように、それと
+        TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture);
+        // ここで渡される rt は基本的に借用ではなく move のような形で Dispose する役割を受け取る
+        void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor);
     }
-    public interface IDeferTextureCompress
+
+    internal interface ITexTransToolTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
+
+    internal class TexTransToolTextureDescriptor
     {
-        void DeferredTextureCompress(ITTTextureFormat compressFormat, Texture2D target);
-        void DeferredInheritTextureCompress(Texture2D source, Texture2D target);
-        void CompressDeferred(IEnumerable<Renderer> renderers, OriginEqual originEqual);
+        public bool UseMipMap = true;
+        public string MipMapGenerateAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
+        public ITexTransToolTextureFormat TextureFormat = new TextureCompressionData();
+        public bool AsLinear = false;
+        public bool IsNormalMap = false;// このテクスチャが確定で NormalMap であることを保証しない。 (AtlasTexture などで発生する)
+
+        public FilterMode filterMode = FilterMode.Bilinear;
+        public int anisoLevel = 1;
+        public float mipMapBias = 0;
+        public TextureWrapMode wrapModeU = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapModeV = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapModeW = TextureWrapMode.Repeat;
+        public TextureWrapMode wrapMode = TextureWrapMode.Repeat;
+
+        public TexTransToolTextureDescriptor() { }
+        public TexTransToolTextureDescriptor(TexTransToolTextureDescriptor source) { CopyFrom(source); }
+        public void CopyFrom(TexTransToolTextureDescriptor descriptor)
+        {
+            UseMipMap = descriptor.UseMipMap;
+            MipMapGenerateAlgorithm = descriptor.MipMapGenerateAlgorithm;
+            TextureFormat = descriptor.TextureFormat;
+            AsLinear = descriptor.AsLinear;
+            IsNormalMap = descriptor.IsNormalMap;
+            filterMode = descriptor.filterMode;
+            anisoLevel = descriptor.anisoLevel;
+            mipMapBias = descriptor.mipMapBias;
+            wrapModeU = descriptor.wrapModeU;
+            wrapModeV = descriptor.wrapModeV;
+            wrapModeW = descriptor.wrapModeW;
+            wrapMode = descriptor.wrapMode;
+        }
+
+        internal void WriteFillWarp(Texture2D tex2D)
+        {
+            tex2D.filterMode = filterMode;
+            tex2D.anisoLevel = anisoLevel;
+            tex2D.mipMapBias = mipMapBias;
+            tex2D.wrapModeU = wrapModeU;
+            tex2D.wrapModeV = wrapModeV;
+            tex2D.wrapModeW = wrapModeW;
+            tex2D.wrapMode = wrapMode;
+        }
+    }
+    internal interface IDomainCustomContext
+    {
+        T? GetCustomContext<T>() where T : class, IDomainCustomContextData;
+    }
+    internal interface IDomainCustomContextData
+    {
+
     }
 
-    public interface ITTTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
+    internal class DomainPreviewCtx : IDomainCustomContextData
+    {
+        public bool IsPreview { get; private set; }
+        public DomainPreviewCtx(bool isPreview)
+        {
+            IsPreview = isPreview;
+        }
+    }
+    internal class GenericReplaceRegistry : IReplaceRegister, IReplaceTracking
+    {
+        Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
+        public IReadOnlyDictionary<UnityEngine.Object, UnityEngine.Object> ReplaceMap => _replaceMap;
 
+        public virtual bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+        {
+            if (l == null || r == null) { return l == r; }
+            if (l == r) { return true; }
+            var originL = _replaceMap.TryGetValue(l, out var oL) ? oL : l;
+            var originR = _replaceMap.TryGetValue(r, out var oR) ? oR : r;
+            return originL == originR;
+        }
+
+        public virtual void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+        {
+            var originL = _replaceMap.TryGetValue(oldObject, out var oObj) ? oObj : oldObject;
+            _replaceMap[nowObject] = originL;
+        }
+        public virtual KeyValuePair<UnityEngine.Object, UnityEngine.Object>? ReplacePooledRenderTexture(RenderTexture pooledRt, UnityEngine.Object nowObject)
+        {
+            if (_replaceMap.Remove(pooledRt, out var origin) is false) { return null; }
+            return new(origin, nowObject);
+        }
+    }
     internal static class DomainUtility
     {
-        public static OriginEqual ObjectEqual = (l, r) => l.Equals(r);
-        public static void transferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
+        public static OriginEqual ObjectEqual = (l, r) =>
+        {
+            if (l == null) { return r == null; }
+            return l.Equals(r);
+        };
+        public static void TransferAssets(this IDomain domain, IEnumerable<UnityEngine.Object> unityObjects)
         {
             foreach (var unityObject in unityObjects)
             {
                 domain.TransferAsset(unityObject);
             }
+        }
+        public static void RegisterReplaces<TOld, TNew>(this IReplaceRegister domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
+        where TOld : UnityEngine.Object
+        where TNew : UnityEngine.Object
+        {
+            foreach (var unityObject in unityObjects)
+                domain.RegisterReplace(unityObject.Key, unityObject.Value);
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
         {
@@ -199,24 +304,32 @@ namespace net.rs64.TexTransTool
             return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginEqual(m, material)).ToHashSet();
         }
 
-
+        public static Material? GetDomainsMaterial(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, Material material)
+        {
+            return domainsMaterial.FirstOrDefault(m => originEqual(m, material));
+        }
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, IEnumerable<Material> material)
+        {
+            if (material.Any() is false) { return new(); }
+            return domainsMaterial.Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
+        }
 
         public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
 
-        public static void ReplaceTexture<Tex>(this IDomain domain, Tex target, Tex setTex)
-        where Tex : Texture
+        public static void ReplaceTexture<TexDist, TexNew>(this IDomain domain, TexDist dist, TexNew newTexture)
+        where TexDist : Texture
+        where TexNew : Texture
         {
-            var mats = RendererUtility.GetFilteredMaterials(domain.EnumerateRenderer());
+            var mats = domain.GetAllMaterials();
 
             foreach (var m in mats)
             {
-                if (m.ContainsTexture(target) is false) { continue; }
+                if (m.ContainsTexture(dist) is false) { continue; }
 
                 var mutableMat = m;
                 domain.GetMutable(ref mutableMat);
-                mutableMat.ReplaceTextureInPlace(target, setTex);
+                mutableMat.ReplaceTextureInPlace(dist, newTexture);
             }
-            domain.RegisterReplace(target, setTex);
         }
 
     }

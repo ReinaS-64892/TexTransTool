@@ -1,33 +1,33 @@
 {
-    "name": "net.rs64.tex-trans-tool.runtime",
-    "rootNamespace": "",
-    "references": [
-        "net.rs64.tex-trans-core",
-        "net.rs64.tex-trans-tool.unsafe",
-        "net.rs64.ttce-unity",
-        "net.rs64.ttce-wgpu",
-        "nadena.dev.ndmf",
-        "Unity.Burst",
-        "Unity.Mathematics"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "net.rs64.ttce-wgpu",
-            "expression": "",
-            "define": "CONTAINS_TTCE_WGPU"
-        },
-        {
-            "name": "com.vrchat.base",
-            "expression": "3.1.13",
-            "define": "VRC_BASE"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "net.rs64.tex-trans-tool.runtime",
+  "rootNamespace": "",
+  "references": [
+    "net.rs64.tex-trans-core",
+    "net.rs64.tex-trans-tool.unsafe",
+    "net.rs64.ttce-unity",
+    "net.rs64.ttce-wgpu",
+    "nadena.dev.ndmf",
+    "Unity.Burst",
+    "Unity.Mathematics"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "net.rs64.ttce-wgpu",
+      "expression": "[0.1.0]",
+      "define": "CONTAINS_TTCE_WGPU"
+    },
+    {
+      "name": "com.vrchat.base",
+      "expression": "3.1.13",
+      "define": "VRC_BASE"
+    }
+  ],
+  "noEngineReferences": false
 }

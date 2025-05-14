@@ -11,7 +11,8 @@
     "nadena.dev.ndmf",
     "Unity.Collections",
     "Unity.Mathematics",
-    "Unity.Burst"
+    "Unity.Burst",
+    "net.rs64.reina-s-liltoon-ndmf-utility.runtime"
   ],
   "includePlatforms": [
     "Editor"
@@ -25,7 +26,7 @@
   "versionDefines": [
     {
       "name": "net.rs64.ttce-wgpu",
-      "expression": "[0.0.0]",
+      "expression": "[0.1.0]",
       "define": "CONTAINS_TTCE_WGPU"
     },
     {
@@ -37,6 +38,11 @@
       "name": "nadena.dev.ndmf",
       "expression": "1.5.0",
       "define": "CONTAINS_NDMF"
+    },
+    {
+      "name": "net.rs64.reina-s-liltoon-ndmf-utility",
+      "expression": "[1.0.0-rc.1,2.0.0)",
+      "define": "CONTAINS_LNU"
     }
   ],
   "noEngineReferences": false

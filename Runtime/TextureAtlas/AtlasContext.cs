@@ -1,533 +1,417 @@
+#nullable enable
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using System.Collections;
-using net.rs64.TexTransTool.TextureAtlas.AAOCode;
 using net.rs64.TexTransTool.Utils;
-using net.rs64.TexTransTool.TextureAtlas.AtlasScriptableObject;
-using UnityEngine.Profiling;
-using net.rs64.TexTransTool.Decal;
-using net.rs64.TexTransTool.UVIsland;
+using net.rs64.TexTransCore.UVIsland;
+using Vector2Sys = System.Numerics.Vector2;
+using net.rs64.TexTransCore;
+using System.Runtime.InteropServices;
+using Unity.Collections;
+using net.rs64.TexTransCoreEngineForUnity;
+using net.rs64.TexTransCore.AtlasTexture;
 
 namespace net.rs64.TexTransTool.TextureAtlas
 {
+    /*
+        memo
+        マテリアルグループという概念
+        衝突しないテクスチャーを持っているのであれば、同一扱いしないと無駄に VRAM を消費してしまう。(例えば Hair と Hair Transparent などや 同一テクスチャーを使用しているが _Color 違い(PropertyBake が無効なとき) など)
+
+        AtlasSubData の取り回し (今の名前は AtlasSubMeshIndexID)
+        同一のメッシュを複数のレンダラーが使用していたとき、同じメッシュ、同じのサブメッシュIndex 、同一のマテリアルグループの組み合わせになるのであればそれは同一の存在として扱うが、一部のスロットだけ違うマテリアルグループを使用している場合に、メッシュは別になるが同一の部分だけは同じものでという扱いをし、 Island をマージしないと VRAM にムダが生じる。
+        Mesh + SubMeshIndex + MaterialGroupID の3つで同一性が判断でき、これを AtlasSubData と私は表記している。
+        このユニークな AtlasSubData の部分だけ、 UVToIsland が行われる。同一メッシュ + 同一 SubMEshIndex であったとしてもマテリアルグループが違うと、同じ メッシュ の 同じ subMesh の Island が作られて別の領域が割り当てられるようになっていい感じ。
+
+        Mesh の Normalize
+        - サブメッシュを超えて同一頂点を使用している場合に別の頂点を使用させるように補正(頂点数の若干の増加は無視します。)
+        - マテリアルスロットがサブメッシュより多いときに最後のサブメッシュをリピートする形で複製 (そうする他ないためポリゴン数の若干の増加は無視します。)
+
+        Island の補正
+        - 同一メッシュ内で  同じマテリアルグループ に属する場合
+        - サブメッシュを超えて同一UV座標の頂点を持つ Island をマージする
+        - (new) サブメッシュを超えていてもいなくても、領域が大きく重複している場合は Island をマージする
+
+
+        AtlasSubData の Set
+        AtlasSubData の並びとなり出力されるメッシュとっ対応する。
+        だがここも雑にやってしまうと無意味にメッシュを増やす。
+        マテリアルが
+        - ABC
+        - ABCDE
+        などの場合、サブメッシュのほうが大きい分には描画されないだけであるため、その Set を大きい方 (今回は ABCDE) に寄せたほうが VRAM が若干安く済む。
+        なので完全に同じ set や同一扱いできる場合は大きい方に寄せる必要がある。
+
+        その set に Null が含まれうるのはすべてのマテリアルがターゲットになるわけではないから。
+    */
     internal class AtlasContext : IDisposable
     {
-        public Mesh[] Meshes;//ノーマライズされていない
-        public Dictionary<Mesh, Mesh> NormalizeMeshes;//ノーマライズされていないメッシュとされているメッシュと対応する
-        public Dictionary<Mesh, MeshData> MeshDataDict;//適当なレンダラーのノーマライズされたメッシュと対応する
+        public MaterialGroupingContext MaterialGroupingCtx;
+        public AtlasMeshSourceContext NormalizedMeshCtx;
+        public AtlasSubMeshIndexIDSetContext AtlasSubMeshIndexSetCtx;
+        public AtlasIslandContext AtlasIslandCtx;
 
-        public OrderedHashSet<Material>[] MaterialGroup;
-        public Dictionary<Material, AtlasShaderSupportScriptableObject> AtlasShaderSupporters;
-        public Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> MaterialToAtlasShaderTexDict;
-        public Dictionary<int, Dictionary<string, AtlasShaderTexture2D>> MaterialGroupToAtlasShaderTexDict;
-        public AtlasShaderSupportUtils AtlasShaderSupportUtils;
-        public HashSet<AtlasSubData> AtlasSubAll;
-        public List<AtlasSubData?[]> AtlasSubSets;
 
-        public Dictionary<AtlasSubData, List<Island>> IslandDict;
-        public Island[] Islands;
-        public AtlasSubData[] IslandSubData;
-
-        List<Mesh> _bakedMesh = new();
-
-        public struct AtlasSubData
+        public IslandTransform[] SourceVirtualIslands;
+        public Dictionary<IslandTransform, List<Island>> ReverseSourceVirtualIsland2OriginIslands;
+        public Dictionary<IslandTransform, IslandReferences> SourceVirtualIsland2OriginRefaces;
+        public Dictionary<IslandTransform, Texture?> SourceVirtualIslands2PrimaryTexture;
+        public class AtlasContextOption
         {
-            public int MeshID;
-            public int SubMeshIndex;
-            public int MaterialGroupID;
-            public AtlasSubData(int meshID, int subMeshIndex, int materialGroupID) : this()
-            {
-                MeshID = meshID;
-                SubMeshIndex = subMeshIndex;
-                MaterialGroupID = materialGroupID;
-            }
-            public override bool Equals(object obj) { return obj is AtlasSubData other && MeshID == other.MeshID && SubMeshIndex == other.SubMeshIndex && MaterialGroupID == other.MaterialGroupID; }
-            public override int GetHashCode() { return HashCode.Combine(MeshID, SubMeshIndex, MaterialGroupID); }
-            public static bool operator ==(AtlasSubData l, AtlasSubData r)
-            {
-                if (l.MeshID != r.MeshID) { return false; }
-                if (l.SubMeshIndex != r.SubMeshIndex) { return false; }
-                if (l.MaterialGroupID != r.MaterialGroupID) { return false; }
-                return true;
-            }
-            public static bool operator !=(AtlasSubData l, AtlasSubData r)
-            {
-                if (l.MeshID != r.MeshID) { return true; }
-                if (l.SubMeshIndex != r.SubMeshIndex) { return true; }
-                if (l.MaterialGroupID != r.MaterialGroupID) { return true; }
-                return false;
-            }
+            public string? PrimaryTexturePropertyOrMaximum = "_MainTex";
+            public UVChannel AtlasTargetUVChannel = UVChannel.UV0;
 
+            public AtlasIslandContextOption AtlasIslandContextOption = new();
         }
-        public AtlasContext(List<Material> targetMaterials, List<Renderer> inputRenderers, bool usePropertyBake)
+        public class AtlasIslandContextOption
         {
-            Profiler.BeginSample("FiledInitialize");
-            var materialHash = targetMaterials.ToHashSet();
-            Profiler.BeginSample("AtlasShaderSupportUtils:ctor");
-            var shaderSupports = new AtlasShaderSupportUtils();
-            Profiler.EndSample();
-            Profiler.BeginSample("GetSupporter");
-            var supporters = targetMaterials.Select(m => (m, shaderSupports.GetAtlasShaderSupporter(m))).ToDictionary(i => i.m, i => i.Item2);
-            Profiler.EndSample();
-            Profiler.BeginSample("mat2AtlasShaderTex");
-            var material2AtlasTargets = supporters.Select(kv => (kv.Key, kv.Value.GetAtlasShaderTexture2D(kv.Key))).ToDictionary(i => i.Key, i => i.Item2.ToDictionary(p => p.PropertyName, p => p));
-            Profiler.EndSample();
-            MaterialToAtlasShaderTexDict = material2AtlasTargets;
-            AtlasShaderSupportUtils = shaderSupports;
-            AtlasShaderSupporters = supporters;
-            Profiler.EndSample();
+            public bool CrossSubMeshUsedIslandMerge = true;
+            public bool OverCrossIslandMerge = true;
+        }
+        public AtlasContext(
+            IRendererTargeting targeting
+            , Renderer[] targetRenderers
+            , HashSet<Material> targetMaterials
+            , AtlasContextOption atlasContextOption
+            )
+        {
+            using var pf = new PFScope("MaterialGroupingCtx ctr");
+            MaterialGroupingCtx = new(targetMaterials, atlasContextOption.AtlasTargetUVChannel, atlasContextOption.PrimaryTexturePropertyOrMaximum);
+            pf.Split("NormalizedMeshCtx ctr");
+            NormalizedMeshCtx = new(targeting, targetRenderers, atlasContextOption.AtlasTargetUVChannel);
+            pf.Split("AtlasSubMeshIndexSetCtx ctr");
+            AtlasSubMeshIndexSetCtx = new(targeting, targetRenderers, targetMaterials, NormalizedMeshCtx, MaterialGroupingCtx);
+            pf.Split("AtlasIslandCtx ctr");
+            AtlasIslandCtx = new(AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash, NormalizedMeshCtx.GetMeshDataFromMeshID, atlasContextOption.AtlasIslandContextOption);
 
 
-            Profiler.BeginSample("LookUp MatGroup");
-            MaterialGroup = LookUpMaterialGroup(material2AtlasTargets, supporters, usePropertyBake);
-            Profiler.EndSample();
+            pf.Split("source virtual island generate");
+            SourceVirtualIslands = AtlasIslandCtx.Origin2VirtualIsland.Values.Distinct().ToArray();
 
-            MaterialGroupToAtlasShaderTexDict = MaterialGroup
-                .Select(mg => (Array.IndexOf(MaterialGroup, mg), mg.Select(m => material2AtlasTargets[m])))
-                .Select(mg => (mg.Item1, mg.Item2.SelectMany(i => i).GroupBy(i => i.Key)))
-                .ToDictionary(i => i.Item1, i => i.Item2.ToDictionary(p => p.Key, p => p.FirstOrDefault(t => t.Value.Texture != null).Value ?? p.First().Value));
 
-            Profiler.BeginSample("Normalize And Bake Mash");
-            var targetRenderers = inputRenderers.Where(r => r.sharedMaterials.Any(m => materialHash.Contains(m))).ToArray();
-            var normalizedMesh = SubVertNormalize(targetRenderers);
-
-            var m2md = new Dictionary<Mesh, MeshData>();
-            foreach (var mkr in targetRenderers.GroupBy(r => r.GetMesh()))
+            ReverseSourceVirtualIsland2OriginIslands = new Dictionary<IslandTransform, List<Island>>();
+            foreach (var kv in AtlasIslandCtx.Origin2VirtualIsland)
             {
-                var nmMesh = normalizedMesh[mkr.Key];
-                var renderer = mkr.FirstOrDefault(r => r.sharedMaterials.Length == nmMesh.subMeshCount);//ノーマライズされた場合 subMeshCount が一番 slot の多いやつになるので、 slot が多いやつを持ってくる。
-                if (renderer == null) { throw new InvalidProgramException($"{nmMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
-                var bakedMesh = nmMesh;
+                var origin = kv.Key;
+                var virtualIsland = kv.Value;
 
-                if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
-                {
-                    bakedMesh = new Mesh();
-                    _bakedMesh.Add(bakedMesh);//nmMeshのほうは勝手に破棄されるが bakedMeshそうではない、なので別の _bakedMesh に詰めて後に破棄される
-
-                    var tempRenderer = UnityEngine.Object.Instantiate(skinnedMeshRenderer);
-                    tempRenderer.sharedMesh = nmMesh;
-                    tempRenderer.BakeMesh(bakedMesh);
-                    UnityEngine.Object.DestroyImmediate(tempRenderer.gameObject);
-                }
-
-                m2md[nmMesh] = new MeshData(renderer, bakedMesh, MeshData.GetMatrix(renderer));
+                if (ReverseSourceVirtualIsland2OriginIslands.TryGetValue(virtualIsland, out var originIslands) is false)
+                { originIslands = ReverseSourceVirtualIsland2OriginIslands[virtualIsland] = new(); }
+                originIslands.Add(origin);
             }
+            SourceVirtualIsland2OriginRefaces = ReverseSourceVirtualIsland2OriginIslands.ToDictionary(
+                kv => kv.Key,
+                kv =>
+                {
+                    var originIslands = kv.Value;
+                    return new IslandReferences(
+                        originIslands
+                        , originIslands.SelectMany(i =>
+                        {
+                            var uvVertexes = NormalizedMeshCtx.GetMeshDataFromMeshID(AtlasIslandCtx.ReverseOriginDict[i].MeshID).VertexUV;
+                            return i.Triangles.Select(i => i.ToTriangle2D(MemoryMarshal.Cast<Vector2, Vector2Sys>(uvVertexes.AsSpan())));
+                        }).ToArray());
+                }
+            );
 
-            NormalizeMeshes = normalizedMesh;
-            MeshDataDict = m2md;
-            Meshes = normalizedMesh.Select(i => i.Key).ToArray();
-            Profiler.EndSample();
-
-            Profiler.BeginSample("Get AtlasSubAll");
-            AtlasSubAll = new();
-            var atlasSubSets = new List<AtlasSubData?[]>();
-            for (var ri = 0; targetRenderers.Length > ri; ri += 1)
+            SourceVirtualIslands2PrimaryTexture = new Dictionary<IslandTransform, Texture?>();
+            foreach (var virtualIslands in SourceVirtualIslands)
             {
-                var renderer = targetRenderers[ri];
-                var mats = renderer.sharedMaterials;
-                var mesh = renderer.GetMesh();
-                var meshID = Array.IndexOf(Meshes, mesh);
-                var atlasSubSet = new AtlasSubData?[mats.Length];
-                for (var si = 0; mats.Length > si; si += 1)
-                {
-                    if (!materialHash.Contains(mats[si])) { continue; }
-                    var matID = Array.FindIndex(MaterialGroup, i => i.Contains(mats[si]));
-                    var atSubData = atlasSubSet[si] = new(meshID, si, matID);
-                    AtlasSubAll.Add(atSubData.Value);
-                }
-                atlasSubSets.Add(atlasSubSet);
-            }
-
-            IdenticalSubSetRemove(atlasSubSets);
-            AtlasSubSets = atlasSubSets;
-            Profiler.EndSample();
-
-            Profiler.BeginSample("UVtoIsland");
-            var islandDict = new Dictionary<AtlasSubData, List<Island>>();
-            foreach (var atSub in AtlasSubAll)
-            {
-                var md = MeshDataDict[normalizedMesh[Meshes[atSub.MeshID]]];
-
-                var triangle = normalizedMesh[Meshes[atSub.MeshID]].GetSubTriangleIndex(atSub.SubMeshIndex);
-                // var triangle = md.TriangleIndex[atSub.SubMeshIndex].AsList(); //なぜかこっちだと一部のモデルで正しくUVtoIslandができない...なぜ？
-
-                var island = IslandUtility.UVtoIsland(triangle, md.VertexUV.AsList());
-                islandDict[atSub] = island;
-            }
-            Profiler.EndSample();
-
-
-            Profiler.BeginSample("Cross SubMesh Island Merge");
-            //Cross SubMesh Island Merge
-            foreach (var atSubGroup in AtlasSubAll.GroupBy(i => (i.MeshID, i.MaterialGroupID)))
-            {
-                var atSubCrossTarget = atSubGroup.ToArray();
-                Array.Sort(atSubCrossTarget, (l, r) => l.SubMeshIndex - r.SubMeshIndex);
-
-                var meshData = MeshDataDict[normalizedMesh[Meshes[atSubGroup.Key.MeshID]]];
-                var uv = meshData.VertexUV;
-                var uvToIndex = new Dictionary<Vector2, int>();
-                var uvIndex = 0;
-                foreach (var uvVert in uv)
-                {
-                    if (!uvToIndex.ContainsKey(uvVert))
-                    {
-                        uvToIndex[uvVert] = uvIndex;
-                        uvIndex += 1;
-                    }
-                }
-                var uvIndexCount = uvIndex + 1;
-
-                var usedUVVertIndexUsed = new BitArray[atSubCrossTarget.Length];
-                for (var i = 0; atSubCrossTarget.Length > i; i += 1)
-                {
-                    var atSub = atSubCrossTarget[i];
-                    var bitArray = new BitArray(uvIndexCount);
-                    foreach (var tri in meshData.TriangleIndex[atSub.SubMeshIndex])
-                    {
-                        for (var ti = 0; 3 > ti; ti += 1)
-                        {
-                            bitArray[uvToIndex[uv[tri[ti]]]] = true;
-                        }
-                    }
-                    usedUVVertIndexUsed[i] = bitArray;
-                }
-
-                var mergeAt = new Dictionary<int, int>();
-
-                for (var fi = 0; atSubCrossTarget.Length > fi; fi += 1)
-                {
-                    for (var ti = fi + 1; atSubCrossTarget.Length > ti; ti += 1)
-                    {
-                        for (var vi = 0; usedUVVertIndexUsed[fi].Length > vi; vi += 1)
-                        {
-                            if (usedUVVertIndexUsed[fi][vi] && usedUVVertIndexUsed[ti][vi]) { mergeAt[fi] = ti; break; }
-                        }
-                    }
-
-                }
-
-                foreach (var mki in mergeAt)
-                {
-                    var fromAtSub = atSubCrossTarget[mki.Key];
-                    var toAtSub = atSubCrossTarget[mki.Value];
-
-                    (Island, BitArray) islandToUseBitArray(Island i)
-                    {
-                        var islandBitArray = new BitArray(uvIndexCount);
-                        foreach (var tri in i.triangles)
-                        {
-                            for (var ti = 0; 3 > ti; ti += 1)
-                            {
-                                islandBitArray[uvToIndex[uv[tri[ti]]]] = true;
-                            }
-                        }
-                        return (i, islandBitArray);
-                    }
-
-                    var islandToUseIndexBits = islandDict[fromAtSub].Concat(islandDict[toAtSub]).Select(islandToUseBitArray).ToDictionary(i => i.Item1, i => i.Item2);
-
-
-                    foreach (var fIsland in islandDict[fromAtSub])
-                    {
-                        var removeAt = new HashSet<Island>();
-                        foreach (var tIsland in islandDict[toAtSub])
-                        {
-                            var fBit = islandToUseIndexBits[fIsland];
-                            var tBit = islandToUseIndexBits[tIsland];
-
-                            var needMerge = false;
-                            for (var vi = 0; fBit.Length > vi; vi += 1)
-                            {
-                                if (fBit[vi] && tBit[vi]) { needMerge = true; break; }
-                            }
-                            if (!needMerge) { continue; }
-
-                            var min = Vector2.Min(fIsland.Pivot, tIsland.Pivot);
-                            var max = Vector2.Max(fIsland.GetMaxPos, tIsland.GetMaxPos);
-                            fIsland.Pivot = min;
-                            fIsland.Size = max - fIsland.Pivot;
-
-                            fIsland.triangles.AddRange(tIsland.triangles);
-                            removeAt.Add(tIsland);
-                        }
-                        islandDict[toAtSub].RemoveAll(removeAt.Contains);
-                    }
-
-                }
-            }
-            IslandDict = islandDict;
-            Profiler.EndSample();
-
-            Profiler.BeginSample("GetIslandSubData");
-            var atSubLinkList = new LinkedList<AtlasSubData>();
-            var IslandLinkList = new LinkedList<Island>();
-
-            foreach (var atKv in IslandDict)
-            {
-                var atlasSubData = atKv.Key;
-                var islands = atKv.Value;
-
-                var count = islands.Count;
-                for (var ii = 0; count > ii; ii += 1)
-                {
-                    atSubLinkList.AddLast(atlasSubData);
-                    IslandLinkList.AddLast(islands[ii]);
-                }
-            }
-
-            Islands = IslandLinkList.ToArray();
-            IslandSubData = atSubLinkList.ToArray();
-            Profiler.EndSample();
-
-            /*
-            AtlasSubSetは、AtlasSubDataの一つの塊みたいな扱いで、 出力されるメッシュに相当する。
-
-            SubMeshが多い分には問題がないから、
-            同一メッシュを参照し、マテリアルがそれぞれ
-
-            ABC
-            ABCDE
-
-            のようなものの場合同一のものにすべきなため、同一サブセット扱いを行う。
-
-            */
-            static void IdenticalSubSetRemove(List<AtlasSubData?[]> atlasSubSets)
-            {
-                while (true)
-                {
-                    var mergeAt = Find(atlasSubSets);
-                    if (mergeAt is null) { return; }
-                    var val = mergeAt.Value;
-                    atlasSubSets.RemoveAt(val.Item2);
-                }
-
-                static (int, int)? Find(List<AtlasSubData?[]> atlasSubSets)
-                {
-                    var assCount = atlasSubSets.Count;
-                    for (var fi = 0; assCount > fi; fi += 1)
-                    {
-                        for (var ti = fi + 1; assCount > ti; ti += 1)
-                        {
-                            var fSubSet = atlasSubSets[fi];
-                            var tSubSet = atlasSubSets[ti];
-
-                            var first = fSubSet[0];
-                            var tFirst = tSubSet[0];
-
-                            if (first is null || tFirst is null) { continue; }
-                            if (first.Value.MeshID != tFirst.Value.MeshID) { continue; }
-
-                            if (fSubSet.SequenceEqual(tSubSet)) { return (fi, ti); }
-
-                            if (SubPartEqual(fSubSet, tSubSet))
-                            {
-                                if (fSubSet.Length > tSubSet.Length) { return (fi, ti); }
-                                else { return (ti, fi); }
-                            }
-
-                        }
-                    }
-
-                    return null;
-
-                    static bool SubPartEqual(AtlasSubData?[] fSubSet, AtlasSubData?[] tSubSet)
-                    {
-                        var minCount = Math.Min(fSubSet.Length, tSubSet.Length);
-                        for (var i = 0; minCount > i; i += 1)
-                        {
-                            if (fSubSet[i].HasValue != fSubSet[i].HasValue) { return false; }
-                            if (fSubSet[i] != tSubSet[i]) { return false; }
-                        }
-                        return true;
-                    }
-                }
+                var sourceMaterialID = ReverseSourceVirtualIsland2OriginIslands[virtualIslands]
+                    .Select(i => AtlasIslandCtx.ReverseOriginDict[i])
+                    .First();
+                var primaryTex = MaterialGroupingCtx.GetPrimaryTexture(sourceMaterialID.MaterialGroupID);
+                SourceVirtualIslands2PrimaryTexture[virtualIslands] = primaryTex;
             }
         }
-
-        internal static OrderedHashSet<Material>[] LookUpMaterialGroup(Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>> material2AtlasTargets, Dictionary<Material, AtlasShaderSupportScriptableObject> supporters, bool usePropertyBake = false)
+        public void SourceVirtualIslandNormalize()
         {
-            var materialGroupList = new List<Dictionary<Material, Dictionary<string, AtlasShaderTexture2D>>>();
-            foreach (var matKv in material2AtlasTargets)
+            for (var i = 0; SourceVirtualIslands.Length > i; i += 1)
             {
-                var index = materialGroupList.FindIndex(matGroup =>
-                        matGroup.All(m2 =>
-                            supporters[matKv.Key] == supporters[m2.Key]
-                            && (usePropertyBake ? BakedPropEqual(m2.Value, matKv.Value) : PropEqual(m2.Value, matKv.Value)))
-                );
-
-                if (index == -1) { materialGroupList.Add(new() { { matKv.Key, matKv.Value } }); }
-                else { materialGroupList[index].Add(matKv.Key, matKv.Value); }
+                var vIsland = SourceVirtualIslands[i];
+                var primaryTex = SourceVirtualIslands2PrimaryTexture[vIsland];
+                if (primaryTex == null) { continue; }
+                NormalizeIsland(vIsland, primaryTex.width, primaryTex.height);
             }
-            return materialGroupList.Select(i => new OrderedHashSet<Material>(i.Keys)).ToArray();
-        }
-
-        private Dictionary<Mesh, Mesh> SubVertNormalize(Renderer[] targetRenderers)
-        {
-            var normalizedMesh = new Dictionary<Mesh, Mesh>();
-            foreach (var MkR in targetRenderers.GroupBy(i => i.GetMesh()))
+            static void NormalizeIsland(IslandTransform island, int width, int height)
             {
-                var mesh = MkR.Key;
-                var maxSlot = 0; foreach (var r in MkR) { maxSlot = Mathf.Max(r.sharedMaterials.Length, maxSlot); }
-
-                var isOverSubMesh = maxSlot != mesh.subMeshCount;
-                var isCrossSubMesh = IsCrossSubMesh(mesh);
-
-                if (!isOverSubMesh && !isCrossSubMesh) { normalizedMesh[mesh] = UnityEngine.Object.Instantiate(mesh); continue; }
-
-                Profiler.BeginSample(MkR.Key.name + "-Normalize");
-                normalizedMesh[mesh] = NormalizedMesh(mesh, maxSlot);
-                Profiler.EndSample();
-            }
-            return normalizedMesh;
-
-            bool IsCrossSubMesh(Mesh mesh)
-            {
-                var vertSubMeshBit = new BitArray[mesh.subMeshCount];
-                var triList = new List<int>();
-                for (var subMeshIndex = 0; mesh.subMeshCount > subMeshIndex; subMeshIndex += 1)
-                {
-                    triList.Clear();
-                    mesh.GetTriangles(triList, subMeshIndex);
-                    var vertBit = new BitArray(mesh.vertexCount);
-                    foreach (var ti in triList) { vertBit[ti] = true; }
-                    vertSubMeshBit[subMeshIndex] = vertBit;
-                }
-
-                for (var fi = 0; vertSubMeshBit.Length > fi; fi += 1)
-                {
-                    for (var ti = fi + 1; vertSubMeshBit.Length > ti; ti += 1)
-                    {
-                        for (var vi = 0; vertSubMeshBit[fi].Length > vi; vi += 1)
-                        {
-                            if (vertSubMeshBit[fi][vi] && vertSubMeshBit[ti][vi]) { return true; }
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            Mesh NormalizedMesh(Mesh mesh, int expandSlot)
-            {
-                Profiler.BeginSample("ReadVertex");
-                var vertex = MeshInfoUtility.ReadVertex(mesh, out var meshDesc);
-                Profiler.EndSample();
-
-                Profiler.BeginSample("subMeshViArray");
-                var subMeshViArray = new int[expandSlot][];
-                for (var si = 0; subMeshViArray.Length > si; si += 1) { subMeshViArray[si] = mesh.GetTriangles(Math.Min(si, mesh.subMeshCount - 1)); }
-                Profiler.EndSample();
-
-                Profiler.BeginSample("subMeshOfVertex");
-                var subMeshOfVertex = new Vertex[expandSlot][];
-                for (var si = 0; subMeshViArray.Length > si; si += 1)
-                {
-                    var subMeshVi = subMeshViArray[si];
-                    var subMeshVert = subMeshOfVertex[si] = new Vertex[subMeshVi.Length];
-                    for (var vi = 0; subMeshVi.Length > vi; vi += 1)
-                    {
-                        subMeshVert[vi] = vertex[subMeshVi[vi]];
-                    }
-                }
-                Profiler.EndSample();
-
-                Profiler.BeginSample("useVert");
-                var useVert = new HashSet<Vertex>();
-                for (var si = 0; subMeshOfVertex.Length > si; si += 1)
-                {
-                    var subMeshVert = subMeshOfVertex[si];
-
-                    var subCrossUsed = new HashSet<Vertex>(subMeshVert);
-                    subCrossUsed.IntersectWith(useVert);
-
-                    useVert.UnionWith(subMeshVert);
-
-                    if (!subCrossUsed.Any()) { continue; }
-
-                    var replaceDict = subCrossUsed.ToDictionary(i => i, i => i.Clone());
-
-                    for (var vi = 0; subMeshVert.Length > vi; vi += 1)
-                    {
-                        if (replaceDict.TryGetValue(subMeshVert[vi], out var rv)) { subMeshVert[vi] = rv; }
-                    }
-
-                    vertex.AddRange(replaceDict.Values);
-                }
-                Profiler.EndSample();
-
-                Profiler.BeginSample("Instantiate");
-                var modifiedMesh = UnityEngine.Object.Instantiate(mesh);
-                Profiler.EndSample();
-                
-                MeshInfoUtility.ClearTriangleToWriteVertex(modifiedMesh, meshDesc, vertex);
-
-                Profiler.BeginSample("SetTriangles");
-                modifiedMesh.subMeshCount = subMeshOfVertex.Length;
-
-                Dictionary<Vertex, int> reverseVertexIndex = new(vertex.Count);
-                for (var vi = 0; vertex.Count > vi; vi += 1) { reverseVertexIndex[vertex[vi]] = vi; }
-                
-                for (var si = 0; subMeshOfVertex.Length > si; si += 1) { modifiedMesh.SetTriangles(subMeshOfVertex[si].Select(v => reverseVertexIndex[v]).ToArray(), si); }
-                Profiler.EndSample();
-
-                //念のために複製
-                Profiler.BeginSample("Instantiate.MoreCloned");
-                var moreCloned = UnityEngine.Object.Instantiate(modifiedMesh);
-                UnityEngine.Object.DestroyImmediate(modifiedMesh);
-                Profiler.EndSample();
-                return moreCloned;
+                var minPos = island.Position;
+                var maxPos = island.GetNotRotatedMaxPos();
+                island.Position = NormalizeMin(width, height, minPos);
+                island.Size = NormalizeMax(width, height, maxPos) - island.Position;
             }
         }
-
-        static bool PropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
+        internal static Vector2Sys NormalizeMin(int width, int height, Vector2Sys vec)
         {
-            foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
-            {
-                if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { continue; }
-                var l = propL[propName];
-                var r = propR[propName];
-                if (l.Texture == null || r.Texture == null) { continue; }
-                if (l.Texture != r.Texture) { return false; }
-
-                if (l.TextureScale != r.TextureScale) { return false; }
-                if (l.TextureTranslation != r.TextureTranslation) { return false; }
-
-            }
-            return true;
-        }
-        static bool BakedPropEqual(Dictionary<string, AtlasShaderTexture2D> propL, Dictionary<string, AtlasShaderTexture2D> propR)
-        {
-            foreach (var propName in propL.Keys.Concat(propR.Keys).Distinct())
-            {
-                if (!propL.ContainsKey(propName) || !propR.ContainsKey(propName)) { return false; }
-
-                var l = propL[propName];
-                var r = propR[propName];
-
-                if (l.Texture == null || r.Texture == null) { return false; }
-                if (l.Texture != r.Texture) { return false; }
-
-                if (l.TextureScale != r.TextureScale) { return false; }
-                if (l.TextureTranslation != r.TextureTranslation) { return false; }
-
-                if (BakeProperty.PropertyListEqual(l.BakeProperties, r.BakeProperties) == false) { return false; }
-            }
-            return true;
+            vec.Y = Mathf.Min(vec.Y * height) / height;
+            vec.X = Mathf.Min(vec.X * width) / width;
+            return vec;
         }
 
+        internal static Vector2Sys NormalizeMax(int width, int height, Vector2Sys vec)
+        {
+            vec.Y = Mathf.Max(vec.Y * height) / height;
+            vec.X = Mathf.Max(vec.X * width) / width;
+            return vec;
+        }
+        internal struct IslandReferences
+        {
+            public List<Island> origins;
+            public Triangle2D[] mergedTriangles;
+
+            public IslandReferences(List<Island> origins, Triangle2D[] mergedTriangles)
+            {
+                this.origins = origins;
+                this.mergedTriangles = mergedTriangles;
+            }
+        }
         public void Dispose()
         {
-            foreach (var md in MeshDataDict) { md.Value.Dispose(); }
-            MeshDataDict = null;
-            foreach (var md in NormalizeMeshes) { UnityEngine.Object.DestroyImmediate(md.Value); }
-            NormalizeMeshes = null;
-            foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }
-            _bakedMesh = null;
+            NormalizedMeshCtx.Dispose();
+        }
+        internal void PrimaryTextureSizeScaling(IslandTransform[] virtualIslandArray, Vector2Int atlasTargeSize)
+        {
+            for (var i = 0; virtualIslandArray.Length > i; i += 1)
+            {
+                var refTex = SourceVirtualIslands2PrimaryTexture[SourceVirtualIslands[i]];
+                if (refTex != null)
+                {
+                    var scaling = (float)refTex.width / atlasTargeSize.x;
+                    virtualIslandArray[i].Size *= scaling;
+
+                    if (refTex.width != refTex.height)
+                    {
+                        var aspect = refTex.height / (float)refTex.width;
+                        virtualIslandArray[i].Size.Y *= aspect;
+                    }
+                }
+                else
+                {
+                    virtualIslandArray[i].Size *= 0.01f;
+                }
+            }
         }
 
+        internal Mesh[] GenerateAtlasedMesh(
+            AtlasSetting atlasSetting
+            , Dictionary<IslandTransform, IslandTransform> source2MovedVirtualIsland
+            , Vector2Int atlasedTextureSize
+            )
+        {
+            // var normMeshes = atlasContext.Meshes.Select(m => atlasContext.NormalizeMeshes[m]).ToArray();
+            var aspectScale = 1 / (atlasedTextureSize.y / (float)atlasedTextureSize.x);// 高さの比率を逆数にして 縦長だったら小さくなるような感じになる。
+            var atlasSubSets = AtlasSubMeshIndexSetCtx.AtlasSubSets;
+            var writeDefaultUVChannel = (int)atlasSetting.AtlasTargetUVChannel;
+            var compiledMeshes = new Mesh[atlasSubSets.Count];
 
+            for (int subSetIndex = 0; compiledMeshes.Length > subSetIndex; subSetIndex += 1)
+            {
+                var subSet = atlasSubSets[subSetIndex];
+                var firstID = subSet.First(i => i != null);
+                var meshID = firstID.HasValue ? firstID.Value.MeshID : -1;
+
+                Debug.Assert(meshID is not -1);
+
+                var nmMesh = NormalizedMeshCtx.MeshID2Normalized[meshID];
+                var distMesh = NormalizedMeshCtx.Normalized2OriginMesh[nmMesh];
+                var meshData = NormalizedMeshCtx.Normalized2MeshData[nmMesh];
+                var newMesh = UnityEngine.Object.Instantiate<Mesh>(nmMesh);
+                newMesh.name = "AtlasMesh_" + subSetIndex + "_" + nmMesh.name;
+
+                var moveTargetIslands = subSet.Where(i => i.HasValue)
+                     .Cast<AtlasSubMeshIndexID>()
+                     .SelectMany(i => AtlasIslandCtx.OriginIslandDict[i])
+                     .Select(island => (island, AtlasIslandCtx.Origin2VirtualIsland[island])).ToArray();
+
+                var moveTargetIndexes = atlasedTextureSize.x != atlasedTextureSize.y ? new HashSet<int>() : null;
+
+                var originalUV = meshData.VertexUV;
+                using var movedUVNativeArray = new NativeArray<Vector2>(originalUV, Allocator.TempJob);
+                var movedUV = movedUVNativeArray.AsSpan();
+
+                foreach (var (island, sourceVirtualIsland) in moveTargetIslands)
+                {
+                    var movedVirtualIsland = source2MovedVirtualIsland[sourceVirtualIsland];
+
+                    var sourceSize = sourceVirtualIsland.Size;
+                    var movedSize = movedVirtualIsland.Size;
+
+                    var relativeScale = NotNormalToZero(new(movedSize.X / sourceSize.X, movedSize.Y / sourceSize.Y));
+                    static Vector2 NotNormalToZero(Vector2 relativeScale)
+                    {
+                        relativeScale.x = float.IsNormal(relativeScale.x) ? relativeScale.x : 0;
+                        relativeScale.y = float.IsNormal(relativeScale.y) ? relativeScale.y : 0;
+                        return relativeScale;
+                    }
+
+                    foreach (var triangleIndex in island.Triangles)
+                    {
+                        for (var i = 0; 3 > i; i += 1)
+                        {
+                            var relativePosition = originalUV[triangleIndex[i]].ToSysNum() - sourceVirtualIsland.Position;
+                            relativePosition.X *= relativeScale.x;
+                            relativePosition.Y *= relativeScale.y;
+
+                            var movedUVPosition = movedVirtualIsland.Position + IslandTransform.RotateVector(relativePosition, movedVirtualIsland.Rotation);
+                            movedUV[triangleIndex[i]] = movedUVPosition.ToUnity();
+                            moveTargetIndexes?.Add(triangleIndex[i]);
+                        }
+                    }
+
+                }
+
+                if (moveTargetIndexes is not null)
+                {
+                    foreach (var vi in moveTargetIndexes)
+                    {
+                        var uvPos = movedUV[vi];
+                        uvPos.y *= aspectScale;
+                        movedUV[vi] = uvPos;
+                    }
+                }
+                newMesh.SetUVs(writeDefaultUVChannel, movedUVNativeArray);
+
+                compiledMeshes[subSetIndex] = newMesh;
+                newMesh.UploadMeshData(false);
+            }
+            return compiledMeshes;
+        }
+        public Dictionary<string, ITTRenderTexture> GenerateAtlasedTextures<TTT4U>(
+            TTT4U engine
+            , AtlasSetting atlasSetting
+            , Vector2Int atlasedTextureSize
+            , bool IsRectangleMove
+            , Dictionary<IslandTransform, IslandTransform> source2MovedVirtualIsland
+        ) where TTT4U : ITexTransToolForUnity
+        {
+            using var pf = new PFScope("init");
+            //アトラス化したテクスチャーを生成するフェーズ
+            var compiledAtlasTextures = new Dictionary<string, ITTRenderTexture>();
+
+            using var groupedTextures = GetGroupedDiskOrRenderTextures(engine);
+            var containsProperty = MaterialGroupingCtx.GetContainsAllProperties();
+
+            var loadedDiskTextures = new Dictionary<ITTDiskTexture, ITTRenderTexture>();
+            try
+            {
+                foreach (var propName in containsProperty)
+                {
+                    pf.Split(propName);
+                    using var ppf = new PFScope("init");
+                    var targetRT = engine.CreateRenderTexture(atlasedTextureSize.x, atlasedTextureSize.y);
+                    engine.ColorFill(targetRT, atlasSetting.BackGroundColor.ToTTCore());
+
+                    targetRT.Name = "AtlasTex" + propName;
+                    // Profiler.BeginSample("Draw:" + targetRT.name);
+                    foreach (var group in groupedTextures.GroupedTextures)
+                    {
+                        if (!group.Value.TryGetValue(propName, out var sourceTexture)) { continue; }
+                        ppf.Split(sourceTexture.Name);
+                        var sourceRenderTexture = sourceTexture switch
+                        {
+                            ITTRenderTexture rt => rt,
+                            ITTDiskTexture dt => loadedDiskTextures.ContainsKey(dt) ? loadedDiskTextures[dt] : LoadFullScale(dt),
+                            _ => throw new InvalidCastException(),
+                        };
+                        ITTRenderTexture LoadFullScale(ITTDiskTexture diskTexture)
+                        {
+                            var loaded = engine.LoadTextureWidthFullScale(diskTexture);
+                            loadedDiskTextures[diskTexture] = loaded;
+                            return loaded;
+                        }
+
+                        var findMaterialID = group.Key;
+                        if (IsRectangleMove)
+                        {
+                            var findSubIDHash = AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash
+                                                    .Where(i => i.MaterialGroupID == findMaterialID).ToHashSet();
+
+                            var drawTargetSourceVirtualIslandsHash = new HashSet<IslandTransform>();
+                            foreach (var subID in findSubIDHash)
+                            {
+                                drawTargetSourceVirtualIslandsHash.UnionWith(
+                                    AtlasIslandCtx.OriginIslandDict[subID]
+                                        .Select(i => AtlasIslandCtx.Origin2VirtualIsland[i])
+                                    );
+                            }
+                            var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
+                            var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
+
+
+                            AtlasingUtility.TransMoveRectangle(engine
+                                , targetRT
+                                , sourceRenderTexture
+                                , drawTargetSourceVirtualIslands
+                                , drawTargetMovedVirtualIslands
+                                , atlasSetting.IslandPadding
+                            );
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                            // for (var subSetIndex = 0; atlasContext.AtlasSubSets.Count > subSetIndex; subSetIndex += 1)
+                            // {
+                            //     var transTargets = atlasContext.AtlasSubSets[subSetIndex].Where(i => i.HasValue).Where(i => i.Value.MaterialGroupID == findMaterialID).Select(i => i.Value);
+                            //     if (!transTargets.Any()) { continue; }
+
+                            //     var triangles = new NativeArray<TriangleIndex>(transTargets.SelectMany(subData => atlasContext.IslandDict[subData].SelectMany(i => i.triangles)).ToArray(), Allocator.TempJob);
+                            //     var originUV = atlasContext.MeshDataDict[atlasContext.NormalizeMeshes[atlasContext.Meshes[transTargets.First().MeshID]]].VertexUV;
+
+                            //     var transData = new TransData(triangles, subSetMovedUV[subSetIndex], originUV);
+                            //     ForTrans(targetRT, sTexture, transData, atlasSetting.GetTexScalePadding * 0.5f, null, true);
+
+                            //     triangles.Dispose();
+                            // }preMesh
+                        }
+
+                    }
+                    compiledAtlasTextures.Add(propName, targetRT);
+                }
+            }
+            finally
+            {
+                foreach (var dt in loadedDiskTextures.Values) { dt.Dispose(); }
+            }
+            return compiledAtlasTextures;
+        }
+        internal GroupedDiskOrRenderTextures GetGroupedDiskOrRenderTextures(ITexTransToolForUnity texTransToolForUnity)
+        {
+            var groupedTextures = new Dictionary<int, Dictionary<string, ITTTexture>>();
+            var materialGroup = MaterialGroupingCtx.GroupMaterials;
+
+            for (var i = 0; materialGroup.Length > i; i += 1)
+            {
+                groupedTextures[i] = materialGroup[i].GroupedTexture
+                    .Where(i => i.Value != null)
+                    .Cast<KeyValuePair<string, Texture>>()
+                    .ToDictionary(
+                        kv => kv.Key,
+                        kv => texTransToolForUnity.WrappingOrUpload(kv.Value)
+                    );
+            }
+            return new(groupedTextures);
+        }
+
+        internal class GroupedDiskOrRenderTextures : IDisposable
+        {
+            public Dictionary<int, Dictionary<string, ITTTexture>> GroupedTextures;
+
+            public GroupedDiskOrRenderTextures(Dictionary<int, Dictionary<string, ITTTexture>> groupedTextures)
+            {
+                GroupedTextures = groupedTextures;
+            }
+
+            public void Dispose()
+            {
+                foreach (var g in GroupedTextures)
+                    foreach (var texKV in g.Value)
+                        texKV.Value.Dispose();
+
+                GroupedTextures.Clear();
+            }
+        }
     }
+
+
 }

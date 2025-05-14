@@ -51,7 +51,7 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.BeginSample(root.name, root);
                 Profiler.BeginSample("FindAtPhase");
 
-                var behaviors = Memoize.Memo(root, AvatarBuildUtils.FindAtPhase)[PreviewTargetPhase];
+                var behaviors = Memoize.Memo(root, TexTransBehaviorSearch.FindAtPhase)[PreviewTargetPhase];
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Observing");
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.NDMF
                 Profiler.EndSample();
                 Profiler.BeginSample("domain2PhaseList");
 
-                behaviors.RemoveAll(b => AvatarBuildUtils.CheckIsActiveBehavior(b, waker, root) is false);//ここで消すと同時に監視。
+                behaviors.RemoveAll(b => TexTransBehaviorSearch.CheckIsActive(b.gameObject, waker, root) is false);//ここで消すと同時に監視。
 
                 Profiler.EndSample();
                 Profiler.BeginSample("Grouping");
@@ -231,7 +231,7 @@ namespace net.rs64.TexTransTool.NDMF
         }
 
 
-        internal struct NDMFGameObjectObservedWaker : AvatarBuildUtils.IGameObjectWakingTool, AvatarBuildUtils.IGameObjectActivenessWakingTool
+        internal struct NDMFGameObjectObservedWaker : TexTransBehaviorSearch.IGameObjectWakingTool, TexTransBehaviorSearch.IGameObjectActivenessWakingTool
         {
             ComputeContext _context;
             public NDMFGameObjectObservedWaker(ComputeContext context)
@@ -320,7 +320,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
             public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
-            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r)
+            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
             {
                 if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
                 if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
@@ -375,7 +375,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _textureHashOnMaterial = new();
             }
             public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
-            public bool OriginEqual(UnityEngine.Object l, UnityEngine.Object r) { return l == r; }
+            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
 
             public Material?[] GetMaterials(Renderer renderer)
             {

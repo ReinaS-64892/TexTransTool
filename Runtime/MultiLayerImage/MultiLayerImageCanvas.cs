@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using System.Runtime.CompilerServices;
 using net.rs64.TexTransCore;
+using UnityEngine.Serialization;
 
 namespace net.rs64.TexTransTool.MultiLayerImage
 {
@@ -17,27 +18,31 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
-        public TextureSelector TextureSelector = new();
+        [FormerlySerializedAs("TextureSelector")] public TextureSelector TargetTexture = new();
 
         [SerializeField, HideInInspector] public TTTImportedCanvasDescription? tttImportedCanvasDescription;
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TextureSelector.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (replaceTarget == null) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
+            var replaceTarget = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
-            if (nowDomainsTargets.Any() is false) { TTTRuntimeLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
+            if (nowDomainsTargets.Any() is false) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
 
             var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.GetAllTexture<Texture>().Any(nowDomainsTargets.Contains)).ToHashSet();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
-            var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.width);
-            if (domain.IsPreview()) { canvasWidth = Mathf.Min(1024, canvasWidth); canvasHeigh = Mathf.Min(1024, canvasHeigh); }
+            var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.height);
+            if (domain.GetCustomContext<DomainPreviewCtx>()?.IsPreview ?? false)
+            {
+                canvasWidth = Mathf.Min(1024, canvasWidth);
+                canvasHeigh = Mathf.Min(1024, canvasHeigh);
+            }
 
             Profiler.BeginSample("EvaluateCanvas");
             var texTransUnityCoreEngine = domain.GetTexTransCoreEngineForUnity();
-            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh),targetContainsMaterials));
+            using var result = EvaluateCanvas(new(domain, (canvasWidth, canvasHeigh), targetContainsMaterials));
             Profiler.EndSample();
 
             var notBlendKey = texTransUnityCoreEngine.QueryBlendKey("NotBlend");
@@ -64,9 +69,9 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
-            return TextureSelector.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
-        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TextureSelector; }
+        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TargetTexture; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }

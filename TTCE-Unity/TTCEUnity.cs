@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.TTMathUtil;
+using net.rs64.TexTransCore.TTMathUtil;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -73,71 +73,57 @@ namespace net.rs64.TexTransCoreEngineForUnity
             }
             throw new ArgumentException();
         }
-        public ITTStorageBuffer AllocateStorageBuffer(int length, bool downloadable = false)
-        { return new TTUnityComputeHandler.TTUnityStorageBuffer(length, downloadable); }
+        public ITTStorageBuffer AllocateStorageBuffer<T>(int length, bool downloadable = false) where T : unmanaged
+        { return new TTUnityComputeHandler.TTUnityStorageBuffer(length, UnsafeUtility.SizeOf<T>(), downloadable); }
         public ITTStorageBuffer UploadStorageBuffer<T>(ReadOnlySpan<T> data, bool downloadable = false) where T : unmanaged
         {
-            var length = data.Length * UnsafeUtility.SizeOf<T>();
-            var paddedLength = TTMath.NormalizeOf4Multiple(length);
-            var holder = new TTUnityComputeHandler.TTUnityStorageBuffer(paddedLength, downloadable);
+            var stride = UnsafeUtility.SizeOf<T>();
+            if((stride % 4) is not 0){throw new InvalidProgramException("must be a multiple of 4 !!!");}
+            var length = data.Length * stride;
+            var holder = new TTUnityComputeHandler.TTUnityStorageBuffer(length, stride, downloadable);
 #if UNITY_EDITOR
-            if (paddedLength == length)
+            unsafe
             {
-                unsafe
+                fixed (T* ptr = data)
                 {
-                    fixed (T* ptr = data)
-                    {
-                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
-                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
-                        holder._buffer!.SetData(na);
-                    }
+                    var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(ptr, data.Length, Allocator.None);
+                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                    holder._buffer!.SetData(na);
                 }
             }
-            else
+#else
+            using var na = new NativeArray<T>(data.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            data.CopyTo(na.AsSpan());
+            holder._buffer!.SetData(na);
 #endif
-            {
-                using var na = new NativeArray<byte>(paddedLength, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-                MemoryMarshal.Cast<T, byte>(data).CopyTo(na.AsSpan());
-                na.AsSpan()[paddedLength..].Fill(0);
-                holder._buffer!.SetData(na);
-            }
 
             return holder;
         }
 
         public void DownloadBuffer<T>(Span<T> dist, ITTStorageBuffer takeToFrom) where T : unmanaged
         {
-            var holder = (TTUnityComputeHandler.TTUnityStorageBuffer)takeToFrom;
+            using var holder = (TTUnityComputeHandler.TTUnityStorageBuffer)takeToFrom;
 
             if (holder._buffer is null) { throw new NullReferenceException(); }
             if (holder._downloadable is false) { throw new InvalidOperationException(); }
 
-            var length = dist.Length * UnsafeUtility.SizeOf<T>();
-            var bufLen = holder._buffer.count * holder._buffer.stride;
-
 #if UNITY_EDITOR
-            if (length == bufLen)
+            unsafe
             {
-                unsafe
+                fixed (T* ptr = dist)
                 {
-                    fixed (T* ptr = dist)
-                    {
-                        var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
-                        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
-                        var request = AsyncGPUReadback.RequestIntoNativeArray(ref na, holder._buffer);
-                        request.WaitForCompletion();
-                    }
+                    var na = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(ptr, dist.Length, Allocator.None);
+                    NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref na, AtomicSafetyHandle.GetTempMemoryHandle());
+                    var request = AsyncGPUReadback.RequestIntoNativeArray(ref na, holder._buffer);
+                    request.WaitForCompletion();
                 }
             }
-            else
-#endif
-            {
-                var req = AsyncGPUReadback.Request(holder._buffer);
-                req.WaitForCompletion();
-                req.GetData<T>().AsSpan().Slice(0, Math.Min(bufLen, dist.Length)).CopyTo(dist);
-            }
+#else
+            var req = AsyncGPUReadback.Request(holder._buffer);
+            req.WaitForCompletion();
+            req.GetData<T>().AsSpan().CopyTo(dist);
 
-            holder._buffer = null;
+#endif
         }
 
         public ITexTransStandardComputeKey StandardComputeKey => ComputeObjectUtility.UStdHolder;
@@ -179,9 +165,10 @@ namespace net.rs64.TexTransCoreEngineForUnity
         public static UnityEngine.Vector2 ToUnity(this System.Numerics.Vector2 vec) { return new(vec.X, vec.Y); }
         public static UnityEngine.Vector3 ToUnity(this System.Numerics.Vector3 vec) { return new(vec.X, vec.Y, vec.Z); }
         public static UnityEngine.Vector4 ToUnity(this System.Numerics.Vector4 vec) { return new(vec.X, vec.Y, vec.Z, vec.W); }
-        public static System.Numerics.Vector4 ToTTCore(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
-        public static System.Numerics.Vector3 ToTTCore(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
-        public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToTTCore(), Direction = ray.direction.ToTTCore() }; }
+        public static System.Numerics.Vector4 ToSysNum(this UnityEngine.Vector4 vec) { return new(vec.x, vec.y, vec.z, vec.w); }
+        public static System.Numerics.Vector3 ToSysNum(this UnityEngine.Vector3 vec) { return new(vec.x, vec.y, vec.z); }
+        public static System.Numerics.Vector2 ToSysNum(this UnityEngine.Vector2 vec) { return new(vec.x, vec.y); }
+        public static RayIntersect.Ray ToTTCore(this UnityEngine.Ray ray) { return new() { Position = ray.origin.ToSysNum(), Direction = ray.direction.ToSysNum() }; }
 
         internal static TextureFormat ToUnityTextureFormat(this TexTransCoreTextureFormat format, TexTransCoreTextureChannel channel = TexTransCoreTextureChannel.RGBA)
         {

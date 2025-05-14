@@ -33,7 +33,7 @@
         },
         {
             "name": "nadena.dev.ndmf",
-            "expression": "1.5.0",
+            "expression": "1.7.0",
             "define": "NDMF_DEPEND_VERSION"
         }
     ],

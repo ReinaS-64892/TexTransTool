@@ -12,49 +12,39 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
     [CanEditMultipleObjects]
     [CustomEditor(typeof(SimpleDecal))]
-    internal class SimpleDecalEditor : UnityEditor.Editor
+    internal class SimpleDecalEditor : TTCanBehaveAsLayerEditor
     {
-        CanBehaveAsLayerEditorUtil behaveLayerUtil;
-        void BehaveUtilInit() { behaveLayerUtil = new(target as Component); }
-        void OnEnable() { BehaveUtilInit(); EditorApplication.hierarchyChanged += BehaveUtilInit; }
-        void OnDisable() { EditorApplication.hierarchyChanged -= BehaveUtilInit; }
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
             var thisSObject = serializedObject;
             var thisObject = target as SimpleDecal;
             var isMultiEdit = targets.Length != 1;
 
 
-            if (behaveLayerUtil.IsLayerMode is false)
+            if (IsLayerMode is false)
             {
                 EditorGUILayout.LabelField("CommonDecal:label:RenderersSettings".Glc(), EditorStyles.boldLabel);
-                EditorGUI.indentLevel += 1;
 
-                var sRendererSelector = thisSObject.FindProperty("RendererSelector");
+                using var indexScope = new EditorGUI.IndentLevelScope(1);
+                var sRendererSelector = thisSObject.FindProperty(nameof(SimpleDecal.RendererSelector));
                 EditorGUILayout.PropertyField(sRendererSelector, "Common:RendererSelectMode".Glc());
-
-                EditorGUI.indentLevel -= 1;
             }
 
             EditorGUILayout.LabelField("CommonDecal:label:TextureSettings".Glc(), EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-
-            if (thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas").objectReferenceValue == null || behaveLayerUtil.IsLayerMode)
+            using (new EditorGUI.IndentLevelScope(1))
             {
-                var sDecalTexture = thisSObject.FindProperty("DecalTexture");
+                var sDecalTexture = thisSObject.FindProperty(nameof(SimpleDecal.DecalTexture));
                 EditorGUILayout.PropertyField(sDecalTexture, "CommonDecal:prop:DecalTexture".Glc());
 
-                var sColor = thisSObject.FindProperty("Color");
+                var sColor = thisSObject.FindProperty(nameof(SimpleDecal.Color));
                 EditorGUILayout.PropertyField(sColor, "CommonDecal:prop:Color".Glc());
+
+                var sBlendType = thisSObject.FindProperty(nameof(SimpleDecal.BlendTypeKey));
+                EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
+
+                var sTargetPropertyName = thisSObject.FindProperty(nameof(SimpleDecal.TargetPropertyName));
+                if (IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
             }
-
-            var sBlendType = thisSObject.FindProperty("BlendTypeKey");
-            EditorGUILayout.PropertyField(sBlendType, "CommonDecal:prop:BlendTypeKey".Glc());
-
-            var sTargetPropertyName = thisSObject.FindProperty("TargetPropertyName");
-            if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sTargetPropertyName, "CommonDecal:prop:TargetPropertyName".Glc());
-            EditorGUI.indentLevel -= 1;
 
 
             if (!isMultiEdit)
@@ -66,48 +56,17 @@ namespace net.rs64.TexTransTool.Editor.Decal
             }
 
             EditorGUILayout.LabelField("SimpleDecal:label:CullingSettings".Glc(), EditorStyles.boldLabel);
-            EditorGUI.indentLevel += 1;
-
-            var sSideCulling = thisSObject.FindProperty("BackCulling");
-            EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:BackCulling".Glc());
-
-            var sIslandSelector = thisSObject.FindProperty("IslandSelector");
-            EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:IslandSelector".Glc());
-
-            EditorGUI.indentLevel -= 1;
-
-            DecalEditorUtil.DrawerAdvancedOption(thisSObject);
-
-            s_ExperimentalFutureOption = EditorGUILayout.Foldout(s_ExperimentalFutureOption, "Common:ExperimentalFuture".Glc());
-            if (s_ExperimentalFutureOption)
+            using (new EditorGUI.IndentLevelScope(1))
             {
-                var sOverrideDecalTextureWithMultiLayerImageCanvas = thisSObject.FindProperty("OverrideDecalTextureWithMultiLayerImageCanvas");
-                if (behaveLayerUtil.IsLayerMode is false) EditorGUILayout.PropertyField(sOverrideDecalTextureWithMultiLayerImageCanvas);
+                var sSideCulling = thisSObject.FindProperty(nameof(SimpleDecal.BackCulling));
+                EditorGUILayout.PropertyField(sSideCulling, "SimpleDecal:prop:BackCulling".Glc());
 
-                if (sIslandSelector.objectReferenceValue == null || sIslandSelector.objectReferenceValue is PinIslandSelector)
-                {
-                    var sIslandCulling = thisSObject.FindProperty("IslandCulling");
-                    if (sIslandCulling.boolValue && GUILayout.Button("Migrate IslandCulling to  IslandSelector"))
-                    {
-#pragma warning disable CS0612
-                        MigrateIslandCullingToIslandSelector(targets);
-#pragma warning restore CS0612
-                    }
-                }
-
-                var sUseDepth = thisSObject.FindProperty("UseDepth");
-                var sDepthInvert = thisSObject.FindProperty("DepthInvert");
-                EditorGUILayout.PropertyField(sUseDepth, "SimpleDecal:prop:ExperimentalFuture:UseDepth".Glc());
-                if (sUseDepth.boolValue) { EditorGUILayout.PropertyField(sDepthInvert, "SimpleDecal:prop:ExperimentalFuture:DepthInvert".Glc()); }
-
+                var sIslandSelector = thisSObject.FindProperty(nameof(SimpleDecal.IslandSelector));
+                EditorGUILayout.PropertyField(sIslandSelector, "SimpleDecal:prop:IslandSelector".Glc());
             }
 
-            if (behaveLayerUtil.IsDrawPreviewButton) PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
-            behaveLayerUtil.DrawAddLayerButton(target as Component);
-
-            thisSObject.ApplyModifiedProperties();
+            DecalEditorUtil.DrawerAdvancedOption(thisSObject);
         }
-        static bool s_ExperimentalFutureOption = false;
 
         public static void DrawerScale(SerializedObject thisSObject, SerializedObject tf_sObg, Texture2D decalTexture)
         {
@@ -115,12 +74,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
             EditorGUI.indentLevel += 1;
 
             var sLocalScale = tf_sObg.FindProperty("m_LocalScale");
-            var sFixedAspect = thisSObject.FindProperty("FixedAspect");
+            var sFixedAspect = thisSObject.FindProperty(nameof(SimpleDecal.FixedAspect));
 
             var localScaleValue = sLocalScale.vector3Value;
             if (localScaleValue.x < 0 || localScaleValue.y < 0 || localScaleValue.z < 0) { EditorGUILayout.HelpBox("SimpleDecal:info:ScaleInvert".GetLocalize(), MessageType.Info); }
 
-            TextureTransformerEditor.Filter<float> editCollBack = (value) =>
+            DecalEditorUtil.Filter<float> editCollBack = (value) =>
             {
                 var aspectValue = 1f;
                 if (decalTexture != null) { aspectValue = ((float)decalTexture.height / (float)decalTexture.width); }
@@ -130,7 +89,7 @@ namespace net.rs64.TexTransTool.Editor.Decal
 
             if (sFixedAspect.boolValue)
             {
-                TextureTransformerEditor.DrawerPropertyFloat(
+                DecalEditorUtil.DrawerPropertyFloat(
                     sLocalScale.FindPropertyRelative("x"),
                     "SimpleDecal:prop:Scale".Glc(),
                     editCollBack
@@ -147,69 +106,12 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 EditorGUILayout.EndHorizontal();
             }
 
-            TextureTransformerEditor.DrawerPropertyBool(sFixedAspect, "SimpleDecal:prop:FixedAspect".Glc(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
+            DecalEditorUtil.DrawerPropertyBool(sFixedAspect, "SimpleDecal:prop:FixedAspect".Glc(), (Value) => { if (Value) { editCollBack.Invoke(sLocalScale.FindPropertyRelative("x").floatValue); } return Value; });
 
             EditorGUILayout.PropertyField(sLocalScale.FindPropertyRelative("z"), "SimpleDecal:prop:MaxDistance".Glc());
 
             EditorGUI.indentLevel -= 1;
         }
-
-
-        [InitializeOnLoadMethod]
-        internal static void RegisterSummary()
-        {
-            TexTransGroupEditor.s_summary[typeof(SimpleDecal)] = at =>
-            {
-                var ve = new VisualElement();
-                var serializedObject = new SerializedObject(at);
-                var sTargetRenderers = serializedObject.FindProperty("TargetRenderers");
-                var sAtlasTextureSize = serializedObject.FindProperty("DecalTexture");
-
-                var targetRoot = new PropertyField();
-                targetRoot.label = "CommonDecal:prop:TargetRenderer".GetLocalize();
-                targetRoot.BindProperty(sTargetRenderers.GetArrayElementAtIndex(0));
-                ve.hierarchy.Add(targetRoot);
-
-                var atlasTextureSize = new ObjectField();
-                atlasTextureSize.label = "CommonDecal:prop:DecalTexture".GetLocalize();
-                atlasTextureSize.BindProperty(sAtlasTextureSize);
-                ve.hierarchy.Add(atlasTextureSize);
-
-                return ve;
-            };
-        }
-
-        [Obsolete]
-        public void MigrateIslandCullingToIslandSelector(IEnumerable<UnityEngine.Object> simpleDecals)
-        {
-            foreach (var uo in simpleDecals)
-            {
-                if (uo is SimpleDecal simpleDecal)
-                {
-                    MigrateIslandCullingToIslandSelector(simpleDecal);
-                }
-            }
-        }
-        [Obsolete]
-        public void MigrateIslandCullingToIslandSelector(SimpleDecal simpleDecal)
-        {
-            if (simpleDecal.IslandSelector != null)
-            {
-                if (simpleDecal.IslandSelector is not PinIslandSelector) { Debug.LogError("IslandSelector にすでに何かが割り当てられているため、マイグレーションを実行できません。"); return; }
-                else { if (!EditorUtility.DisplayDialog("Migrate IslandCulling To IslandSelector", "IslandSelector に RayCastIslandSelector が既に割り当てられています。 \n 割り当てられている RayCastIslandSelector を編集する形でマイグレーションしますか？", "実行")) { return; } }
-            }
-            Undo.RecordObject(simpleDecal, "MigrateIslandCullingToIslandSelector");
-
-            simpleDecal.IslandCulling = false;
-            var islandSelector = Migration.V3.SimpleDecalV3.GenerateIslandSelector(simpleDecal);
-
-            Undo.RecordObject(islandSelector, "MigrateIslandCullingToIslandSelector - islandSelectorEdit");
-
-            Migration.V3.SimpleDecalV3.SetIslandSelectorTransform(simpleDecal, islandSelector);
-
-        }
-
-
     }
 
 
@@ -219,20 +121,32 @@ namespace net.rs64.TexTransTool.Editor.Decal
         public static void DrawerAdvancedOption(SerializedObject sObject)
         {
             FoldoutAdvancedOption = EditorGUILayout.Foldout(FoldoutAdvancedOption, "CommonDecal:label:AdvancedOption".Glc());
-            if (FoldoutAdvancedOption)
-            {
-                EditorGUI.indentLevel += 1;
-
-                var sHighQualityPadding = sObject.FindProperty("HighQualityPadding");
-                EditorGUILayout.PropertyField(sHighQualityPadding, "CommonDecal:prop:HighQualityPadding".Glc());
-
-                var sPadding = sObject.FindProperty("Padding");
-                EditorGUILayout.PropertyField(sPadding, "CommonDecal:prop:Padding".Glc());
-
-                EditorGUI.indentLevel -= 1;
-            }
+            using (new EditorGUI.IndentLevelScope(1))
+                if (FoldoutAdvancedOption)
+                {
+                    var sPadding = sObject.FindProperty("Padding");
+                    EditorGUILayout.PropertyField(sPadding, "CommonDecal:prop:Padding".Glc());
+                }
 
         }
 
+        #region DrawerProperty
+
+        public delegate T Filter<T>(T Target);
+        public static void DrawerPropertyBool(SerializedProperty prop, GUIContent gUIContent = null, Filter<bool> editAndFilterCollBack = null)
+        {
+            var preValue = prop.boolValue;
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : new GUIContent(prop.displayName));
+            var postValue = prop.boolValue;
+            if (editAndFilterCollBack != null && preValue != postValue) { prop.boolValue = editAndFilterCollBack.Invoke(postValue); }
+        }
+        public static void DrawerPropertyFloat(SerializedProperty prop, GUIContent gUIContent = null, Filter<float> editAndFilterCollBack = null)
+        {
+            var preValue = prop.floatValue;
+            EditorGUILayout.PropertyField(prop, gUIContent != null ? gUIContent : new GUIContent(prop.displayName));
+            var postValue = prop.floatValue;
+            if (editAndFilterCollBack != null && !Mathf.Approximately(preValue, postValue)) { prop.floatValue = editAndFilterCollBack.Invoke(postValue); }
+        }
+        #endregion
     }
 }

@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.3...HEAD)
 
+### Added
+
+- AtlasTexture の MergeReference に対して割り当てられていた場合にも置き換えが登録されるようになり、アトラス化後のマテリアルを対象にコンポーネントが動作可能になりました (#900)
+- AtlasTexture がアトラス化するとき、大幅に重なったアイランドが、結合可能なときは結合されて扱われるようになりました (#900)
+- AtlasTexture TextureFineTuning の MipMapRemove は廃止され、 MiMap が追加されました (#900)
+- AtlasTexture MargeMaterialGroup が stable としてマークされました (#900)
+- TexTransTool に 日本語と英語 以外の言語を追加できる API が追加されました (#959)
+- TexTransTool が NDMF によるビルドの場合に Animation によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#962)
+- インスペクターから 実験的機能の警告 や VRAMに影響を与えることを示すIcon などの表示を非表示にできる設定が追加されました(非表示にできるだけであり、実態には何ら影響しません) (#963)
+- TexTransTool が NDMF によるビルドの場合に MA MaterialSetter によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#965)
+
+### Changed
+
+- AtlasTexture の TextureFineTuning の初期設定が NormalMap などを考慮に入れた設定になりました (#900)
+- AtlasTexture MergeMaterial は削除され、割り当てたときに、すべてのマテリアルをそれに結合する AllMaterialMergeReference に変更されました (#900)
+- TexTransTool の Project に対する設定 (例えば言語設定など) が `Tools/TexTransTool/Menu` から開くことが可能な Window に移動しました (#932)
+- TexTransGroup の削除に伴い、PhaseDefine 配下にないコンポーネントは上から順にフェーズごとに実行される、TexTransGroup が存在するときと同様の実行順になるように変更されました (#941)
+- NormalMap は TTT の内部では常に RG で扱われるようになりました (#943)
+- NDMF の対応バージョンが v1.7.0 以上に変更 (#962)
+
+### Removed
+
+- AtlasTexture BakeProperty は削除されました。代わりとなる機能は ドキュメントを参照してください。 (#900)
+- AtlasTexture の "_MainTex" 以外のプロパティに自動的に最大サイズを割り当てる機能は削除されました (#900)
+- AtlasTexture の LimitCandidateMaterials は削除されました (#923)
+- TextureBlender などの テクスチャ選択の部分での選択モード Relative は削除され Absolute だけになりました (#938)
+- Decal系の HighQualityPadding は削除されました (#939)
+- TexTransGroup は削除されました (#941)
+
+### Fixed
+
+- AtlasTexture が非正方形なテクスチャを対象にアトラス化したときに Padding の計算が正しく行えていない問題を修正しました (#900)
+- DirectX11 環境で GTX10 や GTX9 系で様々なコンポーネントが正常に動作しない問題を修正しました (#929)
+- IslandSelector は、実行化時に無効化されていた場合に、無効化されるようになりました (#945)
+- MeshData から Mesh の解放し忘れによって leak が発生していた問題を修正しました (#969)
+
+### Dependency
+
+- TexTransTool のコードの Core である部分が TexTransCore に移動し、TexTransCore に依存するようになりました。 (#888)
+
 ## [v0.9.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.2...v0.9.3) - 2025-03-11
 
 ### Fixed
@@ -27,8 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TexTransTool のほとんどのコンポーネントの処理使用される VRAM使用量が削減されました (#672)
 - BlendTypeKey の ポップアップ のラベルが日本語化されるようになりました (#676)
-- ~~テクスチャやマテリアルの範囲を切り分けることができる~~ DomainDefinition が追加されました (#626 #802)
-- 親の GameObject が無効な場合でも それの配下のコンポーネントが動作するようになる IsActiveInheritBreaker が追加されました (#626)
 - AAO:Avatar Optimizer の RemoveMeshBy*** と併用した時に AAO の API を用いて AtlasTexture が不要な領域をアトラス化しないようにする連携機能が追加されました (#670)
 - AAO:Avatar Optimizer と AtlasTexture を併用した時に UV を退避し AAO の API に報告し、 AAO の UV を使用する機能と互換性を保つ機能が追加されました (#687)
 - SimpleDecal や SingleGradationDecal の内部実装が通常のレンダリングを用いたものから ComputeShader 実装になり、パディング生成が v0.2.x の頃のような高品質なものになりました (#727)
@@ -51,11 +89,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- TexTransGroup や PhaseDefine がお互いどちらかが子になるような条項が発生した場合、一番上段に存在するほうの効果が優先されるようになりました (#626)
+- TexTransGroup や PhaseDefine がお互いどちらかが子になるような条項が発生した場合、一番上段に存在するほうの効果が優先されるようになりました (#694)
 - SimpleDecal の SideCulling が BackCulling に名前変更されました (#692)
-- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#626)
-- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#626)
-- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#626)
+- コンポーネントを入れ子の状態にすると、入れ子にされたコンポーネントは動作しなくなるようになりました (#694)
+- TextureStack のマージタイミングが全フェーズの直後に行われるように変更されました (#694)
+- TextureStack のマージタイミングの変更に伴い NDMF-Preview のオンオフできるフェーズの単位が細かくなりました (#694)
 - TexTransGroup や PhaseDefine が 子の一段目までを保証していたのが、再帰的にすべての子まで保証するようになりました (#802)
 
 ### Fixed

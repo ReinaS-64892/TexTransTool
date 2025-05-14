@@ -1,0 +1,55 @@
+{
+  "name": "net.rs64.tex-trans-tool.ndmf",
+  "rootNamespace": "",
+  "references": [
+    "net.rs64.ttce-unity",
+    "net.rs64.tex-trans-core",
+    "net.rs64.tex-trans-tool.runtime",
+    "net.rs64.tex-trans-tool.editor",
+    "net.rs64.tex-trans-tool.inspector",
+    "net.rs64.ttce-wgpu",
+    "nadena.dev.ndmf",
+    "nadena.dev.ndmf.runtime",
+    "com.anatawa12.avatar-optimizer.api.editor",
+    "nadena.dev.modular-avatar.core"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "CONTAINS_NDMF"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.anatawa12.avatar-optimizer",
+      "expression": "1.8.0",
+      "define": "CONTAINS_AAO"
+    },
+    {
+      "name": "nadena.dev.modular-avatar",
+      "expression": "1.10.0",
+      "define": "CONTAINS_MA"
+    },
+    {
+      "name": "net.rs64.ttce-wgpu",
+      "expression": "[0.1.0]",
+      "define": "CONTAINS_TTCE_WGPU"
+    },
+    {
+      "name": "nadena.dev.ndmf",
+      "expression": "1.7.0",
+      "define": "CONTAINS_NDMF"
+    },
+    {
+      "name": "nadena.dev.ndmf",
+      "expression": "1.8.0-alpha.0",
+      "define": "NDMF_1_8_0_OR_NEWER"
+    }
+  ],
+  "noEngineReferences": false
+}

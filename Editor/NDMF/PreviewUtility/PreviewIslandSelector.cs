@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.NDMF
 
             islandSelector.LookAtCalling(nodeDomain);
             var islandsArray = IslandSelectToPPFilter.IslandsArrayFromMeshData(proxyMeshData);
-            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, nodeDomain.OriginEqual));
+            var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, nodeDomain));
             using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             var islandSelectedTriangles = islandSelectedTrianglesHolder.Ref();
 

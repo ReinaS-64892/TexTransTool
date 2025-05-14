@@ -9,7 +9,11 @@ namespace net.rs64.TexTransTool
     [Serializable]
     public class TextureSelector
     {
-        public SelectMode Mode = SelectMode.Absolute;
+        public Texture2D SelectTexture;
+
+        #region V6SaveData
+        [Obsolete("V6SaveData", true)] public SelectMode Mode = SelectMode.Absolute;
+        [Obsolete("V6SaveData", true)]
         public enum SelectMode
         {
             Absolute,
@@ -17,65 +21,17 @@ namespace net.rs64.TexTransTool
         }
 
 
-        //Absolute
-        public Texture2D SelectTexture;
 
-        //Relative
-        [FormerlySerializedAs("TargetRenderer")] public Renderer RendererAsPath;
-        [FormerlySerializedAs("MaterialSelect")] public int SlotAsPath = 0;
-        [FormerlySerializedAs("TargetPropertyName")] public PropertyName PropertyNameAsPath = PropertyName.DefaultValue;
+        [Obsolete("V6SaveData", true)][FormerlySerializedAs("TargetRenderer")] public Renderer RendererAsPath;
+        [Obsolete("V6SaveData", true)][FormerlySerializedAs("MaterialSelect")] public int SlotAsPath = 0;
+        [Obsolete("V6SaveData", true)][FormerlySerializedAs("TargetPropertyName")] public PropertyName PropertyNameAsPath = PropertyName.DefaultValue;
 
-        internal Texture GetTexture()
-        {
-            switch (Mode)
-            {
-                case SelectMode.Absolute:
-                    {
-                        return SelectTexture;
-                    }
-                case SelectMode.Relative:
-                    {
-                        if (RendererAsPath == null) return null;
-                        var DistMaterials = RendererAsPath.sharedMaterials;
-
-                        if (DistMaterials.Length <= SlotAsPath) return null;
-                        var DistMat = DistMaterials[SlotAsPath];
-
-                        if (DistMat.HasProperty(PropertyNameAsPath) is false) return null;
-                        return DistMat.GetTexture(PropertyNameAsPath);
-                    }
-                default: { return null; }
-            }
-        }
+        #endregion V6SaveData
 
         internal Texture GetTextureWithLookAt<TObj>(IRendererTargeting targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
         where TObj : UnityEngine.Object
         {
-            var mode = targeting.LookAtGet(thisObject, i => getThis(i).Mode);
-            switch (mode)
-            {
-                case SelectMode.Absolute:
-                    {
-                        return targeting.LookAtGet(thisObject, i => getThis(i).SelectTexture);
-                    }
-                case SelectMode.Relative:
-                    {
-                        var rendererAsPath = targeting.LookAtGet(thisObject, i => getThis(i).RendererAsPath);
-                        if (rendererAsPath == null) return null;
-                        var domainsRendererAsPath = targeting.GetDomainsRenderers(rendererAsPath).FirstOrDefault();
-                        if (domainsRendererAsPath == null) return null;
-                        var distMaterials = targeting.GetMaterials(domainsRendererAsPath);
-
-                        var slotAsPath = targeting.LookAtGet(thisObject, i => getThis(i).SlotAsPath);
-                        if (distMaterials.Length <= slotAsPath) return null;
-                        var distMat = distMaterials[slotAsPath];
-
-                        var propertyNameAsPath = targeting.LookAtGet(thisObject, i => getThis(i).PropertyNameAsPath);
-                        if (targeting.LookAtGet(distMat, m => m.HasProperty(propertyNameAsPath)) is false) return null;
-                        return targeting.LookAtGet(distMat, m => m.GetTexture(propertyNameAsPath));
-                    }
-                default: { return null; }
-            }
+            return targeting.LookAtGet(thisObject, i => getThis(i).SelectTexture);
         }
         internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IRendererTargeting rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
         where TObj : UnityEngine.Object

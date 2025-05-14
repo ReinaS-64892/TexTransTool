@@ -4,17 +4,13 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Editor
 {
     [CustomEditor(typeof(AimIslandSelector))]
-    internal class AimIslandSelectorEditor : UnityEditor.Editor
+    internal class AimIslandSelectorEditor : TexTransMonoBaseEditor
     {
-        public override void OnInspectorGUI()
+        protected override void OnTexTransComponentInspectorGUI()
         {
-            TextureTransformerEditor.DrawOldSaveDataVersionWarning(target as TexTransMonoBase);
-            TextureTransformerEditor.DrawerWarning(target.GetType().Name);
-            base.OnInspectorGUI();
-
+            base.OnTexTransComponentInspectorGUI();
             if (_isAimEntered is false) { if (GUILayout.Button("IslandSelector:button:AimStart".Glc())) { AimStart(); } }
             else { if (GUILayout.Button("IslandSelector:button:AimExit".Glc())) { AimExit(); } }
-            PreviewButtonDrawUtil.Draw(target as TexTransMonoBase);
         }
 
         bool _isAimEntered = false;

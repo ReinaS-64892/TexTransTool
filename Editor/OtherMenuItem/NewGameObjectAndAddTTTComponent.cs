@@ -49,7 +49,6 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + YAxisFixedGradientLayer.MenuPath)] static void YAFGL() => C<YAxisFixedGradientLayer>();
         [M(BP + ColorizeLayer.MenuPath)] static void CL() => C<ColorizeLayer>();
 
-        [M(BP + TexTransGroup.MenuPath)] static void TTG() => C<TexTransGroup>();
         [M(BP + PhaseDefinition.PDMenuPath)] static void PD() => C<PhaseDefinition>();
 
         [M(BP + PreviewGroup.MenuPath)] static void PG() => C<PreviewGroup>();
@@ -80,6 +79,9 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
         [M(BP + ColorDifferenceChanger.MenuPath)] static void CDC() => C<ColorDifferenceChanger>();
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
+        [M(BP + UVCopy.MenuPath)] static void UC() => C<UVCopy>();
+
+
 
         [M(BP + ParallelProjectionWithLilToonDecal.MenuPath)]
         static void PPWLD()

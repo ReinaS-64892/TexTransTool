@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer
+    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer ,ITexTransToolStableComponent
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
@@ -27,15 +27,17 @@ namespace net.rs64.TexTransTool
 
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
+        public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
+
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
 
             var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
-            if (distTex == null) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotSet"); return; }
+            if (distTex == null) { TTLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
-            if (targetTextures.Any() is false) { TTTRuntimeLog.Info("TextureBlender:info:TargetNotFound"); return; }
+            if (targetTextures.Any() is false) { TTLog.Info("TextureBlender:info:TargetNotFound"); return; }
 
             domain.LookAt(targetTextures);
 

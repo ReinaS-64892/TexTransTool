@@ -90,11 +90,8 @@ namespace net.rs64.TexTransTool.Migration.V0
         public static void FinalizeMigrationAtlasTextureV0ToV1(AtlasTexture atlasTexture)
         {
             if (atlasTexture is ITexTransToolTag TTTag && TTTag.SaveDataVersion == 0)
-            {
-                var go = atlasTexture.gameObject;
                 UnityEngine.Object.DestroyImmediate(atlasTexture);
-                go.AddComponent<TexTransGroup>();
-            }
+
         }
         private static void MigrateSettingV0ToV1(AtlasTexture atlasTextureSource, int atlasSettingIndex, AtlasTexture NewAtlasTextureTarget)
         {
