@@ -37,7 +37,7 @@
     },
     {
       "name": "net.rs64.ttce-wgpu",
-      "expression": "[0.1.0-beta.0]",
+      "expression": "[0.1.0]",
       "define": "CONTAINS_TTCE_WGPU"
     },
     {
