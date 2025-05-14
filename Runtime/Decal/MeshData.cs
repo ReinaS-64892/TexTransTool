@@ -44,6 +44,8 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
+        private Mesh _needDestroyMesh;
+
         public void Dispose()
         {
             _jobHandle.Complete();
@@ -52,10 +54,14 @@ namespace net.rs64.TexTransTool.Decal
             VertexUV.Dispose();
             _calcAABBBuffer.Dispose();
             foreach (var triangle in TriangleIndex) { triangle.Dispose(); }
+            if (_needDestroyMesh != null) { UnityEngine.Object.DestroyImmediate(_needDestroyMesh); }
         }
 
-        internal MeshData(Renderer renderer, Mesh mesh, Matrix4x4 worldSpaceTransform, UVChannel atlasTargetUVChannel = UVChannel.UV0)
+        internal MeshData(Renderer renderer, (Mesh bakedMesh, bool needDestroy) meshHolder, Matrix4x4 worldSpaceTransform, UVChannel atlasTargetUVChannel = UVChannel.UV0)
         {
+            var mesh = meshHolder.bakedMesh;
+            if (meshHolder.needDestroy) _needDestroyMesh = mesh;
+
             ReferenceRenderer = renderer;
             using var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh);
 
@@ -125,7 +131,7 @@ namespace net.rs64.TexTransTool.Decal
         {
             _destroyJobHandle = JobHandle.CombineDependencies(_destroyJobHandle, jobHandle);
         }
-        internal static Mesh GetMeshWithBaked(Renderer target)
+        internal static (Mesh bakedMesh, bool needDestroy) GetMeshWithBaked(Renderer target)
         {
             switch (target)
             {
@@ -133,14 +139,15 @@ namespace net.rs64.TexTransTool.Decal
                     {
                         if (smr.sharedMesh == null) { throw new System.ArgumentException("Mesh が存在しません！"); }
                         Mesh mesh = new Mesh();
+                        mesh.name = smr.sharedMesh.name + "Baked";
                         smr.BakeMesh(mesh);
-                        return mesh;
+                        return (mesh, true);
                     }
                 case MeshRenderer mr:
                     {
                         var mf = mr.GetComponent<MeshFilter>();
                         if (mf == null || mf.sharedMesh == null) { throw new System.ArgumentException("Mesh が存在しません！"); }
-                        return mf.sharedMesh;
+                        return (mf.sharedMesh, false);
                     }
                 default:
                     {
