@@ -18,7 +18,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Dictionary<Mesh, int> Normalized2MeshID;
         public Dictionary<int, Mesh> MeshID2Normalized;
         public Dictionary<Mesh, MeshData> Normalized2MeshData;
-        private List<Mesh> _bakedMesh = new();
 
         public AtlasMeshSourceContext(IRendererTargeting targeting, Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
         {
@@ -38,11 +37,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var renderer = mkr.FirstOrDefault(r => r.sharedMaterials.Length == normalizedMesh.subMeshCount);//ノーマライズされた場合 subMeshCount が一番 slot の多いやつになるので、 slot が多いやつを持ってくる。
                 if (renderer == null) { throw new InvalidProgramException($"{normalizedMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
                 var bakedMesh = normalizedMesh;
+                var needDestroy = false;
 
                 if (renderer is SkinnedMeshRenderer skinnedMeshRenderer)
                 {
-                    bakedMesh = new Mesh();
-                    _bakedMesh.Add(bakedMesh);//nmMeshのほうは勝手に破棄されるが bakedMeshそうではない、なので別の _bakedMesh に詰めて後に破棄される
+                    bakedMesh = new Mesh(); bakedMesh.name = normalizedMesh.name + "baked";
+                    needDestroy = true;
 
                     var tempRenderer = UnityEngine.Object.Instantiate(skinnedMeshRenderer);
                     tempRenderer.sharedMesh = normalizedMesh;
@@ -50,7 +50,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     UnityEngine.Object.DestroyImmediate(tempRenderer.gameObject);
                 }
 
-                Normalized2MeshData[normalizedMesh] = new MeshData(renderer, bakedMesh, MeshData.GetMatrix(renderer), atlasTargetUVChannel);
+                Normalized2MeshData[normalizedMesh] = new MeshData(renderer, (bakedMesh, needDestroy), MeshData.GetMatrix(renderer), atlasTargetUVChannel);
             }
         }
         public MeshData GetMeshDataFromMeshID(int meshID)
@@ -169,6 +169,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             // Profiler.BeginSample("Instantiate");
             var modifiedMesh = UnityEngine.Object.Instantiate(mesh);
+            modifiedMesh.name = mesh.name + "normalized";
             // Profiler.EndSample();
 
             MeshInfoUtility.ClearTriangleToWriteVertex(modifiedMesh, meshDesc, vertex);
@@ -189,6 +190,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             //念のために複製
             // Profiler.BeginSample("Instantiate.MoreCloned");
             var moreCloned = UnityEngine.Object.Instantiate(modifiedMesh);
+            moreCloned.name = modifiedMesh.name;
             UnityEngine.Object.DestroyImmediate(modifiedMesh);
             // Profiler.EndSample();
             return moreCloned;
@@ -201,9 +203,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             foreach (var md in Normalized2MeshData.Values) { try { md.Dispose(); } catch (Exception e) { TexTransCore.TTLog.Exception(e); } }
             Normalized2MeshData.Clear();
-
-            foreach (var mesh in _bakedMesh) { UnityEngine.Object.DestroyImmediate(mesh); }
-            _bakedMesh.Clear();
         }
     }
 }
