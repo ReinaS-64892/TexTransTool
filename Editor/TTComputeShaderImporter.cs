@@ -26,6 +26,8 @@ namespace net.rs64.TexTransTool
 
         static string? _atlasSamplingTemplatePath;
         static string AtlasSamplingTemplatePath => _atlasSamplingTemplatePath ??= FindTemplate("AtlasSamplingTemplate.hlsl");
+        const string INCLUDE_SAMPLER_TEMPLATE_LIEN = "#include \"SamplerTemplate.hlsl\"";
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var srcText = File.ReadAllText(ctx.assetPath);
@@ -99,9 +101,10 @@ namespace net.rs64.TexTransTool
                         var transSamplerTemplate = File.ReadAllText(TransSamplingTemplatePath);
                         var atlasSamplingTemplate = File.ReadAllText(AtlasSamplingTemplatePath);
 
-                        var resizingCode = TTComputeUnityObject.KernelDefine + resizeTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
-                        var transSamplerCode = TTComputeUnityObject.KernelDefine + transSamplerTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
-                        var atlasSamplerCode = TTComputeUnityObject.KernelDefine + atlasSamplingTemplate.Replace("//$$$SAMPLER_CODE$$$", srcText);
+                        // SamplerTemplate.hlsl の include の解決ができないゆえの苦肉の策
+                        var resizingCode = TTComputeUnityObject.KernelDefine + resizeTemplate.Replace(INCLUDE_SAMPLER_TEMPLATE_LIEN, srcText);
+                        var transSamplerCode = TTComputeUnityObject.KernelDefine + transSamplerTemplate.Replace(INCLUDE_SAMPLER_TEMPLATE_LIEN, srcText);
+                        var atlasSamplerCode = TTComputeUnityObject.KernelDefine + atlasSamplingTemplate.Replace(INCLUDE_SAMPLER_TEMPLATE_LIEN, srcText);
 
                         var csr = op.ResizingCompute = ShaderUtil.CreateComputeShaderAsset(ctx, resizingCode);
                         var cst = op.TransSamplerCompute = ShaderUtil.CreateComputeShaderAsset(ctx, transSamplerCode);
