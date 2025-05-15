@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.0...HEAD)
 
+### Fixed
+
+- TTT PSD Importer が 0文字 のレイヤー名を持つレイヤーのレイヤー追加情報を正常に読み込めない問題を修正 (#970)
+- TTT PSD Importer が レイヤー追加情報`luni` が存在しない場合に通常のレイヤー名を使用するフォールバックが正しくできておらず例外が発生していた問題を修正 (#970)
+
 ## [v0.10.0](https://github.com/ReinaS-64892/TexTransTool/compare/v0.9.3...v0.10.0) - 2025-05-14
 
 ### Added
