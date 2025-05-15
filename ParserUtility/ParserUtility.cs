@@ -166,6 +166,9 @@ namespace net.rs64.ParserUtility
             }
             else
             {
+                // 4byte padding
+                stream.ReadByte();
+                stream.ReadByte();
                 stream.ReadByte();
                 return "";
             }

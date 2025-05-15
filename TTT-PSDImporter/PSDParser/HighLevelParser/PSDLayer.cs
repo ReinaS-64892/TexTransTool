@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.PSDParser
 
         public static void CopyFromRecord(this AbstractLayerData abstractLayer, LayerRecordParser.LayerRecord layerRecord, Dictionary<ChannelIDEnum, ChannelImageData> channelImageData)
         {
-            abstractLayer.LayerName = layerRecord.AdditionalLayerInformation.OfType<luni>().FirstOrDefault().LayerName ?? layerRecord.LayerName;
+            abstractLayer.LayerName = layerRecord.AdditionalLayerInformation.OfType<luni>().FirstOrDefault()?.LayerName ?? layerRecord.LayerName;
             abstractLayer.TransparencyProtected = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.TransparencyProtected);
             abstractLayer.Visible = layerRecord.LayerFlag.HasFlag(LayerRecordParser.LayerRecord.LayerFlagEnum.NotVisible) is false;
             abstractLayer.Opacity = (float)layerRecord.Opacity / byte.MaxValue;
