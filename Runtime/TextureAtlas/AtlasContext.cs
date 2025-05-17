@@ -338,6 +338,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
                             var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
 
+                            TTLog.Assert(drawTargetSourceVirtualIslands.Length is 0, "what happened !?, target virtual islands is not exist!!");
 
                             AtlasingUtility.TransMoveRectangle(engine
                                 , targetRT

@@ -640,7 +640,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal List<Material> GetTargetMaterials(IDomain domain, List<Renderer> nowRenderers)
         {
-            var nowContainsMatSet = new HashSet<Material>(RendererUtility.GetMaterials(nowRenderers).Where(i => i != null));
+            var nowContainsMatSet = new HashSet<Material>(nowRenderers.SelectMany(domain.GetMaterials).Where(i => i != null).Cast<Material>());
             var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginEqual(sMat, mat))).ToList();
             return targetMaterials;
         }

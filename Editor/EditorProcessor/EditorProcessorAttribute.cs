@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using net.rs64.TexTransCore;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -89,7 +90,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
     }
 
 
-    public sealed class EditorProcessorNotFound : TTTException
+    public sealed class EditorProcessorNotFound : TTException
     {
         public Type TargetType { get; }
         public EditorProcessorNotFound(Type type, params object[] additionalMessage) : base("Processor Not Found : " + type.FullName, additionalMessage) { TargetType = type; }
