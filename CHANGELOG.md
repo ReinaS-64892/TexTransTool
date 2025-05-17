@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.2...HEAD)
 
+### Fixed
+
+- Assert の記述ミスによって常に例外が発生する問題を修正しました (#973)
+
 ## [v0.10.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.1...v0.10.2) - 2025-05-17
 
 ### Fixed
