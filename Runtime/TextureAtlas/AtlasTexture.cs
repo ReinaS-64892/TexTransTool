@@ -108,8 +108,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return nowRenderers
                 .Where(r => targeting.GetMesh(r) != null)
                 .Where(r => targeting.GetMaterials(r)
-                    .Where(i => i != null)
-                    .Cast<Material>()
+                    .UOfType<Material>()
                     .Any(targetMaterials.Contains)
                 ).ToArray();
         }
@@ -640,7 +639,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal List<Material> GetTargetMaterials(IDomain domain, List<Renderer> nowRenderers)
         {
-            var nowContainsMatSet = new HashSet<Material>(nowRenderers.SelectMany(domain.GetMaterials).Where(i => i != null).Cast<Material>());
+            var nowContainsMatSet = new HashSet<Material>(nowRenderers.SelectMany(domain.GetMaterials).UOfType<Material>());
             var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginEqual(sMat, mat))).ToList();
             return targetMaterials;
         }
@@ -678,8 +677,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var nowContainsMatSet = new HashSet<Material>(
                     nowRenderers
                         .SelectMany(r => rendererTargeting.GetMaterials(r))
-                        .Where(i => i != null)
-                        .Cast<Material>()
+                        .UOfType<Material>()
                 );
             var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginEqual(sMat, mat))).ToHashSet();
 

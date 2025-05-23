@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
         {
             return _materialSwitchObjects
                 .Select(obj => obj?.Material)
-                .OfType<Material>()
+                .UOfType<Material>()
                 .ToHashSet();
         }
 

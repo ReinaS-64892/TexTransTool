@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.animator;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
 {
@@ -21,7 +22,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
         {
             return _animatorServicesContext.AnimationIndex
                 .GetPPtrReferencedObjects
-                .OfType<Material>()
+                .UOfType<Material>()
                 .ToHashSet();
         }
 

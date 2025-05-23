@@ -7,6 +7,7 @@ using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.Utils;
 using UnityEngine.Profiling;
 using net.rs64.TexTransTool.Decal;
+using System.Collections;
 
 namespace net.rs64.TexTransTool
 {
@@ -57,7 +58,7 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking, ILookingObject , IActiveness
+    internal interface IRendererTargeting : IReplaceTracking, ILookingObject, IActiveness
     {
         // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
         IEnumerable<Renderer> EnumerateRenderer();
@@ -73,7 +74,7 @@ namespace net.rs64.TexTransTool
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).UOfType<Material>()); }
             return matHash;
         }
         HashSet<Texture> GetAllTextures()
@@ -274,18 +275,18 @@ namespace net.rs64.TexTransTool
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? matHash.Contains(m) : false));
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(matHash.Contains));
         }
         public static IEnumerable<Renderer> RendererFilterForMaterialFromDomains(this IRendererTargeting rendererTargeting, HashSet<Material> domainMaterial)
         {
             if (domainMaterial.Any() is false) { return Array.Empty<Renderer>(); }
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? domainMaterial.Contains(m) : false));
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(domainMaterial.Contains));
         }
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
         {
             if (material == null) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).Any(m => m != null ? matHash.Contains(m) : false));
+            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(matHash.Contains));
         }
 
         public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
@@ -331,7 +332,24 @@ namespace net.rs64.TexTransTool
                 mutableMat.ReplaceTextureInPlace(dist, newTexture);
             }
         }
+        /// <summary>
+        ///  Unity Of Type  Unity での null が存在しないことが保証される
+        /// </summary>
+        public static IEnumerable<T> UOfType<T>(this IEnumerable source)
+        {
+            if (source is null) { throw new ArgumentNullException("source is null"); }
 
+            foreach (var i in source)
+            {
+                if (i is not T t) { continue; }
+                // ここで UnityEngine.Object にキャストして Override されたオペレーターを呼び出し
+                // t と == で null と比較することで Unity の C++ 側での null と missing を弾くことができる。
+                if (t is UnityEngine.Object uo)
+                    if (uo == null) { continue; }
+
+                yield return t;
+            }
+        }
     }
 
 }

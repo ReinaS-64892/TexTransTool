@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool
 
             if (targets.Any() is false) { return; }
 
-            var distMeshes = targets.Select(r => domain.GetMesh(r)).Distinct().Where(m => m != null).Cast<Mesh>();
+            var distMeshes = targets.Select(r => domain.GetMesh(r)).Distinct().UOfType<Mesh>();
             var replaceDict = new Dictionary<Mesh, Mesh>();
 
             var copySource = Math.Clamp((int)CopySource, 0, 7);
