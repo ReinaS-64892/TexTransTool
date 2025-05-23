@@ -34,8 +34,12 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var mkr in meshGroupedRenderers)
             {
                 var normalizedMesh = Origin2NormalizedMesh[mkr.Key];
-                var renderer = mkr.FirstOrDefault(r => r.sharedMaterials.Length == normalizedMesh.subMeshCount);//ノーマライズされた場合 subMeshCount が一番 slot の多いやつになるので、 slot が多いやつを持ってくる。
-                if (renderer == null) { throw new InvalidProgramException($"{normalizedMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
+
+                var validRenderers = mkr.Where(r => normalizedMesh.subMeshCount >= targeting.GetMaterials(r).Length).ToArray();
+                if (validRenderers.Any() is false) { throw new InvalidProgramException($"{normalizedMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
+                var maxSlot = validRenderers.Max(r => targeting.GetMaterials(r).Length);//ノーマライズされた場合 subMeshCount が一番 slot の多いやつになるので、 slot が多いやつを持ってくる。
+                var renderer = validRenderers.First(r => targeting.GetMaterials(r).Length == maxSlot);
+
                 var bakedMesh = normalizedMesh;
                 var needDestroy = false;
 
