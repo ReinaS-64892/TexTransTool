@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 pf.Split(MkR.Key.name);
                 var mesh = MkR.Key;
-                var materialSlotCount = 0;
+                var materialSlotCount = mesh.subMeshCount;
                 foreach (var r in MkR) { materialSlotCount = Mathf.Max(targeting.GetMaterials(r).Length, materialSlotCount); }
 
                 var isOverSubMesh = materialSlotCount > mesh.subMeshCount;
