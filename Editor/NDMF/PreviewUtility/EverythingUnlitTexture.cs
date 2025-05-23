@@ -45,8 +45,10 @@ namespace net.rs64.TexTransTool.NDMF
                 var mats = proxy.sharedMaterials;
                 for (var i = 0; mats.Length > i; i += 1)
                 {
-                    if (matDict.ContainsKey(mats[i])) { continue; }
                     var preMat = mats[i];
+                    if (preMat == null) { continue; }
+                    if (matDict.ContainsKey(preMat)) { continue; }
+
                     var previewMat = mats[i] = NDMFPreviewMaterialPool.GetFromShaderWithUninitialized(GetUnlitTextureShader);
                     previewMat.mainTexture = preMat.mainTexture;
                     matDict[preMat] = previewMat;
@@ -72,7 +74,9 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 var mats = proxy.sharedMaterials;
                 for (var i = 0; mats.Length > i; i += 1)
-                { previewMaterials.TryGetValue(mats[i], out mats[i]); }
+                    if (mats[i] != null)
+                        previewMaterials.TryGetValue(mats[i], out mats[i]);
+
                 proxy.sharedMaterials = mats;
             }
 
