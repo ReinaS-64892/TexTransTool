@@ -327,26 +327,32 @@ namespace net.rs64.TexTransTool.TextureAtlas
                             var findSubIDHash = AtlasSubMeshIndexSetCtx.AtlasSubMeshIndexIDHash
                                                     .Where(i => i.MaterialGroupID == findMaterialID).ToHashSet();
 
-                            var drawTargetSourceVirtualIslandsHash = new HashSet<IslandTransform>();
-                            foreach (var subID in findSubIDHash)
+                            if (findSubIDHash.Any())
+                                DoRectangleMoveRendering(findSubIDHash);
+
+                            void DoRectangleMoveRendering(HashSet<AtlasSubMeshIndexID> targetSubIDHash)
                             {
-                                drawTargetSourceVirtualIslandsHash.UnionWith(
-                                    AtlasIslandCtx.OriginIslandDict[subID]
-                                        .Select(i => AtlasIslandCtx.Origin2VirtualIsland[i])
-                                    );
+                                var drawTargetSourceVirtualIslandsHash = new HashSet<IslandTransform>();
+                                foreach (var subID in targetSubIDHash)
+                                {
+                                    drawTargetSourceVirtualIslandsHash.UnionWith(
+                                        AtlasIslandCtx.OriginIslandDict[subID]
+                                            .Select(i => AtlasIslandCtx.Origin2VirtualIsland[i])
+                                        );
+                                }
+                                var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
+                                var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
+
+                                TTLog.Assert(drawTargetSourceVirtualIslands.Length is not 0, "what happened !?, target virtual islands is not exist!!");
+
+                                AtlasingUtility.TransMoveRectangle(engine
+                                    , targetRT
+                                    , sourceRenderTexture
+                                    , drawTargetSourceVirtualIslands
+                                    , drawTargetMovedVirtualIslands
+                                    , atlasSetting.IslandPadding
+                                );
                             }
-                            var drawTargetSourceVirtualIslands = drawTargetSourceVirtualIslandsHash.ToArray();
-                            var drawTargetMovedVirtualIslands = drawTargetSourceVirtualIslands.Select(i => source2MovedVirtualIsland[i]).ToArray();
-
-                            TTLog.Assert(drawTargetSourceVirtualIslands.Length is not 0, "what happened !?, target virtual islands is not exist!!");
-
-                            AtlasingUtility.TransMoveRectangle(engine
-                                , targetRT
-                                , sourceRenderTexture
-                                , drawTargetSourceVirtualIslands
-                                , drawTargetMovedVirtualIslands
-                                , atlasSetting.IslandPadding
-                            );
                         }
                         else
                         {

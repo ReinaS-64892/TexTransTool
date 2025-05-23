@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 var renderer = targetRenderers[rendererIndex];
 
                 var mats = targeting.GetMaterials(renderer);
-                var mesh = targeting.GetMesh(renderer);
+                var mesh = targeting.GetMesh(renderer)!;
                 var meshID = atlasMeshSourceContext.Normalized2MeshID[atlasMeshSourceContext.Origin2NormalizedMesh[mesh!]];
 
                 var atlasSubSet = new AtlasSubMeshIndexID?[mats.Length];
@@ -35,6 +35,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     if (mat == null) { continue; }
                     if (targetMaterials.Contains(mat) is false) { continue; }
+                    if (mesh.GetSubMesh(Math.Clamp(subMeshIndex, 0, mats.Length - 1)).indexCount is 0) { continue; }
 
                     var matID = materialGroupingContext.GetMaterialGroupID(mat);
                     Debug.Assert(matID is not -1);
