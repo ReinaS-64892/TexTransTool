@@ -4,6 +4,7 @@ using net.rs64.TexTransCore;
 using net.rs64.TexTransCore.TransTexture;
 using net.rs64.TexTransTool.Decal;
 using net.rs64.TexTransTool.IslandSelector;
+using net.rs64.TexTransTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -35,7 +36,8 @@ namespace net.rs64.TexTransTool.NDMF
         {
             var islandSelector = group.GetData<AbstractIslandSelector>();
 
-            var o2pDict = proxyPairs.ToDictionary(i => i.Item1, i => i.Item2);
+            // proxy と origin どちらかだけ null だった場合の扱いをどうすればいいかわからんからどっちかなかったら全部弾くことにする。
+            var o2pDict = proxyPairs.Where(i => i.Item1.GetMesh() != null && i.Item2.GetMesh() != null).ToDictionary(i => i.Item1, i => i.Item2);
             var proxyMeshData = o2pDict.Values.Select(i => i.GetToMemorizedMeshData()).ToArray();
             var nodeDomain = new NodeExecuteDomain(o2pDict, context, ObjectRegistry.ActiveRegistry);
             var engine = nodeDomain.GetTexTransCoreEngineForUnity();
