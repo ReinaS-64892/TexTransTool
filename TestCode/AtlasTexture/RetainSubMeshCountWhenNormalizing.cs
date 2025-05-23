@@ -11,7 +11,7 @@ namespace net.rs64.TexTransTool.TestCode
 {
     internal class RetainSubMeshCountWhenNormalizing
     {
-        // サブメッシュの数よりもマテリアルスロットが小さい場合にも正しく処理できなければならない。
+        // Normalize が発生しうる Mesh の状況下で、マテリアルスロットが少ない場合、SubMesh数を減らす必要はないため維持される必要がある。
         [Test]
         public void TestAtlasTexture()
         {
