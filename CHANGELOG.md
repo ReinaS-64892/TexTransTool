@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture が Mesh の Normalize が発生した時に、MaterialSlot が SubMesh よりも小さい場合に、SubMesh が MaterialSlot の数まで減ってしまう問題を修正 (#983)
 - AtlasTexture が SubMesh よりも MaterialSlot が少ない場合に、例外が発生する問題を修正 (#983)
+- AtlasTexture が Polygon の存在しない SubMesh に使用されている Material を対象とした時に、例外が発生する問題を修正(#984)
 
 ## [v0.10.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.2...v0.10.3) - 2025-05-17
 
