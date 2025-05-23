@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using nadena.dev.ndmf;
+using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
 {
@@ -32,7 +33,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             var matHash = new HashSet<Material>();
             foreach (var provider in _providers)
             {
-                matHash.UnionWith(provider.GetReferencedMaterials());
+                matHash.UnionWith(provider.GetReferencedMaterials().UOfType<Material>());
             }
             return matHash;
         }

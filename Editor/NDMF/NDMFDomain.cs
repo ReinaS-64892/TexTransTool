@@ -44,7 +44,8 @@ namespace net.rs64.TexTransTool.NDMF
         public HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
+
+            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).UOfType<Material>());}
             matHash.UnionWith(_additionalMaterialsProvider.GetReferencedMaterials());
             return matHash;
 
