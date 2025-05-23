@@ -302,11 +302,18 @@ namespace net.rs64.TexTransTool
             {
                 case UnityDiskTexture tex2DWrapper:
                     {
-                        Graphics.Blit(GetOriginalTexture(tex2DWrapper.Texture), ttce4u.GetReferenceRenderTexture(writeTarget));
+                        var originTexture = GetOriginalTexture(tex2DWrapper.Texture);
                         // sRGB なフォーマットだった場合は、(Unityが)勝手にリニア変換するお節介を逆補正する
                         // Texture.isDataSRGB は 16bit 等の SRGB ではないやつであっても、
                         // テクスチャ作成時の引数の isLiner が false だった場合に true になることがあるから この場合は 信用してはならない。
-                        if (GraphicsFormatUtility.IsSRGBFormat(tex2DWrapper.Texture.graphicsFormat)) ttce4u.LinearToGamma(writeTarget);
+                        if (GraphicsFormatUtility.IsSRGBFormat(originTexture.graphicsFormat))
+                        {
+                            CopyGunmanSettingTexture2D(ttce4u, writeTarget, originTexture);
+                        }
+                        else
+                        {
+                            Graphics.CopyTexture(originTexture, 0, ttce4u.GetReferenceRenderTexture(writeTarget), 0);
+                        }
                         if (TryGetLoadedOriginInfo(tex2DWrapper.Texture, out var info))
                         {
                             if (info.isLoadableOrigin is true && info.IsNormalMap && tex2DWrapper.Texture.format is not TextureFormat.BC5)
@@ -326,9 +333,7 @@ namespace net.rs64.TexTransTool
                         var texture = importedWrapper.Texture;
                         if (IsPreview)
                         {
-                            CopyFromGammaTexture2D.SetTexture(0, "Source", CanvasImportedImagePreviewManager.GetPreview(texture));
-                            CopyFromGammaTexture2D.SetTexture(0, "Dist", ttce4u.GetReferenceRenderTexture(writeTarget));
-                            CopyFromGammaTexture2D.Dispatch(0, (writeTarget.Width + 31) / 32, (writeTarget.Hight + 31) / 32, 1);
+                            CopyGunmanSettingTexture2D(ttce4u, writeTarget, CanvasImportedImagePreviewManager.GetPreview(texture));
                         }
                         else
                         {
@@ -337,6 +342,13 @@ namespace net.rs64.TexTransTool
                         }
                         break;
                     }
+            }
+
+            static void CopyGunmanSettingTexture2D(ITexTransToolForUnity ttce4u, ITTRenderTexture writeTarget, Texture2D texture)
+            {
+                CopyFromGammaTexture2D.SetTexture(0, "Source", texture);
+                CopyFromGammaTexture2D.SetTexture(0, "Dist", ttce4u.GetReferenceRenderTexture(writeTarget));
+                CopyFromGammaTexture2D.Dispatch(0, (writeTarget.Width + 31) / 32, (writeTarget.Hight + 31) / 32, 1);
             }
         }
 
