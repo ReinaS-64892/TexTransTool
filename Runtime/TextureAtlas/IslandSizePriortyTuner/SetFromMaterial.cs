@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner
         {
             if (Materials == null) { return; }
             OriginEqual originEqual = targeting.OriginEqual;
-            var selectMaterialsHash = originEqual.GetDomainsMaterialsHashSet(islandDescriptions.SelectMany(i => i.Materials).Distinct().Where(m => m != null).Cast<Material>(), Materials);
+            var selectMaterialsHash = originEqual.GetDomainsMaterialsHashSet(islandDescriptions.SelectMany(i => i.Materials).Distinct().UOfType<Material>(), Materials);
             var setValue = TTMath.Saturate(PriorityValue);
 
             for (int i = 0; i < sizePriority.Length; i += 1)

@@ -293,7 +293,7 @@ namespace net.rs64.TexTransTool.NDMF
                 // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
                 _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)).ToArray());
                 // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().Where(i => i != null).Cast<Material>().ToArray();
+                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().UOfType<Material>().ToArray();
                 _allMaterialsHash = new(_allMaterials);
 
                 var origin2Mutable = new Dictionary<Material, Material>();
@@ -390,7 +390,7 @@ namespace net.rs64.TexTransTool.NDMF
                 if (_matHash is null)
                 {
                     _matHash = new HashSet<Material>();
-                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r).Where(m => m != null).Cast<Material>()); }
+                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r).UOfType<Material>()); }
                 }
                 return _matHash;
             }

@@ -17,7 +17,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override BitArray IslandSelect(IslandSelectorContext ctx)
         {
             OriginEqual oe = ctx.Targeting.OriginEqual;
-            var selectMaterialsHash = oe.GetDomainsMaterialsHashSet(ctx.IslandDescription.SelectMany(i => i.Materials).Distinct().Where(m => m != null).Cast<Material>(), Materials);
+            var selectMaterialsHash = oe.GetDomainsMaterialsHashSet(ctx.IslandDescription.SelectMany(i => i.Materials).Distinct().UOfType<Material>(), Materials);
             var bitArray = new BitArray(ctx.Islands.Length);
 
             for (int i = 0; i < ctx.Islands.Length; i += 1)
