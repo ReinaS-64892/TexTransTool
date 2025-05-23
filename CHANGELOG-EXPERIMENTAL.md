@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.3...HEAD)
 
+### Fixed
+
+- EverythingUnlitTexture が Mesh を持たないレンダラーが存在すると例外を発生させる問題を修正 (#985)
+- PreviewIslandSelector が Mesh を持たないレンダラーが存在すると例外を発生させる問題を修正 (#985)
+
 ## [v0.10.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.2...v0.10.3) - 2025-05-17
 
 ## [v0.10.2](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.1...v0.10.2) - 2025-05-17
