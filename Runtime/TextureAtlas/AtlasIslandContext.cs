@@ -48,6 +48,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 // なぜかこっちだと一部のモデルで正しくUVtoIslandができない...なぜ？
                 // 今だったら治ってる説ある
                 var triangle = md.TriangleIndex[atSub.SubMeshIndex].AsSpan();
+                TTLog.Assert(triangle.Length is not 0);
+
 
                 var island = UnityIslandUtility.UVtoIsland(triangle, md.VertexUV.AsSpan());
                 OriginIslandDict[atSub] = island;
