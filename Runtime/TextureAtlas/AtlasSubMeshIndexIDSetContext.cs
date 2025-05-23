@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                     if (mat == null) { continue; }
                     if (targetMaterials.Contains(mat) is false) { continue; }
-                    if (mesh.GetSubMesh(Math.Clamp(subMeshIndex, 0, mats.Length - 1)).indexCount is 0) { continue; }
+                    if (mesh.GetSubMesh(Math.Clamp(subMeshIndex, 0, mesh.subMeshCount - 1)).indexCount is 0) { continue; }
 
                     var matID = materialGroupingContext.GetMaterialGroupID(mat);
                     Debug.Assert(matID is not -1);
