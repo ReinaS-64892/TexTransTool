@@ -50,6 +50,8 @@ namespace net.rs64.TexTransTool.NDMF
             InPhase(BuildPhase.Optimizing)
             .BeforePlugin("com.anatawa12.avatar-optimizer")
             .BeforePlugin("MantisLODEditor.ndmf")
+            .BeforePlugin("Meshia.MeshSimplification.Ndmf.Editor.NdmfPlugin")
+            .BeforePlugin("jp.lilxyzw.ndmfmeshsimplifier.NDMF.NDMFPlugin")
             .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
             {
                 sequence

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AtlasTexture が SubMesh よりも MaterialSlot が少ない場合に、例外が発生する問題を修正 (#983)
 - TexTransTool が NDMF によるビルドの場合に MA MaterialSetter や Animation によって missing や null が追加されている場合に例外が発生する問題を修正 (#986)
 - TexTransTool のコンポーネントが編集したテクスチャの黒に近い部分の階調が、Linear で一時的に保存されていたために失われる問題を修正 (#988)
+- 一部のメッシュ軽量化系よりもあとに動作してしまう問題を修正しました (#989)
 
 ## [v0.10.3](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.2...v0.10.3) - 2025-05-17
 
