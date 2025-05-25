@@ -25,7 +25,12 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             foreach (var l in layers) { chiles.Add(l.GetLayerObject(ctx)); }
 
             var mask = GetAlphaMaskObject(ctx);
-            if (PassThrough) { return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, Clipping, chiles); }
+            if (Clipping is false && PassThrough)
+            {
+                // Clipping と PassThrough が共存することは、 Photoshop では存在しない。クリスタだと PassThrough が無効化される。
+                // その仕様のため TTT は クリスタの PassThrough の無効と言う挙動を取ります。
+                return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, false, chiles);
+            }
             else
             {
                 var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
