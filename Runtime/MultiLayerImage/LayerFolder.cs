@@ -24,11 +24,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var chiles = new List<LayerObject<ITexTransToolForUnity>>(layers.Capacity);
             foreach (var l in layers) { chiles.Add(l.GetLayerObject(ctx)); }
 
+            var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
             var mask = GetAlphaMaskObject(ctx);
-            if (PassThrough) { return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, Clipping, chiles); }
+            if (PassThrough) { return new PassThoughtFolder<ITexTransToolForUnity>(Visible, mask, alphaOperator, Clipping, chiles); }
             else
             {
-                var alphaOperator = Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
                 var blKey = engine.QueryBlendKey(BlendTypeKey);
                 return new LayerFolder<ITexTransToolForUnity>(Visible, mask, alphaOperator, Clipping, blKey, chiles);
             }
