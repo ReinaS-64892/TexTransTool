@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.4...HEAD)
 
+### Fixed
+
+- LayerFolder が Clipping と PassThrough が同時に有効化された場合に不正な挙動をしていた問題を修正しました (#990)
+
 ## [v0.10.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.3...v0.10.4) - 2025-05-24
 
 ### Fixed
