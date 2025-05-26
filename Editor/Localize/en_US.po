@@ -348,6 +348,10 @@ msgstr "SimpleFormatChoices"
 msgid "TextureFineTuning:prop:SimpleFormatChoices:tooltip"
 msgstr "Choice texture format in enumerate frequently use."
 
+
+msgid "TextureFineTuning:prop:UnknownTargetPlatform"
+msgstr "UnknownTargetPlatform"
+
 msgid "TextureFineTuning:prop:CompressionQuality"
 msgstr "CompressionQuality"
 

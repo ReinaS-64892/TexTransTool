@@ -52,10 +52,17 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             }
             else
             {
-                var nowChoicer = SimpleFormatChoices[EditorUserBuildSettings.activeBuildTarget];
-                var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);//なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
-                var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GlcV(), preIndex, nowChoicer.displayName);
-                if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
+                if (SimpleFormatChoices.TryGetValue(EditorUserBuildSettings.activeBuildTarget, out var nowChoicer))
+                {
+                    //なぜかenumValueIndexではなくenumValueFlagのほうを使うと正しい挙動をする。
+                    var preIndex = Array.IndexOf(nowChoicer.formats, (TextureFormat)sOverrideTextureFormat.enumValueFlag);
+                    var postIndex = EditorGUI.Popup(position, "TextureFineTuning:prop:SimpleFormatChoices".GlcV(), preIndex, nowChoicer.displayName);
+                    if (preIndex != postIndex) { sOverrideTextureFormat.enumValueFlag = (int)nowChoicer.formats[postIndex]; }
+                }
+                else
+                {
+                    EditorGUI.LabelField(position, "TextureFineTuning:prop:UnknownTargetPlatform".Glc());
+                }
                 position.y += 18;
 
                 EditorGUI.PropertyField(position, sOverrideTextureFormat, "TextureFineTuning:prop:OverrideTextureFormat".GlcV());
