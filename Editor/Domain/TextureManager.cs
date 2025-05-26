@@ -312,8 +312,13 @@ namespace net.rs64.TexTransTool
                         }
                         else
                         {
-                            Graphics.CopyTexture(originTexture, 0, ttce4u.GetReferenceRenderTexture(writeTarget), 0);
+                            var refWriteTarget = ttce4u.GetReferenceRenderTexture(writeTarget);
+                            if (originTexture.graphicsFormat == refWriteTarget.graphicsFormat)
+                                Graphics.CopyTexture(originTexture, 0, 0, refWriteTarget, 0, 0);
+                            else
+                                Graphics.Blit(originTexture, refWriteTarget);
                         }
+
                         if (TryGetLoadedOriginInfo(tex2DWrapper.Texture, out var info))
                         {
                             if (info.isLoadableOrigin is true && info.IsNormalMap && tex2DWrapper.Texture.format is not TextureFormat.BC5)

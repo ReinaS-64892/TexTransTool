@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture が UV0 以外を対象としていた時に、対象となる UV  を持たないメッシュがアトラスか対象になった時に例外が発生する問題を修正 (#995)
+- AtlasTexture などの TexTransTool のコンポーネントが Linear なテクスチャーをロードすることに失敗する問題を修正 (#996)
 
 ## [v0.10.4](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.3...v0.10.4) - 2025-05-24
 
