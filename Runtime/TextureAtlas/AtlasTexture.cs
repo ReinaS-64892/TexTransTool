@@ -58,6 +58,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var domainsAllowsRenderers = GetAtlasAllowedRenderers(domain, domain.EnumerateRenderer(), atlasSetting.IncludeDisabledRenderer);
             var targetMaterials = GetTargetMaterials(domain, domainsAllowsRenderers).ToHashSet();
             var targetRenderers = FilterTargetRenderers(targeting, domainsAllowsRenderers, targetMaterials);
+            targetRenderers = FilterExistUVChannel(targeting,targetRenderers, atlasSetting.AtlasTargetUVChannel);
 
             if (targetMaterials.Any() is false || targetRenderers.Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotFound"); return; }
 
@@ -112,6 +113,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     .Any(targetMaterials.Contains)
                 ).ToArray();
         }
+        private Renderer[] FilterExistUVChannel(IRendererTargeting targeting,Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
+        {
+            return targetRenderers.Where(r => targeting.GetMesh(r).HasUV((int)atlasTargetUVChannel)).ToArray();
+        }
+
 
         internal static AtlasResult DoAtlasTexture(
             IDomain domain

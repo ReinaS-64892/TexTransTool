@@ -57,7 +57,7 @@ namespace net.rs64.TexTransTool.Decal
             if (_needDestroyMesh != null) { UnityEngine.Object.DestroyImmediate(_needDestroyMesh); }
         }
 
-        internal MeshData(Renderer renderer, (Mesh bakedMesh, bool needDestroy) meshHolder, Matrix4x4 worldSpaceTransform, UVChannel atlasTargetUVChannel = UVChannel.UV0)
+        internal MeshData(Renderer renderer, (Mesh bakedMesh, bool needDestroy) meshHolder, Matrix4x4 worldSpaceTransform, UVChannel targetUVChannel = UVChannel.UV0)
         {
             var mesh = meshHolder.bakedMesh;
             if (meshHolder.needDestroy) _needDestroyMesh = mesh;
@@ -72,7 +72,7 @@ namespace net.rs64.TexTransTool.Decal
             VertexUV = new NativeArray<Vector2>(vertexCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             mainMesh.GetVertices(_vertices);
-            mainMesh.GetUVs((int)atlasTargetUVChannel, VertexUV);
+            mainMesh.GetUVs((int)targetUVChannel, VertexUV);
 
             SubMeshCount = mainMesh.subMeshCount;
             TriangleIndex = new NativeArray<TriangleIndex>[SubMeshCount];

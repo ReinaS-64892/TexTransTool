@@ -34,6 +34,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             foreach (var mkr in meshGroupedRenderers)
             {
                 var normalizedMesh = Origin2NormalizedMesh[mkr.Key];
+                TTLog.Assert(normalizedMesh.HasUV((int)atlasTargetUVChannel));
 
                 var validRenderers = mkr.Where(r => normalizedMesh.subMeshCount >= targeting.GetMaterials(r).Length).ToArray();
                 if (validRenderers.Any() is false) { throw new InvalidProgramException($"{normalizedMesh.name} が 何らかの問題により、メッシュのノーマライズに失敗しているか、不正な状態に突入している可能性があります！"); }
