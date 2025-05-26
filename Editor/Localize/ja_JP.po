@@ -350,6 +350,9 @@ msgstr "シンプルフォーマット選択"
 msgid "TextureFineTuning:prop:SimpleFormatChoices:tooltip"
 msgstr "詳細なフォーマットの指定でも、よく使うようなフォーマットを列挙し選択できる項目"
 
+msgid "TextureFineTuning:prop:UnknownTargetPlatform"
+msgstr "未知のターゲットプラットフォーム"
+
 msgid "TextureFineTuning:prop:CompressionQuality"
 msgstr "圧縮品質"
 
