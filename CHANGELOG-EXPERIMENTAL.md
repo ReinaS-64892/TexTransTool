@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.4...HEAD)
+## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.5...HEAD)
+
+## [v0.10.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.4...v0.10.5) - 2025-05-27
 
 ### Fixed
 
