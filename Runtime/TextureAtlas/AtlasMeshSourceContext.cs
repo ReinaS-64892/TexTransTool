@@ -50,6 +50,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     needDestroy = true;
 
                     var tempRenderer = UnityEngine.Object.Instantiate(skinnedMeshRenderer);
+                    // ここで Parent を移さないと ワールド原点に一時レンダラーが生成されて IslandSelector が壊れる。
+                    tempRenderer.transform.SetParent(renderer.transform.parent, false);
+
                     tempRenderer.sharedMesh = normalizedMesh;
                     tempRenderer.BakeMesh(bakedMesh);
                     UnityEngine.Object.DestroyImmediate(tempRenderer.gameObject);
