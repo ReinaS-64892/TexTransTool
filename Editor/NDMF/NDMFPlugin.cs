@@ -52,6 +52,7 @@ namespace net.rs64.TexTransTool.NDMF
             .BeforePlugin("MantisLODEditor.ndmf")
             .BeforePlugin("Meshia.MeshSimplification.Ndmf.Editor.NdmfPlugin")
             .BeforePlugin("jp.lilxyzw.ndmfmeshsimplifier.NDMF.NDMFPlugin")
+            .BeforePlugin("jp.lilxyzw.lilycalinventory")
             .WithRequiredExtensions(new Type[] { typeof(AnimatorServicesContext) }, sequence =>
             {
                 sequence
