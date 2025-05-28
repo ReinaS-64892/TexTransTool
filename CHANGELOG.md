@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - AtlasTexture が ManualBake などで原点からアバターが離れていて NDMF-Preview ではない場合に IslandSelector が正しく動作しない問題を修正 (#999)
+- AtlasTexture などが動作する OptimizingPhase が lilycalInventory よりも後に動作してしまいエラーが発生する問題を修正 (#1003)
 
 ## [v0.10.5](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.4...v0.10.5) - 2025-05-27
 
