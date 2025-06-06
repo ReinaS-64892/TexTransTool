@@ -10,7 +10,6 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
 
         public PropertyName SourcePropertyName = PropertyName.DefaultValue;
-        [Obsolete("V4SaveData", true)] public PropertyName TargetPropertyName = PropertyName.DefaultValue;
         public List<PropertyName> TargetPropertyNameList = new() { PropertyName.DefaultValue };
 
 
