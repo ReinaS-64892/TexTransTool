@@ -34,9 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TexTransCore v0.2.x を要求する用意なりました。 (#1016)
 
+### Added
+
+- NDMF によるビルド時に、マイグレーションを行っていないコンポーネントが存在した場合に警告を発生させるようになりました (#1010)
+
 ### Removed
 
 - TexTransTool の Minor アップデートのときに表示される ProjectMigrationDialog を削除しました (#1008)
+- TexTransTool の v0.8.x またはそれ以前のセーブデータを全て削除しました。その対象のセーブデータをマイグレーションする場合には古いバージョンを経由してください。(#1010)
 
 ## [v0.10.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.5...v0.10.6) - 2025-05-28
 
