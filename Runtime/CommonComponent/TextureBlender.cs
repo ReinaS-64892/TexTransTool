@@ -23,8 +23,6 @@ namespace net.rs64.TexTransTool
         public Color Color = Color.white;
 
         [BlendTypeKey] public string BlendTypeKey = ITexTransToolForUnity.BL_KEY_DEFAULT;
-        [Obsolete("Replaced with BlendTypeKey", true)][SerializeField] internal BlendType BlendType = BlendType.Normal;
-
         internal override TexTransPhase PhaseDefine => TexTransPhase.BeforeUVModification;
 
         public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
