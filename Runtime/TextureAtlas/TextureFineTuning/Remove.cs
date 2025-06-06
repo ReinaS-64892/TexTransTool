@@ -11,16 +11,9 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         public bool IsRemove = true;
 
-        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.NotEqual;
         public Remove() { }
-        [Obsolete("V4SaveData", true)]
-        public Remove(PropertyName propertyNames, PropertySelect select)
-        {
-            PropertyNames = propertyNames;
-            Select = select;
-        }
         public Remove(List<PropertyName> propertyNames, PropertySelect select)
         {
             PropertyNameList = propertyNames;
