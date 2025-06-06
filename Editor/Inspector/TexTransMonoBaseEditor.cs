@@ -42,17 +42,7 @@ namespace net.rs64.TexTransTool.Editor
         }
         public static void DrawOldSaveDataVersionWarning(TexTransMonoBase ttMonoBase)
         {
-            if (ttMonoBase is ITexTransToolStableComponent texTransToolStableComponent)
-            {
-                if ((ttMonoBase as ITexTransToolTag).SaveDataVersion < texTransToolStableComponent.StabilizeSaveDataVersion)
-                    DrawMigratorWindowButton();
-            }
-            else
-            {
-                if ((ttMonoBase as ITexTransToolTag).SaveDataVersion < TexTransMonoBase.TTTDataVersion)
-                    DrawMigratorWindowButton();
-            }
-
+            if (TexTransMonoBase.IsOldSaveData(ttMonoBase)) DrawMigratorWindowButton();
             void DrawMigratorWindowButton()
             {
                 if (GUILayout.Button("Common:button:ThisComponentSaveDataIsOldOpenMigratorWindow".Glc()))
