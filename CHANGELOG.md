@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- TexTransTool の Minor アップデートのときに表示される ProjectMigrationDialog を削除しました (#)
+- TexTransTool の Minor アップデートのときに表示される ProjectMigrationDialog を削除しました (#1008)
 
 ## [v0.10.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.5...v0.10.6) - 2025-05-28
 
