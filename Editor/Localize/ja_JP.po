@@ -70,6 +70,12 @@ msgstr "次期バージョンの v0.9.x では、Group系コンポーネント(T
 msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
 msgstr "コンポーネントを入れ子にせず、別の場所に配置するようにしてください。"
 
+msgid "Common:warning:ContainsOldSaveDataComponents"
+msgstr "古いセーブデータを持つコンポーネントが存在します！"
+
+msgid "Common:warning:ContainsOldSaveDataComponents:description"
+msgstr "マイグレーションを行わない場合正常に動作しないこともありえます。\n上部ツールバー Tools/TexTransTool/Migrator からマイグレーションを行ってください。"
+
 msgid "Common:ndmf:DisableThisComponentPhasePreview"
 msgstr "(NDMF) {0} のプレビューを無効化する"
 
