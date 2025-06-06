@@ -45,6 +45,21 @@ namespace net.rs64.TexTransTool
 
 
         internal void OnDestroy() => MonoBehaviourCallProvider.DestroyThis(this);
+
+        internal static bool IsOldSaveData(TexTransMonoBase monoBase)
+        {
+            if (monoBase is ITexTransToolStableComponent texTransToolStableComponent)
+            {
+                if ((monoBase as ITexTransToolTag).SaveDataVersion < texTransToolStableComponent.StabilizeSaveDataVersion)
+                    return true;
+            }
+            else
+            {
+                if ((monoBase as ITexTransToolTag).SaveDataVersion < TexTransMonoBase.TTTDataVersion)
+                    return true;
+            }
+            return false;
+        }
     }
     [DisallowMultipleComponent]
     public abstract class TexTransMonoBaseGameObjectOwned : TexTransMonoBase { }

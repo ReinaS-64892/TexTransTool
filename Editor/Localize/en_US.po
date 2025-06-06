@@ -69,6 +69,12 @@ msgstr "In the next version v0.9.x, nesting TexTransTool components other then G
 msgid "Common:error:TexTransBehaviorInsideNestedNonGroupComponentIsDeprecatedWarning:hint"
 msgstr "Try not to nest component, but place them elsewhere."
 
+msgid "Common:warning:ContainsOldSaveDataComponents"
+msgstr "The components contains old version save data!"
+
+msgid "Common:warning:ContainsOldSaveDataComponents:description"
+msgstr "If you don't migrate, it may not properly working.\nThe migration should be run from Tools/TexTransTool/Migrator on Top toolbar."
+
 msgid "Common:ndmf:DisableThisComponentPhasePreview"
 msgstr "(NDMF) Disable {0} Preview"
 
