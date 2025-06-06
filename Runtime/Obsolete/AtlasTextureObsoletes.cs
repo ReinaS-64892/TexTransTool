@@ -18,23 +18,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             public Material Material;
             public float MaterialFineTuningValue;
-
-            #region V3SaveData
-            [Obsolete("V3SaveData", true)][SerializeField] internal float AdditionalTextureSizeOffSet;
-            #endregion
-            #region V1SaveData
-            [Obsolete("V1SaveData", true)][SerializeField] internal float TextureSizeOffSet;
-            #endregion
         }
         [Obsolete("V6SaveData", true)][SerializeField] internal Behaviour MigrationTemporarylilToonMaterialNormalizerReference = null;
         #endregion
-        #region V0SaveData
-        [Obsolete("V0SaveData", true)] public List<AtlasTexture> MigrationV0ObsoleteChannelsRef;
-        [Obsolete("V0SaveData", true)] public List<Material> SelectReferenceMat;//OrderedHashSetにしたかったけどシリアライズの都合で
-        [Obsolete("V0SaveData", true)] public List<MatSelectorV0> MatSelectors = new List<MatSelectorV0>();
-        [Obsolete("V0SaveData", true)][SerializeField] internal List<AtlasSetting> AtlasSettings = new List<AtlasSetting>() { new AtlasSetting() };
-        [Obsolete("V0SaveData", true)] public bool UseIslandCache = true;
-        #endregion
+
     }
     public partial class AtlasSetting
     {
@@ -66,18 +53,6 @@ namespace net.rs64.TexTransTool.TextureAtlas
             public List<Material> GroupMaterials;
         }
         #endregion
-
-        #region V3SaveData
-        public bool UseUpScaling = false;
-        #endregion
-        #region V2SaveData
-        [Obsolete("V2SaveData", true)][SerializeField] internal List<TextureFineTuningData> TextureFineTuningDataList = new List<TextureFineTuningData> { new TextureFineTuningData() };
-        [Obsolete("V2SaveData", true)][SerializeField] internal float Padding;
-        #endregion
-        #region V1SaveData
-        [Obsolete("V1SaveData", true)][SerializeField] internal bool UseIslandCache = true;
-        #endregion
-
     }
 
 }
