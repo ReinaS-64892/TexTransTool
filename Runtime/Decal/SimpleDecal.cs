@@ -45,31 +45,7 @@ namespace net.rs64.TexTransTool.Decal
         [Obsolete("V6SaveData", true)][SerializeField] internal bool UseDepth;
         [Obsolete("V6SaveData", true)][SerializeField] internal bool DepthInvert;
         #endregion V6SaveData
-#nullable disable
-        #region V5SaveData
-        [Obsolete("V5SaveData", true)][SerializeField] internal List<Renderer> TargetRenderers = new List<Renderer> { null };
-        [Obsolete("V5SaveData", true)][SerializeField] internal bool MultiRendererMode = false;
-        #endregion V5SaveData
-        #region V3SaveData
-        [Obsolete("V3SaveData", true)][FormerlySerializedAs("PolygonCaling")][SerializeField] internal PolygonCulling PolygonCulling = PolygonCulling.Vertex;
-        [Obsolete("V3SaveData", true)][SerializeField] internal bool IslandCulling = false;
-        [Obsolete("V3SaveData", true)][SerializeField] internal Vector2 IslandSelectorPos = new Vector2(0.5f, 0.5f);
-        [Obsolete("V3SaveData", true)][SerializeField] internal float IslandSelectorRange = 1;
-        #endregion V3SaveData
 
-
-        #region V1SaveData
-        [Obsolete("Replaced with BlendTypeKey", true)][HideInInspector][SerializeField] internal BlendType BlendType = BlendType.Normal;
-        #endregion
-        #region V0SaveData
-        [Obsolete("V0SaveData", true)][HideInInspector] public bool MigrationV0ClearTarget;
-        [Obsolete("V0SaveData", true)][HideInInspector] public GameObject MigrationV0DataMatAndTexSeparatorGameObject;
-        // [Obsolete("V0SaveData", true)][HideInInspector] public MatAndTexUtils.MatAndTexRelativeSeparator MigrationV0DataMatAndTexSeparator;
-        [Obsolete("V0SaveData", true)][HideInInspector] public SimpleDecal MigrationV0DataAbstractDecal;
-        [Obsolete("V0SaveData", true)][HideInInspector] public bool IsSeparateMatAndTexture;
-        [Obsolete("V0SaveData", true)][HideInInspector] public bool FastMode = true;
-        #endregion
-#nullable enable
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);

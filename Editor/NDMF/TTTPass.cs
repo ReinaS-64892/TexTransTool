@@ -1,3 +1,4 @@
+using System.Linq;
 using nadena.dev.ndmf;
 using net.rs64.TexTransTool.Build;
 using net.rs64.TexTransTool.Editor.OtherMenuItem;
@@ -45,6 +46,14 @@ namespace net.rs64.TexTransTool.NDMF
             PreviewUtility.ExitPreviews();
             TTTLog.Error("Common:error:BuildWasRunDuringPreviewing");
             throw new TTTNotExecutable();
+        }
+    }
+    internal class CheckOldSaveDataComponents : Pass<CheckOldSaveDataComponents>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            var containsOldSaveDataComponents = context.AvatarRootObject.GetComponentsInChildren<TexTransMonoBase>().Where(TexTransMonoBase.IsOldSaveData).ToArray();
+            if (containsOldSaveDataComponents.Length is not 0) TTTLog.Warning("Common:warning:ContainsOldSaveDataComponents", containsOldSaveDataComponents);
         }
     }
     internal class MaterialModificationPass : TTTPass<MaterialModificationPass>
