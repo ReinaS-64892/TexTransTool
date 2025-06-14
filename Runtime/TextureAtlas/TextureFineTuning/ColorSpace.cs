@@ -12,18 +12,10 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
     {
         [FormerlySerializedAs("Linear")] public bool AsLinear = true;
 
-        [Obsolete("V4SaveData", true)] public PropertyName PropertyNames = PropertyName.DefaultValue;
         public List<PropertyName> PropertyNameList = new() { PropertyName.DefaultValue };
         public PropertySelect Select = PropertySelect.Equal;
 
         public ColorSpace() { }
-        [Obsolete("V4SaveData", true)]
-        public ColorSpace(PropertyName propertyNames, PropertySelect select, bool linear)
-        {
-            PropertyNames = propertyNames;
-            Select = select;
-            AsLinear = linear;
-        }
         public ColorSpace(List<PropertyName> propertyNames, PropertySelect select, bool linear)
         {
             PropertyNameList = propertyNames;

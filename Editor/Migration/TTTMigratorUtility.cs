@@ -16,23 +16,8 @@ namespace net.rs64.TexTransTool.Migration
     }
     internal static class MigrationUtility
     {
-       internal static SaveDataVersionJson GetSaveDataVersion => JsonUtility.FromJson<SaveDataVersionJson>(File.ReadAllText(SaveDataVersionPath));
-        [Serializable]
-        internal class SaveDataVersionJson
-        {
-            public int SaveDataVersion;
-        }
-
         public static string SaveDataVersionPath = "ProjectSettings/net.rs64.TexTransTool-Version.json";
 
-        public static void WriteVersion(int value)
-        {
-            var NawSaveDataVersion = new SaveDataVersionJson();
-            NawSaveDataVersion.SaveDataVersion = value;
-            var newJsonStr = JsonUtility.ToJson(NawSaveDataVersion);
-
-            File.WriteAllText(SaveDataVersionPath, newJsonStr);
-        }
         public static void SetSaveDataVersion(ITexTransToolTag texTransToolTag, int value)
         {
             if (!(texTransToolTag is UnityEngine.Object unityObject)) { return; }
