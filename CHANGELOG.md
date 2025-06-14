@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AtlasTexture の TextureFineTuning を特定の状態になるように設定すると、実行時に TTCE-Wgpu バックエンドでのみ例外が発生する問題を修正 (#1012)
 - BlendTypeKey が正しく言語設定のに応じて翻訳されない問題を修正 (#1014)
+- 内部的なシェーダーの再インポートが必要なのにもかかわらず、強制的に発火させれていなかった問題を修正しました。(#1015)
 
 ## [v0.10.6](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.5...v0.10.6) - 2025-05-28
 
