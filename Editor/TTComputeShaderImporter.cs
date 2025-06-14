@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
-    [ScriptedImporter(1, new string[] { "ttcomp", "ttblend" }, new string[] { }, AllowCaching = false)]
+    [ScriptedImporter(2, new string[] { "ttcomp", "ttblend" }, new string[] { }, AllowCaching = false)]
     public class TTComputeShaderImporter : ScriptedImporter
     {
         private static string FindTemplate(string fileName)
