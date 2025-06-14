@@ -23,8 +23,7 @@ namespace net.rs64.TexTransTool.Editor
             if (s_blendTypeKeyContents == null || s_nowLangCode != TTTGlobalConfig.instance.Language)
             {
                 if (ComputeObjectUtility.BlendingObject == null) { return; }//次フレームを待つ
-                s_nowLangCode = TTTGlobalConfig.instance.Language;
-                var langCode = s_nowLangCode.ToString().ToLower();
+                var langCode = TTTGlobalConfig.instance.Language;
 
                 var stdKeys = new string[]{
                 "Clip/Normal",
