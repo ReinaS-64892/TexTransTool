@@ -149,7 +149,23 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
                 }
             }
 
-            foreach (var unusedRt in ctx.NewRenderTextures.Where(r => resultTextureDescriptor.ContainsKey(r) is false))
+            // RTOwned ではないが、 merge Texture などの 子 となるやつが持ってしまっている場合に フォールバック的に適当な TexTransToolTextureDescriptor を割り当てる必要がある。
+            foreach (var rt in resultTextures.Values)
+            {
+                if (resultTextureDescriptor.ContainsKey(rt)) continue;
+
+                resultTextureDescriptor[rt] = ctx.ProcessingHolder.Values.FirstOrDefault(i =>
+                {
+                    if (i.RenderTextureProperty is null) { return false; }
+                    if (ctx.RenderTextures.TryGetValue(i.RenderTextureProperty, out var contextRt))
+                    {
+                        return rt == contextRt;
+                    }
+                    return false;
+                })?.TextureDescriptor ?? new();
+            }
+
+            foreach (var unusedRt in ctx.NewRenderTextures.Where(r => resultTextures.ContainsValue(r) is false))
                 unusedRt.Dispose();
 
             return new(resultTextures, resultTextureDescriptor);
