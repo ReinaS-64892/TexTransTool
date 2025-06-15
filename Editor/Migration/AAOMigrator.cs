@@ -85,9 +85,13 @@ TexTransTool v1.x.x にアップデートする前に、 TexTransTool v0.10.x �
 4 - UnityEditor を起動し、 TexTransTool v0.10.x へのセーブデータのマイグレーションを実行してください。
 5 - TexTransTool を再度アップデートしてください。
 
-" +
+TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？
+"
+#else
+@"インストールされている TexTransTool とセーブデータに互換性がありません！詳細はドキュメントをご確認ください。
+TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？
+"
 #endif
-"TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？"
 
                           ,
                           "終了する (Exit)",
