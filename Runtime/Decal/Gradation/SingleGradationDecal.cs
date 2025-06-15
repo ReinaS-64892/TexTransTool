@@ -84,17 +84,25 @@ namespace net.rs64.TexTransTool.Decal
 
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
 
-            var step = 0.1f;
+            var step = 0.05f;
+            var halfStep = step * 0.5f;
             var vecO = Vector3.zero;
-            for (var i = 0.0f; (1.0f + step) > i; i += step)
+            var boxSize = new Vector3(halfStep, step, halfStep);
+            for (var i = 0.0f; 1.0f > i; i += step)
             {
-                vecO.y = i;
-                Gizmos.color = Gradient.Evaluate(i);
-                Gizmos.DrawSphere(vecO, step * 0.5f);
+                vecO.y = i + halfStep;
+                var gradCol = Gradient.Evaluate(vecO.y);
+                var bocGradCol = gradCol;
+                bocGradCol.a *= 0.5f;
+                Gizmos.color = bocGradCol;
+                Gizmos.DrawCube(vecO, boxSize);
+                Gizmos.color = gradCol;
+                Gizmos.DrawWireCube(vecO, boxSize);
             }
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
             Gizmos.color = preCol;
         }
+
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
             return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
