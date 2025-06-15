@@ -40,7 +40,7 @@ namespace net.rs64.TexTransTool.Utils
             var desc = mainMesh.GetSubMesh(subMeshIndex);
             System.Diagnostics.Debug.Assert(desc.topology == MeshTopology.Triangles);
             var triangleBuffer = new NativeArray<TriangleIndex>(desc.indexCount / 3, allocator, NativeArrayOptions.UninitializedMemory);
-            var indices = triangleBuffer.Reinterpret<int>();
+            var indices = triangleBuffer.Reinterpret<int>(sizeof(int) * 3);
             mainMesh.GetIndices(indices, subMeshIndex);
             return triangleBuffer;
         }
