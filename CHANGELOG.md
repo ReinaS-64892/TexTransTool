@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - SingleGradationDecal の グラデーションの長さ が操作できない問題を修正しました (#1018)
 
+### Dependency
+
+- TTCE-Wgpu の オプション依存関係が v0.2.0 を要求するようになりました。(#1019)
+
 ## [v0.10.7](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.6...v0.10.7) - 2025-06-14
 
 ### Fixed
