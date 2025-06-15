@@ -121,7 +121,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
         public static TexFineTuningResult ProcessingTextureFineTuning(ITexTransToolForUnity engine, Dictionary<string, TexFineTuningHolder> tuningHolder, Dictionary<string, ITTRenderTexture> atlasedTextures)
         {
-            var pressers = InterfaceUtility.GetInterfaceInstance<ITuningProcessor>().ToArray();
+            var pressers = InterfaceUtility.CreateConcreteAssignableTypeInstances<ITuningProcessor>().ToArray();
             Array.Sort(pressers, (l, r) => l.Order - r.Order);
 
             var ctx = new TexFineTuningProcessingContext(

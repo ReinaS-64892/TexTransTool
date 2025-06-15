@@ -10,7 +10,7 @@ namespace net.rs64.TexTransTool
         static List<IDomainMarkerFinder> s_finders;
         public static GameObject FindMarker(GameObject StartPoint)
         {
-            if (s_finders == null) { s_finders = InterfaceUtility.GetInterfaceInstance<IDomainMarkerFinder>().ToList(); }
+            if (s_finders == null) { s_finders = InterfaceUtility.CreateConcreteAssignableTypeInstances<IDomainMarkerFinder>().ToList(); }
             foreach (var finder in s_finders)
             {
                 var marker = finder.FindMarker(StartPoint);
