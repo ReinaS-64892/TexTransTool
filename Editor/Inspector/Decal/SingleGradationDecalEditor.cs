@@ -1,10 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using net.rs64.TexTransTool.Decal;
-using System.Collections.Generic;
-using net.rs64.TexTransTool.Editor.OtherMenuItem;
-using System.Linq;
-using net.rs64.TexTransTool.Utils;
 
 namespace net.rs64.TexTransTool.Editor.Decal
 {
@@ -32,9 +28,15 @@ namespace net.rs64.TexTransTool.Editor.Decal
                 var length = sLocalScale.vector3Value.y;
                 var lengthRect = EditorGUILayout.GetControlRect();
                 var propGUIContent = EditorGUI.BeginProperty(lengthRect, "SingleGradationDecal:prop:GradationLength".Glc(), sLocalScale);
-                length = EditorGUI.FloatField(lengthRect, propGUIContent, length);
-                sLocalScale.vector3Value = new Vector3(length, length, length);
+
+                float editLength;
+                if (length >= 0.0f && length <= 2.0f) editLength = EditorGUI.Slider(lengthRect, propGUIContent, length, 0.0f, 2.0f);
+                else editLength = EditorGUI.FloatField(lengthRect, propGUIContent, length);
+
+                if (editLength != length) sLocalScale.vector3Value = new Vector3(editLength, editLength, editLength);
+
                 EditorGUI.EndProperty();
+                tf.ApplyModifiedProperties();
 
 
                 var sGradient = serializedObject.FindProperty(nameof(SingleGradationDecal.Gradient));
