@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using net.rs64.TexTransCore;
 using net.rs64.TexTransTool.TextureAtlas;
-using net.rs64.TexTransTool.Unsafe;
 using net.rs64.TexTransTool.Utils;
 using Unity.Burst;
 using Unity.Collections;
@@ -93,7 +92,7 @@ namespace net.rs64.TexTransTool.Decal
             for (int subMeshIndex = 0; SubMeshCount > subMeshIndex; subMeshIndex += 1)
             {
                 var desc = mainMesh.GetSubMesh(subMeshIndex);
-                TriangleIndex[subMeshIndex] = UnsafeNativeArrayUtility.GetTriangleIndices(mainMesh, subMeshIndex);
+                TriangleIndex[subMeshIndex] = MeshUtility.GetTriangleIndices(mainMesh, subMeshIndex);
             }
 
 

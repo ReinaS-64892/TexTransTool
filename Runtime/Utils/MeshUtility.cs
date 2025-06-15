@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using net.rs64.TexTransCore;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -34,6 +35,17 @@ namespace net.rs64.TexTransTool.Utils
         {
             if (channel < 0 || channel > 7) { throw new IndexOutOfRangeException(); }
             return mesh.HasVertexAttribute((UnityEngine.Rendering.VertexAttribute)(channel + 4));
+        }
+
+        public static NativeArray<TriangleIndex> GetTriangleIndices(Mesh.MeshData mainMesh, int subMeshIndex, Allocator allocator = Allocator.TempJob)
+        {
+            System.Diagnostics.Debug.Assert((uint)subMeshIndex < (uint)mainMesh.subMeshCount);
+            var desc = mainMesh.GetSubMesh(subMeshIndex);
+            System.Diagnostics.Debug.Assert(desc.topology == MeshTopology.Triangles);
+            var triangleBuffer = new NativeArray<TriangleIndex>(desc.indexCount / 3, allocator, NativeArrayOptions.UninitializedMemory);
+            var indices = triangleBuffer.Reinterpret<int>();
+            mainMesh.GetIndices(indices, subMeshIndex);
+            return triangleBuffer;
         }
     }
 
