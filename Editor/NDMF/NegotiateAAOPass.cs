@@ -88,7 +88,7 @@ namespace net.rs64.TexTransTool.NDMF.AAO
 
                 for (var subMeshIndex = 0; mesh.subMeshCount > subMeshIndex; subMeshIndex += 1)
                 {
-                    var islands = UnityIslandUtility.UVtoIsland(mesh.GetSubTriangleIndex(subMeshIndex).ToArray().AsSpan(), uv.AsSpan());
+                    var islands = UnityIslandUtility.UVtoIsland(mesh.GetSubMeshTriangleIndices(subMeshIndex).ToArray().AsSpan(), uv.AsSpan());
 
                     var triangles = new List<Vertex>();
                     var vanishTriangles = new List<Vertex>();
