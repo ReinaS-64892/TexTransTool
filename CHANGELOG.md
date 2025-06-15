@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - NDMF によるビルド時に、マイグレーションを行っていないコンポーネントが存在した場合に警告を発生させるようになりました (#1010)
+- TexTransTool v0.9.x またはそれ以前のバージョンからのマイグレーションが行われていない場合の警告を発生させるようになりました (#1021)
 
 ### Removed
 
