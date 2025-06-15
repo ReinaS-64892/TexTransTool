@@ -309,7 +309,7 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
 
         private static Dictionary<int, IMigrator> GetMigrators()
         {
-            return InterfaceUtility.GetInterfaceInstance<IMigrator>().ToDictionary(i => i.MigrateTarget, i => i);
+            return InterfaceUtility.CreateConcreteAssignableTypeInstances<IMigrator>().ToDictionary(i => i.MigrateTarget, i => i);
         }
         const string PACKAGES = "Packages";
         internal static IEnumerable<string> GetMigratableScenes()

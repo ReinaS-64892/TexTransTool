@@ -173,7 +173,7 @@ namespace net.rs64.TexTransTool
 
         private void ModificationMaterial(Material mutableMat)
         {
-            foreach (var propName in GetProperties(ReplaceTextureTarget)) mutableMat.PropertyReset(propName);
+            foreach (var propName in GetProperties(ReplaceTextureTarget)) mutableMat.ResetProperty(propName);
 
             switch (ReplaceTextureTarget)
             {

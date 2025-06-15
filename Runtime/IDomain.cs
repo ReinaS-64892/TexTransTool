@@ -81,14 +81,14 @@ namespace net.rs64.TexTransTool
         {
             var texHash = new HashSet<Texture>();
             var mats = GetAllMaterials();
-            foreach (var m in mats) { texHash.UnionWith(m.GetAllTexture(GetShader, GetTex)); }
+            foreach (var m in mats) { texHash.UnionWith(m.EnumerateTextures(GetShader, GetTex)); }
             return texHash;
             Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
             Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
         }
         HashSet<Texture> GetMaterialTexture(Material mat)
         {
-            return mat.GetAllTexture<Texture>().ToHashSet();
+            return mat.EnumerateReferencedTextures().ToHashSet();
         }
     }
     internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
@@ -325,11 +325,11 @@ namespace net.rs64.TexTransTool
 
             foreach (var m in mats)
             {
-                if (m.ContainsTexture(dist) is false) { continue; }
+                if (m.ReferencesTexture(dist) is false) { continue; }
 
                 var mutableMat = m;
                 domain.GetMutable(ref mutableMat);
-                mutableMat.ReplaceTextureInPlace(dist, newTexture);
+                mutableMat.ReplaceTexture(dist, newTexture);
             }
         }
         /// <summary>

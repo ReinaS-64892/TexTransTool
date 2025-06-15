@@ -19,9 +19,10 @@ namespace net.rs64.TexTransTool.Utils
             using (var colorArray = new NativeArray<Color32>(256, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
             {
                 var writeSpan = colorArray.AsSpan();
-                for (var i = 0; colorArray.Length > i; i += 1)
+                for (var i = 0; i < writeSpan.Length; i++)
                 {
-                    var col = gradient.Evaluate(i / 255f);
+                    const float UNorm8ToFloat = 1 / 255f;
+                    var col = gradient.Evaluate(i * UNorm8ToFloat);
                     col.a *= alpha;
                     writeSpan[i] = col;
                 }

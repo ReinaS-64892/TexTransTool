@@ -408,7 +408,7 @@ namespace net.rs64.TexTransTool.NDMF
             {
                 if (_textureHashOnMaterial.TryGetValue(mat, out var tex)) { return tex; }
                 LookAt(mat);
-                tex = _textureHashOnMaterial[mat] = mat.GetAllTexture<Texture>().ToHashSet();
+                tex = _textureHashOnMaterial[mat] = mat.EnumerateReferencedTextures().ToHashSet();
                 return tex;
             }
             public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)

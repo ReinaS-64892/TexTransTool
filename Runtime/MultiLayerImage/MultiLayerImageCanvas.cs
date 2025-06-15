@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
             if (nowDomainsTargets.Any() is false) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotFound"); return; }
 
-            var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.GetAllTexture<Texture>().Any(nowDomainsTargets.Contains)).ToHashSet();
+            var targetContainsMaterials = domain.GetAllMaterials().Where(m => m.EnumerateReferencedTextures().Any(nowDomainsTargets.Contains)).ToHashSet();
 
             var canvasWidth = tttImportedCanvasDescription?.Width ?? NormalizePowOfTow(replaceTarget.width);
             var canvasHeigh = tttImportedCanvasDescription?.Height ?? NormalizePowOfTow(replaceTarget.height);

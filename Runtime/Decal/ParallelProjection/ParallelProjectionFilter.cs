@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool.Decal
             }
 
             var filtered = new NativeArray<TriangleIndex>(writeCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            Unsafe.UnsafeNativeArrayUtility.MemCpy(filtered, filteredTriFullArrayNa, writeCount);
+            filteredTriFullArrayNa.GetSubArray(0, writeCount).CopyTo(filtered);
 
             Profiler.EndSample();
             return filtered;
