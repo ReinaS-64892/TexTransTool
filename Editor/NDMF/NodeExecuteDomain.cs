@@ -57,6 +57,19 @@ namespace net.rs64.TexTransTool.NDMF
             _ctx?.Observe(obj);
             UsedLookAt = true;
         }
+        public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+                where TObj : UnityEngine.Object
+        {
+            // if (obj is Renderer renderer && _proxy2OriginRendererDict.ContainsKey(renderer)) { return getAction(obj); }
+            // if (comp is null) { return _ctx.Observe(obj, getAction); }
+            // else { return _ctx.Observe(obj, getAction, comp); }
+
+            /*
+            NDMF Preview の実行時にて observe してしまうと、非常に大量の object を observe してしまい
+            非常にパフォーマンスが悪化する上、その見ているプロパティそれ自体、 LookAt によって全体が一度に監視されているため、しないほうが良いということになってしまった。
+            */
+            return getAction(obj);
+        }
         public void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component
         {
             _ctx.GetComponent<LookTargetComponent>(gameObject);
