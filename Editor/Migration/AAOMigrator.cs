@@ -49,7 +49,54 @@ namespace net.rs64.TexTransTool.Migration
         static AAOMigrator()
         {
             if (File.Exists(MigrationUtility.SaveDataVersionPath))
-                File.Delete(MigrationUtility.SaveDataVersionPath);
+            {
+                EditorApplication.update += CheckUpdate;
+            }
+            else { MigrationUtility.WriteProjectVersion(TexTransBehavior.TTTDataVersion); }
+        }
+        private static void CheckUpdate()
+        {
+            try
+            {
+                if (MigrationUtility.GetSaveDataVersion.SaveDataVersion < TexTransBehavior.TTTDataVersion_0_10_X)
+                {
+                    DoWaning();
+                }
+                else { MigrationUtility.WriteProjectVersion(TexTransBehavior.TTTDataVersion); }
+            }
+            finally
+            {
+                EditorApplication.update -= CheckUpdate;
+            }
+        }
+
+        private static void DoWaning()
+        {
+            var result = EditorUtility.DisplayDialog("マイグレーションが必要です!!!",
+#if !UNITY_EDITOR_OSX
+@"以前インストールされていた TexTransTool の旧バージョンと、現在インストールされている TexTransTool の新バージョンの間に互換性がありません!
+TexTransTool v1.x.x にアップデートする前に、 TexTransTool v0.10.x をインストールし、マイグレーションする必要があります！
+
+以下の手順でプロジェクトのセーブデータをマイグレーションする必要があります。
+
+1 - TexTransTool のセーブデータを保護するため、アセットの保存を行わず、 UnityEditor を終了してください。
+2 - ALCOM などを用いて、 TexTransTool を v0.10.x にダウングレードしてください。
+3 - セーブデータが壊れてもよいという覚悟がない方は、バックアップを作成してください。
+4 - UnityEditor を起動し、 TexTransTool v0.10.x へのセーブデータのマイグレーションを実行してください。
+5 - TexTransTool を再度アップデートしてください。
+
+" +
+#endif
+"TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？"
+
+                          ,
+                          "終了する (Exit)",
+                          "無視する (Ignore)"
+                          );
+
+            if (result is false) { return; }
+
+            EditorApplication.Exit(0);
         }
 
 
