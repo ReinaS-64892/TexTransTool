@@ -144,7 +144,7 @@ namespace net.rs64.TexTransTool.Editor
             {
                 if (_sourceTexture == null || _destinationTexture == null) { TTLog.Info("MaterialModifier:info:TargetNotSet"); return; }
 
-                _recordingMaterial.ReplaceTextureInPlace(_destinationTexture, _sourceTexture);
+                _recordingMaterial.ReplaceTexture(_destinationTexture, _sourceTexture);
                 ApplyOverridesToComponent();
 
                 _sourceTexture = null;

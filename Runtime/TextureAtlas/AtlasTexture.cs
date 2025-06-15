@@ -289,7 +289,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var atlasMatOption = new AtlasMatGenerateOption() { ForceSetTexture = atlasSetting.ForceSetTexture };
             if (atlasMergeSettings.experimentalOptions?.UnsetTextures.Any() ?? false)
             {
-                var containsAllTexture = targetMaterials.SelectMany(mat => mat.GetAllTextureWithDictionary().Select(i => i.Value));
+                var containsAllTexture = targetMaterials.SelectMany(mat => mat.EnumerateReferencedTextures());
                 atlasMatOption.UnsetTextures = atlasMergeSettings.experimentalOptions.UnsetTextures.Select(i => i.SelectTexture).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
             }
             var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, atlasMergeSettings.mergeMaterialGroups, atlasMergeSettings.allMaterialMergeReference);

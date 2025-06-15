@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.Utils
             var hash = new HashSet<Tex>();
 
             var matHash = new HashSet<Material>(GetFilteredMaterials(renderers));
-            foreach (var mat in matHash) { hash.UnionWith(mat.GetAllTexture<Tex>()); }
+            foreach (var mat in matHash) { hash.UnionWith(mat.EnumerateReferencedTextures().OfType<Tex>()); }
 
             return hash;
         }
