@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.Decal
             for (int subMeshIndex = 0; SubMeshCount > subMeshIndex; subMeshIndex += 1)
             {
                 var desc = mainMesh.GetSubMesh(subMeshIndex);
-                TriangleIndex[subMeshIndex] = MeshUtility.GetTriangleIndices(mainMesh, subMeshIndex);
+                TriangleIndex[subMeshIndex] = MeshUtility.GetSubMeshTriangleIndices(mainMesh, subMeshIndex);
             }
 
 
