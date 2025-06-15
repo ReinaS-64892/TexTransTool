@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SingleGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer , ITexTransToolStableComponent
+    public sealed class SingleGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT SingleGradationDecal";
         internal const string MenuPath = ComponentName;
@@ -78,11 +78,22 @@ namespace net.rs64.TexTransTool.Decal
 
         private void OnDrawGizmosSelected()
         {
+            var preCol = Gizmos.color;
             Gizmos.color = UnityEngine.Color.black;
             Gizmos.matrix = transform.localToWorldMatrix;
 
             Gizmos.DrawLine(Vector3.zero, Vector3.up);
+
+            var step = 0.1f;
+            var vecO = Vector3.zero;
+            for (var i = 0.0f; (1.0f + step) > i; i += step)
+            {
+                vecO.y = i;
+                Gizmos.color = Gradient.Evaluate(i);
+                Gizmos.DrawSphere(vecO, step * 0.5f);
+            }
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
+            Gizmos.color = preCol;
         }
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
