@@ -31,9 +31,7 @@ namespace net.rs64.TexTransTool.Decal
         #region V6SaveData
         [Obsolete("V6SaveData", true)][SerializeField] internal bool HighQualityPadding = false;
         #endregion V6SaveData
-        #region V5SaveData
-        [Obsolete("V5SaveData", true)][SerializeField] internal List<Material> TargetMaterials = new();
-        #endregion V5SaveData
+
         internal override void Apply(IDomain domain)
         {
             domain.LookAt(this);
