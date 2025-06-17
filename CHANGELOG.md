@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.8...HEAD)
 
+### Fixed
+
+- AtlasTexture と AAO Remove Mesh By *** が同一のメッシュを対象としたときに、NDMF によるビルドの際に例外発生する問題を修正 (#1023)
+
 ## [v0.10.8](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.7...v0.10.8) - 2025-06-15
 
 ### Added

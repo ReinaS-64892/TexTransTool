@@ -23,7 +23,7 @@ namespace net.rs64.TexTransTool.Utils
         {
             var triList = ListPool<int>.Get();
             mesh.GetTriangles(triList, SubMesh);
-            ConvertIndicesToTriangles(triList, output);
+            ConvertIndicesToTriangles(triList, output ??= new());
 
             ListPool<int>.Release(triList);
             return output;
