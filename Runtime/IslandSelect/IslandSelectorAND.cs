@@ -14,11 +14,12 @@ namespace net.rs64.TexTransTool.IslandSelector
         public int StabilizeSaveDataVersion => TTTDataVersion_0_10_X;
 
         internal override void LookAtCalling(ILookingObject looker) { LookAtChildren(this, looker); }
-        internal override BitArray IslandSelect(IslandSelectorContext ctx)
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             BitArray? bitArray = null;
             foreach (var islandSelector in transform.GetChildeComponent<AbstractIslandSelector>())
             {
+                if (ctx.Targeting.IsActive(islandSelector.gameObject) is false) { continue; }
                 Profiler.BeginSample(islandSelector.GetType().Name);
                 var selectBit = islandSelector.IslandSelect(ctx);
                 Profiler.EndSample();

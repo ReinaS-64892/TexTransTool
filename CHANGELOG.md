@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.9...HEAD)
 
+### Fixed
+
+- IslandSelectorAND(OR,XOR) にて無効化されている IslandSelector を無視できていなかった問題を修正 (#1024)
+
 ## [v0.10.9](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.8...v0.10.9) - 2025-06-17
 
 ### Fixed

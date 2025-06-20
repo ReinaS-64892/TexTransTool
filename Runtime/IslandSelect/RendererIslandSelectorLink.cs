@@ -15,7 +15,7 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         internal override void LookAtCalling(ILookingObject looker) { GetIslandSelector()?.LookAtCalling(looker); }
         internal AbstractIslandSelector? GetIslandSelector() { return IslandSelectorNOT.GetFirstChilde(transform); }
-        internal override BitArray IslandSelect(IslandSelectorContext ctx)
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             var islandSelector = GetIslandSelector();
             if (islandSelector == null) { return new BitArray(ctx.Islands.Length); }
