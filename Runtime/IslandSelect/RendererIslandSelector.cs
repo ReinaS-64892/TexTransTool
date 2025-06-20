@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
         public List<Renderer> RendererList = new();
-        internal override BitArray IslandSelect(IslandSelectorContext ctx)
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             OriginEqual oe = ctx.Targeting.OriginEqual;
             var selectRendererHash = oe.GetDomainsRenderers(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), RendererList).ToHashSet();

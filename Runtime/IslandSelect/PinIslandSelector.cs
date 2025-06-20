@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             looker.LookAt(transform.GetParents().Append(transform));
             looker.LookAt(this);
         }
-        internal override BitArray IslandSelect(IslandSelectorContext ctx) { return RayBaseIslandSelect.PinIslandSelect(GetIslandSelectorPin(), ctx.Islands, ctx.IslandDescription); }
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx) { return RayBaseIslandSelect.PinIslandSelect(GetIslandSelectorPin(), ctx.Islands, ctx.IslandDescription); }
         internal IslandSelectorPin GetIslandSelectorPin() { return new IslandSelectorPin(new Ray(transform.position, transform.forward).ToTTCore(), transform.lossyScale.z * IslandSelectorRange); }
 
 

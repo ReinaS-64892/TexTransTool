@@ -22,7 +22,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             looker.LookAt(transform.GetParents().Append(transform));
             looker.LookAt(this);
         }
-        internal override BitArray IslandSelect(IslandSelectorContext ctx)
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             var bitArray = new BitArray(ctx.Islands.Length);
             var matrix = transform.worldToLocalMatrix;

@@ -21,7 +21,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             return tf.GetChild(0).GetComponent<AbstractIslandSelector>();
         }
 
-        internal override BitArray IslandSelect(IslandSelectorContext ctx)
+        internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
             var islandSelector = GetIslandSelector();
             return islandSelector != null ? islandSelector.IslandSelect(ctx).Not() : new BitArray(ctx.Islands.Length, true);

@@ -17,12 +17,13 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal abstract void LookAtCalling(ILookingObject looker);
 
 
-        internal abstract BitArray IslandSelect(IslandSelectorContext ctx);
-        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx)
+        BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) { return IslandSelect(ctx); }
+        internal BitArray IslandSelect(IslandSelectorContext ctx)
         {
             if (ctx.Targeting.IsActive(gameObject) is false) { return new BitArray(ctx.Islands.Length); }
-            return IslandSelect(ctx);
+            return IslandSelectImpl(ctx);
         }
+        internal abstract BitArray IslandSelectImpl(IslandSelectorContext ctx);
 
         internal abstract void OnDrawGizmosSelected();
 
@@ -39,6 +40,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         {
             return this == other;
         }
+
 
         internal virtual bool IsExperimental => true;
     }
