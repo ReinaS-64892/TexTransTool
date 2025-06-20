@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool.IslandSelector
             BitArray? bitArray = null;
             foreach (var islandSelector in transform.GetChildeComponent<AbstractIslandSelector>())
             {
+                if (ctx.Targeting.IsActive(islandSelector.gameObject) is false) { continue; }
                 Profiler.BeginSample(islandSelector.GetType().Name);
                 var selectBit = islandSelector.IslandSelect(ctx);
                 Profiler.EndSample();
