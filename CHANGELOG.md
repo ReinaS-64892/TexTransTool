@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.10...HEAD)
 
+### Added
+
+- NDMF によるビルド時に、マイグレーションを行っていないコンポーネントが存在した場合に警告を発生させるようになりました (#1010)
+- TexTransTool v0.9.x またはそれ以前のバージョンからのマイグレーションが行われていない場合の警告を発生させるようになりました (#1021)
+
+### Removed
+
+- TexTransTool の Minor アップデートのときに表示される ProjectMigrationDialog を削除しました (#1008)
+- TexTransTool の v0.8.x またはそれ以前のセーブデータを全て削除しました。その対象のセーブデータをマイグレーションする場合には古いバージョンを経由してください。(#1010)
+
 ## [v0.10.10](https://github.com/ReinaS-64892/TexTransTool/compare/v0.10.9...v0.10.10) - 2025-06-20
 
 ### Fixed

@@ -27,12 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using net.rs64.TexTransTool.Migration.V0;
-using net.rs64.TexTransTool.Migration.V1;
-using net.rs64.TexTransTool.Migration.V2;
-using net.rs64.TexTransTool.Migration.V3;
-using net.rs64.TexTransTool.Migration.V4;
-using net.rs64.TexTransTool.Migration.V5;
 using net.rs64.TexTransTool.Utils;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -54,102 +48,60 @@ namespace net.rs64.TexTransTool.Migration
 
         static AAOMigrator()
         {
-            if (!File.Exists(MigrationUtility.SaveDataVersionPath))
+            if (File.Exists(MigrationUtility.SaveDataVersionPath))
             {
-                MigrationUtility.WriteVersion(TexTransBehavior.TTTDataVersion);
+                EditorApplication.update += CheckUpdate;
             }
-
-            EditorApplication.update += Update;
+            else { MigrationUtility.WriteProjectVersion(TexTransBehavior.TTTDataVersion); }
         }
-        static bool InProgress = false;
-        private static void Update()
+        private static void CheckUpdate()
         {
-            if (InProgress) return; // try next tick
             try
             {
-                var SaveDataVersionJsonI = MigrationUtility.GetSaveDataVersion;
-
-                if (SaveDataVersionJsonI.SaveDataVersion < TexTransBehavior.TTTDataVersion)
+                if (MigrationUtility.GetSaveDataVersion.SaveDataVersion < TexTransBehavior.TTTDataVersion_0_10_X)
                 {
-                    DoMigrate();
+                    DoWaning();
                 }
-                else if (SaveDataVersionJsonI.SaveDataVersion > TexTransBehavior.TTTDataVersion)
-                {
-                    var result = EditorUtility.DisplayDialog("ダウングレードは保証されていません!!",
-@"以前インストールされていたTexTransToolの新バージョンと、現在インストールされているTexTransToolの旧バージョンの間に互換性がありません。
-データを保護するには、保存せずにUnityを終了してください。保存した場合、TexTransTool関連のデータが消失する可能性があります。"
-#if !UNITY_EDITOR_OSX
-
-+
-@"
-
-
-強制的に古いバージョンにする: 強制的に古いバージョンにし、このウィンドウを今回を非表示にします。
-セーブデータが消える可能性の高い非常に推奨されない選択肢なので、ご注意ください。
-"
-#endif
-                      , "強制的に古いバージョンにする", "閉じる(Close)");
-
-                    if (result)
-                    {
-                        MigrationUtility.WriteVersion(TexTransBehavior.TTTDataVersion);
-                    }
-                }
+                else { MigrationUtility.WriteProjectVersion(TexTransBehavior.TTTDataVersion); }
             }
             finally
             {
-                EditorApplication.update -= Update;
+                EditorApplication.update -= CheckUpdate;
             }
         }
 
-        private static bool DoMigrate()
+        private static void DoWaning()
         {
-            InProgress = true;
-            var result = EditorUtility.DisplayDialogComplex("マイグレーションが必要です!",
+            var result = EditorUtility.DisplayDialog("マイグレーションが必要です!!!",
 #if !UNITY_EDITOR_OSX
-@"以前インストールされていたTexTransToolの旧バージョンと、現在インストールされているTexTransToolの新バージョンの間に互換性がありません!
-TexTransToolを正常に動作させるためには、すべてのシーンとプレハブをこのバージョン用にマイグレーションする必要があります。
-マイグレーションには長い時間がかかり、プロジェクトが壊れる可能性もあります。
-バックアップをしていない場合はバックアップを行ってからマイグレーションしてください。
-マイグレーションしない場合、Unityを再起動するたびにこのウィンドウが表示されます。
+@"以前インストールされていた TexTransTool の旧バージョンと、現在インストールされている TexTransTool の新バージョンの間に互換性がありません!
+TexTransTool v1.x.x にアップデートする前に、 TexTransTool v0.10.x をインストールし、マイグレーションする必要があります！
 
-" +
-#endif
-"プロジェクトをマイグレーションしますか?"
-#if !UNITY_EDITOR_OSX
-+
-@"
+以下の手順でプロジェクトのセーブデータをマイグレーションする必要があります。
 
+1 - TexTransTool のセーブデータを保護するため、アセットの保存を行わず、 UnityEditor を終了してください。
+2 - ALCOM などを用いて、 TexTransTool を v0.10.x にダウングレードしてください。
+3 - セーブデータが壊れてもよいという覚悟がない方は、バックアップを作成してください。
+4 - UnityEditor を起動し、 TexTransTool v0.10.x へのセーブデータのマイグレーションを実行してください。
+5 - TexTransTool を再度アップデートしてください。
 
-上級者向け: このマイグレーション通知を今回非表示にし、個別選択可能なマイグレーションウィンドウにて行う。
-データが壊れる可能性がある危険な選択肢です、バックアップを行ってから選択してください。
-ウィンドウ上部分のツールバー「 Tools / TexTransTool / Migrator 」 から手動で開くことも可能です。
+TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？
+"
+#else
+@"インストールされている TexTransTool とセーブデータに互換性がありません！詳細はドキュメントをご確認ください。
+TexTransTool のセーブデータを保護するため、保存を行わずその場で UnityEditor を終了しますか？
 "
 #endif
-                ,
-                "マイグレーションする (Migrate)",
-                "キャンセル (Cancel)",
-                "上級者向け (Advanced)"
-                );
 
-            if (result == 0) // Do Migrate!!!
-            {
-                MigrateEverything();
-            }
-            else if (result == 1) { } // Cancel
-            else // Advanced!
-            {
-                MigratorWindow.ShowWindow();
-                MigrationUtility.WriteVersion(TexTransBehavior.TTTDataVersion);
-            }
-            InProgress = false;
-            return result != 1;
+                          ,
+                          "終了する (Exit)",
+                          "無視する (Ignore)"
+                          );
+
+            if (result is false) { return; }
+
+            EditorApplication.Exit(0);
         }
-
-
-
-
-
 
 
         /// <returns>List of prefab assets. parent prefab -> child prefab</returns>
@@ -281,7 +233,7 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
         {
             var migrators = GetMigrators();
             PreMigration();
-            for (var version = MigrationUtility.GetSaveDataVersion.SaveDataVersion; TexTransBehavior.TTTDataVersion > version; version += 1)
+            for (var version = 0; TexTransBehavior.TTTDataVersion > version; version += 1)
             {
                 if (version is 5) { MigratorWindow.ReflectCallPSDMigration(); }
                 if (migrators.TryGetValue(version, out var migrator))
@@ -414,7 +366,6 @@ TexTransToolを正常に動作させるためには、すべてのシーンと�
                         );
                 }
 
-                MigrationUtility.WriteVersion(migrator.MigrateTarget + 1);
             }
             catch
             {
