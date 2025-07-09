@@ -22,8 +22,8 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             _providers = new IAdditionalMaterialsProvider[]
             {
                 new AnimatorMaterialsProvider(context),
-#if CONTAINS_MA
-                new MAMaterialsProvider(context)
+#if MA_1_10_0_OR_NEWER
+                new MAMaterialSettersProvider(context)
 #endif
             };
         }
