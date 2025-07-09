@@ -23,7 +23,10 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             {
                 new AnimatorMaterialsProvider(context),
 #if MA_1_10_0_OR_NEWER
-                new MAMaterialSettersProvider(context)
+                new MAMaterialSettersProvider(context),
+#endif
+#if MA_1_13_0_OR_NEWER
+                new MAMaterialSwapsProvider(context)
 #endif
             };
         }
