@@ -37,20 +37,18 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
                 
                 for (int j = 0; j < swapper.Swaps.Count; j++)
                 {
-                    var matSwap = swapper.Swaps[j];
+                    var matSwap = swapper.Swaps[j].Clone();
                     var from = matSwap.From;
                     var to = matSwap.To;
                     
-                    if (from == null || to == null) continue;
-
                     bool swapChanged = false;
                     
-                    if (mapping.TryGetValue(from, out var newFrom))
+                    if (from != null && mapping.TryGetValue(from, out var newFrom))
                     {
                         matSwap.From = newFrom;
                         swapChanged = true;
                     }
-                    if (mapping.TryGetValue(to, out var newTo))
+                    if (to != null && mapping.TryGetValue(to, out var newTo))
                     {
                         matSwap.To = newTo;
                         swapChanged = true;
