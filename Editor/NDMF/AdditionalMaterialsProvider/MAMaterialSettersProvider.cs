@@ -1,5 +1,5 @@
 #nullable enable
-#if CONTAINS_MA
+#if MA_1_10_0_OR_NEWER
 
 using System.Linq;
 using System.Collections.Generic;
@@ -9,11 +9,11 @@ using nadena.dev.modular_avatar.core;
 
 namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
 {
-    internal class MAMaterialsProvider : IAdditionalMaterialsProvider
+    internal class MAMaterialSettersProvider : IAdditionalMaterialsProvider
     {
         private readonly MaterialSwitchObject?[] _materialSwitchObjects;
 
-        public MAMaterialsProvider(BuildContext context)
+        public MAMaterialSettersProvider(BuildContext context)
         {
             var setters = context.AvatarRootObject
                 .GetComponentsInChildren<ModularAvatarMaterialSetter>(true);
