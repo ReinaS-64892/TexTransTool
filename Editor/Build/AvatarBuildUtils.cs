@@ -83,6 +83,15 @@ namespace net.rs64.TexTransTool.Build
 #endif
             if (DisplayEditorProgressBar) EditorUtility.ClearProgressBar();
         }
+
+        public void DoDestroyModificationOnlyTag()
+        {
+            if (_domainRoot == null) { return; }
+            foreach (var tag in _domainRoot.GetComponentsInChildren<ModificationOnlyTag>(true))
+            {
+                UnityEngine.Object.DestroyImmediate(tag.gameObject);
+            }
+        }
     }
     internal static class AvatarBuildUtils
     {
@@ -144,7 +153,13 @@ namespace net.rs64.TexTransTool.Build
         public static void ExeCuteAllPhase(TexTransBuildSession session)
         {
             foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
+            {
                 session.ApplyFor(phase);
+                if (phase is TexTransPhase.UnDefined)
+                {
+                    session.DoDestroyModificationOnlyTag();
+                }
+            }
         }
 
         public static void DestroyITexTransToolTags(GameObject avatarGameObject)

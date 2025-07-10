@@ -98,6 +98,13 @@ namespace net.rs64.TexTransTool.NDMF
             TTTContext(context).ApplyFor(TexTransPhase.UnDefined);
         }
     }
+    internal class DoDestroyModificationOnlyTagPass : TTTPass<DoDestroyModificationOnlyTagPass>
+    {
+        protected override void Execute(BuildContext context)
+        {
+            TTTContext(context).DoDestroyModificationOnlyTag();
+        }
+    }
     internal class ReFindRenderersPass : TTTPass<ReFindRenderersPass>
     {
         protected override void Execute(BuildContext context)

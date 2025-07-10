@@ -38,6 +38,7 @@ namespace net.rs64.TexTransTool
             yield return TexTransPhase.AfterUVModification;
             yield return TexTransPhase.PostProcessing;
             yield return TexTransPhase.UnDefined;
+
             yield return TexTransPhase.Optimizing;
         }
         public static Dictionary<TexTransPhase, TValue> GeneratePhaseDictionary<TValue>()
