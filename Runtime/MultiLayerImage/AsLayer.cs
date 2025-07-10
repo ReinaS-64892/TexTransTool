@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ICanBehaveAsLayer))]
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public class AsLayer : TexTransMonoBase, IMultiLayerImageCanvasLayer
+    public class AsLayer : TexTransAnnotation, IMultiLayerImageCanvasLayer
     {
         internal const string ComponentName = "TTT AsLayer";
         internal const string MenuPath = MultiLayerImageCanvas.FoldoutName + "/" + ComponentName;
