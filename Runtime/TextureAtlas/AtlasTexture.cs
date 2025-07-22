@@ -55,7 +55,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("targeting");
 
-            var domainsAllowsRenderers = GetAtlasAllowedRenderers(domain, domain.EnumerateRenderer(), atlasSetting.IncludeDisabledRenderer);
+            var domainsAllowsRenderers = GetAtlasAllowedRenderers(domain, domain.EnumerateRenderers(), atlasSetting.IncludeDisabledRenderer);
             var targetMaterials = GetTargetMaterials(domain, domainsAllowsRenderers).ToHashSet();
             var targetRenderers = FilterTargetRenderers(targeting, domainsAllowsRenderers, targetMaterials);
             targetRenderers = FilterExistUVChannel(targeting,targetRenderers, atlasSetting.AtlasTargetUVChannel);
@@ -109,7 +109,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return nowRenderers
                 .Where(r => targeting.GetMesh(r) != null)
                 .Where(r => targeting.GetMaterials(r)
-                    .UOfType<Material>()
+                    .SkipDestroyed()
                     .Any(targetMaterials.Contains)
                 ).ToArray();
         }
@@ -271,7 +271,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
                 if (registered.Contains(atlasMesh) is false)
                 {
-                    domain.RegisterReplace(mesh, atlasMesh);
+                    domain.RegisterReplacement(mesh, atlasMesh);
                     registered.Add(atlasMesh);
                 }
             }
@@ -290,9 +290,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
             if (atlasMergeSettings.experimentalOptions?.UnsetTextures.Any() ?? false)
             {
                 var containsAllTexture = targetMaterials.SelectMany(mat => mat.EnumerateReferencedTextures());
-                atlasMatOption.UnsetTextures = atlasMergeSettings.experimentalOptions.UnsetTextures.Select(i => i.SelectTexture).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginEqual(ot, ct))).ToHashSet();
+                atlasMatOption.UnsetTextures = atlasMergeSettings.experimentalOptions.UnsetTextures.Select(i => i.SelectTexture).SelectMany(ot => containsAllTexture.Where(ct => domain.OriginalObjectEquals(ot, ct))).ToHashSet();
             }
-            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginEqual, targetMaterials, atlasMergeSettings.mergeMaterialGroups, atlasMergeSettings.allMaterialMergeReference);
+            var mergeReferenceMaterial = GenerateMergeReference(domain.OriginalObjectEquals, targetMaterials, atlasMergeSettings.mergeMaterialGroups, atlasMergeSettings.allMaterialMergeReference);
             var (materialMap, domainsMaterial2ReplaceMaterial) = GenerateAtlasedMaterials(targetMaterials, tunedAtlasUnityTextures, atlasMatOption, mergeReferenceMaterial);
 
             domain.ReplaceMaterials(materialMap);
@@ -327,7 +327,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             return (materialMap, domainsMaterial2ReplaceMaterial);
         }
-        private static NowMaterialGroup[] GenerateMergeReference(OriginEqual originEqual, HashSet<Material> targetMaterials, List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference)
+        private static NowMaterialGroup[] GenerateMergeReference(UnityObjectEqualityComparison originEqual, HashSet<Material> targetMaterials, List<MaterialMergeGroup> mergeMaterialGroups, Material? allMaterialMergeReference)
         {
             var matGroupList = new List<NowMaterialGroup>();
             foreach (var mmg in mergeMaterialGroups)
@@ -645,8 +645,8 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
         internal List<Material> GetTargetMaterials(IDomain domain, List<Renderer> nowRenderers)
         {
-            var nowContainsMatSet = new HashSet<Material>(nowRenderers.SelectMany(domain.GetMaterials).UOfType<Material>());
-            var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginEqual(sMat, mat))).ToList();
+            var nowContainsMatSet = new HashSet<Material>(nowRenderers.SelectMany(domain.GetMaterials).SkipDestroyed());
+            var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginalObjectEquals(sMat, mat))).ToList();
             return targetMaterials;
         }
         internal static bool CheckRendererActive(IRendererTargeting targeting, Renderer r, bool includeDisabledRenderer)
@@ -678,14 +678,14 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             var isIncludeDisable = rendererTargeting.LookAtGet(this, a => a.AtlasSetting.IncludeDisabledRenderer);
             var selectedMaterials = rendererTargeting.LookAtGet(this, at => at.AtlasTargetMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
-            var nowRenderers = GetAtlasAllowedRenderers(rendererTargeting, rendererTargeting.EnumerateRenderer(), isIncludeDisable);
+            var nowRenderers = GetAtlasAllowedRenderers(rendererTargeting, rendererTargeting.EnumerateRenderers(), isIncludeDisable);
 
             var nowContainsMatSet = new HashSet<Material>(
                     nowRenderers
                         .SelectMany(r => rendererTargeting.GetMaterials(r))
-                        .UOfType<Material>()
+                        .SkipDestroyed()
                 );
-            var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginEqual(sMat, mat))).ToHashSet();
+            var targetMaterials = nowContainsMatSet.Where(mat => selectedMaterials.Any(sMat => rendererTargeting.OriginalObjectEquals(sMat, mat))).ToHashSet();
 
             return FilterTargetRenderers(rendererTargeting, nowRenderers, targetMaterials);
 

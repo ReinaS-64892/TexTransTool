@@ -164,8 +164,7 @@ namespace net.rs64.TexTransTool
             {
                 foreach (var imMat in targetDomainsMaterials)
                 {
-                    var mutableMat = imMat;
-                    domain.GetMutable(ref mutableMat);
+                    var mutableMat = domain.ToMutable(imMat);
                     ModificationMaterial(mutableMat);
                 }
             }

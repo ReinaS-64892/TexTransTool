@@ -153,9 +153,8 @@ namespace net.rs64.TexTransTool
 
 
             var targetTextures = targeting.GetAllTextures().OfType<Texture2D>()
-                .Where(t => t != null)
                 .Distinct()
-                .Select(t => (t, compressKV.FirstOrDefault(kv => targeting.OriginEqual(kv.Key, t))))
+                .Select(t => (t, compressKV.FirstOrDefault(kv => targeting.OriginalObjectEquals(kv.Key, t))))
                 .Where(kvp => kvp.Item2.Key is not null && kvp.Item2.Value is not null)
                 .Select(kvp => (kvp.t, kvp.Item2.Value))
                 .Where(kv => GraphicsFormatUtility.IsCompressedFormat(kv.t.format) is false)

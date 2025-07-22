@@ -21,10 +21,10 @@ namespace net.rs64.TexTransTool
         }
 
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey) { }
-        public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
+        public IEnumerable<Renderer> EnumerateRenderers() { return _domainRenderers; }
         public bool IsPreview() { return true; }
-        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
-        public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
+        public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
+        public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { }
         public void SetMesh(Renderer renderer, Mesh mesh) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }

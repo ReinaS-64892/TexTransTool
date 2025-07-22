@@ -62,7 +62,7 @@ namespace net.rs64.TexTransTool
 
                 var refRt = engine.GetReferenceRenderTexture(resultTexture);
                 domain.ReplaceTexture(originTexture, refRt);
-                domain.RegisterReplace(originTexture, refRt);
+                domain.RegisterReplacement(originTexture, refRt);
                 domain.RegisterPostProcessingAndLazyGPUReadBack(resultTexture, textureDescription);
             }
         }

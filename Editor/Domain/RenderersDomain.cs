@@ -63,11 +63,11 @@ namespace net.rs64.TexTransTool
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
-        public virtual bool OriginEqual(Object? l, Object? r)
+        public virtual bool OriginalObjectEquals(Object? l, Object? r)
         {
-            return _genericReplaceRegistry.OriginEqual(l, r);
+            return _genericReplaceRegistry.OriginalObjectEquals(l, r);
         }
-        public virtual void RegisterReplace(Object oldObject, Object nowObject) { _genericReplaceRegistry.RegisterReplace(oldObject, nowObject); }
+        public virtual void RegisterReplacement(Object oldObject, Object nowObject) { _genericReplaceRegistry.RegisterReplacement(oldObject, nowObject); }
 
         public virtual bool IsActive(GameObject gameObject)
         {
@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool
                 if (mergeResult.FirstTexture == null || mergeResult.MergeTexture == null) continue;
                 var refTex = _ttce4U.GetReferenceRenderTexture(mergeResult.MergeTexture);
                 this.ReplaceTexture(mergeResult.FirstTexture, refTex);
-                RegisterReplace(mergeResult.FirstTexture, refTex);
+                RegisterReplacement(mergeResult.FirstTexture, refTex);
                 RegisterPostProcessingAndLazyGPUReadBack(mergeResult.MergeTexture, GetTextureDescriptor(mergeResult.FirstTexture));
             }
         }
@@ -105,12 +105,12 @@ namespace net.rs64.TexTransTool
                 this.ReplaceTexture(r.Key, r.Value);
 
                 var replace = _genericReplaceRegistry.ReplacePooledRenderTexture(r.Key, r.Value);
-                if (replace.HasValue) RegisterReplace(replace.Value.Key, replace.Value.Value);
+                if (replace.HasValue) RegisterReplacement(replace.Value.Key, replace.Value.Value);
             }
             foreach (var rt in originRt) { rt.Dispose(); }
         }
 
-        public IEnumerable<Renderer> EnumerateRenderer() { return _renderers; }
+        public IEnumerable<Renderer> EnumerateRenderers() { return _renderers; }
 
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture)
         { return _renderTextureDescriptorManager.GetTextureDescriptor(texture); }

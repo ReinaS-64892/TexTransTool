@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var uniRt = TTRt2.Get(writeTarget.Width, writeTarget.Hight);
             try
             {
-                var mat = MatTemp.GetTempMatShader(YAxisFixedGradientShader);
+                var mat = ShaderTempMaterialManager.GetOrCreateTempMaterial(YAxisFixedGradientShader);
                 Graphics.Blit(GradientTempTexture.Get(Gradient, 1), uniRt, mat);
 
                 using var rt = engine.UploadTexture(uniRt);

@@ -16,7 +16,7 @@ namespace net.rs64.TexTransTool.IslandSelector
         public List<Renderer> RendererList = new();
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
-            OriginEqual oe = ctx.Targeting.OriginEqual;
+            UnityObjectEqualityComparison oe = ctx.Targeting.OriginalObjectEquals;
             var selectRendererHash = oe.GetDomainsRenderers(ctx.IslandDescription.Select(i => i.Renderer).Distinct(), RendererList).ToHashSet();
             var bitArray = new BitArray(ctx.Islands.Length);
 

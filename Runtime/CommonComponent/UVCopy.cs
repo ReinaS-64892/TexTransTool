@@ -27,7 +27,7 @@ namespace net.rs64.TexTransTool
 
             if (targets.Any() is false) { return; }
 
-            var distMeshes = targets.Select(r => domain.GetMesh(r)).Distinct().UOfType<Mesh>();
+            var distMeshes = targets.Select(r => domain.GetMesh(r)).Distinct().SkipDestroyed();
             var replaceDict = new Dictionary<Mesh, Mesh>();
 
             var copySource = Math.Clamp((int)CopySource, 0, 7);
@@ -81,12 +81,12 @@ namespace net.rs64.TexTransTool
         internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
         {
             var targetMeshes = TargetMeshes.Where(i => i != null).ToArray();
-            return rendererTargeting.EnumerateRenderer()
+            return rendererTargeting.EnumerateRenderers()
                  .Where(r => rendererTargeting.GetMesh(r) != null)
                  .Where(r =>
                  {
                      var mesh = rendererTargeting.GetMesh(r);
-                     return TargetMeshes.Any(tm => rendererTargeting.OriginEqual(tm, mesh));
+                     return TargetMeshes.Any(tm => rendererTargeting.OriginalObjectEquals(tm, mesh));
                  });
         }
     }

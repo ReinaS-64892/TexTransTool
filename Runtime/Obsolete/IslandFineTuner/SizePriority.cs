@@ -13,7 +13,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.IslandFineTuner
         public AbstractIslandSelector IslandSelector;
 
         public void LookAtCalling(ILookingObject lookingObject) { if (IslandSelector != null) { IslandSelector.LookAtCalling(lookingObject); } }
-        public void IslandFineTuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IReplaceTracking replaceTracking)
+        public void IslandFineTuning(float[] sizePriority, Island[] islands, IslandDescription[] islandDescriptions, IOriginalObjectEqualityComparer replaceTracking)
         {
             Debug.Assert(false);
         }

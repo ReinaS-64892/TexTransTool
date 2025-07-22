@@ -34,8 +34,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var mat in mats)
             {
-                var mutableMat = mat;
-                domain.GetMutable(ref mutableMat);
+                var mutableMat = domain.ToMutable(mat);
                 ConfigureMaterial(mutableMat, this);
             }
         }
