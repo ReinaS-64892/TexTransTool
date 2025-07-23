@@ -12,7 +12,7 @@ using System.Collections;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IReplaceTracking, IReplaceRegister, ILookingObject, IRendererTargeting, ITexturePostProcessor, IDomainCustomContext
+    internal interface IDomain : IAssetSaver, IOriginalObjectEqualityComparer, IReplacementRegistry, ILookingObject, IRendererTargeting, ITexturePostProcessor, IDomainCustomContext
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         // 原則 RegisterReplace や TransferAssets は勝手に行わないこと
@@ -21,26 +21,25 @@ namespace net.rs64.TexTransTool
         // Mesh の Transfer Assets や RegisterReplace は行われない
         void SetMesh(Renderer renderer, Mesh mesh);
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提で、保持しておきたいなら Clone すること
-
-        void GetMutable(ref Material material)
+        Material ToMutable(Material material)
         {
-            if (IsTemporaryAsset(material)) { return; }
+            if (IsTemporaryAsset(material)) { return material; }
             Profiler.BeginSample("GetMutable-with-Clone", material);
-            var origin = material;
+            var original = material;
 
-            var mutableMat = UnityEngine.Object.Instantiate(origin);
+            var mutableMat = UnityEngine.Object.Instantiate(original);
 #if UNITY_EDITOR
             mutableMat.parent = null;
 #endif
-            ReplaceMaterials(new() { { origin, mutableMat } });
+            ReplaceMaterials(new() { { original, mutableMat } });
 
-            RegisterReplace(origin, mutableMat);
+            RegisterReplacement(original, mutableMat);
             TransferAsset(mutableMat);
 
-            mutableMat.name = origin.name + "(TTT GetMutable)";
+            mutableMat.name = original.name + "(TTT GetMutable)";
 
-            material = mutableMat;
             Profiler.EndSample();
+            return mutableMat;
         }
     }
     internal interface IAssetSaver
@@ -48,24 +47,24 @@ namespace net.rs64.TexTransTool
         bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
         void TransferAsset(UnityEngine.Object asset);
     }
-    internal delegate bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
-    internal interface IReplaceTracking
+    internal delegate bool UnityObjectEqualityComparison(UnityEngine.Object? l, UnityEngine.Object? r);
+    internal interface IOriginalObjectEqualityComparer
     {
-        bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r);
+        bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r);
     }
-    internal interface IReplaceRegister
+    internal interface IReplacementRegistry
     {
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
-        void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
+        void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IReplaceTracking, ILookingObject, IActiveness
+    internal interface IRendererTargeting : IOriginalObjectEqualityComparer, ILookingObject, IActiveness
     {
         // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
-        IEnumerable<Renderer> EnumerateRenderer();
+        IEnumerable<Renderer> EnumerateRenderers();
         Material?[] GetMaterials(Renderer renderer)
         {
-            return LookAtGet(renderer, GetShardMaterial, (l, r) => l.SequenceEqual(r));
-            Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
+            return LookAtGet(renderer, GetSharedMaterials, (l, r) => l.SequenceEqual(r));
+            Material?[] GetSharedMaterials(Renderer r) { return renderer.sharedMaterials; }
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
         Mesh? GetMesh(Renderer renderer) { return renderer.GetMesh(); }
@@ -74,7 +73,7 @@ namespace net.rs64.TexTransTool
         HashSet<Material> GetAllMaterials()
         {
             var matHash = new HashSet<Material>();
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).UOfType<Material>()); }
+            foreach (var r in EnumerateRenderers()) { matHash.UnionWith(GetMaterials(r).SkipDestroyed()); }
             return matHash;
         }
         HashSet<Texture> GetAllTextures()
@@ -86,12 +85,12 @@ namespace net.rs64.TexTransTool
             Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
             Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
         }
-        HashSet<Texture> GetMaterialTexture(Material mat)
+        HashSet<Texture> GetMaterialTextures(Material mat)
         {
             return mat.EnumerateReferencedTextures().ToHashSet();
         }
     }
-    internal interface IAffectingRendererTargeting : IRendererTargeting, IReplaceRegister
+    internal interface IAffectingRendererTargeting : IRendererTargeting, IReplacementRegistry
     {
         // おおもとの IRendererTargeting.GetMaterials を隠すような形で実装すること (これなんかいい形で明示したいのだけど ... 方法がわからん)
         // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
@@ -141,7 +140,7 @@ namespace net.rs64.TexTransTool
     internal class TexTransToolTextureDescriptor
     {
         public bool UseMipMap = true;
-        public string MipMapGenerateAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
+        public string MipMapGenerationAlgorithm = ITexTransToolForUnity.DS_ALGORITHM_DEFAULT;
         public ITexTransToolTextureFormat TextureFormat = new TextureCompressionData();
         public bool AsLinear = false;
         public bool IsNormalMap = false;// このテクスチャが確定で NormalMap であることを保証しない。 (AtlasTexture などで発生する)
@@ -159,7 +158,7 @@ namespace net.rs64.TexTransTool
         public void CopyFrom(TexTransToolTextureDescriptor descriptor)
         {
             UseMipMap = descriptor.UseMipMap;
-            MipMapGenerateAlgorithm = descriptor.MipMapGenerateAlgorithm;
+            MipMapGenerationAlgorithm = descriptor.MipMapGenerationAlgorithm;
             TextureFormat = descriptor.TextureFormat;
             AsLinear = descriptor.AsLinear;
             IsNormalMap = descriptor.IsNormalMap;
@@ -200,12 +199,12 @@ namespace net.rs64.TexTransTool
             IsPreview = isPreview;
         }
     }
-    internal class GenericReplaceRegistry : IReplaceRegister, IReplaceTracking
+    internal class GenericReplaceRegistry : IReplacementRegistry, IOriginalObjectEqualityComparer
     {
         Dictionary<UnityEngine.Object, UnityEngine.Object> _replaceMap = new();//New Old
         public IReadOnlyDictionary<UnityEngine.Object, UnityEngine.Object> ReplaceMap => _replaceMap;
 
-        public virtual bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+        public virtual bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == null || r == null) { return l == r; }
             if (l == r) { return true; }
@@ -214,7 +213,7 @@ namespace net.rs64.TexTransTool
             return originL == originR;
         }
 
-        public virtual void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+        public virtual void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
         {
             var originL = _replaceMap.TryGetValue(oldObject, out var oObj) ? oObj : oldObject;
             _replaceMap[nowObject] = originL;
@@ -227,7 +226,7 @@ namespace net.rs64.TexTransTool
     }
     internal static class DomainUtility
     {
-        public static OriginEqual ObjectEqual = (l, r) =>
+        public static UnityObjectEqualityComparison ObjectEqual = (l, r) =>
         {
             if (l == null) { return r == null; }
             return l.Equals(r);
@@ -239,26 +238,26 @@ namespace net.rs64.TexTransTool
                 domain.TransferAsset(unityObject);
             }
         }
-        public static void RegisterReplaces<TOld, TNew>(this IReplaceRegister domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
+        public static void RegisterReplaces<TOld, TNew>(this IReplacementRegistry domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
         where TOld : UnityEngine.Object
         where TNew : UnityEngine.Object
         {
             foreach (var unityObject in unityObjects)
-                domain.RegisterReplace(unityObject.Key, unityObject.Value);
+                domain.RegisterReplacement(unityObject.Key, unityObject.Value);
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
         {
             if (renderer == null) { return Array.Empty<Renderer>(); }
-            return rendererTargeting.EnumerateRenderer().Where(Contains);
-            bool Contains(Renderer dr) { return rendererTargeting.OriginEqual(dr, renderer); }
+            return rendererTargeting.EnumerateRenderers().Where(Contains);
+            bool Contains(Renderer dr) { return rendererTargeting.OriginalObjectEquals(dr, renderer); }
         }
         public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
-            return rendererTargeting.EnumerateRenderer().Where(Contains);
-            bool Contains(Renderer dr) { return renderers.Any(sr => rendererTargeting.OriginEqual(dr, sr)); }
+            return rendererTargeting.EnumerateRenderers().Where(Contains);
+            bool Contains(Renderer dr) { return renderers.Any(sr => rendererTargeting.OriginalObjectEquals(dr, sr)); }
         }
-        public static IEnumerable<Renderer> GetDomainsRenderers(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Renderer> renderers)
+        public static IEnumerable<Renderer> GetDomainsRenderers(this UnityObjectEqualityComparison originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
             return domainRenderers.Where(Contains);
@@ -268,33 +267,33 @@ namespace net.rs64.TexTransTool
         {
             if (texture == null) { return Array.Empty<Texture>(); }
             return rendererTargeting.GetAllTextures().Where(Contains);
-            bool Contains(Texture dr) { return rendererTargeting.OriginEqual(dr, texture); }
+            bool Contains(Texture dr) { return rendererTargeting.OriginalObjectEquals(dr, texture); }
         }
 
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(matHash.Contains));
+            return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(matHash.Contains));
         }
         public static IEnumerable<Renderer> RendererFilterForMaterialFromDomains(this IRendererTargeting rendererTargeting, HashSet<Material> domainMaterial)
         {
             if (domainMaterial.Any() is false) { return Array.Empty<Renderer>(); }
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(domainMaterial.Contains));
+            return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(domainMaterial.Contains));
         }
         public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
         {
             if (material == null) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
-            return rendererTargeting.EnumerateRenderer().Where(i => rendererTargeting.GetMaterials(i).UOfType<Material>().Any(matHash.Contains));
+            return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(matHash.Contains));
         }
 
         public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return new(); }
-            return rendererTargeting.GetAllMaterials().Where(m => material.Any(tm => rendererTargeting.OriginEqual(m, tm))).ToHashSet();
+            return rendererTargeting.GetAllMaterials().Where(m => material.Any(tm => rendererTargeting.OriginalObjectEquals(m, tm))).ToHashSet();
         }
-        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this UnityObjectEqualityComparison originEqual, IEnumerable<Renderer> domainRenderers, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return new(); }
             return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
@@ -302,14 +301,14 @@ namespace net.rs64.TexTransTool
         public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, Material? material)
         {
             if (material == null) { return new(); }
-            return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginEqual(m, material)).ToHashSet();
+            return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginalObjectEquals(m, material)).ToHashSet();
         }
 
-        public static Material? GetDomainsMaterial(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, Material material)
+        public static Material? GetDomainsMaterial(this UnityObjectEqualityComparison originEqual, IEnumerable<Material> domainsMaterial, Material material)
         {
             return domainsMaterial.FirstOrDefault(m => originEqual(m, material));
         }
-        public static HashSet<Material> GetDomainsMaterialsHashSet(this OriginEqual originEqual, IEnumerable<Material> domainsMaterial, IEnumerable<Material> material)
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this UnityObjectEqualityComparison originEqual, IEnumerable<Material> domainsMaterial, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return new(); }
             return domainsMaterial.Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
@@ -327,29 +326,37 @@ namespace net.rs64.TexTransTool
             {
                 if (m.ReferencesTexture(dist) is false) { continue; }
 
-                var mutableMat = m;
-                domain.GetMutable(ref mutableMat);
+                var mutableMat = domain.ToMutable(m);
                 mutableMat.ReplaceTexture(dist, newTexture);
             }
         }
-        /// <summary>
-        ///  Unity Of Type  Unity での null が存在しないことが保証される
-        /// </summary>
-        public static IEnumerable<T> UOfType<T>(this IEnumerable source)
+    }
+    internal static class DestroyedUnityObjectHelpers
+    {
+        public static T? DestroyedAsNull<T>(this T? obj) where T : notnull, UnityEngine.Object
         {
-            if (source is null) { throw new ArgumentNullException("source is null"); }
-
-            foreach (var i in source)
+            return (obj == null) ? null : obj;
+        }
+        public static IEnumerable<T> SkipDestroyed<T>(this IEnumerable<T?> source)
+            where T : notnull, UnityEngine.Object
+        {
+            return source.Where(item => item != null)!;
+        }
+        public static IEnumerable<TResult> OfType<TResult>(this IEnumerable<UnityEngine.Object?> source)
+            where TResult : notnull, UnityEngine.Object
+        {
+            if (source == null)
             {
-                if (i is not T t) { continue; }
-                // ここで UnityEngine.Object にキャストして Override されたオペレーターを呼び出し
-                // t と == で null と比較することで Unity の C++ 側での null と missing を弾くことができる。
-                if (t is UnityEngine.Object uo)
-                    if (uo == null) { continue; }
+                throw new ArgumentNullException(nameof(source));
+            }
 
-                yield return t;
+            foreach (var item in source)
+            {
+                if (item is TResult result && item != null)
+                {
+                    yield return result;
+                }
             }
         }
     }
-
 }

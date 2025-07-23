@@ -128,9 +128,9 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             _stackManager.ReleaseStackAll();
         }
 
-        public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
+        public IEnumerable<Renderer> EnumerateRenderers() { return _domainRenderers; }
 
-        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+        public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == r) { return true; }
             if (l is Material lm && r is Material rm)
@@ -142,7 +142,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
             return false;
         }
         public ITexTransToolForUnity GetTexTransCoreEngineForUnity() => _ttce4U;
-        public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
+        public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
 
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }

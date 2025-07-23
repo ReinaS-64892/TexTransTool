@@ -16,8 +16,8 @@ namespace net.rs64.TexTransTool.IslandSelector
         internal override void LookAtCalling(ILookingObject looker) { looker.LookAt(this); }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {
-            OriginEqual oe = ctx.Targeting.OriginEqual;
-            var selectMaterialsHash = oe.GetDomainsMaterialsHashSet(ctx.IslandDescription.SelectMany(i => i.Materials).Distinct().UOfType<Material>(), Materials);
+            UnityObjectEqualityComparison oe = ctx.Targeting.OriginalObjectEquals;
+            var selectMaterialsHash = oe.GetDomainsMaterialsHashSet(ctx.IslandDescription.SelectMany(i => i.Materials).Distinct().SkipDestroyed(), Materials);
             var bitArray = new BitArray(ctx.Islands.Length);
 
             for (int i = 0; i < ctx.Islands.Length; i += 1)

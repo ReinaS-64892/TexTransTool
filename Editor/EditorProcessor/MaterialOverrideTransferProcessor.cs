@@ -29,8 +29,7 @@ namespace net.rs64.TexTransTool.EditorProcessor
 
             foreach (var unEditableMat in mats)
             {
-                var mutableMat = unEditableMat;
-                domain.GetMutable(ref mutableMat);
+                var mutableMat = domain.ToMutable(unEditableMat);
                 TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
             }
         }

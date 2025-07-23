@@ -107,7 +107,7 @@ namespace net.rs64.TexTransTool.Decal
                             return GetAutoMaterialFiltered(rendererTargeting, thisObj, getRendererSelector);
                         }
                         isIncludingAll = true;
-                        return MaybeFilterDisableRenderers(rendererTargeting, rendererTargeting.EnumerateRenderer(), thisObj, getRendererSelector);
+                        return MaybeFilterDisableRenderers(rendererTargeting, rendererTargeting.EnumerateRenderers(), thisObj, getRendererSelector);
                     }
                 case RendererSelectMode.Manual:
                     {

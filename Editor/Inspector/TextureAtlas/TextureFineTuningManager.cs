@@ -167,7 +167,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.Editor
             using var previewDomain = new NotWorkDomain(domainRoot.GetComponentsInChildren<Renderer>(true), new TTCEUnityWithTTT4Unity(diskUtil));
 
 
-            var nowRenderers = AtlasTexture.GetAtlasAllowedRenderers(previewDomain, previewDomain.EnumerateRenderer(), atlasTexture.AtlasSetting.IncludeDisabledRenderer);
+            var nowRenderers = AtlasTexture.GetAtlasAllowedRenderers(previewDomain, previewDomain.EnumerateRenderers(), atlasTexture.AtlasSetting.IncludeDisabledRenderer);
             var targetMaterials = atlasTexture.GetTargetMaterials(previewDomain, nowRenderers).ToHashSet();
             if (targetMaterials.Any() is false) { return null; }
 

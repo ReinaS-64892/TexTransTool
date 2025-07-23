@@ -59,7 +59,7 @@ namespace net.rs64.TexTransTool.TextureAtlas.FineTuning
 
                 var texDesc = ctx.ProcessingHolder[tuning.Key].TextureDescriptor;
                 texDesc.UseMipMap = mipMapData.UseMipMap;
-                texDesc.MipMapGenerateAlgorithm = mipMapData.MipMapGenerateAlgorithm;
+                texDesc.MipMapGenerationAlgorithm = mipMapData.MipMapGenerateAlgorithm;
             }
         }
     }
