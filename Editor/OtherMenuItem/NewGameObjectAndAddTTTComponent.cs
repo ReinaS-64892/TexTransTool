@@ -80,6 +80,7 @@ namespace net.rs64.TexTransTool.Editor.OtherMenuItem
 
         [M(BP + NearTransTexture.MenuPath)] static void NTT() => C<NearTransTexture>();
         [M(BP + UVCopy.MenuPath)] static void UC() => C<UVCopy>();
+        [M(BP + TileAtlasBarker.MenuPath)] static void TAB() => C<TileAtlasBarker>();
 
 
 
