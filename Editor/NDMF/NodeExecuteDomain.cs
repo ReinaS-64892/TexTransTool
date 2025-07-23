@@ -124,7 +124,12 @@ namespace net.rs64.TexTransTool.NDMF
             renderer.SetMesh(mesh);
             UsedSetMesh = true;
         }
-
+        public void SetMaterials(Renderer renderer, Material[] materials)
+        {
+            RegisterRecall(renderer, i => i.sharedMaterials = materials);
+            renderer.sharedMaterials = materials;
+            UsedMaterialReplace = true;
+        }
         public TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture) { return new(); }
 
         public void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor)

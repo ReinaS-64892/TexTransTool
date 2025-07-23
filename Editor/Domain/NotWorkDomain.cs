@@ -27,6 +27,7 @@ namespace net.rs64.TexTransTool
         public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject) { }
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { }
         public void SetMesh(Renderer renderer, Mesh mesh) { }
+        public void SetMaterials(Renderer renderer, Material[] materials) { }
         public void TransferAsset(UnityEngine.Object asset) { _transferredObject.Add(asset); }
         public void Dispose()
         {

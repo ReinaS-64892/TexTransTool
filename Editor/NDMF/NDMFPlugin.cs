@@ -39,6 +39,7 @@ namespace net.rs64.TexTransTool.NDMF
 #if CONTAINS_AAO
                 .Run(NegotiateAAOPass.Instance).Then
 #endif
+                .Run(UVDisassemblyPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVDisassembly)).Then
                 .Run(MaterialModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.MaterialModification)).Then
                 .Run(BeforeUVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.BeforeUVModification)).Then
                 .Run(UVModificationPass.Instance).PreviewingWith(new TexTransDomainFilter(TexTransPhase.UVModification)).Then
@@ -68,6 +69,7 @@ namespace net.rs64.TexTransTool.NDMF
             });
         }
         internal static Dictionary<TexTransPhase, TogglablePreviewNode> s_togglablePreviewPhases = new() {
+            { TexTransPhase.UVDisassembly,  TogglablePreviewNode.Create(() => "UVDisassembly-Phase", "UVDisassembly", true) },
             { TexTransPhase.MaterialModification,  TogglablePreviewNode.Create(() => "MaterialModification-Phase", "MaterialModification", true) },
             { TexTransPhase.BeforeUVModification,  TogglablePreviewNode.Create(() => "BeforeUVModification-Phase", "BeforeUVModification", true) },
             { TexTransPhase.UVModification,  TogglablePreviewNode.Create(() => "UVModification-Phase", "UVModification",  true) },

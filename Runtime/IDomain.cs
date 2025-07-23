@@ -20,6 +20,7 @@ namespace net.rs64.TexTransTool
 
         // Mesh の Transfer Assets や RegisterReplace は行われない
         void SetMesh(Renderer renderer, Mesh mesh);
+        void SetMaterials(Renderer renderer, Material[] materials);
         public void AddTextureStack(Texture dist, ITTRenderTexture addTex, ITTBlendKey blendKey);//addTex は借用前提で、保持しておきたいなら Clone すること
         Material ToMutable(Material material)
         {

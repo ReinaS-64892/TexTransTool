@@ -146,6 +146,7 @@ namespace net.rs64.TexTransTool.Preview.RealTime
 
         public void ReplaceMaterials(Dictionary<Material, Material> mapping) { throw new NotImplementedException(); }
         public void SetMesh(Renderer renderer, Mesh mesh) { throw new NotImplementedException(); }
+        public void SetMaterials(Renderer renderer, Material[] materials) { throw new NotImplementedException(); }
         public void TransferAsset(UnityEngine.Object asset) { throw new NotImplementedException(); }
         public void LookAt(UnityEngine.Object obj)
         {
