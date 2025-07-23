@@ -60,6 +60,7 @@ namespace net.rs64.TexTransTool
         { RendererUtility.SwapMaterials(_renderers, mapping); }
         public virtual void SetMesh(Renderer renderer, Mesh mesh) { renderer.SetMesh(mesh); }
 
+        public void SetMaterials(Renderer renderer, Material[] materials) { renderer.sharedMaterials = materials; }
         public bool IsTemporaryAsset(Object Asset) => _saver?.IsTemporaryAsset(Asset) ?? false;
         public void TransferAsset(Object Asset) => _saver?.TransferAsset(Asset);
 
