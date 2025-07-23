@@ -14,6 +14,7 @@ namespace net.rs64.TexTransTool
 
     public enum TexTransPhase
     {
+        UVDisassembly = 7,
         MaterialModification = 5,
 
         BeforeUVModification = 1,
@@ -32,6 +33,7 @@ namespace net.rs64.TexTransTool
     {
         public static IEnumerable<TexTransPhase> EnumerateAllPhase()
         {
+            yield return TexTransPhase.UVDisassembly;
             yield return TexTransPhase.MaterialModification;
             yield return TexTransPhase.BeforeUVModification;
             yield return TexTransPhase.UVModification;
