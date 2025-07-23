@@ -25,7 +25,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             return _swappers
                 .SelectMany(swap => swap.Swaps)
                 .SelectMany(swap => new[] { swap.From, swap.To })
-                .UOfType<Material>()
+                .SkipDestroyed()
                 .ToHashSet();
         }
 

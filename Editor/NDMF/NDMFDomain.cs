@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.NDMF
         {
             var matHash = new HashSet<Material>();
 
-            foreach (var r in EnumerateRenderer()) { matHash.UnionWith(GetMaterials(r).UOfType<Material>());}
+            foreach (var r in EnumerateRenderers()) { matHash.UnionWith(GetMaterials(r).SkipDestroyed());}
             matHash.UnionWith(_additionalMaterialsProvider.GetReferencedMaterials());
             return matHash;
 
@@ -56,14 +56,14 @@ namespace net.rs64.TexTransTool.NDMF
             base.ReplaceMaterials(mapping);
             _additionalMaterialsProvider.ReplaceReferencedMaterials(mapping);
         }
-        public override void RegisterReplace(Object oldObject, Object nowObject)
+        public override void RegisterReplacement(Object oldObject, Object nowObject)
         {
             if (_genericReplaceRegistry.ReplaceMap.TryGetValue(nowObject, out var dictOld)) { if (dictOld == oldObject) { return; } }
 
-            base.RegisterReplace(oldObject, nowObject);
+            base.RegisterReplacement(oldObject, nowObject);
             if (oldObject is not RenderTexture && nowObject is not RenderTexture) ObjectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
-        public override bool OriginEqual(Object? l, Object? r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
+        public override bool OriginalObjectEquals(Object? l, Object? r) { return ObjectRegistry.GetReference(l) == ObjectRegistry.GetReference(r); }
 
         public override bool IsActive(GameObject gameObject)
         {

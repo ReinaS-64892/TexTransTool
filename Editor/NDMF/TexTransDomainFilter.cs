@@ -293,7 +293,7 @@ namespace net.rs64.TexTransTool.NDMF
                 // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
                 _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)).ToArray());
                 // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().UOfType<Material>().ToArray();
+                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().SkipDestroyed().ToArray();
                 _allMaterialsHash = new(_allMaterials);
 
                 var origin2Mutable = new Dictionary<Material, Material>();
@@ -316,18 +316,18 @@ namespace net.rs64.TexTransTool.NDMF
                 foreach (var o2m in origin2Mutable)
                     _replacing[o2m.Value] = o2m.Key;
             }
-            public IEnumerable<Renderer> EnumerateRenderer() => _domainRenderers;
+            public IEnumerable<Renderer> EnumerateRenderers() => _domainRenderers;
 
             public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
             public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
-            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+            public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
             {
                 if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
                 if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
                 return l == r;
             }
 
-            public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+            public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
             {
                 _replacing[nowObject] = oldObject;
             }
@@ -374,8 +374,8 @@ namespace net.rs64.TexTransTool.NDMF
                 _sharedMaterialCache = new();
                 _textureHashOnMaterial = new();
             }
-            public IEnumerable<Renderer> EnumerateRenderer() { return _domainRenderers; }
-            public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
+            public IEnumerable<Renderer> EnumerateRenderers() { return _domainRenderers; }
+            public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r) { return l == r; }
 
             public Material?[] GetMaterials(Renderer renderer)
             {
@@ -390,7 +390,7 @@ namespace net.rs64.TexTransTool.NDMF
                 if (_matHash is null)
                 {
                     _matHash = new HashSet<Material>();
-                    foreach (var r in EnumerateRenderer()) { _matHash.UnionWith(GetMaterials(r).UOfType<Material>()); }
+                    foreach (var r in EnumerateRenderers()) { _matHash.UnionWith(GetMaterials(r).SkipDestroyed()); }
                 }
                 return _matHash;
             }

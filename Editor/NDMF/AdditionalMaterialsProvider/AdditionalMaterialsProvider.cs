@@ -36,7 +36,7 @@ namespace net.rs64.TexTransTool.NDMF.AdditionalMaterials
             var matHash = new HashSet<Material>();
             foreach (var provider in _providers)
             {
-                matHash.UnionWith(provider.GetReferencedMaterials().UOfType<Material>());
+                matHash.UnionWith(provider.GetReferencedMaterials().SkipDestroyed());
             }
             return matHash;
         }

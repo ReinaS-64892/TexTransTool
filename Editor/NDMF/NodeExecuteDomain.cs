@@ -84,7 +84,7 @@ namespace net.rs64.TexTransTool.NDMF
             _textureStacks.AddTextureStack(dist, addTex, blendKey);
             UsedTextureStack = true;
         }
-        public IEnumerable<Renderer> EnumerateRenderer() { return _proxyDomainRenderers; }
+        public IEnumerable<Renderer> EnumerateRenderers() { return _proxyDomainRenderers; }
 
         private void RegisterRecall(Renderer proxyRenderer, Action<Renderer> recall)
         {
@@ -102,7 +102,7 @@ namespace net.rs64.TexTransTool.NDMF
             var mutableMat = NDMFPreviewMaterialPool.Get(origin);
             ReplaceMaterials(new() { { origin, mutableMat } });
 
-            RegisterReplace(origin, mutableMat);
+            RegisterReplacement(origin, mutableMat);
             TransferAsset(mutableMat);
 
             mutableMat.name = origin.name + "(TTT GetMutable on NDMF Preview for pooled)";
@@ -135,11 +135,11 @@ namespace net.rs64.TexTransTool.NDMF
                 TTCEUnityWithTTT4UnityOnNDMFPreview.s_AsLinearMarked.Add(_ttce4U.GetReferenceRenderTexture(rt));
         }
 
-        public void RegisterReplace(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+        public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
         {
             _objectRegistry.RegisterReplacedObject(oldObject, nowObject);
         }
-        public bool OriginEqual(UnityEngine.Object? l, UnityEngine.Object? r)
+        public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
         {
             if (l == r) { return true; }
             if (l is Renderer lRen && r is Renderer rRen)
