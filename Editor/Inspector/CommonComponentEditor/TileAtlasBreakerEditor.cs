@@ -3,19 +3,19 @@ using UnityEngine;
 namespace net.rs64.TexTransTool.Editor
 {
 
-    [CustomEditor(typeof(TileAtlasBarker))]
-    internal class TileAtlasBarkerEditor : TexTransMonoBaseEditor
+    [CustomEditor(typeof(TileAtlasBreaker))]
+    internal class TileAtlasBreakerEditor : TexTransMonoBaseEditor
     {
         protected override void OnTexTransComponentInspectorGUI()
         {
             var sObj = serializedObject;
 
-            var sTargetMaterial = sObj.FindProperty(nameof(TileAtlasBarker.TargetMaterial));
-            var sOriginalMaterials = sObj.FindProperty(nameof(TileAtlasBarker.OriginalMaterials));
+            var sTargetMaterial = sObj.FindProperty(nameof(TileAtlasBreaker.TargetMaterial));
+            var sOriginalMaterials = sObj.FindProperty(nameof(TileAtlasBreaker.OriginalMaterials));
 
 
-            EditorGUILayout.PropertyField(sTargetMaterial, nameof(TileAtlasBarker.TargetMaterial).GlcV());
-            EditorGUILayout.PropertyField(sOriginalMaterials, nameof(TileAtlasBarker.OriginalMaterials).GlcV());
+            EditorGUILayout.PropertyField(sTargetMaterial, nameof(TileAtlasBreaker.TargetMaterial).GlcV());
+            EditorGUILayout.PropertyField(sOriginalMaterials, nameof(TileAtlasBreaker.OriginalMaterials).GlcV());
             if (sOriginalMaterials.isExpanded is false)
             {
                 var tMat = sTargetMaterial.objectReferenceValue;

@@ -11,10 +11,10 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TileAtlasBarker : TexTransRuntimeBehavior
+    public sealed class TileAtlasBreaker : TexTransRuntimeBehavior
     {
         internal const string FoldoutName = "Other";
-        internal const string ComponentName = "TTT TileAtlasBarker";
+        internal const string ComponentName = "TTT " + nameof(TileAtlasBreaker);
         internal const string MenuPath = FoldoutName + "/" + ComponentName;
         internal override TexTransPhase PhaseDefine => TexTransPhase.UVDisassembly;
 
@@ -28,13 +28,13 @@ namespace net.rs64.TexTransTool
         internal override void Apply(IDomain domain)
         {
             var targetMaterial = domain.LookAtGet(this, i => i.TargetMaterial);
-            if (targetMaterial == null) { TTLog.Info("TileAtlasBarker:info:TargetNotSet"); return; }
+            if (targetMaterial == null) { TTLog.Info("TileAtlasBreaker:info:TargetNotSet"); return; }
 
             var originalMaterials = domain.LookAtGet(this, i => i.OriginalMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
-            if (originalMaterials.Length is not 4) { TTLog.Error("TileAtlasBarker:error:InvalidSetting"); return; }
+            if (originalMaterials.Length is not 4) { TTLog.Error("TileAtlasBreaker:error:InvalidSetting"); return; }
 
             var targetTextures = domain.RendererFilterForMaterial(targetMaterial).ToArray();
-            if (targetTextures.Any() is false) { TTLog.Info("TileAtlasBarker:info:TargetNotFound"); return; }
+            if (targetTextures.Any() is false) { TTLog.Info("TileAtlasBreaker:info:TargetNotFound"); return; }
 
             foreach (var renderer in targetTextures)
             {
