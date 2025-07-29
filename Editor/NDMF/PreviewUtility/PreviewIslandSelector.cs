@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool.NDMF
             islandSelector.LookAtCalling(nodeDomain);
             var islandsArray = IslandSelectToPPFilter.IslandsArrayFromMeshData(proxyMeshData);
             var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, nodeDomain));
-            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
+            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleVertexIndices(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             var islandSelectedTriangles = islandSelectedTrianglesHolder.Ref();
 
             for (var ri = 0; proxyMeshData.Length > ri; ri += 1)
@@ -71,7 +71,7 @@ namespace net.rs64.TexTransTool.NDMF
                         using var writable = TTRenderTexWithPaddingDistance.CreateFrom(engine, rt, 5f);
 
                         uvVertexBuffer ??= engine.UploadStorageBuffer<Vector2>(md.VertexUV);
-                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleIndex, int>(triangles));
+                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleVertexIndices, int>(triangles));
 
                         PolygonMask.Write(engine, writable, uvVertexBuffer, trianglesBuf, triangles.Length);
                         nodeDomain.AddTextureStack(referenceTexture, rt, blKey);

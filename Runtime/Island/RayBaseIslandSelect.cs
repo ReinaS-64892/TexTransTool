@@ -83,15 +83,15 @@ namespace net.rs64.TexTransTool.UVIsland
             for (var i = 0; jobs.Length > i; i += 1)
             {
                 var triCount = islands[i].Triangles.Count;
-                var nativeTriangleIndex = new NativeArray<TriangleIndex>(triCount, Allocator.TempJob);
-                for (var triIndex = 0; triCount > triIndex; triIndex += 1) { nativeTriangleIndex[triIndex] = islands[i].Triangles[triIndex]; }
+                var nativeTriangleVertexIndices = new NativeArray<TriangleVertexIndices>(triCount, Allocator.TempJob);
+                for (var triIndex = 0; triCount > triIndex; triIndex += 1) { nativeTriangleVertexIndices[triIndex] = islands[i].Triangles[triIndex]; }
                 var hitResult = hitResults[i] = new NativeArray<bool>(triCount, Allocator.TempJob);
                 var distance = distances[i] = new NativeArray<float>(triCount, Allocator.TempJob);
 
                 var rayCastJob = new RayCastJob2()
                 {
                     ray = islandSelectorRay,
-                    Triangles = nativeTriangleIndex,
+                    Triangles = nativeTriangleVertexIndices,
                     Position = islandDescription[i].Position,
                     HitResult = hitResult,
                     Distance = distance,
@@ -123,9 +123,9 @@ namespace net.rs64.TexTransTool.UVIsland
 
         public struct RayCastHitTriangle
         {
-            public TriangleIndex Triangle;
+            public TriangleVertexIndices Triangle;
             public float Distance;
-            public RayCastHitTriangle(TriangleIndex triangle, float distance)
+            public RayCastHitTriangle(TriangleVertexIndices triangle, float distance)
             {
                 this.Triangle = triangle;
                 this.Distance = distance;

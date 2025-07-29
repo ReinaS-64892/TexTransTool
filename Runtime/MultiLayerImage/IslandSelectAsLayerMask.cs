@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
             var islandsArray = IslandSelectToPPFilter.IslandsArrayFromMeshData(meshData);
             var bitArray = islandSelector.IslandSelect(new(islandsArray.flattenIslands, islandsArray.flattenIslandDescription, domain));
-            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
+            using var islandSelectedTrianglesHolder = IslandSelectToPPFilter.IslandSelectToTriangleVertexIndices(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             var islandSelectedTriangles = islandSelectedTrianglesHolder.Ref();
 
             using var writable = TTRenderTexWithPaddingDistance.CreateFrom(engine, mask, padding);
@@ -64,7 +64,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
                         if (triangles.Length == 0) { continue; }
 
                         uvVertexBuffer ??= engine.UploadStorageBuffer<Vector2>(md.VertexUV);
-                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleIndex, int>(triangles));
+                        using var trianglesBuf = engine.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleVertexIndices, int>(triangles));
 
                         PolygonMask.Write(engine, writable, uvVertexBuffer, trianglesBuf, triangles.Length);
                     }

@@ -88,11 +88,11 @@ namespace net.rs64.TexTransTool
                 sourceTexRt,
                 targetTexRt,
 
-                sourceMeshData.TriangleIndex[SourceMaterialSlot],
+                sourceMeshData.TriangleVertexIndices[SourceMaterialSlot],
                 MemoryMarshal.Cast<Vector4, TTVector4>(sourceVertArray.AsSpan()),
                 MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(sourceMeshData.VertexUV.AsSpan()),
 
-                targetMeshData.TriangleIndex[TargetMaterialSlot],
+                targetMeshData.TriangleVertexIndices[TargetMaterialSlot],
                 MemoryMarshal.Cast<Vector4, TTVector4>(targetVertArray.AsSpan()),
                 MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(targetMeshData.VertexUV.AsSpan()),
 

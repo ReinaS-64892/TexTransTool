@@ -17,12 +17,12 @@ namespace net.rs64.TexTransTool.UVIsland
     {
         public static List<Island> UVtoIsland(MeshData meshData, int subMeshIndex)
         {
-            var triangle = meshData.TriangleIndex[subMeshIndex].AsSpan();
+            var triangle = meshData.TriangleVertexIndices[subMeshIndex].AsSpan();
             var uvVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(meshData.VertexUV.AsSpan());
             return IslandUtility.UVtoIsland(triangle, uvVertex);
         }
 
-        public static List<Island> UVtoIsland(Span<TriangleIndex> triangle, Span<Vector2> span)
+        public static List<Island> UVtoIsland(Span<TriangleVertexIndices> triangle, Span<Vector2> span)
         {
             var uvVertex = MemoryMarshal.Cast<Vector2, System.Numerics.Vector2>(span);
             return IslandUtility.UVtoIsland(triangle, uvVertex);

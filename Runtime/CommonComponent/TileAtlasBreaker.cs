@@ -48,7 +48,7 @@ namespace net.rs64.TexTransTool
             if (mesh.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.TexCoord0) is false) { return; }
             var meshData = domain.GetMeshData(renderer);
 
-            var triangles = meshData.TriangleIndex[0];// 今はとりあえず SubMesh が存在しない前提で進みます。
+            var triangles = meshData.TriangleVertexIndices[0];// 今はとりあえず SubMesh が存在しない前提で進みます。
             var uv = meshData.VertexUV;
             using var modifiedUVNativeArray = new NativeArray<Vector2>(uv, Allocator.TempJob);
             var modifiedUV = modifiedUVNativeArray.AsSpan();
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool
             var verticalTileSize = 1f / verticalTileCount;// 一応ここのあたりを可変にできるようにこういう構造にしておく、だが今は決め打ち
             var horizontalTileSize = 1f / horizontalTileCount;
 
-            var spitedTriangles = new List<TriangleIndex>[4] { new(), new(), new(), new() };
+            var spitedTriangles = new List<TriangleVertexIndices>[4] { new(), new(), new(), new() };
 
             foreach (var triangleIndex in triangles)
             {
