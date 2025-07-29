@@ -29,7 +29,7 @@ namespace net.rs64.TexTransTool.Decal
 
         private JobHandle _jobHandle, _destroyJobHandle;
         public readonly int SubMeshCount;
-        public readonly NativeArray<TriangleIndex>[] TriangleIndex;
+        public readonly NativeArray<TriangleVertexIndices>[] TriangleVertexIndices;
 
         private readonly NativeArray<TexTransUnityAABB> _calcAABBBuffer;
         private readonly JobHandle _calcAABBJobHandle;
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool.Decal
             Vertices.Dispose();
             VertexUV.Dispose();
             _calcAABBBuffer.Dispose();
-            foreach (var triangle in TriangleIndex) { triangle.Dispose(); }
+            foreach (var triangle in TriangleVertexIndices) { triangle.Dispose(); }
             if (_needDestroyMesh != null) { UnityEngine.Object.DestroyImmediate(_needDestroyMesh); }
         }
 
@@ -74,7 +74,7 @@ namespace net.rs64.TexTransTool.Decal
             mainMesh.GetUVs((int)targetUVChannel, VertexUV);
 
             SubMeshCount = mainMesh.subMeshCount;
-            TriangleIndex = new NativeArray<TriangleIndex>[SubMeshCount];
+            TriangleVertexIndices = new NativeArray<TriangleVertexIndices>[SubMeshCount];
 
             var worldSpaceTransformJob = new WorldSpaceTransformJob()
             {
@@ -92,7 +92,7 @@ namespace net.rs64.TexTransTool.Decal
             for (int subMeshIndex = 0; SubMeshCount > subMeshIndex; subMeshIndex += 1)
             {
                 var desc = mainMesh.GetSubMesh(subMeshIndex);
-                TriangleIndex[subMeshIndex] = MeshUtility.GetSubMeshTriangleIndices(mainMesh, subMeshIndex);
+                TriangleVertexIndices[subMeshIndex] = MeshUtility.GetSubMeshTriangleIndices(mainMesh, subMeshIndex);
             }
 
 

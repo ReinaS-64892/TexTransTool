@@ -276,7 +276,7 @@ namespace net.rs64.TexTransTool
         }
         struct ParallelProjectionInCalculate : IJobParallelFor
         {
-            [ReadOnly] public NativeArray<TriangleIndex> Triangles;
+            [ReadOnly] public NativeArray<TriangleVertexIndices> Triangles;
             [WriteOnly][NativeDisableParallelForRestriction] public NativeArray<bool> IsInParallelProjection;
             public void Execute(int index)
             {

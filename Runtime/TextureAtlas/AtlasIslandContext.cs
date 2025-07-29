@@ -43,11 +43,11 @@ namespace net.rs64.TexTransTool.TextureAtlas
             {
                 var md = getMeshDataFromMeshID(atSub.MeshID);
 
-                // var triangle = normalizedMesh[Meshes[atSub.MeshID]].GetSubTriangleIndex(atSub.SubMeshIndex);
+                // var triangle = normalizedMesh[Meshes[atSub.MeshID]].GetSubTriangleVertexIndices(atSub.SubMeshIndex);
 
                 // なぜかこっちだと一部のモデルで正しくUVtoIslandができない...なぜ？
                 // 今だったら治ってる説ある
-                var triangle = md.TriangleIndex[atSub.SubMeshIndex].AsSpan();
+                var triangle = md.TriangleVertexIndices[atSub.SubMeshIndex].AsSpan();
                 TTLog.Assert(triangle.Length is not 0);
 
 
@@ -142,7 +142,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                 {
                     var atSub = atSubCrossTarget[i];
                     var bitArray = new BitArray(uvIndexCount);
-                    foreach (var tri in meshData.TriangleIndex[atSub.SubMeshIndex])
+                    foreach (var tri in meshData.TriangleVertexIndices[atSub.SubMeshIndex])
                     {
                         for (var ti = 0; 3 > ti; ti += 1)
                         {

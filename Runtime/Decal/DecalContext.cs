@@ -33,7 +33,7 @@ namespace net.rs64.TexTransTool.Decal
         TFilteringOutput Filtering(TDecalSpace space);
     }
 
-    internal interface IFilteredTriangleHolder : IDisposable { NativeArray<TriangleIndex>[][] GetTriangles(); }
+    internal interface IFilteredTriangleHolder : IDisposable { NativeArray<TriangleVertexIndices>[][] GetTriangles(); }
 
 
     internal class DecalContext<SpaceConvertor, TDecalSpace, TrianglesFilter, TFilteringOutput>
@@ -85,7 +85,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 var md = meshData[r];
                 var materials = targeting.GetMaterials(md.ReferenceRenderer);
-                var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
+                var validSlot = Math.Min(md.TriangleVertexIndices.Length, materials.Length);
 
                 using var decalMesh = new DecalMeshHolder(_ttce4u, md, decalSpace, r);
 
@@ -145,7 +145,7 @@ namespace net.rs64.TexTransTool.Decal
             {
                 var md = meshData[r];
                 var materials = targeting.GetMaterials(md.ReferenceRenderer);
-                var validSlot = Math.Min(md.TriangleIndex.Length, materials.Length);
+                var validSlot = Math.Min(md.TriangleVertexIndices.Length, materials.Length);
 
                 using var decalMesh = new DecalMeshHolder(_ttce4u, md, decalSpace, r);
 
@@ -193,7 +193,7 @@ namespace net.rs64.TexTransTool.Decal
                                 if (fromTri.Length is 0) { continue; }
 
 
-                                using var pBuf = _ttce4u.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleIndex, int>(fromTri.AsSpan()));
+                                using var pBuf = _ttce4u.UploadStorageBuffer<int>(MemoryMarshal.Cast<TriangleVertexIndices, int>(fromTri.AsSpan()));
                                 _ttce4u.WriteDepth(depthBuffer, vertexBuf, depthVBuf, pBuf, fromTri.Length);
                             }
                         }
@@ -203,11 +203,11 @@ namespace net.rs64.TexTransTool.Decal
                 default: { return null; }
             }
         }
-        private void WriteDecal(TTRenderTexWithPaddingDistance writeTarget, ITTRenderTexture sourceTexture, DecalMeshHolder decalMesh, NativeArray<TriangleIndex> triangleIndexes, DepthBufferHolder? depthBuffer)
+        private void WriteDecal(TTRenderTexWithPaddingDistance writeTarget, ITTRenderTexture sourceTexture, DecalMeshHolder decalMesh, NativeArray<TriangleVertexIndices> triangleIndexes, DepthBufferHolder? depthBuffer)
         {
             using var transMappingHolder = TTTransMappingHolder.Create(_ttce4u, writeTarget.Texture.Size(), sourceTexture.Size(), DecalPadding, depthBuffer is not null);
 
-            var polygonIndexesSpan = MemoryMarshal.Cast<TriangleIndex, int>(triangleIndexes);
+            var polygonIndexesSpan = MemoryMarshal.Cast<TriangleVertexIndices, int>(triangleIndexes);
             var polygonCount = triangleIndexes.Length;
 
             if (HighQualityPadding is false)

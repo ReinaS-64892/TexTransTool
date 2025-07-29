@@ -119,7 +119,7 @@ namespace net.rs64.TexTransTool.Editor
                     {
                         if (sharedMaterials.Length <= i) { break; }
                         if (matG.Contains(sharedMaterials[i]) is false) { continue; }
-                        record.Islands.AddRange(UnityIslandUtility.UVtoIsland(MemoryMarshal.Cast<int, TriangleIndex>(mesh.GetTriangles(i).AsSpan()), mesh.uv.AsSpan()));
+                        record.Islands.AddRange(UnityIslandUtility.UVtoIsland(MemoryMarshal.Cast<int, TriangleVertexIndices>(mesh.GetTriangles(i).AsSpan()), mesh.uv.AsSpan()));
                     }
                 }
 

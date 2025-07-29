@@ -43,7 +43,7 @@ namespace net.rs64.TexTransTool.UVIsland
         public RayIntersect.Ray ray;
         [ReadOnly]
         [DeallocateOnJobCompletion]
-        public NativeArray<TriangleIndex> Triangles;
+        public NativeArray<TriangleVertexIndices> Triangles;
         [ReadOnly]
         public NativeArray<Vector3> Position;
 

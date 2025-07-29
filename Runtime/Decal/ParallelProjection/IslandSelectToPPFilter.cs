@@ -52,14 +52,14 @@ namespace net.rs64.TexTransTool.Decal
         {
             if (islandSelector == null)
             {
-                var tri = new NativeArray<TriangleIndex>[meshData.Length][];
+                var tri = new NativeArray<TriangleVertexIndices>[meshData.Length][];
                 for (var i = 0; tri.Length > i; i += 1)
                 {
                     var md = meshData[i];
-                    var tr = tri[i] = new NativeArray<TriangleIndex>[md.SubMeshCount];
+                    var tr = tri[i] = new NativeArray<TriangleVertexIndices>[md.SubMeshCount];
                     for (var s = 0; tr.Length > s; s += 1)
                     {
-                        tr[s] = new NativeArray<TriangleIndex>(md.TriangleIndex[s], Allocator.TempJob);
+                        tr[s] = new NativeArray<TriangleVertexIndices>(md.TriangleVertexIndices[s], Allocator.TempJob);
                     }
                 }
                 return new(tri);
@@ -71,24 +71,24 @@ namespace net.rs64.TexTransTool.Decal
             Profiler.EndSample();
 
             Profiler.BeginSample("FilterTriangle");
-            var triList = IslandSelectToTriangleIndex(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
+            var triList = IslandSelectToTriangleVertexIndices(islandsArray.allMeshIslands, islandsArray.islandToIndex, bitArray);
             Profiler.EndSample();
 
             return triList;
         }
         internal struct IslandSelectedTriangleHolder : IDisposable
         {
-            NativeArray<TriangleIndex>[][]? Triangles;
-            public IslandSelectedTriangleHolder(NativeArray<TriangleIndex>[][] triangles)
+            NativeArray<TriangleVertexIndices>[][]? Triangles;
+            public IslandSelectedTriangleHolder(NativeArray<TriangleVertexIndices>[][] triangles)
             {
                 Triangles = triangles;
             }
-            public NativeArray<TriangleIndex>[][] Ref()
+            public NativeArray<TriangleVertexIndices>[][] Ref()
             {
                 if (Triangles is null) { throw new InvalidProgramException(); }
                 return Triangles;
             }
-            public NativeArray<TriangleIndex>[][] Take()
+            public NativeArray<TriangleVertexIndices>[][] Take()
             {
                 if (Triangles is null) { throw new InvalidProgramException(); }
                 var tri = Triangles;
@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.Decal
             for (var i = 0; allMeshIslands.Length > i; i += 1)
             {
                 var md = meshData[i];
-                var mi = allMeshIslands[i] = new Island[md.TriangleIndex.Length][];
+                var mi = allMeshIslands[i] = new Island[md.TriangleVertexIndices.Length][];
                 for (var s = 0; mi.Length > s; s += 1) { mi[s] = UnityIslandUtility.UVtoIsland(md, s).ToArray(); }
             }
 
@@ -148,7 +148,7 @@ namespace net.rs64.TexTransTool.Decal
             for (var i = 0; flattenIslandDescriptions.Length > i; i += 1)
             {
                 var md = meshData[i];
-                var id = flattenIslandDescriptions[i] = new IslandDescription[md.TriangleIndex.Length];
+                var id = flattenIslandDescriptions[i] = new IslandDescription[md.TriangleVertexIndices.Length];
                 for (var s = 0; id.Length > s; s += 1)
                 {
                     if (sharedMaterialsCache.TryGetValue(md.ReferenceRenderer, out var rMats) is false)
@@ -182,21 +182,21 @@ namespace net.rs64.TexTransTool.Decal
             };
         }
 
-        internal static IslandSelectedTriangleHolder IslandSelectToTriangleIndex(Island[][][] allMeshIslands, Dictionary<Island, int> islandToIndex, BitArray bitArray)
+        internal static IslandSelectedTriangleHolder IslandSelectToTriangleVertexIndices(Island[][][] allMeshIslands, Dictionary<Island, int> islandToIndex, BitArray bitArray)
         {
-            var allSelectedTriangles = new NativeArray<TriangleIndex>[allMeshIslands.Length][];
+            var allSelectedTriangles = new NativeArray<TriangleVertexIndices>[allMeshIslands.Length][];
             for (var i = 0; allSelectedTriangles.Length > i; i += 1)
             {
                 var mi = allMeshIslands[i];
-                var sm = allSelectedTriangles[i] = new NativeArray<TriangleIndex>[mi.Length];
+                var sm = allSelectedTriangles[i] = new NativeArray<TriangleVertexIndices>[mi.Length];
                 for (var s = 0; sm.Length > s; s += 1)
                 {
                     var selectedIslands = mi[s].Where(island => bitArray[islandToIndex[island]]).ToArray();
                     var triCount = selectedIslands.Sum(i => i.Triangles.Count);
 
-                    if (triCount == 0) { sm[s] = new NativeArray<TriangleIndex>(0, Allocator.TempJob); continue; }
+                    if (triCount == 0) { sm[s] = new NativeArray<TriangleVertexIndices>(0, Allocator.TempJob); continue; }
 
-                    var triangles = sm[s] = new NativeArray<TriangleIndex>(triCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+                    var triangles = sm[s] = new NativeArray<TriangleVertexIndices>(triCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
                     var wPos = 0;
                     foreach (var island in selectedIslands)
@@ -219,23 +219,23 @@ namespace net.rs64.TexTransTool.Decal
     internal class IslandSelectedJobChainedFilteredTrianglesHolder : IFilteredTriangleHolder
     {
         // owned
-        NativeArray<TriangleIndex>[][] _islandSelectedTriangles;
+        NativeArray<TriangleVertexIndices>[][] _islandSelectedTriangles;
         JobResult<NativeArray<bool>>[][] _filteredBitJobs;
-        NativeArray<TriangleIndex>[][]? _filteredTriangles;
-        public IslandSelectedJobChainedFilteredTrianglesHolder(NativeArray<TriangleIndex>[][] islandSelectedTriangles, JobResult<NativeArray<bool>>[][] filteredBitJobs)
+        NativeArray<TriangleVertexIndices>[][]? _filteredTriangles;
+        public IslandSelectedJobChainedFilteredTrianglesHolder(NativeArray<TriangleVertexIndices>[][] islandSelectedTriangles, JobResult<NativeArray<bool>>[][] filteredBitJobs)
         {
             _islandSelectedTriangles = islandSelectedTriangles;
             _filteredBitJobs = filteredBitJobs;
         }
-        public NativeArray<TriangleIndex>[][] GetTriangles()
+        public NativeArray<TriangleVertexIndices>[][] GetTriangles()
         {
             if (_filteredTriangles is null)
             {
-                _filteredTriangles = new NativeArray<TriangleIndex>[_filteredBitJobs.Length][];
+                _filteredTriangles = new NativeArray<TriangleVertexIndices>[_filteredBitJobs.Length][];
                 for (var i = 0; _filteredBitJobs.Length > i; i += 1)
                 {
                     var bitJobs = _filteredBitJobs[i];
-                    var triangles = new NativeArray<TriangleIndex>[bitJobs.Length];
+                    var triangles = new NativeArray<TriangleVertexIndices>[bitJobs.Length];
                     for (var s = 0; bitJobs.Length > s; s += 1)
                     {
                         triangles[s] = JobChainedFilteredTrianglesHolder.FilteringExecute(_islandSelectedTriangles[i][s], bitJobs[s].GetResult);

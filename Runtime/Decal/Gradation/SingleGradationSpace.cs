@@ -97,12 +97,12 @@ namespace net.rs64.TexTransTool.Decal
     }
     internal class SingleGradationFilteredTrianglesHolder : IFilteredTriangleHolder
     {
-        NativeArray<TriangleIndex>[][] _triangles;
-        public SingleGradationFilteredTrianglesHolder(NativeArray<TriangleIndex>[][] triangles)
+        NativeArray<TriangleVertexIndices>[][] _triangles;
+        public SingleGradationFilteredTrianglesHolder(NativeArray<TriangleVertexIndices>[][] triangles)
         {
             _triangles = triangles;
         }
-        public NativeArray<TriangleIndex>[][] GetTriangles()
+        public NativeArray<TriangleVertexIndices>[][] GetTriangles()
         {
             return _triangles;
         }
