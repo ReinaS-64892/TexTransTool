@@ -76,17 +76,17 @@ namespace net.rs64.TexTransTool.NDMF
 
                 Dictionary<TexTransBehavior, HashSet<Renderer>> targetGrouping;
 
-                if (behaviors.Any(b => b is IRendererTargetingAffecter))
-                {
-                    Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
-                    using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
-                    Profiler.EndSample();
+                // if (behaviors.Any(b => b is IDomainTargetingModifier))
+                // {
+                //     Profiler.BeginSample("NDMFAffectingRendererTargeting ctr");
+                //     using var affectingRendererTargeting = new NDMFAffectingRendererTargeting(ctx, domainRenderers);
+                //     Profiler.EndSample();
 
-                    Profiler.BeginSample("GetTargetGroupingWithAffecting");
-                    targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
-                    Profiler.EndSample();
-                }
-                else
+                //     Profiler.BeginSample("GetTargetGroupingWithAffecting");
+                //     targetGrouping = GetTargetGroupingWithAffecting(affectingRendererTargeting, behaviorIndex, domainRenderers);
+                //     Profiler.EndSample();
+                // }
+                // else
                 {
                     Profiler.BeginSample("NDMFRendererTargeting ctr");
                     var rendererTargeting = new NDMFRendererTargeting(ctx, domainRenderers);
@@ -165,14 +165,14 @@ namespace net.rs64.TexTransTool.NDMF
             return grouping;
         }
 
-        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(IRendererTargeting rendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
+        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGrouping(IDomainReferenceViewer rendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
         {
             var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
             var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
             foreach (var ttbKV in behaviors)
             {
                 Profiler.BeginSample("get ModificationTargetRenderers", ttbKV);
-                var modificationTargets = ttbKV.ModificationTargetRenderers(rendererTargeting).ToHashSet();
+                var modificationTargets = ttbKV.TargetRenderers(rendererTargeting).ToHashSet();
                 Profiler.EndSample();
                 Profiler.BeginSample("register target group", ttbKV);
                 targetRendererGroup.Add(ttbKV, modificationTargets);
@@ -181,24 +181,24 @@ namespace net.rs64.TexTransTool.NDMF
             return targetRendererGroup;
         }
 
-        private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGroupingWithAffecting(NDMFAffectingRendererTargeting affectingRendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
-        {
-            var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
-            var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
-            foreach (var ttbKV in behaviors)
-            {
-                Profiler.BeginSample("get ModificationTargetRenderers", ttbKV);
-                var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting).ToHashSet();
-                Profiler.EndSample();
-                Profiler.BeginSample("Do AffectingRendererTargeting", ttbKV);
-                if (ttbKV is IRendererTargetingAffecter affecter) affecter.AffectingRendererTargeting(affectingRendererTargeting);
-                Profiler.EndSample();
-                Profiler.BeginSample("register target group", ttbKV);
-                targetRendererGroup.Add(ttbKV, modificationTargets);
-                Profiler.EndSample();
-            }
-            return targetRendererGroup;
-        }
+        // private static Dictionary<TexTransBehavior, HashSet<Renderer>> GetTargetGroupingWithAffecting(NDMFAffectingRendererTargeting affectingRendererTargeting, Dictionary<TexTransBehavior, int> behaviorIndex, Renderer[] ofRenderers)
+        // {
+        //     var behaviors = behaviorIndex.OrderBy(i => i.Value).Select(i => i.Key).ToArray();
+        //     var targetRendererGroup = new Dictionary<TexTransBehavior, HashSet<Renderer>>();
+        //     foreach (var ttbKV in behaviors)
+        //     {
+        //         Profiler.BeginSample("get ModificationTargetRenderers", ttbKV);
+        //         var modificationTargets = ttbKV.ModificationTargetRenderers(affectingRendererTargeting).ToHashSet();
+        //         Profiler.EndSample();
+        //         Profiler.BeginSample("Do AffectingRendererTargeting", ttbKV);
+        //         if (ttbKV is IDomainTargetingModifier affecter) affecter.AffectingRendererTargeting(affectingRendererTargeting);
+        //         Profiler.EndSample();
+        //         Profiler.BeginSample("register target group", ttbKV);
+        //         targetRendererGroup.Add(ttbKV, modificationTargets);
+        //         Profiler.EndSample();
+        //     }
+        //     return targetRendererGroup;
+        // }
         public async Task<IRenderFilterNode> Instantiate(RenderGroup group, IEnumerable<(Renderer, Renderer)> proxyPairs, ComputeContext context)
         {
             var data = group.GetData<PassingData>();
@@ -276,89 +276,89 @@ namespace net.rs64.TexTransTool.NDMF
             }
         }
 
-        internal class NDMFAffectingRendererTargeting : IAffectingRendererTargeting, IDisposable
-        {
-            ComputeContext _ctx;
-            Renderer[] _domainRenderers;
-            Material[] _allMaterials;
-            HashSet<Material> _allMaterialsHash;
-            Dictionary<Renderer, Material?[]> _mutableMaterials;
-            Dictionary<UnityEngine.Object, UnityEngine.Object> _replacing;
-            public NDMFAffectingRendererTargeting(ComputeContext ctx, Renderer[] renderers)
-            {
-                _ctx = ctx;
-                _domainRenderers = renderers;
-                // すべてに対して Observe するの ... どうなんだろうね～?
-                // → 無限ループしてしまうからダメそう (しかし、いったいなぜ ... ?)
-                // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
-                _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)).ToArray());
-                // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
-                _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().SkipDestroyed().ToArray();
-                _allMaterialsHash = new(_allMaterials);
+        // internal class NDMFAffectingRendererTargeting : IAffectingRendererTargeting, IDisposable
+        // {
+        //     ComputeContext _ctx;
+        //     Renderer[] _domainRenderers;
+        //     Material[] _allMaterials;
+        //     HashSet<Material> _allMaterialsHash;
+        //     Dictionary<Renderer, Material?[]> _mutableMaterials;
+        //     Dictionary<UnityEngine.Object, UnityEngine.Object> _replacing;
+        //     public NDMFAffectingRendererTargeting(ComputeContext ctx, Renderer[] renderers)
+        //     {
+        //         _ctx = ctx;
+        //         _domainRenderers = renderers;
+        //         // すべてに対して Observe するの ... どうなんだろうね～?
+        //         // → 無限ループしてしまうからダメそう (しかし、いったいなぜ ... ?)
+        //         // → なぜか治ってしまった ... ? (しかし、いったいなぜ ... ? )
+        //         _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => _ctx.Observe(i, re => re.sharedMaterials, (l, r) => l.SequenceEqual(r)).ToArray());
+        //         // _mutableMaterials = _domainRenderers.ToDictionary(i => i, i => i.sharedMaterials);
+        //         _allMaterials = _mutableMaterials.Values.SelectMany(i => i).Distinct().SkipDestroyed().ToArray();
+        //         _allMaterialsHash = new(_allMaterials);
 
-                var origin2Mutable = new Dictionary<Material, Material>();
-                Profiler.BeginSample("get mutable from pool : count " + _allMaterials.Length);
-                for (var i = 0; _allMaterials.Length > i; i += 1)
-                {
-                    var origin = _allMaterials[i];
-                    _ctx.Observe(origin); // これは本当に必要だろうか ... ?
-                    origin2Mutable[origin] = _allMaterials[i] = NDMFPreviewMaterialPool.Get(origin);
-                }
-                Profiler.EndSample();
-                foreach (var rkv in _mutableMaterials)
-                {
-                    var matArray = rkv.Value;
-                    for (var i = 0; rkv.Value.Length > i; i += 1)
-                        if (matArray[i] != null)
-                            matArray[i] = origin2Mutable[matArray[i]!];
-                }
-                _replacing = new();
-                foreach (var o2m in origin2Mutable)
-                    _replacing[o2m.Value] = o2m.Key;
-            }
-            public IEnumerable<Renderer> EnumerateRenderers() => _domainRenderers;
+        //         var origin2Mutable = new Dictionary<Material, Material>();
+        //         Profiler.BeginSample("get mutable from pool : count " + _allMaterials.Length);
+        //         for (var i = 0; _allMaterials.Length > i; i += 1)
+        //         {
+        //             var origin = _allMaterials[i];
+        //             _ctx.Observe(origin); // これは本当に必要だろうか ... ?
+        //             origin2Mutable[origin] = _allMaterials[i] = NDMFPreviewMaterialPool.Get(origin);
+        //         }
+        //         Profiler.EndSample();
+        //         foreach (var rkv in _mutableMaterials)
+        //         {
+        //             var matArray = rkv.Value;
+        //             for (var i = 0; rkv.Value.Length > i; i += 1)
+        //                 if (matArray[i] != null)
+        //                     matArray[i] = origin2Mutable[matArray[i]!];
+        //         }
+        //         _replacing = new();
+        //         foreach (var o2m in origin2Mutable)
+        //             _replacing[o2m.Value] = o2m.Key;
+        //     }
+        //     public IEnumerable<Renderer> EnumerateRenderers() => _domainRenderers;
 
-            public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
-            public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
-            public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
-            {
-                if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
-                if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
-                return l == r;
-            }
+        //     public Material?[] GetMutableMaterials(Renderer renderer) => _mutableMaterials[renderer];
+        //     public Material?[] GetMaterials(Renderer renderer) => _mutableMaterials[renderer];
+        //     public bool OriginalObjectEquals(UnityEngine.Object? l, UnityEngine.Object? r)
+        //     {
+        //         if (l is Material mat && _replacing.ContainsKey(l)) l = _replacing[mat];
+        //         if (r is Material mat2 && _replacing.ContainsKey(r)) r = _replacing[mat2];
+        //         return l == r;
+        //     }
 
-            public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
-            {
-                _replacing[nowObject] = oldObject;
-            }
+        //     public void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject)
+        //     {
+        //         _replacing[nowObject] = oldObject;
+        //     }
 
-            public void Dispose()
-            {
-                for (var i = 0; _allMaterials.Length > i; i += 1)
-                {
-                    NDMFPreviewMaterialPool.Ret(_allMaterials[i]);
-                }
-                _domainRenderers = null!;
-                _allMaterials = null!;
-                _mutableMaterials = null!;
-                _replacing = null!;
-            }
-            public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
-            where TObj : UnityEngine.Object
-            {
-                //プールされているマテリアルを observe したらどうなるかわからないのでしない。
-                if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return getAction(obj); }
-                return _ctx.Observe(obj, getAction, comp);
-                // return getAction(obj);
-            }
-            public void LookAt(UnityEngine.Object obj)
-            {
-                if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return; }
-                _ctx.Observe(obj);
-            }
-            public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
-        }
-        internal class NDMFRendererTargeting : IRendererTargeting
+        //     public void Dispose()
+        //     {
+        //         for (var i = 0; _allMaterials.Length > i; i += 1)
+        //         {
+        //             NDMFPreviewMaterialPool.Ret(_allMaterials[i]);
+        //         }
+        //         _domainRenderers = null!;
+        //         _allMaterials = null!;
+        //         _mutableMaterials = null!;
+        //         _replacing = null!;
+        //     }
+        //     public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+        //     where TObj : UnityEngine.Object
+        //     {
+        //         //プールされているマテリアルを observe したらどうなるかわからないのでしない。
+        //         if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return getAction(obj); }
+        //         return _ctx.Observe(obj, getAction, comp);
+        //         // return getAction(obj);
+        //     }
+        //     public void LookAt(UnityEngine.Object obj)
+        //     {
+        //         if (obj is Material mat && (_allMaterialsHash.Contains(mat) || NDMFPreviewMaterialPool.Contains(mat))) { return; }
+        //         _ctx.Observe(obj);
+        //     }
+        //     public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
+        // }
+        internal class NDMFRendererTargeting : IDomainReferenceViewer
         {
             ComputeContext _ctx;
             Renderer[] _domainRenderers;
@@ -380,7 +380,7 @@ namespace net.rs64.TexTransTool.NDMF
             public Material?[] GetMaterials(Renderer renderer)
             {
                 if (_sharedMaterialCache.TryGetValue(renderer, out var mats)) { return mats; }
-                mats = _sharedMaterialCache[renderer] = LookAtGet(renderer, GetShardMaterial, (l, r) => l.SequenceEqual(r));
+                mats = _sharedMaterialCache[renderer] = ObserveToGet(renderer, GetShardMaterial, (l, r) => l.SequenceEqual(r));
                 return mats;
                 Material?[] GetShardMaterial(Renderer r) { return renderer.sharedMaterials; }
             }
@@ -407,18 +407,18 @@ namespace net.rs64.TexTransTool.NDMF
             public HashSet<Texture> GetMaterialTexture(Material mat)
             {
                 if (_textureHashOnMaterial.TryGetValue(mat, out var tex)) { return tex; }
-                LookAt(mat);
+                Observe(mat);
                 tex = _textureHashOnMaterial[mat] = mat.EnumerateReferencedTextures().ToHashSet();
                 return tex;
             }
-            public TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+            public TOut ObserveToGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
             where TObj : UnityEngine.Object
             {
                 return _ctx.Observe(obj, getAction, comp);
                 // return getAction(obj);
             }
-            public void LookAt(UnityEngine.Object obj) { _ctx.Observe(obj); }
-            public void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
+            public void Observe(UnityEngine.Object obj) { _ctx.Observe(obj); }
+            public void ObserveToChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { _ctx.GetComponentsInChildren<LookTargetComponent>(gameObject, true); }
         }
 
 

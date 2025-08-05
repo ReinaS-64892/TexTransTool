@@ -147,7 +147,7 @@ namespace net.rs64.TexTransTool
     }
     internal static class Texture2DCompressor
     {
-        public static void CompressDeferred(IRendererTargeting targeting, IReadOnlyDictionary<Texture2D, TexTransToolTextureDescriptor> TextureDescriptors)
+        public static void CompressDeferred(IDomainReferenceViewer targeting, IReadOnlyDictionary<Texture2D, TexTransToolTextureDescriptor> TextureDescriptors)
         {
             var compressKV = TextureDescriptors.Where(i => i.Key != null).ToDictionary(i => i.Key, i => i.Value);// Unity が勝手にテクスチャを破棄してくる場合があるので Null が入ってないか確認する必要がある。
 

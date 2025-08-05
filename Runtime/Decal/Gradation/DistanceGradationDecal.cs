@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class DistanceGradationDecal : TexTransRuntimeBehavior, ICanBehaveAsLayer
+    public sealed class DistanceGradationDecal : TexTransBehavior, ICanBehaveAsLayer
     {
         internal const string ComponentName = "TTT " + nameof(DistanceGradationDecal);
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;// 安定的機能ではないから 一旦 other にいてもらいます。
@@ -39,8 +39,8 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
-            domain.LookAt(transform.GetParents().Append(transform));
+            domain.Observe(this);
+            domain.Observe(transform.GetParents().Append(transform));
 
             if (RendererSelector.IsTargetNotSet()) { TTLog.Info("GradationDecal:info:TargetNotSet"); return; }
             var ttce = domain.GetTexTransCoreEngineForUnity();
@@ -50,12 +50,12 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = GenerateDecalCtx(domain, ttce);
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
-            var targetRenderers = ModificationTargetRenderers(domain);
+            var targetRenderers = TargetRenderers(domain);
             var blKey = ttce.QueryBlendKey(BlendTypeKey);
             using var gradTex = ttce.LoadTextureWidthFullScale(gradDiskTex);
 
 
-            domain.LookAt(targetRenderers);
+            domain.Observe(targetRenderers);
             var result = decalContext.WriteDecalTexture<Texture>(domain, targetRenderers, gradTex, TargetPropertyName) ?? new();
 
             foreach (var m2rt in result) { domain.AddTextureStack(m2rt.Key, m2rt.Value.Texture, blKey); }
@@ -89,7 +89,7 @@ namespace net.rs64.TexTransTool.Decal
             Gizmos.DrawWireSphere(Vector3.zero, GradationMaxDistance);
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
         }
@@ -101,7 +101,7 @@ namespace net.rs64.TexTransTool.Decal
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
+            domain.Observe(this);
             var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;
@@ -115,7 +115,7 @@ namespace net.rs64.TexTransTool.Decal
             var islandSelector = IslandSelector != null ? IslandSelector : null;
             if (islandSelector != null) { islandSelector?.LookAtCalling(domain); }
 
-            domain.LookAt(transform.GetParents().Append(transform));
+            domain.Observe(transform.GetParents().Append(transform));
 
             var decalWriteTarget = ctx.Engine.CreateRenderTexture(ctx.CanvasSize.x, ctx.CanvasSize.y);
             using var gradDiskTex = engine.WrappingOrUploadToLoadFullScale(GradientTempTexture.Get(Gradient, Alpha));
@@ -124,7 +124,7 @@ namespace net.rs64.TexTransTool.Decal
             decalContext.DrawMaskMaterials = ctx.TargetContainedMaterials;
 
             var decalRenderTarget = ctx.Domain.RendererFilterForMaterialFromDomains(ctx.TargetContainedMaterials);
-            domain.LookAt(decalRenderTarget);
+            domain.Observe(decalRenderTarget);
 
 
             if (decalContext.WriteDecalTextureWithSingleTexture(domain, decalRenderTarget, decalWriteTarget, gradDiskTex))

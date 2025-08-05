@@ -19,7 +19,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         public Dictionary<int, Mesh> MeshID2Normalized;
         public Dictionary<Mesh, MeshData> Normalized2MeshData;
 
-        public AtlasMeshSourceContext(IRendererTargeting targeting, Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
+        public AtlasMeshSourceContext(IDomainReferenceViewer targeting, Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
         {
             using var pf = new PFScope("ctr");
             var meshGroupedRenderers = targetRenderers.GroupBy(r => targeting.GetMesh(r)).Cast<IGrouping<Mesh, Renderer>>().ToArray();
@@ -65,7 +65,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             return Normalized2MeshData[MeshID2Normalized[meshID]];
         }
-        private Dictionary<Mesh, Mesh> CrossSubMeshNormalizingAndExpandMaterialSlot(IRendererTargeting targeting, IGrouping<Mesh, Renderer>[] targetRenderers)
+        private Dictionary<Mesh, Mesh> CrossSubMeshNormalizingAndExpandMaterialSlot(IDomainReferenceViewer targeting, IGrouping<Mesh, Renderer>[] targetRenderers)
         {
             using var pf = new PFScope("init");
             var normalizedMesh = new Dictionary<Mesh, Mesh>();

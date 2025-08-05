@@ -28,15 +28,15 @@ namespace net.rs64.TexTransTool
 
         #endregion V6SaveData
 
-        internal Texture GetTextureWithLookAt<TObj>(IRendererTargeting targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        internal Texture GetTextureWithObserve<TObj>(IDomainReferenceViewer targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
         where TObj : UnityEngine.Object
         {
-            return targeting.LookAtGet(thisObject, i => getThis(i).SelectTexture);
+            return targeting.ObserveToGet(thisObject, i => getThis(i).SelectTexture);
         }
-        internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IRendererTargeting rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
+        internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IDomainReferenceViewer rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
         where TObj : UnityEngine.Object
         {
-            var targetTex = GetTextureWithLookAt(rendererTargeting, thisObject, getThis);
+            var targetTex = GetTextureWithObserve(rendererTargeting, thisObject, getThis);
             var targetTextures = rendererTargeting.GetAllTextures().Where(t => rendererTargeting.OriginalObjectEquals(t, targetTex)).ToHashSet();
 
             if (targetTextures.Any() is false) { yield break; }

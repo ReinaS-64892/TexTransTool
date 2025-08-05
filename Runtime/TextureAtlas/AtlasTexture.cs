@@ -15,7 +15,7 @@ using net.rs64.TexTransTool.TextureAtlas.IslandSizePriorityTuner;
 namespace net.rs64.TexTransTool.TextureAtlas
 {
     [AddComponentMenu(TTTName + "/" + MenuPath)]
-    public sealed partial class AtlasTexture : TexTransRuntimeBehavior, ITexTransToolStableComponent
+    public sealed partial class AtlasTexture : TexTransBehavior, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT AtlasTexture";
         internal const string MenuPath = ComponentName;
@@ -46,9 +46,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
         {
             using var rpf = new PFScope("AtlasTexture");
             using var pf = new PFScope("init");
-            domain.LookAt(this);
+            domain.Observe(this);
 
-            var targeting = domain as IRendererTargeting;
+            var targeting = domain as IDomainReferenceViewer;
             var atlasSetting = AtlasSetting;
 
             if (AtlasTargetMaterials.Where(i => i != null).Any() is false) { TTLog.Info("AtlasTexture:info:TargetNotSet"); return; }
@@ -64,9 +64,9 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             pf.Split("looking");
 
-            foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.LookAt(mmg.Reference); } }
-            if (AllMaterialMergeReference != null) { domain.LookAt(AllMaterialMergeReference); }
-            domain.LookAtGetComponent<AtlasTextureExperimentalFeature>(gameObject);
+            foreach (var mmg in MergeMaterialGroups) { if (mmg.Reference != null) { domain.Observe(mmg.Reference); } }
+            if (AllMaterialMergeReference != null) { domain.Observe(AllMaterialMergeReference); }
+            domain.ObserveToGetComponent<AtlasTextureExperimentalFeature>(gameObject);
             var experimentalOptions = GetComponent<AtlasTextureExperimentalFeature>();
             if (experimentalOptions == null) { experimentalOptions = null; }// UnityNull を潰す
 
@@ -101,10 +101,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
             // Register AtlasedTextures
             foreach (var t in compiledAtlasTextures.Values) { if (usedRT.Contains(t) is false) t.Dispose(); }
             foreach (var aTex in tunedAtlasTextures.TextureDescriptors)
-                domain.RegisterPostProcessingAndLazyGPUReadBack(aTex.Key, aTex.Value);
+                domain.RegisterTextureDescription(aTex.Key, aTex.Value);
         }
 
-        internal static Renderer[] FilterTargetRenderers(IRendererTargeting targeting, List<Renderer> nowRenderers, HashSet<Material> targetMaterials)
+        internal static Renderer[] FilterTargetRenderers(IDomainReferenceViewer targeting, List<Renderer> nowRenderers, HashSet<Material> targetMaterials)
         {
             return nowRenderers
                 .Where(r => targeting.GetMesh(r) != null)
@@ -113,7 +113,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
                     .Any(targetMaterials.Contains)
                 ).ToArray();
         }
-        private Renderer[] FilterExistUVChannel(IRendererTargeting targeting,Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
+        private Renderer[] FilterExistUVChannel(IDomainReferenceViewer targeting,Renderer[] targetRenderers, UVChannel atlasTargetUVChannel)
         {
             return targetRenderers.Where(r => targeting.GetMesh(r).HasUV((int)atlasTargetUVChannel)).ToArray();
         }
@@ -132,7 +132,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
         )
         {
             using var pf = new PFScope("init");
-            var targeting = domain as IRendererTargeting;
+            var targeting = domain as IDomainReferenceViewer;
 
             var atlasTargeSize = GetAtlasTextureSize(atlasSetting);
             pf.Split("AtlasContext ctr");
@@ -374,7 +374,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             return atlasTargeSize;
         }
         private static (IslandTransform[] virtualIslandArray, IslandRelocationManager.RelocateResult relocateResult) IslandProcessing(
-            IRendererTargeting domain
+            IDomainReferenceViewer domain
             , AtlasSetting atlasSetting
             , AtlasContext atlasContext
             , List<IIslandSizePriorityTuner?> islandSizePriorityTuner
@@ -649,7 +649,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             var targetMaterials = nowContainsMatSet.Where(mat => AtlasTargetMaterials.Any(sMat => domain.OriginalObjectEquals(sMat, mat))).ToList();
             return targetMaterials;
         }
-        internal static bool CheckRendererActive(IRendererTargeting targeting, Renderer r, bool includeDisabledRenderer)
+        internal static bool CheckRendererActive(IDomainReferenceViewer targeting, Renderer r, bool includeDisabledRenderer)
         {
             if (includeDisabledRenderer is false)
             {
@@ -658,7 +658,7 @@ namespace net.rs64.TexTransTool.TextureAtlas
             }
             return true;
         }
-        internal static List<Renderer> GetAtlasAllowedRenderers(IRendererTargeting targeting, IEnumerable<Renderer> domainRenderers, bool includeDisabledRenderer)
+        internal static List<Renderer> GetAtlasAllowedRenderers(IDomainReferenceViewer targeting, IEnumerable<Renderer> domainRenderers, bool includeDisabledRenderer)
         {
             return domainRenderers.Where(i => IsAtlasAllowedRenderer(i))
             // ここでターゲットにならないレンダラーを弾いておかないと アトラス化対象に結局ならないマテリアリガー targetMaterials に混じってしまう。
@@ -674,10 +674,10 @@ namespace net.rs64.TexTransTool.TextureAtlas
 
             return true;
         }
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            var isIncludeDisable = rendererTargeting.LookAtGet(this, a => a.AtlasSetting.IncludeDisabledRenderer);
-            var selectedMaterials = rendererTargeting.LookAtGet(this, at => at.AtlasTargetMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
+            var isIncludeDisable = rendererTargeting.ObserveToGet(this, a => a.AtlasSetting.IncludeDisabledRenderer);
+            var selectedMaterials = rendererTargeting.ObserveToGet(this, at => at.AtlasTargetMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
             var nowRenderers = GetAtlasAllowedRenderers(rendererTargeting, rendererTargeting.EnumerateRenderers(), isIncludeDisable);
 
             var nowContainsMatSet = new HashSet<Material>(

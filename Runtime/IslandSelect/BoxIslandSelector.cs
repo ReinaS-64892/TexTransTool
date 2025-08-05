@@ -17,10 +17,10 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         public bool IsAll;
 
-        internal override void LookAtCalling(ILookingObject looker)
+        internal override void LookAtCalling(IUnityObjectObserver looker)
         {
-            looker.LookAt(transform.GetParents().Append(transform));
-            looker.LookAt(this);
+            looker.Observe(transform.GetParents().Append(transform));
+            looker.Observe(this);
         }
         internal override BitArray IslandSelectImpl(IslandSelectorContext ctx)
         {

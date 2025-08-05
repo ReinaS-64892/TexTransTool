@@ -11,7 +11,7 @@ using UnityEngine;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TileAtlasBreaker : TexTransRuntimeBehavior
+    public sealed class TileAtlasBreaker : TexTransBehavior
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT " + nameof(TileAtlasBreaker);
@@ -21,16 +21,16 @@ namespace net.rs64.TexTransTool
         public Material? TargetMaterial;
         public Material[] OriginalMaterials = new Material[4];// 2*2 じゃないタイルのことは一旦考えずに行きます。
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.LookAtGet(this, i => i.TargetMaterial));
+            return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial));
         }
         internal override void Apply(IDomain domain)
         {
-            var targetMaterial = domain.LookAtGet(this, i => i.TargetMaterial);
+            var targetMaterial = domain.ObserveToGet(this, i => i.TargetMaterial);
             if (targetMaterial == null) { TTLog.Info("TileAtlasBreaker:info:TargetNotSet"); return; }
 
-            var originalMaterials = domain.LookAtGet(this, i => i.OriginalMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
+            var originalMaterials = domain.ObserveToGet(this, i => i.OriginalMaterials.ToArray(), (l, r) => l.SequenceEqual(r));
             if (originalMaterials.Length is not 4) { TTLog.Error("TileAtlasBreaker:error:InvalidSetting"); return; }
 
             var targetTextures = domain.RendererFilterForMaterial(targetMaterial).ToArray();

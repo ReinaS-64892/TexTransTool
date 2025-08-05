@@ -61,7 +61,7 @@ namespace net.rs64.TexTransTool.Decal
         }
 
         internal Dictionary<KeyTexture, TTRenderTexWithPaddingDistance>? WriteDecalTexture<KeyTexture>(
-        IRendererTargeting targeting
+        IDomainReferenceViewer targeting
         , IEnumerable<Renderer> targetRenderers
         , ITTRenderTexture sourceTexture
         , string targetPropertyName = "_MainTex"
@@ -122,7 +122,7 @@ namespace net.rs64.TexTransTool.Decal
 
 
         internal bool WriteDecalTextureWithSingleTexture(
-            IRendererTargeting targeting
+            IDomainReferenceViewer targeting
             , IEnumerable<Renderer> targetRenderers
             , ITTRenderTexture decalWriteTarget
             , ITTRenderTexture sourceTexture
@@ -270,7 +270,7 @@ namespace net.rs64.TexTransTool.Decal
     internal static class DecalContextUtility
     {
         internal static MeshData GetToMemorizedMeshData(this Renderer r) => r.Memo(MeshData.GetMeshData, i => i.Dispose());
-        internal static IEnumerable<Renderer> FilterDecalTarget(IRendererTargeting rendererTargeting, IEnumerable<Renderer> targetRenderers, string targetPropertyName)
+        internal static IEnumerable<Renderer> FilterDecalTarget(IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> targetRenderers, string targetPropertyName)
         {
             foreach (var tr in targetRenderers)
             {

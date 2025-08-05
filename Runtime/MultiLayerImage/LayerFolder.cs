@@ -17,8 +17,8 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
-            domain.LookAt(gameObject);
+            domain.Observe(this);
+            domain.Observe(gameObject);
 
             var layers = GetChileLayers();
             var chiles = new List<LayerObject<ITexTransToolForUnity>>(layers.Capacity);

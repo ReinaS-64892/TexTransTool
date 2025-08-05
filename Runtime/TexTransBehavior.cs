@@ -10,8 +10,15 @@ namespace net.rs64.TexTransTool
         internal bool ThisEnable => gameObject.activeInHierarchy;
         internal abstract TexTransPhase PhaseDefine { get; }
         internal const string TTTName = "TexTransTool";
-    }
 
+        /// <summary>
+        /// Applies this TextureTransformer with that domain
+        /// You MUST NOT modify state of this component.
+        /// </summary>
+        /// <param name="domain">The domain</param>
+        internal abstract void Apply(IDomain domain);
+        internal abstract IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting);
+    }
     public enum TexTransPhase
     {
         UVDisassembly = 7,

@@ -204,10 +204,10 @@ namespace net.rs64.TexTransTool.Build
             return rqTypes;
         }
 
-        internal static IEnumerable<TexTransRuntimeBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> behaviors)
+        internal static IEnumerable<TexTransBehavior> PhaseDictFlatten(Dictionary<TexTransPhase, List<TexTransBehavior>> behaviors)
         {
             foreach (var phase in TexTransPhaseUtility.EnumerateAllPhase())
-                foreach (var behavior in behaviors[phase].OfType<TexTransRuntimeBehavior>()) { yield return behavior; }
+                foreach (var behavior in behaviors[phase].OfType<TexTransBehavior>()) { yield return behavior; }
         }
     }
 

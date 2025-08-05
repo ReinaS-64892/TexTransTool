@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
         {
             var domain = ctx.Domain;
             Func<UnityEngine.Object, ILayerMask?> getLayerMask = o => (o as AbstractLayer)!.LayerMask;
-            var lm = domain.LookAtGet(this, getLayerMask);
+            var lm = domain.ObserveToGet(this, getLayerMask);
 
             var innerMask = lm?.GetAlphaMaskObject(ctx, this, getLayerMask);
 
@@ -67,16 +67,16 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            var thisLayerMask = domain.LookAtGet(thisObj, o => getThisToLayerMask(o) as LayerMask);
+            var thisLayerMask = domain.ObserveToGet(thisObj, o => getThisToLayerMask(o) as LayerMask);
             if (thisLayerMask is null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var layerMaskDisabled = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.LayerMaskDisabled);
+            var layerMaskDisabled = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.LayerMaskDisabled);
             if (layerMaskDisabled) { return new NoMask<ITexTransToolForUnity>(); }
 
-            var maskTexture = domain.LookAtGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.MaskTexture);
+            var maskTexture = domain.ObserveToGet(thisObj, o => (getThisToLayerMask(o) as LayerMask)!.MaskTexture);
             if (maskTexture == null) { return new NoMask<ITexTransToolForUnity>(); }
 
-            domain.LookAt(maskTexture);
+            domain.Observe(maskTexture);
             return new DiskOnlyToMask<ITexTransToolForUnity>(engine.Wrapping(maskTexture!));
         }
     }

@@ -10,7 +10,7 @@ using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TextureConfigurator : TexTransRuntimeBehavior
+    public sealed class TextureConfigurator : TexTransBehavior
     {
         internal const string ComponentName = "TTT TextureConfigurator";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -29,17 +29,17 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply([NotNull] IDomain domain)
         {
-            domain.LookAt(this);
+            domain.Observe(this);
             if (OverrideTextureSetting is false && OverrideCompression is false) { return; }
 
-            var target = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var target = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
             if (target == null) { TTLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(target).OfType<Texture>().ToArray();
             if (targetTextures.Any() is false) { TTLog.Info("TextureConfigurator:info:TargetNotFound"); return; }
 
             var engine = domain.GetTexTransCoreEngineForUnity();
-            domain.LookAt(targetTextures);
+            domain.Observe(targetTextures);
 
             foreach (var originTexture in targetTextures)
             {
@@ -63,7 +63,7 @@ namespace net.rs64.TexTransTool
                 var refRt = engine.GetReferenceRenderTexture(resultTexture);
                 domain.ReplaceTexture(originTexture, refRt);
                 domain.RegisterReplacement(originTexture, refRt);
-                domain.RegisterPostProcessingAndLazyGPUReadBack(resultTexture, textureDescription);
+                domain.RegisterTextureDescription(resultTexture, textureDescription);
             }
         }
 
@@ -80,7 +80,7 @@ namespace net.rs64.TexTransTool
             return targetSizeTexture;
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }

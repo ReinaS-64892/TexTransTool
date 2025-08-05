@@ -12,7 +12,7 @@ using System.Collections;
 namespace net.rs64.TexTransTool
 {
 
-    internal interface IDomain : IAssetSaver, IOriginalObjectEqualityComparer, IReplacementRegistry, ILookingObject, IRendererTargeting, ITexturePostProcessor, IDomainCustomContext
+    internal interface IDomain : IAssetSaver, IOriginalObjectEqualityComparer, IReplacementRegistry, IUnityObjectObserver, IDomainReferenceViewer, ITextureDescriptionRegistry, IDomainCustomContext
     {
         ITexTransToolForUnity GetTexTransCoreEngineForUnity();
         // 原則 RegisterReplace や TransferAssets は勝手に行わないこと
@@ -35,7 +35,7 @@ namespace net.rs64.TexTransTool
             ReplaceMaterials(new() { { original, mutableMat } });
 
             RegisterReplacement(original, mutableMat);
-            TransferAsset(mutableMat);
+            SaveAsset(mutableMat);
 
             mutableMat.name = original.name + "(TTT GetMutable)";
 
@@ -46,7 +46,7 @@ namespace net.rs64.TexTransTool
     internal interface IAssetSaver
     {
         bool IsTemporaryAsset(UnityEngine.Object asset) { return false; }
-        void TransferAsset(UnityEngine.Object asset);
+        void SaveAsset(UnityEngine.Object asset);
     }
     internal delegate bool UnityObjectEqualityComparison(UnityEngine.Object? l, UnityEngine.Object? r);
     internal interface IOriginalObjectEqualityComparer
@@ -58,13 +58,13 @@ namespace net.rs64.TexTransTool
         //今後テクスチャとメッシュとマテリアル以外で置き換えが必要になった時できるようにするために用意はしておく
         void RegisterReplacement(UnityEngine.Object oldObject, UnityEngine.Object nowObject);
     }
-    internal interface IRendererTargeting : IOriginalObjectEqualityComparer, ILookingObject, IActiveness
+    internal interface IDomainReferenceViewer : IOriginalObjectEqualityComparer, IUnityObjectObserver, IActivenessViewer
     {
         // ParticleSystem などのものも入りうる。 (Static or Skinned)メッシュを持つものだけではないので注意。
         IEnumerable<Renderer> EnumerateRenderers();
         Material?[] GetMaterials(Renderer renderer)
         {
-            return LookAtGet(renderer, GetSharedMaterials, (l, r) => l.SequenceEqual(r));
+            return ObserveToGet(renderer, GetSharedMaterials, (l, r) => l.SequenceEqual(r));
             Material?[] GetSharedMaterials(Renderer r) { return renderer.sharedMaterials; }
         }
         MeshData GetMeshData(Renderer renderer) { return renderer.GetToMemorizedMeshData(); }
@@ -83,36 +83,30 @@ namespace net.rs64.TexTransTool
             var mats = GetAllMaterials();
             foreach (var m in mats) { texHash.UnionWith(m.EnumerateTextures(GetShader, GetTex)); }
             return texHash;
-            Shader GetShader(Material mat) { return LookAtGet(mat, i => i.shader); }
-            Texture GetTex(Material mat, int nameID) { return LookAtGet(mat, i => i.GetTexture(nameID)); }
+            Shader GetShader(Material mat) { return ObserveToGet(mat, i => i.shader); }
+            Texture GetTex(Material mat, int nameID) { return ObserveToGet(mat, i => i.GetTexture(nameID)); }
         }
         HashSet<Texture> GetMaterialTextures(Material mat)
         {
             return mat.EnumerateReferencedTextures().ToHashSet();
         }
     }
-    internal interface IAffectingRendererTargeting : IRendererTargeting, IReplacementRegistry
+    internal interface IUnityObjectObserver
     {
-        // おおもとの IRendererTargeting.GetMaterials を隠すような形で実装すること (これなんかいい形で明示したいのだけど ... 方法がわからん)
-        // Material[] GetMaterials(Renderer renderer) { return GetMutableMaterials(renderer); }
-        Material?[] GetMutableMaterials(Renderer renderer);
-    }
-    internal interface ILookingObject
-    {
-        void LookAt(UnityEngine.Object obj) { }
+        void Observe(UnityEngine.Object obj) { }
         /// <summary>
         /// これで取得した戻り値は基本的に、編集してはならない。 ReadOnly
         /// 編集したい場合は ToArray など複製すること。
         /// </summary>
-        TOut LookAtGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
+        TOut ObserveToGet<TObj, TOut>(TObj obj, Func<TObj, TOut> getAction, Func<TOut, TOut, bool>? comp = null)
         where TObj : UnityEngine.Object
         {
             return getAction(obj);
         }
-        void LookAtGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
-        void LookAtChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
+        void ObserveToGetComponent<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
+        void ObserveToChildeComponents<LookTargetComponent>(GameObject gameObject) where LookTargetComponent : Component { }
     }
-    internal interface IActiveness
+    internal interface IActivenessViewer
     {
         bool IsActive(GameObject gameObject)
         {
@@ -128,12 +122,15 @@ namespace net.rs64.TexTransTool
             };
         }
     }
-    internal interface ITexturePostProcessor
+    internal interface ITextureDescriptionRegistry
     {
-        // ここ渡す Descriptor は複製したものを渡すように、それと
+        // ここ渡す Descriptor は複製したものをが渡される。
+        // 書き換える必要がある場合は RenderTexture にし、 Register する必要がある。
         TexTransToolTextureDescriptor GetTextureDescriptor(Texture texture);
-        // ここで渡される rt は基本的に借用ではなく move のような形で Dispose する役割を受け取る
-        void RegisterPostProcessingAndLazyGPUReadBack(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor);
+
+        // ReadBack が必要なテクスチャであることや、テクスチャの圧縮などを登録する。
+        // ここで渡される rt は基本的に借用ではなく move のような形で Dispose する役割、つまり所有権を受け取る
+        void RegisterTextureDescription(ITTRenderTexture rt, TexTransToolTextureDescriptor textureDescriptor);
     }
 
     internal interface ITexTransToolTextureFormat { public (TextureFormat CompressFormat, int Quality) Get(Texture2D texture2D); }
@@ -236,7 +233,7 @@ namespace net.rs64.TexTransTool
         {
             foreach (var unityObject in unityObjects)
             {
-                domain.TransferAsset(unityObject);
+                domain.SaveAsset(unityObject);
             }
         }
         public static void RegisterReplaces<TOld, TNew>(this IReplacementRegistry domain, IEnumerable<KeyValuePair<TOld, TNew>> unityObjects)
@@ -246,13 +243,13 @@ namespace net.rs64.TexTransTool
             foreach (var unityObject in unityObjects)
                 domain.RegisterReplacement(unityObject.Key, unityObject.Value);
         }
-        public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, Renderer renderer)
+        public static IEnumerable<Renderer> GetDomainsRenderers(this IDomainReferenceViewer rendererTargeting, Renderer renderer)
         {
             if (renderer == null) { return Array.Empty<Renderer>(); }
             return rendererTargeting.EnumerateRenderers().Where(Contains);
             bool Contains(Renderer dr) { return rendererTargeting.OriginalObjectEquals(dr, renderer); }
         }
-        public static IEnumerable<Renderer> GetDomainsRenderers(this IRendererTargeting rendererTargeting, IEnumerable<Renderer> renderers)
+        public static IEnumerable<Renderer> GetDomainsRenderers(this IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> renderers)
         {
             if (renderers.Any() is false) { return Array.Empty<Renderer>(); }
             return rendererTargeting.EnumerateRenderers().Where(Contains);
@@ -264,32 +261,32 @@ namespace net.rs64.TexTransTool
             return domainRenderers.Where(Contains);
             bool Contains(Renderer dr) { return renderers.Any(sr => originEqual(dr, sr)); }
         }
-        public static IEnumerable<Texture> GetDomainsTextures(this IRendererTargeting rendererTargeting, Texture texture)
+        public static IEnumerable<Texture> GetDomainsTextures(this IDomainReferenceViewer rendererTargeting, Texture texture)
         {
             if (texture == null) { return Array.Empty<Texture>(); }
             return rendererTargeting.GetAllTextures().Where(Contains);
             bool Contains(Texture dr) { return rendererTargeting.OriginalObjectEquals(dr, texture); }
         }
 
-        public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
+        public static IEnumerable<Renderer> RendererFilterForMaterial(this IDomainReferenceViewer rendererTargeting, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
             return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(matHash.Contains));
         }
-        public static IEnumerable<Renderer> RendererFilterForMaterialFromDomains(this IRendererTargeting rendererTargeting, HashSet<Material> domainMaterial)
+        public static IEnumerable<Renderer> RendererFilterForMaterialFromDomains(this IDomainReferenceViewer rendererTargeting, HashSet<Material> domainMaterial)
         {
             if (domainMaterial.Any() is false) { return Array.Empty<Renderer>(); }
             return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(domainMaterial.Contains));
         }
-        public static IEnumerable<Renderer> RendererFilterForMaterial(this IRendererTargeting rendererTargeting, Material? material)
+        public static IEnumerable<Renderer> RendererFilterForMaterial(this IDomainReferenceViewer rendererTargeting, Material? material)
         {
             if (material == null) { return Array.Empty<Renderer>(); }
             var matHash = rendererTargeting.GetDomainsMaterialsHashSet(material);
             return rendererTargeting.EnumerateRenderers().Where(i => rendererTargeting.GetMaterials(i).SkipDestroyed().Any(matHash.Contains));
         }
 
-        public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, IEnumerable<Material> material)
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this IDomainReferenceViewer rendererTargeting, IEnumerable<Material> material)
         {
             if (material.Any() is false) { return new(); }
             return rendererTargeting.GetAllMaterials().Where(m => material.Any(tm => rendererTargeting.OriginalObjectEquals(m, tm))).ToHashSet();
@@ -299,7 +296,7 @@ namespace net.rs64.TexTransTool
             if (material.Any() is false) { return new(); }
             return RendererUtility.GetFilteredMaterials(domainRenderers).Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
         }
-        public static HashSet<Material> GetDomainsMaterialsHashSet(this IRendererTargeting rendererTargeting, Material? material)
+        public static HashSet<Material> GetDomainsMaterialsHashSet(this IDomainReferenceViewer rendererTargeting, Material? material)
         {
             if (material == null) { return new(); }
             return rendererTargeting.GetAllMaterials().Where(m => rendererTargeting.OriginalObjectEquals(m, material)).ToHashSet();
@@ -315,7 +312,7 @@ namespace net.rs64.TexTransTool
             return domainsMaterial.Where(m => material.Any(tm => originEqual(m, tm))).ToHashSet();
         }
 
-        public static void LookAt(this ILookingObject domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.LookAt(obj); } }
+        public static void Observe(this IUnityObjectObserver domain, IEnumerable<UnityEngine.Object> objs) { foreach (var obj in objs) { domain.Observe(obj); } }
 
         public static void ReplaceTexture<TexDist, TexNew>(this IDomain domain, TexDist dist, TexNew newTexture)
         where TexDist : Texture

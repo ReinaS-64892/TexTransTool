@@ -14,7 +14,7 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         internal const string FoldoutName = "IslandSelector";
 
-        internal abstract void LookAtCalling(ILookingObject looker);
+        internal abstract void LookAtCalling(IUnityObjectObserver looker);
 
 
         BitArray IIslandSelector.IslandSelect(IslandSelectorContext ctx) { return IslandSelect(ctx); }
@@ -27,12 +27,12 @@ namespace net.rs64.TexTransTool.IslandSelector
 
         internal abstract void OnDrawGizmosSelected();
 
-        internal static int LookAtChildren(AbstractIslandSelector abstractIslandSelector, ILookingObject lookingObject)
+        internal static int LookAtChildren(AbstractIslandSelector abstractIslandSelector, IUnityObjectObserver lookingObject)
         {
             var hash = 0;
             var chiles = abstractIslandSelector.transform.GetChildeComponent<AbstractIslandSelector>();
             foreach (var chile in chiles) { chile.LookAtCalling(lookingObject); }
-            lookingObject.LookAtChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
+            lookingObject.ObserveToChildeComponents<AbstractIslandSelector>(abstractIslandSelector.gameObject);
             return hash;
         }
 
@@ -52,9 +52,9 @@ namespace net.rs64.TexTransTool.IslandSelector
     {
         public Island[] Islands;
         public IslandDescription[] IslandDescription;
-        public IRendererTargeting Targeting;
+        public IDomainReferenceViewer Targeting;
 
-        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, IRendererTargeting targeting)
+        public IslandSelectorContext(Island[] islands, IslandDescription[] islandDescription, IDomainReferenceViewer targeting)
         {
             Islands = islands;
             IslandDescription = islandDescription;

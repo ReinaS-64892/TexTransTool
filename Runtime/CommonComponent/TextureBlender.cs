@@ -12,7 +12,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TextureBlender : TexTransRuntimeBehavior, ICanBehaveAsLayer ,ITexTransToolStableComponent
+    public sealed class TextureBlender : TexTransBehavior, ICanBehaveAsLayer ,ITexTransToolStableComponent
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT TextureBlender";
@@ -29,15 +29,15 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
-            domain.LookAt(this);
+            domain.Observe(this);
 
-            var distTex = TargetTexture.GetTextureWithLookAt(domain, this, GetTextureSelector);
+            var distTex = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
             if (distTex == null) { TTLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
             if (targetTextures.Any() is false) { TTLog.Info("TextureBlender:info:TargetNotFound"); return; }
 
-            domain.LookAt(targetTextures);
+            domain.Observe(targetTextures);
 
             var ttce4U = domain.GetTexTransCoreEngineForUnity();
 
@@ -58,7 +58,7 @@ namespace net.rs64.TexTransTool
             foreach (var t in targetTextures) { domain.AddTextureStack(t, addTex, blKey); }
         }
 
-        internal override IEnumerable<Renderer> ModificationTargetRenderers(IRendererTargeting rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
         }
@@ -69,7 +69,7 @@ namespace net.rs64.TexTransTool
             var domain = ctx.Domain;
             var engine = ctx.Engine;
 
-            domain.LookAt(this);
+            domain.Observe(this);
             var alphaMask = asLayer.GetAlphaMaskObject(ctx);
             var blKey = engine.QueryBlendKey(BlendTypeKey);
             var alphaOp = asLayer.Clipping ? AlphaOperation.Inherit : AlphaOperation.Normal;

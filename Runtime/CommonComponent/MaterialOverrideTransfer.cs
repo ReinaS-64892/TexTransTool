@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialOverrideTransfer : TexTransRuntimeBehavior, IDomainTargetingModifiabler
+    public sealed class MaterialOverrideTransfer : TexTransBehavior//, IDomainReferenceViewer
     {
         internal const string ComponentName = "TTT MaterialOverrideTransfer";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -96,12 +96,12 @@ namespace net.rs64.TexTransTool
             }
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainViewer rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
             var materialOverrideTransfer = this;
             return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(materialOverrideTransfer, mot => mot.TargetMaterial));
         }
-        private static IEnumerable<Material> GetTargetMaterials(IDomainViewer rendererTargeting, Material target)
+        private static IEnumerable<Material> GetTargetMaterials(IDomainReferenceViewer rendererTargeting, Material target)
         {
             return rendererTargeting.GetDomainsMaterialsHashSet(target);
         }

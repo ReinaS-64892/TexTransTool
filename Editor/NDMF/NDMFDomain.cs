@@ -9,7 +9,7 @@ using net.rs64.TexTransTool.NDMF.AdditionalMaterials;
 
 namespace net.rs64.TexTransTool.NDMF
 {
-    internal class NDMFDomain : AvatarDomain, IRendererTargeting
+    internal class NDMFDomain : AvatarDomain, IDomainReferenceViewer
     {
         private class NDMFAssetSaver : IAssetSaver
         {
@@ -20,7 +20,7 @@ namespace net.rs64.TexTransTool.NDMF
                 _buildContext = buildContext;
             }
 
-            public void TransferAsset(Object asset)
+            public void SaveAsset(Object asset)
             {
                 if (asset == null || AssetDatabase.Contains(asset)) return;
                 _buildContext.AssetSaver.SaveAsset(asset);
@@ -49,7 +49,7 @@ namespace net.rs64.TexTransTool.NDMF
             matHash.UnionWith(_additionalMaterialsProvider.GetReferencedMaterials());
             return matHash;
 
-            Material?[] GetMaterials(Renderer renderer) => ((IRendererTargeting)this).GetMaterials(renderer);
+            Material?[] GetMaterials(Renderer renderer) => ((IDomainReferenceViewer)this).GetMaterials(renderer);
         }
         public override void ReplaceMaterials(Dictionary<Material, Material> mapping)
         {

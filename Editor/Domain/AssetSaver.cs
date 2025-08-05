@@ -42,7 +42,7 @@ namespace net.rs64.TexTransTool
             AssetDatabase.CreateAsset(Asset, path);
         }
 
-        public void TransferAsset(UnityEngine.Object unityObject)
+        public void SaveAsset(UnityEngine.Object unityObject)
         {
             Asset.AddSubObject(unityObject);
         }
@@ -52,7 +52,7 @@ namespace net.rs64.TexTransTool
         HashSet<UnityEngine.Object> Transferred = new();
         public TempAssetHolder() { }
 
-        public void TransferAsset(UnityEngine.Object unityObject) { Transferred.Add(unityObject); }
+        public void SaveAsset(UnityEngine.Object unityObject) { Transferred.Add(unityObject); }
         public void Dispose() { foreach (var obj in Transferred) { UnityEngine.Object.DestroyImmediate(obj); } }
     }
 }
