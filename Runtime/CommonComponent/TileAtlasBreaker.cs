@@ -1,17 +1,15 @@
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using net.rs64.TexTransCore;
-using net.rs64.TexTransTool.Utils;
 using Unity.Collections;
 using UnityEngine;
 
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class TileAtlasBreaker : TexTransBehavior
+    public sealed class TileAtlasBreaker : TexTransBehavior, IDomainReferenceModifier
     {
         internal const string FoldoutName = "Other";
         internal const string ComponentName = "TTT " + nameof(TileAtlasBreaker);
@@ -107,5 +105,12 @@ namespace net.rs64.TexTransTool
             domain.SetMaterials(renderer, originalMaterial);
         }
 
+        void IDomainReferenceModifier.RegisterDomainReference(IDomainReferenceViewer domainReferenceViewer, IDomainReferenceRegistry registry)
+        {
+            foreach (var renderer in TargetRenderers(domainReferenceViewer))
+            {
+                registry.RegisterAddMaterials(renderer, OriginalMaterials);
+            }
+        }
     }
 }

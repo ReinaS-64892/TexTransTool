@@ -30,7 +30,7 @@ namespace net.rs64.TexTransTool
 
         internal override void Apply(IDomain domain)
         {
-            var distTex = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
+            var distTex = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (distTex == null) { TTLog.Info("ColorDifferenceChanger:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
@@ -100,11 +100,10 @@ namespace net.rs64.TexTransTool
             // }
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(ColorDifferenceChanger texBlend) { return texBlend.TargetTexture; }
 
         LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
         {

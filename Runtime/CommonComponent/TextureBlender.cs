@@ -31,7 +31,7 @@ namespace net.rs64.TexTransTool
         {
             domain.Observe(this);
 
-            var distTex = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
+            var distTex = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (distTex == null) { TTLog.Info("TextureBlender:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(distTex).ToArray();
@@ -58,11 +58,10 @@ namespace net.rs64.TexTransTool
             foreach (var t in targetTextures) { domain.AddTextureStack(t, addTex, blKey); }
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(TextureBlender texBlend) { return texBlend.TargetTexture; }
 
         LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)
         {

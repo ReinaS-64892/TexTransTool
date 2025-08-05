@@ -8,7 +8,7 @@ using net.rs64.TexTransCore;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialModifier : TexTransBehavior//, IDomainReferenceViewer
+    public sealed class MaterialModifier : TexTransBehavior, IDomainReferenceModifier
     {
         internal const string ComponentName = "TTT MaterialModifier";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -133,24 +133,22 @@ namespace net.rs64.TexTransTool
         internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         { return rendererTargeting.RendererFilterForMaterial(rendererTargeting.ObserveToGet(this, i => i.TargetMaterial)); }
 
-        // void IRendererTargetingAffecterWithRuntime.AffectingRendererTargeting(IAffectingRendererTargeting rendererTargeting)
-        // {
-        //     var targetMat = rendererTargeting.LookAtGet(this, i => i.TargetMaterial);
-        //     if (targetMat == null) { return; }
+        void IDomainReferenceModifier.RegisterDomainReference(IDomainReferenceViewer domainReferenceViewer, IDomainReferenceRegistry registry)
+        {
+            var mats = GetTargetMaterials(domainReferenceViewer, domainReferenceViewer.ObserveToGet(this, mm => mm.TargetMaterial));
+            var addTextures = domainReferenceViewer.ObserveToGet(this,
+                    c => c.OverrideProperties
+                        .Where(op => op.PropertyType is UnityEngine.Rendering.ShaderPropertyType.Texture)
+                        .Select(op => op.TextureValue)
+                        .ToArray(),
+                    (l, r) => l.SequenceEqual(r)
+                );
 
-        //     _ = rendererTargeting.LookAtGet(this, c => c.IsOverrideShader);// looking
-        //     _ = rendererTargeting.LookAtGet(this, c => c.OverrideShader);
-        //     _ = rendererTargeting.LookAtGet(this,
-        //             c => c.OverrideProperties
-        //                 .Where(op => op.PropertyType is UnityEngine.Rendering.ShaderPropertyType.Texture)
-        //                 .Select(op => op.TextureValue)
-        //                 .ToArray(),
-        //             (l, r) => l.SequenceEqual(r)
-        //         );
-
-        //     foreach (var mutableMat in GetTargetMaterials(rendererTargeting, targetMat))
-        //         ConfigureMaterial(mutableMat, this);
-        // }
+            foreach (var mat in mats)
+            {
+                registry.RegisterAddTextures(mat, addTextures);
+            }
+        }
     }
 
 }

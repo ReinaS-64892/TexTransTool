@@ -17,7 +17,7 @@ using net.rs64.TexTransCore.MultiLayerImageCanvas;
 namespace net.rs64.TexTransTool.Decal
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class SimpleDecal : TexTransBehavior, ICanBehaveAsLayer , ITexTransToolStableComponent
+    public sealed class SimpleDecal : TexTransBehavior, ICanBehaveAsLayer, ITexTransToolStableComponent
     {
         internal const string ComponentName = "TTT SimpleDecal";
         internal const string MenuPath = ComponentName;
@@ -78,7 +78,7 @@ namespace net.rs64.TexTransTool.Decal
             using var mulDecalTexture = GetDecalSourceTexture(domain, ttce);
             Profiler.EndSample();
 
-            var targetRenderers = TargetRenderers(domain);
+            var targetRenderers = DecalContextUtility.FilterDecalTarget(domain, TargetRenderers(domain), TargetPropertyName);
             var decalContext = GenerateDecalCtx(domain, ttce);
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
@@ -129,8 +129,8 @@ namespace net.rs64.TexTransTool.Decal
 
         internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
-            DecalRendererSelector GetDRS(SimpleDecal simpleDecal) => simpleDecal.RendererSelector;
+            var rendererSelector = rendererTargeting.ObserveToGet(this, b => new DecalRendererSelector(b.RendererSelector), DecalRendererSelector.ValueEqual);
+            return rendererSelector.GetSelected(rendererTargeting);
         }
         public List<Renderer> GetIntersectRenderers(IEnumerable<Renderer> renderers)
         {

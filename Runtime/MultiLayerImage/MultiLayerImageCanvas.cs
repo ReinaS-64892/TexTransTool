@@ -24,7 +24,7 @@ namespace net.rs64.TexTransTool.MultiLayerImage
 
         internal override void Apply(IDomain domain)
         {
-            var replaceTarget = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
+            var replaceTarget = domain.ObserveToGet(this, b => b.TargetTexture.SelectTexture);
             if (replaceTarget == null) { TTLog.Info("MultiLayerImageCanvas:info:TargetNotSet"); return; }
 
             var nowDomainsTargets = domain.GetDomainsTextures(replaceTarget).ToHashSet();
@@ -67,11 +67,11 @@ namespace net.rs64.TexTransTool.MultiLayerImage
             return list;
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
+
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(MultiLayerImageCanvas multiLayerImageCanvas) { return multiLayerImageCanvas.TargetTexture; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         List<IMultiLayerImageCanvasLayer> GetChileLayers() { return GetChileLayers(transform); }

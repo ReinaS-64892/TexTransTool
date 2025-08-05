@@ -14,7 +14,7 @@ using Color = UnityEngine.Color;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class ParallelProjectionWithLilToonDecal : TexTransBehavior//, IRendererTargetingAffecterWithRuntime
+    public sealed class ParallelProjectionWithLilToonDecal : TexTransBehavior//TODO : , IDomainReferenceModifier
     {
         internal const string ComponentName = "TTT ParallelProjectionWith lilToon Decal";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;

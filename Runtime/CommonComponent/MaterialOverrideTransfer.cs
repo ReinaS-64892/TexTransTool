@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 namespace net.rs64.TexTransTool
 {
     [AddComponentMenu(TexTransBehavior.TTTName + "/" + MenuPath)]
-    public sealed class MaterialOverrideTransfer : TexTransBehavior//, IDomainReferenceViewer
+    public sealed class MaterialOverrideTransfer : TexTransBehavior, IDomainReferenceModifier
     {
         internal const string ComponentName = "TTT MaterialOverrideTransfer";
         internal const string MenuPath = TextureBlender.FoldoutName + "/" + ComponentName;
@@ -36,8 +36,7 @@ namespace net.rs64.TexTransTool
 
             foreach (var unEditableMat in mats)
             {
-                var mutableMat = domain.ToMutable(unEditableMat);
-                TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
+                TransferOverrides(domain.ToMutable(unEditableMat), materialVariantSource, overridePropertyDict);
             }
         }
 
@@ -106,17 +105,26 @@ namespace net.rs64.TexTransTool
             return rendererTargeting.GetDomainsMaterialsHashSet(target);
         }
 
-        // public void AffectingRendererTargeting(IAffectingRendererTargeting rendererTargetingModification)
-        // {
-        //     var materialOverrideTransfer = this;
-        //     var isValid = materialOverrideTransfer.TargetMaterial != null && materialOverrideTransfer.MaterialVariantSource != null;
-        //     if (isValid is false) return;
-        //     var materialVariantSource = rendererTargetingModification.LookAtGet(materialOverrideTransfer, mot => mot.MaterialVariantSource);
-        //     _ = rendererTargetingModification.LookAtGet(materialVariantSource, mv => GetOverrides(mv).Where(kv => kv.Value is ShaderPropertyType.Texture), (l, r) => l.SequenceEqual(r));
-        //     var overridePropertyDict = GetOverrides(materialVariantSource);
-        //     foreach (var mutableMat in GetTargetMaterials(rendererTargetingModification, materialOverrideTransfer.TargetMaterial))
-        //         TransferOverrides(mutableMat, materialVariantSource, overridePropertyDict);
-        // }
+        void IDomainReferenceModifier.RegisterDomainReference(IDomainReferenceViewer domainReferenceViewer, IDomainReferenceRegistry registry)
+        {
+            var mats = GetTargetMaterials(domainReferenceViewer, TargetMaterial);
+
+            var materialVariantSource = domainReferenceViewer.ObserveToGet(this, mot => mot.MaterialVariantSource);
+            var addTexture = domainReferenceViewer.ObserveToGet(materialVariantSource, mv => GetOverrides(mv)
+                                                .Where(kv => kv.Value is ShaderPropertyType.Texture)
+                                                .Select(kv => kv.Key)
+                                                .Select(kv => mv.GetTexture(kv))
+                                                .Where(tex => tex != null)
+                                                .ToArray(),
+                                        (l, r) => l.SequenceEqual(r)
+                                    );
+
+            var overridePropertyDict = GetOverrides(materialVariantSource);
+            foreach (var mat in mats)
+            {
+                registry.RegisterAddTextures(mat, addTexture);
+            }
+        }
 #else
         internal override void Apply(IDomain domain)
         {
@@ -124,6 +132,10 @@ namespace net.rs64.TexTransTool
         }
 
         internal override IEnumerable<Renderer> TargetRenderers(IDomainViewer rendererTargeting)
+        {
+            throw new System.NotImplementedException();
+        }
+        void IDomainReferenceModifier.RegisterDomainReference(IDomainReferenceViewer domainReferenceViewer, IDomainReferenceRegistry registry)
         {
             throw new System.NotImplementedException();
         }

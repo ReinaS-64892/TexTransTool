@@ -18,6 +18,25 @@ namespace net.rs64.TexTransTool.Decal
 
         public List<Renderer> ManualSelections = new();
 
+        public DecalRendererSelector() { }
+        public DecalRendererSelector(DecalRendererSelector source)
+        {
+            Mode = source.Mode;
+            UseMaterialFilteringForAutoSelect = source.UseMaterialFilteringForAutoSelect;
+            IsAutoIncludingDisableRenderers = source.IsAutoIncludingDisableRenderers;
+            AutoSelectFilterMaterials = source.AutoSelectFilterMaterials;
+            ManualSelections = source.ManualSelections;
+        }
+        public static bool ValueEqual(DecalRendererSelector l, DecalRendererSelector r)
+        {
+            if (l.Mode != r.Mode) { return false; }
+            if (l.UseMaterialFilteringForAutoSelect != r.UseMaterialFilteringForAutoSelect) { return false; }
+            if (l.IsAutoIncludingDisableRenderers != r.IsAutoIncludingDisableRenderers) { return false; }
+            if (l.AutoSelectFilterMaterials.SequenceEqual(r.AutoSelectFilterMaterials) is false) { return false; }
+            if (l.ManualSelections.SequenceEqual(r.ManualSelections) is false) { return false; }
+            return true;
+        }
+
         internal bool IsTargetNotSet()
         {
             switch (Mode)
@@ -32,54 +51,35 @@ namespace net.rs64.TexTransTool.Decal
             }
         }
 
-
-        // 自身のモード、そして、マテリアルによるフィルタリングを行うかなどを加味してないから取り扱いには気を付けることね
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<Renderer> GetAutoMaterialFiltered<TObj>(IDomainReferenceViewer rendererTargeting, TObj thisObj, Func<TObj, DecalRendererSelector> getRendererSelector)
-        where TObj : UnityEngine.Object
+        internal IEnumerable<Renderer> GetSelected(IDomainReferenceViewer domainView)
         {
-            return MaybeFilterDisableRenderers(
-                rendererTargeting
-                , rendererTargeting.RendererFilterForMaterial(
-                    rendererTargeting.ObserveToGet(
-                        thisObj
-                        , i => getRendererSelector(i).AutoSelectFilterMaterials.ToArray()//参照が同じになってしまうと比較できないから
-                        , (l, r) => l.SequenceEqual(r)
-                        )
-                    )
-                , thisObj
-                , getRendererSelector
-                );
+            switch (Mode)
+            {
+                default:
+                case RendererSelectMode.Auto:
+                    {
+                        if (UseMaterialFilteringForAutoSelect)
+                            return MaybeFilterDisableRenderers(domainView, domainView.RendererFilterForMaterial(AutoSelectFilterMaterials));
+                        else
+                            return MaybeFilterDisableRenderers(domainView, domainView.EnumerateRenderers());
+                    }
+                case RendererSelectMode.Manual:
+                    {
+                        return GetManualRenderers(domainView);
+                    }
+            }
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerable<Renderer> MaybeFilterDisableRenderers<TObj>(IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> r, TObj thisObj, Func<TObj, DecalRendererSelector> getRendererSelector)
-        where TObj : UnityEngine.Object
+        IEnumerable<Renderer> MaybeFilterDisableRenderers(IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> r)
         {
-            if (rendererTargeting.ObserveToGet(thisObj, i => getRendererSelector(i).IsAutoIncludingDisableRenderers)) return r;
-            return FilterDisableRenderers(rendererTargeting, r);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IEnumerable<Renderer> FilterDisableRenderers(IDomainReferenceViewer rendererTargeting, IEnumerable<Renderer> r)
-        {
+            if (IsAutoIncludingDisableRenderers) return r;
+            // TODO : これどうなの? IDomainReferenceViewer を頼りに探るべきでは
             return r.Where(i => rendererTargeting.ObserveToGet(i, r => r.gameObject.activeInHierarchy) && rendererTargeting.ObserveToGet(i, r => r.enabled));
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal HashSet<Material> GetAutoMaterialHashSet(IDomainReferenceViewer rendererTargeting)
+        IEnumerable<Renderer> GetManualRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return rendererTargeting.GetDomainsMaterialsHashSet(AutoSelectFilterMaterials);
-        }
-        // 自身のモードを確認していないため取り扱いには気を付けることね
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<Renderer> GetManualRenderers<TObj>(IDomainReferenceViewer rendererTargeting, TObj thisObj, Func<TObj, DecalRendererSelector> getRendererSelector)
-        where TObj : UnityEngine.Object
-        {
-            return rendererTargeting.GetDomainsRenderers(rendererTargeting.ObserveToGet(thisObj, i => getRendererSelector(i).ManualSelections.ToArray(), (l, r) => l.SequenceEqual(r)));
+            return rendererTargeting.GetDomainsRenderers(ManualSelections);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal HashSet<Material>? GetOrNullAutoMaterialHashSet(IDomainReferenceViewer rendererTargeting)
         {
             switch (Mode)
@@ -87,35 +87,13 @@ namespace net.rs64.TexTransTool.Decal
                 default: { return null; }
                 case RendererSelectMode.Auto:
                     {
-                        if (UseMaterialFilteringForAutoSelect) { return GetAutoMaterialHashSet(rendererTargeting); }
+                        if (UseMaterialFilteringForAutoSelect) { return rendererTargeting.GetDomainsMaterialsHashSet(AutoSelectFilterMaterials); }
                         return null;
                     }
 
             }
         }
-        internal IEnumerable<Renderer> GetSelectedOrIncludingAll<TObj>(IDomainReferenceViewer rendererTargeting, TObj thisObj, Func<TObj, DecalRendererSelector> getRendererSelector, out bool isIncludingAll)
-        where TObj : UnityEngine.Object
-        {
-            switch (rendererTargeting.ObserveToGet(thisObj, i => getRendererSelector(i).Mode))
-            {
-                default:
-                case RendererSelectMode.Auto:
-                    {
-                        if (rendererTargeting.ObserveToGet(thisObj, i => getRendererSelector(i).UseMaterialFilteringForAutoSelect))
-                        {
-                            isIncludingAll = false;
-                            return GetAutoMaterialFiltered(rendererTargeting, thisObj, getRendererSelector);
-                        }
-                        isIncludingAll = true;
-                        return MaybeFilterDisableRenderers(rendererTargeting, rendererTargeting.EnumerateRenderers(), thisObj, getRendererSelector);
-                    }
-                case RendererSelectMode.Manual:
-                    {
-                        isIncludingAll = false;
-                        return GetManualRenderers(rendererTargeting, thisObj, getRendererSelector);
-                    }
-            }
-        }
+
 
     }
 }

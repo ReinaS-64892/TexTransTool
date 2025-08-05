@@ -45,7 +45,7 @@ namespace net.rs64.TexTransTool.Decal
             var decalContext = GenerateDecalCtx(domain, ttce);
             decalContext.DrawMaskMaterials = RendererSelector.GetOrNullAutoMaterialHashSet(domain);
 
-            var targetRenderers = TargetRenderers(domain);
+            var targetRenderers = DecalContextUtility.FilterDecalTarget(domain, TargetRenderers(domain), TargetPropertyName);
             var blKey = ttce.QueryBlendKey(BlendTypeKey);
             using var gradTex = ttce.LoadTextureWidthFullScale(gradDiskTex);
 
@@ -100,12 +100,11 @@ namespace net.rs64.TexTransTool.Decal
             if (IslandSelector != null) { IslandSelector.OnDrawGizmosSelected(); }
             Gizmos.color = preCol;
         }
-
         internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
         {
-            return DecalContextUtility.FilterDecalTarget(rendererTargeting, RendererSelector.GetSelectedOrIncludingAll(rendererTargeting, this, GetDRS, out var _), TargetPropertyName);
+            var rendererSelector = rendererTargeting.ObserveToGet(this, b => new DecalRendererSelector(b.RendererSelector), DecalRendererSelector.ValueEqual);
+            return rendererSelector.GetSelected(rendererTargeting);
         }
-        DecalRendererSelector GetDRS(SingleGradationDecal d) => d.RendererSelector;
 
         bool ICanBehaveAsLayer.HaveBlendTypeKey => true;
         LayerObject<ITexTransToolForUnity> ICanBehaveAsLayer.GetLayerObject(GenerateLayerObjectContext ctx, AsLayer asLayer)

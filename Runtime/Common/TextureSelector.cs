@@ -20,23 +20,15 @@ namespace net.rs64.TexTransTool
             Relative,
         }
 
-
-
         [Obsolete("V6SaveData", true)][FormerlySerializedAs("TargetRenderer")] public Renderer RendererAsPath;
         [Obsolete("V6SaveData", true)][FormerlySerializedAs("MaterialSelect")] public int SlotAsPath = 0;
         [Obsolete("V6SaveData", true)][FormerlySerializedAs("TargetPropertyName")] public PropertyName PropertyNameAsPath = PropertyName.DefaultValue;
 
         #endregion V6SaveData
 
-        internal Texture GetTextureWithObserve<TObj>(IDomainReferenceViewer targeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
-        where TObj : UnityEngine.Object
+        internal static IEnumerable<Renderer> TargetRenderers(Texture selectTexture, IDomainReferenceViewer rendererTargeting)
         {
-            return targeting.ObserveToGet(thisObject, i => getThis(i).SelectTexture);
-        }
-        internal IEnumerable<Renderer> ModificationTargetRenderers<TObj>(IDomainReferenceViewer rendererTargeting, TObj thisObject, Func<TObj, TextureSelector> getThis)
-        where TObj : UnityEngine.Object
-        {
-            var targetTex = GetTextureWithObserve(rendererTargeting, thisObject, getThis);
+            var targetTex = selectTexture;
             var targetTextures = rendererTargeting.GetAllTextures().Where(t => rendererTargeting.OriginalObjectEquals(t, targetTex)).ToHashSet();
 
             if (targetTextures.Any() is false) { yield break; }

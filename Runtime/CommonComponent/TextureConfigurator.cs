@@ -32,7 +32,7 @@ namespace net.rs64.TexTransTool
             domain.Observe(this);
             if (OverrideTextureSetting is false && OverrideCompression is false) { return; }
 
-            var target = TargetTexture.GetTextureWithObserve(domain, this, GetTextureSelector);
+            var target = domain.ObserveToGet(this, tc => tc.TargetTexture.SelectTexture);
             if (target == null) { TTLog.Info("TextureConfigurator:info:TargetNotSet"); return; }
 
             var targetTextures = domain.GetDomainsTextures(target).OfType<Texture>().ToArray();
@@ -80,13 +80,10 @@ namespace net.rs64.TexTransTool
             return targetSizeTexture;
         }
 
-        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer rendererTargeting)
+        internal override IEnumerable<Renderer> TargetRenderers(IDomainReferenceViewer domainView)
         {
-            return TargetTexture.ModificationTargetRenderers(rendererTargeting, this, GetTextureSelector);
+            return TextureSelector.TargetRenderers(domainView.ObserveToGet(this, b => b.TargetTexture.SelectTexture), domainView);
         }
-        TextureSelector GetTextureSelector(TextureConfigurator texBlend) { return texBlend.TargetTexture; }
-
-
     }
 
 }
