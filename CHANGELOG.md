@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TexTransTool が NDMF によるビルドの場合に MA MaterialSwap によって追加されるマテリアルに対して ほぼすべてのコンポーネントが影響を与えられるようになりました (#1037)
 - UVDisassemblyPhase が追加されました (#1047)
+- NDMF Preview にて 同一フェーズ ではなくても、 MaterialModifier などのマテリアル改変系コンポーネントの影響でプレビュー範囲が変わるコンポーネントが正しい範囲で行われるようになりました (#1051)
 
 ### Dependency
 
